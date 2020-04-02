@@ -89,7 +89,7 @@ class ShieldCounter():
             if i + 1 < len(s) and s[i][1] == 0 and s[i+1][1] == 1 and s[i+1][0] - s[i][0] < 500:
                 s[i][1] = 2
                 s[i+1][1] = 2
-            if i + 1 < len(s) and s[i][1] == s[i+1][1]:
+            if i < len(s) and len(newList) > 0 and s[i][1] == newList[-1][1]:
                 s[i][1] = 2
             if s[i][1] != 2:
                 newList.append(s[i])
@@ -493,7 +493,7 @@ class XiangZhiAnalysis():
 
         paint(draw, "进本时间：%s"%battleDate, 500, 40, fontSmall, fillblack)
         paint(draw, "生成时间：%s"%generateDate, 500, 50, fontSmall, fillblack)
-        paint(draw, "版本号：1.2.1", 30, 590, fontSmall, fillblack)
+        paint(draw, "版本号：1.2.2", 30, 590, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 590, fontSmall, fillblack)
 
         image.save(filename)
