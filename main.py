@@ -3,6 +3,8 @@ from PIL import Image, ImageFont, ImageDraw
 from matplotlib.pyplot import imshow
 import numpy as np
 import time
+import winreg
+import configparser
 
 def parseLuatable(s, n, maxn):
     numLeft = 0
@@ -126,17 +128,22 @@ class StatGeneratorBase():
     bossname = ""
     battleTime = 0
     
-    def parseFile(self):
-        f = open(self.filename, "r")
+    def parseFile(self, path):
+        if path == "":
+            name = self.filename
+        else:
+            name = "%s\\%s"%(path, self.filename)
+        print("读取文件：%s"%name)
+        f = open(name, "r")
         s = f.read()
         res, _ = parseLuatable(s, 8, len(s))
         self.rawdata = res
         self.bossname = self.filename.split('_')[1]
         self.battleTime = int(self.filename.split('_')[2].split('.')[0])
     
-    def __init__(self, filename):
+    def __init__(self, filename, path):
         self.filename = filename
-        self.parseFile()
+        self.parseFile(path)
         pass
 
 class XiangZhiStatGenerator(StatGeneratorBase):
@@ -493,15 +500,15 @@ class XiangZhiAnalysis():
 
         paint(draw, "进本时间：%s"%battleDate, 500, 40, fontSmall, fillblack)
         paint(draw, "生成时间：%s"%generateDate, 500, 50, fontSmall, fillblack)
-        paint(draw, "版本号：1.2.2", 30, 590, fontSmall, fillblack)
+        paint(draw, "版本号：1.3.0", 30, 590, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 590, fontSmall, fillblack)
 
         image.save(filename)
     
-    def loadData(self, fileList):
+    def loadData(self, fileList, path):
         
         for filename in fileList:
-            res = XiangZhiStatGenerator(filename)
+            res = XiangZhiStatGenerator(filename, path)
             res.firstStageAnalysis()
             res.secondStageAnalysis()
             self.generator.append(res)
@@ -582,16 +589,43 @@ class XiangZhiAnalysis():
         
         self.data = data
     
-    def __init__(self, filelist):
-        self.loadData(filelist)
+    def __init__(self, filelist, path):
+        self.loadData(filelist, path)
         self.battledate = '-'.join(filelist[0].split('-')[0:3])
         
         
 class FileLookUp():
+
+    jx3path = ""
+    basepath = "."
     
-    def getLocalFile(self):
+    def getPathFromWinreg(self):
+        try:
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,r'SOFTWARE\JX3Installer',)
+            pathres = winreg.QueryValueEx(key, "InstPath")[0]
+        except:
+            print("自动获取目录失败，请手动指定目录")
+            pathres = ""
+        self.jx3path = pathres
         
-        filelist = os.listdir()
+    def getBasePath(self, playerName):
+        datapath = "%s\\Game\\JX3\\bin\\zhcn_hd\\interface\\MY#DATA"%self.jx3path
+        resDir = ""
+        l = os.listdir(datapath)
+        for name in l:
+            path2 = "%s\\%s"%(datapath, name)
+            if os.path.isdir(path2):
+                l2 = os.listdir(path2)
+                if playerName in l2:
+                    resDir = "%s\\userdata\\fight_stat"%path2
+                    break
+                    
+        self.basepath = resDir
+        if resDir == "":
+            print("剑三目录有误，请检查记录者角色名是否正确")
+        
+    def getLocalFile(self):
+        filelist = os.listdir(self.basepath)
 
         selectFileList = []
         for line in filelist:
@@ -604,7 +638,9 @@ class FileLookUp():
         bossPos[7] = 999
         bossList = [0] * len(selectFileList)
         for i in range(len(selectFileList)-1, -1, -1):
-            bossname = selectFileList[i].split('_')[1]
+            if selectFileList[i][-13:] == "config.jx3dat":
+                continue
+            bossname = selectFileList[i].split('_')[-2]
             if bossname in bossDict:
                 if bossDict[bossname] <= nowBoss:
                     bossPos[bossDict[bossname]] = i
@@ -625,6 +661,9 @@ class FileLookUp():
         for i in range(1, 7):
             if bossPos[i] != -1:
                 finalList.append(selectFileList[bossPos[i]])
+                
+        if finalList == "":
+            print("没有合适的战斗记录，请确认目录设置或角色是否正确。")
 
         return finalList
     
@@ -632,8 +671,37 @@ class FileLookUp():
         pass
     
 if __name__ == "__main__":
-    filelist = FileLookUp().getLocalFile()
-    b = XiangZhiAnalysis(filelist)
+
+    try:
+        cf = configparser.ConfigParser()
+        cf.read("config.ini", encoding="utf-8")
+        items = dict(cf.items("XiangZhiAnalysis"))
+    except:
+        items = {"playername": "", "basepath": "", "jx3path": ""}
+    
+    fileLookUp = FileLookUp()
+    if items["basepath"] != "":
+        print("指定基准目录，使用：%s"%item["basepath"])
+        fileLookUp.basepath = item["basepath"]
+    elif items["playername"] == "":
+        print("没有指定记录者角色名，将查找当前目录下的文件……")
+    else:
+        if items["jx3path"] != "":
+            print("指定剑三目录，使用：%s"%items["jx3path"])
+            fileLookUp.jx3path = item["jx3path"]
+            fileLookUp.getBasePath(items["playername"])
+        else:
+            print("无指定目录，自动查找目录……")
+            fileLookUp.getPathFromWinreg()
+            fileLookUp.getBasePath(items["playername"])
+
+    filelist = fileLookUp.getLocalFile()
+    print("开始分析。分析耗时可能较长，请耐心等待……")
+    
+    b = XiangZhiAnalysis(filelist, fileLookUp.basepath)
     b.analysis()
     b.paint("result.png")
+    
+    print("分析完成！结果保存在result.png中")
+    
     
