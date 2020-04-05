@@ -1,6 +1,5 @@
 import os
 from PIL import Image, ImageFont, ImageDraw
-from matplotlib.pyplot import imshow
 import numpy as np
 import time
 import winreg
@@ -74,7 +73,7 @@ class ShieldCounter():
     shieldDuration = [0, 0]
     startTime = 0
     finalTime = 0
-    nowi = 1
+    nowi = 0
     timeCount = 0
     
     def checkTime(self, time):
@@ -198,9 +197,9 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                             data.battlestat[item[4]][hasShield] += int(item[14])
 
             num += 1
-
+            
         numdam = 0
-        for key in data.battlestat.keys():
+        for key in data.battlestat:
             if int(occdict[key][0]) == 0:
                 continue
             line = data.battlestat[key]
@@ -285,17 +284,31 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         
         if self.myname == "":
             if len(XiangZhiList) >= 2:
-                raise Exception('奶歌的数量不止一个，请手动指示ID')
+                nameList = []
+                for line in XiangZhiList:
+                    nameList.append(namedict[line][0])
+                s = str(nameList)
+                raise Exception('奶歌的数量不止一个，请手动指示ID。可能的ID为：%s'%s)
             elif len(XiangZhiList) == 0:
                 raise Exception('没有找到奶歌，请确认数据是否正确')
             else:
                 self.mykey = XiangZhiList[0]
                 self.myname = namedict[self.mykey][0]
+        else:
+            for key in namedict:
+                if namedict[key][0].strip('"') == self.myname:
+                    self.mykey = key
         
         self.shieldCounters = {}
         for key in shieldLogDict:
             self.shieldCounters[key] = ShieldCounter(shieldLogDict[key], self.startTime, self.finalTime)
             self.shieldCounters[key].analysisShieldData()
+            
+    def __init__(self, filename, path, myname):
+        self.myname = myname
+        self.filename = filename
+        self.parseFile(path)
+            
             
 def parseCent(num):
     n = int(num * 10000)
@@ -369,6 +382,14 @@ class XiangZhiAnalysis():
     myname = ""
     generator = []
     battledate = ""
+    mask = 0
+    
+    def getMaskName(self, name):
+        s = name.strip('"')
+        if self.mask == 0:
+            return s
+        else:
+            return s[0] + '*' * (len(s)-1)
     
     def paint(self, filename):
         battleDate = self.battledate
@@ -422,9 +443,9 @@ class XiangZhiAnalysis():
 
         base = 345
         paint(draw, "DPS们并不都知道奶歌的人间冷暖，", 30, base, fontText, fillblack)
-        paint(draw, "盾平均覆盖率最高的是[%s]，达到了%s%%，"%(data.maxSingleRateName.strip('"'), parseCent(data.maxSingleRate)), 30, base+15, fontText, fillblack)
+        paint(draw, "盾平均覆盖率最高的是[%s]，达到了%s%%，"%(self.getMaskName(data.maxSingleRateName), parseCent(data.maxSingleRate)), 30, base+15, fontText, fillblack)
         paint(draw, "是因为好好保了盾，还是你更关注他一些?", 30, base+30, fontText, fillblack)
-        paint(draw, "而破盾次数最多的是[%s]，整个战斗中有%d次,"%(data.maxSingleBreakName.strip('"'), data.maxSingleBreak), 30, base+45, fontText, fillblack)
+        paint(draw, "而破盾次数最多的是[%s]，整个战斗中有%d次,"%(self.getMaskName(data.maxSingleBreakName), data.maxSingleBreak), 30, base+45, fontText, fillblack)
         paint(draw, "下次知道该把谁放在最后了吧！", 30, base+60, fontText, fillblack)
 
         base = 435
@@ -459,7 +480,7 @@ class XiangZhiAnalysis():
         h = 165
         for line in data.maxDpsTable:
             h += 10
-            paint(draw, "%s"%line[0].strip('"'), 480, h, fontSmall, fillblack)
+            paint(draw, "%s"%self.getMaskName(line[0]), 480, h, fontSmall, fillblack)
             paint(draw, "%d DPS"%int(line[1]), 535, h, fontSmall, fillblack) 
             if h > 290:
                 break
@@ -475,7 +496,7 @@ class XiangZhiAnalysis():
         h = 345
         for line in data.rateList:
             h += 10
-            paint(draw, "%s"%line[0].strip('"'), 370, h, fontSmall, fillblack) 
+            paint(draw, "%s"%self.getMaskName(line[0]), 370, h, fontSmall, fillblack) 
             paint(draw, "%s%%"%parseCent(line[1]), 420, h, fontSmall, fillblack) 
             if h > 500:
                 break
@@ -484,7 +505,7 @@ class XiangZhiAnalysis():
         h = 345
         for line in data.breakList:
             h += 10
-            paint(draw, "%s"%line[0].strip('"'), 490, h, fontSmall, fillblack) 
+            paint(draw, "%s"%self.getMaskName(line[0]), 490, h, fontSmall, fillblack) 
             paint(draw, "%d"%line[1], 550, h, fontSmall, fillblack)
             if h > 520:
                 break
@@ -493,14 +514,14 @@ class XiangZhiAnalysis():
         h = 530
         for line in data.npcHealList:
             h += 10
-            paint(draw, "%s"%line[0].strip('"'), 360, h, fontSmall, fillblack)
+            paint(draw, "%s"%self.getMaskName(line[0]), 360, h, fontSmall, fillblack)
             paint(draw, "%d"%line[1], 440, h, fontSmall, fillblack)
             if h > 580:
                 break
 
         paint(draw, "进本时间：%s"%battleDate, 500, 40, fontSmall, fillblack)
         paint(draw, "生成时间：%s"%generateDate, 500, 50, fontSmall, fillblack)
-        paint(draw, "版本号：1.3.0", 30, 590, fontSmall, fillblack)
+        paint(draw, "版本号：1.4.0", 30, 590, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 590, fontSmall, fillblack)
 
         image.save(filename)
@@ -508,7 +529,7 @@ class XiangZhiAnalysis():
     def loadData(self, fileList, path):
         
         for filename in fileList:
-            res = XiangZhiStatGenerator(filename, path)
+            res = XiangZhiStatGenerator(filename, path, self.myname)
             res.firstStageAnalysis()
             res.secondStageAnalysis()
             self.generator.append(res)
@@ -589,7 +610,9 @@ class XiangZhiAnalysis():
         
         self.data = data
     
-    def __init__(self, filelist, path):
+    def __init__(self, filelist, path, config):
+        self.myname = config.xiangzhiname
+        self.mask = config.mask
         self.loadData(filelist, path)
         self.battledate = '-'.join(filelist[0].split('-')[0:3])
         
@@ -669,36 +692,73 @@ class FileLookUp():
     
     def __init__(self):
         pass
+        
+class Config():
+
+    items = {}
+    
+    def checkItems(self):
+        try:
+            self.playername = self.items["playername"]
+            self.basepath = self.items["basepath"]
+            self.jx3path = self.items["jx3path"]
+            self.xiangzhiname = self.items["xiangzhiname"]
+            self.mask = int(self.items["mask"])
+            assert self.mask in [0, 1]
+        except:
+            raise Exception("配置文件格式不正确，请确认。如无法定位问题，请删除config.ini，在生成的配置文件的基础上进行修改。")
+    
+    def printDefault(self):
+        g = open("config.ini", "w")
+        g.write("""[XiangZhiAnalysis]
+playername=
+jx3path=
+basepath=
+xiangzhiname=
+mask=0""")
+        g.close()
+        pass
+    
+    def setDefault(self):
+        self.playername = ""
+        self.basepath = ""
+        self.jx3path = ""
+    
+    def __init__(self, filename):
+        if not os.path.isfile(filename):
+            print("配置文件不存在，使用默认配置并自动生成到config.ini")
+            self.setDefault()
+            self.printDefault()
+        else:
+            cf = configparser.ConfigParser()
+            cf.read("config.ini", encoding="utf-8")
+            self.items = dict(cf.items("XiangZhiAnalysis"))
+            self.checkItems()
     
 if __name__ == "__main__":
 
-    try:
-        cf = configparser.ConfigParser()
-        cf.read("config.ini", encoding="utf-8")
-        items = dict(cf.items("XiangZhiAnalysis"))
-    except:
-        items = {"playername": "", "basepath": "", "jx3path": ""}
+    config = Config("config.ini")
     
     fileLookUp = FileLookUp()
-    if items["basepath"] != "":
-        print("指定基准目录，使用：%s"%item["basepath"])
-        fileLookUp.basepath = item["basepath"]
-    elif items["playername"] == "":
+    if config.basepath != "":
+        print("指定基准目录，使用：%s"%config.basepath)
+        fileLookUp.basepath = config.basepath
+    elif config.playername == "":
         print("没有指定记录者角色名，将查找当前目录下的文件……")
     else:
-        if items["jx3path"] != "":
-            print("指定剑三目录，使用：%s"%items["jx3path"])
-            fileLookUp.jx3path = item["jx3path"]
-            fileLookUp.getBasePath(items["playername"])
+        if config.jx3path != "":
+            print("指定剑三目录，使用：%s"%config.jx3path)
+            fileLookUp.jx3path = config.jx3path
+            fileLookUp.getBasePath(config.playername)
         else:
             print("无指定目录，自动查找目录……")
             fileLookUp.getPathFromWinreg()
-            fileLookUp.getBasePath(items["playername"])
+            fileLookUp.getBasePath(config.playername)
 
     filelist = fileLookUp.getLocalFile()
     print("开始分析。分析耗时可能较长，请耐心等待……")
     
-    b = XiangZhiAnalysis(filelist, fileLookUp.basepath)
+    b = XiangZhiAnalysis(filelist, fileLookUp.basepath, config)
     b.analysis()
     b.paint("result.png")
     
