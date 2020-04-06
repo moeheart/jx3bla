@@ -521,7 +521,7 @@ class XiangZhiAnalysis():
 
         paint(draw, "进本时间：%s"%battleDate, 500, 40, fontSmall, fillblack)
         paint(draw, "生成时间：%s"%generateDate, 500, 50, fontSmall, fillblack)
-        paint(draw, "版本号：1.4.1", 30, 590, fontSmall, fillblack)
+        paint(draw, "版本号：1.4.2", 30, 590, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 590, fontSmall, fillblack)
 
         image.save(filename)
@@ -763,5 +763,7 @@ if __name__ == "__main__":
     b.paint("result.png")
     
     print("分析完成！结果保存在result.png中")
+    
+    os.system('pause')
     
     
