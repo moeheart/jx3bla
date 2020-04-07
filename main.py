@@ -4,6 +4,7 @@ import numpy as np
 import time
 import winreg
 import configparser
+import traceback
 
 def parseLuatable(s, n, maxn):
     numLeft = 0
@@ -94,10 +95,14 @@ class ShieldCounter():
                 s[i][1] = 2
             if s[i][1] != 2:
                 newList.append(s[i])
-        if newList[0][1] == 0:
-            newList = [[self.startTime, 1]] + newList
+                
+        if newList == []:
+            newList = [[self.startTime, 0]]
         else:
-            newList = [[self.startTime, 0]] + newList
+            if newList[0][1] == 0:
+                newList = [[self.startTime, 1]] + newList
+            else:
+                newList = [[self.startTime, 0]] + newList
             
         self.shieldLog = newList
 
@@ -274,6 +279,11 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                     MoWenList.append(item[4])
                 if item[4] not in XiangZhiList and item[7] in ["14231", "14140", "14301"]:
                     XiangZhiList.append(item[4])
+                if item[7] == "14231":
+                    if item[5] not in shieldLogDict:
+                        shieldLogDict[item[5]] = [[int(item[2]), 1]]
+                    else:
+                        shieldLogDict[item[5]].append([int(item[2]), 1])
                     
             if len(item) == 13:
                 if item[6] == "9334": #buff梅花三弄
@@ -405,12 +415,21 @@ class XiangZhiAnalysis():
                 font = font,
                 fill = fill
             )
+            
+        fontPath = 'C:\\Windows\\Fonts\\msyh.ttc'
+        if not os.path.isfile(fontPath):
+            print("系统中未找到字体文件，将在当前目录下查找msyh.ttc")
+            fontPath = 'msyh.ttc'
+            if not os.path.isfile(fontPath):
+                print("当前目录下也没有，请尝试从群文件或Github上获取")
+                raise Exception("找不到字体文件：msyh.ttc")
+                
+        fontTitle = ImageFont.truetype(font=fontPath, encoding="unic", size=24)
+        fontText = ImageFont.truetype(font=fontPath, encoding="unic", size=14)
+        fontSmall = ImageFont.truetype(font=fontPath, encoding="unic", size=8)
+        fontBig = ImageFont.truetype(font=fontPath, encoding="unic", size=48)
 
         image = Image.new(mode='RGB', size=(width, height), color=(255, 255, 255))
-        fontTitle = ImageFont.truetype(font='C:\\Windows\\Fonts\\msyh.ttc', encoding="unic", size=24)
-        fontText = ImageFont.truetype(font='C:\\Windows\\Fonts\\msyh.ttc', encoding="unic", size=14)
-        fontSmall = ImageFont.truetype(font='C:\\Windows\\Fonts\\msyh.ttc', encoding="unic", size=8)
-        fontBig = ImageFont.truetype(font='C:\\Windows\\Fonts\\msyh.ttc', encoding="unic", size=48)
         fillcyan = (0, 255, 255)
         fillblack = (0, 0, 0)
         draw = ImageDraw.Draw(image)
@@ -521,7 +540,7 @@ class XiangZhiAnalysis():
 
         paint(draw, "进本时间：%s"%battleDate, 500, 40, fontSmall, fillblack)
         paint(draw, "生成时间：%s"%generateDate, 500, 50, fontSmall, fillblack)
-        paint(draw, "版本号：1.4.2", 30, 590, fontSmall, fillblack)
+        paint(draw, "版本号：1.5.0", 30, 590, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 590, fontSmall, fillblack)
 
         image.save(filename)
@@ -737,33 +756,37 @@ mask=0""")
     
 if __name__ == "__main__":
 
-    config = Config("config.ini")
-    
-    fileLookUp = FileLookUp()
-    if config.basepath != "":
-        print("指定基准目录，使用：%s"%config.basepath)
-        fileLookUp.basepath = config.basepath
-    elif config.playername == "":
-        print("没有指定记录者角色名，将查找当前目录下的文件……")
-    else:
-        if config.jx3path != "":
-            print("指定剑三目录，使用：%s"%config.jx3path)
-            fileLookUp.jx3path = config.jx3path
-            fileLookUp.getBasePath(config.playername)
+    try:
+        config = Config("config.ini")
+        
+        fileLookUp = FileLookUp()
+        if config.basepath != "":
+            print("指定基准目录，使用：%s"%config.basepath)
+            fileLookUp.basepath = config.basepath
+        elif config.playername == "":
+            print("没有指定记录者角色名，将查找当前目录下的文件……")
         else:
-            print("无指定目录，自动查找目录……")
-            fileLookUp.getPathFromWinreg()
-            fileLookUp.getBasePath(config.playername)
+            if config.jx3path != "":
+                print("指定剑三目录，使用：%s"%config.jx3path)
+                fileLookUp.jx3path = config.jx3path
+                fileLookUp.getBasePath(config.playername)
+            else:
+                print("无指定目录，自动查找目录……")
+                fileLookUp.getPathFromWinreg()
+                fileLookUp.getBasePath(config.playername)
 
-    filelist = fileLookUp.getLocalFile()
-    print("开始分析。分析耗时可能较长，请耐心等待……")
-    
-    b = XiangZhiAnalysis(filelist, fileLookUp.basepath, config)
-    b.analysis()
-    b.paint("result.png")
-    
-    print("分析完成！结果保存在result.png中")
-    
+        filelist = fileLookUp.getLocalFile()
+        print("开始分析。分析耗时可能较长，请耐心等待……")
+        
+        b = XiangZhiAnalysis(filelist, fileLookUp.basepath, config)
+        b.analysis()
+        b.paint("result.png")
+        
+        print("分析完成！结果保存在result.png中")
+        
+    except Exception as e:
+        traceback.print_exc()
+        
     os.system('pause')
     
     
