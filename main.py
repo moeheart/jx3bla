@@ -255,6 +255,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         res = self.rawdata
         
         namedict = res['9'][0]
+        
         occdict = res['10'][0]
         sk = res['16'][0][""]
         
@@ -540,7 +541,7 @@ class XiangZhiAnalysis():
 
         paint(draw, "进本时间：%s"%battleDate, 500, 40, fontSmall, fillblack)
         paint(draw, "生成时间：%s"%generateDate, 500, 50, fontSmall, fillblack)
-        paint(draw, "版本号：1.5.0", 30, 590, fontSmall, fillblack)
+        paint(draw, "版本号：1.5.2", 30, 590, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 590, fontSmall, fillblack)
 
         image.save(filename)
@@ -728,7 +729,7 @@ class Config():
             raise Exception("配置文件格式不正确，请确认。如无法定位问题，请删除config.ini，在生成的配置文件的基础上进行修改。")
     
     def printDefault(self):
-        g = open("config.ini", "w")
+        g = open("config.ini", "w", encoding="utf-8")
         g.write("""[XiangZhiAnalysis]
 playername=
 jx3path=
@@ -749,10 +750,16 @@ mask=0""")
             self.setDefault()
             self.printDefault()
         else:
-            cf = configparser.ConfigParser()
-            cf.read("config.ini", encoding="utf-8")
-            self.items = dict(cf.items("XiangZhiAnalysis"))
-            self.checkItems()
+            try:
+                cf = configparser.ConfigParser()
+                cf.read("config.ini", encoding="utf-8")
+                self.items = dict(cf.items("XiangZhiAnalysis"))
+                self.checkItems()
+            except:
+                cf = configparser.ConfigParser()
+                cf.read("config.ini", encoding="gbk")
+                self.items = dict(cf.items("XiangZhiAnalysis"))
+                self.checkItems()
     
 if __name__ == "__main__":
 
