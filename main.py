@@ -123,7 +123,50 @@ class ShieldCounter():
         self.startTime = startTime
         self.finalTime = finalTime
         
+class SkillCounter():
 
+    skillLog = []
+    actLog = []
+    startTime = 0
+    finalTime = 0
+    haste = 3770
+    sumBusyTime = 0
+    sumSpareTime = 0
+    
+    def getLength(self, length):
+        if length == 24:
+            return 1187.5
+        elif length == 16:
+            return 812.5
+    
+    def analysisSkillData(self):
+        for line in self.skillLog:
+            if line[1] in [14137, 14300]: #宫，变宫
+                self.actLog.append([line[0] - self.getLength(24), self.getLength(24)])
+            elif line[1] in [14140, 14301]: #徵，变徵
+                self.actLog.append([line[0] - self.getLength(16), self.getLength(16)])
+            else:
+                self.actLog.append([line[0], self.getLength(24)])
+                
+        self.actLog.sort(key = lambda x: x[0])
+        
+        nowTime = self.startTime
+        self.sumBusyTime = 0
+        self.sumSpareTime = 0
+        for line in self.actLog:
+            if line[0] > nowTime:
+                self.sumSpareTime += line[0] - nowTime
+                self.sumBusyTime += line[1]
+                nowTime = line[0] + line[1]
+            elif line[0] + line[1] > nowTime:
+                self.sumBusyTime += line[0] + line[1] - nowTime
+                nowTime = line[0] + line[1]
+                
+    
+    def __init__(self, skillLog, startTime, finalTime):
+        self.skillLog = skillLog
+        self.startTime = startTime
+        self.finalTime = finalTime
 
 class StatGeneratorBase():
     
@@ -169,6 +212,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         data = XiangZhiData()
 
         num = 0
+        skillLog = []
 
         for line in sk:
             item = line[""]
@@ -178,6 +222,9 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                 if item[4] == self.mykey and item[11] != '0':
                     data.numheal += int(item[11])
                     data.numeffheal += int(item[12])
+                    
+                if item[4] == self.mykey and item[6] == "1":
+                    skillLog.append([int(item[2]), int(item[7])])
                     
                 if item[12] != '0' and item[5] == self.npckey:
                     if namedict[item[4]][0] not in data.npchealstat:
@@ -202,6 +249,15 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                             data.battlestat[item[4]][hasShield] += int(item[14])
 
             num += 1
+            
+        skillCounter = SkillCounter(skillLog, self.startTime, self.finalTime)
+        skillCounter.analysisSkillData()
+        #print(skillLog)
+        data.sumBusyTime = skillCounter.sumBusyTime
+        data.sumSpareTime = skillCounter.sumSpareTime
+        data.spareRate = data.sumSpareTime / (data.sumBusyTime + data.sumSpareTime + 1e-10)
+        print(data.spareRate)
+        
             
         numdam = 0
         for key in data.battlestat:
@@ -357,6 +413,9 @@ class XiangZhiData():
         self.durationDict = {}
         self.breakDict = {}
         self.overallrate = 0
+        self.sumSpareTime = 0
+        self.sumBusyTime = 0
+        self.spareRate = 0
         
 class XiangZhiOverallData(XiangZhiData):
     
@@ -541,7 +600,7 @@ class XiangZhiAnalysis():
 
         paint(draw, "进本时间：%s"%battleDate, 500, 40, fontSmall, fillblack)
         paint(draw, "生成时间：%s"%generateDate, 500, 50, fontSmall, fillblack)
-        paint(draw, "版本号：1.5.2", 30, 590, fontSmall, fillblack)
+        paint(draw, "版本号：1.6.0", 30, 590, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 590, fontSmall, fillblack)
 
         image.save(filename)
@@ -626,6 +685,12 @@ class XiangZhiAnalysis():
             data.npcSumHeal += line[1]
         data.npcHealRate = data.npcHeal / (data.npcSumHeal + 1e-10)
         
+        for line in generator:
+            data.sumBusyTime += line.data.sumBusyTime
+            data.sumSpareTime += line.data.sumSpareTime
+            
+        data.spareRate = data.sumSpareTime / (data.sumBusyTime + data.sumSpareTime + 1e-10)
+        print(data.spareRate)
         
         
         self.data = data
