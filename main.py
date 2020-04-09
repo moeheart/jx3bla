@@ -188,10 +188,130 @@ class StatGeneratorBase():
         self.bossname = self.filename.split('_')[1]
         self.battleTime = int(self.filename.split('_')[2].split('.')[0])
     
-    def __init__(self, filename, path):
-        self.filename = filename
-        self.parseFile(path)
-        pass
+    def __init__(self, filename, path = "", rawdata = {}):
+        if rawdata == {}:
+            self.filename = filename
+            self.parseFile(path)
+        else:
+            self.filename = filename
+            self.rawdata = rawdata
+            self.bossname = self.filename.split('_')[1]
+            self.battleTime = int(self.filename.split('_')[2].split('.')[0])
+        
+class ActorStatGenerator(StatGeneratorBase):
+
+    def secondStageAnalysis(self):
+        res = self.rawdata
+        
+        namedict = res['9'][0]
+        occdict = res['10'][0]
+        sk = res['16'][0][""]
+        
+        data = XiangZhiData()
+
+        num = 0
+        skillLog = []
+
+        for line in sk:
+            item = line[""]
+            
+            if len(item) == 16:
+                
+                if item[4] == self.mykey and item[11] != '0':
+                    data.numheal += int(item[11])
+                    data.numeffheal += int(item[12])
+                    
+                if item[4] == self.mykey and item[6] == "1":
+                    skillLog.append([int(item[2]), int(item[7])])
+                    
+                if item[12] != '0' and item[5] == self.npckey:
+                    if namedict[item[4]][0] not in data.npchealstat:
+                        data.npchealstat[namedict[item[4]][0]] = int(item[12])
+                    else:
+                        data.npchealstat[namedict[item[4]][0]] += int(item[12])
+                            
+                if item[7] == "14231": #梅花三弄
+                    data.numshield += 1
+
+                if item[7] == "14169": #一指回鸾
+                    data.numpurge += 1
+
+                if int(item[14]) > 0:
+                    if item[4] in self.shieldCounters:
+                        if item[4] not in data.battlestat:
+                            data.battlestat[item[4]] = [0, 0, 0]
+                        if int(item[7]) >= 21827 and int(item[7]) <= 21831: #桑柔
+                            data.battlestat[item[4]][2] += int(item[14])
+                        else:
+                            hasShield = self.shieldCounters[item[4]].checkTime(int(item[2]))
+                            data.battlestat[item[4]][hasShield] += int(item[14])
+
+            num += 1
+            
+        skillCounter = SkillCounter(skillLog, self.startTime, self.finalTime)
+        skillCounter.analysisSkillData()
+        #print(skillLog)
+        data.sumBusyTime = skillCounter.sumBusyTime
+        data.sumSpareTime = skillCounter.sumSpareTime
+        data.spareRate = data.sumSpareTime / (data.sumBusyTime + data.sumSpareTime + 1e-10)
+        #print(data.spareRate)
+        
+            
+        numdam = 0
+        for key in data.battlestat:
+            if int(occdict[key][0]) == 0:
+                continue
+            line = data.battlestat[key]
+            data.damageDict[namedict[key][0]] = line[0] + line[1] / 1.139
+            numdam += line[1] / 1.139 * 0.139 + line[2]
+        
+        if self.myname not in data.damageDict:
+            data.damageDict[self.myname] = numdam
+        else:
+            data.damageDict[self.myname] += numdam
+            
+        data.damageList = dictToPairs(data.damageDict)
+        data.damageList.sort(key = lambda x: -x[1])
+
+        sumdamage = 0
+        numid = 0
+        for line in data.damageList:
+            line[1] /= self.battleTime
+            sumdamage += line[1]
+            numid += 1
+            if line[0] == self.myname and data.myrank == 0:
+                data.myrank = numid
+                data.mydamage = line[1]
+                sumdamage -= line[1]
+                
+        for key in self.shieldCounters:
+            if int(occdict[key][0]) in [0, ]:
+                continue
+            if namedict[key][0] not in data.damageDict or data.damageDict[namedict[key][0]] < 10000:
+                continue
+
+            rate = self.shieldCounters[key].shieldDuration[1] / \
+                (self.shieldCounters[key].shieldDuration[0] + self.shieldCounters[key].shieldDuration[1] + 1e-10)
+            data.rateDict[namedict[key][0]] = rate
+            data.durationDict[namedict[key][0]] = self.shieldCounters[key].shieldDuration[1]
+            data.breakDict[namedict[key][0]] = self.shieldCounters[key].breakCount
+            
+        data.equalDPS = data.mydamage / (sumdamage + 1e-10) * (len(data.durationDict) - 1)
+        #print(data.equalDPS)
+        
+        numrate = 0
+        sumrate = 0
+
+        for key in data.rateDict:
+            numrate += 1
+            sumrate += data.rateDict[key]
+
+        data.overallrate = sumrate / (numrate + 1e-10)
+        
+        self.data = data
+    
+    pass
+        
 
 class XiangZhiStatGenerator(StatGeneratorBase):
     
@@ -247,6 +367,11 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                         else:
                             hasShield = self.shieldCounters[item[4]].checkTime(int(item[2]))
                             data.battlestat[item[4]][hasShield] += int(item[14])
+                            
+            elif len(item) == 13:
+                if item[6] == "15868": #内场buff
+                    if item[5] == self.mykey:
+                        data.innerPlace = 1
 
             num += 1
             
@@ -256,8 +381,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         data.sumBusyTime = skillCounter.sumBusyTime
         data.sumSpareTime = skillCounter.sumSpareTime
         data.spareRate = data.sumSpareTime / (data.sumBusyTime + data.sumSpareTime + 1e-10)
-        print(data.spareRate)
-        
+        #print(data.spareRate)
             
         numdam = 0
         for key in data.battlestat:
@@ -275,13 +399,16 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         data.damageList = dictToPairs(data.damageDict)
         data.damageList.sort(key = lambda x: -x[1])
 
+        sumdamage = 0
         numid = 0
         for line in data.damageList:
             line[1] /= self.battleTime
+            sumdamage += line[1]
             numid += 1
             if line[0] == self.myname and data.myrank == 0:
                 data.myrank = numid
                 data.mydamage = line[1]
+                sumdamage -= line[1]
                 
         for key in self.shieldCounters:
             if int(occdict[key][0]) in [0, ]:
@@ -294,7 +421,10 @@ class XiangZhiStatGenerator(StatGeneratorBase):
             data.rateDict[namedict[key][0]] = rate
             data.durationDict[namedict[key][0]] = self.shieldCounters[key].shieldDuration[1]
             data.breakDict[namedict[key][0]] = self.shieldCounters[key].breakCount
-
+            
+        data.equalDPS = data.mydamage / (sumdamage + 1e-10) * (len(data.durationDict) - 1)
+        #print(data.equalDPS)
+        
         numrate = 0
         sumrate = 0
 
@@ -309,6 +439,9 @@ class XiangZhiStatGenerator(StatGeneratorBase):
     def firstStageAnalysis(self):
         
         res = self.rawdata
+        
+        if '9' not in res:
+            raise Exception("数据不完整，无法生成，请确认是否生成了正确的茗伊战斗复盘记录。")
         
         namedict = res['9'][0]
         
@@ -373,17 +506,21 @@ class XiangZhiStatGenerator(StatGeneratorBase):
             
     def __init__(self, filename, path, myname):
         self.myname = myname
-        self.filename = filename
-        self.parseFile(path)
+        super().__init__(filename, path)
+        #self.filename = filename
+        #self.parseFile(path)
             
             
-def parseCent(num):
+def parseCent(num, digit = 2):
     n = int(num * 10000)
     n1 = str(n // 100)
     n2 = str(n % 100)
     if len(n2) == 1:
         n2 = '0' + n2
-    return "%s.%s"%(n1, n2)
+    if digit == 2:
+        return "%s.%s"%(n1, n2)
+    else:
+        return "%s"%n1
 
 def plusDict(d1, d2):
     d = {}
@@ -395,6 +532,14 @@ def plusDict(d1, d2):
         else:
             d[key] = d2[key]
     return d
+    
+class ActorData():
+    def __init__(self):
+        self.no1LockDict = {}
+        self.no1FaceDict = {}
+        self.no2FaceDict = {}
+        self.no5HitDict = {}
+        self.no6HitDict = {}
 
 class XiangZhiData():
     
@@ -409,6 +554,7 @@ class XiangZhiData():
         self.npchealstat = {}
         self.damageDict = {}
         self.damageList = []
+        self.equalDPS = 0
         self.rateDict = {}
         self.durationDict = {}
         self.breakDict = {}
@@ -416,6 +562,7 @@ class XiangZhiData():
         self.sumSpareTime = 0
         self.sumBusyTime = 0
         self.spareRate = 0
+        self.innerPlace = 0
         
 class XiangZhiOverallData(XiangZhiData):
     
@@ -435,6 +582,9 @@ class XiangZhiOverallData(XiangZhiData):
         self.rateList = []
         self.breakList = []
         
+        self.bossRateDict = {}
+        self.bossBreakDict = {}
+        
         self.maxSingleRate = 0
         self.maxSingleRateName = ""
         self.maxSingleBreak = 0
@@ -446,6 +596,8 @@ class XiangZhiOverallData(XiangZhiData):
         self.npcHeal = 0
         self.npcSumHeal = 0
         self.npcHealRate = 0
+        
+        self.spareRateList = []
 
 class XiangZhiAnalysis():
     
@@ -465,8 +617,8 @@ class XiangZhiAnalysis():
         battleDate = self.battledate
         generateDate = time.strftime("%Y-%m-%d", time.localtime())
 
-        width = 600
-        height = 600
+        width = 800
+        height = 800
 
         def paint(draw, content, posx, posy, font, fill):
             draw.text(
@@ -632,7 +784,7 @@ class XiangZhiAnalysis():
 
 
         for line in generator:
-            data.dpsTable.append([line.bossname.strip('"'), line.data.mydamage, line.data.myrank])
+            data.dpsTable.append([line.bossname.strip('"'), line.data.mydamage, line.data.myrank, line.data.equalDPS, len(line.data.durationDict)])
             if line.data.myrank < data.maxDpsRank or (line.data.myrank == data.maxDpsRank and line.data.mydamage > data.maxDps):
                 data.maxDpsName = line.bossname.strip('"')
                 data.maxDps = line.data.mydamage
@@ -662,6 +814,26 @@ class XiangZhiAnalysis():
         data.rateList.sort(key=lambda x:-x[1])
         data.breakList.sort(key=lambda x:-x[1])
         
+        for line in data.rateList:
+            data.bossRateDict[line[0]] = [0, 0, 0]
+        
+        for line in data.breakList:
+            data.bossBreakDict[line[0]] = [0, 0, 0]
+        
+        for line in generator:
+            bossNameList = ["铁黎", "陈徽", "藤原武裔"]
+            for i in range(len(bossNameList)):
+                if line.bossname == bossNameList[i]:
+                    for line2 in line.data.durationDict:
+                        data.bossRateDict[line2][i] = line.data.durationDict[line2] / (line.battleTime * 1000)
+                    for line2 in line.data.breakDict:
+                        data.bossBreakDict[line2][i] = line.data.breakDict[line2]
+        
+        #print(data.bossRateDict)
+        #print(data.bossBreakDict)
+        
+        #print(len(data.rateList))
+        
         data.maxSingleRate = data.rateList[0][1]
         data.maxSingleRateName = data.rateList[0][0].strip("")
         data.maxSingleBreak = data.breakList[0][1]
@@ -688,9 +860,10 @@ class XiangZhiAnalysis():
         for line in generator:
             data.sumBusyTime += line.data.sumBusyTime
             data.sumSpareTime += line.data.sumSpareTime
+            data.spareRateList.append([line.bossname.strip('"'), line.data.spareRate])
             
         data.spareRate = data.sumSpareTime / (data.sumBusyTime + data.sumSpareTime + 1e-10)
-        print(data.spareRate)
+        #print(data.spareRate)
         
         
         self.data = data
