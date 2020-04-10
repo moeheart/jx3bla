@@ -415,6 +415,8 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                 continue
             if namedict[key][0] not in data.damageDict or data.damageDict[namedict[key][0]] < 10000:
                 continue
+            if key == self.mykey:
+                continue
 
             rate = self.shieldCounters[key].shieldDuration[1] / \
                 (self.shieldCounters[key].shieldDuration[0] + self.shieldCounters[key].shieldDuration[1] + 1e-10)
@@ -476,7 +478,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                         shieldLogDict[item[5]].append([int(item[2]), 1])
                     
             if len(item) == 13:
-                if item[6] == "9334": #buff梅花三弄
+                if item[6] in ["9334", "16911"]: #buff梅花三弄
                     if item[5] not in shieldLogDict:
                         shieldLogDict[item[5]] = [[int(item[2]), int(item[10])]]
                     else:
@@ -503,6 +505,11 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         for key in shieldLogDict:
             self.shieldCounters[key] = ShieldCounter(shieldLogDict[key], self.startTime, self.finalTime)
             self.shieldCounters[key].analysisShieldData()
+            
+        for key in occdict:
+            if occdict[key] != 0 and key not in self.shieldCounters:
+                self.shieldCounters[key] = ShieldCounter([], self.startTime, self.finalTime)
+                self.shieldCounters[key].analysisShieldData()
             
     def __init__(self, filename, path, myname):
         self.myname = myname
@@ -574,6 +581,7 @@ class XiangZhiOverallData(XiangZhiData):
         self.maxDpsName = ""
         self.maxDps = 0
         self.maxDpsRank = 999
+        self.maxEqualDPS = 0
         
         self.rateTable = []
         self.maxRateName = ""
@@ -790,6 +798,7 @@ class XiangZhiAnalysis():
                 data.maxDps = line.data.mydamage
                 data.maxDpsRank = line.data.myrank
                 data.maxDpsTable = line.data.damageList
+                data.maxEqualDPS = line.data.equalDPS
 
         for line in generator:
             data.rateTable.append([line.bossname.strip('"'), line.data.overallrate])
