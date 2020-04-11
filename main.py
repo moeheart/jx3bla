@@ -66,6 +66,11 @@ def dictToPairs(dict):
     for key in dict:
         pairs.append([key, dict[key]])
     return pairs
+    
+def calculSpeed(speed, origin):
+    tmp = int(speed / 188.309 * 10.24);
+    y = int(origin*1024/(tmp+1024));
+    return y
 
 class ShieldCounter():
     
@@ -129,15 +134,13 @@ class SkillCounter():
     actLog = []
     startTime = 0
     finalTime = 0
-    haste = 3770
+    speed = 3770
     sumBusyTime = 0
     sumSpareTime = 0
     
     def getLength(self, length):
-        if length == 24:
-            return 1187.5
-        elif length == 16:
-            return 812.5
+        flames = calculSpeed(self.speed, length)
+        return flames * 0.0625 * 1000
     
     def analysisSkillData(self):
         for line in self.skillLog:
@@ -613,6 +616,7 @@ class XiangZhiAnalysis():
     generator = []
     battledate = ""
     mask = 0
+    speed = 3770
     
     def getMaskName(self, name):
         s = name.strip('"')
@@ -622,11 +626,14 @@ class XiangZhiAnalysis():
             return s[0] + '*' * (len(s)-1)
     
     def paint(self, filename):
+    
+        data = self.data
+    
         battleDate = self.battledate
         generateDate = time.strftime("%Y-%m-%d", time.localtime())
 
-        width = 800
-        height = 800
+        width = 750
+        height = 750
 
         def paint(draw, content, posx, posy, font, fill):
             draw.text(
@@ -635,7 +642,7 @@ class XiangZhiAnalysis():
                 font = font,
                 fill = fill
             )
-            
+
         fontPath = 'C:\\Windows\\Fonts\\msyh.ttc'
         if not os.path.isfile(fontPath):
             print("系统中未找到字体文件，将在当前目录下查找msyh.ttc")
@@ -643,7 +650,7 @@ class XiangZhiAnalysis():
             if not os.path.isfile(fontPath):
                 print("当前目录下也没有，请尝试从群文件或Github上获取")
                 raise Exception("找不到字体文件：msyh.ttc")
-                
+
         fontTitle = ImageFont.truetype(font=fontPath, encoding="unic", size=24)
         fontText = ImageFont.truetype(font=fontPath, encoding="unic", size=14)
         fontSmall = ImageFont.truetype(font=fontPath, encoding="unic", size=8)
@@ -654,10 +661,8 @@ class XiangZhiAnalysis():
         fillblack = (0, 0, 0)
         draw = ImageDraw.Draw(image)
 
-        paint(draw, "敖龙岛战斗记录-奶歌", 190, 10, fontTitle, fillcyan)
+        paint(draw, "敖龙岛战斗记录-奶歌", 265, 10, fontTitle, fillcyan)
         paint(draw, "可爱的奶歌[%s]："%self.myname.strip('"'), 10, 50, fontText, fillblack)
-
-        data = self.data
 
         base = 75
         paint(draw, "在这次敖龙岛之旅中，", 30, base, fontText, fillblack)
@@ -671,97 +676,134 @@ class XiangZhiAnalysis():
         paint(draw, "你的高光时刻是在与[%s]的战斗中，"%data.maxDpsName, 30, base+15, fontText, fillblack)
         paint(draw, "如果将[庄周梦]和[桑柔]改为计算在你身上，", 30, base+30, fontText, fillblack)
         paint(draw, "相当于你打了%d点DPS，"%data.maxDps, 30, base+45, fontText, fillblack)
-        paint(draw, "在所有DPS中排在第%d位，"%data.maxDpsRank, 30, base+60, fontText, fillblack)
-        paint(draw, "是不是又觉得自己的门票稳了一些！", 30, base+75, fontText, fillblack)
+        paint(draw, "是平均数的%.2f倍，"%data.maxEqualDPS, 30, base+60, fontText, fillblack)
+        paint(draw, "在所有DPS中排在第%d位，"%data.maxDpsRank, 30, base+75, fontText, fillblack)
+        paint(draw, "是不是又觉得自己的门票稳了一些！", 30, base+90, fontText, fillblack)
 
-        base = 270
+        base = 285
         paint(draw, "并非每时每刻都能感受到梅花三弄的体贴，", 30, base, fontText, fillblack)
         paint(draw, "整个战斗中，梅花三弄的平均覆盖率是%s%%，"%parseCent(data.overallrate), 30, base+15, fontText, fillblack)
         paint(draw, "其中最高的BOSS是[%s]，覆盖率为%s%%"%(data.maxRateName, parseCent(data.maxRate)), 30, base+30, fontText, fillblack)
         paint(draw, "和你想象中的一样吗？", 30, base+45, fontText, fillblack)
 
-        base = 345
+        base = 360
         paint(draw, "DPS们并不都知道奶歌的人间冷暖，", 30, base, fontText, fillblack)
         paint(draw, "盾平均覆盖率最高的是[%s]，达到了%s%%，"%(self.getMaskName(data.maxSingleRateName), parseCent(data.maxSingleRate)), 30, base+15, fontText, fillblack)
         paint(draw, "是因为好好保了盾，还是你更关注他一些?", 30, base+30, fontText, fillblack)
         paint(draw, "而破盾次数最多的是[%s]，整个战斗中有%d次,"%(self.getMaskName(data.maxSingleBreakName), data.maxSingleBreak), 30, base+45, fontText, fillblack)
         paint(draw, "下次知道该把谁放在最后了吧！", 30, base+60, fontText, fillblack)
 
-        base = 435
+        base = 450
         paint(draw, "[源思弦]可以说是整个副本最难的BOSS，", 30, base, fontText, fillblack)
         paint(draw, "你在其中使用了%d次[一指回鸾]，"%data.numpurge, 30, base+15, fontText, fillblack)
         paint(draw, "你对[尹青羲]的治疗量是%d点，占比%s%%，"%(data.npcHeal, parseCent(data.npcHealRate)), 30, base+30, fontText, fillblack)
         paint(draw, "在所有奶妈中排名第%d位，"%data.npcRank, 30, base+45, fontText, fillblack)
         paint(draw, "是不是觉得自己能打能奶，文武双全！", 30, base+60, fontText, fillblack)
+        
+        base = 540
+        paint(draw, "治疗职业在副本中一点也不比DPS轻松，", 30, base, fontText, fillblack)
+        paint(draw, "按照%d加速计算，"%self.speed, 30, base+15, fontText, fillblack)
+        paint(draw, "你在副本中的空闲时间比例为%s%%，"%parseCent(data.spareRate), 30, base+30, fontText, fillblack)
+        paint(draw, "快和别的小伙伴比一比，看是谁更划水呀。", 30, base+45, fontText, fillblack)
 
-        paint(draw, "基于以上数据，你的评分为：", 30, 535, fontText, fillblack)
-        paint(draw, "GG", 220, 525, fontBig, (255, 255, 0))
-        paint(draw, "（此处未实现，待收集数据）", 30, 550, fontText, fillblack)
+        paint(draw, "基于以上数据，你的评分为：", 30, 615, fontText, fillblack)
+        paint(draw, "GG", 220, 605, fontBig, (255, 255, 0))
+        paint(draw, "（此处未实现，待收集数据）", 30, 630, fontText, fillblack)
 
         paint(draw, "整体治疗量表", 350, 75, fontSmall, fillblack)
+        paint(draw, "HPS", 425, 75, fontSmall, fillblack)
+        paint(draw, "盾数", 460, 75, fontSmall, fillblack)
+        paint(draw, "战斗时间(s)", 500, 75, fontSmall, fillblack)
         h = 75
         for line in data.healTable:
             h += 10
             paint(draw, "%s"%line[0], 360, h, fontSmall, fillblack)
-            paint(draw, "%d HPS"%line[1], 400, h, fontSmall, fillblack)
-            paint(draw, "盾数：%d"%line[2], 460, h, fontSmall, fillblack)
-            paint(draw, "战斗时间：%d秒"%line[3], 520, h, fontSmall, fillblack)
+            paint(draw, "%d"%line[1], 425, h, fontSmall, fillblack)
+            paint(draw, "%d"%line[2], 461, h, fontSmall, fillblack)
+            paint(draw, "%d"%line[3], 510, h, fontSmall, fillblack)
 
-        paint(draw, "等效DPS表", 320, 165, fontSmall, fillblack)  
+        paint(draw, "等效DPS表", 320, 165, fontSmall, fillblack)
+        paint(draw, "DPS", 375, 165, fontSmall, fillblack)
+        paint(draw, "排名", 410, 165, fontSmall, fillblack)
+        paint(draw, "强度", 440, 165, fontSmall, fillblack)
+        paint(draw, "人数", 470, 165, fontSmall, fillblack)
         h = 165
         for line in data.dpsTable:
             h += 10
             paint(draw, "%s"%line[0], 330, h, fontSmall, fillblack)
-            paint(draw, "%d DPS"%line[1], 370, h, fontSmall, fillblack)
-            paint(draw, "排名：%d"%line[2], 420, h, fontSmall, fillblack)
+            paint(draw, "%d"%line[1], 370, h, fontSmall, fillblack)
+            paint(draw, "%d"%line[2], 410, h, fontSmall, fillblack)
+            paint(draw, "%.2f"%line[3], 440, h, fontSmall, fillblack)
+            paint(draw, "%d"%line[4], 470, h, fontSmall, fillblack)
 
-        paint(draw, "[%s]的等效DPS统计"%data.maxDpsName, 470, 165, fontSmall, fillblack)  
+        paint(draw, "[%s]的等效DPS统计"%data.maxDpsName, 520, 165, fontSmall, fillblack)  
         h = 165
         for line in data.maxDpsTable:
             h += 10
-            paint(draw, "%s"%self.getMaskName(line[0]), 480, h, fontSmall, fillblack)
-            paint(draw, "%d DPS"%int(line[1]), 535, h, fontSmall, fillblack) 
-            if h > 290:
+            paint(draw, "%s"%self.getMaskName(line[0]), 520, h, fontSmall, fillblack)
+            paint(draw, "%d DPS"%int(line[1]), 595, h, fontSmall, fillblack) 
+            if h > 330:
                 break
 
-        paint(draw, "平均覆盖率表", 350, 250, fontSmall, fillblack)
-        h = 250
+        paint(draw, "平均覆盖率表", 350, 280, fontSmall, fillblack)
+        h = 280
         for line in data.rateTable:
             h += 10
             paint(draw, "%s"%line[0], 360, h, fontSmall, fillblack) 
             paint(draw, "%s%%"%parseCent(line[1]), 410, h, fontSmall, fillblack) 
 
-        paint(draw, "DPS覆盖率统计", 350, 345, fontSmall, fillblack)
-        h = 345
+        paint(draw, "DPS覆盖率统计", 350, 375, fontSmall, fillblack)
+        paint(draw, "全程", 420, 375, fontSmall, fillblack)
+        paint(draw, "铁黎", 470, 375, fontSmall, fillblack)
+        paint(draw, "陈徽", 495, 375, fontSmall, fillblack)
+        paint(draw, "藤原武裔", 520, 375, fontSmall, fillblack)
+        h = 375
         for line in data.rateList:
             h += 10
-            paint(draw, "%s"%self.getMaskName(line[0]), 370, h, fontSmall, fillblack) 
+            paint(draw, "%s"%self.getMaskName(line[0]), 360, h, fontSmall, fillblack) 
             paint(draw, "%s%%"%parseCent(line[1]), 420, h, fontSmall, fillblack) 
-            if h > 500:
+            paint(draw, "%s%%"%parseCent(data.bossRateDict[line[0]][0], 0), 470, h, fontSmall, fillblack) 
+            paint(draw, "%s%%"%parseCent(data.bossRateDict[line[0]][1], 0), 495, h, fontSmall, fillblack) 
+            paint(draw, "%s%%"%parseCent(data.bossRateDict[line[0]][2], 0), 520, h, fontSmall, fillblack)
+            if h > 550:
                 break
 
-        paint(draw, "DPS破盾次数", 480, 345, fontSmall, fillblack)
-        h = 345
+        paint(draw, "DPS破盾次数", 550, 375, fontSmall, fillblack)
+        paint(draw, "全程", 620, 375, fontSmall, fillblack)
+        paint(draw, "铁黎", 650, 375, fontSmall, fillblack)
+        paint(draw, "陈徽", 675, 375, fontSmall, fillblack)
+        paint(draw, "藤原武裔", 700, 375, fontSmall, fillblack)
+        h = 375
         for line in data.breakList:
             h += 10
-            paint(draw, "%s"%self.getMaskName(line[0]), 490, h, fontSmall, fillblack) 
-            paint(draw, "%d"%line[1], 550, h, fontSmall, fillblack)
-            if h > 520:
+            paint(draw, "%s"%self.getMaskName(line[0]), 560, h, fontSmall, fillblack) 
+            paint(draw, "%d"%line[1], 620, h, fontSmall, fillblack)
+            paint(draw, "%d"%data.bossBreakDict[line[0]][0], 650, h, fontSmall, fillblack) 
+            paint(draw, "%d"%data.bossBreakDict[line[0]][1], 675, h, fontSmall, fillblack) 
+            paint(draw, "%d"%data.bossBreakDict[line[0]][2], 700, h, fontSmall, fillblack)
+            if h > 550:
                 break
 
-        paint(draw, "NPC治疗量统计", 345, 530, fontSmall, fillblack)
-        h = 530
+        paint(draw, "NPC治疗量统计", 345, 580, fontSmall, fillblack)
+        h = 580
         for line in data.npcHealList:
             h += 10
             paint(draw, "%s"%self.getMaskName(line[0]), 360, h, fontSmall, fillblack)
             paint(draw, "%d"%line[1], 440, h, fontSmall, fillblack)
-            if h > 580:
+            if h > 630:
                 break
+                
+        paint(draw, "空闲比例表", 500, 580, fontSmall, fillblack)
+        h = 580
+        for line in data.spareRateList:
+            h += 10
+            paint(draw, "%s"%line[0], 510, h, fontSmall, fillblack)
+            paint(draw, "%s%%"%parseCent(line[1]), 560, h, fontSmall, fillblack)
 
-        paint(draw, "进本时间：%s"%battleDate, 500, 40, fontSmall, fillblack)
-        paint(draw, "生成时间：%s"%generateDate, 500, 50, fontSmall, fillblack)
-        paint(draw, "版本号：1.6.0", 30, 590, fontSmall, fillblack)
-        paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 590, fontSmall, fillblack)
+        paint(draw, "进本时间：%s"%battleDate, 650, 40, fontSmall, fillblack)
+        paint(draw, "生成时间：%s"%generateDate, 650, 50, fontSmall, fillblack)
+        paint(draw, "版本号：1.6.0", 30, 690, fontSmall, fillblack)
+        paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 690, fontSmall, fillblack)
 
         image.save(filename)
     
@@ -769,6 +811,7 @@ class XiangZhiAnalysis():
         
         for filename in fileList:
             res = XiangZhiStatGenerator(filename, path, self.myname)
+            res.speed = self.speed
             res.firstStageAnalysis()
             res.secondStageAnalysis()
             self.generator.append(res)
@@ -880,6 +923,7 @@ class XiangZhiAnalysis():
     def __init__(self, filelist, path, config):
         self.myname = config.xiangzhiname
         self.mask = config.mask
+        self.speed = config.speed
         self.loadData(filelist, path)
         self.battledate = '-'.join(filelist[0].split('-')[0:3])
         
@@ -971,6 +1015,7 @@ class Config():
             self.jx3path = self.items["jx3path"]
             self.xiangzhiname = self.items["xiangzhiname"]
             self.mask = int(self.items["mask"])
+            self.speed = int(self.items["speed"])
             assert self.mask in [0, 1]
         except:
             raise Exception("配置文件格式不正确，请确认。如无法定位问题，请删除config.ini，在生成的配置文件的基础上进行修改。")
@@ -982,7 +1027,8 @@ playername=
 jx3path=
 basepath=
 xiangzhiname=
-mask=0""")
+mask=0
+speed=3770""")
         g.close()
         pass
     
@@ -990,6 +1036,9 @@ mask=0""")
         self.playername = ""
         self.basepath = ""
         self.jx3path = ""
+        self.xiangzhiname = ""
+        self.mask = 0
+        self.speed = 3770
     
     def __init__(self, filename):
         if not os.path.isfile(filename):
