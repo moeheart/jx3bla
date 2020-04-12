@@ -71,6 +71,15 @@ def calculSpeed(speed, origin):
     tmp = int(speed / 188.309 * 10.24);
     y = int(origin*1024/(tmp+1024));
     return y
+    
+def parseTime(time):
+    if time < 60:
+        return "%ds"%time
+    else:
+        if time % 60 == 0:
+            return "%dm"%time/60
+        else:
+            return "%dm%ds"%(time/60, time%60)
 
 class ShieldCounter():
     
@@ -416,7 +425,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         for key in self.shieldCounters:
             if int(occdict[key][0]) in [0, ]:
                 continue
-            if namedict[key][0] not in data.damageDict or data.damageDict[namedict[key][0]] < 10000:
+            if namedict[key][0] not in data.damageDict or data.damageDict[namedict[key][0]] / self.battleTime < 10000:
                 continue
             if key == self.mykey:
                 continue
@@ -713,14 +722,14 @@ class XiangZhiAnalysis():
         paint(draw, "整体治疗量表", 350, 75, fontSmall, fillblack)
         paint(draw, "HPS", 425, 75, fontSmall, fillblack)
         paint(draw, "盾数", 460, 75, fontSmall, fillblack)
-        paint(draw, "战斗时间(s)", 500, 75, fontSmall, fillblack)
+        paint(draw, "战斗时间", 500, 75, fontSmall, fillblack)
         h = 75
         for line in data.healTable:
             h += 10
             paint(draw, "%s"%line[0], 360, h, fontSmall, fillblack)
             paint(draw, "%d"%line[1], 425, h, fontSmall, fillblack)
             paint(draw, "%d"%line[2], 461, h, fontSmall, fillblack)
-            paint(draw, "%d"%line[3], 510, h, fontSmall, fillblack)
+            paint(draw, "%s"%parseTime(line[3]), 505, h, fontSmall, fillblack)
 
         paint(draw, "等效DPS表", 320, 165, fontSmall, fillblack)
         paint(draw, "DPS", 375, 165, fontSmall, fillblack)
@@ -802,7 +811,7 @@ class XiangZhiAnalysis():
 
         paint(draw, "进本时间：%s"%battleDate, 650, 40, fontSmall, fillblack)
         paint(draw, "生成时间：%s"%generateDate, 650, 50, fontSmall, fillblack)
-        paint(draw, "版本号：1.6.0", 30, 690, fontSmall, fillblack)
+        paint(draw, "版本号：1.6.1", 30, 690, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 690, fontSmall, fillblack)
 
         image.save(filename)
