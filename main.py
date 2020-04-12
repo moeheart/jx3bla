@@ -77,7 +77,7 @@ def parseTime(time):
         return "%ds"%time
     else:
         if time % 60 == 0:
-            return "%dm"%time/60
+            return "%dm"%(time/60)
         else:
             return "%dm%ds"%(time/60, time%60)
 
@@ -177,6 +177,7 @@ class SkillCounter():
     
     def __init__(self, skillLog, startTime, finalTime, speed = 3770):
         self.skillLog = skillLog
+        self.actLog = []
         self.startTime = startTime
         self.finalTime = finalTime
         self.speed = speed
@@ -394,14 +395,14 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                         data.innerPlace = 1
 
             num += 1
-            
+        
         skillCounter = SkillCounter(skillLog, self.startTime, self.finalTime, self.speed)
         skillCounter.analysisSkillData()
-        #print(skillLog)
         data.sumBusyTime = skillCounter.sumBusyTime
         data.sumSpareTime = skillCounter.sumSpareTime
         data.spareRate = data.sumSpareTime / (data.sumBusyTime + data.sumSpareTime + 1e-10)
         #print(data.spareRate)
+        #print(data.sumBusyTime, data.sumSpareTime, data.spareRate)
             
         numdam = 0
         for key in data.battlestat:
@@ -819,7 +820,7 @@ class XiangZhiAnalysis():
 
         paint(draw, "进本时间：%s"%battleDate, 650, 40, fontSmall, fillblack)
         paint(draw, "生成时间：%s"%generateDate, 650, 50, fontSmall, fillblack)
-        paint(draw, "版本号：1.6.2", 30, 690, fontSmall, fillblack)
+        paint(draw, "版本号：1.6.4", 30, 690, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 690, fontSmall, fillblack)
 
         image.save(filename)
