@@ -175,10 +175,11 @@ class SkillCounter():
                 nowTime = line[0] + line[1]
                 
     
-    def __init__(self, skillLog, startTime, finalTime):
+    def __init__(self, skillLog, startTime, finalTime, speed = 3770):
         self.skillLog = skillLog
         self.startTime = startTime
         self.finalTime = finalTime
+        self.speed = speed
 
 class StatGeneratorBase():
     
@@ -321,6 +322,12 @@ class ActorStatGenerator(StatGeneratorBase):
         data.overallrate = sumrate / (numrate + 1e-10)
         
         self.data = data
+        
+    def __init__(self, filename, path = "", rawdata = {}, myname = ""):
+        self.myname = myname
+        super().__init__(filename, path, rawdata)
+        #self.filename = filename
+        #self.parseFile(path)
     
     pass
         
@@ -332,6 +339,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
     npckey = ""
     startTime = 0
     finalTime = 0
+    speed = 3770
     shieldCounters = {}
     
     def secondStageAnalysis(self):
@@ -387,7 +395,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
 
             num += 1
             
-        skillCounter = SkillCounter(skillLog, self.startTime, self.finalTime)
+        skillCounter = SkillCounter(skillLog, self.startTime, self.finalTime, self.speed)
         skillCounter.analysisSkillData()
         #print(skillLog)
         data.sumBusyTime = skillCounter.sumBusyTime
@@ -811,7 +819,7 @@ class XiangZhiAnalysis():
 
         paint(draw, "进本时间：%s"%battleDate, 650, 40, fontSmall, fillblack)
         paint(draw, "生成时间：%s"%generateDate, 650, 50, fontSmall, fillblack)
-        paint(draw, "版本号：1.6.1", 30, 690, fontSmall, fillblack)
+        paint(draw, "版本号：1.6.2", 30, 690, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 690, fontSmall, fillblack)
 
         image.save(filename)
@@ -828,6 +836,8 @@ class XiangZhiAnalysis():
                 self.myname = res.myname
             elif self.myname != res.myname:
                 raise Exception("全程奶歌名称不一致，请手动指定ID")
+            
+            #res2 = ActorStatGenerator(filename, path, res.rawdata, self.myname)
                 
     def analysis(self):
             
