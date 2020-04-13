@@ -230,97 +230,17 @@ class ActorStatGenerator(StatGeneratorBase):
             item = line[""]
             
             if len(item) == 16:
-                
-                if item[4] == self.mykey and item[11] != '0':
-                    data.numheal += int(item[11])
-                    data.numeffheal += int(item[12])
-                    
-                if item[4] == self.mykey and item[6] == "1":
-                    skillLog.append([int(item[2]), int(item[7])])
-                    
-                if item[12] != '0' and item[5] == self.npckey:
-                    if namedict[item[4]][0] not in data.npchealstat:
-                        data.npchealstat[namedict[item[4]][0]] = int(item[12])
-                    else:
-                        data.npchealstat[namedict[item[4]][0]] += int(item[12])
+            
+                if item[7] == "22520": #锈铁钩锁
+                    print(item)
                             
-                if item[7] == "14231": #梅花三弄
-                    data.numshield += 1
-
-                if item[7] == "14169": #一指回鸾
-                    data.numpurge += 1
-
-                if int(item[14]) > 0:
-                    if item[4] in self.shieldCounters:
-                        if item[4] not in data.battlestat:
-                            data.battlestat[item[4]] = [0, 0, 0]
-                        if int(item[7]) >= 21827 and int(item[7]) <= 21831: #桑柔
-                            data.battlestat[item[4]][2] += int(item[14])
-                        else:
-                            hasShield = self.shieldCounters[item[4]].checkTime(int(item[2]))
-                            data.battlestat[item[4]][hasShield] += int(item[14])
+            elif len(item) == 13:
+                if item[6] == "15868": #内场buff
+                    if item[5] == self.mykey:
+                        print(item[7])
+                        data.innerPlace = 1
 
             num += 1
-            
-        skillCounter = SkillCounter(skillLog, self.startTime, self.finalTime)
-        skillCounter.analysisSkillData()
-        #print(skillLog)
-        data.sumBusyTime = skillCounter.sumBusyTime
-        data.sumSpareTime = skillCounter.sumSpareTime
-        data.spareRate = data.sumSpareTime / (data.sumBusyTime + data.sumSpareTime + 1e-10)
-        #print(data.spareRate)
-        
-            
-        numdam = 0
-        for key in data.battlestat:
-            if int(occdict[key][0]) == 0:
-                continue
-            line = data.battlestat[key]
-            data.damageDict[namedict[key][0]] = line[0] + line[1] / 1.139
-            numdam += line[1] / 1.139 * 0.139 + line[2]
-        
-        if self.myname not in data.damageDict:
-            data.damageDict[self.myname] = numdam
-        else:
-            data.damageDict[self.myname] += numdam
-            
-        data.damageList = dictToPairs(data.damageDict)
-        data.damageList.sort(key = lambda x: -x[1])
-
-        sumdamage = 0
-        numid = 0
-        for line in data.damageList:
-            line[1] /= self.battleTime
-            sumdamage += line[1]
-            numid += 1
-            if line[0] == self.myname and data.myrank == 0:
-                data.myrank = numid
-                data.mydamage = line[1]
-                sumdamage -= line[1]
-                
-        for key in self.shieldCounters:
-            if int(occdict[key][0]) in [0, ]:
-                continue
-            if namedict[key][0] not in data.damageDict or data.damageDict[namedict[key][0]] < 10000:
-                continue
-
-            rate = self.shieldCounters[key].shieldDuration[1] / \
-                (self.shieldCounters[key].shieldDuration[0] + self.shieldCounters[key].shieldDuration[1] + 1e-10)
-            data.rateDict[namedict[key][0]] = rate
-            data.durationDict[namedict[key][0]] = self.shieldCounters[key].shieldDuration[1]
-            data.breakDict[namedict[key][0]] = self.shieldCounters[key].breakCount
-            
-        data.equalDPS = data.mydamage / (sumdamage + 1e-10) * (len(data.durationDict) - 1)
-        #print(data.equalDPS)
-        
-        numrate = 0
-        sumrate = 0
-
-        for key in data.rateDict:
-            numrate += 1
-            sumrate += data.rateDict[key]
-
-        data.overallrate = sumrate / (numrate + 1e-10)
         
         self.data = data
         
@@ -388,11 +308,6 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                         else:
                             hasShield = self.shieldCounters[item[4]].checkTime(int(item[2]))
                             data.battlestat[item[4]][hasShield] += int(item[14])
-                            
-            elif len(item) == 13:
-                if item[6] == "15868": #内场buff
-                    if item[5] == self.mykey:
-                        data.innerPlace = 1
 
             num += 1
         
@@ -568,6 +483,7 @@ class ActorData():
         self.no2FaceDict = {}
         self.no5HitDict = {}
         self.no6HitDict = {}
+        self.innerPlace = [0, 0, 0, 0]
 
 class XiangZhiData():
     
@@ -820,7 +736,7 @@ class XiangZhiAnalysis():
 
         paint(draw, "进本时间：%s"%battleDate, 650, 40, fontSmall, fillblack)
         paint(draw, "生成时间：%s"%generateDate, 650, 50, fontSmall, fillblack)
-        paint(draw, "版本号：1.6.4", 30, 690, fontSmall, fillblack)
+        paint(draw, "版本号：1.7.0", 30, 690, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 690, fontSmall, fillblack)
 
         image.save(filename)
@@ -838,7 +754,8 @@ class XiangZhiAnalysis():
             elif self.myname != res.myname:
                 raise Exception("全程奶歌名称不一致，请手动指定ID")
             
-            #res2 = ActorStatGenerator(filename, path, res.rawdata, self.myname)
+            res2 = ActorStatGenerator(filename, path, res.rawdata, self.myname)
+            res2.secondStageAnalysis()
                 
     def analysis(self):
             
