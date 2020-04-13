@@ -211,6 +211,13 @@ class StatGeneratorBase():
             self.rawdata = rawdata
             self.bossname = self.filename.split('_')[1]
             self.battleTime = int(self.filename.split('_')[2].split('.')[0])
+            
+def add1(d, s):
+    if s in d:
+        d[s] += 1
+    else:
+        d[s] = 1
+    return d
         
 class ActorStatGenerator(StatGeneratorBase):
 
@@ -221,24 +228,43 @@ class ActorStatGenerator(StatGeneratorBase):
         occdict = res['10'][0]
         sk = res['16'][0][""]
         
-        data = XiangZhiData()
+        data = ActorData()
 
         num = 0
         skillLog = []
+        
+        no5P2 = 0
+        
+        lastHit = {}
 
         for line in sk:
             item = line[""]
             
             if len(item) == 16:
-            
-                if item[7] == "22520": #锈铁钩锁
-                    print(item)
-                            
+                if item[7] == "22520" and item[10] == "0": #锈铁钩锁
+                    if item[5] not in lastHit or int(item[2]) - lastHit[item[5]] > 10000: #10秒缓冲时间
+                        lastHit[item[5]] = int(item[2])
+                        data.no1Lock = add1(data.no1Lock, item[5])
+                if item[7] == "22521" and item[10] == "0": #火轮重锤
+                    data.no1Face = add1(data.no1Face, item[5])
+                if item[7] == "22203" and item[10] == "0": #气吞八方
+                    data.no2Hit = add1(data.no2Hit, item[5])
+                if item[7] in ["22388", "22367", "22356"] and item[10] == "0": #岚吟, 禊祓·绀凌, 禊祓·绛岚
+                    data.no4Hit = add1(data.no4Hit, item[5]) 
+                if item[7] in ["22776", "22402", "22246", "22272", "22111"] and item[10] == "0": #双环掌击, 掌击, 劈山尾鞭, 追魂扫尾, 巨力爪击
+                    data.no5Hit = add1(data.no5Hit, item[5])
+                    if no5P2:
+                        data.no5P2Hit = add1(data.no5P2Hit, item[5])
+                if item[7] == "23092": #震怒咆哮
+                    no5P2 = 1
+                              
             elif len(item) == 13:
                 if item[6] == "15868": #内场buff
-                    if item[5] == self.mykey:
-                        print(item[7])
-                        data.innerPlace = 1
+                    if item[5] not in data.innerPlace:
+                        data.innerPlace[item[5]] = [0, 0, 0, 0]
+                    data.innerPlace[item[5]][int(item[7])-1] = 1
+                if item[6] == "16316": #离群之狐成就buff
+                    data.no6Circle = add1(data.no6Circle, item[5]) 
 
             num += 1
         
@@ -249,6 +275,7 @@ class ActorStatGenerator(StatGeneratorBase):
         super().__init__(filename, path, rawdata)
         #self.filename = filename
         #self.parseFile(path)
+        self.no1Hit = {}
     
     pass
         
@@ -478,12 +505,15 @@ def plusDict(d1, d2):
     
 class ActorData():
     def __init__(self):
-        self.no1LockDict = {}
-        self.no1FaceDict = {}
-        self.no2FaceDict = {}
-        self.no5HitDict = {}
-        self.no6HitDict = {}
-        self.innerPlace = [0, 0, 0, 0]
+        self.no1Lock = {}
+        self.no1Face = {}
+        self.no2Hit = {}
+        self.no4Hit = {}
+        self.no5Hit = {}
+        self.no5P2Hit = {}
+        self.no6Sword = {}
+        self.no6Circle = {}
+        self.innerPlace = {}
 
 class XiangZhiData():
     
@@ -506,7 +536,6 @@ class XiangZhiData():
         self.sumSpareTime = 0
         self.sumBusyTime = 0
         self.spareRate = 0
-        self.innerPlace = 0
         
 class XiangZhiOverallData(XiangZhiData):
     
@@ -548,6 +577,7 @@ class XiangZhiAnalysis():
     
     myname = ""
     generator = []
+    generator2 = []
     battledate = ""
     mask = 0
     speed = 3770
@@ -756,6 +786,7 @@ class XiangZhiAnalysis():
             
             res2 = ActorStatGenerator(filename, path, res.rawdata, self.myname)
             res2.secondStageAnalysis()
+            self.generator2.append(res2)
                 
     def analysis(self):
             
@@ -853,6 +884,38 @@ class XiangZhiAnalysis():
             
         data.spareRate = data.sumSpareTime / (data.sumBusyTime + data.sumSpareTime + 1e-10)
         #print(data.spareRate)
+        
+        for line in self.generator2:
+            namedict = line.rawdata['9'][0]
+            if line.bossname == "铁黎":
+                print("老一被锁次数：")
+                for line2 in line.data.no1Lock:
+                    print(namedict[line2][0], line.data.no1Lock[line2])
+                print("老一中面向次数：")
+                for line2 in line.data.no1Face:
+                    print(namedict[line2][0], line.data.no1Face[line2])
+            if line.bossname == "陈徽":
+                print("老二中面向次数：")
+                for line2 in line.data.no2Hit:
+                    print(namedict[line2][0], line.data.no2Hit[line2])
+            if line.bossname == "源思弦":
+                print("老四中技能次数：")
+                for line2 in line.data.no4Hit:
+                    print(namedict[line2][0], line.data.no4Hit[line2])
+            if line.bossname == "驺吾":
+                print("老五中技能次数：")
+                for line2 in line.data.no5Hit:
+                    print(namedict[line2][0], line.data.no5Hit[line2])
+                print("老五下阶段中技能次数：")
+                for line2 in line.data.no5P2Hit:
+                    print(namedict[line2][0], line.data.no5P2Hit[line2])
+            if line.bossname == "方有崖":
+                print("老六心狐炸人次数：")
+                for line2 in line.data.no6Circle:
+                    print(namedict[line2][0], line.data.no6Circle[line2])
+                print("老六进内场情况：")
+                for line2 in line.data.innerPlace:
+                    print(namedict[line2][0], line.data.innerPlace[line2])
         
         
         self.data = data
