@@ -273,7 +273,7 @@ class ActorStatGenerator(StatGeneratorBase):
             item = line[""]
             
             if len(item) == 16:
-                if item[7] in self.actorSkillList and item[10] != 2:
+                if item[7] in self.actorSkillList and int(item[10]) != 2:
                     if item[7] == "22520": #锈铁钩锁
                         if item[5] not in lastHit or int(item[2]) - lastHit[item[5]] > 10000: #10秒缓冲时间
                             lastHit[item[5]] = int(item[2])
@@ -866,7 +866,7 @@ class XiangZhiAnalysis():
 
         paint(draw, "进本时间：%s"%battleDate, 650, 40, fontSmall, fillblack)
         paint(draw, "生成时间：%s"%generateDate, 650, 50, fontSmall, fillblack)
-        paint(draw, "版本号：1.7.0", 30, 740, fontSmall, fillblack)
+        paint(draw, "版本号：1.7.1", 30, 740, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 740, fontSmall, fillblack)
 
         image.save(filename)
