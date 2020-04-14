@@ -1,4 +1,4 @@
-file = open("2020-04-08-19-30-49_源思弦_474.fstt.jx3dat")
+file = open("2020-04-14-21-07-41_源思弦_418.fstt.jx3dat")
 s = file.read()
 
 g = open("parsed", "w", encoding="utf-8")
