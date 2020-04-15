@@ -251,7 +251,14 @@ class ActorStatGenerator(StatGeneratorBase):
         for i in self.actorBuffList:
             res["b" + i] = 0
         return res
-                  
+        
+    def checkFirst(self, key, data, occdict):
+        if occdict[key][0] != '0' and key not in data.hitCount:
+            data.hitCount[key] = self.makeEmptyHitList()
+            data.hitCountP2[key] = self.makeEmptyHitList()
+            data.deathCount[key] = [0, 0, 0, 0, 0, 0, 0]
+            data.innerPlace[key] = [0, 0, 0, 0]
+        return data
 
     def secondStageAnalysis(self):
         res = self.rawdata
@@ -273,16 +280,15 @@ class ActorStatGenerator(StatGeneratorBase):
             item = line[""]
             
             if len(item) == 16:
+                if occdict[item[5]][0] == '0':
+                    continue
+                data = self.checkFirst(item[5], data, occdict)
                 if item[7] in self.actorSkillList and int(item[10]) != 2:
                     if item[7] == "22520": #锈铁钩锁
                         if item[5] not in lastHit or int(item[2]) - lastHit[item[5]] > 10000: #10秒缓冲时间
                             lastHit[item[5]] = int(item[2])
                         else:
                             continue
-                    if item[5] not in data.hitCount:
-                        data.hitCount[item[5]] = self.makeEmptyHitList()
-                    if item[5] not in data.hitCountP2:
-                        data.hitCountP2[item[5]] = self.makeEmptyHitList()
                     data.hitCount[item[5]]["s" + item[7]] += 1
                     if no5P2:
                         data.hitCountP2[item[5]]["s" + item[7]] += 1
@@ -290,9 +296,10 @@ class ActorStatGenerator(StatGeneratorBase):
                         no5P2 = 1
                               
             elif len(item) == 13:
+                if occdict[item[5]][0] == '0':
+                    continue
+                data = self.checkFirst(item[5], data, occdict)
                 if item[6] == "15868": #内场buff
-                    if item[5] not in data.innerPlace:
-                        data.innerPlace[item[5]] = [0, 0, 0, 0]
                     data.innerPlace[item[5]][int(item[7])-1] = 1
                 if item[7] in self.actorBuffList and int(item[10]) == 1:
                     if item[5] not in data.hitCount:
@@ -300,9 +307,10 @@ class ActorStatGenerator(StatGeneratorBase):
                     data.hitCount[item[5]]["b" + item[6]] += 1
                         
             elif len(item) == 8:
+                if occdict[item[4]][0] == '0':
+                    continue
+                data = self.checkFirst(item[4], data, occdict)
                 if item[4] in occdict and int(occdict[item[4]][0]) != 0:
-                    if item[4] not in data.deathCount:
-                        data.deathCount[item[4]] = [0, 0, 0, 0, 0, 0, 0]
                     if self.bossname in self.bossNameDict:
                         data.deathCount[item[4]][self.bossNameDict[self.bossname]] += 1
 
@@ -866,7 +874,7 @@ class XiangZhiAnalysis():
 
         paint(draw, "进本时间：%s"%battleDate, 650, 40, fontSmall, fillblack)
         paint(draw, "生成时间：%s"%generateDate, 650, 50, fontSmall, fillblack)
-        paint(draw, "版本号：1.7.1", 30, 740, fontSmall, fillblack)
+        paint(draw, "版本号：1.7.2", 30, 740, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 740, fontSmall, fillblack)
 
         image.save(filename)
@@ -1025,19 +1033,9 @@ class XiangZhiAnalysis():
         
         self.data = data
         self.actorData = actorData
-        if data.mykey in actorData.hitCount:
-            self.sumHit = sum(self.actorData.hitCount[data.mykey].values())
-        else:
-            self.actorData.hitCount[data.mykey] = ActorStatGenerator().makeEmptyHitList()
-            self.sumHit = 0
-        if data.mykey in actorData.deathCount:
-            self.sumDeath = sum(self.actorData.deathCount[data.mykey])
-        else:
-            self.sumDeath = 0
-        if data.mykey in actorData.innerPlace:
-            self.sumInner = sum(self.actorData.innerPlace[data.mykey])
-        else:
-            self.sumInner = 0
+        self.sumHit = sum(self.actorData.hitCount[data.mykey].values())
+        self.sumDeath = sum(self.actorData.deathCount[data.mykey])
+        self.sumInner = sum(self.actorData.innerPlace[data.mykey])
     
     def __init__(self, filelist, path, config):
         self.myname = config.xiangzhiname
