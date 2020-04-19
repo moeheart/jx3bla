@@ -227,6 +227,7 @@ class ActorStatGenerator(StatGeneratorBase):
                   "22388", #岚吟
                   "22367", #禊祓·绀凌
                   "22356", #禊祓·绛岚
+                  "22374", #零域
                   "22776", #双环掌击
                   "22246", #劈山尾鞭
                   "22272", #追魂扫尾
@@ -653,6 +654,15 @@ class XiangZhiOverallData(XiangZhiData):
         self.mykey = ""
         
         self.spareRateList = []
+        
+class XiangZhiScore():
+
+    def analysisHPS(self, id, slist):
+        pass
+    
+    def __init__(self, data):
+        self.data = data
+
 
 class XiangZhiAnalysis():
     
@@ -669,6 +679,7 @@ class XiangZhiAnalysis():
                "s22388": "岚吟",
                "s22367": "禊祓·绀凌",
                "s22356": "禊祓·绛岚",
+               "s22374": "零域",
                "s22776": "双环掌击",
                "s22246": "劈山尾鞭",
                "s22272": "追魂扫尾",
@@ -682,6 +693,9 @@ class XiangZhiAnalysis():
             return s
         else:
             return s[0] + '*' * (len(s)-1)
+            
+    def score(self, name):
+        self.score = XiangZhiScore(self.data)
     
     def paint(self, filename):
     
@@ -874,7 +888,7 @@ class XiangZhiAnalysis():
 
         paint(draw, "进本时间：%s"%battleDate, 650, 40, fontSmall, fillblack)
         paint(draw, "生成时间：%s"%generateDate, 650, 50, fontSmall, fillblack)
-        paint(draw, "版本号：1.7.2", 30, 740, fontSmall, fillblack)
+        paint(draw, "版本号：1.7.3", 30, 740, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 740, fontSmall, fillblack)
 
         image.save(filename)
