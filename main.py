@@ -657,11 +657,241 @@ class XiangZhiOverallData(XiangZhiData):
         
 class XiangZhiScore():
 
-    def analysisHPS(self, id, slist):
-        pass
+    bossDict = {"铁黎": 1, "陈徽": 2, "藤原武裔": 3, "源思弦": 4, "驺吾": 5, "方有崖": 6}
+    bossDictR = ["", "铁黎", "陈徽", "藤原武裔", "源思弦", "驺吾", "方有崖"]
+    rateScale = [[100, 0, "A+", "不畏浮云遮望眼，只缘身在最高层。"],
+                 [95, 1, "A", "独有凤凰池上客，阳春一曲和皆难。"],
+                 [90, 1, "A-", "欲把一麾江海去，乐游原上望昭陵。"],
+                 [85, 2, "B+", "敢将十指夸针巧，不把双眉斗画长。"],
+                 [80, 2, "B", "云想衣裳花想容，春风拂槛露华浓。"],
+                 [77, 2, "B-", "疏影横斜水清浅，暗香浮动月黄昏。"],
+                 [73, 3, "C+", "青山隐隐水迢迢，秋尽江南草未凋。"],
+                 [70, 3, "C", "花径不曾缘客扫，蓬门今始为君开。"],
+                 [67, 3, "C-", "上穷碧落下黄泉，两处茫茫皆不见。"],
+                 [63, 4, "D+", "人世几回伤往事，山形依旧枕寒流。"],
+                 [60, 4, "D", "总为浮云能蔽日，长安不见使人愁。"],
+                 [0, 6, "F", "仰天大笑出门去，我辈岂是蓬蒿人。"]]
+
+    def scaleScore(self, x, scale):
+        N = len(scale)
+        assert N >= 2
+        score = 0
+        if scale[0][0] > scale[1][0]:
+            x = -x
+            for i in range(N):
+                scale[i][0] = -scale[i][0]
+        for i in range(0, N-1):
+            assert scale[i][0] < scale[i+1][0]
+        
+        if x < scale[0][0]:
+            score = scale[0][1]
+        else:
+            for i in range(0, N-1):
+                if x >= scale[i][0] and x < scale[i+1][0]:
+                    score = scale[i][1] + (x - scale[i][0]) / (scale[i+1][0] - scale[i][0] + 1e-10) * (scale[i+1][1] - scale[i][1])
+                    break
+            else:
+                score = scale[N-1][1]
+        return score
     
-    def __init__(self, data):
+    def analysisHPS(self, id):
+        if id == 1:
+            HPSList = [[2000,0], [12000,5]]
+        elif id == 2:
+            HPSList = [[2000,0], [10000,5]]
+        elif id == 3:
+            return 0
+        elif id == 4:
+            HPSList = [[1000,0], [5000,3], [8000,5]]
+        elif id == 5:
+            HPSList = [[500,0], [1500,2], [2500,3], [5000,5]]
+        elif id == 6:
+            HPSList = [[500,0], [1500,4], [3000,7]]
+        score = self.scaleScore(self.data.healTable[id-1][1], HPSList)
+        return score
+        
+    def analysisShield(self, id):
+        if id == 1:
+            ShieldList = [[50,0], [80,3], [120,5]]
+        elif id == 2:
+            ShieldList = [[60,0], [90,3], [140,5]]
+        elif id == 3:
+            return 0
+        elif id == 4:
+            ShieldList = [[40,0], [70,3], [110,5]]
+        elif id == 5:
+            ShieldList = [[20,0], [70,1], [200,5]]
+        elif id == 6:
+            ShieldList = [[20,0], [80,1], [200,4], [300,7]]
+        score = self.scaleScore(self.data.healTable[id-1][2], ShieldList)
+        return score
+        
+    def analysisDPS(self, id):
+        if id == 1:
+            DPSList = [[0.8,0], [1.4,5]]
+        elif id == 2:
+            DPSList = [[0.5,0], [1.2,5]]
+        elif id == 3:
+            DPSList = [[0.5,0], [2,10]]
+        elif id == 4:
+            DPSList = [[0.3,0], [1,5]]
+        elif id == 5:
+            DPSList = [[0.3,0], [0.8,2], [1.3,5]]
+        elif id == 6:
+            DPSList = [[0.3,0], [0.8,2], [1.4,7]]
+        score = self.scaleScore(self.data.dpsTable[id-1][3], DPSList)
+        return score
+        
+        
+    def analysisRate(self, id):
+        if id == 1:
+            RateList = [[0.1,0], [0.3,1], [0.5,5]]
+        elif id == 2:
+            RateList = [[0.1,0], [0.25,1], [0.45,5]]
+        elif id == 3:
+            RateList = [[0.1,0], [0.5,1], [0.8,10]]
+        elif id == 4:
+            RateList = [[0.1,0], [0.2,1], [0.5,5]]
+        elif id == 5:
+            RateList = [[0.1,0], [0.2,1], [0.6,5]]
+        elif id == 6:
+            RateList = [[0.1,0], [0.2,1], [0.6,7]]
+        score = self.scaleScore(self.data.rateTable[id-1][1], RateList)
+        return score
+    
+    def analysisSpare(self, id):
+        if id == 1:
+            RateList = [[0.3,0], [0.1,5]]
+        elif id == 2:
+            RateList = [[0.3,0], [0.1,5]]
+        elif id == 3:
+            RateList = [[0.5,0], [0.1,5]]
+        elif id == 4:
+            RateList = [[0.3,0], [0.1,5]]
+        elif id == 5:
+            RateList = [[0.3,0], [0.1,5]]
+        elif id == 6:
+            RateList = [[0.5,0], [0.1,7]]
+        score = self.scaleScore(self.data.spareRateList[id-1][1], RateList)
+        return score
+        
+    def analysisPurge(self, id):
+        PurgeList = [[0,0], [3,3], [10,5]]
+        score = self.scaleScore(self.generator[id-1].data.numpurge, PurgeList)
+        return score
+    
+    def analysisNPC(self, id):
+        NPCList = [[0.15,0], [0.3,5]]
+        score = self.scaleScore(self.data.npcHealRate, NPCList)
+        return score
+        
+    def analysisInner(self, id):
+        InnerList = [[0,0], [1,3], [2,5]]
+        score = self.scaleScore(sum(self.generator2[id-1].data.innerPlace[self.mykey]), InnerList)
+        return score
+    
+    def analysisBOSS(self, id):
+        cutOff1 = [0, 5, 5, 0, 5, 5, 7]
+        cutOff2 = [0, 5, 5, 10, 5, 5, 7]
+        cutOff4 = [0, 0, 0, 0, 5, 0, 5]
+        cutOff0 = [0, 15, 15, 15, 20, 15, 20]
+        self.printTable.append([0, "%s 打分表"%self.bossDictR[id], ""])
+        c1 = 0
+        c5 = 0
+        if id != 3:
+            s1 = self.analysisHPS(id)
+            self.printTable.append([1, "治疗量", "%.1f"%s1])
+            s2 = self.analysisShield(id)
+            self.printTable.append([1, "盾数", "%.1f"%s2])
+            c1 = s1 + s2
+            if c1 > cutOff1[id]:
+                c1 = cutOff1[id]
+                c5 += (s1 + s2 - cutOff1[id]) / 2
+        s3 = self.analysisDPS(id)
+        self.printTable.append([1, "等效DPS", "%.1f"%s3])
+        s4 = self.analysisRate(id)
+        self.printTable.append([1, "覆盖率", "%.1f"%s4])
+        c2 = s3 + s4
+        if c2 > cutOff2[id]:
+            c2 = cutOff2[id]
+            c5 += (s3 + s4 - cutOff2[id]) / 2
+        s5 = self.analysisSpare(id)
+        self.printTable.append([1, "空闲比例", "%.1f"%s5])
+        c3 = s5
+        
+        c4 = 0
+        if id == 4:
+            s6 = self.analysisPurge(id)
+            self.printTable.append([1, "驱散次数", "%.1f"%s6])
+            s7 = self.analysisNPC(id)
+            self.printTable.append([1, "NPC承疗", "%.1f"%s7])
+            c4 = s6 + s7
+            if c4 > cutOff4[id]:
+                c4 = cutOff4[id]
+                c5 += (s6 + s7) / 2
+        elif id == 6:
+            s6 = self.analysisInner(id)
+            self.printTable.append([1, "内场", "%.1f"%s6])
+            c4 = s6
+            
+        numDPS = self.data.dpsTable[id-1][4]
+        if numDPS < 16:
+            s8 = 16 - numDPS
+            self.printTable.append([1, "人数修正", "%.1f"%s8])
+            c5 += s8
+        
+        c6 = c1 + c2 + c3 + c4 + c5
+        if c6 > cutOff0[id]:
+            c6 = cutOff0[id]
+        
+        c7 = 0
+        c8 = 0
+        
+        num1 = sum(self.generator2[id-1].data.hitCount[self.mykey].values())
+        num2 = sum(self.generator2[id-1].data.deathCount[self.mykey])
+        if num1 > 0:
+            c7 = -num1
+            self.printTable.append([2, "犯错", "%.1f"%c7])
+        if num2 > 0:
+            c8 = -num2
+            self.printTable.append([2, "重伤", "%.1f"%c8])
+        
+        c9 = c6 + c7 + c8
+        if c9 < 0:
+            c9 = 0
+        
+        self.printTable.append([3, "小计", "%.1f"%c9])
+        return c9
+        
+    def finalRate(self):
+        for line in self.rateScale:
+            if self.score >= line[0]:
+                self.color = line[1]
+                self.rate = line[2]
+                self.describe = line[3]
+                break
+        
+    def analysisAll(self):
+        if len(self.generator) != 6:
+            self.available = 0
+            print("战斗记录不全，无法进行打分。")
+        else:
+            self.available = 1
+            sumScore = 0
+            for i in range(1, 7):
+                score = self.analysisBOSS(i)
+                sumScore += score
+            self.printTable.append([0, "总分", "%.1f"%sumScore])
+            self.score = sumScore
+            self.finalRate()
+        
+    def __init__(self, data, generator, generator2, mykey):
         self.data = data
+        self.mykey = mykey
+        self.generator = generator
+        self.generator2 = generator2
+        self.printTable = []
+        self.score = 0
 
 
 class XiangZhiAnalysis():
@@ -693,9 +923,6 @@ class XiangZhiAnalysis():
             return s
         else:
             return s[0] + '*' * (len(s)-1)
-            
-    def score(self, name):
-        self.score = XiangZhiScore(self.data)
     
     def paint(self, filename):
     
@@ -705,8 +932,8 @@ class XiangZhiAnalysis():
         battleDate = self.battledate
         generateDate = time.strftime("%Y-%m-%d", time.localtime())
 
-        width = 750
-        height = 750
+        width = 800
+        height = 800
 
         def paint(draw, content, posx, posy, font, fill):
             draw.text(
@@ -732,9 +959,10 @@ class XiangZhiAnalysis():
         image = Image.new(mode='RGB', size=(width, height), color=(255, 255, 255))
         fillcyan = (0, 255, 255)
         fillblack = (0, 0, 0)
+        fillred = (255, 0, 0)
         draw = ImageDraw.Draw(image)
 
-        paint(draw, "敖龙岛战斗记录-奶歌", 265, 10, fontTitle, fillcyan)
+        paint(draw, "敖龙岛战斗记录-奶歌", 290, 10, fontTitle, fillcyan)
         paint(draw, "可爱的奶歌[%s]："%self.myname.strip('"'), 10, 50, fontText, fillblack)
 
         base = 75
@@ -763,7 +991,7 @@ class XiangZhiAnalysis():
         paint(draw, "DPS们并不都知道奶歌的人间冷暖，", 30, base, fontText, fillblack)
         paint(draw, "盾平均覆盖率最高的是[%s]，达到了%s%%，"%(self.getMaskName(data.maxSingleRateName), parseCent(data.maxSingleRate)), 30, base+15, fontText, fillblack)
         paint(draw, "是因为好好保了盾，还是你更关注他一些?", 30, base+30, fontText, fillblack)
-        paint(draw, "而破盾次数最多的是[%s]，整个战斗中有%d次,"%(self.getMaskName(data.maxSingleBreakName), data.maxSingleBreak), 30, base+45, fontText, fillblack)
+        paint(draw, "而破盾次数最多的是[%s]，有%d次,"%(self.getMaskName(data.maxSingleBreakName), data.maxSingleBreak), 30, base+45, fontText, fillblack)
         paint(draw, "下次知道该把谁放在最后了吧！", 30, base+60, fontText, fillblack)
 
         base = 450
@@ -784,10 +1012,6 @@ class XiangZhiAnalysis():
         paint(draw, "你中了%d次惩罚技能，重伤了%d次，"%(self.sumHit, self.sumDeath), 30, base+15, fontText, fillblack)
         paint(draw, "在老六进了%d次内场，"%self.sumInner, 30, base+30, fontText, fillblack)
         paint(draw, "下次是不是可以说，自己是合格的演员啦！", 30, base+45, fontText, fillblack)
-
-        paint(draw, "基于以上数据，你的评分为：", 30, 690, fontText, fillblack)
-        paint(draw, "GG", 220, 680, fontBig, (255, 255, 0))
-        paint(draw, "（此处未实现，待收集数据）", 30, 705, fontText, fillblack)
 
         paint(draw, "整体治疗量表", 350, 75, fontSmall, fillblack)
         paint(draw, "HPS", 425, 75, fontSmall, fillblack)
@@ -833,17 +1057,17 @@ class XiangZhiAnalysis():
 
         paint(draw, "DPS覆盖率统计", 350, 375, fontSmall, fillblack)
         paint(draw, "全程", 420, 375, fontSmall, fillblack)
-        paint(draw, "铁黎", 470, 375, fontSmall, fillblack)
-        paint(draw, "陈徽", 495, 375, fontSmall, fillblack)
-        paint(draw, "藤原武裔", 520, 375, fontSmall, fillblack)
+        paint(draw, "铁黎", 465, 375, fontSmall, fillblack)
+        paint(draw, "陈徽", 490, 375, fontSmall, fillblack)
+        paint(draw, "藤原武裔", 515, 375, fontSmall, fillblack)
         h = 375
         for line in data.rateList:
             h += 10
             paint(draw, "%s"%self.getMaskName(line[0]), 360, h, fontSmall, fillblack) 
             paint(draw, "%s%%"%parseCent(line[1]), 420, h, fontSmall, fillblack) 
-            paint(draw, "%s%%"%parseCent(data.bossRateDict[line[0]][0], 0), 470, h, fontSmall, fillblack) 
-            paint(draw, "%s%%"%parseCent(data.bossRateDict[line[0]][1], 0), 495, h, fontSmall, fillblack) 
-            paint(draw, "%s%%"%parseCent(data.bossRateDict[line[0]][2], 0), 520, h, fontSmall, fillblack)
+            paint(draw, "%s%%"%parseCent(data.bossRateDict[line[0]][0], 0), 465, h, fontSmall, fillblack) 
+            paint(draw, "%s%%"%parseCent(data.bossRateDict[line[0]][1], 0), 490, h, fontSmall, fillblack) 
+            paint(draw, "%s%%"%parseCent(data.bossRateDict[line[0]][2], 0), 515, h, fontSmall, fillblack)
             if h > 550:
                 break
 
@@ -885,11 +1109,49 @@ class XiangZhiAnalysis():
             h += 10
             paint(draw, "%s"%self.hitDict[line], 630, h, fontSmall, fillblack)
             paint(draw, "%d"%actorData.hitCount[data.mykey][line], 690, h, fontSmall, fillblack)
-
-        paint(draw, "进本时间：%s"%battleDate, 650, 40, fontSmall, fillblack)
-        paint(draw, "生成时间：%s"%generateDate, 650, 50, fontSmall, fillblack)
-        paint(draw, "版本号：1.7.3", 30, 740, fontSmall, fillblack)
-        paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 740, fontSmall, fillblack)
+            
+        paint(draw, "评分记录", 730, 70, fontSmall, fillblack)
+        h = 70
+        for line in self.score.printTable:
+            h += 10
+            if line[0] == 0:
+                paint(draw, line[1], 730, h, fontSmall, fillblack)
+                paint(draw, line[2], 770, h, fontSmall, fillblack)
+            elif line[0] == 1:
+                paint(draw, line[1], 740, h, fontSmall, fillblack)
+                paint(draw, line[2], 780, h, fontSmall, fillblack)
+            elif line[0] == 2:
+                paint(draw, line[1], 740, h, fontSmall, fillred)
+                paint(draw, line[2], 780, h, fontSmall, fillred)
+            elif line[0] == 3:
+                paint(draw, line[1], 740, h, fontSmall, fillblack)
+                paint(draw, line[2], 780, h, fontSmall, fillblack)
+        
+        if self.score.available == 0:
+            paint(draw, "由于1-6的战斗数据不完整，无法生成评分。", 30, 690, fontText, fillblack)
+        else:
+            fillRate = (0, 0, 0)
+            if self.score.color == 0: 
+                fillRate = (255, 255, 0)
+            elif self.score.color == 1:
+                fillRate = (255, 128, 128)
+            elif self.score.color == 2:
+                fillRate = (255, 128, 0)
+            elif self.score.color == 3:
+                fillRate = (0, 128, 255)
+            elif self.score.color == 4:
+                fillRate = (128, 255, 0)
+            else:
+                fillRate = (255, 0, 0)
+            paint(draw, "基于以上数据，你的评分为：", 30, 690, fontText, fillblack)
+            paint(draw, self.score.rate, 220, 680, fontBig, fillRate)
+            paint(draw, "（以实际表现为准，评分仅供参考）", 30, 715, fontSmall, fillblack)
+            paint(draw, self.score.describe, 320, 735, fontTitle, fillRate)
+            
+        paint(draw, "进本时间：%s"%battleDate, 700, 40, fontSmall, fillblack)
+        paint(draw, "生成时间：%s"%generateDate, 700, 50, fontSmall, fillblack)
+        paint(draw, "版本号：1.8.0", 30, 780, fontSmall, fillblack)
+        paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 780, fontSmall, fillblack)
 
         image.save(filename)
     
@@ -1050,6 +1312,10 @@ class XiangZhiAnalysis():
         self.sumHit = sum(self.actorData.hitCount[data.mykey].values())
         self.sumDeath = sum(self.actorData.deathCount[data.mykey])
         self.sumInner = sum(self.actorData.innerPlace[data.mykey])
+        
+        self.score = XiangZhiScore(self.data, self.generator, self.generator2, data.mykey)
+        self.score.analysisAll()
+        
     
     def __init__(self, filelist, path, config):
         self.myname = config.xiangzhiname
