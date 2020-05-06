@@ -378,7 +378,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                     skillLog.append([int(item[2]), int(item[7])])
                     
                 if item[12] != '0' and item[5] == self.npckey:
-                    if namedict[item[4]][0] not in data.npchealstat:
+                    if item[4] not in data.npchealstat:
                         data.npchealstat[item[4]] = int(item[12])
                     else:
                         data.npchealstat[item[4]] += int(item[12])
@@ -1208,7 +1208,7 @@ class XiangZhiAnalysis():
             
         paint(draw, "进本时间：%s"%battleDate, 700, 40, fontSmall, fillblack)
         paint(draw, "生成时间：%s"%generateDate, 700, 50, fontSmall, fillblack)
-        paint(draw, "版本号：2.0.1", 30, 780, fontSmall, fillblack)
+        paint(draw, "版本号：2.0.2", 30, 780, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 780, fontSmall, fillblack)
 
         image.save(filename)
