@@ -102,7 +102,7 @@ class ShieldCounter():
         
         newList = []
         for i in range(len(s)):
-            if i + 1 < len(s) and s[i][1] == 0 and s[i+1][1] == 1 and s[i+1][0] - s[i][0] < 500:
+            if i > 0 and i + 1 < len(s) and s[i][1] == 0 and s[i+1][1] == 1 and s[i+1][0] - s[i][0] < 500:
                 s[i][1] = 2
                 s[i+1][1] = 2
             if i < len(s) and len(newList) > 0 and s[i][1] == newList[-1][1]:
@@ -199,6 +199,14 @@ class StatGeneratorBase():
         s = f.read()
         res, _ = parseLuatable(s, 8, len(s))
         self.rawdata = res
+        
+        if '9' not in self.rawdata:
+            if len(self.rawdata['']) == 17:
+                for i in range(1, 17):
+                    self.rawdata[str(i)] = [self.rawdata[''][i-1]]
+            else:
+                raise Exception("数据不完整，无法生成，请确认是否生成了正确的茗伊战斗复盘记录。")
+        
         self.bossname = self.filename.split('_')[1]
         self.battleTime = int(self.filename.split('_')[2].split('.')[0])
     
@@ -259,6 +267,7 @@ class ActorStatGenerator(StatGeneratorBase):
             data.hitCountP2[key] = self.makeEmptyHitList()
             data.deathCount[key] = [0, 0, 0, 0, 0, 0, 0]
             data.innerPlace[key] = [0, 0, 0, 0]
+            data.drawer[key] = 0
         return data
 
     def secondStageAnalysis(self):
@@ -293,16 +302,19 @@ class ActorStatGenerator(StatGeneratorBase):
                     data.hitCount[item[5]]["s" + item[7]] += 1
                     if no5P2:
                         data.hitCountP2[item[5]]["s" + item[7]] += 1
-                    if item[7] == "23092": #震怒咆哮
-                        no5P2 = 1
+                if item[7] == "23092": #震怒咆哮
+                    no5P2 = 1
                               
             elif len(item) == 13:
                 if occdict[item[5]][0] == '0':
                     continue
                 data = self.checkFirst(item[5], data, occdict)
-                if item[6] == "15868": #内场buff
+                if item[6] == "15868": #老六内场buff
                     data.innerPlace[item[5]][int(item[7])-1] = 1
-                if item[7] in self.actorBuffList and int(item[10]) == 1:
+                if item[6] == "15419": #老五吃球buff
+                    if item[9] == "false" and item[10] == '1':
+                        data.drawer[item[5]] += 1
+                if item[6] in self.actorBuffList and int(item[10]) == 1:
                     if item[5] not in data.hitCount:
                         data.hitCount[item[5]] = self.makeEmptyHitList()
                     data.hitCount[item[5]]["b" + item[6]] += 1
@@ -588,11 +600,18 @@ class ActorData():
             else:
                 self.innerPlace[line] = plusList(self.innerPlace[line], a2.innerPlace[line])
                 
+        for line in a2.drawer:
+            if line not in self.drawer:
+                self.drawer[line] = a2.drawer[line]
+            else:
+                self.drawer[line] += a2.drawer[line]
+                
     def __init__(self):
         self.deathCount = {}
         self.hitCount = {}
         self.hitCountP2 = {}
         self.innerPlace = {}
+        self.drawer = {}
 
 class XiangZhiData():
     
@@ -712,18 +731,18 @@ class XiangZhiScore():
         
     def analysisShield(self, id):
         if id == 1:
-            ShieldList = [[50,0], [80,3], [120,5]]
+            ShieldList = [[10,0], [16,3], [24,5]]
         elif id == 2:
-            ShieldList = [[60,0], [90,3], [140,5]]
+            ShieldList = [[12,0], [18,3], [28,5]]
         elif id == 3:
             return 0
         elif id == 4:
-            ShieldList = [[40,0], [70,3], [110,5]]
+            ShieldList = [[6,0], [10,3], [16,5]]
         elif id == 5:
-            ShieldList = [[20,0], [70,1], [200,5]]
+            ShieldList = [[3,0], [10,1], [25,5]]
         elif id == 6:
-            ShieldList = [[20,0], [80,1], [200,4], [300,7]]
-        score = self.scaleScore(self.data.healTable[id-1][2], ShieldList)
+            ShieldList = [[1,0], [5,1], [13,4], [20,7]]
+        score = self.scaleScore(self.data.healTable[id-1][4], ShieldList)
         return score
         
     def analysisDPS(self, id):
@@ -789,6 +808,11 @@ class XiangZhiScore():
         InnerList = [[0,0], [1,3], [2,5]]
         score = self.scaleScore(sum(self.generator2[id-1].data.innerPlace[self.mykey]), InnerList)
         return score
+        
+    def analysisDrawer(self, id):
+        InnerList = [[0,0], [4,4]]
+        score = self.scaleScore(self.generator2[id-1].data.drawer[self.mykey], InnerList)
+        return score
     
     def analysisBOSS(self, id):
         cutOff1 = [0, 5, 5, 0, 5, 5, 7]
@@ -829,6 +853,10 @@ class XiangZhiScore():
             if c4 > cutOff4[id]:
                 c4 = cutOff4[id]
                 c5 += (s6 + s7) / 2
+        elif id == 5:
+            s6 = self.analysisDrawer(id)
+            self.printTable.append([1, "连线", "%.1f"%s6])
+            c4 = s6
         elif id == 6:
             s6 = self.analysisInner(id)
             self.printTable.append([1, "内场", "%.1f"%s6])
@@ -853,7 +881,7 @@ class XiangZhiScore():
             c7 = -num1
             self.printTable.append([2, "犯错", "%.1f"%c7])
         if num2 > 0:
-            c8 = -num2
+            c8 = -num2 * 2
             self.printTable.append([2, "重伤", "%.1f"%c8])
         
         c9 = c6 + c7 + c8
@@ -1010,13 +1038,14 @@ class XiangZhiAnalysis():
         base = 615
         paint(draw, "当然，大家都要面对相同的副本机制，", 30, base, fontText, fillblack)
         paint(draw, "你中了%d次惩罚技能，重伤了%d次，"%(self.sumHit, self.sumDeath), 30, base+15, fontText, fillblack)
-        paint(draw, "在老六进了%d次内场，"%self.sumInner, 30, base+30, fontText, fillblack)
+        paint(draw, "在老五连了%d次线，在老六进了%d次内场，"%(self.sumDrawer, self.sumInner), 30, base+30, fontText, fillblack)
         paint(draw, "下次是不是可以说，自己是合格的演员啦！", 30, base+45, fontText, fillblack)
 
         paint(draw, "整体治疗量表", 350, 75, fontSmall, fillblack)
         paint(draw, "HPS", 425, 75, fontSmall, fillblack)
         paint(draw, "盾数", 460, 75, fontSmall, fillblack)
         paint(draw, "战斗时间", 500, 75, fontSmall, fillblack)
+        paint(draw, "盾每分", 540, 75, fontSmall, fillblack)
         h = 75
         for line in data.healTable:
             h += 10
@@ -1024,6 +1053,7 @@ class XiangZhiAnalysis():
             paint(draw, "%d"%line[1], 425, h, fontSmall, fillblack)
             paint(draw, "%d"%line[2], 461, h, fontSmall, fillblack)
             paint(draw, "%s"%parseTime(line[3]), 505, h, fontSmall, fillblack)
+            paint(draw, "%.1f"%line[4], 540, h, fontSmall, fillblack)
 
         paint(draw, "等效DPS表", 320, 165, fontSmall, fillblack)
         paint(draw, "DPS", 375, 165, fontSmall, fillblack)
@@ -1150,7 +1180,7 @@ class XiangZhiAnalysis():
             
         paint(draw, "进本时间：%s"%battleDate, 700, 40, fontSmall, fillblack)
         paint(draw, "生成时间：%s"%generateDate, 700, 50, fontSmall, fillblack)
-        paint(draw, "版本号：1.8.0", 30, 780, fontSmall, fillblack)
+        paint(draw, "版本号：2.0.0", 30, 780, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 780, fontSmall, fillblack)
 
         image.save(filename)
@@ -1183,7 +1213,7 @@ class XiangZhiAnalysis():
             data.numeffheal += line.data.numeffheal
             data.numshield += line.data.numshield
             data.healTable.append([line.bossname.strip('"'), int(line.data.numeffheal / line.battleTime), 
-                                   line.data.numshield, line.battleTime])
+                                   line.data.numshield, line.battleTime, line.data.numshield / line.battleTime * 60])
             if data.mykey == "":
                 data.mykey = line.data.mykey
 
@@ -1312,6 +1342,7 @@ class XiangZhiAnalysis():
         self.sumHit = sum(self.actorData.hitCount[data.mykey].values())
         self.sumDeath = sum(self.actorData.deathCount[data.mykey])
         self.sumInner = sum(self.actorData.innerPlace[data.mykey])
+        self.sumDrawer = self.actorData.drawer[data.mykey]
         
         self.score = XiangZhiScore(self.data, self.generator, self.generator2, data.mykey)
         self.score.analysisAll()
