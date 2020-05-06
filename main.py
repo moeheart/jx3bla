@@ -379,9 +379,9 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                     
                 if item[12] != '0' and item[5] == self.npckey:
                     if namedict[item[4]][0] not in data.npchealstat:
-                        data.npchealstat[namedict[item[4]][0]] = int(item[12])
+                        data.npchealstat[item[4]] = int(item[12])
                     else:
-                        data.npchealstat[namedict[item[4]][0]] += int(item[12])
+                        data.npchealstat[item[4]] += int(item[12])
                             
                 if item[7] == "14231": #梅花三弄
                     data.numshield += 1
@@ -414,16 +414,20 @@ class XiangZhiStatGenerator(StatGeneratorBase):
             if int(occdict[key][0]) == 0:
                 continue
             line = data.battlestat[key]
-            data.damageDict[namedict[key][0]] = line[0] + line[1] / 1.139
+            data.damageDict[key] = line[0] + line[1] / 1.139
             numdam += line[1] / 1.139 * 0.139 + line[2]
         
-        if self.myname not in data.damageDict:
-            data.damageDict[self.myname] = numdam
+        if self.mykey not in data.damageDict:
+            data.damageDict[self.mykey] = numdam
         else:
-            data.damageDict[self.myname] += numdam
+            data.damageDict[self.mykey] += numdam
             
         data.damageList = dictToPairs(data.damageDict)
         data.damageList.sort(key = lambda x: -x[1])
+        
+        for i in range(len(data.damageList)):
+            data.damageList[i].append(namedict[data.damageList[i][0]][0])
+            data.damageList[i].append(occdict[data.damageList[i][0]][0])
 
         sumdamage = 0
         numid = 0
@@ -431,7 +435,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
             line[1] /= self.battleTime
             sumdamage += line[1]
             numid += 1
-            if line[0] == self.myname and data.myrank == 0:
+            if line[0] == self.mykey and data.myrank == 0:
                 data.myrank = numid
                 data.mydamage = line[1]
                 sumdamage -= line[1]
@@ -439,16 +443,16 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         for key in self.shieldCounters:
             if int(occdict[key][0]) in [0, ]:
                 continue
-            if namedict[key][0] not in data.damageDict or data.damageDict[namedict[key][0]] / self.battleTime < 10000:
+            if key not in data.damageDict or data.damageDict[key] / self.battleTime < 10000:
                 continue
             if key == self.mykey:
                 continue
 
             rate = self.shieldCounters[key].shieldDuration[1] / \
                 (self.shieldCounters[key].shieldDuration[0] + self.shieldCounters[key].shieldDuration[1] + 1e-10)
-            data.rateDict[namedict[key][0]] = rate
-            data.durationDict[namedict[key][0]] = self.shieldCounters[key].shieldDuration[1]
-            data.breakDict[namedict[key][0]] = self.shieldCounters[key].breakCount
+            data.rateDict[key] = rate
+            data.durationDict[key] = self.shieldCounters[key].shieldDuration[1]
+            data.breakDict[key] = self.shieldCounters[key].breakCount
             
         data.equalDPS = data.mydamage / (sumdamage + 1e-10) * (len(data.durationDict) - 1)
         #print(data.equalDPS)
@@ -951,6 +955,28 @@ class XiangZhiAnalysis():
             return s
         else:
             return s[0] + '*' * (len(s)-1)
+            
+    def getColor(self, occ):
+        colorDict = {"0": (0, 0, 0), 
+                     "1": (160, 0, 0),#天策
+                     "2": (127, 31, 223),#万花
+                     "4": (56, 175, 255),#纯阳
+                     "5": (255, 127, 255),#七秀
+                     "3": (210, 180, 0),#少林
+                     "8": (255, 255, 0),#藏剑
+                     "9": (205, 133, 63),#丐帮
+                     "10": (253, 84, 0),#明教
+                     "6": (63, 31, 159),#五毒
+                     "7": (0, 133, 144),#唐门
+                     "21": (180, 60, 0),#苍云
+                     "22": (100, 250, 180),#长歌
+                     "23": (71, 73, 166),#霸刀
+                     "24": (195, 171, 227),#蓬莱
+                     "25": (161, 9, 34)#凌雪
+                    }
+        if occ not in colorDict:
+            occ = "0"
+        return colorDict[occ]
     
     def paint(self, filename):
     
@@ -1044,7 +1070,7 @@ class XiangZhiAnalysis():
         paint(draw, "整体治疗量表", 350, 75, fontSmall, fillblack)
         paint(draw, "HPS", 425, 75, fontSmall, fillblack)
         paint(draw, "盾数", 460, 75, fontSmall, fillblack)
-        paint(draw, "战斗时间", 500, 75, fontSmall, fillblack)
+        paint(draw, "战斗时间", 490, 75, fontSmall, fillblack)
         paint(draw, "盾每分", 540, 75, fontSmall, fillblack)
         h = 75
         for line in data.healTable:
@@ -1052,7 +1078,7 @@ class XiangZhiAnalysis():
             paint(draw, "%s"%line[0], 360, h, fontSmall, fillblack)
             paint(draw, "%d"%line[1], 425, h, fontSmall, fillblack)
             paint(draw, "%d"%line[2], 461, h, fontSmall, fillblack)
-            paint(draw, "%s"%parseTime(line[3]), 505, h, fontSmall, fillblack)
+            paint(draw, "%s"%parseTime(line[3]), 495, h, fontSmall, fillblack)
             paint(draw, "%.1f"%line[4], 540, h, fontSmall, fillblack)
 
         paint(draw, "等效DPS表", 320, 165, fontSmall, fillblack)
@@ -1073,7 +1099,7 @@ class XiangZhiAnalysis():
         h = 165
         for line in data.maxDpsTable:
             h += 10
-            paint(draw, "%s"%self.getMaskName(line[0]), 520, h, fontSmall, fillblack)
+            paint(draw, "%s"%self.getMaskName(line[2]), 520, h, fontSmall, self.getColor(line[3]))
             paint(draw, "%d DPS"%int(line[1]), 595, h, fontSmall, fillblack) 
             if h > 330:
                 break
@@ -1091,9 +1117,11 @@ class XiangZhiAnalysis():
         paint(draw, "陈徽", 490, 375, fontSmall, fillblack)
         paint(draw, "藤原武裔", 515, 375, fontSmall, fillblack)
         h = 375
+        
+        #print(data.rateList)
         for line in data.rateList:
             h += 10
-            paint(draw, "%s"%self.getMaskName(line[0]), 360, h, fontSmall, fillblack) 
+            paint(draw, "%s"%self.getMaskName(line[2]), 360, h, fontSmall, self.getColor(line[3])) 
             paint(draw, "%s%%"%parseCent(line[1]), 420, h, fontSmall, fillblack) 
             paint(draw, "%s%%"%parseCent(data.bossRateDict[line[0]][0], 0), 465, h, fontSmall, fillblack) 
             paint(draw, "%s%%"%parseCent(data.bossRateDict[line[0]][1], 0), 490, h, fontSmall, fillblack) 
@@ -1109,7 +1137,7 @@ class XiangZhiAnalysis():
         h = 375
         for line in data.breakList:
             h += 10
-            paint(draw, "%s"%self.getMaskName(line[0]), 560, h, fontSmall, fillblack) 
+            paint(draw, "%s"%self.getMaskName(line[2]), 560, h, fontSmall, self.getColor(line[3])) 
             paint(draw, "%d"%line[1], 620, h, fontSmall, fillblack)
             paint(draw, "%d"%data.bossBreakDict[line[0]][0], 650, h, fontSmall, fillblack) 
             paint(draw, "%d"%data.bossBreakDict[line[0]][1], 675, h, fontSmall, fillblack) 
@@ -1121,7 +1149,7 @@ class XiangZhiAnalysis():
         h = 580
         for line in data.npcHealList:
             h += 10
-            paint(draw, "%s"%self.getMaskName(line[0]), 360, h, fontSmall, fillblack)
+            paint(draw, "%s"%self.getMaskName(line[2]), 360, h, fontSmall, self.getColor(line[3]))
             paint(draw, "%d"%line[1], 440, h, fontSmall, fillblack)
             if h > 630:
                 break
@@ -1244,8 +1272,17 @@ class XiangZhiAnalysis():
         data.rateList = dictToPairs(data.durationDict)
         data.breakList = dictToPairs(data.breakDict)
         
+        namedict = self.generator[0].rawdata['9'][0]
+        occdict = self.generator[0].rawdata['10'][0]
+        
         for i in range(len(data.rateList)):
+            data.rateList[i].append(namedict[data.rateList[i][0]][0])
+            data.rateList[i].append(occdict[data.rateList[i][0]][0])
             data.rateList[i][1] /= sumTime * 1000
+        
+        for i in range(len(data.breakList)):
+            data.breakList[i].append(namedict[data.breakList[i][0]][0])
+            data.breakList[i].append(occdict[data.breakList[i][0]][0])
 
         data.rateList.sort(key=lambda x:-x[1])
         data.breakList.sort(key=lambda x:-x[1])
@@ -1265,11 +1302,6 @@ class XiangZhiAnalysis():
                     for line2 in line.data.breakDict:
                         data.bossBreakDict[line2][i] = line.data.breakDict[line2]
         
-        #print(data.bossRateDict)
-        #print(data.bossBreakDict)
-        
-        #print(len(data.rateList))
-        
         data.maxSingleRate = data.rateList[0][1]
         data.maxSingleRateName = data.rateList[0][0].strip("")
         data.maxSingleBreak = data.breakList[0][1]
@@ -1282,6 +1314,10 @@ class XiangZhiAnalysis():
                 data.npcHealList = dictToPairs(data.npchealstat)
                 
         data.npcHealList.sort(key=lambda x:-x[1])
+        
+        for i in range(len(data.npcHealList)):
+            data.npcHealList[i].append(namedict[data.npcHealList[i][0]][0])
+            data.npcHealList[i].append(occdict[data.npcHealList[i][0]][0])
         
         findSelf = 0
         for line in data.npcHealList:
