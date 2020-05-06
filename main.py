@@ -1208,7 +1208,7 @@ class XiangZhiAnalysis():
             
         paint(draw, "进本时间：%s"%battleDate, 700, 40, fontSmall, fillblack)
         paint(draw, "生成时间：%s"%generateDate, 700, 50, fontSmall, fillblack)
-        paint(draw, "版本号：2.0.0", 30, 780, fontSmall, fillblack)
+        paint(draw, "版本号：2.0.1", 30, 780, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 780, fontSmall, fillblack)
 
         image.save(filename)
@@ -1303,9 +1303,9 @@ class XiangZhiAnalysis():
                         data.bossBreakDict[line2][i] = line.data.breakDict[line2]
         
         data.maxSingleRate = data.rateList[0][1]
-        data.maxSingleRateName = data.rateList[0][0].strip("")
+        data.maxSingleRateName = data.rateList[0][2].strip("")
         data.maxSingleBreak = data.breakList[0][1]
-        data.maxSingleBreakName = data.breakList[0][0].strip("")
+        data.maxSingleBreakName = data.breakList[0][2].strip("")
         
         for line in generator:
             if line.bossname == "源思弦":
