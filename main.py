@@ -371,8 +371,17 @@ class XiangZhiStatGenerator(StatGeneratorBase):
             if len(item) == 16:
                 
                 if item[4] == self.mykey and item[11] != '0':
-                    data.numheal += int(item[11])
-                    data.numeffheal += int(item[12])
+                    if item[10] != '7':
+                        data.numheal += int(item[11])
+                        data.numeffheal += int(item[12])
+                    else:
+                        data.numabsorb += int(item[12])
+                    
+                if int(item[12]) > 0 and item[10] != "7":
+                    if item[4] not in data.healStat:
+                        data.healStat[item[4]] = int(item[12])
+                    else:
+                        data.healStat[item[4]] += int(item[12])
                     
                 if item[4] == self.mykey and item[6] == "1":
                     skillLog.append([int(item[2]), int(item[7])])
@@ -439,6 +448,24 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                 data.myrank = numid
                 data.mydamage = line[1]
                 sumdamage -= line[1]
+                
+        data.healList = dictToPairs(data.healStat)
+        data.healList.sort(key = lambda x: -x[1])
+        
+        sumHeal = 0
+        numid = 0
+        topHeal = 0
+        for line in data.healList:
+            if numid == 0:
+                topHeal = line[1]
+            sumHeal += line[1]
+            numid += 1
+            if line[0] == self.mykey and data.myHealRank == 0:
+                data.myHealRank = numid
+            if line[1] > topHeal * 0.2:
+                data.numHealer += 1
+        
+        data.healRate = data.numeffheal / sumHeal
                 
         for key in self.shieldCounters:
             if int(occdict[key][0]) in [0, ]:
@@ -622,12 +649,17 @@ class XiangZhiData():
     def __init__(self):
         self.numheal = 0
         self.numeffheal = 0
+        self.numabsorb = 0
+        self.healRate = 0
+        self.numHealer = 0
+        self.myHealRank = 0
         self.numshield = 0
         self.numpurge = 0
         self.mydamage = 0
         self.myrank = 0
         self.battlestat = {}
         self.npchealstat = {}
+        self.healStat = {}
         self.damageDict = {}
         self.damageList = []
         self.equalDPS = 0
@@ -673,6 +705,7 @@ class XiangZhiOverallData(XiangZhiData):
         self.npcHeal = 0
         self.npcSumHeal = 0
         self.npcHealRate = 0
+        self.npcHealNum = 0
         
         self.mykey = ""
         
@@ -746,7 +779,7 @@ class XiangZhiScore():
             ShieldList = [[3,0], [10,1], [25,5]]
         elif id == 6:
             ShieldList = [[1,0], [5,1], [13,4], [20,7]]
-        score = self.scaleScore(self.data.healTable[id-1][4], ShieldList)
+        score = self.scaleScore(self.data.healTable[id-1][6], ShieldList)
         return score
         
     def analysisDPS(self, id):
@@ -933,6 +966,7 @@ class XiangZhiAnalysis():
     generator2 = []
     battledate = ""
     mask = 0
+    color = 1
     speed = 3770
     
     hitDict = {"s22520": "锈铁钩锁", 
@@ -957,6 +991,8 @@ class XiangZhiAnalysis():
             return s[0] + '*' * (len(s)-1)
             
     def getColor(self, occ):
+        if self.color == 0:
+            return (0, 0, 0)
         colorDict = {"0": (0, 0, 0), 
                      "1": (160, 0, 0),#天策
                      "2": (127, 31, 223),#万花
@@ -1052,7 +1088,7 @@ class XiangZhiAnalysis():
         paint(draw, "[源思弦]可以说是整个副本最难的BOSS，", 30, base, fontText, fillblack)
         paint(draw, "你在其中使用了%d次[一指回鸾]，"%data.numpurge, 30, base+15, fontText, fillblack)
         paint(draw, "你对[尹青羲]的治疗量是%d点，占比%s%%，"%(data.npcHeal, parseCent(data.npcHealRate)), 30, base+30, fontText, fillblack)
-        paint(draw, "在所有奶妈中排名第%d位，"%data.npcRank, 30, base+45, fontText, fillblack)
+        paint(draw, "在所有奶妈中排名第%d/%d位，"%(data.npcRank, data.npcHealNum), 30, base+45, fontText, fillblack)
         paint(draw, "是不是觉得自己能打能奶，文武双全！", 30, base+60, fontText, fillblack)
         
         base = 540
@@ -1067,19 +1103,25 @@ class XiangZhiAnalysis():
         paint(draw, "在老五连了%d次线，在老六进了%d次内场，"%(self.sumDrawer, self.sumInner), 30, base+30, fontText, fillblack)
         paint(draw, "下次是不是可以说，自己是合格的演员啦！", 30, base+45, fontText, fillblack)
 
-        paint(draw, "整体治疗量表", 350, 75, fontSmall, fillblack)
-        paint(draw, "HPS", 425, 75, fontSmall, fillblack)
-        paint(draw, "盾数", 460, 75, fontSmall, fillblack)
-        paint(draw, "战斗时间", 490, 75, fontSmall, fillblack)
-        paint(draw, "盾每分", 540, 75, fontSmall, fillblack)
+        paint(draw, "整体治疗量表", 300, 75, fontSmall, fillblack)
+        paint(draw, "HPS", 355, 75, fontSmall, fillblack)
+        paint(draw, "占比", 390, 75, fontSmall, fillblack)
+        paint(draw, "排名", 430, 75, fontSmall, fillblack)
+        paint(draw, "APS", 460, 75, fontSmall, fillblack)
+        paint(draw, "盾数", 490, 75, fontSmall, fillblack)
+        paint(draw, "战斗时间", 520, 75, fontSmall, fillblack)
+        paint(draw, "盾每分", 570, 75, fontSmall, fillblack)
         h = 75
         for line in data.healTable:
             h += 10
-            paint(draw, "%s"%line[0], 360, h, fontSmall, fillblack)
-            paint(draw, "%d"%line[1], 425, h, fontSmall, fillblack)
-            paint(draw, "%d"%line[2], 461, h, fontSmall, fillblack)
-            paint(draw, "%s"%parseTime(line[3]), 495, h, fontSmall, fillblack)
-            paint(draw, "%.1f"%line[4], 540, h, fontSmall, fillblack)
+            paint(draw, "%s"%line[0], 310, h, fontSmall, fillblack)
+            paint(draw, "%d"%line[1], 355, h, fontSmall, fillblack)
+            paint(draw, "%s%%"%parseCent(line[2]), 390, h, fontSmall, fillblack)
+            paint(draw, "%d/%d"%(line[3], line[4]), 430, h, fontSmall, fillblack)
+            paint(draw, "%d"%line[5], 460, h, fontSmall, fillblack)
+            paint(draw, "%d"%line[6], 490, h, fontSmall, fillblack)
+            paint(draw, "%s"%parseTime(line[7]), 520, h, fontSmall, fillblack)
+            paint(draw, "%.1f"%line[8], 570, h, fontSmall, fillblack)
 
         paint(draw, "等效DPS表", 320, 165, fontSmall, fillblack)
         paint(draw, "DPS", 375, 165, fontSmall, fillblack)
@@ -1241,6 +1283,8 @@ class XiangZhiAnalysis():
             data.numeffheal += line.data.numeffheal
             data.numshield += line.data.numshield
             data.healTable.append([line.bossname.strip('"'), int(line.data.numeffheal / line.battleTime), 
+                                   line.data.healRate, line.data.myHealRank, line.data.numHealer, 
+                                   int(line.data.numabsorb / line.battleTime),
                                    line.data.numshield, line.battleTime, line.data.numshield / line.battleTime * 60])
             if data.mykey == "":
                 data.mykey = line.data.mykey
@@ -1323,11 +1367,12 @@ class XiangZhiAnalysis():
         for line in data.npcHealList:
             if not findSelf:
                 data.npcRank += 1
-            if line[0].strip('"') == self.myname.strip('"') and not findSelf:
+            if line[0] == data.mykey and not findSelf:
                 data.npcHeal = line[1]
                 findSelf = 1
             data.npcSumHeal += line[1]
         data.npcHealRate = data.npcHeal / (data.npcSumHeal + 1e-10)
+        data.npcHealNum = len(data.npcHealList)
         
         for line in generator:
             data.sumBusyTime += line.data.sumBusyTime
@@ -1387,6 +1432,7 @@ class XiangZhiAnalysis():
     def __init__(self, filelist, path, config):
         self.myname = config.xiangzhiname
         self.mask = config.mask
+        self.color = config.color
         self.speed = config.speed
         self.loadData(filelist, path)
         self.battledate = '-'.join(filelist[0].split('-')[0:3])
@@ -1479,8 +1525,10 @@ class Config():
             self.jx3path = self.items["jx3path"]
             self.xiangzhiname = self.items["xiangzhiname"]
             self.mask = int(self.items["mask"])
+            self.color = int(self.items["color"])
             self.speed = int(self.items["speed"])
             assert self.mask in [0, 1]
+            assert self.color in [0, 1]
         except:
             raise Exception("配置文件格式不正确，请确认。如无法定位问题，请删除config.ini，在生成的配置文件的基础上进行修改。")
     
@@ -1492,6 +1540,7 @@ jx3path=
 basepath=
 xiangzhiname=
 mask=0
+color=1
 speed=3770""")
         g.close()
         pass
@@ -1502,6 +1551,7 @@ speed=3770""")
         self.jx3path = ""
         self.xiangzhiname = ""
         self.mask = 0
+        self.color = 1
         self.speed = 3770
     
     def __init__(self, filename):
