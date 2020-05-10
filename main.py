@@ -464,6 +464,9 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                 data.myHealRank = numid
             if line[1] > topHeal * 0.2:
                 data.numHealer += 1
+                
+        if data.myHealRank > data.numHealer:
+            data.numHealer = data.myHealRank
         
         data.healRate = data.numeffheal / sumHeal
                 
@@ -779,7 +782,7 @@ class XiangZhiScore():
             ShieldList = [[3,0], [10,1], [25,5]]
         elif id == 6:
             ShieldList = [[1,0], [5,1], [13,4], [20,7]]
-        score = self.scaleScore(self.data.healTable[id-1][6], ShieldList)
+        score = self.scaleScore(self.data.healTable[id-1][8], ShieldList)
         return score
         
     def analysisDPS(self, id):
@@ -961,13 +964,16 @@ class XiangZhiScore():
 
 class XiangZhiAnalysis():
     
+    map = "敖龙岛"
     myname = ""
     generator = []
     generator2 = []
     battledate = ""
     mask = 0
     color = 1
+    text = 0
     speed = 3770
+    pastH = 0
     
     hitDict = {"s22520": "锈铁钩锁", 
                "s22521": "火轮重锤",
@@ -1032,6 +1038,17 @@ class XiangZhiAnalysis():
                 font = font,
                 fill = fill
             )
+            if self.text == 1:
+                if posy != self.pastH:
+                    self.f.write('\n')
+                    self.pastH = posy
+                else:
+                    self.f.write('    ')
+                self.f.write(content)
+                
+        def write(content):
+            if self.text == 1:
+                self.f.write(content)
 
         fontPath = 'C:\\Windows\\Fonts\\msyh.ttc'
         if not os.path.isfile(fontPath):
@@ -1051,16 +1068,21 @@ class XiangZhiAnalysis():
         fillblack = (0, 0, 0)
         fillred = (255, 0, 0)
         draw = ImageDraw.Draw(image)
+        
+        if self.text == 1:
+            self.f = open("result.txt", "w")
 
-        paint(draw, "敖龙岛战斗记录-奶歌", 290, 10, fontTitle, fillcyan)
+        paint(draw, "%s战斗记录-奶歌"%self.map, 290, 10, fontTitle, fillcyan)
         paint(draw, "可爱的奶歌[%s]："%self.myname.strip('"'), 10, 50, fontText, fillblack)
+        write('\n')
 
         base = 75
-        paint(draw, "在这次敖龙岛之旅中，", 30, base, fontText, fillblack)
+        paint(draw, "在这次%s之旅中，"%self.map, 30, base, fontText, fillblack)
         paint(draw, "你一共产生了%d点治疗量，"%data.numheal, 30, base+15, fontText, fillblack)
         paint(draw, "其中有%d点是有效治疗，"%data.numeffheal, 30, base+30, fontText, fillblack)
         paint(draw, "你一共使用了%d次[梅花三弄]，"%data.numshield, 30, base+45, fontText, fillblack)
         paint(draw, "它们是不是也可以算成治疗量的一部分呢。", 30, base+60, fontText, fillblack)
+        write('\n')
 
         base = 165
         paint(draw, "每个奶歌都有一个DPS的心，", 30, base, fontText, fillblack)
@@ -1070,12 +1092,14 @@ class XiangZhiAnalysis():
         paint(draw, "是平均数的%.2f倍，"%data.maxEqualDPS, 30, base+60, fontText, fillblack)
         paint(draw, "在所有DPS中排在第%d位，"%data.maxDpsRank, 30, base+75, fontText, fillblack)
         paint(draw, "是不是又觉得自己的门票稳了一些！", 30, base+90, fontText, fillblack)
+        write('\n')
 
         base = 285
         paint(draw, "并非每时每刻都能感受到梅花三弄的体贴，", 30, base, fontText, fillblack)
         paint(draw, "整个战斗中，梅花三弄的平均覆盖率是%s%%，"%parseCent(data.overallrate), 30, base+15, fontText, fillblack)
         paint(draw, "其中最高的BOSS是[%s]，覆盖率为%s%%"%(data.maxRateName, parseCent(data.maxRate)), 30, base+30, fontText, fillblack)
         paint(draw, "和你想象中的一样吗？", 30, base+45, fontText, fillblack)
+        write('\n')
 
         base = 360
         paint(draw, "DPS们并不都知道奶歌的人间冷暖，", 30, base, fontText, fillblack)
@@ -1083,6 +1107,7 @@ class XiangZhiAnalysis():
         paint(draw, "是因为好好保了盾，还是你更关注他一些?", 30, base+30, fontText, fillblack)
         paint(draw, "而破盾次数最多的是[%s]，有%d次,"%(self.getMaskName(data.maxSingleBreakName), data.maxSingleBreak), 30, base+45, fontText, fillblack)
         paint(draw, "下次知道该把谁放在最后了吧！", 30, base+60, fontText, fillblack)
+        write('\n')
 
         base = 450
         paint(draw, "[源思弦]可以说是整个副本最难的BOSS，", 30, base, fontText, fillblack)
@@ -1090,18 +1115,21 @@ class XiangZhiAnalysis():
         paint(draw, "你对[尹青羲]的治疗量是%d点，占比%s%%，"%(data.npcHeal, parseCent(data.npcHealRate)), 30, base+30, fontText, fillblack)
         paint(draw, "在所有奶妈中排名第%d/%d位，"%(data.npcRank, data.npcHealNum), 30, base+45, fontText, fillblack)
         paint(draw, "是不是觉得自己能打能奶，文武双全！", 30, base+60, fontText, fillblack)
+        write('\n')
         
         base = 540
         paint(draw, "治疗职业在副本中一点也不比DPS轻松，", 30, base, fontText, fillblack)
         paint(draw, "按照%d加速计算，"%self.speed, 30, base+15, fontText, fillblack)
         paint(draw, "你在副本中的空闲时间比例为%s%%，"%parseCent(data.spareRate), 30, base+30, fontText, fillblack)
         paint(draw, "快和别的小伙伴比一比，看是谁更划水呀。", 30, base+45, fontText, fillblack)
+        write('\n')
         
         base = 615
         paint(draw, "当然，大家都要面对相同的副本机制，", 30, base, fontText, fillblack)
         paint(draw, "你中了%d次惩罚技能，重伤了%d次，"%(self.sumHit, self.sumDeath), 30, base+15, fontText, fillblack)
         paint(draw, "在老五连了%d次线，在老六进了%d次内场，"%(self.sumDrawer, self.sumInner), 30, base+30, fontText, fillblack)
         paint(draw, "下次是不是可以说，自己是合格的演员啦！", 30, base+45, fontText, fillblack)
+        write('\n')
 
         paint(draw, "整体治疗量表", 300, 75, fontSmall, fillblack)
         paint(draw, "HPS", 355, 75, fontSmall, fillblack)
@@ -1123,6 +1151,7 @@ class XiangZhiAnalysis():
             paint(draw, "%s"%parseTime(line[7]), 520, h, fontSmall, fillblack)
             paint(draw, "%.1f"%line[8], 570, h, fontSmall, fillblack)
 
+        write('\n')
         paint(draw, "等效DPS表", 320, 165, fontSmall, fillblack)
         paint(draw, "DPS", 375, 165, fontSmall, fillblack)
         paint(draw, "排名", 410, 165, fontSmall, fillblack)
@@ -1137,6 +1166,7 @@ class XiangZhiAnalysis():
             paint(draw, "%.2f"%line[3], 440, h, fontSmall, fillblack)
             paint(draw, "%d"%line[4], 470, h, fontSmall, fillblack)
 
+        write('\n')
         paint(draw, "[%s]的等效DPS统计"%data.maxDpsName, 520, 165, fontSmall, fillblack)  
         h = 165
         for line in data.maxDpsTable:
@@ -1146,6 +1176,7 @@ class XiangZhiAnalysis():
             if h > 330:
                 break
 
+        write('\n')
         paint(draw, "平均覆盖率表", 350, 280, fontSmall, fillblack)
         h = 280
         for line in data.rateTable:
@@ -1153,6 +1184,7 @@ class XiangZhiAnalysis():
             paint(draw, "%s"%line[0], 360, h, fontSmall, fillblack) 
             paint(draw, "%s%%"%parseCent(line[1]), 410, h, fontSmall, fillblack) 
 
+        write('\n')
         paint(draw, "DPS覆盖率统计", 350, 375, fontSmall, fillblack)
         paint(draw, "全程", 420, 375, fontSmall, fillblack)
         paint(draw, "铁黎", 465, 375, fontSmall, fillblack)
@@ -1171,6 +1203,7 @@ class XiangZhiAnalysis():
             if h > 550:
                 break
 
+        write('\n')
         paint(draw, "DPS破盾次数", 550, 375, fontSmall, fillblack)
         paint(draw, "全程", 620, 375, fontSmall, fillblack)
         paint(draw, "铁黎", 650, 375, fontSmall, fillblack)
@@ -1187,6 +1220,7 @@ class XiangZhiAnalysis():
             if h > 550:
                 break
 
+        write('\n')
         paint(draw, "NPC治疗量统计", 345, 580, fontSmall, fillblack)
         h = 580
         for line in data.npcHealList:
@@ -1195,7 +1229,8 @@ class XiangZhiAnalysis():
             paint(draw, "%d"%line[1], 440, h, fontSmall, fillblack)
             if h > 630:
                 break
-                
+             
+        write('\n')
         paint(draw, "空闲比例表", 500, 580, fontSmall, fillblack)
         h = 580
         for line in data.spareRateList:
@@ -1203,6 +1238,7 @@ class XiangZhiAnalysis():
             paint(draw, "%s"%line[0], 510, h, fontSmall, fillblack)
             paint(draw, "%s%%"%parseCent(line[1]), 560, h, fontSmall, fillblack)
             
+        write('\n')
         paint(draw, "犯错记录", 620, 580, fontSmall, fillblack)
         h = 580
         for line in actorData.hitCount[data.mykey]:
@@ -1210,6 +1246,7 @@ class XiangZhiAnalysis():
             paint(draw, "%s"%self.hitDict[line], 630, h, fontSmall, fillblack)
             paint(draw, "%d"%actorData.hitCount[data.mykey][line], 690, h, fontSmall, fillblack)
             
+        write('\n')
         paint(draw, "评分记录", 730, 70, fontSmall, fillblack)
         h = 70
         for line in self.score.printTable:
@@ -1227,6 +1264,7 @@ class XiangZhiAnalysis():
                 paint(draw, line[1], 740, h, fontSmall, fillblack)
                 paint(draw, line[2], 780, h, fontSmall, fillblack)
         
+        write('\n')
         if self.score.available == 0:
             paint(draw, "由于1-6的战斗数据不完整，无法生成评分。", 30, 690, fontText, fillblack)
         else:
@@ -1248,12 +1286,16 @@ class XiangZhiAnalysis():
             paint(draw, "（以实际表现为准，评分仅供参考）", 30, 715, fontSmall, fillblack)
             paint(draw, self.score.describe, 320, 735, fontTitle, fillRate)
             
+        write('\n')
         paint(draw, "进本时间：%s"%battleDate, 700, 40, fontSmall, fillblack)
         paint(draw, "生成时间：%s"%generateDate, 700, 50, fontSmall, fillblack)
-        paint(draw, "版本号：2.0.2", 30, 780, fontSmall, fillblack)
+        paint(draw, "版本号：2.1.0", 30, 780, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 780, fontSmall, fillblack)
 
         image.save(filename)
+        
+        if self.text == 1:
+            self.f.close()
     
     def loadData(self, fileList, path):
         
@@ -1428,13 +1470,16 @@ class XiangZhiAnalysis():
         self.score = XiangZhiScore(self.data, self.generator, self.generator2, data.mykey)
         self.score.analysisAll()
         
+        
     
-    def __init__(self, filelist, path, config):
+    def __init__(self, filelist, map, path, config):
         self.myname = config.xiangzhiname
         self.mask = config.mask
         self.color = config.color
+        self.text = config.text
         self.speed = config.speed
         self.loadData(filelist, path)
+        self.map = map
         self.battledate = '-'.join(filelist[0].split('-')[0:3])
         
         
@@ -1476,7 +1521,12 @@ class FileLookUp():
             if line[-6:] == "jx3dat":
                 selectFileList.append(line)
 
-        bossDict = {"铁黎": 1, "陈徽": 2, "藤原武裔": 3, "源思弦": 4, "驺吾": 5, "方有崖": 6}
+        bossDict = {"铁黎": 1, "陈徽": 2, "藤原武裔": 3, "源思弦": 4, "驺吾": 5, "方有崖": 6,
+                    "周贽": 1, "狼牙精锐": 1, "狼牙刀盾兵": 1, "厌夜": 2, "迟驻": 3, "白某": 4, "安小逢": 5}
+        mapDict = {"铁黎": 1, "陈徽": 1, "藤原武裔": 1, "源思弦": 1, "驺吾": 1, "方有崖": 1,
+                   "周贽": 2, "狼牙精锐": 2, "狼牙刀盾兵": 2, "厌夜": 2, "迟驻": 2, "白某": 2, "安小逢": 2}
+        mapNameList = ["未知地图", "敖龙岛", "范阳夜变"]
+        
         nowBoss = 6
         bossPos = [-1] * 8
         bossPos[7] = 999
@@ -1508,8 +1558,12 @@ class FileLookUp():
                 
         if finalList == "":
             print("没有合适的战斗记录，请确认目录设置或角色是否正确。")
+            
+        finalFileName = finalList[-1]
+        finalBossName = finalFileName.split('_')[-2]
+        finalMap = mapNameList[mapDict[finalBossName]]
 
-        return finalList
+        return finalList, finalMap
     
     def __init__(self):
         pass
@@ -1527,8 +1581,10 @@ class Config():
             self.mask = int(self.items["mask"])
             self.color = int(self.items["color"])
             self.speed = int(self.items["speed"])
+            self.text = int(self.items["text"])
             assert self.mask in [0, 1]
             assert self.color in [0, 1]
+            assert self.text in [0, 1]
         except:
             raise Exception("配置文件格式不正确，请确认。如无法定位问题，请删除config.ini，在生成的配置文件的基础上进行修改。")
     
@@ -1541,6 +1597,7 @@ basepath=
 xiangzhiname=
 mask=0
 color=1
+text=0
 speed=3770""")
         g.close()
         pass
@@ -1552,6 +1609,7 @@ speed=3770""")
         self.xiangzhiname = ""
         self.mask = 0
         self.color = 1
+        self.text = 0
         self.speed = 3770
     
     def __init__(self, filename):
@@ -1592,10 +1650,10 @@ if __name__ == "__main__":
                 fileLookUp.getPathFromWinreg()
                 fileLookUp.getBasePath(config.playername)
 
-        filelist = fileLookUp.getLocalFile()
+        filelist, map = fileLookUp.getLocalFile()
         print("开始分析。分析耗时可能较长，请耐心等待……")
         
-        b = XiangZhiAnalysis(filelist, fileLookUp.basepath, config)
+        b = XiangZhiAnalysis(filelist, map, fileLookUp.basepath, config)
         b.analysis()
         b.paint("result.png")
         
