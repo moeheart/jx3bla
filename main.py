@@ -85,6 +85,7 @@ class ShieldCounter():
     
     shieldLog = []
     breakCount = 0
+    shieldCount = 0
     shieldDuration = [0, 0]
     startTime = 0
     finalTime = 0
@@ -123,11 +124,17 @@ class ShieldCounter():
         n = len(newList)
         self.shieldDuration = [0, 0]
         self.breakCount = 0
+        self.shieldCount = 0
         for i in range(1, n):
             assert newList[i][1] != newList[i-1][1]
             self.shieldDuration[newList[i-1][1]] += newList[i][0] - newList[i-1][0]
             if newList[i][1] == 0:
                 self.breakCount += 1
+            if newList[i-1][1] == 1:
+                self.shieldCount += 1
+                
+        if newList[-1][1] == 1:
+            self.shieldCount += 1
 
         self.shieldDuration[newList[n-1][1]] += self.finalTime - newList[n-1][0]
         
@@ -415,8 +422,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         data.sumBusyTime = skillCounter.sumBusyTime
         data.sumSpareTime = skillCounter.sumSpareTime
         data.spareRate = data.sumSpareTime / (data.sumBusyTime + data.sumSpareTime + 1e-10)
-        #print(data.spareRate)
-        #print(data.sumBusyTime, data.sumSpareTime, data.spareRate)
+
             
         numdam = 0
         for key in data.battlestat:
@@ -470,7 +476,9 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         
         data.healRate = data.numeffheal / sumHeal
                 
+        sumShield = 0
         for key in self.shieldCounters:
+            sumShield += self.shieldCounters[key].shieldCount
             if int(occdict[key][0]) in [0, ]:
                 continue
             if key not in data.damageDict or data.damageDict[key] / self.battleTime < 10000:
@@ -483,9 +491,12 @@ class XiangZhiStatGenerator(StatGeneratorBase):
             data.rateDict[key] = rate
             data.durationDict[key] = self.shieldCounters[key].shieldDuration[1]
             data.breakDict[key] = self.shieldCounters[key].breakCount
+            print(self.shieldCounters[key].breakCount, self.shieldCounters[key].shieldCount)
+            
+        print(sumShield, data.numshield)
+        data.numshield = sumShield
             
         data.equalDPS = data.mydamage / (sumdamage + 1e-10) * (len(data.durationDict) - 1)
-        #print(data.equalDPS)
         
         numrate = 0
         sumrate = 0
@@ -1289,7 +1300,7 @@ class XiangZhiAnalysis():
         write('\n')
         paint(draw, "进本时间：%s"%battleDate, 700, 40, fontSmall, fillblack)
         paint(draw, "生成时间：%s"%generateDate, 700, 50, fontSmall, fillblack)
-        paint(draw, "版本号：2.1.0", 30, 780, fontSmall, fillblack)
+        paint(draw, "版本号：2.2.0", 30, 780, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 780, fontSmall, fillblack)
 
         image.save(filename)
