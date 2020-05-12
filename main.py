@@ -233,6 +233,51 @@ def add1(d, s):
     else:
         d[s] = 1
     return d
+    
+class DpsGeneralStatGenerator(StatGeneratorBase):
+
+    def makeEmptyStat(self, name, occ):
+        res = {"name": name,
+               "occ": occ,
+               "damage": 0,
+               "numskill": 0,
+               "log": []}
+        return res
+        
+        
+    def SecondStageAnalysis(self):
+        
+        res = self.rawdata
+        
+        namedict = res['9'][0]
+        occdict = res['10'][0]
+        sk = res['16'][0][""]
+
+        num = 0
+        
+        result = {"player": {}, 
+                  "bossname": self.bossname,
+                  "battleTime": self.battleTime}
+
+        for line in sk:
+            item = line[""]
+            
+            if len(item) == 16:
+                if item[14] != "0" and item[5] in namedict:
+                    if item[5] not in result["player"]:
+                        result["player"][item[5]] = self.makeEmptyStat(namedict[item[5]][0], occdict[item[5]][0])
+                    result["player"][item[5]]["damage"] += int(item[14])
+                    result["player"][item[5]]["numskill"] += 1
+                    result["player"][item[5]]["log"].append([item[2], item[7], item[14]])
+
+            num += 1
+        
+        return result
+
+
+    def __init__(self, filename, path = "", rawdata = {}, myname = ""):
+        self.myname = myname
+        super().__init__(filename, path, rawdata)
         
 class ActorStatGenerator(StatGeneratorBase):
 
@@ -341,11 +386,7 @@ class ActorStatGenerator(StatGeneratorBase):
     def __init__(self, filename, path = "", rawdata = {}, myname = ""):
         self.myname = myname
         super().__init__(filename, path, rawdata)
-        #self.filename = filename
-        #self.parseFile(path)
         self.no1Hit = {}
-    
-    pass
         
 
 class XiangZhiStatGenerator(StatGeneratorBase):
@@ -1322,6 +1363,10 @@ class XiangZhiAnalysis():
             res2 = ActorStatGenerator(filename, path, res.rawdata, self.myname)
             res2.secondStageAnalysis()
             self.generator2.append(res2)
+            
+            dpsGenerator = DpsGeneralStatGenerator(filename, path, res.rawdata, self.myname)
+            dpsStat = dpsGenerator.SecondStageAnalysis()
+            print(dpsStat)
                 
     def analysis(self):
             
