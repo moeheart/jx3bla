@@ -263,12 +263,12 @@ class DpsGeneralStatGenerator(StatGeneratorBase):
             item = line[""]
             
             if len(item) == 16:
-                if item[14] != "0" and item[5] in namedict:
-                    if item[5] not in result["player"]:
-                        result["player"][item[5]] = self.makeEmptyStat(namedict[item[5]][0], occdict[item[5]][0])
-                    result["player"][item[5]]["damage"] += int(item[14])
-                    result["player"][item[5]]["numskill"] += 1
-                    result["player"][item[5]]["log"].append([item[2], item[7], item[14]])
+                if item[14] != "0" and item[4] in namedict:
+                    if item[4] not in result["player"]:
+                        result["player"][item[4]] = self.makeEmptyStat(namedict[item[4]][0], occdict[item[4]][0])
+                    result["player"][item[4]]["damage"] += int(item[14])
+                    result["player"][item[4]]["numskill"] += 1
+                    result["player"][item[4]]["log"].append([item[2], item[7], item[14]])
 
             num += 1
         
