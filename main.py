@@ -399,8 +399,8 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                     else:
                         data.npchealstat[item[4]] += int(item[12])
                             
-                if item[7] == "14231": #梅花三弄
-                    data.numshield += 1
+                #if item[7] == "14231": #梅花三弄
+                #    data.numshield += 1
 
                 if item[7] == "14169": #一指回鸾
                     data.numpurge += 1
@@ -491,9 +491,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
             data.rateDict[key] = rate
             data.durationDict[key] = self.shieldCounters[key].shieldDuration[1]
             data.breakDict[key] = self.shieldCounters[key].breakCount
-            print(self.shieldCounters[key].breakCount, self.shieldCounters[key].shieldCount)
-            
-        print(sumShield, data.numshield)
+
         data.numshield = sumShield
             
         data.equalDPS = data.mydamage / (sumdamage + 1e-10) * (len(data.durationDict) - 1)
