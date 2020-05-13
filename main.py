@@ -1363,10 +1363,6 @@ class XiangZhiAnalysis():
             res2 = ActorStatGenerator(filename, path, res.rawdata, self.myname)
             res2.secondStageAnalysis()
             self.generator2.append(res2)
-            
-            dpsGenerator = DpsGeneralStatGenerator(filename, path, res.rawdata, self.myname)
-            dpsStat = dpsGenerator.SecondStageAnalysis()
-            print(dpsStat)
                 
     def analysis(self):
             
