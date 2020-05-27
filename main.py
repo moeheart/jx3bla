@@ -657,6 +657,15 @@ def plusDict(d1, d2):
             d[key] = d2[key]
     return d
     
+def concatDict(d1, d2):
+    d = {}
+    for key in d1:
+        d[key] = d1[key]
+    for key in d2:
+        if key not in d:
+            d[key] = d2[key]
+    return d
+    
 class ActorData():
 
     def addActorData(self, a2):
@@ -1233,13 +1242,18 @@ class XiangZhiAnalysis():
             h += 10
             paint(draw, "%s"%line[0], 360, h, fontSmall, fillblack) 
             paint(draw, "%s%%"%parseCent(line[1]), 410, h, fontSmall, fillblack) 
+            
+        if self.map == "范阳夜变":
+            bossNameList = ["厌夜", "迟驻", "白某"]
+        else:
+            bossNameList = ["铁黎", "陈徽", "藤原武裔"]
 
         write('\n')
         paint(draw, "DPS覆盖率统计", 350, 375, fontSmall, fillblack)
         paint(draw, "全程", 420, 375, fontSmall, fillblack)
-        paint(draw, "铁黎", 465, 375, fontSmall, fillblack)
-        paint(draw, "陈徽", 490, 375, fontSmall, fillblack)
-        paint(draw, "藤原武裔", 515, 375, fontSmall, fillblack)
+        paint(draw, "%s"%bossNameList[0], 465, 375, fontSmall, fillblack)
+        paint(draw, "%s"%bossNameList[1], 490, 375, fontSmall, fillblack)
+        paint(draw, "%s"%bossNameList[2], 515, 375, fontSmall, fillblack)
         h = 375
         
         #print(data.rateList)
@@ -1256,9 +1270,9 @@ class XiangZhiAnalysis():
         write('\n')
         paint(draw, "DPS破盾次数", 550, 375, fontSmall, fillblack)
         paint(draw, "全程", 620, 375, fontSmall, fillblack)
-        paint(draw, "铁黎", 650, 375, fontSmall, fillblack)
-        paint(draw, "陈徽", 675, 375, fontSmall, fillblack)
-        paint(draw, "藤原武裔", 700, 375, fontSmall, fillblack)
+        paint(draw, "%s"%bossNameList[0], 650, 375, fontSmall, fillblack)
+        paint(draw, "%s"%bossNameList[1], 675, 375, fontSmall, fillblack)
+        paint(draw, "%s"%bossNameList[2], 700, 375, fontSmall, fillblack)
         h = 375
         for line in data.breakList:
             h += 10
@@ -1339,7 +1353,7 @@ class XiangZhiAnalysis():
         write('\n')
         paint(draw, "进本时间：%s"%battleDate, 700, 40, fontSmall, fillblack)
         paint(draw, "生成时间：%s"%generateDate, 700, 50, fontSmall, fillblack)
-        paint(draw, "版本号：2.2.0", 30, 780, fontSmall, fillblack)
+        paint(draw, "版本号：2.3.0", 30, 780, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 780, fontSmall, fillblack)
 
         image.save(filename)
@@ -1408,9 +1422,12 @@ class XiangZhiAnalysis():
         data.rateList = dictToPairs(data.durationDict)
         data.breakList = dictToPairs(data.breakDict)
         
-        namedict = self.generator[0].rawdata['9'][0]
-        occdict = self.generator[0].rawdata['10'][0]
-        
+        namedict = {}
+        occdict = {}
+        for i in range(len(self.generator)):
+            namedict = concatDict(namedict, self.generator[i].rawdata['9'][0])
+            occdict = concatDict(occdict, self.generator[i].rawdata['10'][0])
+
         for i in range(len(data.rateList)):
             data.rateList[i].append(namedict[data.rateList[i][0]][0])
             data.rateList[i].append(occdict[data.rateList[i][0]][0])
@@ -1430,7 +1447,10 @@ class XiangZhiAnalysis():
             data.bossBreakDict[line[0]] = [0, 0, 0]
         
         for line in generator:
-            bossNameList = ["铁黎", "陈徽", "藤原武裔"]
+            if self.map == "范阳夜变":
+                bossNameList = ["厌夜", "迟驻", "白某"]
+            else:
+                bossNameList = ["铁黎", "陈徽", "藤原武裔"]
             for i in range(len(bossNameList)):
                 if line.bossname == bossNameList[i]:
                     for line2 in line.data.durationDict:
