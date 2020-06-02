@@ -284,6 +284,7 @@ class DpsGeneralStatGenerator(StatGeneratorBase):
 class ActorStatGenerator(StatGeneratorBase):
     yanyeID = {}
     yanyeThreshold = 0.04
+    wumianguiID = {}
     
     actorSkillList = ["22520", #锈铁钩锁
                   "22521", #火轮重锤
@@ -348,7 +349,7 @@ class ActorStatGenerator(StatGeneratorBase):
                         self.yanyeID[item[4]] = 2
                         
                 if namedict[item[5]][0] == '"无面鬼"' and occdict[item[5]][0] == '0':
-                    self.wumianguiID = item[5]
+                    self.wumianguiID[item[5]] = 0
 
     def secondStageAnalysis(self):
         res = self.rawdata
@@ -369,18 +370,20 @@ class ActorStatGenerator(StatGeneratorBase):
         yanyeActive = 0
         if self.yanyeID != {}:
             yanyeActive = 1
-            yanyeHP = [0, 130720000, 130720000]
+            yanyeHP = [0, 261440000, 261440000]
             yanyeMaxHP = 261440000
             yanyeDPS = {}
             rushDPS = {}
             rushTmpDPS = {}
             paneltyDPS = {}
             wasteDPS = {}
+            yanyeResult = {}
             rush = 1
             wumianguiLabel = 0
         
-        print(self.yanyeID)
-        print(yanyeActive)
+        #print(self.yanyeID)
+        #print(self.wumianguiID)
+        #print(yanyeActive)
 
         for line in sk:
             item = line[""]
@@ -410,18 +413,27 @@ class ActorStatGenerator(StatGeneratorBase):
                             if rush == 2:
                                 if item[4] not in rushTmpDPS:
                                     rushTmpDPS[item[4]] = [0, 0, 0]
+                                    yanyeResult[item[4]] = [0, 0, 0, 0, 0, 0]
                                 rushTmpDPS[item[4]][yanyeLabel] += int(item[14])
                             elif rush == 1:
                                 if item[4] not in rushDPS:
                                     rushDPS[item[4]] = 0
+                                    yanyeResult[item[4]] = [0, 0, 0, 0, 0, 0]
                                 rushDPS[item[4]] += int(item[14])
                             else:
                                 if item[4] not in yanyeDPS:
                                     yanyeDPS[item[4]] = [0, 0, 0]
+                                    yanyeResult[item[4]] = [0, 0, 0, 0, 0, 0]
                                 yanyeDPS[item[4]][yanyeLabel] += int(item[14])
-                        if item[5] == self.wumianguiID:
+                                if yanyeHP[yanyeLabel] < yanyeHP[3-yanyeLabel] - 0.04 * yanyeMaxHP:
+                                    if item[4] not in paneltyDPS:
+                                        paneltyDPS[item[4]] = 0
+                                        yanyeResult[item[4]] = [0, 0, 0, 0, 0, 0]
+                                    paneltyDPS[item[4]] += int(item[14])
+                        if item[5] in self.wumianguiID:
                             if item[4] not in rushDPS:
                                 rushDPS[item[4]] = 0
+                                yanyeResult[item[4]] = [0, 0, 0, 0, 0, 0]
                             rushDPS[item[4]] += int(item[14])
                             yanyeHP[wumianguiLabel] -= int(item[14])
                         
@@ -446,6 +458,7 @@ class ActorStatGenerator(StatGeneratorBase):
                         yanyeHP[1] = halfHP
                         yanyeHP[2] = halfHP
                         rush = 0
+                        wumianguiLabel = 0
                         
             elif item[3] == '3': #重伤记录
                 if occdict[item[4]][0] == '0':
@@ -460,10 +473,10 @@ class ActorStatGenerator(StatGeneratorBase):
                     if item[4] in ['"吱吱叽！！！"', '"咯咯咕！！！"', "……锋刃可弃身。"]:
                         rush = 2
                         rushTmpDPS = {}
-                    print(item)
+                    #print(yanyeHP[1] / yanyeMaxHP)
+                    #print(yanyeHP[2] / yanyeMaxHP)
+                    #print(item)
                     if item[4] in ['"呜啊……！"']:
-                        print("Enter")
-                        print(rush)
                         if rush == 2:
                             if yanyeHP[1] < yanyeHP[2]:
                                 wumianguiLabel = 1
@@ -472,8 +485,10 @@ class ActorStatGenerator(StatGeneratorBase):
                             for line in rushTmpDPS:
                                 if line not in rushDPS:
                                     rushDPS[line] = 0
+                                    yanyeResult[line] = [0, 0, 0, 0, 0, 0]
                                 if line not in wasteDPS:
                                     wasteDPS[line] = 0
+                                    yanyeResult[line] = [0, 0, 0, 0, 0, 0]
                                 rushDPS[line] += rushTmpDPS[line][wumianguiLabel]
                                 wasteDPS[line] += rushTmpDPS[line][3 - wumianguiLabel]
                             rushTmpDPS = {}
@@ -481,11 +496,26 @@ class ActorStatGenerator(StatGeneratorBase):
 
             num += 1
             
+        yanyeResultList = []
+        
         if yanyeActive:
-            print(yanyeDPS)
-            print(rushDPS)
-            print(wasteDPS)
-            print(rushTmpDPS)
+            for line in yanyeDPS:
+                yanyeResult[line][0] = int(yanyeDPS[line][1] / self.battleTime)
+                yanyeResult[line][1] = int(yanyeDPS[line][2] / self.battleTime)
+            for line in rushDPS:
+                yanyeResult[line][2] = int(rushDPS[line] / self.battleTime)
+            for line in wasteDPS:
+                yanyeResult[line][3] = int(wasteDPS[line] / self.battleTime)
+            for line in paneltyDPS:
+                yanyeResult[line][4] = int(paneltyDPS[line] / self.battleTime)
+            for line in yanyeResult:
+                yanyeResultList.append([namedict[line][0]] + [occdict[line][0]] + [yanyeResult[line][0] + yanyeResult[line][1] + yanyeResult[line][2] - yanyeResult[line][4]] + yanyeResult[line])
+            
+            yanyeResultList.sort(key = lambda x:-x[2])
+            
+            self.yanyeResult = yanyeResultList
+            
+            #print(yanyeResultList)
             
         self.data = data
         
@@ -1164,6 +1194,133 @@ class ActorAnalysis():
     text = 0
     speed = 3770
     pastH = 0
+    yanyeTable = {}
+    
+    def getMaskName(self, name):
+        s = name.strip('"')
+        if self.mask == 0:
+            return s
+        else:
+            return s[0] + '*' * (len(s)-1)
+            
+    def getColor(self, occ):
+        if self.color == 0:
+            return (0, 0, 0)
+        colorDict = {"0": (0, 0, 0), 
+                     "1": (160, 0, 0),#天策
+                     "2": (127, 31, 223),#万花
+                     "4": (56, 175, 255),#纯阳
+                     "5": (255, 127, 255),#七秀
+                     "3": (210, 180, 0),#少林
+                     "8": (255, 255, 0),#藏剑
+                     "9": (205, 133, 63),#丐帮
+                     "10": (253, 84, 0),#明教
+                     "6": (63, 31, 159),#五毒
+                     "7": (0, 133, 144),#唐门
+                     "21": (180, 60, 0),#苍云
+                     "22": (100, 250, 180),#长歌
+                     "23": (71, 73, 166),#霸刀
+                     "24": (195, 171, 227),#蓬莱
+                     "25": (161, 9, 34)#凌雪
+                    }
+        if occ not in colorDict:
+            occ = "0"
+        return colorDict[occ]
+        
+    def paint(self, filename):
+    
+        #data = self.data
+    
+        battleDate = self.battledate
+        generateDate = time.strftime("%Y-%m-%d", time.localtime())
+
+        width = 800
+        height = 800
+
+        def paint(draw, content, posx, posy, font, fill):
+            draw.text(
+                (posx, posy),
+                text = content,
+                font = font,
+                fill = fill
+            )
+            if self.text == 1:
+                if posy != self.pastH:
+                    self.f.write('\n')
+                    self.pastH = posy
+                else:
+                    self.f.write('    ')
+                self.f.write(content)
+                
+        def write(content):
+            if self.text == 1:
+                self.f.write(content)
+
+        fontPath = 'C:\\Windows\\Fonts\\msyh.ttc'
+        if not os.path.isfile(fontPath):
+            print("系统中未找到字体文件，将在当前目录下查找msyh.ttc")
+            fontPath = 'msyh.ttc'
+            if not os.path.isfile(fontPath):
+                print("当前目录下也没有，请尝试从群文件或Github上获取")
+                raise Exception("找不到字体文件：msyh.ttc")
+
+        fontTitle = ImageFont.truetype(font=fontPath, encoding="unic", size=24)
+        fontText = ImageFont.truetype(font=fontPath, encoding="unic", size=14)
+        fontSmall = ImageFont.truetype(font=fontPath, encoding="unic", size=8)
+        fontBig = ImageFont.truetype(font=fontPath, encoding="unic", size=48)
+
+        image = Image.new(mode='RGB', size=(width, height), color=(255, 255, 255))
+        fillcyan = (0, 255, 255)
+        fillblack = (0, 0, 0)
+        fillred = (255, 0, 0)
+        draw = ImageDraw.Draw(image)
+        
+        if self.text == 1:
+            self.f = open("result.txt", "w")
+
+        paint(draw, "%s战斗记录-演员"%self.map, 290, 10, fontTitle, fillcyan)
+        paint(draw, "厌夜的战斗数据如图所示。", 10, 50, fontText, fillblack)
+        paint(draw, "“平血”表示未识别时对白云和小剑的伤害。", 10, 75, fontText, fillblack)
+        paint(draw, "“RUSH”表示识别成功时对假厌夜和无面鬼的伤害。", 10, 90, fontText, fillblack)
+        paint(draw, "“无效DPS”表示识别成功时对真厌夜的伤害。", 10, 105, fontText, fillblack)
+        paint(draw, "“惩罚DPS”表示平血阶段血量差超过4%时的伤害。", 10, 120, fontText, fillblack)
+        paint(draw, "“有效DPS”表示扣除无效与惩罚DPS的总伤害。", 10, 135, fontText, fillblack)
+        write('\n')
+
+        paint(draw, "厌夜战斗统计", 350, 75, fontSmall, fillblack)
+        paint(draw, "有效DPS", 420, 75, fontSmall, fillblack)
+        paint(draw, "平血-白云", 460, 75, fontSmall, fillblack)
+        paint(draw, "平血-小剑", 500, 75, fontSmall, fillblack)
+        paint(draw, "RUSH", 540, 75, fontSmall, fillblack)
+        paint(draw, "无效DPS", 580, 75, fontSmall, fillblack)
+        paint(draw, "惩罚DPS", 620, 75, fontSmall, fillblack)
+        h = 75
+        for line in self.yanyeTable:
+            h += 10
+            paint(draw, "%s"%self.getMaskName(line[0]), 360, h, fontSmall, self.getColor(line[1])) 
+            paint(draw, "%d"%line[2], 420, h, fontSmall, fillblack)
+            paint(draw, "%d"%line[3], 463, h, fontSmall, fillblack)
+            paint(draw, "%d"%line[4], 503, h, fontSmall, fillblack)
+            paint(draw, "%d"%line[5], 540, h, fontSmall, fillblack)
+            paint(draw, "%d"%line[6], 580, h, fontSmall, fillblack)
+            paint(draw, "%d"%line[7], 620, h, fontSmall, fillblack)
+
+        write('\n')
+        paint(draw, "进本时间：%s"%battleDate, 700, 40, fontSmall, fillblack)
+        paint(draw, "生成时间：%s"%generateDate, 700, 50, fontSmall, fillblack)
+        paint(draw, "版本号：%s"%edition, 30, 780, fontSmall, fillblack)
+        paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 780, fontSmall, fillblack)
+
+        image.save(filename)
+        
+        if self.text == 1:
+            self.f.close()
+        
+    
+    def analysis(self):
+        for line in self.generator:
+            if line.bossname == "厌夜":
+                self.yanyeTable = line.yanyeResult
     
     def loadData(self, fileList, path, raw):
         for filename in fileList:
@@ -1895,8 +2052,13 @@ if __name__ == "__main__":
         print("奶歌战斗复盘分析完成！结果保存在result.png中")
         
         c = ActorAnalysis(filelist, map, fileLookUp.basepath, config, raw)
+        c.analysis()
         
-        #c = ActorAnalysis(b.
+        if c.yanyeTable != "":
+            c.paint("actor.png")
+            print("检测到厌夜数据！")
+            print("演员战斗复盘分析完成！结果保存在actor.png中")
+        
         
     except Exception as e:
         traceback.print_exc()
