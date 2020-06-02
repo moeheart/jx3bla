@@ -6,6 +6,8 @@ import winreg
 import configparser
 import traceback
 
+edition = "3.0.0"
+
 def parseLuatable(s, n, maxn):
     numLeft = 0
     nowi = n
@@ -262,7 +264,7 @@ class DpsGeneralStatGenerator(StatGeneratorBase):
         for line in sk:
             item = line[""]
             
-            if len(item) == 16:
+            if item[3] == "1":
                 if item[14] != "0" and item[4] in namedict:
                     if item[4] not in result["player"]:
                         result["player"][item[4]] = self.makeEmptyStat(namedict[item[4]][0], occdict[item[4]][0])
@@ -280,7 +282,9 @@ class DpsGeneralStatGenerator(StatGeneratorBase):
         super().__init__(filename, path, rawdata)
         
 class ActorStatGenerator(StatGeneratorBase):
-
+    yanyeID = {}
+    yanyeThreshold = 0.04
+    
     actorSkillList = ["22520", #锈铁钩锁
                   "22521", #火轮重锤
                   "22203", #气吞八方
@@ -321,6 +325,30 @@ class ActorStatGenerator(StatGeneratorBase):
             data.innerPlace[key] = [0, 0, 0, 0]
             data.drawer[key] = 0
         return data
+        
+    def firstStageAnalysis(self):
+        res = self.rawdata
+        
+        namedict = res['9'][0]
+        occdict = res['10'][0]
+        sk = res['16'][0][""]
+        
+        for line in sk:
+            item = line[""]
+            if item[3] == "1":
+                if item[5] not in namedict:
+                    continue
+                if namedict[item[5]][0] == '"厌夜"' and occdict[item[5]][0] == '0':
+                    if item[5] not in self.yanyeID:
+                        self.yanyeID[item[5]] = 0
+                if item[4] in self.yanyeID:
+                    if item[7] == "23635":
+                        self.yanyeID[item[4]] = 1
+                    elif item[7] == "23637":
+                        self.yanyeID[item[4]] = 2
+                        
+                if namedict[item[5]][0] == '"无面鬼"' and occdict[item[5]][0] == '0':
+                    self.wumianguiID = item[5]
 
     def secondStageAnalysis(self):
         res = self.rawdata
@@ -337,27 +365,68 @@ class ActorStatGenerator(StatGeneratorBase):
         no5P2 = 0
         
         lastHit = {}
+        
+        yanyeActive = 0
+        if self.yanyeID != {}:
+            yanyeActive = 1
+            yanyeHP = [0, 130720000, 130720000]
+            yanyeMaxHP = 261440000
+            yanyeDPS = {}
+            rushDPS = {}
+            rushTmpDPS = {}
+            paneltyDPS = {}
+            wasteDPS = {}
+            rush = 1
+            wumianguiLabel = 0
+        
+        print(self.yanyeID)
+        print(yanyeActive)
 
         for line in sk:
             item = line[""]
             
-            if len(item) == 16:
-                if occdict[item[5]][0] == '0':
-                    continue
-                data = self.checkFirst(item[5], data, occdict)
-                if item[7] in self.actorSkillList and int(item[10]) != 2:
-                    if item[7] == "22520": #锈铁钩锁
-                        if item[5] not in lastHit or int(item[2]) - lastHit[item[5]] > 10000: #10秒缓冲时间
-                            lastHit[item[5]] = int(item[2])
-                        else:
-                            continue
-                    data.hitCount[item[5]]["s" + item[7]] += 1
-                    if no5P2:
-                        data.hitCountP2[item[5]]["s" + item[7]] += 1
-                if item[7] == "23092": #震怒咆哮
-                    no5P2 = 1
+            if item[3] == '1': #技能
+            
+                if occdict[item[5]][0] != '0':
+                    data = self.checkFirst(item[5], data, occdict)
+                    if item[7] in self.actorSkillList and int(item[10]) != 2:
+                        if item[7] == "22520": #锈铁钩锁
+                            if item[5] not in lastHit or int(item[2]) - lastHit[item[5]] > 10000: #10秒缓冲时间
+                                lastHit[item[5]] = int(item[2])
+                            else:
+                                continue
+                        data.hitCount[item[5]]["s" + item[7]] += 1
+                        if no5P2:
+                            data.hitCountP2[item[5]]["s" + item[7]] += 1
+                            
+                    if item[7] == "23092": #震怒咆哮
+                        no5P2 = 1
+                        
+                else:
+                    if yanyeActive:
+                        if item[5] in self.yanyeID:
+                            yanyeLabel = self.yanyeID[item[5]]
+                            yanyeHP[yanyeLabel] -= int(item[14])
+                            if rush == 2:
+                                if item[4] not in rushTmpDPS:
+                                    rushTmpDPS[item[4]] = [0, 0, 0]
+                                rushTmpDPS[item[4]][yanyeLabel] += int(item[14])
+                            elif rush == 1:
+                                if item[4] not in rushDPS:
+                                    rushDPS[item[4]] = 0
+                                rushDPS[item[4]] += int(item[14])
+                            else:
+                                if item[4] not in yanyeDPS:
+                                    yanyeDPS[item[4]] = [0, 0, 0]
+                                yanyeDPS[item[4]][yanyeLabel] += int(item[14])
+                        if item[5] == self.wumianguiID:
+                            if item[4] not in rushDPS:
+                                rushDPS[item[4]] = 0
+                            rushDPS[item[4]] += int(item[14])
+                            yanyeHP[wumianguiLabel] -= int(item[14])
+                        
                               
-            elif len(item) == 13:
+            elif item[3] == '5': #气劲
                 if occdict[item[5]][0] == '0':
                     continue
                 data = self.checkFirst(item[5], data, occdict)
@@ -370,17 +439,54 @@ class ActorStatGenerator(StatGeneratorBase):
                     if item[5] not in data.hitCount:
                         data.hitCount[item[5]] = self.makeEmptyHitList()
                     data.hitCount[item[5]]["b" + item[6]] += 1
+                
+                if yanyeActive:
+                    if item[6] == "16913": #厌夜威压buff     
+                        halfHP = (yanyeHP[1] + yanyeHP[2]) / 2
+                        yanyeHP[1] = halfHP
+                        yanyeHP[2] = halfHP
+                        rush = 0
                         
-            elif len(item) == 8:
+            elif item[3] == '3': #重伤记录
                 if occdict[item[4]][0] == '0':
                     continue
                 data = self.checkFirst(item[4], data, occdict)
                 if item[4] in occdict and int(occdict[item[4]][0]) != 0:
                     if self.bossname in self.bossNameDict:
                         data.deathCount[item[4]][self.bossNameDict[self.bossname]] += 1
+                        
+            elif item[3] == '8': #喊话
+                if yanyeActive:
+                    if item[4] in ['"吱吱叽！！！"', '"咯咯咕！！！"', "……锋刃可弃身。"]:
+                        rush = 2
+                        rushTmpDPS = {}
+                    print(item)
+                    if item[4] in ['"呜啊……！"']:
+                        print("Enter")
+                        print(rush)
+                        if rush == 2:
+                            if yanyeHP[1] < yanyeHP[2]:
+                                wumianguiLabel = 1
+                            else:
+                                wumianguiLabel = 2
+                            for line in rushTmpDPS:
+                                if line not in rushDPS:
+                                    rushDPS[line] = 0
+                                if line not in wasteDPS:
+                                    wasteDPS[line] = 0
+                                rushDPS[line] += rushTmpDPS[line][wumianguiLabel]
+                                wasteDPS[line] += rushTmpDPS[line][3 - wumianguiLabel]
+                            rushTmpDPS = {}
+                        rush = 1
 
             num += 1
-        
+            
+        if yanyeActive:
+            print(yanyeDPS)
+            print(rushDPS)
+            print(wasteDPS)
+            print(rushTmpDPS)
+            
         self.data = data
         
     def __init__(self, filename, path = "", rawdata = {}, myname = ""):
@@ -416,7 +522,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         for line in sk:
             item = line[""]
             
-            if len(item) == 16:
+            if item[3] == "1":
                 
                 if item[4] == self.mykey and item[11] != '0':
                     if item[10] != '7':
@@ -576,7 +682,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                 self.startTime = int(item[2])
             self.finalTime = int(item[2])
                 
-            if len(item) == 16:
+            if item[3] == "1":
                 if item[4] not in MoWenList and item[7] in ["14067", "14298", "14302"]:
                     MoWenList.append(item[4])
                 if item[4] not in XiangZhiList and item[7] in ["14231", "14140", "14301"]:
@@ -587,7 +693,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                     else:
                         shieldLogDict[item[5]].append([int(item[2]), 1])
                     
-            if len(item) == 13:
+            if item[3] == "5":
                 if item[6] in ["9334", "16911"]: #buff梅花三弄
                     if item[5] not in shieldLogDict:
                         shieldLogDict[item[5]] = [[int(item[2]), int(item[10])]]
@@ -621,9 +727,9 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                 self.shieldCounters[key] = ShieldCounter([], self.startTime, self.finalTime)
                 self.shieldCounters[key].analysisShieldData()
             
-    def __init__(self, filename, path, myname):
+    def __init__(self, filename, myname, path = "", rawdata = {}):
         self.myname = myname
-        super().__init__(filename, path)
+        super().__init__(filename, path, rawdata)
         #self.filename = filename
         #self.parseFile(path)
             
@@ -1020,6 +1126,63 @@ class XiangZhiScore():
         self.printTable = []
         self.score = 0
 
+class RawDataParser():
+
+    def parseFile(self, path, filename):
+        if path == "":
+            name = filename
+        else:
+            name = "%s\\%s"%(path, filename)
+        print("读取文件：%s"%name)
+        f = open(name, "r")
+        s = f.read()
+        res, _ = parseLuatable(s, 8, len(s))
+        
+        if '9' not in res:
+            if len(res['']) == 17:
+                for i in range(1, 17):
+                    res[str(i)] = [res[''][i-1]]
+            else:
+                raise Exception("数据不完整，无法生成，请确认是否生成了正确的茗伊战斗复盘记录。")
+                
+        return res
+    
+    def __init__(self, filelist, path):
+        self.rawdata = {}
+        for filename in filelist:
+            self.rawdata[filename] = self.parseFile(path, filename)
+            
+class ActorAnalysis():
+    
+    map = "敖龙岛"
+    myname = ""
+    generator = []
+    generator2 = []
+    battledate = ""
+    mask = 0
+    color = 1
+    text = 0
+    speed = 3770
+    pastH = 0
+    
+    def loadData(self, fileList, path, raw):
+        for filename in fileList:
+            res = ActorStatGenerator(filename, path, rawdata = raw[filename])
+            res.firstStageAnalysis()
+            res.secondStageAnalysis()
+            self.generator.append(res)
+            
+    
+    def __init__(self, filelist, map, path, config, raw):
+        self.myname = config.xiangzhiname
+        self.mask = config.mask
+        self.color = config.color
+        self.text = config.text
+        self.speed = config.speed
+        self.loadData(filelist, path, raw)
+        self.map = map
+        self.battledate = '-'.join(filelist[0].split('-')[0:3])
+    
 
 class XiangZhiAnalysis():
     
@@ -1353,7 +1516,7 @@ class XiangZhiAnalysis():
         write('\n')
         paint(draw, "进本时间：%s"%battleDate, 700, 40, fontSmall, fillblack)
         paint(draw, "生成时间：%s"%generateDate, 700, 50, fontSmall, fillblack)
-        paint(draw, "版本号：2.3.0", 30, 780, fontSmall, fillblack)
+        paint(draw, "版本号：%s"%edition, 30, 780, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 780, fontSmall, fillblack)
 
         image.save(filename)
@@ -1361,10 +1524,10 @@ class XiangZhiAnalysis():
         if self.text == 1:
             self.f.close()
     
-    def loadData(self, fileList, path):
+    def loadData(self, fileList, path, raw):
         
         for filename in fileList:
-            res = XiangZhiStatGenerator(filename, path, self.myname)
+            res = XiangZhiStatGenerator(filename, self.myname, rawdata = raw[filename])
             res.speed = self.speed
             res.firstStageAnalysis()
             res.secondStageAnalysis()
@@ -1542,13 +1705,13 @@ class XiangZhiAnalysis():
         
         
     
-    def __init__(self, filelist, map, path, config):
+    def __init__(self, filelist, map, path, config, raw):
         self.myname = config.xiangzhiname
         self.mask = config.mask
         self.color = config.color
         self.text = config.text
         self.speed = config.speed
-        self.loadData(filelist, path)
+        self.loadData(filelist, path, raw)
         self.map = map
         self.battledate = '-'.join(filelist[0].split('-')[0:3])
         
@@ -1723,11 +1886,17 @@ if __name__ == "__main__":
         filelist, map = fileLookUp.getLocalFile()
         print("开始分析。分析耗时可能较长，请耐心等待……")
         
-        b = XiangZhiAnalysis(filelist, map, fileLookUp.basepath, config)
+        raw = RawDataParser(filelist, fileLookUp.basepath).rawdata
+        
+        b = XiangZhiAnalysis(filelist, map, fileLookUp.basepath, config, raw)
         b.analysis()
         b.paint("result.png")
         
-        print("分析完成！结果保存在result.png中")
+        print("奶歌战斗复盘分析完成！结果保存在result.png中")
+        
+        c = ActorAnalysis(filelist, map, fileLookUp.basepath, config, raw)
+        
+        #c = ActorAnalysis(b.
         
     except Exception as e:
         traceback.print_exc()
