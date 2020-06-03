@@ -1,6 +1,6 @@
 # 剑网三战斗日志分析
 
-JX3 **B**attle **L**og **A**nalyser v3.0.0
+JX3 **B**attle **L**og **A**nalyser v3.1.0
 
 用于深入分析剑网三中茗伊战斗复盘的框架。
 
