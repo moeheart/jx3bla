@@ -82,6 +82,38 @@ def parseTime(time):
             return "%dm"%(time/60)
         else:
             return "%dm%ds"%(time/60, time%60)
+            
+class BuffCounter():
+    startTime = 0
+    finalTime = 0
+    buffid = 0
+    log = []
+    
+    def setState(self, time, stack):
+        self.log.append([int(time), int(stack)])
+    
+    def checkState(self, time):
+        res = 0
+        for i in range(1, len(self.log)):
+            if int(time) < self.log[i][0]:
+                res = self.log[i-1][1]
+                break
+        else:
+            res = self.log[-1][1]
+        return res
+        
+    def sumTime(self):
+        time = 0
+        for i in range(len(self.log)-1):
+            time += self.log[i][1] * (self.log[i+1][0] - self.log[i][0])
+        return time
+    
+    def __init__(self, buffid, startTime, finalTime):
+        self.buffid = buffid
+        self.startTime = startTime
+        self.finalTime = finalTime
+        self.log = [[startTime, 0]]
+        
 
 class ShieldCounter():
     
@@ -282,9 +314,20 @@ class DpsGeneralStatGenerator(StatGeneratorBase):
         super().__init__(filename, path, rawdata)
         
 class ActorStatGenerator(StatGeneratorBase):
+    potList = []
     yanyeID = {}
     yanyeThreshold = 0.04
+    yanyeActive = 0
     wumianguiID = {}
+    chizhuActive = 0
+    chizhuID = ""
+    baimouActive = 0
+    baimouID = ""
+    fulingID = {}
+    
+    startTime = 0
+    finalTime = 0
+    playerIDList = {}
     
     actorSkillList = ["22520", #锈铁钩锁
                   "22521", #火轮重锤
@@ -339,9 +382,14 @@ class ActorStatGenerator(StatGeneratorBase):
             if item[3] == "1":
                 if item[5] not in namedict:
                     continue
+                    
+                if occdict[item[5]][0] != '0':
+                    self.playerIDList[item[5]] = 0
+                    
                 if namedict[item[5]][0] == '"厌夜"' and occdict[item[5]][0] == '0':
                     if item[5] not in self.yanyeID:
                         self.yanyeID[item[5]] = 0
+                    self.yanyeActive = 1
                 if item[4] in self.yanyeID:
                     if item[7] == "23635":
                         self.yanyeID[item[4]] = 1
@@ -350,12 +398,26 @@ class ActorStatGenerator(StatGeneratorBase):
                         
                 if namedict[item[5]][0] == '"无面鬼"' and occdict[item[5]][0] == '0':
                     self.wumianguiID[item[5]] = 0
+                    
+                if namedict[item[5]][0] == '"迟驻"' and occdict[item[5]][0] == '0':
+                    self.chizhuActive = 1
+                    self.chizhuID = item[5]
+                    
+                if namedict[item[5]][0] == '"白某"' and occdict[item[5]][0] == '0':
+                    self.baimouActive = 1
+                    self.baimouID = item[5]
+                
+                if namedict[item[5]][0] in ['"少阴符灵"', '"少阳符灵"'] and occdict[item[5]][0] == '0':
+                    self.fulingID[item[5]] = 1
+                    
+                
 
     def secondStageAnalysis(self):
         res = self.rawdata
         
         namedict = res['9'][0]
         occdict = res['10'][0]
+        skilldict = res['11'][0]
         sk = res['16'][0][""]
         
         data = ActorData()
@@ -367,9 +429,8 @@ class ActorStatGenerator(StatGeneratorBase):
         
         lastHit = {}
         
-        yanyeActive = 0
-        if self.yanyeID != {}:
-            yanyeActive = 1
+        yanyeActive = self.yanyeActive
+        if yanyeActive:
             yanyeHP = [0, 261440000, 261440000]
             yanyeMaxHP = 261440000
             yanyeDPS = {}
@@ -380,13 +441,39 @@ class ActorStatGenerator(StatGeneratorBase):
             yanyeResult = {}
             rush = 1
             wumianguiLabel = 0
+            
+        chizhuActive = self.chizhuActive
+        if chizhuActive:
+            chizhuBuff = ["16909", "16807", "16824", "17075"]
+            self.buffCount = {}
+            self.dps = {}
+            for line in self.playerIDList:
+                self.buffCount[line] = {}
+                for id in chizhuBuff:
+                    self.buffCount[line][id] = BuffCounter(id, self.startTime, self.finalTime)
+                self.dps[line] = [0, 0]
+                
+        baimouActive = self.baimouActive
+        if baimouActive:
+            self.breakBoatCount = {}
+            self.dps = {}
+            for line in self.playerIDList:
+                self.breakBoatCount[line] = {}
+                self.breakBoatCount[line] = BuffCounter("16841", self.startTime, self.finalTime)
+                self.dps[line] = [0, 0, 0]
         
         #print(self.yanyeID)
         #print(self.wumianguiID)
         #print(yanyeActive)
+        
+        bufflist = ['"覆舟"', '"命符·阴"', '"命符·阳"', '"命符·生"', '"命符·死"', '"符咒禁锢"']
+        #["16841", "16818", "16819", "16816", "16817", "16842"]
 
         for line in sk:
             item = line[""]
+            if self.startTime == 0:
+                self.startTime = int(item[2])
+            self.finalTime = int(item[2])
             
             if item[3] == '1': #技能
             
@@ -406,6 +493,7 @@ class ActorStatGenerator(StatGeneratorBase):
                         no5P2 = 1
                         
                 else:
+                    
                     if yanyeActive:
                         if item[5] in self.yanyeID:
                             yanyeLabel = self.yanyeID[item[5]]
@@ -436,9 +524,34 @@ class ActorStatGenerator(StatGeneratorBase):
                                 yanyeResult[item[4]] = [0, 0, 0, 0, 0, 0]
                             rushDPS[item[4]] += int(item[14])
                             yanyeHP[wumianguiLabel] -= int(item[14])
-                        
+                    
+                    if chizhuActive:
+                        if item[5] == self.chizhuID and item[4] in self.buffCount:
+                            self.dps[item[4]][0] += int(item[14])
+                            kanpo = self.buffCount[item[4]]["17075"].checkState(int(item[2]))
+                            if kanpo < 6:
+                                self.dps[item[4]][1] += int(item[14]) / (1 - 0.15 * kanpo)
+                                
+                    if baimouActive:
+                        if item[5] == self.baimouID and item[4] in self.breakBoatCount:
+                            self.dps[item[4]][0] += int(item[14])
+                        if item[5] in self.fulingID and item[4] in self.breakBoatCount:
+                            self.dps[item[4]][1] += int(item[14])
+                        if item[5] in namedict and item[4] in self.breakBoatCount and namedict[item[5]][0] == '"水牢"':
+                            self.dps[item[4]][2] += int(item[14])
                               
             elif item[3] == '5': #气劲
+
+                '''
+                if skilldict[item[8]][0][""][0] in bufflist:
+                    print(item)
+                    print(skilldict[item[8]][0][""][0])
+                    for i in range(len(bufflist)):
+                        if bufflist[i] == skilldict[item[8]][0][""][0]:
+                            bufflist[i] = "123"
+                '''
+                
+            
                 if occdict[item[5]][0] == '0':
                     continue
                 data = self.checkFirst(item[5], data, occdict)
@@ -460,6 +573,15 @@ class ActorStatGenerator(StatGeneratorBase):
                         rush = 0
                         wumianguiLabel = 0
                         
+                if chizhuActive:
+                    if item[6] in chizhuBuff:
+                        self.buffCount[item[5]][item[6]].setState(int(item[2]), int(item[10]))
+                        
+                if baimouActive:
+                    if item[6] == "16841":
+                        self.breakBoatCount[item[5]].setState(int(item[2]), int(item[10]))
+                        
+                        
             elif item[3] == '3': #重伤记录
                 if occdict[item[4]][0] == '0':
                     continue
@@ -467,15 +589,19 @@ class ActorStatGenerator(StatGeneratorBase):
                 if item[4] in occdict and int(occdict[item[4]][0]) != 0:
                     if self.bossname in self.bossNameDict:
                         data.deathCount[item[4]][self.bossNameDict[self.bossname]] += 1
+                
+                    self.potList.append([namedict[item[4]][0],
+                                         occdict[item[4]][0],
+                                         self.bossname,
+                                         "%s重伤，来源：xxx(yyy)"%parseTime(item[2])])
+                                         
+                                     
                         
             elif item[3] == '8': #喊话
                 if yanyeActive:
                     if item[4] in ['"吱吱叽！！！"', '"咯咯咕！！！"', "……锋刃可弃身。"]:
                         rush = 2
                         rushTmpDPS = {}
-                    #print(yanyeHP[1] / yanyeMaxHP)
-                    #print(yanyeHP[2] / yanyeMaxHP)
-                    #print(item)
                     if item[4] in ['"呜啊……！"']:
                         if rush == 2:
                             if yanyeHP[1] < yanyeHP[2]:
@@ -509,7 +635,8 @@ class ActorStatGenerator(StatGeneratorBase):
             for line in paneltyDPS:
                 yanyeResult[line][4] = int(paneltyDPS[line] / self.battleTime)
             for line in yanyeResult:
-                yanyeResultList.append([namedict[line][0]] + [occdict[line][0]] + [yanyeResult[line][0] + yanyeResult[line][1] + yanyeResult[line][2] - yanyeResult[line][4]] + yanyeResult[line])
+                if yanyeResult[line][0] + yanyeResult[line][1] + yanyeResult[line][2] - yanyeResult[line][4] > 10000:
+                    yanyeResultList.append([namedict[line][0]] + [occdict[line][0]] + [yanyeResult[line][0] + yanyeResult[line][1] + yanyeResult[line][2] - yanyeResult[line][4]] + yanyeResult[line])
             
             yanyeResultList.sort(key = lambda x:-x[2])
             
@@ -517,6 +644,49 @@ class ActorStatGenerator(StatGeneratorBase):
             
             #print(yanyeResultList)
             
+        if chizhuActive:
+            chizhuResult = []
+            for line in self.buffCount:
+                disableTime = 0
+                for id in ["16909", "16807", "16824"]:
+                    res = self.buffCount[line][id].sumTime()
+                    disableTime += res
+                wushiTime = self.buffCount[line]["17075"].sumTime()
+                baseTime = self.battleTime - disableTime / 1000
+                if self.dps[line][1] / baseTime > 10000:
+                    chizhuResult.append([namedict[line][0], 
+                                         occdict[line][0],
+                                         self.dps[line][1] / baseTime,
+                                         disableTime / 1000,
+                                         wushiTime / 1000,
+                                         self.dps[line][0] / self.battleTime])
+                                     
+            chizhuResult.sort(key = lambda x:-x[2])                   
+            #print(chizhuResult)
+            self.chizhuResult = chizhuResult
+            
+        if baimouActive:
+            baimouResult = []
+            for line in self.breakBoatCount:
+                disableTime = self.breakBoatCount[line].sumTime()
+                baseTime = self.battleTime - disableTime / 1000
+                effectiveDPS = (self.dps[line][0] + self.dps[line][1]) / baseTime
+                originDPS = (self.dps[line][0] + self.dps[line][1] + self.dps[line][2]) / self.battleTime
+                if effectiveDPS > 10000:
+                    baimouResult.append([namedict[line][0],
+                                         occdict[line][0],
+                                         effectiveDPS,
+                                         self.dps[line][0] / (baseTime - 170.5),
+                                         self.dps[line][1] / 170.5,
+                                         self.dps[line][2] / self.battleTime,
+                                         originDPS,
+                                         disableTime / 1000])
+                                         
+            baimouResult.sort(key = lambda x:-x[2]) 
+            #print(baimouResult)
+            self.baimouResult = baimouResult
+                                         
+        #print(self.potList)
         self.data = data
         
     def __init__(self, filename, path = "", rawdata = {}, myname = ""):
@@ -1195,6 +1365,8 @@ class ActorAnalysis():
     speed = 3770
     pastH = 0
     yanyeTable = {}
+    yanyeActive = 0
+    chizhuActive = 0
     
     def getMaskName(self, name):
         s = name.strip('"')
@@ -1279,31 +1451,86 @@ class ActorAnalysis():
             self.f = open("result.txt", "w")
 
         paint(draw, "%s战斗记录-演员"%self.map, 290, 10, fontTitle, fillcyan)
-        paint(draw, "厌夜的战斗数据如图所示。", 10, 50, fontText, fillblack)
-        paint(draw, "“平血”表示未识别时对白云和小剑的伤害。", 10, 75, fontText, fillblack)
-        paint(draw, "“RUSH”表示识别成功时对假厌夜和无面鬼的伤害。", 10, 90, fontText, fillblack)
-        paint(draw, "“无效DPS”表示识别成功时对真厌夜的伤害。", 10, 105, fontText, fillblack)
-        paint(draw, "“惩罚DPS”表示平血阶段血量差超过4%时的伤害。", 10, 120, fontText, fillblack)
-        paint(draw, "“有效DPS”表示扣除无效与惩罚DPS的总伤害。", 10, 135, fontText, fillblack)
-        write('\n')
+        
+        if self.yanyeActive:
+            paint(draw, "[厌夜]的战斗时间为%s。"%parseTime(self.yanyeTime), 10, 60, fontText, fillblack)
+            paint(draw, "“平血”表示未识别时对白云和小剑的伤害。", 20, 90, fontSmall, fillblack)
+            paint(draw, "“RUSH”表示识别成功时对假厌夜和无面鬼的伤害。", 20, 100, fontSmall, fillblack)
+            paint(draw, "“无效DPS”表示识别成功时对真厌夜的伤害。", 20, 110, fontSmall, fillblack)
+            paint(draw, "“惩罚DPS”表示平血阶段血量差超过4%时的伤害。", 20, 120, fontSmall, fillblack)
+            paint(draw, "“有效DPS”表示扣除无效与惩罚DPS的总伤害。", 20, 130, fontSmall, fillblack)
+            write('\n')
 
-        paint(draw, "厌夜战斗统计", 350, 75, fontSmall, fillblack)
-        paint(draw, "有效DPS", 420, 75, fontSmall, fillblack)
-        paint(draw, "平血-白云", 460, 75, fontSmall, fillblack)
-        paint(draw, "平血-小剑", 500, 75, fontSmall, fillblack)
-        paint(draw, "RUSH", 540, 75, fontSmall, fillblack)
-        paint(draw, "无效DPS", 580, 75, fontSmall, fillblack)
-        paint(draw, "惩罚DPS", 620, 75, fontSmall, fillblack)
-        h = 75
-        for line in self.yanyeTable:
-            h += 10
-            paint(draw, "%s"%self.getMaskName(line[0]), 360, h, fontSmall, self.getColor(line[1])) 
-            paint(draw, "%d"%line[2], 420, h, fontSmall, fillblack)
-            paint(draw, "%d"%line[3], 463, h, fontSmall, fillblack)
-            paint(draw, "%d"%line[4], 503, h, fontSmall, fillblack)
-            paint(draw, "%d"%line[5], 540, h, fontSmall, fillblack)
-            paint(draw, "%d"%line[6], 580, h, fontSmall, fillblack)
-            paint(draw, "%d"%line[7], 620, h, fontSmall, fillblack)
+            paint(draw, "厌夜战斗统计", 230, 75, fontSmall, fillblack)
+            paint(draw, "有效DPS", 300, 75, fontSmall, fillblack)
+            paint(draw, "平血-白云", 340, 75, fontSmall, fillblack)
+            paint(draw, "平血-小剑", 380, 75, fontSmall, fillblack)
+            paint(draw, "RUSH", 420, 75, fontSmall, fillblack)
+            paint(draw, "无效DPS", 460, 75, fontSmall, fillblack)
+            paint(draw, "惩罚DPS", 500, 75, fontSmall, fillblack)
+            h = 75
+            for line in self.yanyeTable:
+                h += 10
+                paint(draw, "%s"%self.getMaskName(line[0]), 230, h, fontSmall, self.getColor(line[1])) 
+                paint(draw, "%d"%line[2], 300, h, fontSmall, fillblack)
+                paint(draw, "%d"%line[3], 343, h, fontSmall, fillblack)
+                paint(draw, "%d"%line[4], 383, h, fontSmall, fillblack)
+                paint(draw, "%d"%line[5], 420, h, fontSmall, fillblack)
+                paint(draw, "%d"%line[6], 460, h, fontSmall, fillblack)
+                paint(draw, "%d"%line[7], 500, h, fontSmall, fillblack)
+                
+        if self.chizhuActive:
+            paint(draw, "[迟驻]的战斗时间为%s。"%parseTime(self.chizhuTime), 10, 300, fontText, fillblack)
+            paint(draw, "“点名时间”表示扶桑、月落、一觞的点名总时间。", 20, 330, fontSmall, fillblack)
+            paint(draw, "“无视debuff”表示[无视]的层数对时间取积分。", 20, 340, fontSmall, fillblack)
+            paint(draw, "“原始DPS”表示实际的DPS。", 20, 350, fontSmall, fillblack)
+            paint(draw, "“等效DPS”表示考虑上面两项后，折算的DPS。", 20, 360, fontSmall, fillblack)
+            write('\n')
+            
+            paint(draw, "迟驻战斗统计", 230, 300, fontSmall, fillblack)
+            paint(draw, "等效DPS", 300, 300, fontSmall, fillblack)
+            paint(draw, "点名时间", 340, 300, fontSmall, fillblack)
+            paint(draw, "无视debuff", 380, 300, fontSmall, fillblack)
+            paint(draw, "原始DPS", 420, 300, fontSmall, fillblack)
+            write('\n')
+            
+            h = 300
+            for line in self.chizhuTable:
+                h += 10
+                paint(draw, "%s"%self.getMaskName(line[0]), 230, h, fontSmall, self.getColor(line[1])) 
+                paint(draw, "%d"%line[2], 300, h, fontSmall, fillblack)
+                paint(draw, "%d"%line[3], 343, h, fontSmall, fillblack)
+                paint(draw, "%d"%line[4], 380, h, fontSmall, fillblack)
+                paint(draw, "%d"%line[5], 420, h, fontSmall, fillblack)
+                
+        if self.baimouActive:
+            paint(draw, "[白某]的战斗时间为%s。"%parseTime(self.baimouTime), 10, 540, fontText, fillblack)
+            paint(draw, "“单体DPS”表示在常规阶段，对BOSS的DPS。", 20, 570, fontSmall, fillblack)
+            paint(draw, "“符灵DPS”表示在推命阶段，对符灵的DPS。", 20, 580, fontSmall, fillblack)
+            paint(draw, "“水牢DPS”表示对水牢的DPS", 20, 590, fontSmall, fillblack)
+            paint(draw, "“原始DPS”表示实际的DPS。", 20, 600, fontSmall, fillblack)
+            paint(draw, "“点名时间”表示受[覆舟]影响的时间。", 20, 610, fontSmall, fillblack)
+            paint(draw, "“有效DPS”表示排除点名及群攻之后的DPS。", 20, 620, fontSmall, fillblack)
+            write('\n')
+            
+            paint(draw, "白某战斗统计", 230, 540, fontSmall, fillblack)
+            paint(draw, "有效DPS", 300, 540, fontSmall, fillblack)
+            paint(draw, "单体DPS", 340, 540, fontSmall, fillblack)
+            paint(draw, "符灵DPS", 380, 540, fontSmall, fillblack)
+            paint(draw, "水牢DPS", 420, 540, fontSmall, fillblack)
+            paint(draw, "原始DPS", 460, 540, fontSmall, fillblack)
+            paint(draw, "点名时间", 500, 540, fontSmall, fillblack)
+            h = 540
+            for line in self.baimouTable:
+                h += 10
+                paint(draw, "%s"%self.getMaskName(line[0]), 230, h, fontSmall, self.getColor(line[1])) 
+                paint(draw, "%d"%line[2], 300, h, fontSmall, fillblack)
+                paint(draw, "%d"%line[3], 340, h, fontSmall, fillblack)
+                paint(draw, "%d"%line[4], 380, h, fontSmall, fillblack)
+                paint(draw, "%d"%line[5], 420, h, fontSmall, fillblack)
+                paint(draw, "%d"%line[6], 460, h, fontSmall, fillblack)
+                paint(draw, "%d"%line[7], 500, h, fontSmall, fillblack)
+        
 
         write('\n')
         paint(draw, "进本时间：%s"%battleDate, 700, 40, fontSmall, fillblack)
@@ -1318,9 +1545,22 @@ class ActorAnalysis():
         
     
     def analysis(self):
+        self.potList = []
         for line in self.generator:
-            if line.bossname == "厌夜":
+            if line.bossname == "厌夜" and line.yanyeActive:
+                self.yanyeActive = 1
                 self.yanyeTable = line.yanyeResult
+                self.yanyeTime = line.battleTime
+            if line.bossname == "迟驻" and line.chizhuActive:
+                self.chizhuActive = 1
+                self.chizhuTable = line.chizhuResult
+                self.chizhuTime = line.battleTime
+            if line.bossname == "白某" and line.baimouActive:
+                self.baimouActive = 1
+                self.baimouTable = line.baimouResult
+                self.baimouTime = line.battleTime
+            self.potList += line.potList
+            
     
     def loadData(self, fileList, path, raw):
         for filename in fileList:
@@ -2054,10 +2294,8 @@ if __name__ == "__main__":
         c = ActorAnalysis(filelist, map, fileLookUp.basepath, config, raw)
         c.analysis()
         
-        if c.yanyeTable != "":
-            c.paint("actor.png")
-            print("检测到厌夜数据！")
-            print("演员战斗复盘分析完成！结果保存在actor.png中")
+        c.paint("actor.png")
+        print("演员战斗复盘分析完成！结果保存在actor.png中")
         
         
     except Exception as e:
