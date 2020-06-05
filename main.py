@@ -593,7 +593,7 @@ class ActorStatGenerator(StatGeneratorBase):
                     self.potList.append([namedict[item[4]][0],
                                          occdict[item[4]][0],
                                          self.bossname,
-                                         "%s重伤，来源：xxx(yyy)"%parseTime(item[2])])
+                                         "%s重伤，来源：xxx(yyy)"%parseTime(int(item[2]))])
                                          
                                      
                         
