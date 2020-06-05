@@ -314,7 +314,6 @@ class DpsGeneralStatGenerator(StatGeneratorBase):
         super().__init__(filename, path, rawdata)
         
 class ActorStatGenerator(StatGeneratorBase):
-    potList = []
     yanyeID = {}
     yanyeThreshold = 0.04
     yanyeActive = 0
@@ -429,6 +428,16 @@ class ActorStatGenerator(StatGeneratorBase):
         
         lastHit = {}
         
+        self.potList = []
+        
+        deathHit = {}
+
+        deathBuffDict = {"9299": 30000, #杯水留影
+                         "16981": 30000, #翩然
+                         "17128": 5000, #阴阳逆乱}
+                         }
+        deathBuff = {}
+        
         yanyeActive = self.yanyeActive
         if yanyeActive:
             yanyeHP = [0, 261440000, 261440000]
@@ -461,13 +470,11 @@ class ActorStatGenerator(StatGeneratorBase):
                 self.breakBoatCount[line] = {}
                 self.breakBoatCount[line] = BuffCounter("16841", self.startTime, self.finalTime)
                 self.dps[line] = [0, 0, 0]
+            mingFuHistory = {}
         
         #print(self.yanyeID)
         #print(self.wumianguiID)
         #print(yanyeActive)
-        
-        bufflist = ['"覆舟"', '"命符·阴"', '"命符·阳"', '"命符·生"', '"命符·死"', '"符咒禁锢"']
-        #["16841", "16818", "16819", "16816", "16817", "16842"]
 
         for line in sk:
             item = line[""]
@@ -491,6 +498,13 @@ class ActorStatGenerator(StatGeneratorBase):
                             
                     if item[7] == "23092": #震怒咆哮
                         no5P2 = 1
+                        
+                    if item[13] != item[14]:
+                        deathHit[item[5]] = [int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13])]
+                        
+                    if namedict[item[5]][0] == '"一叶修罗一"':
+                        print(skilldict[item[9]][0][""][0])
+                        print(item)
                         
                 else:
                     
@@ -564,6 +578,11 @@ class ActorStatGenerator(StatGeneratorBase):
                     if item[5] not in data.hitCount:
                         data.hitCount[item[5]] = self.makeEmptyHitList()
                     data.hitCount[item[5]]["b" + item[6]] += 1
+                    
+                if item[6] in deathBuffDict:
+                    if item[5] not in deathBuff:
+                        deathBuff[item[5]] = {}
+                    deathBuff[item[5]][item[6]] = [int(item[2]), skilldict[item[8]][0][""][0].strip('"'), deathBuffDict[item[6]]]
                 
                 if yanyeActive:
                     if item[6] == "16913": #厌夜威压buff     
@@ -580,20 +599,48 @@ class ActorStatGenerator(StatGeneratorBase):
                 if baimouActive:
                     if item[6] == "16841":
                         self.breakBoatCount[item[5]].setState(int(item[2]), int(item[10]))
-                        
+                    if item[6] in ["16818", "16819", "16816", "16817"]:
+                        mingFuHistory[item[5]] = item[6]
+                    if item[6] == "16842" and item[10] == '1':
+                        if item[5] in mingFuHistory:
+                            lockReason = ["命符·生", "命符·死", "命符·阴", "命符·阳"][int(mingFuHistory[item[5]]) - 16816] + "站错"
+                        else:
+                            lockReason = "未知原因"
+                        lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                        self.potList.append([namedict[item[5]][0],
+                                             occdict[item[5]][0],
+                                             self.bossname,
+                                             "%s由于 %s 被锁"%(lockTime, lockReason)])
                         
             elif item[3] == '3': #重伤记录
                 if occdict[item[4]][0] == '0':
                     continue
+                    
+                if item[4] in namedict and namedict[item[4]][0] == '"一叶修罗一"':
+                    print(item)
+                    
                 data = self.checkFirst(item[4], data, occdict)
                 if item[4] in occdict and int(occdict[item[4]][0]) != 0:
                     if self.bossname in self.bossNameDict:
                         data.deathCount[item[4]][self.bossNameDict[self.bossname]] += 1
+                    
+                    deathTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                    
+                    deathSource = "未知"
+                    if item[4] in deathHit and abs(deathHit[item[4]][0] - int(item[2])) < 1000:
+                        deathSource = "%s(%d)"%(deathHit[item[4]][1], deathHit[item[4]][2])
+                    elif item[4] in deathBuff:
+                        for line in deathBuff[item[4]]:
+                            if deathBuff[item[4]][line][0] + deathBuff[item[4]][line][2] > int(item[2]):
+                                deathSource = deathBuff[item[4]][line][1]
+                    
+                    if deathSource == "翩然":
+                        deathSource = "推测为摔死"
                 
                     self.potList.append([namedict[item[4]][0],
                                          occdict[item[4]][0],
                                          self.bossname,
-                                         "%s重伤，来源：xxx(yyy)"%parseTime(int(item[2]))])
+                                         "%s重伤，来源：%s"%(deathTime, deathSource)])
                                          
                                      
                         
@@ -1367,6 +1414,7 @@ class ActorAnalysis():
     yanyeTable = {}
     yanyeActive = 0
     chizhuActive = 0
+    baimouActive = 0
     
     def getMaskName(self, name):
         s = name.strip('"')
@@ -1530,7 +1578,16 @@ class ActorAnalysis():
                 paint(draw, "%d"%line[5], 420, h, fontSmall, fillblack)
                 paint(draw, "%d"%line[6], 460, h, fontSmall, fillblack)
                 paint(draw, "%d"%line[7], 500, h, fontSmall, fillblack)
-        
+                
+        write('\n')
+        paint(draw, "犯错记录", 550, 70, fontSmall, fillblack)
+        h = 70
+        for line in self.potList:
+            h += 10
+            paint(draw, "%s"%self.getMaskName(line[0]), 560, h, fontSmall, self.getColor(line[1])) 
+            paint(draw, "%s"%line[2], 610, h, fontSmall, fillblack)
+            paint(draw, "%s"%line[3], 640, h, fontSmall, fillblack)
+
 
         write('\n')
         paint(draw, "进本时间：%s"%battleDate, 700, 40, fontSmall, fillblack)
