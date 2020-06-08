@@ -83,6 +83,17 @@ def parseTime(time):
         else:
             return "%dm%ds"%(time/60, time%60)
             
+def parseCent(num, digit = 2):
+    n = int(num * 10000)
+    n1 = str(n // 100)
+    n2 = str(n % 100)
+    if len(n2) == 1:
+        n2 = '0' + n2
+    if digit == 2:
+        return "%s.%s"%(n1, n2)
+    else:
+        return "%s"%n1
+            
 class BuffCounter():
     startTime = 0
     finalTime = 0
@@ -502,9 +513,9 @@ class ActorStatGenerator(StatGeneratorBase):
                     if item[13] != item[14]:
                         deathHit[item[5]] = [int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13])]
                         
-                    if namedict[item[5]][0] == '"一叶修罗一"':
-                        print(skilldict[item[9]][0][""][0])
-                        print(item)
+                    #if namedict[item[5]][0] == '"一叶修罗一"':
+                    #    print(skilldict[item[9]][0][""][0])
+                    #    print(item)
                         
                 else:
                     
@@ -616,8 +627,8 @@ class ActorStatGenerator(StatGeneratorBase):
                 if occdict[item[4]][0] == '0':
                     continue
                     
-                if item[4] in namedict and namedict[item[4]][0] == '"一叶修罗一"':
-                    print(item)
+                #if item[4] in namedict and namedict[item[4]][0] == '"一叶修罗一"':
+                #    print(item)
                     
                 data = self.checkFirst(item[4], data, occdict)
                 if item[4] in occdict and int(occdict[item[4]][0]) != 0:
@@ -687,6 +698,20 @@ class ActorStatGenerator(StatGeneratorBase):
             
             yanyeResultList.sort(key = lambda x:-x[2])
             
+            sumDPS = 0
+            for line in yanyeResultList:
+                sumDPS += line[2]
+            averageDPS = sumDPS / len(yanyeResultList)
+            
+            for line in yanyeResultList:
+                rate = 0.8
+                lineRate = line[2] / averageDPS
+                if lineRate < rate:
+                    self.potList.append([line[0],
+                                         line[1],
+                                         self.bossname,
+                                         "有效DPS未到及格线(%s%%/%s%%)"%(parseCent(lineRate, 0), parseCent(rate, 0))])
+            
             self.yanyeResult = yanyeResultList
             
             #print(yanyeResultList)
@@ -710,6 +735,21 @@ class ActorStatGenerator(StatGeneratorBase):
                                      
             chizhuResult.sort(key = lambda x:-x[2])                   
             #print(chizhuResult)
+            
+            sumDPS = 0
+            for line in chizhuResult:
+                sumDPS += line[2]
+            averageDPS = sumDPS / len(chizhuResult)
+            
+            for line in chizhuResult:
+                rate = 0.8
+                lineRate = line[2] / averageDPS
+                if lineRate < rate:
+                    self.potList.append([line[0],
+                                         line[1],
+                                         self.bossname,
+                                         "有效DPS未到及格线(%s%%/%s%%)"%(parseCent(lineRate, 0), parseCent(rate, 0))])
+            
             self.chizhuResult = chizhuResult
             
         if baimouActive:
@@ -731,6 +771,21 @@ class ActorStatGenerator(StatGeneratorBase):
                                          
             baimouResult.sort(key = lambda x:-x[2]) 
             #print(baimouResult)
+            
+            sumDPS = 0
+            for line in baimouResult:
+                sumDPS += line[2]
+            averageDPS = sumDPS / len(baimouResult)
+            
+            for line in baimouResult:
+                rate = 0.8
+                lineRate = line[2] / averageDPS
+                if lineRate < rate:
+                    self.potList.append([line[0],
+                                         line[1],
+                                         self.bossname,
+                                         "有效DPS未到及格线(%s%%/%s%%)"%(parseCent(lineRate, 0), parseCent(rate, 0))])
+            
             self.baimouResult = baimouResult
                                          
         #print(self.potList)
@@ -980,18 +1035,6 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         #self.filename = filename
         #self.parseFile(path)
             
-            
-def parseCent(num, digit = 2):
-    n = int(num * 10000)
-    n1 = str(n // 100)
-    n2 = str(n % 100)
-    if len(n2) == 1:
-        n2 = '0' + n2
-    if digit == 2:
-        return "%s.%s"%(n1, n2)
-    else:
-        return "%s"%n1
-        
 def plusList(a1, a2):
     a = []
     assert len(a1) == len(a2)
