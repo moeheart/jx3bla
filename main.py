@@ -6,7 +6,7 @@ import winreg
 import configparser
 import traceback
 
-edition = "3.0.0"
+edition = "3.1.0"
 
 def parseLuatable(s, n, maxn):
     numLeft = 0
@@ -399,7 +399,8 @@ class ActorStatGenerator(StatGeneratorBase):
                 if namedict[item[5]][0] == '"厌夜"' and occdict[item[5]][0] == '0':
                     if item[5] not in self.yanyeID:
                         self.yanyeID[item[5]] = 0
-                    self.yanyeActive = 1
+                    if int(item[13]) > 0: 
+                        self.yanyeActive = 1
                 if item[4] in self.yanyeID:
                     if item[7] == "23635":
                         self.yanyeID[item[4]] = 1
@@ -448,6 +449,23 @@ class ActorStatGenerator(StatGeneratorBase):
                          "17128": 5000, #阴阳逆乱}
                          }
         deathBuff = {}
+        
+        rateStandard = {"0": 0,
+                        "1": 0.85,
+                        "2": 0.9,
+                        "3": 0.85,
+                        "4": 0.85,
+                        "5": 0.8,
+                        "6": 0.85,
+                        "7": 0.95,
+                        "8": 0.9,
+                        "9": 0.95,
+                        "10": 0.9,
+                        "21": 0.95,
+                        "22": 0.9,
+                        "23": 0.9,
+                        "24": 0.85,
+                        "25": 0.95}
         
         yanyeActive = self.yanyeActive
         if yanyeActive:
@@ -704,7 +722,8 @@ class ActorStatGenerator(StatGeneratorBase):
             averageDPS = sumDPS / len(yanyeResultList)
             
             for line in yanyeResultList:
-                rate = 0.8
+                occ = str(line[1])
+                rate = rateStandard[occ]
                 lineRate = line[2] / averageDPS
                 if lineRate < rate:
                     self.potList.append([line[0],
@@ -742,7 +761,8 @@ class ActorStatGenerator(StatGeneratorBase):
             averageDPS = sumDPS / len(chizhuResult)
             
             for line in chizhuResult:
-                rate = 0.8
+                occ = str(line[1])
+                rate = rateStandard[occ]
                 lineRate = line[2] / averageDPS
                 if lineRate < rate:
                     self.potList.append([line[0],
@@ -778,7 +798,8 @@ class ActorStatGenerator(StatGeneratorBase):
             averageDPS = sumDPS / len(baimouResult)
             
             for line in baimouResult:
-                rate = 0.8
+                occ = str(line[1])
+                rate = rateStandard[occ]
                 lineRate = line[2] / averageDPS
                 if lineRate < rate:
                     self.potList.append([line[0],
@@ -1445,6 +1466,7 @@ class RawDataParser():
 class ActorAnalysis():
     
     map = "敖龙岛"
+    mapdetail = ""
     myname = ""
     generator = []
     generator2 = []
@@ -1470,11 +1492,11 @@ class ActorAnalysis():
         if self.color == 0:
             return (0, 0, 0)
         colorDict = {"0": (0, 0, 0), 
-                     "1": (160, 0, 0),#天策
+                     "1": (210, 180, 0),#少林
                      "2": (127, 31, 223),#万花
                      "4": (56, 175, 255),#纯阳
                      "5": (255, 127, 255),#七秀
-                     "3": (210, 180, 0),#少林
+                     "3": (160, 0, 0),#天策
                      "8": (255, 255, 0),#藏剑
                      "9": (205, 133, 63),#丐帮
                      "10": (253, 84, 0),#明教
@@ -1684,6 +1706,7 @@ class ActorAnalysis():
 class XiangZhiAnalysis():
     
     map = "敖龙岛"
+    mapdetail = ""
     myname = ""
     generator = []
     generator2 = []
@@ -2158,37 +2181,6 @@ class XiangZhiAnalysis():
         for line in self.generator2:
             #namedict = line.rawdata['9'][0]
             actorData.addActorData(line.data)
-            '''
-            if line.bossname == "铁黎":
-                print("老一被锁次数：")
-                for line2 in line.data.no1Lock:
-                    print(namedict[line2][0], line.data.no1Lock[line2])
-                print("老一中面向次数：")
-                for line2 in line.data.no1Face:
-                    print(namedict[line2][0], line.data.no1Face[line2])
-            if line.bossname == "陈徽":
-                print("老二中面向次数：")
-                for line2 in line.data.no2Hit:
-                    print(namedict[line2][0], line.data.no2Hit[line2])
-            if line.bossname == "源思弦":
-                print("老四中技能次数：")
-                for line2 in line.data.no4Hit:
-                    print(namedict[line2][0], line.data.no4Hit[line2])
-            if line.bossname == "驺吾":
-                print("老五中技能次数：")
-                for line2 in line.data.no5Hit:
-                    print(namedict[line2][0], line.data.no5Hit[line2])
-                print("老五下阶段中技能次数：")
-                for line2 in line.data.no5P2Hit:
-                    print(namedict[line2][0], line.data.no5P2Hit[line2])
-            if line.bossname == "方有崖":
-                print("老六心狐炸人次数：")
-                for line2 in line.data.no6Circle:
-                    print(namedict[line2][0], line.data.no6Circle[line2])
-                print("老六进内场情况：")
-                for line2 in line.data.innerPlace:
-                    print(namedict[line2][0], line.data.innerPlace[line2])
-            '''
         
         self.data = data
         self.actorData = actorData
@@ -2199,6 +2191,10 @@ class XiangZhiAnalysis():
         
         self.score = XiangZhiScore(self.data, self.generator, self.generator2, data.mykey)
         self.score.analysisAll()
+        
+        self.mapdetail = self.map
+        if self.map == "范阳夜变":
+            pass
         
         
     
@@ -2274,12 +2270,12 @@ class FileLookUp():
             if battletime > 120 and bossList[i] == 0:
                 bossList[i] = 999
 
-        for i in range(1, 7):
-            if bossPos[i] == -1:
-                for j in range(len(selectFileList)):
-                    if j > bossPos[i-1] and j < bossPos[i+1] and bossList[j] == 999:
-                        bossList[j] = i
-                        bossPos[i] = j
+        #for i in range(1, 7):
+        #    if bossPos[i] == -1:
+        #        for j in range(len(selectFileList)):
+        #            if j > bossPos[i-1] and j < bossPos[i+1] and bossList[j] == 999:
+        #                bossList[j] = i
+        #                bossPos[i] = j
 
         finalList = []
         for i in range(1, 7):
