@@ -6,7 +6,7 @@ import winreg
 import configparser
 import traceback
 
-edition = "3.1.0"
+edition = "3.2.0"
 
 def parseLuatable(s, n, maxn):
     numLeft = 0
@@ -333,7 +333,11 @@ class ActorStatGenerator(StatGeneratorBase):
     chizhuID = ""
     baimouActive = 0
     baimouID = ""
+    anxiaofengActive = 0
+    anxiaofengID = 0
     fulingID = {}
+    sideTargetID = {}
+    guishouID = {}
     
     startTime = 0
     finalTime = 0
@@ -417,11 +421,20 @@ class ActorStatGenerator(StatGeneratorBase):
                 if namedict[item[5]][0] == '"白某"' and occdict[item[5]][0] == '0':
                     self.baimouActive = 1
                     self.baimouID = item[5]
+                    
+                if namedict[item[5]][0] == '"安小逢"' and occdict[item[5]][0] == '0':
+                    self.anxiaofengActive = 1
+                    self.anxiaofengID = item[5]
                 
                 if namedict[item[5]][0] in ['"少阴符灵"', '"少阳符灵"'] and occdict[item[5]][0] == '0':
                     self.fulingID[item[5]] = 1
                     
-                
+                if namedict[item[5]][0] in ['"狼牙斧卫"', '"水鬼"'] and occdict[item[5]][0] == '0':
+                    self.sideTargetID[item[5]] = 1
+                    
+                if namedict[item[5]][0] in ['"鬼首"'] and occdict[item[5]][0] == '0':
+                    self.guishouID[item[5]] = 1
+                    
 
     def secondStageAnalysis(self):
         res = self.rawdata
@@ -500,6 +513,24 @@ class ActorStatGenerator(StatGeneratorBase):
                 self.breakBoatCount[line] = BuffCounter("16841", self.startTime, self.finalTime)
                 self.dps[line] = [0, 0, 0]
             mingFuHistory = {}
+            
+        anxiaofengActive = self.anxiaofengActive
+        if anxiaofengActive:
+            self.dps = {}
+            self.catchCount = {}
+            self.rumo = {}
+            self.xuelian = {}
+            for line in self.playerIDList:
+                self.dps[line] = [0, 0, 0, 0, 0, 0]
+                self.catchCount[line] = 0
+                self.rumo[line] = BuffCounter("16796", self.startTime, self.finalTime)
+                self.xuelian[line] = []
+            P3 = 0
+            P3TimeStamp = 0
+            sideTime = 0
+            xuelianStamp = 0
+            xuelianTime = 0
+            xuelianCount = 0
         
         #print(self.yanyeID)
         #print(self.wumianguiID)
@@ -512,6 +543,8 @@ class ActorStatGenerator(StatGeneratorBase):
             self.finalTime = int(item[2])
             
             if item[3] == '1': #技能
+                    
+                #群24105 单24144
             
                 if occdict[item[5]][0] != '0':
                     data = self.checkFirst(item[5], data, occdict)
@@ -530,10 +563,12 @@ class ActorStatGenerator(StatGeneratorBase):
                         
                     if item[13] != item[14]:
                         deathHit[item[5]] = [int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13])]
+                    
+                    if anxiaofengActive:
+                        hasRumo = self.rumo[item[5]].checkState(int(item[2]))
+                        if hasRumo:
+                            self.dps[item[4]][5] += int(item[12])
                         
-                    #if namedict[item[5]][0] == '"一叶修罗一"':
-                    #    print(skilldict[item[9]][0][""][0])
-                    #    print(item)
                         
                 else:
                     
@@ -571,9 +606,10 @@ class ActorStatGenerator(StatGeneratorBase):
                     if chizhuActive:
                         if item[5] == self.chizhuID and item[4] in self.buffCount:
                             self.dps[item[4]][0] += int(item[14])
-                            kanpo = self.buffCount[item[4]]["17075"].checkState(int(item[2]))
-                            if kanpo < 6:
-                                self.dps[item[4]][1] += int(item[14]) / (1 - 0.15 * kanpo)
+                            self.dps[item[4]][1] += int(item[14])
+                            #kanpo = self.buffCount[item[4]]["17075"].checkState(int(item[2]))
+                            #if kanpo < 6:
+                            #    self.dps[item[4]][1] += int(item[14]) / (1 - 0.15 * kanpo)
                                 
                     if baimouActive:
                         if item[5] == self.baimouID and item[4] in self.breakBoatCount:
@@ -582,18 +618,20 @@ class ActorStatGenerator(StatGeneratorBase):
                             self.dps[item[4]][1] += int(item[14])
                         if item[5] in namedict and item[4] in self.breakBoatCount and namedict[item[5]][0] == '"水牢"':
                             self.dps[item[4]][2] += int(item[14])
+                            
+                    if anxiaofengActive:
+                        if item[4] in self.playerIDList:
+                            self.dps[item[4]][0] += int(item[14])
+                        if item[5] == self.anxiaofengID and item[4] in self.playerIDList:
+                            self.dps[item[4]][1] += int(item[14])
+                        if item[5] in self.sideTargetID and item[4] in self.playerIDList:
+                            self.dps[item[4]][2] += int(item[14])
+                        if item[5] in self.guishouID and item[4] in self.playerIDList:
+                            self.dps[item[4]][3] += int(item[14])
+                        if P3 and item[4] in self.playerIDList:
+                            self.dps[item[4]][4] += int(item[14])
                               
             elif item[3] == '5': #气劲
-
-                '''
-                if skilldict[item[8]][0][""][0] in bufflist:
-                    print(item)
-                    print(skilldict[item[8]][0][""][0])
-                    for i in range(len(bufflist)):
-                        if bufflist[i] == skilldict[item[8]][0][""][0]:
-                            bufflist[i] = "123"
-                '''
-                
             
                 if occdict[item[5]][0] == '0':
                     continue
@@ -640,6 +678,23 @@ class ActorStatGenerator(StatGeneratorBase):
                                              occdict[item[5]][0],
                                              self.bossname,
                                              "%s由于 %s 被锁"%(lockTime, lockReason)])
+                                             
+                if anxiaofengActive:
+                    if item[6] == "16796":
+                        print(item)
+                        self.rumo[item[5]].setState(int(item[2]), int(item[10]))
+                    if item[6] == "17110":
+                        lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                        self.potList.append([namedict[item[5]][0],
+                                             occdict[item[5]][0],
+                                             self.bossname,
+                                             "%s触发P1惩罚"%lockTime])
+                    if item[6] == "17301":
+                        lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                        self.potList.append([namedict[item[5]][0],
+                                             occdict[item[5]][0],
+                                             self.bossname,
+                                             "%s触发P2惩罚"%lockTime])
                         
             elif item[3] == '3': #重伤记录
                 if occdict[item[4]][0] == '0':
@@ -674,6 +729,9 @@ class ActorStatGenerator(StatGeneratorBase):
                                      
                         
             elif item[3] == '8': #喊话
+                print(item)
+                if len(item) < 5:
+                    continue
                 if yanyeActive:
                     if item[4] in ['"吱吱叽！！！"', '"咯咯咕！！！"', "……锋刃可弃身。"]:
                         rush = 2
@@ -695,10 +753,24 @@ class ActorStatGenerator(StatGeneratorBase):
                                 wasteDPS[line] += rushTmpDPS[line][3 - wumianguiLabel]
                             rushTmpDPS = {}
                         rush = 1
+                if anxiaofengActive:
+                    if item[4] in ['"你们全都要死！"']:
+                        P3 = 1
+                        P3TimeStamp = int(item[2])
+                        
+                    if item[4] in ['"永远忠诚的部下们到达了！"']:
+                        sideTime += 35
+                    if '"来陪人家玩儿嘛~"' in item[4]:
+                        sideTime += 20
+                    if item[4] in ['"哼哼哼哼……"']:
+                        sideTime += 20
+                    pass
 
             num += 1
             
         yanyeResultList = []
+        
+        effectiveDPSList = []
         
         if yanyeActive:
             for line in yanyeDPS:
@@ -721,15 +793,7 @@ class ActorStatGenerator(StatGeneratorBase):
                 sumDPS += line[2]
             averageDPS = sumDPS / len(yanyeResultList)
             
-            for line in yanyeResultList:
-                occ = str(line[1])
-                rate = rateStandard[occ]
-                lineRate = line[2] / averageDPS
-                if lineRate < rate:
-                    self.potList.append([line[0],
-                                         line[1],
-                                         self.bossname,
-                                         "有效DPS未到及格线(%s%%/%s%%)"%(parseCent(lineRate, 0), parseCent(rate, 0))])
+            effectiveDPSList = yanyeResultList
             
             self.yanyeResult = yanyeResultList
             
@@ -760,15 +824,7 @@ class ActorStatGenerator(StatGeneratorBase):
                 sumDPS += line[2]
             averageDPS = sumDPS / len(chizhuResult)
             
-            for line in chizhuResult:
-                occ = str(line[1])
-                rate = rateStandard[occ]
-                lineRate = line[2] / averageDPS
-                if lineRate < rate:
-                    self.potList.append([line[0],
-                                         line[1],
-                                         self.bossname,
-                                         "有效DPS未到及格线(%s%%/%s%%)"%(parseCent(lineRate, 0), parseCent(rate, 0))])
+            effectiveDPSList = chizhuResult
             
             self.chizhuResult = chizhuResult
             
@@ -797,19 +853,42 @@ class ActorStatGenerator(StatGeneratorBase):
                 sumDPS += line[2]
             averageDPS = sumDPS / len(baimouResult)
             
-            for line in baimouResult:
-                occ = str(line[1])
-                rate = rateStandard[occ]
-                lineRate = line[2] / averageDPS
-                if lineRate < rate:
-                    self.potList.append([line[0],
-                                         line[1],
-                                         self.bossname,
-                                         "有效DPS未到及格线(%s%%/%s%%)"%(parseCent(lineRate, 0), parseCent(rate, 0))])
+            effectiveDPSList = baimouResult
             
             self.baimouResult = baimouResult
+            
+        if anxiaofengActive:
+            anxiaofengResult = []
+            for line in self.playerIDList:
+                disableTime = self.catchCount[line]
+                P3Time = (self.finalTime - P3TimeStamp) / 1000
+                originDPS = self.dps[line][0] / self.battleTime
+                bossDPS = self.dps[line][1] / self.battleTime
+                sideDPS = self.dps[line][2] / sideTime
+                guishouDPS = self.dps[line][3] / sideTime
+                P3DPS = self.dps[line][4] / P3Time
+                anxiaofengResult.append([namedict[line][0],
+                                         occdict[line][0],
+                                         originDPS,
+                                         bossDPS,
+                                         sideDPS,
+                                         guishouDPS,
+                                         P3DPS,
+                                         ])
                                          
-        #print(self.potList)
+            print(anxiaofengResult)   
+            
+        
+        for line in effectiveDPSList:
+            occ = str(line[1])
+            rate = rateStandard[occ]
+            lineRate = line[2] / averageDPS
+            if lineRate < rate:
+                self.potList.append([line[0],
+                                     line[1],
+                                     self.bossname,
+                                     "有效DPS未到及格线(%s%%/%s%%)"%(parseCent(lineRate, 0), parseCent(rate, 0))])
+                                     
         self.data = data
         
     def __init__(self, filename, path = "", rawdata = {}, myname = ""):
