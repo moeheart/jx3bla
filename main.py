@@ -1018,8 +1018,8 @@ class XiangZhiStatGenerator(StatGeneratorBase):
             if item[3] == "5":
                 if item[6] == "16796":
                     if item[5] not in self.rumo:
-                        self.rumo[line] = BuffCounter("16796", self.startTime, self.finalTime)
-                    self.rumo[line].setState(int(item[2]), int(item[10]))
+                        self.rumo[item[5]] = BuffCounter("16796", self.startTime, self.finalTime)
+                    self.rumo[item[5]].setState(int(item[2]), int(item[10]))
 
             num += 1
         
@@ -1930,6 +1930,19 @@ class ActorAnalysis():
                 
         if self.anxiaofengActive:
             paint(draw, "[安小逢]的战斗时间为%s。"%parseTime(self.anxiaofengTime), 10, 780, fontText, fillblack)
+            paint(draw, "“原始DPS”表示游戏中插件统计的实际DPS。", 20, 810, fontSmall, fillblack)
+            paint(draw, "“安小逢DPS”表示原始DPS中属于安小逢的部分。", 20, 820, fontSmall, fillblack)
+            paint(draw, "“小怪DPS”表示对狼牙斧卫和水鬼的DPS，", 20, 830, fontSmall, fillblack)
+            paint(draw, "其中，每个DPS被点名的时间段都不计算。", 20, 840, fontSmall, fillblack)
+            paint(draw, "“鬼首DPS”表示对鬼首的DPS。", 20, 850, fontSmall, fillblack)
+            paint(draw, "注意，小怪和鬼首的DPS中，时间为估算。", 20, 860, fontSmall, fillblack)
+            paint(draw, "“P3DPS”表示在P3对安小逢的DPS。", 20, 870, fontSmall, fillblack)
+            paint(draw, "“入魔治疗量”表示对[走火入魔]状态队友的治疗量。", 20, 880, fontSmall, fillblack)
+            paint(draw, "“承伤记录”表示对[暗月血镰]技能的承伤在第几组。", 20, 890, fontSmall, fillblack)
+            paint(draw, "“0”表示本次未承伤，“X”表示本次被[盯]点名。", 20, 900, fontSmall, fillblack)
+            write('\n')
+            
+            
             paint(draw, "安小逢战斗统计", 230, 780, fontSmall, fillblack)
             paint(draw, "原始DPS", 300, 780, fontSmall, fillblack)
             paint(draw, "安小逢DPS", 340, 780, fontSmall, fillblack)
@@ -2652,7 +2665,7 @@ class FileLookUp():
             if bossPos[i] != -1:
                 finalList.append(selectFileList[bossPos[i]])
                 
-        if finalList == "":
+        if finalList == []:
             print("没有合适的战斗记录，请确认目录设置或角色是否正确。")
             
         finalFileName = finalList[-1]
