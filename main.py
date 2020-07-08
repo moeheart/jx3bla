@@ -394,6 +394,8 @@ class ActorStatGenerator(StatGeneratorBase):
         occdict = res['10'][0]
         sk = res['16'][0][""]
         
+        self.playerIDList = {}
+        
         for line in sk:
             item = line[""]
             if item[3] == "1":
@@ -703,7 +705,7 @@ class ActorStatGenerator(StatGeneratorBase):
                                              "%s由于 %s 被锁"%(lockTime, lockReason)])
                                              
                 if anxiaofengActive: 
-                    if item[6] == "16796": #走火入魔
+                    if item[6] == "16796" and item[5] in self.playerIDList: #走火入魔
                         #print(item)
                         self.rumo[item[5]].setState(int(item[2]), int(item[10]))
                     if item[6] == "16892" and item[10] == '1': #应援
@@ -1714,11 +1716,11 @@ class XiangZhiScore():
         self.printTable = []
         self.score = 0
         if self.map == "敖龙岛":
-            bossDict = {"铁黎": 1, "陈徽": 2, "藤原武裔": 3, "源思弦": 4, "驺吾": 5, "方有崖": 6}
-            bossDictR = ["", "铁黎", "陈徽", "藤原武裔", "源思弦", "驺吾", "方有崖"]
+            self.bossDict = {"铁黎": 1, "陈徽": 2, "藤原武裔": 3, "源思弦": 4, "驺吾": 5, "方有崖": 6}
+            self.bossDictR = ["", "铁黎", "陈徽", "藤原武裔", "源思弦", "驺吾", "方有崖"]
         elif self.map == "范阳夜变":
-            bossDict = {"周贽": 1, "厌夜": 2, "迟驻": 3, "白某": 4, "安小逢": 5}
-            bossDictR = ["", "周贽", "厌夜", "迟驻", "白某", "安小逢"]
+            self.bossDict = {"周贽": 1, "厌夜": 2, "迟驻": 3, "白某": 4, "安小逢": 5}
+            self.bossDictR = ["", "周贽", "厌夜", "迟驻", "白某", "安小逢"]
 
 class RawDataParser():
 
@@ -2088,11 +2090,11 @@ class XiangZhiAnalysis():
         if self.color == 0:
             return (0, 0, 0)
         colorDict = {"0": (0, 0, 0), 
-                     "1": (160, 0, 0),#天策
+                     "1": (210, 180, 0),#少林
                      "2": (127, 31, 223),#万花
                      "4": (56, 175, 255),#纯阳
                      "5": (255, 127, 255),#七秀
-                     "3": (210, 180, 0),#少林
+                     "3": (160, 0, 0),#天策
                      "8": (255, 255, 0),#藏剑
                      "9": (205, 133, 63),#丐帮
                      "10": (253, 84, 0),#明教
