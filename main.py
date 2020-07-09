@@ -1021,7 +1021,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                             
             if item[3] == "5":
                 if item[6] == "16796" and int(item[7]) >= 9: #走火入魔
-                    print(item)
+                    #print(item)
                     if item[5] not in self.rumo:
                         self.rumo[item[5]] = BuffCounter("16796", self.startTime, self.finalTime)
                     self.rumo[item[5]].setState(int(item[2]), int(item[10]))
