@@ -6,7 +6,7 @@ import winreg
 import configparser
 import traceback
 
-edition = "3.2.0"
+edition = "3.3.0"
 
 def parseLuatable(s, n, maxn):
     numLeft = 0
@@ -338,6 +338,7 @@ class ActorStatGenerator(StatGeneratorBase):
     fulingID = {}
     sideTargetID = {}
     guishouID = {}
+    yingyuanHistory = {}
     
     startTime = 0
     finalTime = 0
@@ -356,6 +357,9 @@ class ActorStatGenerator(StatGeneratorBase):
                   "22111", #巨力爪击
                   "23621", #隐雷鞭
                   "23700", #短歌式
+                  "24029", #赤镰乱舞·矩形
+                  "24030", #赤镰乱舞·扇形
+                  "24031", #赤镰乱舞·圆形
                   ]
                   
     actorBuffList = ["16316", #离群之狐成就buff
@@ -527,11 +531,14 @@ class ActorStatGenerator(StatGeneratorBase):
             self.catchCount = {}
             self.rumo = {}
             self.xuelian = {}
+            self.yingyuanHistory = {}
+            self.yingyuanQueue = []
             for line in self.playerIDList:
                 self.dps[line] = [0, 0, 0, 0, 0, 0]
                 self.catchCount[line] = 0
                 self.rumo[line] = BuffCounter("16796", self.startTime, self.finalTime)
                 self.xuelian[line] = []
+                self.yingyuanHistory[line] = 0
             P3 = 0
             P3TimeStamp = 0
             sideTime = 0
@@ -572,6 +579,9 @@ class ActorStatGenerator(StatGeneratorBase):
                     if item[13] != item[14]:
                         deathHit[item[5]] = [int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13])]
                     
+                    if item[7] == "23687":
+                        deathHit[item[5]] = [int(item[2]), "死线", 0]
+                    
                     if anxiaofengActive:
                         hasRumo = self.rumo[item[5]].checkState(int(item[2]))
                         if hasRumo and occdict[item[4]][0] != '0':
@@ -596,6 +606,9 @@ class ActorStatGenerator(StatGeneratorBase):
                         
                         
                 else:
+                
+                    if item[13] != "0" and item[14] == "0": #检查反弹
+                        deathHit[item[4]] = [int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13])]
                     
                     if yanyeActive:
                         if item[5] in self.yanyeID:
@@ -710,6 +723,10 @@ class ActorStatGenerator(StatGeneratorBase):
                         self.rumo[item[5]].setState(int(item[2]), int(item[10]))
                     if item[6] == "16892" and item[10] == '1': #应援
                         self.catchCount[item[5]] += 34.9
+                        self.yingyuanHistory[item[5]] = int(item[2])
+                        self.yingyuanQueue.append([int(item[2]) + 40000, int(item[7]), item[5]])
+                    if item[6] == "17440" and item[10] == '1': #偷天换日
+                        self.yingyuanHistory[item[5]] = 0
                     if item[6] == "16795" and item[10] == '1': #安小逢的凝视
                         self.catchCount[item[5]] += 19.9
                     if item[6] == "17110" and item[10] == '1':
@@ -724,6 +741,20 @@ class ActorStatGenerator(StatGeneratorBase):
                                              occdict[item[5]][0],
                                              self.bossname,
                                              "%s触发P2惩罚"%lockTime])
+                    if len(self.yingyuanQueue) > 0 and int(item[2]) > self.yingyuanQueue[0][0]:
+                        yingyuanTop = self.yingyuanQueue.pop(0)
+                        if self.yingyuanHistory[yingyuanTop[2]] != 0:
+                            lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                            reason = "未知"
+                            if yingyuanTop[1] == 1:
+                                reason = "真粉"
+                            elif yingyuanTop[1] == 2:
+                                reason = "假粉"
+                            self.potList.append([namedict[item[5]][0],
+                                                 occdict[item[5]][0],
+                                                 self.bossname,
+                                                 "%s应援按错(%s)"%(lockTime, reason)])
+                        
                         
             elif item[3] == '3': #重伤记录
                 if item[4] not in occdict or occdict[item[4]][0] == '0':
@@ -901,6 +932,7 @@ class ActorStatGenerator(StatGeneratorBase):
                 guishouDPS = self.dps[line][3] / guishouTime
                 P3DPS = self.dps[line][4] / P3Time
                 rumoHeal = self.dps[line][5]
+                luanwuHit = data.hitCount[line]["s24029"] + data.hitCount[line]["s24030"] + data.hitCount[line]["s24031"]
                 xuelianStr = ""
                 for ch in self.xuelian[line]:
                     if ch == -1:
@@ -915,6 +947,7 @@ class ActorStatGenerator(StatGeneratorBase):
                                          guishouDPS,
                                          P3DPS,
                                          rumoHeal,
+                                         luanwuHit,
                                          xuelianStr
                                          ])
                                          
@@ -965,6 +998,8 @@ class XiangZhiStatGenerator(StatGeneratorBase):
 
         num = 0
         skillLog = []
+        
+        self.rumo = {}
 
         for line in sk:
             item = line[""]
@@ -1142,6 +1177,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         XiangZhiList = []
         
         shieldLogDict = {}
+        jingshenkuifa = {}
                     
         for line in sk:
             item = line[""]
@@ -1155,10 +1191,14 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                 if item[4] not in XiangZhiList and item[7] in ["14231", "14140", "14301"]:
                     XiangZhiList.append(item[4])
                 if item[7] == "14231":
-                    if item[5] not in shieldLogDict:
-                        shieldLogDict[item[5]] = [[int(item[2]), 1]]
-                    else:
-                        shieldLogDict[item[5]].append([int(item[2]), 1])
+                    jingshenkuifaStack = 0
+                    if item[5] in jingshenkuifa:
+                        jingshenkuifaStack = jingshenkuifa[item[5]].checkState(int(item[2]))
+                    if jingshenkuifaStack < 20:
+                        if item[5] not in shieldLogDict:
+                            shieldLogDict[item[5]] = [[int(item[2]), 1]]
+                        else:
+                            shieldLogDict[item[5]].append([int(item[2]), 1])
                     
             if item[3] == "5":
                 if item[6] in ["9334", "16911"]: #buff梅花三弄
@@ -1166,6 +1206,10 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                         shieldLogDict[item[5]] = [[int(item[2]), int(item[10])]]
                     else:
                         shieldLogDict[item[5]].append([int(item[2]), int(item[10])])
+                if item[6] in ["15774", "17200"]: #buff精神匮乏
+                    if item[5] not in jingshenkuifa:
+                        jingshenkuifa[item[5]] = BuffCounter("16796", self.startTime, self.finalTime)
+                    jingshenkuifa[item[5]].setState(int(item[2]), int(item[10]))
         
         if self.myname == "":
             if len(XiangZhiList) >= 2:
@@ -1943,8 +1987,9 @@ class ActorAnalysis():
             paint(draw, "注意，小怪和鬼首的DPS中，时间为估算。", 20, 860, fontSmall, fillblack)
             paint(draw, "“P3DPS”表示在P3对安小逢的DPS。", 20, 870, fontSmall, fillblack)
             paint(draw, "“入魔治疗量”表示对[走火入魔]状态队友的治疗量。", 20, 880, fontSmall, fillblack)
-            paint(draw, "“承伤记录”表示对[暗月血镰]技能的承伤在第几组。", 20, 890, fontSmall, fillblack)
-            paint(draw, "“0”表示本次未承伤，“X”表示本次被[盯]点名。", 20, 900, fontSmall, fillblack)
+            paint(draw, "“赤镰乱舞”表示[赤镰乱舞]的命中次数，三种累计。", 20, 890, fontSmall, fillblack)
+            paint(draw, "“承伤记录”表示对[暗月血镰]技能的承伤在第几组。", 20, 900, fontSmall, fillblack)
+            paint(draw, "“0”表示本次未承伤，“X”表示本次被[盯]点名。", 20, 910, fontSmall, fillblack)
             write('\n')
             
             
@@ -1955,7 +2000,8 @@ class ActorAnalysis():
             paint(draw, "鬼首DPS", 420, 780, fontSmall, fillblack)
             paint(draw, "P3DPS", 460, 780, fontSmall, fillblack)
             paint(draw, "入魔治疗量", 500, 780, fontSmall, fillblack)
-            paint(draw, "承伤记录", 540, 780, fontSmall, fillblack)
+            paint(draw, "赤镰乱舞", 540, 780, fontSmall, fillblack)
+            paint(draw, "承伤记录", 580, 780, fontSmall, fillblack)
             h = 780
             for line in self.anxiaofengTable:
                 h += 10
@@ -1967,6 +2013,7 @@ class ActorAnalysis():
                 paint(draw, "%d"%line[6], 460, h, fontSmall, fillblack)
                 paint(draw, "%d"%line[7], 500, h, fontSmall, fillblack)
                 paint(draw, "%s"%line[8], 540, h, fontSmall, fillblack)
+                paint(draw, "%s"%line[9], 580, h, fontSmall, fillblack)
                 
         write('\n')
         paint(draw, "犯错记录", 550, 70, fontSmall, fillblack)
@@ -2442,6 +2489,9 @@ class XiangZhiAnalysis():
             self.hitDict = {"s23621": "隐雷鞭", 
                        "s23700": "短歌式",
                        "b16842": "符咒禁锢",
+                       "s24029": "赤镰乱舞·矩形",
+                       "s24030": "赤镰乱舞·扇形",
+                       "s24031": "赤镰乱舞·圆形",
                       }
                       
             mapid = generator[0].rawdata['20'][0]
