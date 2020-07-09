@@ -724,7 +724,7 @@ class ActorStatGenerator(StatGeneratorBase):
                                              "%s触发P2惩罚"%lockTime])
                         
             elif item[3] == '3': #重伤记录
-                if occdict[item[4]][0] == '0':
+                if item[4] not in occdict or occdict[item[4]][0] == '0':
                     continue
                     
                 #if item[4] in namedict and namedict[item[4]][0] == '"一叶修罗一"':
@@ -985,15 +985,18 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                 if item[4] == self.mykey and item[6] == "1":
                     skillLog.append([int(item[2]), int(item[7])])
                     
+               
                 if item[12] != '0' and item[5] == self.npckey:
                     if item[4] not in data.npchealstat:
                         data.npchealstat[item[4]] = int(item[12])
                     else:
                         data.npchealstat[item[4]] += int(item[12])
+                
                         
                 
                 if self.npckey != 0 and item[12] != '0':
                     if item[5] in self.rumo and self.rumo[item[5]].checkState(int(item[2])):
+                        print(item)
                         if item[4] not in data.npchealstat:
                             data.npchealstat[item[4]] = int(item[12])
                         else:
