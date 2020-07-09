@@ -705,7 +705,7 @@ class ActorStatGenerator(StatGeneratorBase):
                                              "%s由于 %s 被锁"%(lockTime, lockReason)])
                                              
                 if anxiaofengActive: 
-                    if item[6] == "16796" and item[5] in self.playerIDList: #走火入魔
+                    if item[6] == "16796" and int(item[7]) >= 9 and item[5] in self.playerIDList: #走火入魔
                         #print(item)
                         self.rumo[item[5]].setState(int(item[2]), int(item[10]))
                     if item[6] == "16892" and item[10] == '1': #应援
@@ -998,7 +998,6 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                 
                 if self.npckey != 0 and item[12] != '0':
                     if item[5] in self.rumo and self.rumo[item[5]].checkState(int(item[2])):
-                        print(item)
                         if item[4] not in data.npchealstat:
                             data.npchealstat[item[4]] = int(item[12])
                         else:
@@ -1021,7 +1020,8 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                             data.battlestat[item[4]][hasShield] += int(item[14])
                             
             if item[3] == "5":
-                if item[6] == "16796":
+                if item[6] == "16796" and int(item[7]) >= 9: #走火入魔
+                    print(item)
                     if item[5] not in self.rumo:
                         self.rumo[item[5]] = BuffCounter("16796", self.startTime, self.finalTime)
                     self.rumo[item[5]].setState(int(item[2]), int(item[10]))
