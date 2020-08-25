@@ -6,7 +6,7 @@ import winreg
 import configparser
 import traceback
 
-edition = "3.3.0"
+edition = "3.4.0"
 
 def parseLuatable(s, n, maxn):
     numLeft = 0
@@ -474,6 +474,24 @@ class ActorStatGenerator(StatGeneratorBase):
                          }
         deathBuff = {}
         
+        '''
+         "1": (210, 180, 0),#少林
+         "2": (127, 31, 223),#万花
+         "4": (56, 175, 255),#纯阳
+         "5": (255, 127, 255),#七秀
+         "3": (160, 0, 0),#天策
+         "8": (255, 255, 0),#藏剑
+         "9": (205, 133, 63),#丐帮
+         "10": (253, 84, 0),#明教
+         "6": (63, 31, 159),#五毒
+         "7": (0, 133, 144),#唐门
+         "21": (180, 60, 0),#苍云
+         "22": (100, 250, 180),#长歌
+         "23": (71, 73, 166),#霸刀
+         "24": (195, 171, 227),#蓬莱
+         "25": (161, 9, 34)#凌雪
+        '''
+        
         rateStandard = {"0": 0,
                         "1": 0.85,
                         "2": 0.9,
@@ -490,6 +508,24 @@ class ActorStatGenerator(StatGeneratorBase):
                         "23": 0.9,
                         "24": 0.85,
                         "25": 0.95}
+                        
+        rateThreshold = {"0": 0,
+                        "1": 0.85,
+                        "2": 0.9,
+                        "3": 0.85,
+                        "4": 0.85,
+                        "5": 0.8,
+                        "6": 0.85,
+                        "7": 0.95,
+                        "8": 0.9,
+                        "9": 0.95,
+                        "10": 0.9,
+                        "21": 0.95,
+                        "22": 0.9,
+                        "23": 0.9,
+                        "24": 0.85,
+                        "25": 0.95} 
+                        
         
         yanyeActive = self.yanyeActive
         if yanyeActive:
@@ -533,12 +569,14 @@ class ActorStatGenerator(StatGeneratorBase):
             self.xuelian = {}
             self.yingyuanHistory = {}
             self.yingyuanQueue = []
+            self.jingshenkuifa = {}
             for line in self.playerIDList:
                 self.dps[line] = [0, 0, 0, 0, 0, 0]
                 self.catchCount[line] = 0
                 self.rumo[line] = BuffCounter("16796", self.startTime, self.finalTime)
                 self.xuelian[line] = []
                 self.yingyuanHistory[line] = 0
+                self.jingshenkuifa[line] = 0
             P3 = 0
             P3TimeStamp = 0
             sideTime = 0
@@ -714,6 +752,7 @@ class ActorStatGenerator(StatGeneratorBase):
                         lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
                         self.potList.append([namedict[item[5]][0],
                                              occdict[item[5]][0],
+                                             1, 
                                              self.bossname,
                                              "%s由于 %s 被锁"%(lockTime, lockReason)])
                                              
@@ -733,12 +772,14 @@ class ActorStatGenerator(StatGeneratorBase):
                         lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
                         self.potList.append([namedict[item[5]][0],
                                              occdict[item[5]][0],
+                                             1, 
                                              self.bossname,
                                              "%s触发P1惩罚"%lockTime])
                     if item[6] == "17301" and item[10] == '1':
                         lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
                         self.potList.append([namedict[item[5]][0],
                                              occdict[item[5]][0],
+                                             1, 
                                              self.bossname,
                                              "%s触发P2惩罚"%lockTime])
                     if len(self.yingyuanQueue) > 0 and int(item[2]) > self.yingyuanQueue[0][0]:
@@ -752,19 +793,30 @@ class ActorStatGenerator(StatGeneratorBase):
                                 reason = "假粉"
                             self.potList.append([namedict[item[5]][0],
                                                  occdict[item[5]][0],
+                                                 1, 
                                                  self.bossname,
                                                  "%s应援按错(%s)"%(lockTime, reason)])
+                                                 
+                    if item[6] in ["15774", "17200"]: #buff精神匮乏
+                        stack = int(item[10])
+                        if stack >= 20 and self.jingshenkuifa[item[5]] == 0:
+                            self.jingshenkuifa[item[5]] = 1
+                            self.potList.append([namedict[item[5]][0],
+                                                 occdict[item[5]][0],
+                                                 0, 
+                                                 self.bossname,
+                                                 "减疗叠加20层"])
+                        if stack < 20 and self.jingshenkuifa[item[5]] == 1:
+                            self.jingshenkuifa[item[5]] = 0                   
                         
                         
             elif item[3] == '3': #重伤记录
                 if item[4] not in occdict or occdict[item[4]][0] == '0':
                     continue
                     
-                #if item[4] in namedict and namedict[item[4]][0] == '"一叶修罗一"':
-                #    print(item)
-                    
                 data = self.checkFirst(item[4], data, occdict)
                 if item[4] in occdict and int(occdict[item[4]][0]) != 0:
+                    severe = 1
                     if self.bossname in self.bossNameDict:
                         data.deathCount[item[4]][self.bossNameDict[self.bossname]] += 1
                     
@@ -777,12 +829,15 @@ class ActorStatGenerator(StatGeneratorBase):
                         for line in deathBuff[item[4]]:
                             if deathBuff[item[4]][line][0] + deathBuff[item[4]][line][2] > int(item[2]):
                                 deathSource = deathBuff[item[4]][line][1]
+                            if deathSource == "杯水留影":
+                                severe = 0
                     
                     if deathSource == "翩然":
                         deathSource = "推测为摔死"
                 
                     self.potList.append([namedict[item[4]][0],
                                          occdict[item[4]][0],
+                                         severe, 
                                          self.bossname,
                                          "%s重伤，来源：%s"%(deathTime, deathSource)])
                                          
@@ -963,6 +1018,7 @@ class ActorStatGenerator(StatGeneratorBase):
             if lineRate < rate:
                 self.potList.append([line[0],
                                      line[1],
+                                     0,
                                      self.bossname,
                                      "有效DPS未到及格线(%s%%/%s%%)"%(parseCent(lineRate, 0), parseCent(rate, 0))])
                                      
@@ -1208,7 +1264,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                         shieldLogDict[item[5]].append([int(item[2]), int(item[10])])
                 if item[6] in ["15774", "17200"]: #buff精神匮乏
                     if item[5] not in jingshenkuifa:
-                        jingshenkuifa[item[5]] = BuffCounter("16796", self.startTime, self.finalTime)
+                        jingshenkuifa[item[5]] = BuffCounter("17200", self.startTime, self.finalTime)
                     jingshenkuifa[item[5]].setState(int(item[2]), int(item[10]))
         
         if self.myname == "":
@@ -1890,6 +1946,7 @@ class ActorAnalysis():
         image = Image.new(mode='RGB', size=(width, height), color=(255, 255, 255))
         fillcyan = (0, 255, 255)
         fillblack = (0, 0, 0)
+        fillgray = (127, 127, 127)
         fillred = (255, 0, 0)
         draw = ImageDraw.Draw(image)
         
@@ -2021,8 +2078,11 @@ class ActorAnalysis():
         for line in self.potList:
             h += 10
             paint(draw, "%s"%self.getMaskName(line[0]), 560, h, fontSmall, self.getColor(line[1])) 
-            paint(draw, "%s"%line[2], 610, h, fontSmall, fillblack)
-            paint(draw, "%s"%line[3], 640, h, fontSmall, fillblack)
+            fill = fillblack
+            if line[2] == 0:
+                fill = fillgray
+            paint(draw, "%s"%line[3], 610, h, fontSmall, fill)
+            paint(draw, "%s"%line[4], 640, h, fontSmall, fill)
 
 
         write('\n')
