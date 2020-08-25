@@ -750,8 +750,8 @@ class ActorStatGenerator(StatGeneratorBase):
                         else:
                             lockReason = "未知原因"
                         lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
-                        self.potList.append([namedict[item[5]][0],
-                                             occdict[item[5]][0],
+                        self.potList.append([namedict[yingyuanTop[2]][0],
+                                             occdict[yingyuanTop[2]][0],
                                              1, 
                                              self.bossname,
                                              "%s由于 %s 被锁"%(lockTime, lockReason)])
