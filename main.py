@@ -400,6 +400,8 @@ class ActorStatGenerator(StatGeneratorBase):
         
         self.playerIDList = {}
         
+        self.toutianhuanri = 0
+        
         for line in sk:
             item = line[""]
             
@@ -448,6 +450,9 @@ class ActorStatGenerator(StatGeneratorBase):
                     
                 if namedict[item[5]][0] in ['"鬼首"'] and occdict[item[5]][0] == '0':
                     self.guishouID[item[5]] = 1
+                    
+                if item[6] == "17440" and item[10] == '1': #偷天换日
+                    self.toutianhuanri = 1
                     
 
     def secondStageAnalysis(self):
@@ -782,7 +787,7 @@ class ActorStatGenerator(StatGeneratorBase):
                                              "%s触发P2惩罚"%lockTime])
                     if len(self.yingyuanQueue) > 0 and int(item[2]) > self.yingyuanQueue[0][0]:
                         yingyuanTop = self.yingyuanQueue.pop(0)
-                        if self.yingyuanHistory[yingyuanTop[2]] != 0:
+                        if self.yingyuanHistory[yingyuanTop[2]] != 0 and self.toutianhuanri:
                             lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
                             reason = "未知"
                             if yingyuanTop[1] == 1:
@@ -798,12 +803,13 @@ class ActorStatGenerator(StatGeneratorBase):
                     if item[6] in ["15774", "17200"]: #buff精神匮乏
                         stack = int(item[10])
                         if stack >= 20 and self.jingshenkuifa[item[5]] == 0:
+                            lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
                             self.jingshenkuifa[item[5]] = 1
                             self.potList.append([namedict[item[5]][0],
                                                  occdict[item[5]][0],
                                                  0, 
                                                  self.bossNamePrint,
-                                                 "减疗叠加20层"])
+                                                 "%s减疗叠加20层"%lockTime])
                         if stack < 20 and self.jingshenkuifa[item[5]] == 1:
                             self.jingshenkuifa[item[5]] = 0                   
                         
