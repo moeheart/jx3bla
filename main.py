@@ -421,7 +421,9 @@ class ActorStatGenerator(StatGeneratorBase):
         result["statistics"] = allInfo
 
         Jdata = json.dumps(result)
-        print(Jdata)
+        jpost = {'jdata': Jdata}
+        jparse = urllib.parse.urlencode(jpost).encode('utf-8')
+        urllib.request.urlopen('http://139.199.102.41:8009/uploadActorData', data = jparse)
 
     def firstStageAnalysis(self):
         res = self.rawdata
@@ -2359,7 +2361,9 @@ class XiangZhiAnalysis():
         result["statistics"] = allInfo
 
         Jdata = json.dumps(result)
-        print(Jdata)
+        jpost = {'jdata': Jdata}
+        jparse = urllib.parse.urlencode(jpost).encode('utf-8')
+        urllib.request.urlopen('http://139.199.102.41:8009/uploadXiangZhiData', data = jparse)
     
     def paint(self, filename):
     
@@ -2890,7 +2894,7 @@ class FileLookUp():
 
     jx3path = ""
     basepath = "."
-    specifiedFiles = None
+    specifiedFiles = []
 
     # Add by KEQX
     def specifyFiles(self, files):
@@ -2925,7 +2929,7 @@ class FileLookUp():
         selectFileList = []
 
         # Add by KEQX
-        if self.specifiedFiles is not None:
+        if len(self.specifiedFiles) > 0:
             selectFileList = self.specifiedFiles
         else:
             filelist = os.listdir(self.basepath)
@@ -3154,7 +3158,8 @@ if __name__ == "__main__":
         fileLookUp = FileLookUp()
 
         # Add by KEQX
-        if cmdArgs.files is not None:
+        
+        if cmdArgs.files != '':
             fileLookUp.specifyFiles(cmdArgs.files.split(";"))
         else:
 

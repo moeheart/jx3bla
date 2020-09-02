@@ -37,7 +37,7 @@ def uploadActorData():
     db = pymysql.connect("127.0.0.1",app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
     cursor = db.cursor()
     
-    sql = """SELECT * from ActorStat WHERE hash = '%s'"""%hash
+    sql = '''SELECT * from ActorStat WHERE hash = "%s"'''%hash
     cursor.execute(sql)
     result = cursor.fetchall()
     
@@ -45,7 +45,7 @@ def uploadActorData():
         db.close()
         return jsonify({'result': 'dupid'})
         
-    sql = """INSERT INTO ActorStat VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s')"""%(
+    sql = """INSERT INTO ActorStat VALUES ("%s", "%s", "%s", "%s", "%s", "%s", "%s")"""%(
         server, boss, battleDate, mapDetail, edition, hash, statistics)
     cursor.execute(sql)
     db.commit()
@@ -69,7 +69,7 @@ def uploadXiangZhiData():
     db = pymysql.connect("127.0.0.1",app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
     cursor = db.cursor()
     
-    sql = """SELECT * from XiangZhiStat WHERE hash = '%s'"""%hash
+    sql = '''SELECT * from XiangZhiStat WHERE hash = "%s"'''%hash
     cursor.execute(sql)
     result = cursor.fetchall()
     
@@ -77,7 +77,7 @@ def uploadXiangZhiData():
         db.close()
         return jsonify({'result': 'dupid'})
         
-    sql = """INSERT INTO XiangZhiStat VALUES ('%s', '%s', %d, '%s', '%s', '%s', '%s', '%s')"""%(
+    sql = """INSERT INTO XiangZhiStat VALUES ("%s", "%s", %d, "%s", "%s", "%s", "%s", "%s")"""%(
         server, id, score, battleDate, mapDetail, edition, hash, statistics)
     cursor.execute(sql)
     db.commit()
