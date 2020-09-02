@@ -7,6 +7,9 @@ import configparser
 import traceback
 import sys
 import argparse
+import hashlib
+import json
+import urllib.request
 
 edition = "3.4.0"
 
@@ -393,6 +396,33 @@ class ActorStatGenerator(StatGeneratorBase):
             data.drawer[key] = 0
         return data
         
+    def hashGroup(self):
+        nameList = []
+        for line in self.namedict:
+            if line in self.occdict and self.occdict[line][0].strip('"') != "0":
+                nameList.append(self.namedict[line][0].strip('"'))
+        nameList.sort()
+        hashStr = self.battleDate + self.bossname + self.rawdata['20'][0].strip('"') + edition + "".join(nameList)
+        hashres = hashlib.md5(hashStr.encode(encoding="utf-8")).hexdigest()
+        return hashres
+
+    def prepareUpload(self):
+        result = {}
+        server = self.rawdata["19"][0].strip('"')
+        result["server"] = server
+        result["boss"] = self.bossname
+        result["battledate"] = self.battleDate
+        result["mapdetail"] = self.rawdata['20'][0].strip('"')
+        result["edition"] = edition
+        result["hash"] = self.hashGroup()
+        allInfo = {}
+        allInfo["effectiveDPSList"] = self.effectiveDPSList
+        allInfo["potList"] = self.potList
+        result["statistics"] = allInfo
+
+        Jdata = json.dumps(result)
+        print(Jdata)
+
     def firstStageAnalysis(self):
         res = self.rawdata
         
@@ -400,6 +430,9 @@ class ActorStatGenerator(StatGeneratorBase):
         occdict = res['10'][0]
         sk = res['16'][0][""]
         
+        self.namedict = namedict
+        self.occdict = occdict
+
         self.playerIDList = {}
         
         self.toutianhuanri = 0
@@ -488,38 +521,38 @@ class ActorStatGenerator(StatGeneratorBase):
         deathBuff = {}
         
         rateStandard = {"0": 0,
-                        "1": 0.86,
-                        "2": 0.9,
-                        "3": 0.89,
-                        "4": 0.79,
-                        "5": 0.75,
-                        "6": 0.85,
+                        "25": 0.98,
+                        "21": 0.95,
+                        "9": 0.94,
+                        "6": 0.88,
+                        "2": 0.87,
+                        "24": 0.87,
+                        "22": 0.85,
                         "7": 0.83,
-                        "8": 0.89,
-                        "9": 1.03,
-                        "10": 0.88,
-                        "21": 1.01,
-                        "22": 0.9,
-                        "23": 0.84,
-                        "24": 0.89,
-                        "25": 0.99}
+                        "8": 0.83,
+                        "23": 0.82,
+                        "10": 0.82,
+                        "3": 0.82,
+                        "1": 0.78,
+                        "5": 0.77,
+                        "4": 0.76}
                         
         rateThreshold = {"0": 0,
-                        "1": 0.76,
-                        "2": 0.8,
-                        "3": 0.79,
-                        "4": 0.7,
-                        "5": 0.67,
-                        "6": 0.76,
-                        "7": 0.74,
-                        "8": 0.79,
-                        "9": 0.91,
-                        "10": 0.78,
-                        "21": 0.9,
-                        "22": 0.9,
-                        "23": 0.74,
-                        "24": 0.79,
-                        "25": 0.88} 
+                        "25": 0.87,
+                        "21": 0.84,
+                        "9": 0.83,
+                        "6": 0.77,
+                        "2": 0.77,
+                        "24": 0.77,
+                        "22": 0.75,
+                        "7": 0.73,
+                        "8": 0.73,
+                        "23": 0.73,
+                        "10": 0.72,
+                        "3": 0.72,
+                        "1": 0.69,
+                        "5": 0.68,
+                        "4": 0.67}
                         
         self.dps = {}
         self.deathName = {}
@@ -579,11 +612,7 @@ class ActorStatGenerator(StatGeneratorBase):
             xuelianStamp = 0
             xuelianTime = 0
             xuelianCount = 0
-        
-        #print(self.yanyeID)
-        #print(self.wumianguiID)
-        #print(yanyeActive)
-        
+
         if not self.lastTry:
             self.finalTime -= self.failThreshold * 1000
 
@@ -889,6 +918,16 @@ class ActorStatGenerator(StatGeneratorBase):
                         sideTime += 20
                         guishouTime += 20
                     pass
+                if item[4] in ['"可恶…"',
+                               '"哈哈哈哈哈，一群蠢货！手刃好友的滋味如何？"',
+                               '"呵！算你们机灵。不过既然来了范阳，就别想都能活着回去。"',
+                               '"迟驻短歌，人间大梦……"',
+                               '"别打了！可是宿世散人？"',
+                               '"天时已至，诸位请便。"']:
+                    self.win = 1
+
+            if item[3] == "6" and len(item) > 7 and item[7] == '"乌承恩"':
+                self.win = 1
 
             num += 1
             
@@ -1052,12 +1091,16 @@ class ActorStatGenerator(StatGeneratorBase):
                                      "有效DPS低于预警线(%s%%/%s%%)"%(parseCent(lineRate, 0), parseCent(rate1, 0))])
                                      
         self.data = data
-        
-    def __init__(self, filename, path = "", rawdata = {}, myname = "", failThreshold = 0):
+        self.effectiveDPSList = effectiveDPSList
+        print(self.win)
+
+    def __init__(self, filename, path = "", rawdata = {}, myname = "", failThreshold = 0, battleDate = ""):
         self.myname = myname
         self.numTry = filename[1]
         self.lastTry = filename[2]
         self.failThreshold = failThreshold
+        self.win = 0
+        self.battleDate = battleDate
         super().__init__(filename[0], path, rawdata)
         if self.numTry == 0:
             self.bossNamePrint = self.bossname
@@ -2203,9 +2246,11 @@ class ActorAnalysis():
     
     def loadData(self, fileList, path, raw):
         for filename in fileList:
-            res = ActorStatGenerator(filename, path, rawdata = raw[filename[0]], failThreshold = self.failThreshold)
+            res = ActorStatGenerator(filename, path, rawdata = raw[filename[0]], failThreshold = self.failThreshold, battleDate = self.battledate)
             res.firstStageAnalysis()
             res.secondStageAnalysis()
+            if res.win:
+                res.prepareUpload()
             self.generator.append(res)
             
     
@@ -2216,10 +2261,10 @@ class ActorAnalysis():
         self.text = config.text
         self.speed = config.speed
         self.failThreshold = config.failThreshold
-        self.loadData(filelist, path, raw)
         self.map = map
         self.battledate = '-'.join(filelist[0][0].split('-')[0:3])
-    
+        self.loadData(filelist, path, raw)
+
 
 class XiangZhiAnalysis():
     
@@ -2281,7 +2326,14 @@ class XiangZhiAnalysis():
         return colorDict[occ]
         
     def hashGroup(self):
-        return 0
+        nameList = []
+        for line in self.namedict:
+            if line in self.occdict and self.occdict[line][0].strip('"') != "0":
+                nameList.append(self.namedict[line][0].strip('"'))
+        nameList.sort()
+        hashStr = self.battledate + self.mapdetail + self.map + edition + "".join(nameList)
+        hashres = hashlib.md5(hashStr.encode(encoding="utf-8")).hexdigest()
+        return hashres
         
     def prepareUpload(self):
         result = {}
@@ -2289,9 +2341,25 @@ class XiangZhiAnalysis():
         result["server"] = server
         result["id"] = self.myname.strip('"')
         result["score"] = self.score.score
+        result["battledate"] = self.battledate
+        result["mapdetail"] = self.mapdetail + self.map
+        result["edition"] = edition
         result["hash"] = self.hashGroup()
-        result["statistics"] = 0
-        print(result)
+        allInfo = {}
+        data = self.data
+        allInfo["healTable"] = data.healTable
+        allInfo["dpsTable"] = data.dpsTable
+        allInfo["rateTable"] = data.rateTable
+        allInfo["bossRateDict"] = data.bossRateDict
+        allInfo["bossBreakDict"] = data.bossBreakDict
+        allInfo["npcHealList"] = data.npcHealList
+        allInfo["spareRateList"] = data.spareRateList
+        allInfo["healList"] = data.healList
+        allInfo["printTable"] = self.score.printTable
+        result["statistics"] = allInfo
+
+        Jdata = json.dumps(result)
+        print(Jdata)
     
     def paint(self, filename):
     
@@ -2710,6 +2778,9 @@ class XiangZhiAnalysis():
             data.breakList[i].append(namedict[data.breakList[i][0]][0])
             data.breakList[i].append(occdict[data.breakList[i][0]][0])
 
+        self.namedict = namedict
+        self.occdict = occdict
+
         data.rateList.sort(key=lambda x:-x[1])
         data.breakList.sort(key=lambda x:-x[1])
         
@@ -2824,7 +2895,7 @@ class FileLookUp():
     # Add by KEQX
     def specifyFiles(self, files):
         self.specifiedFiles = files
-    
+
     def getPathFromWinreg(self):
         try:
             key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\JX3Installer',)
@@ -3116,7 +3187,7 @@ if __name__ == "__main__":
             b.paint("result.png")
             print("奶歌战斗复盘分析完成！结果保存在result.png中")
             exitCode |= 1  # 第1位设为1
-        
+
         if config.actorActive:
             if config.checkAll:
                 c = ActorAnalysis(allFilelist, map, fileLookUp.basepath, config, raw)
@@ -3126,7 +3197,7 @@ if __name__ == "__main__":
             c.paint("actor.png")
             print("演员战斗复盘分析完成！结果保存在actor.png中")
             exitCode |= 2  # 第2位设为1
-        
+
         
     except Exception as e:
         traceback.print_exc()
