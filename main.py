@@ -1,6 +1,6 @@
 import os
 from PIL import Image, ImageFont, ImageDraw
-# import numpy as np
+import numpy as np
 import time
 import winreg
 import configparser
