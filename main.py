@@ -1,10 +1,12 @@
 import os
 from PIL import Image, ImageFont, ImageDraw
-import numpy as np
+# import numpy as np
 import time
 import winreg
 import configparser
 import traceback
+import sys
+import argparse
 
 edition = "3.4.0"
 
@@ -2817,10 +2819,15 @@ class FileLookUp():
 
     jx3path = ""
     basepath = "."
+    specifiedFiles = None
+
+    # Add by KEQX
+    def specifyFiles(self, files):
+        self.specifiedFiles = files
     
     def getPathFromWinreg(self):
         try:
-            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,r'SOFTWARE\JX3Installer',)
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\JX3Installer',)
             pathres = winreg.QueryValueEx(key, "InstPath")[0]
         except:
             print("自动获取目录失败，请手动指定目录")
@@ -2844,12 +2851,16 @@ class FileLookUp():
             print("剑三目录有误，请检查记录者角色名是否正确")
         
     def getLocalFile(self):
-        filelist = os.listdir(self.basepath)
-
         selectFileList = []
-        for line in filelist:
-            if line[-6:] == "jx3dat":
-                selectFileList.append(line)
+
+        # Add by KEQX
+        if self.specifiedFiles is not None:
+            selectFileList = self.specifiedFiles
+        else:
+            filelist = os.listdir(self.basepath)
+            for line in filelist:
+                if line[-6:] == "jx3dat":
+                    selectFileList.append(line)
 
         bossDict = {"铁黎": 1, "陈徽": 2, "藤原武裔": 3, "源思弦": 4, "驺吾": 5, "方有崖": 6,
                     "周贽": 1, "狼牙精锐": 1, "狼牙刀盾兵": 1, "厌夜": 2, "迟驻": 3, "白某": 4, "安小逢": 5}
@@ -3049,27 +3060,47 @@ failthreshold=10""")
                 self.items_xiangzhi = dict(cf.items("XiangZhiAnalysis"))
                 self.items_actor = dict(cf.items("ActorAnalysis"))
                 self.checkItems()
-    
+
+
+# Add by KEQX
+def parseCmdArgs(argv):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--pause', type=int, help='Should end up with system("pause").', default=1)
+    parser.add_argument('--files', type=str, help='Set which file to analyse, separated by semicolon.', default='')
+    return parser.parse_args(argv)
+
+
 if __name__ == "__main__":
+
+    # Add by KEQX
+    cmdArgs = parseCmdArgs(sys.argv[1:])
+    exitCode = 0
+
 
     try:
         config = Config("config.ini")
         
         fileLookUp = FileLookUp()
-        if config.basepath != "":
-            print("指定基准目录，使用：%s"%config.basepath)
-            fileLookUp.basepath = config.basepath
-        elif config.playername == "":
-            print("没有指定记录者角色名，将查找当前目录下的文件……")
+
+        # Add by KEQX
+        if cmdArgs.files is not None:
+            fileLookUp.specifyFiles(cmdArgs.files.split(";"))
         else:
-            if config.jx3path != "":
-                print("指定剑三目录，使用：%s"%config.jx3path)
-                fileLookUp.jx3path = config.jx3path
-                fileLookUp.getBasePath(config.playername)
+
+            if config.basepath != "":
+                print("指定基准目录，使用：%s" % config.basepath)
+                fileLookUp.basepath = config.basepath
+            elif config.playername == "":
+                print("没有指定记录者角色名，将查找当前目录下的文件……")
             else:
-                print("无指定目录，自动查找目录……")
-                fileLookUp.getPathFromWinreg()
-                fileLookUp.getBasePath(config.playername)
+                if config.jx3path != "":
+                    print("指定剑三目录，使用：%s" % config.jx3path)
+                    fileLookUp.jx3path = config.jx3path
+                    fileLookUp.getBasePath(config.playername)
+                else:
+                    print("无指定目录，自动查找目录……")
+                    fileLookUp.getPathFromWinreg()
+                    fileLookUp.getBasePath(config.playername)
 
         filelist, allFilelist, map = fileLookUp.getLocalFile()
         print("开始分析。分析耗时可能较长，请耐心等待……")
@@ -3078,12 +3109,13 @@ if __name__ == "__main__":
             raw = RawDataParser(allFilelist, fileLookUp.basepath).rawdata
         else:
             raw = RawDataParser(filelist, fileLookUp.basepath).rawdata
-        
+
         if config.xiangzhiActive:
             b = XiangZhiAnalysis(filelist, map, fileLookUp.basepath, config, raw)
             b.analysis()
             b.paint("result.png")
             print("奶歌战斗复盘分析完成！结果保存在result.png中")
+            exitCode |= 1  # 第1位设为1
         
         if config.actorActive:
             if config.checkAll:
@@ -3093,11 +3125,14 @@ if __name__ == "__main__":
             c.analysis()
             c.paint("actor.png")
             print("演员战斗复盘分析完成！结果保存在actor.png中")
+            exitCode |= 2  # 第2位设为1
         
         
     except Exception as e:
         traceback.print_exc()
-        
-    os.system('pause')
-    
-    
+        exitCode = -1  # 错误的退出点
+
+    if cmdArgs.pause != 0:
+        os.system('pause')
+
+    sys.exit(exitCode)  # 程序返回值，用于外部调取
