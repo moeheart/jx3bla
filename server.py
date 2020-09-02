@@ -91,8 +91,8 @@ if __name__ == '__main__':
     config = configparser.RawConfigParser()
     config.readfp(open('./settings.cfg'))
     
-    app.dbname = config.get('healerhelper', 'username')
-    app.dbpwd = config.get('healerhelper', 'password')
-    app.debug = config.getboolean('healerhelper', 'debug')
+    app.dbname = config.get('jx3bla', 'username')
+    app.dbpwd = config.get('jx3bla', 'password')
+    app.debug = config.getboolean('jx3bla', 'debug')
     
     app.run(host='0.0.0.0', port=8009, debug=app.debug, threaded=True)
