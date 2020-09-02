@@ -23,7 +23,7 @@ def Response_headers(content):
     return resp
 
 @app.route('/uploadActorData', methods=['POST'])
-def postregister():
+def uploadActorData():
     jdata = json.loads(request.form.get('jdata'))
     print(jdata)
     server = jdata["server"]
@@ -54,7 +54,7 @@ def postregister():
     return jsonify({'result': 'success'})
     
 @app.route('/uploadXiangZhiData', methods=['POST'])
-def postregister():
+def uploadXiangZhiData():
     jdata = json.loads(request.form.get('jdata'))
     print(jdata)
     server = jdata["server"]
