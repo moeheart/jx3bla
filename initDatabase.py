@@ -27,7 +27,7 @@ sql = """CREATE TABLE XiangZhiStat (
          mapdetail VARCHAR(32),
          edition VARCHAR(32),
          hash VARCHAR(32) primary key,
-         statistics VARCHAR(16384)
+         statistics VARCHAR(16000)
          ) DEFAULT CHARSET utf8mb4"""
 cursor.execute(sql)
 
@@ -39,7 +39,7 @@ sql = """CREATE TABLE ActorStat (
          mapdetail VARCHAR(32),
          edition VARCHAR(32),
          hash VARCHAR(32) primary key,
-         statistics VARCHAR(16384)
+         statistics VARCHAR(16000)
          ) DEFAULT CHARSET utf8mb4"""
 cursor.execute(sql)
 
