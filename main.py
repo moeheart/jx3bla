@@ -1027,7 +1027,7 @@ class ActorStatGenerator(StatGeneratorBase):
             rate1 = rateStandard[occ]
             rate2 = rateThreshold[occ]
             lineRate = line[2] / averageDPS
-            if lineRate < 0.1 or line[0] in self.deathName:
+            if lineRate < 0.1 or (line[0].strip('"') in self.deathName and lineRate < rate2):
                 sumDPS -= line[2]
                 numDPS -= 1
                 averageDPS = sumDPS / (numDPS + 1e-10)
@@ -1040,7 +1040,7 @@ class ActorStatGenerator(StatGeneratorBase):
                                      "有效DPS未到及格线(%s%%/%s%%)"%(parseCent(lineRate, 0), parseCent(rate2, 0))])
                 sumDPS -= line[2]
                 numDPS -= 1
-                averageDPS = sumDPS / numDPS
+                averageDPS = sumDPS / (numDPS + 1e-10)
                 
             elif lineRate < rate1:
                 self.potList.append([line[0],
