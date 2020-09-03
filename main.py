@@ -2917,7 +2917,8 @@ class FileLookUp():
     specifiedFiles = []
 
     # Add by KEQX
-    def specifyFiles(self, files):
+    def specifyFiles(self, basepath, files):
+        self.basepath = basepath
         self.specifiedFiles = files
 
     def getPathFromWinreg(self):
@@ -2978,7 +2979,7 @@ class FileLookUp():
                     nowBoss = bossDict[bossname] - 1
                 elif bossDict[bossname] == nowBoss + 1:
                     bossList[i] = bossDict[bossname]
-            battletime = int(selectFileList[i].split('_')[2].split('.')[0])
+            # battletime = int(selectFileList[i].split('_')[2].split('.')[0])
 
         #for i in range(1, 7):
         #    if bossPos[i] == -1:
@@ -2993,7 +2994,7 @@ class FileLookUp():
         lastNum = 0
         for i in range(1, 7):
             if bossPos[i] != -1:
-                finalList.append([selectFileList[bossPos[i]], 0, 1])
+                 finalList.append([selectFileList[bossPos[i]], 0, 1])
                 
         for i in range(len(selectFileList)):
             if bossList[i] != 0:
@@ -3161,6 +3162,7 @@ failthreshold=10""")
 def parseCmdArgs(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--pause', type=int, help='Should end up with system("pause").', default=1)
+    parser.add_argument('--basepath', type=str, help='Set which file to analyse, separated by semicolon.', default='.')
     parser.add_argument('--files', type=str, help='Set which file to analyse, separated by semicolon.', default='')
     return parser.parse_args(argv)
 
@@ -3180,7 +3182,7 @@ if __name__ == "__main__":
         # Add by KEQX
         
         if cmdArgs.files != '':
-            fileLookUp.specifyFiles(cmdArgs.files.split(";"))
+            fileLookUp.specifyFiles(cmdArgs.basepath, cmdArgs.files.split(";"))
         else:
 
             if config.basepath != "":
@@ -3211,7 +3213,7 @@ if __name__ == "__main__":
             b.analysis()
             b.paint("result.png")
             print("奶歌战斗复盘分析完成！结果保存在result.png中")
-            exitCode |= 1  # 第1位设为1
+            exitCode |= 2  # 第2位设为1
 
         if config.actorActive:
             if config.checkAll:
@@ -3221,12 +3223,12 @@ if __name__ == "__main__":
             c.analysis()
             c.paint("actor.png")
             print("演员战斗复盘分析完成！结果保存在actor.png中")
-            exitCode |= 2  # 第2位设为1
+            exitCode |= 4  # 第3位设为1
 
         
     except Exception as e:
         traceback.print_exc()
-        exitCode = -1  # 错误的退出点
+        exitCode |= 1  # 错误的退出点
 
     if cmdArgs.pause != 0:
         os.system('pause')
