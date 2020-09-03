@@ -2917,8 +2917,7 @@ class FileLookUp():
     specifiedFiles = []
 
     # Add by KEQX
-    def specifyFiles(self, basepath, files):
-        self.basepath = basepath
+    def specifyFiles(self, files):
         self.specifiedFiles = files
 
     def getPathFromWinreg(self):
@@ -3164,7 +3163,7 @@ def parseCmdArgs(argv):
 
     # pause=0代表不暂停，pause=1代表结束后暂停，pause=2代表程序出错后暂停
     parser.add_argument('--pause', type=int, help='Should end up with system("pause").', default=1)
-    parser.add_argument('--basepath', type=str, help='Set which file to analyse, separated by semicolon.', default='.')
+    parser.add_argument('--basepath', type=str, help='Set which file to analyse, separated by semicolon.', default='')
     parser.add_argument('--files', type=str, help='Set which file to analyse, separated by semicolon.', default='')
     return parser.parse_args(argv)
 
@@ -3181,28 +3180,31 @@ if __name__ == "__main__":
         
         fileLookUp = FileLookUp()
 
+        # Edit by KEQX
+        # 优先级递降：
+        if cmdArgs.basepath != "":
+            print("指定基准目录，使用：%s" % cmdArgs.basepath)
+            fileLookUp.basepath = cmdArgs.basepath
+        elif config.basepath != "":
+            print("指定基准目录，使用：%s" % config.basepath)
+            fileLookUp.basepath = config.basepath
+        elif config.playername == "":
+            fileLookUp.basepath = '.'  # 这一句有点废话的意思，但为了让别人看得清晰还是写上吧
+            print("没有指定记录者角色名，将查找当前目录下的文件……")
+        else:
+            if config.jx3path != "":
+                print("指定剑三目录，使用：%s" % config.jx3path)
+                fileLookUp.jx3path = config.jx3path
+            else:
+                print("无指定目录，自动查找目录……")
+                fileLookUp.getPathFromWinreg()
+            fileLookUp.getBasePath(config.playername)
+
         # Add by KEQX
-        
         if cmdArgs.files != '':
             if "/" in cmdArgs.files or "\\" in cmdArgs.files:
                 raise Exception('--files参数是文件名而非路径，不应包含"/"或"\\"')
-            fileLookUp.specifyFiles(cmdArgs.basepath, cmdArgs.files.split(";"))
-        else:
-
-            if config.basepath != "":
-                print("指定基准目录，使用：%s" % config.basepath)
-                fileLookUp.basepath = config.basepath
-            elif config.playername == "":
-                print("没有指定记录者角色名，将查找当前目录下的文件……")
-            else:
-                if config.jx3path != "":
-                    print("指定剑三目录，使用：%s" % config.jx3path)
-                    fileLookUp.jx3path = config.jx3path
-                    fileLookUp.getBasePath(config.playername)
-                else:
-                    print("无指定目录，自动查找目录……")
-                    fileLookUp.getPathFromWinreg()
-                    fileLookUp.getBasePath(config.playername)
+            fileLookUp.specifyFiles(cmdArgs.files.split(";"))
 
         filelist, allFilelist, map = fileLookUp.getLocalFile()
         print("开始分析。分析耗时可能较长，请耐心等待……")
@@ -3212,6 +3214,7 @@ if __name__ == "__main__":
         else:
             raw = RawDataParser(filelist, fileLookUp.basepath).rawdata
 
+        print("分析数据完毕，开始制图。咕叽咕叽咕叽￣ω￣=")
         if config.xiangzhiActive:
             b = XiangZhiAnalysis(filelist, map, fileLookUp.basepath, config, raw)
             b.analysis()
@@ -3229,7 +3232,6 @@ if __name__ == "__main__":
             print("演员战斗复盘分析完成！结果保存在actor.png中")
             exitCode |= 4  # 第3位设为1
 
-        
     except Exception as e:
         traceback.print_exc()
         exitCode |= 1  # 错误的退出点
