@@ -3161,6 +3161,8 @@ failthreshold=10""")
 # Add by KEQX
 def parseCmdArgs(argv):
     parser = argparse.ArgumentParser()
+
+    # pause=0代表不暂停，pause=1代表结束后暂停，pause=2代表程序出错后暂停
     parser.add_argument('--pause', type=int, help='Should end up with system("pause").', default=1)
     parser.add_argument('--basepath', type=str, help='Set which file to analyse, separated by semicolon.', default='.')
     parser.add_argument('--files', type=str, help='Set which file to analyse, separated by semicolon.', default='')
@@ -3182,6 +3184,8 @@ if __name__ == "__main__":
         # Add by KEQX
         
         if cmdArgs.files != '':
+            if "/" in cmdArgs.files or "\\" in cmdArgs.files:
+                raise Exception('--files参数是文件名而非路径，不应包含"/"或"\\"')
             fileLookUp.specifyFiles(cmdArgs.basepath, cmdArgs.files.split(";"))
         else:
 
@@ -3230,7 +3234,7 @@ if __name__ == "__main__":
         traceback.print_exc()
         exitCode |= 1  # 错误的退出点
 
-    if cmdArgs.pause != 0:
+    if cmdArgs.pause == 1 or (cmdArgs.pause == 2 and exitCode & 1):
         os.system('pause')
 
     sys.exit(exitCode)  # 程序返回值，用于外部调取
