@@ -11,7 +11,7 @@ import hashlib
 import json
 import urllib.request
 
-edition = "3.4.0"
+edition = "3.4.1"
 
 def parseLuatable(s, n, maxn):
     numLeft = 0
@@ -378,6 +378,13 @@ class ActorStatGenerator(StatGeneratorBase):
                     "驺吾": 5,
                     "方有崖": 6
                     }
+                    
+    def getMaskName(self, name):
+        s = name.strip('"')
+        if self.mask == 0:
+            return s
+        else:
+            return s[0] + '*' * (len(s)-1)
     
     def makeEmptyHitList(self):
         res = {}
@@ -418,9 +425,15 @@ class ActorStatGenerator(StatGeneratorBase):
         allInfo = {}
         allInfo["effectiveDPSList"] = self.effectiveDPSList
         allInfo["potList"] = self.potList
+        for i in range(len(allInfo["effectiveDPSList"])):
+            allInfo["effectiveDPSList"][i][0] = self.getMaskName(allInfo["effectiveDPSList"][i][0])
+        for i in range(len(allInfo["potList"])):
+            allInfo["potList"][i][0] = self.getMaskName(allInfo["potList"][i][0])
+        
         result["statistics"] = allInfo
 
         Jdata = json.dumps(result)
+        
         jpost = {'jdata': Jdata}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
         urllib.request.urlopen('http://139.199.102.41:8009/uploadActorData', data = jparse)
@@ -1094,15 +1107,15 @@ class ActorStatGenerator(StatGeneratorBase):
                                      
         self.data = data
         self.effectiveDPSList = effectiveDPSList
-        print(self.win)
 
-    def __init__(self, filename, path = "", rawdata = {}, myname = "", failThreshold = 0, battleDate = ""):
+    def __init__(self, filename, path = "", rawdata = {}, myname = "", failThreshold = 0, battleDate = "", mask = 0):
         self.myname = myname
         self.numTry = filename[1]
         self.lastTry = filename[2]
         self.failThreshold = failThreshold
         self.win = 0
         self.battleDate = battleDate
+        self.mask = mask
         super().__init__(filename[0], path, rawdata)
         if self.numTry == 0:
             self.bossNamePrint = self.bossname
@@ -2248,7 +2261,7 @@ class ActorAnalysis():
     
     def loadData(self, fileList, path, raw):
         for filename in fileList:
-            res = ActorStatGenerator(filename, path, rawdata = raw[filename[0]], failThreshold = self.failThreshold, battleDate = self.battledate)
+            res = ActorStatGenerator(filename, path, rawdata = raw[filename[0]], failThreshold = self.failThreshold, battleDate = self.battledate, mask = self.mask)
             res.firstStageAnalysis()
             res.secondStageAnalysis()
             if res.win:
@@ -2358,6 +2371,13 @@ class XiangZhiAnalysis():
         allInfo["spareRateList"] = data.spareRateList
         allInfo["healList"] = data.healList
         allInfo["printTable"] = self.score.printTable
+
+        result["id"] = self.getMaskName(result["id"])
+        for i in range(len(allInfo["healList"])):
+            allInfo["healList"][i][0] = self.getMaskName(allInfo["healList"][i][0])
+        for i in range(len(allInfo["npcHealList"])):
+            allInfo["npcHealList"][i][2] = self.getMaskName(allInfo["npcHealList"][i][2])
+        
         result["statistics"] = allInfo
 
         Jdata = json.dumps(result)
@@ -2875,7 +2895,7 @@ class XiangZhiAnalysis():
         self.score = XiangZhiScore(self.data, self.generator, self.generator2, data.mykey, self.map)
         self.score.analysisAll()
         
-        if self.score.available or True:
+        if self.score.available:
             self.prepareUpload()
         
     
