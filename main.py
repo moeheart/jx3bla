@@ -435,6 +435,7 @@ class ActorStatGenerator(StatGeneratorBase):
         allInfo = {}
         allInfo["effectiveDPSList"] = self.effectiveDPSList
         allInfo["potList"] = self.potList
+        allInfo["battleTime"] = self.battleTime
         for i in range(len(allInfo["effectiveDPSList"])):
             allInfo["effectiveDPSList"][i][0] = self.getMaskName(allInfo["effectiveDPSList"][i][0])
         for i in range(len(allInfo["potList"])):
@@ -2430,18 +2431,49 @@ class XiangZhiAnalysis():
         allInfo["rateTable"] = data.rateTable
         allInfo["bossRateDict"] = data.bossRateDict
         allInfo["bossBreakDict"] = data.bossBreakDict
+        allInfo["maxDpsName"] = data.maxDpsName
+        allInfo["maxDpsTable"] = data.maxDpsTable
         allInfo["npcHealList"] = data.npcHealList
         allInfo["spareRateList"] = data.spareRateList
         allInfo["healList"] = data.healList
         allInfo["printTable"] = self.score.printTable
-
-        result["id"] = self.getMaskName(result["id"])
-        for i in range(len(allInfo["healList"])):
-            allInfo["healList"][i][0] = self.getMaskName(allInfo["healList"][i][0])
+        
+        allInfo["rateList"] = data.rateList
+        allInfo["breakList"] = data.breakList
+        
+        allInfo["numheal"] = data.numheal
+        allInfo["numeffheal"] = data.numeffheal
+        allInfo["numshield"] = data.numshield
+        allInfo["maxDps"] = data.maxDps
+        allInfo["maxEqualDPS"] = data.maxEqualDPS
+        allInfo["maxDpsRank"] = data.maxDpsRank
+        allInfo["maxSingleRateName"] = self.getMaskName(data.maxSingleRateName)
+        allInfo["maxSingleRate"] = data.maxSingleRate
+        allInfo["maxSingleBreakName"] = self.getMaskName(data.maxSingleBreakName)
+        allInfo["maxSingleBreak"] = data.maxSingleBreak
+        allInfo["hardBOSS"] = self.hardBOSS
+        allInfo["numpurge"] = data.numpurge
+        allInfo["hardNPC"] = self.hardNPC
+        allInfo["npcHeal"] = data.npcHeal
+        allInfo["npcHealRate"] = data.npcHealRate
+        allInfo["sumHit"] = self.sumHit
+        allInfo["sumDeath"] = self.sumDeath
+        allInfo["hitCount"] = self.actorData.hitCount[data.mykey]
+        if self.map == "敖龙岛":
+            allInfo["sumDrawer"] = self.sumDrawer
+            allInfo["sumInner"] = self.sumInner
+            
+        for i in range(len(allInfo["rateList"])):
+            allInfo["rateList"][i][2] = self.getMaskName(allInfo["rateList"][i][2])
+        for i in range(len(allInfo["breakList"])):
+            allInfo["breakList"][i][2] = self.getMaskName(allInfo["breakList"][i][2])
+        for i in range(len(allInfo["maxDpsTable"])):
+            allInfo["maxDpsTable"][i][2] = self.getMaskName(allInfo["maxDpsTable"][i][2])
         for i in range(len(allInfo["npcHealList"])):
             allInfo["npcHealList"][i][2] = self.getMaskName(allInfo["npcHealList"][i][2])
-        
         result["statistics"] = allInfo
+
+        result["id"] = self.getMaskName(result["id"])
 
         Jdata = json.dumps(result)
         jpost = {'jdata': Jdata}
