@@ -13,7 +13,8 @@ import urllib.request
 import hashlib
 import configparser
 
-version = "3.4.0"
+version = "3.5.0"
+ip = "127.0.0.1"
 app = Flask(__name__) 
 app.config['JSON_AS_ASCII'] = False
 
@@ -34,7 +35,7 @@ def uploadActorData():
     hash = jdata["hash"]
     statistics = jdata["statistics"]
     
-    db = pymysql.connect("127.0.0.1",app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
     cursor = db.cursor()
     
     sql = '''SELECT * from ActorStat WHERE hash = "%s"'''%hash
@@ -66,8 +67,21 @@ def uploadXiangZhiData():
     hash = jdata["hash"]
     statistics = jdata["statistics"]
     
-    db = pymysql.connect("127.0.0.1",app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
     cursor = db.cursor()
+    
+    sql = '''SELECT score from XiangZhiStat WHERE mapdetail = "%s"'''%mapDetail
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    
+    num = 0
+    numOver = 0
+    for line in result:
+        num += 1
+        if score > line[0]:
+            numOver += 1
+            
+    print(num, numOver)
     
     sql = '''SELECT * from XiangZhiStat WHERE hash = "%s"'''%hash
     cursor.execute(sql)
@@ -75,7 +89,7 @@ def uploadXiangZhiData():
     
     if result:
         db.close()
-        return jsonify({'result': 'dupid'})
+        return jsonify({'result': 'dupid', 'num': num, 'numOver': numOver})
         
     sql = """INSERT INTO XiangZhiStat VALUES ("%s", "%s", %d, "%s", "%s", "%s", "%s", "%s")"""%(
         server, id, score, battleDate, mapDetail, edition, hash, statistics)
@@ -83,7 +97,7 @@ def uploadXiangZhiData():
     db.commit()
     db.close()
     
-    return jsonify({'result': 'success'})
+    return jsonify({'result': 'success', 'num': num, 'numOver': numOver})
     
 if __name__ == '__main__':
     import signal

@@ -11,7 +11,7 @@ import hashlib
 import json
 import urllib.request
 
-edition = "3.4.1"
+edition = "3.5.0"
 
 def parseLuatable(s, n, maxn):
     numLeft = 0
@@ -348,6 +348,7 @@ class ActorStatGenerator(StatGeneratorBase):
     startTime = 0
     finalTime = 0
     playerIDList = {}
+    firstHitList = {}
     
     actorSkillList = ["22520", #锈铁钩锁
                   "22521", #火轮重锤
@@ -375,8 +376,17 @@ class ActorStatGenerator(StatGeneratorBase):
                     "陈徽": 2,
                     "藤原武裔": 3,
                     "源思弦": 4,
+                    "咒飚狐": 4,
+                    "咒凌狐": 4,
                     "驺吾": 5,
-                    "方有崖": 6
+                    "方有崖": 6,
+                    "周贽": 1,
+                    "狼牙精锐": 1,
+                    "狼牙刀盾兵": 1,
+                    "厌夜": 2,
+                    "迟驻": 3,
+                    "白某": 4,
+                    "安小逢": 5,
                     }
                     
     def getMaskName(self, name):
@@ -450,6 +460,8 @@ class ActorStatGenerator(StatGeneratorBase):
 
         self.playerIDList = {}
         
+        self.firstHitList = {}
+        
         self.toutianhuanri = 0
         
         for line in sk:
@@ -503,6 +515,9 @@ class ActorStatGenerator(StatGeneratorBase):
                     
                 if item[6] == "17440" and item[10] == '1': #偷天换日
                     self.toutianhuanri = 1
+                    
+        for id in self.playerIDList:
+            self.firstHitList[id] = 0
                     
 
     def secondStageAnalysis(self):
@@ -689,6 +704,14 @@ class ActorStatGenerator(StatGeneratorBase):
                 
                     if item[13] != "0" and item[14] == "0": #检查反弹
                         deathHit[item[4]] = [int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13])]
+                        
+                    if item[4] in self.playerIDList and int(item[11]) == 0 and item[5] in namedict and namedict[item[5]][0].strip('"') in self.bossNameDict:
+                        if self.firstHitList[item[4]] == 0:
+                            self.firstHitList[item[4]] = [int(item[2]), skilldict[item[9]][0][""][0].strip('"'), "", 0]
+                        elif self.firstHitList[item[4]][1][0] == '#' and self.firstHitList[item[4]][2] == "":
+                            if skilldict[item[9]][0][""][0].strip('"')[0] != "#":
+                                self.firstHitList[item[4]][2] = skilldict[item[9]][0][""][0].strip('"')
+                                self.firstHitList[item[4]][3] = int(item[2])
                     
                     if yanyeActive:
                         if item[5] in self.yanyeID:
@@ -938,7 +961,14 @@ class ActorStatGenerator(StatGeneratorBase):
                                '"呵！算你们机灵。不过既然来了范阳，就别想都能活着回去。"',
                                '"迟驻短歌，人间大梦……"',
                                '"别打了！可是宿世散人？"',
-                               '"天时已至，诸位请便。"']:
+                               '"天时已至，诸位请便。"',
+                               '"呃啊...俺始终无法逃脱这牢笼..."',
+                               '"不，我还不能在这里倒下，大人还需要我。"',
+                               '"武士之道，虽死犹荣！"', #老三没有通关喊话，推定直接通关
+                               '"…… …… ……"',
+                               '"情况不太对……咳咳……"', #驺吾没有通关喊话，暂时以这句话代替
+                               '"三千世界生死限，九天有苍十方剑！"', #方有崖暂时以这句话代替
+                               ]:
                     self.win = 1
 
             if item[3] == "6" and len(item) > 7 and item[7] == '"乌承恩"':
@@ -1077,16 +1107,20 @@ class ActorStatGenerator(StatGeneratorBase):
         
         averageDPS = sumDPS / (numDPS + 1e-10)
         
+        dpsIDList = {}
+          
         for i in range(len(effectiveDPSList)-1, -1, -1):
             line = effectiveDPSList[i]
             occ = str(line[1])
             rate1 = rateStandard[occ]
             rate2 = rateThreshold[occ]
             lineRate = line[2] / averageDPS
+            dpsIDList[line[0]] = 1
             if lineRate < 0.1 or (line[0].strip('"') in self.deathName and lineRate < rate2):
                 sumDPS -= line[2]
                 numDPS -= 1
                 averageDPS = sumDPS / (numDPS + 1e-10)
+                dpsIDList[line[0]] = 0
                 
             elif lineRate < rate2:
                 self.potList.append([line[0],
@@ -1104,6 +1138,35 @@ class ActorStatGenerator(StatGeneratorBase):
                                      0,
                                      self.bossNamePrint,
                                      "有效DPS低于预警线(%s%%/%s%%)"%(parseCent(lineRate, 0), parseCent(rate1, 0))])
+                                     
+        if self.firstHitList != {}:
+            earliestHit = 0
+            earliestTankHit = 0
+            for name in self.firstHitList:
+                if self.firstHitList[name] == 0:
+                    continue
+                if self.firstHitList[name][1][0] == "#" and self.firstHitList[name][2] == "":
+                    continue
+                if earliestHit == 0 or self.firstHitList[name][0] < self.firstHitList[earliestHit][0]:
+                    earliestHit = name
+                if (namedict[name][0] not in dpsIDList or dpsIDList[namedict[name][0]] == 0) and int(occdict[name][0]) in [1, 3, 10, 21]:
+                    if earliestTankHit == 0 or self.firstHitList[name][0] < self.firstHitList[earliestTankHit][0]:
+                        earliestTankHit = name
+            
+            #print(earliestHit, self.firstHitList[earliestHit])
+            #if earliestTankHit != 0:
+            #    print(earliestTankHit, self.firstHitList[earliestTankHit])
+            
+            if earliestTankHit == 0 or self.firstHitList[earliestTankHit][0] - 500 > self.firstHitList[earliestHit][0]:
+                if self.firstHitList[earliestHit][2] == "":
+                    hitName = self.firstHitList[earliestHit][1]
+                else:
+                    hitName = self.firstHitList[earliestHit][2] + "(推测)"
+                self.potList = [[namedict[earliestHit][0],
+                                occdict[earliestHit][0],
+                                0,
+                                self.bossNamePrint,
+                                "提前开怪：%s"%hitName]] + self.potList
                                      
         self.data = data
         self.effectiveDPSList = effectiveDPSList
@@ -2383,7 +2446,9 @@ class XiangZhiAnalysis():
         Jdata = json.dumps(result)
         jpost = {'jdata': Jdata}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        urllib.request.urlopen('http://139.199.102.41:8009/uploadXiangZhiData', data = jparse)
+        resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadXiangZhiData', data = jparse)
+        res = json.load(resp)
+        return res
     
     def paint(self, filename):
     
@@ -2674,8 +2739,10 @@ class XiangZhiAnalysis():
                 fillRate = (255, 0, 0)
             paint(draw, "基于以上数据，你的评分为：", 30, 690, fontText, fillblack)
             paint(draw, self.score.rate, 220, 680, fontBig, fillRate)
-            paint(draw, "（以实际表现为准，评分仅供参考）", 30, 715, fontSmall, fillblack)
+            if self.scoreRate != None:
+                paint(draw, "超过了%s%%的奶歌玩家！"%parseCent(self.scoreRate), 30, 715, fontText, fillblack)
             paint(draw, self.score.describe, 320, 735, fontTitle, fillRate)
+            paint(draw, "（以实际表现为准，评分仅供参考）", 30, 730, fontSmall, fillblack)
             
         write('\n')
         paint(draw, "进本时间：%s"%battleDate, 700, 40, fontSmall, fillblack)
@@ -2895,8 +2962,11 @@ class XiangZhiAnalysis():
         self.score = XiangZhiScore(self.data, self.generator, self.generator2, data.mykey, self.map)
         self.score.analysisAll()
         
+        self.scoreRate = None
         if self.score.available:
-            self.prepareUpload()
+            res = self.prepareUpload()
+            if res["num"] != 0:
+                self.scoreRate = res["numOver"] / res["num"]
         
     
     def __init__(self, filelist, map, path, config, raw):
