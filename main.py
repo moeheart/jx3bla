@@ -370,6 +370,8 @@ class ActorStatGenerator(StatGeneratorBase):
                   
     actorBuffList = ["16316", #离群之狐成就buff
                      "16842", #符咒禁锢buff
+                     "17110", #安小逢P1站错，绞首链buff
+                     "17301", #安小逢P2站错，不听话的小孩子buff
                   ]
                   
     bossNameDict = {"铁黎": 1,
