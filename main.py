@@ -11,7 +11,7 @@ import hashlib
 import json
 import urllib.request
 
-edition = "3.5.0"
+edition = "3.6.0beta"
 
 def parseLuatable(s, n, maxn):
     numLeft = 0
@@ -2482,7 +2482,7 @@ class XiangZhiAnalysis():
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
         resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadXiangZhiData', data = jparse)
         res = json.load(resp)
-        return res
+        return result, res
     
     def paint(self, filename):
     
@@ -3000,10 +3000,12 @@ class XiangZhiAnalysis():
         
         self.scoreRate = None
         if self.score.available:
-            res = self.prepareUpload()
+            info, res = self.prepareUpload()
             if res["num"] != 0:
                 self.scoreRate = res["numOver"] / res["num"]
-        
+                res["scoreRate"] = self.scoreRate
+            print(res)
+            print(info)
     
     def __init__(self, filelist, map, path, config, raw):
         self.myname = config.xiangzhiname
