@@ -11,6 +11,8 @@ import hashlib
 import json
 import urllib.request
 
+from painter import XiangZhiPainter
+
 edition = "3.6.0beta"
 
 def parseLuatable(s, n, maxn):
