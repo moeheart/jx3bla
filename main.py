@@ -2363,50 +2363,12 @@ class XiangZhiAnalysis():
     speed = 3770
     pastH = 0
     
-    hitDict = {"s22520": "锈铁钩锁", 
-               "s22521": "火轮重锤",
-               "s22203": "气吞八方",
-               "s22388": "岚吟",
-               "s22367": "禊祓·绀凌",
-               "s22356": "禊祓·绛岚",
-               "s22374": "零域",
-               "s22776": "双环掌击",
-               "s22246": "劈山尾鞭",
-               "s22272": "追魂扫尾",
-               "s22111": "巨力爪击",
-               "b16316": "心狐炸人",
-              }
-    
     def getMaskName(self, name):
         s = name.strip('"')
         if self.mask == 0:
             return s
         else:
             return s[0] + '*' * (len(s)-1)
-            
-    def getColor(self, occ):
-        if self.color == 0:
-            return (0, 0, 0)
-        colorDict = {"0": (0, 0, 0), 
-                     "1": (210, 180, 0),#少林
-                     "2": (127, 31, 223),#万花
-                     "4": (56, 175, 255),#纯阳
-                     "5": (255, 127, 255),#七秀
-                     "3": (160, 0, 0),#天策
-                     "8": (255, 255, 0),#藏剑
-                     "9": (205, 133, 63),#丐帮
-                     "10": (253, 84, 0),#明教
-                     "6": (63, 31, 159),#五毒
-                     "7": (0, 133, 144),#唐门
-                     "21": (180, 60, 0),#苍云
-                     "22": (100, 250, 180),#长歌
-                     "23": (71, 73, 166),#霸刀
-                     "24": (195, 171, 227),#蓬莱
-                     "25": (161, 9, 34)#凌雪
-                    }
-        if occ not in colorDict:
-            occ = "0"
-        return colorDict[occ]
         
     def hashGroup(self):
         nameList = []
@@ -2433,12 +2395,14 @@ class XiangZhiAnalysis():
         allInfo["healTable"] = data.healTable
         allInfo["dpsTable"] = data.dpsTable
         allInfo["rateTable"] = data.rateTable
+        allInfo["overallrate"] = data.overallrate
         allInfo["bossRateDict"] = data.bossRateDict
         allInfo["bossBreakDict"] = data.bossBreakDict
         allInfo["maxDpsName"] = data.maxDpsName
         allInfo["maxDpsTable"] = data.maxDpsTable
         allInfo["npcHealList"] = data.npcHealList
         allInfo["spareRateList"] = data.spareRateList
+        allInfo["spareRate"] = data.spareRate
         allInfo["healList"] = data.healList
         allInfo["printTable"] = self.score.printTable
         
@@ -2459,6 +2423,8 @@ class XiangZhiAnalysis():
         allInfo["numpurge"] = data.numpurge
         allInfo["hardNPC"] = self.hardNPC
         allInfo["npcHeal"] = data.npcHeal
+        allInfo["npcRank"] = data.npcRank
+        allInfo["npcNum"] = data.npcHealNum
         allInfo["npcHealRate"] = data.npcHealRate
         allInfo["sumHit"] = self.sumHit
         allInfo["sumDeath"] = self.sumDeath
@@ -2485,312 +2451,16 @@ class XiangZhiAnalysis():
         resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadXiangZhiData', data = jparse)
         res = json.load(resp)
         return result, res
+        
+    
     
     def paint(self, filename):
-    
-        data = self.data
-        actorData = self.actorData
-    
-        battleDate = self.battledate
-        generateDate = time.strftime("%Y-%m-%d", time.localtime())
-
-        width = 800
-        height = 800
-
-        def paint(draw, content, posx, posy, font, fill):
-            draw.text(
-                (posx, posy),
-                text = content,
-                font = font,
-                fill = fill
-            )
-            if self.text == 1:
-                if posy != self.pastH:
-                    self.f.write('\n')
-                    self.pastH = posy
-                else:
-                    self.f.write('    ')
-                self.f.write(content)
-                
-        def write(content):
-            if self.text == 1:
-                self.f.write(content)
-
-        fontPath = 'C:\\Windows\\Fonts\\msyh.ttc'
-        if not os.path.isfile(fontPath):
-            print("系统中未找到字体文件，将在当前目录下查找msyh.ttc")
-            fontPath = 'msyh.ttc'
-            if not os.path.isfile(fontPath):
-                print("当前目录下也没有，请尝试从群文件或Github上获取")
-                raise Exception("找不到字体文件：msyh.ttc")
-
-        fontTitle = ImageFont.truetype(font=fontPath, encoding="unic", size=24)
-        fontText = ImageFont.truetype(font=fontPath, encoding="unic", size=14)
-        fontSmall = ImageFont.truetype(font=fontPath, encoding="unic", size=8)
-        fontBig = ImageFont.truetype(font=fontPath, encoding="unic", size=48)
-
-        image = Image.new(mode='RGB', size=(width, height), color=(255, 255, 255))
-        fillcyan = (0, 255, 255)
-        fillblack = (0, 0, 0)
-        fillred = (255, 0, 0)
-        draw = ImageDraw.Draw(image)
-        
-        if self.text == 1:
-            self.f = open("result.txt", "w")
-
-        paint(draw, "%s战斗记录-奶歌"%self.map, 290, 10, fontTitle, fillcyan)
-        paint(draw, "可爱的奶歌[%s]："%self.myname.strip('"'), 10, 50, fontText, fillblack)
-        write('\n')
-
-        base = 75
-        paint(draw, "在这次%s之旅中，"%self.map, 30, base, fontText, fillblack)
-        paint(draw, "你一共产生了%d点治疗量，"%data.numheal, 30, base+15, fontText, fillblack)
-        paint(draw, "其中有%d点是有效治疗，"%data.numeffheal, 30, base+30, fontText, fillblack)
-        paint(draw, "你一共使用了%d次[梅花三弄]，"%data.numshield, 30, base+45, fontText, fillblack)
-        paint(draw, "它们是不是也可以算成治疗量的一部分呢。", 30, base+60, fontText, fillblack)
-        write('\n')
-
-        base = base + 90
-        paint(draw, "每个奶歌都有一个DPS的心，", 30, base, fontText, fillblack)
-        paint(draw, "你的高光时刻是在与[%s]的战斗中，"%data.maxDpsName, 30, base+15, fontText, fillblack)
-        paint(draw, "如果将[庄周梦]和[桑柔]改为计算在你身上，", 30, base+30, fontText, fillblack)
-        paint(draw, "相当于你打了%d点DPS，"%data.maxDps, 30, base+45, fontText, fillblack)
-        paint(draw, "是平均数的%.2f倍，"%data.maxEqualDPS, 30, base+60, fontText, fillblack)
-        paint(draw, "在所有DPS中排在第%d位，"%data.maxDpsRank, 30, base+75, fontText, fillblack)
-        paint(draw, "是不是又觉得自己的门票稳了一些！", 30, base+90, fontText, fillblack)
-        write('\n')
-
-        base = base + 120
-        paint(draw, "并非每时每刻都能感受到梅花三弄的体贴，", 30, base, fontText, fillblack)
-        paint(draw, "整个战斗中，梅花三弄的平均覆盖率是%s%%，"%parseCent(data.overallrate), 30, base+15, fontText, fillblack)
-        paint(draw, "其中最高的BOSS是[%s]，覆盖率为%s%%"%(data.maxRateName, parseCent(data.maxRate)), 30, base+30, fontText, fillblack)
-        paint(draw, "和你想象中的一样吗？", 30, base+45, fontText, fillblack)
-        write('\n')
-
-        base = base + 75
-        paint(draw, "DPS们并不都知道奶歌的人间冷暖，", 30, base, fontText, fillblack)
-        paint(draw, "盾平均覆盖率最高的是[%s]，达到了%s%%，"%(self.getMaskName(data.maxSingleRateName), parseCent(data.maxSingleRate)), 30, base+15, fontText, fillblack)
-        paint(draw, "是因为好好保了盾，还是你更关注他一些?", 30, base+30, fontText, fillblack)
-        paint(draw, "而破盾次数最多的是[%s]，有%d次,"%(self.getMaskName(data.maxSingleBreakName), data.maxSingleBreak), 30, base+45, fontText, fillblack)
-        paint(draw, "下次知道该把谁放在最后了吧！", 30, base+60, fontText, fillblack)
-        write('\n')
-
-        base = base + 90
-        paint(draw, "[%s]可以说是整个副本最难的BOSS，"%self.hardBOSS, 30, base, fontText, fillblack)
-        paint(draw, "你在其中使用了%d次[一指回鸾]，"%data.numpurge, 30, base+15, fontText, fillblack)
-        paint(draw, "你对%s的治疗量是%d点，占比%s%%，"%(self.hardNPC, data.npcHeal, parseCent(data.npcHealRate)), 30, base+30, fontText, fillblack)
-        paint(draw, "在所有奶妈中排名第%d/%d位，"%(data.npcRank, data.npcHealNum), 30, base+45, fontText, fillblack)
-        paint(draw, "是不是觉得自己能打能奶，文武双全！", 30, base+60, fontText, fillblack)
-        write('\n')
-        
-        base = base + 90
-        paint(draw, "治疗职业在副本中一点也不比DPS轻松，", 30, base, fontText, fillblack)
-        paint(draw, "按照%d加速计算，"%self.speed, 30, base+15, fontText, fillblack)
-        paint(draw, "你在副本中的空闲时间比例为%s%%，"%parseCent(data.spareRate), 30, base+30, fontText, fillblack)
-        paint(draw, "快和别的小伙伴比一比，看是谁更划水呀。", 30, base+45, fontText, fillblack)
-        write('\n')
-        
-        base = base + 75
-        paint(draw, "当然，大家都要面对相同的副本机制，", 30, base, fontText, fillblack)
-        paint(draw, "你中了%d次惩罚技能，重伤了%d次，"%(self.sumHit, self.sumDeath), 30, base+15, fontText, fillblack)
-        if self.map == "敖龙岛":
-            paint(draw, "在老五连了%d次线，在老六进了%d次内场，"%(self.sumDrawer, self.sumInner), 30, base+30, fontText, fillblack)
-            paint(draw, "下次是不是可以说，自己是合格的演员啦！", 30, base+45, fontText, fillblack)
-        else:
-            paint(draw, "下次是不是可以说，自己是合格的演员啦！", 30, base+30, fontText, fillblack)
-        write('\n')
-
-        paint(draw, "整体治疗量表", 300, 75, fontSmall, fillblack)
-        paint(draw, "HPS", 355, 75, fontSmall, fillblack)
-        paint(draw, "占比", 390, 75, fontSmall, fillblack)
-        paint(draw, "排名", 430, 75, fontSmall, fillblack)
-        paint(draw, "APS", 460, 75, fontSmall, fillblack)
-        paint(draw, "盾数", 490, 75, fontSmall, fillblack)
-        paint(draw, "战斗时间", 520, 75, fontSmall, fillblack)
-        paint(draw, "盾每分", 570, 75, fontSmall, fillblack)
-        h = 75
-        for line in data.healTable:
-            h += 10
-            paint(draw, "%s"%line[0], 310, h, fontSmall, fillblack)
-            paint(draw, "%d"%line[1], 355, h, fontSmall, fillblack)
-            paint(draw, "%s%%"%parseCent(line[2]), 390, h, fontSmall, fillblack)
-            paint(draw, "%d/%d"%(line[3], line[4]), 430, h, fontSmall, fillblack)
-            paint(draw, "%d"%line[5], 460, h, fontSmall, fillblack)
-            paint(draw, "%d"%line[6], 490, h, fontSmall, fillblack)
-            paint(draw, "%s"%parseTime(line[7]), 520, h, fontSmall, fillblack)
-            paint(draw, "%.1f"%line[8], 570, h, fontSmall, fillblack)
-
-        write('\n')
-        paint(draw, "等效DPS表", 320, 165, fontSmall, fillblack)
-        paint(draw, "DPS", 375, 165, fontSmall, fillblack)
-        paint(draw, "排名", 410, 165, fontSmall, fillblack)
-        paint(draw, "强度", 440, 165, fontSmall, fillblack)
-        paint(draw, "人数", 470, 165, fontSmall, fillblack)
-        h = 165
-        for line in data.dpsTable:
-            h += 10
-            paint(draw, "%s"%line[0], 330, h, fontSmall, fillblack)
-            paint(draw, "%d"%line[1], 370, h, fontSmall, fillblack)
-            paint(draw, "%d"%line[2], 410, h, fontSmall, fillblack)
-            paint(draw, "%.2f"%line[3], 440, h, fontSmall, fillblack)
-            paint(draw, "%d"%line[4], 470, h, fontSmall, fillblack)
-
-        write('\n')
-        paint(draw, "[%s]的等效DPS统计"%data.maxDpsName, 520, 165, fontSmall, fillblack)  
-        h = 165
-        for line in data.maxDpsTable:
-            h += 10
-            paint(draw, "%s"%self.getMaskName(line[2]), 520, h, fontSmall, self.getColor(line[3]))
-            paint(draw, "%d DPS"%int(line[1]), 595, h, fontSmall, fillblack) 
-            if h > 330:
-                break
-
-        write('\n')
-        h = 250
-        paint(draw, "平均覆盖率表", 350, h, fontSmall, fillblack)
-        for line in data.rateTable:
-            h += 10
-            paint(draw, "%s"%line[0], 360, h, fontSmall, fillblack) 
-            paint(draw, "%s%%"%parseCent(line[1]), 410, h, fontSmall, fillblack) 
-            
-        if self.map == "范阳夜变":
-            bossNameList = ["迟驻", "白某", "安小逢"]
-        else:
-            bossNameList = ["铁黎", "陈徽", "藤原武裔"]
-
-        write('\n')
-        h = 345
-        paint(draw, "DPS覆盖率统计", 350, 345, fontSmall, fillblack)
-        paint(draw, "全程", 420, 345, fontSmall, fillblack)
-        paint(draw, "%s"%bossNameList[0], 465, 345, fontSmall, fillblack)
-        paint(draw, "%s"%bossNameList[1], 490, 345, fontSmall, fillblack)
-        paint(draw, "%s"%bossNameList[2], 515, 345, fontSmall, fillblack)
-        
-        #print(data.rateList)
-        for line in data.rateList:
-            h += 10
-            paint(draw, "%s"%self.getMaskName(line[2]), 360, h, fontSmall, self.getColor(line[3])) 
-            paint(draw, "%s%%"%parseCent(line[1]), 420, h, fontSmall, fillblack) 
-            paint(draw, "%s%%"%parseCent(data.bossRateDict[line[0]][0], 0), 465, h, fontSmall, fillblack) 
-            paint(draw, "%s%%"%parseCent(data.bossRateDict[line[0]][1], 0), 490, h, fontSmall, fillblack) 
-            paint(draw, "%s%%"%parseCent(data.bossRateDict[line[0]][2], 0), 515, h, fontSmall, fillblack)
-            if h > 550:
-                break
-
-        write('\n')
-        h = 345
-        paint(draw, "DPS破盾次数", 550, h, fontSmall, fillblack)
-        paint(draw, "全程", 620, h, fontSmall, fillblack)
-        paint(draw, "%s"%bossNameList[0], 650, h, fontSmall, fillblack)
-        paint(draw, "%s"%bossNameList[1], 675, h, fontSmall, fillblack)
-        paint(draw, "%s"%bossNameList[2], 700, h, fontSmall, fillblack)
-        for line in data.breakList:
-            h += 10
-            paint(draw, "%s"%self.getMaskName(line[2]), 560, h, fontSmall, self.getColor(line[3])) 
-            paint(draw, "%d"%line[1], 620, h, fontSmall, fillblack)
-            paint(draw, "%d"%data.bossBreakDict[line[0]][0], 650, h, fontSmall, fillblack) 
-            paint(draw, "%d"%data.bossBreakDict[line[0]][1], 675, h, fontSmall, fillblack) 
-            paint(draw, "%d"%data.bossBreakDict[line[0]][2], 700, h, fontSmall, fillblack)
-            if h > 550:
-                break
-
-        write('\n')
-        h = 550
-        paint(draw, "%s治疗量统计"%self.hardNPC, 345, h, fontSmall, fillblack)
-        for line in data.npcHealList:
-            h += 10
-            paint(draw, "%s"%self.getMaskName(line[2]), 360, h, fontSmall, self.getColor(line[3]))
-            paint(draw, "%d"%line[1], 440, h, fontSmall, fillblack)
-            if h > 630:
-                break
-             
-        write('\n')
-        h = 550
-        paint(draw, "空闲比例表", 500, h, fontSmall, fillblack)
-        for line in data.spareRateList:
-            h += 10
-            paint(draw, "%s"%line[0], 510, h, fontSmall, fillblack)
-            paint(draw, "%s%%"%parseCent(line[1]), 560, h, fontSmall, fillblack)
-            
-        write('\n')
-        h = 550
-        paint(draw, "犯错记录", 620, h, fontSmall, fillblack)
-        for line in actorData.hitCount[data.mykey]:
-            if line not in self.hitDict:
-                continue
-            h += 10
-            paint(draw, "%s"%self.hitDict[line], 630, h, fontSmall, fillblack)
-            paint(draw, "%d"%actorData.hitCount[data.mykey][line], 690, h, fontSmall, fillblack)
-            
-        write('\n')
-        paint(draw, "面板治疗统计", 345, 620, fontSmall, fillblack)
-        h = 620
-        w = 420
-        for line in data.allBoss:
-            paint(draw, "%s"%line, w, h, fontSmall, fillblack)
-            w += 30
-        h += 10
-        for line in data.healList:
-            paint(draw, "%s"%self.getMaskName(line[0]), 360, h, fontSmall, self.getColor(line[1]))
-            w = 420
-            for i in range(2, len(line)):
-                paint(draw, "%d"%line[i], w, h, fontSmall, fillblack)
-                w += 30
-            h += 10
-            
-        write('\n')
-        paint(draw, "评分记录", 730, 70, fontSmall, fillblack)
-        h = 70
-        for line in self.score.printTable:
-            h += 10
-            if line[0] == 0:
-                paint(draw, line[1], 730, h, fontSmall, fillblack)
-                paint(draw, line[2], 770, h, fontSmall, fillblack)
-            elif line[0] == 1:
-                paint(draw, line[1], 740, h, fontSmall, fillblack)
-                paint(draw, line[2], 780, h, fontSmall, fillblack)
-            elif line[0] == 2:
-                paint(draw, line[1], 740, h, fontSmall, fillred)
-                paint(draw, line[2], 780, h, fontSmall, fillred)
-            elif line[0] == 3:
-                paint(draw, line[1], 740, h, fontSmall, fillblack)
-                paint(draw, line[2], 780, h, fontSmall, fillblack)
-        
-        write('\n')
-        if self.score.available == 0:
-            paint(draw, "由于1-6的战斗数据不完整，无法生成评分。", 30, 690, fontText, fillblack)
-        else:
-            fillRate = (0, 0, 0)
-            if self.score.color == 0: 
-                fillRate = (255, 255, 0)
-            elif self.score.color == 1:
-                fillRate = (255, 128, 128)
-            elif self.score.color == 2:
-                fillRate = (255, 128, 0)
-            elif self.score.color == 3:
-                fillRate = (0, 128, 255)
-            elif self.score.color == 4:
-                fillRate = (128, 255, 0)
-            else:
-                fillRate = (255, 0, 0)
-            paint(draw, "基于以上数据，你的评分为：", 30, 690, fontText, fillblack)
-            paint(draw, self.score.rate, 220, 680, fontBig, fillRate)
-            if self.scoreRate != None:
-                paint(draw, "超过了%s%%的奶歌玩家！"%parseCent(self.scoreRate), 30, 715, fontText, fillblack)
-            paint(draw, self.score.describe, 320, 735, fontTitle, fillRate)
-            paint(draw, "（以实际表现为准，评分仅供参考）", 30, 730, fontSmall, fillblack)
-            
-        write('\n')
-        paint(draw, "进本时间：%s"%battleDate, 700, 40, fontSmall, fillblack)
-        paint(draw, "生成时间：%s"%generateDate, 700, 50, fontSmall, fillblack)
-        paint(draw, "难度：%s"%self.mapdetail, 700, 60, fontSmall, fillblack)
-        paint(draw, "版本号：%s"%edition, 30, 780, fontSmall, fillblack)
-        paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 780, fontSmall, fillblack)
-
-        image.save(filename)
-        
-        if self.text == 1:
-            self.f.close()
+        painter = XiangZhiPainter()
+        painter.text = self.text
+        painter.speed = self.speed
+        painter.mask = self.mask
+        painter.color = self.color
+        painter.paint(self.info, "result.png")
     
     def loadData(self, fileList, path, raw):
         
@@ -3005,9 +2675,9 @@ class XiangZhiAnalysis():
             info, res = self.prepareUpload()
             if res["num"] != 0:
                 self.scoreRate = res["numOver"] / res["num"]
-                res["scoreRate"] = self.scoreRate
+                info["scoreRate"] = self.scoreRate
             print(res)
-            print(info)
+        self.info = info
     
     def __init__(self, filelist, map, path, config, raw):
         self.myname = config.xiangzhiname

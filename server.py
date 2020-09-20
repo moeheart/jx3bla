@@ -22,6 +22,11 @@ def Response_headers(content):
     resp = Response(content)    
     resp.headers['Access-Control-Allow-Origin'] = '*'    
     return resp
+    
+@app.route('/XiangZhiData/png', methods=['GET'])
+def uploadXiangZhiData():
+    key = request.form.get('key')
+    print(key)
 
 @app.route('/uploadActorData', methods=['POST'])
 def uploadActorData():

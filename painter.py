@@ -3,6 +3,26 @@ import numpy as np
 import time
 import os
 
+def parseTime(time):
+    if time < 60:
+        return "%ds"%time
+    else:
+        if time % 60 == 0:
+            return "%dm"%(time/60)
+        else:
+            return "%dm%ds"%(time/60, time%60)
+            
+def parseCent(num, digit = 2):
+    n = int(num * 10000)
+    n1 = str(n // 100)
+    n2 = str(n % 100)
+    if len(n2) == 1:
+        n2 = '0' + n2
+    if digit == 2:
+        return "%s.%s"%(n1, n2)
+    else:
+        return "%s"%n1
+
 class XiangZhiPainter():
     
     text = 0
@@ -91,6 +111,8 @@ class XiangZhiPainter():
         return colorDict[occ]
     
     def paint(self, info, saveFile):
+    
+        self.edition = info["edition"]
     
         battleDate = info["battledate"]
         generateDate = time.strftime("%Y-%m-%d", time.localtime())
@@ -423,8 +445,8 @@ class XiangZhiPainter():
                 fillRate = (255, 0, 0)
             paint(draw, "基于以上数据，你的评分为：", 30, 690, fontText, fillblack)
             paint(draw, self.scoreLevel, 220, 680, fontBig, fillRate)
-            #if self.scoreRate != None:
-            #    paint(draw, "超过了%s%%的奶歌玩家！"%parseCent(self.scoreRate), 30, 715, fontText, fillblack)
+            if "scoreRate" in info:
+                paint(draw, "超过了%s%%的奶歌玩家！"%parseCent(info["scoreRate"]), 30, 715, fontText, fillblack)
             paint(draw, self.scoreDescribe, 320, 735, fontTitle, fillRate)
             paint(draw, "（以实际表现为准，评分仅供参考）", 30, 730, fontSmall, fillblack)
             
@@ -432,7 +454,7 @@ class XiangZhiPainter():
         paint(draw, "进本时间：%s"%battleDate, 700, 40, fontSmall, fillblack)
         paint(draw, "生成时间：%s"%generateDate, 700, 50, fontSmall, fillblack)
         paint(draw, "难度：%s"%difficulty, 700, 60, fontSmall, fillblack)
-        paint(draw, "版本号：%s"%edition, 30, 780, fontSmall, fillblack)
+        paint(draw, "版本号：%s"%self.edition, 30, 780, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 780, fontSmall, fillblack)
 
         image.save(saveFile)
@@ -440,6 +462,5 @@ class XiangZhiPainter():
         if self.text == 1:
             self.f.close()
     
-    def __init__(self, edition):
+    def __init__(self):
         self.scoreRate = None
-        self.edition = edition
