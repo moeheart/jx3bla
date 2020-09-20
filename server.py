@@ -24,7 +24,7 @@ def Response_headers(content):
     return resp
     
 @app.route('/XiangZhiData/png', methods=['GET'])
-def uploadXiangZhiData():
+def XiangZhiDataPng():
     key = request.form.get('key')
     print(key)
 
