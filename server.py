@@ -4,7 +4,6 @@ from flask import request
 from flask import make_response,Response
 import urllib
 import json
-import read
 import re
 import pymysql
 import random
@@ -12,9 +11,12 @@ import time
 import urllib.request
 import hashlib
 import configparser
+import os
 
-version = "3.5.0"
-ip = "127.0.0.1"
+from painter import XiangZhiPainter
+
+version = "3.6.0beta"
+ip = "139.199.102.41"
 app = Flask(__name__) 
 app.config['JSON_AS_ASCII'] = False
 
@@ -25,8 +27,33 @@ def Response_headers(content):
     
 @app.route('/XiangZhiData/png', methods=['GET'])
 def XiangZhiDataPng():
-    key = request.form.get('key')
-    print(key)
+    key = request.args.get('key')
+    
+    if key != None:
+        db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+        cursor = db.cursor()
+        
+        sql = '''SELECT * FROM XiangZhiStat WHERE hash = "%s"'''%key
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        
+        if result:
+            line = result[0]
+            info = {"server": line[0],
+                    "id": line[1],
+                    "score": line[2],
+                    "battledate": line[3],
+                    "mapdetail": line[4],
+                    "edition": line[5],
+                    "hash": line[6],
+                    "statistics": line[7]}
+            fileList = os.listdir("static/png")
+            if key not in fileList:
+                painter = XiangZhiPainter()
+                painter.paint(info, "static/png/%s.png"%key)
+            return render_template("XiangZhiPng.html", key = key)
+        
+    return jsonify({'result': '记录不存在'})
 
 @app.route('/uploadActorData', methods=['POST'])
 def uploadActorData():
