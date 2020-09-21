@@ -50,7 +50,7 @@ def XiangZhiDataPng():
                     "statistics": stat}
             fileList = os.listdir("static/png")
             print(stat)
-            if key not in fileList:
+            if "%s.png"%key not in fileList:
                 painter = XiangZhiPainter()
                 painter.paint(info, "static/png/%s.png"%key)
             return render_template("XiangZhiPng.html", key = key)
