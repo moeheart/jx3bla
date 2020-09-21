@@ -39,6 +39,7 @@ def XiangZhiDataPng():
         
         if result:
             line = result[0]
+            stat = json.loads(line[7].replace("'", '"'))
             info = {"server": line[0],
                     "id": line[1],
                     "score": line[2],
@@ -46,8 +47,9 @@ def XiangZhiDataPng():
                     "mapdetail": line[4],
                     "edition": line[5],
                     "hash": line[6],
-                    "statistics": line[7]}
+                    "statistics": stat}
             fileList = os.listdir("static/png")
+            print(stat)
             if key not in fileList:
                 painter = XiangZhiPainter()
                 painter.paint(info, "static/png/%s.png"%key)
