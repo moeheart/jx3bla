@@ -51,7 +51,10 @@ def XiangZhiDataPng():
             fileList = os.listdir("static/png")
             print(stat)
             if "%s.png"%key not in fileList:
-                painter = XiangZhiPainter()
+                paintint = 1
+                if len(key) < 16:
+                    paintint = 0
+                painter = XiangZhiPainter(paintint = paintint)
                 painter.paint(info, "static/png/%s.png"%key)
             return render_template("XiangZhiPng.html", key = key)
         
