@@ -30,6 +30,7 @@ class XiangZhiPainter():
     mask = 0
     color = 1
     edition = "3.6.0beta"
+    printint = 1
     
     def getMaskName(self, name):
         s = name.strip('"')
@@ -262,7 +263,10 @@ class XiangZhiPainter():
         
         base = base + 75
         paint(draw, "当然，大家都要面对相同的副本机制，", 30, base, fontText, fillblack)
-        paint(draw, "你中了%d次惩罚技能，重伤了%d次，"%(stat["sumHit"], stat["sumDeath"]), 30, base+15, fontText, fillblack)
+        if self.printint:
+            paint(draw, "你中了%d次惩罚技能，重伤了%d次，"%(stat["sumHit"], stat["sumDeath"]), 30, base+15, fontText, fillblack)
+        else:
+            paint(draw, "你中了%.1f次惩罚技能，重伤了%.1f次，"%(stat["sumHit"], stat["sumDeath"]), 30, base+15, fontText, fillblack)
         if self.map == "敖龙岛":
             paint(draw, "在老五连了%d次线，在老六进了%d次内场，"%(self.sumDrawer, self.sumInner), 30, base+30, fontText, fillblack)
             paint(draw, "下次是不是可以说，自己是合格的演员啦！", 30, base+45, fontText, fillblack)
@@ -284,9 +288,15 @@ class XiangZhiPainter():
             paint(draw, "%s"%line[0], 310, h, fontSmall, fillblack)
             paint(draw, "%d"%line[1], 355, h, fontSmall, fillblack)
             paint(draw, "%s%%"%parseCent(line[2]), 390, h, fontSmall, fillblack)
-            paint(draw, "%d/%d"%(line[3], line[4]), 430, h, fontSmall, fillblack)
+            if self.printint:
+                paint(draw, "%d/%d"%(line[3], line[4]), 430, h, fontSmall, fillblack)
+            else:
+                paint(draw, "%.1f/%.1f"%(line[3], line[4]), 430, h, fontSmall, fillblack)
             paint(draw, "%d"%line[5], 460, h, fontSmall, fillblack)
-            paint(draw, "%d"%line[6], 490, h, fontSmall, fillblack)
+            if self.printint:
+                paint(draw, "%d"%line[6], 490, h, fontSmall, fillblack)
+            else:
+                paint(draw, "%.1f"%line[6], 490, h, fontSmall, fillblack)
             paint(draw, "%s"%parseTime(line[7]), 520, h, fontSmall, fillblack)
             paint(draw, "%.1f"%line[8], 570, h, fontSmall, fillblack)
 
@@ -301,9 +311,14 @@ class XiangZhiPainter():
             h += 10
             paint(draw, "%s"%line[0], 330, h, fontSmall, fillblack)
             paint(draw, "%d"%line[1], 370, h, fontSmall, fillblack)
-            paint(draw, "%d"%line[2], 410, h, fontSmall, fillblack)
-            paint(draw, "%.2f"%line[3], 440, h, fontSmall, fillblack)
-            paint(draw, "%d"%line[4], 470, h, fontSmall, fillblack)
+            if self.printint:
+                paint(draw, "%d"%line[2], 410, h, fontSmall, fillblack)
+                paint(draw, "%.2f"%line[3], 440, h, fontSmall, fillblack)
+                paint(draw, "%d"%line[4], 470, h, fontSmall, fillblack)
+            else:
+                paint(draw, "%.1f"%line[2], 410, h, fontSmall, fillblack)
+                paint(draw, "%.2f"%line[3], 440, h, fontSmall, fillblack)
+                paint(draw, "%.1f"%line[4], 470, h, fontSmall, fillblack)
 
         write('\n')
         paint(draw, "[%s]的等效DPS统计"%stat["maxDpsName"], 520, 165, fontSmall, fillblack)  
@@ -357,10 +372,16 @@ class XiangZhiPainter():
         for line in stat["breakList"]:
             h += 10
             paint(draw, "%s"%self.getMaskName(line[2]), 560, h, fontSmall, self.getColor(line[3])) 
-            paint(draw, "%d"%line[1], 620, h, fontSmall, fillblack)
-            paint(draw, "%d"%stat["bossBreakDict"][line[0]][0], 650, h, fontSmall, fillblack) 
-            paint(draw, "%d"%stat["bossBreakDict"][line[0]][1], 675, h, fontSmall, fillblack) 
-            paint(draw, "%d"%stat["bossBreakDict"][line[0]][2], 700, h, fontSmall, fillblack)
+            if self.printint:
+                paint(draw, "%d"%line[1], 620, h, fontSmall, fillblack)
+                paint(draw, "%d"%stat["bossBreakDict"][line[0]][0], 650, h, fontSmall, fillblack) 
+                paint(draw, "%d"%stat["bossBreakDict"][line[0]][1], 675, h, fontSmall, fillblack) 
+                paint(draw, "%d"%stat["bossBreakDict"][line[0]][2], 700, h, fontSmall, fillblack)
+            else:
+                paint(draw, "%.1f"%line[1], 620, h, fontSmall, fillblack)
+                paint(draw, "%.1f"%stat["bossBreakDict"][line[0]][0], 650, h, fontSmall, fillblack) 
+                paint(draw, "%.1f"%stat["bossBreakDict"][line[0]][1], 675, h, fontSmall, fillblack) 
+                paint(draw, "%.1f"%stat["bossBreakDict"][line[0]][2], 700, h, fontSmall, fillblack)
             if h > 550:
                 break
 
@@ -371,7 +392,7 @@ class XiangZhiPainter():
             h += 10
             paint(draw, "%s"%self.getMaskName(line[2]), 360, h, fontSmall, self.getColor(line[3]))
             paint(draw, "%d"%line[1], 440, h, fontSmall, fillblack)
-            if h > 630:
+            if h > 610:
                 break
              
         write('\n')
@@ -390,7 +411,10 @@ class XiangZhiPainter():
                 continue
             h += 10
             paint(draw, "%s"%self.hitDict[line], 630, h, fontSmall, fillblack)
-            paint(draw, "%d"%stat["hitCount"][line], 690, h, fontSmall, fillblack)
+            if self.printint:
+                paint(draw, "%d"%stat["hitCount"][line], 690, h, fontSmall, fillblack)
+            else:
+                paint(draw, "%.1f"%stat["hitCount"][line], 690, h, fontSmall, fillblack)
             
         write('\n')
         paint(draw, "面板治疗统计", 345, 620, fontSmall, fillblack)
@@ -462,5 +486,6 @@ class XiangZhiPainter():
         if self.text == 1:
             self.f.close()
     
-    def __init__(self):
+    def __init__(self, printint = 1):
         self.scoreRate = None
+        self.printint = printint
