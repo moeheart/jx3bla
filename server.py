@@ -15,8 +15,9 @@ import os
 
 from painter import XiangZhiPainter
 
-version = "3.6.0beta"
+version = "3.6.0"
 ip = "139.199.102.41"
+announcement = "欢迎使用剑三警长(jx3bla)，新功能开发中，敬请期待！"
 app = Flask(__name__) 
 app.config['JSON_AS_ASCII'] = False
 
@@ -24,6 +25,10 @@ def Response_headers(content):
     resp = Response(content)    
     resp.headers['Access-Control-Allow-Origin'] = '*'    
     return resp
+    
+@app.route('/getAnnouncement', methods=['GET'])
+def uploadXiangZhiData():
+    return jsonify({'version': version, 'announcement': announcement})
     
 @app.route('/XiangZhiData/png', methods=['GET'])
 def XiangZhiDataPng():

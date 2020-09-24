@@ -2958,6 +2958,10 @@ if __name__ == "__main__":
     try:
         config = Config("config.ini")
         
+        resp = urllib.request.urlopen('http://139.199.102.41:8009/getAnnouncement')
+        res = json.load(resp)
+        print(res["announcement"])
+        
         fileLookUp = FileLookUp()
 
         # Edit by KEQX
