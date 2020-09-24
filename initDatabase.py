@@ -27,7 +27,8 @@ sql = """CREATE TABLE XiangZhiStat (
          mapdetail VARCHAR(32),
          edition VARCHAR(32),
          hash VARCHAR(32) primary key,
-         statistics VARCHAR(16000)
+         statistics VARCHAR(16000), 
+         public INT,
          ) DEFAULT CHARSET utf8mb4"""
 cursor.execute(sql)
 

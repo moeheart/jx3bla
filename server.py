@@ -109,6 +109,11 @@ def uploadXiangZhiData():
     hash = jdata["hash"]
     statistics = jdata["statistics"]
     
+    if "public" not in jdata:
+        jdata["public"] = 0
+        
+    public = jdata["public"]
+    
     db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
     cursor = db.cursor()
     
@@ -133,8 +138,8 @@ def uploadXiangZhiData():
         db.close()
         return jsonify({'result': 'dupid', 'num': num, 'numOver': numOver})
         
-    sql = """INSERT INTO XiangZhiStat VALUES ("%s", "%s", %d, "%s", "%s", "%s", "%s", "%s")"""%(
-        server, id, score, battleDate, mapDetail, edition, hash, statistics)
+    sql = """INSERT INTO XiangZhiStat VALUES ("%s", "%s", %d, "%s", "%s", "%s", "%s", "%s", %d)"""%(
+        server, id, score, battleDate, mapDetail, edition, hash, statistics, public)
     cursor.execute(sql)
     db.commit()
     db.close()

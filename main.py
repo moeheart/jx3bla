@@ -2380,7 +2380,7 @@ class XiangZhiAnalysis():
         hashres = hashlib.md5(hashStr.encode(encoding="utf-8")).hexdigest()
         return hashres
         
-    def prepareUpload(self):
+    def prepareUpload(self, upload = 0):
         result = {}
         server = self.generator[0].rawdata["19"][0].strip('"')
         result["server"] = server
@@ -2390,6 +2390,7 @@ class XiangZhiAnalysis():
         result["mapdetail"] = self.mapdetail + self.map
         result["edition"] = edition
         result["hash"] = self.hashGroup()
+        result["public"] = self.public
         allInfo = {}
         data = self.data
         allInfo["healTable"] = data.healTable
@@ -2445,12 +2446,15 @@ class XiangZhiAnalysis():
 
         result["id"] = self.getMaskName(result["id"])
 
-        Jdata = json.dumps(result)
-        jpost = {'jdata': Jdata}
-        jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadXiangZhiData', data = jparse)
-        res = json.load(resp)
-        return result, res
+        if upload:
+            Jdata = json.dumps(result)
+            jpost = {'jdata': Jdata}
+            jparse = urllib.parse.urlencode(jpost).encode('utf-8')
+            resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadXiangZhiData', data = jparse)
+            res = json.load(resp)
+            return result, res
+        else:
+            return result, None
         
     
     
@@ -2672,11 +2676,14 @@ class XiangZhiAnalysis():
         
         self.scoreRate = None
         if self.score.available:
-            info, res = self.prepareUpload()
+            info, res = self.prepareUpload(upload = 1)
             if res["num"] != 0:
                 self.scoreRate = res["numOver"] / res["num"]
                 info["scoreRate"] = self.scoreRate
-            print(res)
+            info["uploaded"] = 1
+        else:
+            info, res = self.prepareUpload(upload = 0)
+            info["uploaded"] = 0
         self.info = info
     
     def __init__(self, filelist, map, path, config, raw):
@@ -2685,6 +2692,7 @@ class XiangZhiAnalysis():
         self.color = config.color
         self.text = config.text
         self.speed = config.speed
+        self.public = config.xiangzhiPublic
         self.loadData(filelist, path, raw)
         self.map = map
         self.battledate = '-'.join(filelist[0][0].split('-')[0:3])
@@ -2860,6 +2868,7 @@ class Config():
             self.actorActive = int(self.items_actor["active"])
             self.checkAll = int(self.items_actor["checkall"])
             self.failThreshold = int(self.items_actor["failthreshold"])
+            self.xiangzhiPublic = int(self.items_xiangzhi["public"])
             assert self.mask in [0, 1]
             assert self.color in [0, 1]
             assert self.text in [0, 1]
@@ -3004,6 +3013,8 @@ if __name__ == "__main__":
             b.analysis()
             b.paint("result.png")
             print("奶歌战斗复盘分析完成！结果保存在result.png中")
+            if b.info["uploaded"]:
+                print("可以通过以下链接来查看与分享：http://139.199.102.41:8009/XiangZhiData/png?key=%s"%b.info["hash"])
             exitCode |= 2  # 第2位设为1
 
         if config.actorActive:

@@ -451,8 +451,8 @@ class XiangZhiPainter():
                 paint(draw, line[2], 780, h, fontSmall, fillblack)
         
         write('\n')
-        if False:
-            paint(draw, "由于1-6的战斗数据不完整，无法生成评分。", 30, 690, fontText, fillblack)
+        if stat["printTable"] == []:
+            paint(draw, "由于全程战斗数据不完整，无法生成评分。", 30, 690, fontText, fillblack)
         else:
             fillRate = (0, 0, 0)
             if self.scoreColor == 0: 
