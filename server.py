@@ -27,7 +27,7 @@ def Response_headers(content):
     return resp
     
 @app.route('/getAnnouncement', methods=['GET'])
-def uploadXiangZhiData():
+def getAnnouncement():
     return jsonify({'version': version, 'announcement': announcement})
     
 @app.route('/XiangZhiData/png', methods=['GET'])
