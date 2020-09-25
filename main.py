@@ -13,7 +13,7 @@ import urllib.request
 
 from painter import XiangZhiPainter
 
-edition = "3.6.0beta"
+edition = "3.6.0"
 
 def parseLuatable(s, n, maxn):
     numLeft = 0
