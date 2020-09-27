@@ -15,7 +15,7 @@ import os
 
 from painter import XiangZhiPainter
 
-version = "3.6.0"
+version = "3.6.1"
 ip = "139.199.102.41"
 announcement = "欢迎使用剑三警长(jx3bla)，新功能开发中，敬请期待！"
 app = Flask(__name__) 

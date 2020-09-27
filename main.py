@@ -13,7 +13,7 @@ import urllib.request
 
 from painter import XiangZhiPainter
 
-edition = "3.6.0"
+edition = "3.6.1"
 
 def parseLuatable(s, n, maxn):
     numLeft = 0
@@ -2892,6 +2892,7 @@ text=0
 active=1
 xiangzhiname=
 speed=3770
+public=0
 
 [ActorAnalysis]
 active=1
