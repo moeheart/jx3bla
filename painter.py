@@ -29,7 +29,7 @@ class XiangZhiPainter():
     speed = 3770
     mask = 0
     color = 1
-    edition = "3.6.0"
+    edition = "3.6.2"
     printint = 1
     
     def getMaskName(self, name):
@@ -268,7 +268,7 @@ class XiangZhiPainter():
         else:
             paint(draw, "你中了%.1f次惩罚技能，重伤了%.1f次，"%(stat["sumHit"], stat["sumDeath"]), 30, base+15, fontText, fillblack)
         if self.map == "敖龙岛":
-            paint(draw, "在老五连了%d次线，在老六进了%d次内场，"%(self.sumDrawer, self.sumInner), 30, base+30, fontText, fillblack)
+            paint(draw, "在老五连了%d次线，在老六进了%d次内场，"%(stat["sumDrawer"], stat["sumInner"]), 30, base+30, fontText, fillblack)
             paint(draw, "下次是不是可以说，自己是合格的演员啦！", 30, base+45, fontText, fillblack)
         else:
             paint(draw, "下次是不是可以说，自己是合格的演员啦！", 30, base+30, fontText, fillblack)
