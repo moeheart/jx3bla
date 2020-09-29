@@ -10,10 +10,12 @@ import argparse
 import hashlib
 import json
 import urllib.request
+import functools
 
 from painter import XiangZhiPainter
 
 edition = "3.6.2"
+
 
 def parseLuatable(s, n, maxn):
     numLeft = 0
@@ -25,7 +27,7 @@ def parseLuatable(s, n, maxn):
     nowitems = []
     nowquote = 0
     while True:
-        #print(nowobj)
+        # print(nowobj)
         c = s[nowi]
         if c == "[":
             if nowitems != []:
@@ -35,7 +37,7 @@ def parseLuatable(s, n, maxn):
                 nowitems = []
             keystart = 1
         elif c == "{":
-            #print(nowi)
+            # print(nowi)
             jdata, pn = parseLuatable(s, nowi + 1, maxn)
             nowitems.append(jdata)
             nowi = pn
@@ -75,66 +77,69 @@ def dictToPairs(dict):
     for key in dict:
         pairs.append([key, dict[key]])
     return pairs
-    
+
+
 def calculSpeed(speed, origin):
     tmp = int(speed / 188.309 * 10.24);
-    y = int(origin*1024/(tmp+1024));
+    y = int(origin * 1024 / (tmp + 1024));
     return y
-    
+
+
 def parseTime(time):
     if time < 60:
-        return "%ds"%time
+        return "%ds" % time
     else:
         if time % 60 == 0:
-            return "%dm"%(time/60)
+            return "%dm" % (time / 60)
         else:
-            return "%dm%ds"%(time/60, time%60)
-            
-def parseCent(num, digit = 2):
+            return "%dm%ds" % (time / 60, time % 60)
+
+
+def parseCent(num, digit=2):
     n = int(num * 10000)
     n1 = str(n // 100)
     n2 = str(n % 100)
     if len(n2) == 1:
         n2 = '0' + n2
     if digit == 2:
-        return "%s.%s"%(n1, n2)
+        return "%s.%s" % (n1, n2)
     else:
-        return "%s"%n1
-            
+        return "%s" % n1
+
+
 class BuffCounter():
     startTime = 0
     finalTime = 0
     buffid = 0
     log = []
-    
+
     def setState(self, time, stack):
         self.log.append([int(time), int(stack)])
-    
+
     def checkState(self, time):
         res = 0
         for i in range(1, len(self.log)):
             if int(time) < self.log[i][0]:
-                res = self.log[i-1][1]
+                res = self.log[i - 1][1]
                 break
         else:
             res = self.log[-1][1]
         return res
-        
+
     def sumTime(self):
         time = 0
-        for i in range(len(self.log)-1):
-            time += self.log[i][1] * (self.log[i+1][0] - self.log[i][0])
+        for i in range(len(self.log) - 1):
+            time += self.log[i][1] * (self.log[i + 1][0] - self.log[i][0])
         return time
-    
+
     def __init__(self, buffid, startTime, finalTime):
         self.buffid = buffid
         self.startTime = startTime
         self.finalTime = finalTime
         self.log = [[startTime, 0]]
-        
+
 
 class ShieldCounter():
-    
     shieldLog = []
     breakCount = 0
     shieldCount = 0
@@ -143,26 +148,26 @@ class ShieldCounter():
     finalTime = 0
     nowi = 0
     timeCount = 0
-    
+
     def checkTime(self, time):
-        while self.nowi + 1 < len(self.shieldLog) and self.shieldLog[self.nowi+1][0] < time:
+        while self.nowi + 1 < len(self.shieldLog) and self.shieldLog[self.nowi + 1][0] < time:
             self.nowi += 1
         return self.shieldLog[self.nowi][1]
-    
+
     def analysisShieldData(self):
-        
+
         s = self.shieldLog
-        
+
         newList = []
         for i in range(len(s)):
-            if i > 0 and i + 1 < len(s) and s[i][1] == 0 and s[i+1][1] == 1 and s[i+1][0] - s[i][0] < 500:
+            if i > 0 and i + 1 < len(s) and s[i][1] == 0 and s[i + 1][1] == 1 and s[i + 1][0] - s[i][0] < 500:
                 s[i][1] = 2
-                s[i+1][1] = 2
+                s[i + 1][1] = 2
             if i < len(s) and len(newList) > 0 and s[i][1] == newList[-1][1]:
                 s[i][1] = 2
             if s[i][1] != 2:
                 newList.append(s[i])
-                
+
         if newList == []:
             newList = [[self.startTime, 0]]
         else:
@@ -170,7 +175,7 @@ class ShieldCounter():
                 newList = [[self.startTime, 1]] + newList
             else:
                 newList = [[self.startTime, 0]] + newList
-            
+
         self.shieldLog = newList
 
         n = len(newList)
@@ -178,26 +183,25 @@ class ShieldCounter():
         self.breakCount = 0
         self.shieldCount = 0
         for i in range(1, n):
-            assert newList[i][1] != newList[i-1][1]
-            self.shieldDuration[newList[i-1][1]] += newList[i][0] - newList[i-1][0]
+            assert newList[i][1] != newList[i - 1][1]
+            self.shieldDuration[newList[i - 1][1]] += newList[i][0] - newList[i - 1][0]
             if newList[i][1] == 0:
                 self.breakCount += 1
-            if newList[i-1][1] == 1:
+            if newList[i - 1][1] == 1:
                 self.shieldCount += 1
-                
+
         if newList[-1][1] == 1:
             self.shieldCount += 1
 
-        self.shieldDuration[newList[n-1][1]] += self.finalTime - newList[n-1][0]
-        
-    
+        self.shieldDuration[newList[n - 1][1]] += self.finalTime - newList[n - 1][0]
+
     def __init__(self, shieldLog, startTime, finalTime):
         self.shieldLog = shieldLog
         self.startTime = startTime
         self.finalTime = finalTime
-        
-class SkillCounter():
 
+
+class SkillCounter():
     skillLog = []
     actLog = []
     startTime = 0
@@ -205,22 +209,22 @@ class SkillCounter():
     speed = 3770
     sumBusyTime = 0
     sumSpareTime = 0
-    
+
     def getLength(self, length):
         flames = calculSpeed(self.speed, length)
         return flames * 0.0625 * 1000
-    
+
     def analysisSkillData(self):
         for line in self.skillLog:
-            if line[1] in [14137, 14300]: #宫，变宫
+            if line[1] in [14137, 14300]:  # 宫，变宫
                 self.actLog.append([line[0] - self.getLength(24), self.getLength(24)])
-            elif line[1] in [14140, 14301]: #徵，变徵
+            elif line[1] in [14140, 14301]:  # 徵，变徵
                 self.actLog.append([line[0] - self.getLength(16), self.getLength(16)])
             else:
                 self.actLog.append([line[0], self.getLength(24)])
-                
-        self.actLog.sort(key = lambda x: x[0])
-        
+
+        self.actLog.sort(key=lambda x: x[0])
+
         nowTime = self.startTime
         self.sumBusyTime = 0
         self.sumSpareTime = 0
@@ -232,44 +236,43 @@ class SkillCounter():
             elif line[0] + line[1] > nowTime:
                 self.sumBusyTime += line[0] + line[1] - nowTime
                 nowTime = line[0] + line[1]
-                
-    
-    def __init__(self, skillLog, startTime, finalTime, speed = 3770):
+
+    def __init__(self, skillLog, startTime, finalTime, speed=3770):
         self.skillLog = skillLog
         self.actLog = []
         self.startTime = startTime
         self.finalTime = finalTime
         self.speed = speed
 
+
 class StatGeneratorBase():
-    
     filename = ""
     rawdata = {}
     bossname = ""
     battleTime = 0
-    
+
     def parseFile(self, path):
         if path == "":
             name = self.filename
         else:
-            name = "%s\\%s"%(path, self.filename)
-        print("读取文件：%s"%name)
+            name = "%s\\%s" % (path, self.filename)
+        print("读取文件：%s" % name)
         f = open(name, "r")
         s = f.read()
         res, _ = parseLuatable(s, 8, len(s))
         self.rawdata = res
-        
+
         if '9' not in self.rawdata:
             if len(self.rawdata['']) == 17:
                 for i in range(1, 17):
-                    self.rawdata[str(i)] = [self.rawdata[''][i-1]]
+                    self.rawdata[str(i)] = [self.rawdata[''][i - 1]]
             else:
                 raise Exception("数据不完整，无法生成，请确认是否生成了正确的茗伊战斗复盘记录。")
-        
+
         self.bossname = self.filename.split('_')[1]
         self.battleTime = int(self.filename.split('_')[2].split('.')[0])
-    
-    def __init__(self, filename, path = "", rawdata = {}):
+
+    def __init__(self, filename, path="", rawdata={}):
         if rawdata == {}:
             self.filename = filename
             self.parseFile(path)
@@ -278,14 +281,16 @@ class StatGeneratorBase():
             self.rawdata = rawdata
             self.bossname = self.filename.split('_')[1]
             self.battleTime = int(self.filename.split('_')[2].split('.')[0])
-            
+
+
 def add1(d, s):
     if s in d:
         d[s] += 1
     else:
         d[s] = 1
     return d
-    
+
+
 class DpsGeneralStatGenerator(StatGeneratorBase):
 
     def makeEmptyStat(self, name, occ):
@@ -295,25 +300,24 @@ class DpsGeneralStatGenerator(StatGeneratorBase):
                "numskill": 0,
                "log": []}
         return res
-        
-        
+
     def SecondStageAnalysis(self):
-        
+
         res = self.rawdata
-        
+
         namedict = res['9'][0]
         occdict = res['10'][0]
         sk = res['16'][0][""]
 
         num = 0
-        
-        result = {"player": {}, 
+
+        result = {"player": {},
                   "bossname": self.bossname,
                   "battleTime": self.battleTime}
 
         for line in sk:
             item = line[""]
-            
+
             if item[3] == "1":
                 if item[14] != "0" and item[4] in namedict:
                     if item[4] not in result["player"]:
@@ -323,14 +327,14 @@ class DpsGeneralStatGenerator(StatGeneratorBase):
                     result["player"][item[4]]["log"].append([item[2], item[7], item[14]])
 
             num += 1
-        
+
         return result
 
-
-    def __init__(self, filename, path = "", rawdata = {}, myname = ""):
+    def __init__(self, filename, path="", rawdata={}, myname=""):
         self.myname = myname
         super().__init__(filename, path, rawdata)
-        
+
+
 class ActorStatGenerator(StatGeneratorBase):
     yanyeID = {}
     yanyeThreshold = 0.04
@@ -346,36 +350,36 @@ class ActorStatGenerator(StatGeneratorBase):
     sideTargetID = {}
     guishouID = {}
     yingyuanHistory = {}
-    
+
     startTime = 0
     finalTime = 0
     playerIDList = {}
     firstHitList = {}
-    
-    actorSkillList = ["22520", #锈铁钩锁
-                  "22521", #火轮重锤
-                  "22203", #气吞八方
-                  "22388", #岚吟
-                  "22367", #禊祓·绀凌
-                  "22356", #禊祓·绛岚
-                  "22374", #零域
-                  "22776", #双环掌击
-                  "22246", #劈山尾鞭
-                  "22272", #追魂扫尾
-                  "22111", #巨力爪击
-                  "23621", #隐雷鞭
-                  "23700", #短歌式
-                  "24029", #赤镰乱舞·矩形
-                  "24030", #赤镰乱舞·扇形
-                  "24031", #赤镰乱舞·圆形
-                  ]
-                  
-    actorBuffList = ["16316", #离群之狐成就buff
-                     "16842", #符咒禁锢buff
-                     "17110", #安小逢P1站错，绞首链buff
-                     "17301", #安小逢P2站错，不听话的小孩子buff
-                  ]
-                  
+
+    actorSkillList = ["22520",  # 锈铁钩锁
+                      "22521",  # 火轮重锤
+                      "22203",  # 气吞八方
+                      "22388",  # 岚吟
+                      "22367",  # 禊祓·绀凌
+                      "22356",  # 禊祓·绛岚
+                      "22374",  # 零域
+                      "22776",  # 双环掌击
+                      "22246",  # 劈山尾鞭
+                      "22272",  # 追魂扫尾
+                      "22111",  # 巨力爪击
+                      "23621",  # 隐雷鞭
+                      "23700",  # 短歌式
+                      "24029",  # 赤镰乱舞·矩形
+                      "24030",  # 赤镰乱舞·扇形
+                      "24031",  # 赤镰乱舞·圆形
+                      ]
+
+    actorBuffList = ["16316",  # 离群之狐成就buff
+                     "16842",  # 符咒禁锢buff
+                     "17110",  # 安小逢P1站错，绞首链buff
+                     "17301",  # 安小逢P2站错，不听话的小孩子buff
+                     ]
+
     bossNameDict = {"铁黎": 1,
                     "陈徽": 2,
                     "藤原武裔": 3,
@@ -392,14 +396,14 @@ class ActorStatGenerator(StatGeneratorBase):
                     "白某": 4,
                     "安小逢": 5,
                     }
-                    
+
     def getMaskName(self, name):
         s = name.strip('"')
         if self.mask == 0:
             return s
         else:
-            return s[0] + '*' * (len(s)-1)
-    
+            return s[0] + '*' * (len(s) - 1)
+
     def makeEmptyHitList(self):
         res = {}
         for i in self.actorSkillList:
@@ -407,7 +411,7 @@ class ActorStatGenerator(StatGeneratorBase):
         for i in self.actorBuffList:
             res["b" + i] = 0
         return res
-        
+
     def checkFirst(self, key, data, occdict):
         if occdict[key][0] != '0' and key not in data.hitCount:
             data.hitCount[key] = self.makeEmptyHitList()
@@ -416,7 +420,7 @@ class ActorStatGenerator(StatGeneratorBase):
             data.innerPlace[key] = [0, 0, 0, 0]
             data.drawer[key] = 0
         return data
-        
+
     def hashGroup(self):
         nameList = []
         for line in self.namedict:
@@ -444,117 +448,116 @@ class ActorStatGenerator(StatGeneratorBase):
             allInfo["effectiveDPSList"][i][0] = self.getMaskName(allInfo["effectiveDPSList"][i][0])
         for i in range(len(allInfo["potList"])):
             allInfo["potList"][i][0] = self.getMaskName(allInfo["potList"][i][0])
-        
+
         result["statistics"] = allInfo
 
         Jdata = json.dumps(result)
-        
+
         jpost = {'jdata': Jdata}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        urllib.request.urlopen('http://139.199.102.41:8009/uploadActorData', data = jparse)
+        urllib.request.urlopen('http://139.199.102.41:8009/uploadActorData', data=jparse)
 
     def firstStageAnalysis(self):
         res = self.rawdata
-        
+
         namedict = res['9'][0]
         occdict = res['10'][0]
         sk = res['16'][0][""]
-        
+
         self.namedict = namedict
         self.occdict = occdict
 
         self.playerIDList = {}
-        
+
         self.firstHitList = {}
-        
+
         self.toutianhuanri = 0
-        
+
         for line in sk:
             item = line[""]
-            
+
             if self.startTime == 0:
                 self.startTime = int(item[2])
             self.finalTime = int(item[2])
-            
+
             if item[3] == "1":
                 if item[5] not in namedict:
                     continue
-                    
+
                 if occdict[item[5]][0] != '0':
                     self.playerIDList[item[5]] = 0
-                    
+
                 if namedict[item[5]][0] == '"厌夜"' and occdict[item[5]][0] == '0':
                     if item[5] not in self.yanyeID:
                         self.yanyeID[item[5]] = 0
-                    if int(item[13]) > 0: 
+                    if int(item[13]) > 0:
                         self.yanyeActive = 1
                 if item[4] in self.yanyeID:
                     if item[7] == "23635":
                         self.yanyeID[item[4]] = 1
                     elif item[7] == "23637":
                         self.yanyeID[item[4]] = 2
-                        
+
                 if namedict[item[5]][0] == '"无面鬼"' and occdict[item[5]][0] == '0':
                     self.wumianguiID[item[5]] = 0
-                    
+
                 if namedict[item[5]][0] == '"迟驻"' and occdict[item[5]][0] == '0':
                     self.chizhuActive = 1
                     self.chizhuID = item[5]
-                    
+
                 if namedict[item[5]][0] == '"白某"' and occdict[item[5]][0] == '0':
                     self.baimouActive = 1
                     self.baimouID = item[5]
-                    
+
                 if namedict[item[5]][0] == '"安小逢"' and occdict[item[5]][0] == '0':
                     self.anxiaofengActive = 1
                     self.anxiaofengID = item[5]
-                
+
                 if namedict[item[5]][0] in ['"少阴符灵"', '"少阳符灵"'] and occdict[item[5]][0] == '0':
                     self.fulingID[item[5]] = 1
-                    
+
                 if namedict[item[5]][0] in ['"狼牙斧卫"', '"水鬼"'] and occdict[item[5]][0] == '0':
                     self.sideTargetID[item[5]] = 1
-                    
+
                 if namedict[item[5]][0] in ['"鬼首"'] and occdict[item[5]][0] == '0':
                     self.guishouID[item[5]] = 1
-                    
-                if item[6] == "17440" and item[10] == '1': #偷天换日
+
+                if item[6] == "17440" and item[10] == '1':  # 偷天换日
                     self.toutianhuanri = 1
-                    
+
         for id in self.playerIDList:
             self.firstHitList[id] = 0
-                    
 
     def secondStageAnalysis(self):
         res = self.rawdata
-        
+
         namedict = res['9'][0]
         occdict = res['10'][0]
         skilldict = res['11'][0]
         sk = res['16'][0][""]
-        
+
         data = ActorData()
 
         num = 0
         skillLog = []
-        
+
         no5P2 = 0
-        
+
         lastHit = {}
-        
+
         self.potList = []
-        
+
         deathHit = {}
 
-        deathBuffDict = {"9299": 30000, #杯水留影
-                         "16981": 30000, #翩然
-                         "17128": 5000, #阴阳逆乱}
-                         "16892": 36000, #应援
-                         "17301": 16000, #不听话的小孩子
-                         "16349": 16349, #试炼逃避者
+        deathBuffDict = {"9299": 30000,  # 杯水留影
+                         "16981": 30000,  # 翩然
+                         "17128": 5000,  # 阴阳逆乱}
+                         "16892": 36000,  # 应援
+                         "17301": 16000,  # 不听话的小孩子
+                         "16349": 16349,  # 试炼逃避者
                          }
         deathBuff = {}
-        
+
         rateStandard = {"0": 0,
                         "25": 0.98,
                         "21": 0.95,
@@ -571,28 +574,27 @@ class ActorStatGenerator(StatGeneratorBase):
                         "1": 0.78,
                         "5": 0.77,
                         "4": 0.76}
-                        
+
         rateThreshold = {"0": 0,
-                        "25": 0.87,
-                        "21": 0.84,
-                        "9": 0.83,
-                        "6": 0.77,
-                        "2": 0.77,
-                        "24": 0.77,
-                        "22": 0.75,
-                        "7": 0.73,
-                        "8": 0.73,
-                        "23": 0.73,
-                        "10": 0.72,
-                        "3": 0.72,
-                        "1": 0.69,
-                        "5": 0.68,
-                        "4": 0.67}
-                        
+                         "25": 0.87,
+                         "21": 0.84,
+                         "9": 0.83,
+                         "6": 0.77,
+                         "2": 0.77,
+                         "24": 0.77,
+                         "22": 0.75,
+                         "7": 0.73,
+                         "8": 0.73,
+                         "23": 0.73,
+                         "10": 0.72,
+                         "3": 0.72,
+                         "1": 0.69,
+                         "5": 0.68,
+                         "4": 0.67}
+
         self.dps = {}
         self.deathName = {}
-                        
-        
+
         yanyeActive = self.yanyeActive
         if yanyeActive:
             yanyeHP = [0, 261440000, 261440000]
@@ -605,7 +607,7 @@ class ActorStatGenerator(StatGeneratorBase):
             yanyeResult = {}
             rush = 1
             wumianguiLabel = 0
-            
+
         chizhuActive = self.chizhuActive
         if chizhuActive:
             chizhuBuff = ["16909", "16807", "16824", "17075"]
@@ -615,7 +617,7 @@ class ActorStatGenerator(StatGeneratorBase):
                 for id in chizhuBuff:
                     self.buffCount[line][id] = BuffCounter(id, self.startTime, self.finalTime)
                 self.dps[line] = [0, 0]
-                
+
         baimouActive = self.baimouActive
         if baimouActive:
             self.breakBoatCount = {}
@@ -624,7 +626,7 @@ class ActorStatGenerator(StatGeneratorBase):
                 self.breakBoatCount[line] = BuffCounter("16841", self.startTime, self.finalTime)
                 self.dps[line] = [0, 0, 0]
             mingFuHistory = {}
-            
+
         anxiaofengActive = self.anxiaofengActive
         if anxiaofengActive:
             self.catchCount = {}
@@ -653,40 +655,40 @@ class ActorStatGenerator(StatGeneratorBase):
 
         for line in sk:
             item = line[""]
-            
+
             if int(item[2]) > self.finalTime:
                 break
-                
-            if item[3] == '1': #技能
-                    
-                #群24105 单24144
-            
+
+            if item[3] == '1':  # 技能
+
+                # 群24105 单24144
+
                 if occdict[item[5]][0] != '0':
                     data = self.checkFirst(item[5], data, occdict)
                     if item[7] in self.actorSkillList and int(item[10]) != 2:
-                        if item[7] == "22520": #锈铁钩锁
-                            if item[5] not in lastHit or int(item[2]) - lastHit[item[5]] > 10000: #10秒缓冲时间
+                        if item[7] == "22520":  # 锈铁钩锁
+                            if item[5] not in lastHit or int(item[2]) - lastHit[item[5]] > 10000:  # 10秒缓冲时间
                                 lastHit[item[5]] = int(item[2])
                             else:
                                 continue
                         data.hitCount[item[5]]["s" + item[7]] += 1
                         if no5P2:
                             data.hitCountP2[item[5]]["s" + item[7]] += 1
-                            
-                    if item[7] == "23092": #震怒咆哮
+
+                    if item[7] == "23092":  # 震怒咆哮
                         no5P2 = 1
-                        
+
                     if item[13] != item[14]:
                         deathHit[item[5]] = [int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13])]
-                    
+
                     if item[7] == "23687":
                         deathHit[item[5]] = [int(item[2]), "死线", 0]
-                    
+
                     if anxiaofengActive:
                         hasRumo = self.rumo[item[5]].checkState(int(item[2]))
                         if hasRumo and occdict[item[4]][0] != '0':
                             self.dps[item[4]][5] += int(item[12])
-                        
+
                         if item[7] in ["24105", "24144"]:
                             if int(item[2]) - xuelianStamp > 10000:
                                 if xuelianTime > 0:
@@ -703,13 +705,13 @@ class ActorStatGenerator(StatGeneratorBase):
                                 else:
                                     self.xuelian[item[5]].append(-1)
                             xuelianStamp = int(item[2])
-                        
-                        
+
+
                 else:
-                
-                    if item[13] != "0" and item[14] == "0": #检查反弹
+
+                    if item[13] != "0" and item[14] == "0":  # 检查反弹
                         deathHit[item[4]] = [int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13])]
-                        
+
                     if item[4] in self.playerIDList and int(item[11]) == 0 and item[5] in namedict and namedict[item[5]][0].strip('"') in self.bossNameDict:
                         if self.firstHitList[item[4]] == 0:
                             self.firstHitList[item[4]] = [int(item[2]), skilldict[item[9]][0][""][0].strip('"'), "", 0]
@@ -717,7 +719,7 @@ class ActorStatGenerator(StatGeneratorBase):
                             if skilldict[item[9]][0][""][0].strip('"')[0] != "#":
                                 self.firstHitList[item[4]][2] = skilldict[item[9]][0][""][0].strip('"')
                                 self.firstHitList[item[4]][3] = int(item[2])
-                    
+
                     if yanyeActive:
                         if item[5] in self.yanyeID:
                             yanyeLabel = self.yanyeID[item[5]]
@@ -737,7 +739,7 @@ class ActorStatGenerator(StatGeneratorBase):
                                     yanyeDPS[item[4]] = [0, 0, 0]
                                     yanyeResult[item[4]] = [0, 0, 0, 0, 0, 0]
                                 yanyeDPS[item[4]][yanyeLabel] += int(item[14])
-                                if yanyeHP[yanyeLabel] < yanyeHP[3-yanyeLabel] - 0.04 * yanyeMaxHP:
+                                if yanyeHP[yanyeLabel] < yanyeHP[3 - yanyeLabel] - 0.04 * yanyeMaxHP:
                                     if item[4] not in paneltyDPS:
                                         paneltyDPS[item[4]] = 0
                                         yanyeResult[item[4]] = [0, 0, 0, 0, 0, 0]
@@ -748,15 +750,15 @@ class ActorStatGenerator(StatGeneratorBase):
                                 yanyeResult[item[4]] = [0, 0, 0, 0, 0, 0]
                             rushDPS[item[4]] += int(item[14])
                             yanyeHP[wumianguiLabel] -= int(item[14])
-                    
+
                     elif chizhuActive:
                         if item[5] == self.chizhuID and item[4] in self.buffCount:
                             self.dps[item[4]][0] += int(item[14])
                             self.dps[item[4]][1] += int(item[14])
-                            #kanpo = self.buffCount[item[4]]["17075"].checkState(int(item[2]))
-                            #if kanpo < 6:
+                            # kanpo = self.buffCount[item[4]]["17075"].checkState(int(item[2]))
+                            # if kanpo < 6:
                             #    self.dps[item[4]][1] += int(item[14]) / (1 - 0.15 * kanpo)
-                                
+
                     elif baimouActive:
                         if item[5] == self.baimouID and item[4] in self.breakBoatCount:
                             self.dps[item[4]][0] += int(item[14])
@@ -764,7 +766,7 @@ class ActorStatGenerator(StatGeneratorBase):
                             self.dps[item[4]][1] += int(item[14])
                         if item[5] in namedict and item[4] in self.breakBoatCount and namedict[item[5]][0] == '"水牢"':
                             self.dps[item[4]][2] += int(item[14])
-                            
+
                     elif anxiaofengActive:
                         if item[4] in self.playerIDList:
                             self.dps[item[4]][0] += int(item[14])
@@ -776,46 +778,45 @@ class ActorStatGenerator(StatGeneratorBase):
                             self.dps[item[4]][3] += int(item[14])
                         if P3 and item[4] in self.playerIDList:
                             self.dps[item[4]][4] += int(item[14])
-                            
+
                     else:
                         if item[4] in self.playerIDList:
                             if item[4] not in self.dps:
                                 self.dps[item[4]] = [0]
                             self.dps[item[4]][0] += int(item[14])
-                              
-            elif item[3] == '5': #气劲
-            
+
+            elif item[3] == '5':  # 气劲
+
                 if occdict[item[5]][0] == '0':
                     continue
                 data = self.checkFirst(item[5], data, occdict)
-                if item[6] == "15868": #老六内场buff
-                    data.innerPlace[item[5]][int(item[7])-1] = 1
-                if item[6] == "15419": #老五吃球buff
+                if item[6] == "15868":  # 老六内场buff
+                    data.innerPlace[item[5]][int(item[7]) - 1] = 1
+                if item[6] == "15419":  # 老五吃球buff
                     if item[9] == "false" and item[10] == '1':
                         data.drawer[item[5]] += 1
                 if item[6] in self.actorBuffList and int(item[10]) == 1:
                     if item[5] not in data.hitCount:
                         data.hitCount[item[5]] = self.makeEmptyHitList()
                     data.hitCount[item[5]]["b" + item[6]] += 1
-                    
+
                 if item[6] in deathBuffDict:
                     if item[5] not in deathBuff:
                         deathBuff[item[5]] = {}
                     deathBuff[item[5]][item[6]] = [int(item[2]), skilldict[item[8]][0][""][0].strip('"'), deathBuffDict[item[6]]]
-                
+
                 if yanyeActive:
-                    if item[6] == "16913": #厌夜威压buff     
+                    if item[6] == "16913":  # 厌夜威压buff
                         halfHP = (yanyeHP[1] + yanyeHP[2]) / 2
                         yanyeHP[1] = halfHP
                         yanyeHP[2] = halfHP
                         rush = 0
                         wumianguiLabel = 0
-                        
-                        
+
                 if chizhuActive:
                     if item[6] in chizhuBuff:
                         self.buffCount[item[5]][item[6]].setState(int(item[2]), int(item[10]))
-                        
+
                 if baimouActive:
                     if item[6] == "16841":
                         self.breakBoatCount[item[5]].setState(int(item[2]), int(item[10]))
@@ -829,36 +830,36 @@ class ActorStatGenerator(StatGeneratorBase):
                         lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
                         self.potList.append([namedict[item[5]][0],
                                              occdict[item[5]][0],
-                                             1, 
+                                             1,
                                              self.bossNamePrint,
-                                             "%s由于 %s 被锁"%(lockTime, lockReason)])
-                                             
-                if anxiaofengActive: 
-                    if item[6] == "16796" and int(item[7]) >= 9 and item[5] in self.playerIDList: #走火入魔
-                        #print(item)
+                                             "%s由于 %s 被锁" % (lockTime, lockReason)])
+
+                if anxiaofengActive:
+                    if item[6] == "16796" and int(item[7]) >= 9 and item[5] in self.playerIDList:  # 走火入魔
+                        # print(item)
                         self.rumo[item[5]].setState(int(item[2]), int(item[10]))
-                    if item[6] == "16892" and item[10] == '1': #应援
+                    if item[6] == "16892" and item[10] == '1':  # 应援
                         self.catchCount[item[5]] += 34.9
                         self.yingyuanHistory[item[5]] = int(item[2])
                         self.yingyuanQueue.append([int(item[2]) + 40000, int(item[7]), item[5]])
-                    if item[6] == "17440" and item[10] == '1': #偷天换日
+                    if item[6] == "17440" and item[10] == '1':  # 偷天换日
                         self.yingyuanHistory[item[5]] = 0
-                    if item[6] == "16795" and item[10] == '1': #安小逢的凝视
+                    if item[6] == "16795" and item[10] == '1':  # 安小逢的凝视
                         self.catchCount[item[5]] += 19.9
                     if item[6] == "17110" and item[10] == '1':
                         lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
                         self.potList.append([namedict[item[5]][0],
                                              occdict[item[5]][0],
-                                             0, 
+                                             0,
                                              self.bossNamePrint,
-                                             "%s触发P1惩罚"%lockTime])
+                                             "%s触发P1惩罚" % lockTime])
                     if item[6] == "17301" and item[10] == '1':
                         lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
                         self.potList.append([namedict[item[5]][0],
                                              occdict[item[5]][0],
-                                             0, 
+                                             0,
                                              self.bossNamePrint,
-                                             "%s触发P2惩罚"%lockTime])
+                                             "%s触发P2惩罚" % lockTime])
                     if len(self.yingyuanQueue) > 0 and int(item[2]) > self.yingyuanQueue[0][0]:
                         yingyuanTop = self.yingyuanQueue.pop(0)
                         if self.yingyuanHistory[yingyuanTop[2]] != 0 and self.toutianhuanri:
@@ -870,61 +871,61 @@ class ActorStatGenerator(StatGeneratorBase):
                                 reason = "假粉"
                             self.potList.append([namedict[yingyuanTop[2]][0],
                                                  occdict[yingyuanTop[2]][0],
-                                                 1, 
+                                                 1,
                                                  self.bossNamePrint,
-                                                 "%s应援按错(%s)"%(lockTime, reason)])
-                                                 
-                    if item[6] in ["15774", "17200"]: #buff精神匮乏
+                                                 "%s应援按错(%s)" % (lockTime, reason)])
+
+                    if item[6] in ["15774", "17200"]:  # buff精神匮乏
                         stack = int(item[10])
                         if stack >= 20 and self.jingshenkuifa[item[5]] == 0:
                             lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
                             self.jingshenkuifa[item[5]] = 1
                             self.potList.append([namedict[item[5]][0],
                                                  occdict[item[5]][0],
-                                                 0, 
+                                                 0,
                                                  self.bossNamePrint,
-                                                 "%s减疗叠加20层"%lockTime])
+                                                 "%s减疗叠加20层" % lockTime])
                         if stack < 20 and self.jingshenkuifa[item[5]] == 1:
-                            self.jingshenkuifa[item[5]] = 0                   
-                        
-                        
-            elif item[3] == '3': #重伤记录
+                            self.jingshenkuifa[item[5]] = 0
+
+
+            elif item[3] == '3':  # 重伤记录
                 if item[4] not in occdict or occdict[item[4]][0] == '0':
                     continue
-                
+
                 data = self.checkFirst(item[4], data, occdict)
                 if item[4] in occdict and int(occdict[item[4]][0]) != 0:
                     severe = 1
                     if self.bossname in self.bossNameDict:
                         data.deathCount[item[4]][self.bossNameDict[self.bossname]] += 1
-                        
+
                     self.deathName[namedict[item[4]][0].strip('"')] = 1
-                    
+
                     deathTime = parseTime((int(item[2]) - self.startTime) / 1000)
-                    
+
                     deathSource = "未知"
                     if item[4] in deathHit and abs(deathHit[item[4]][0] - int(item[2])) < 1000:
-                        deathSource = "%s(%d)"%(deathHit[item[4]][1], deathHit[item[4]][2])
+                        deathSource = "%s(%d)" % (deathHit[item[4]][1], deathHit[item[4]][2])
                     elif item[4] in deathBuff:
                         for line in deathBuff[item[4]]:
                             if deathBuff[item[4]][line][0] + deathBuff[item[4]][line][2] > int(item[2]):
                                 deathSource = deathBuff[item[4]][line][1]
                             if deathSource == "杯水留影":
                                 severe = 0
-                    
+
                     if deathSource == "翩然":
                         deathSource = "推测为摔死"
-                
+
                     self.potList.append([namedict[item[4]][0],
                                          occdict[item[4]][0],
-                                         severe, 
+                                         severe,
                                          self.bossNamePrint,
-                                         "%s重伤，来源：%s"%(deathTime, deathSource)])
-                                         
-                                     
-                        
-            elif item[3] == '8': #喊话
-                #print(item)
+                                         "%s重伤，来源：%s" % (deathTime, deathSource)])
+
+
+
+            elif item[3] == '8':  # 喊话
+                # print(item)
                 if len(item) < 5:
                     continue
                 if yanyeActive:
@@ -952,7 +953,7 @@ class ActorStatGenerator(StatGeneratorBase):
                     if item[4] in ['"你们全都要死！"']:
                         P3 = 1
                         P3TimeStamp = int(item[2])
-                        
+
                     if item[4] in ['"永远忠诚的部下们到达了！"']:
                         sideTime += 35
                     if '"来陪人家玩儿嘛~"' in item[4]:
@@ -969,10 +970,10 @@ class ActorStatGenerator(StatGeneratorBase):
                                '"天时已至，诸位请便。"',
                                '"呃啊...俺始终无法逃脱这牢笼..."',
                                '"不，我还不能在这里倒下，大人还需要我。"',
-                               '"武士之道，虽死犹荣！"', #老三没有通关喊话，推定直接通关
+                               '"武士之道，虽死犹荣！"',  # 老三没有通关喊话，推定直接通关
                                '"…… …… ……"',
-                               '"情况不太对……咳咳……"', #驺吾没有通关喊话，暂时以这句话代替
-                               '"三千世界生死限，九天有苍十方剑！"', #方有崖暂时以这句话代替
+                               '"情况不太对……咳咳……"',  # 驺吾没有通关喊话，暂时以这句话代替
+                               '"三千世界生死限，九天有苍十方剑！"',  # 方有崖暂时以这句话代替
                                ]:
                     self.win = 1
 
@@ -980,11 +981,11 @@ class ActorStatGenerator(StatGeneratorBase):
                 self.win = 1
 
             num += 1
-            
+
         yanyeResultList = []
-        
+
         effectiveDPSList = []
-        
+
         if yanyeActive:
             for line in yanyeDPS:
                 yanyeResult[line][0] = int(yanyeDPS[line][1] / self.battleTime)
@@ -998,15 +999,15 @@ class ActorStatGenerator(StatGeneratorBase):
             for line in yanyeResult:
                 if yanyeResult[line][0] + yanyeResult[line][1] + yanyeResult[line][2] - yanyeResult[line][4] > 10000:
                     yanyeResultList.append([namedict[line][0]] + [occdict[line][0]] + [yanyeResult[line][0] + yanyeResult[line][1] + yanyeResult[line][2] - yanyeResult[line][4]] + yanyeResult[line])
-            
-            yanyeResultList.sort(key = lambda x:-x[2])
-            
+
+            yanyeResultList.sort(key=lambda x: -x[2])
+
             effectiveDPSList = yanyeResultList
-            
+
             self.yanyeResult = yanyeResultList
-            
-            #print(yanyeResultList)
-            
+
+            # print(yanyeResultList)
+
         elif chizhuActive:
             chizhuResult = []
             for line in self.buffCount:
@@ -1017,20 +1018,20 @@ class ActorStatGenerator(StatGeneratorBase):
                 wushiTime = self.buffCount[line]["17075"].sumTime()
                 baseTime = self.battleTime - disableTime / 1000
                 if self.dps[line][1] / baseTime > 10000:
-                    chizhuResult.append([namedict[line][0], 
+                    chizhuResult.append([namedict[line][0],
                                          occdict[line][0],
                                          self.dps[line][1] / baseTime,
                                          disableTime / 1000,
                                          wushiTime / 1000,
                                          self.dps[line][0] / self.battleTime])
-                                     
-            chizhuResult.sort(key = lambda x:-x[2])                   
-            #print(chizhuResult)
-            
+
+            chizhuResult.sort(key=lambda x: -x[2])
+            # print(chizhuResult)
+
             effectiveDPSList = chizhuResult
-            
+
             self.chizhuResult = chizhuResult
-            
+
         elif baimouActive:
             baimouResult = []
             for line in self.breakBoatCount:
@@ -1047,14 +1048,14 @@ class ActorStatGenerator(StatGeneratorBase):
                                          self.dps[line][2] / self.battleTime,
                                          originDPS,
                                          disableTime / 1000])
-                                         
-            baimouResult.sort(key = lambda x:-x[2]) 
-            #print(baimouResult)
-            
+
+            baimouResult.sort(key=lambda x: -x[2])
+            # print(baimouResult)
+
             effectiveDPSList = baimouResult
-            
+
             self.baimouResult = baimouResult
-            
+
         elif anxiaofengActive:
             for line in self.xuelian:
                 while len(self.xuelian[line]) < xuelianTime:
@@ -1087,12 +1088,12 @@ class ActorStatGenerator(StatGeneratorBase):
                                          luanwuHit,
                                          xuelianStr
                                          ])
-                                         
-            #print(anxiaofengResult)   
-            anxiaofengResult.sort(key = lambda x:-x[2]) 
+
+            # print(anxiaofengResult)
+            anxiaofengResult.sort(key=lambda x: -x[2])
             effectiveDPSList = anxiaofengResult
             self.anxiaofengResult = anxiaofengResult
-            
+
         else:
             bossResult = []
             for line in self.playerIDList:
@@ -1101,20 +1102,20 @@ class ActorStatGenerator(StatGeneratorBase):
                     bossResult.append([namedict[line][0],
                                        occdict[line][0],
                                        dps
-                                      ])
+                                       ])
             effectiveDPSList = bossResult
-        
+
         sumDPS = 0
         numDPS = 0
         for line in effectiveDPSList:
             sumDPS += line[2]
             numDPS += 1
-        
+
         averageDPS = sumDPS / (numDPS + 1e-10)
-        
+
         dpsIDList = {}
-          
-        for i in range(len(effectiveDPSList)-1, -1, -1):
+
+        for i in range(len(effectiveDPSList) - 1, -1, -1):
             line = effectiveDPSList[i]
             occ = str(line[1])
             rate1 = rateStandard[occ]
@@ -1126,24 +1127,24 @@ class ActorStatGenerator(StatGeneratorBase):
                 numDPS -= 1
                 averageDPS = sumDPS / (numDPS + 1e-10)
                 dpsIDList[line[0]] = 0
-                
+
             elif lineRate < rate2:
                 self.potList.append([line[0],
                                      line[1],
                                      1,
                                      self.bossNamePrint,
-                                     "有效DPS未到及格线(%s%%/%s%%)"%(parseCent(lineRate, 0), parseCent(rate2, 0))])
+                                     "有效DPS未到及格线(%s%%/%s%%)" % (parseCent(lineRate, 0), parseCent(rate2, 0))])
                 sumDPS -= line[2]
                 numDPS -= 1
                 averageDPS = sumDPS / (numDPS + 1e-10)
-                
+
             elif lineRate < rate1:
                 self.potList.append([line[0],
                                      line[1],
                                      0,
                                      self.bossNamePrint,
-                                     "有效DPS低于预警线(%s%%/%s%%)"%(parseCent(lineRate, 0), parseCent(rate1, 0))])
-                                     
+                                     "有效DPS低于预警线(%s%%/%s%%)" % (parseCent(lineRate, 0), parseCent(rate1, 0))])
+
         if self.firstHitList != {}:
             earliestHit = 0
             earliestTankHit = 0
@@ -1157,26 +1158,26 @@ class ActorStatGenerator(StatGeneratorBase):
                 if (namedict[name][0] not in dpsIDList or dpsIDList[namedict[name][0]] == 0) and int(occdict[name][0]) in [1, 3, 10, 21]:
                     if earliestTankHit == 0 or self.firstHitList[name][0] < self.firstHitList[earliestTankHit][0]:
                         earliestTankHit = name
-            
-            #print(earliestHit, self.firstHitList[earliestHit])
-            #if earliestTankHit != 0:
+
+            # print(earliestHit, self.firstHitList[earliestHit])
+            # if earliestTankHit != 0:
             #    print(earliestTankHit, self.firstHitList[earliestTankHit])
-            
+
             if earliestTankHit == 0 or self.firstHitList[earliestTankHit][0] - 500 > self.firstHitList[earliestHit][0]:
                 if self.firstHitList[earliestHit][2] == "":
                     hitName = self.firstHitList[earliestHit][1]
                 else:
                     hitName = self.firstHitList[earliestHit][2] + "(推测)"
                 self.potList = [[namedict[earliestHit][0],
-                                occdict[earliestHit][0],
-                                0,
-                                self.bossNamePrint,
-                                "提前开怪：%s"%hitName]] + self.potList
-                                     
+                                 occdict[earliestHit][0],
+                                 0,
+                                 self.bossNamePrint,
+                                 "提前开怪：%s" % hitName]] + self.potList
+
         self.data = data
         self.effectiveDPSList = effectiveDPSList
 
-    def __init__(self, filename, path = "", rawdata = {}, myname = "", failThreshold = 0, battleDate = "", mask = 0):
+    def __init__(self, filename, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0):
         self.myname = myname
         self.numTry = filename[1]
         self.lastTry = filename[2]
@@ -1188,12 +1189,11 @@ class ActorStatGenerator(StatGeneratorBase):
         if self.numTry == 0:
             self.bossNamePrint = self.bossname
         else:
-            self.bossNamePrint = "%s.%d"%(self.bossname, self.numTry)
+            self.bossNamePrint = "%s.%d" % (self.bossname, self.numTry)
         self.no1Hit = {}
-        
+
 
 class XiangZhiStatGenerator(StatGeneratorBase):
-    
     myname = ""
     mykey = ""
     npckey = ""
@@ -1202,96 +1202,94 @@ class XiangZhiStatGenerator(StatGeneratorBase):
     speed = 3770
     shieldCounters = {}
     rumo = {}
-    
+
     def secondStageAnalysis(self):
         res = self.rawdata
-        
+
         namedict = res['9'][0]
         occdict = res['10'][0]
         sk = res['16'][0][""]
-        
+
         data = XiangZhiData()
-        
+
         data.mykey = self.mykey
 
         num = 0
         skillLog = []
-        
+
         self.rumo = {}
 
         for line in sk:
             item = line[""]
-            
+
             if int(item[2]) > self.finalTime:
                 break
-            
+
             if item[3] == "1":
-                
+
                 if item[4] == self.mykey and item[11] != '0':
                     if item[10] != '7':
                         data.numheal += int(item[11])
                         data.numeffheal += int(item[12])
                     else:
                         data.numabsorb += int(item[12])
-                    
+
                 if int(item[12]) > 0 and item[10] != "7" and item[4] in self.healerDict:
                     if item[4] not in data.healStat:
                         data.healStat[item[4]] = int(item[12])
                     else:
                         data.healStat[item[4]] += int(item[12])
-                    
+
                 if item[4] == self.mykey and item[6] == "1":
                     skillLog.append([int(item[2]), int(item[7])])
-                    
-               
+
                 if item[12] != '0' and item[5] == self.npckey:
                     if item[4] not in data.npchealstat:
                         data.npchealstat[item[4]] = int(item[12])
                     else:
                         data.npchealstat[item[4]] += int(item[12])
-                
+
                 if item[12] != '0' and self.npckey != 0:
                     if item[5] in self.rumo and self.rumo[item[5]].checkState(int(item[2])):
                         if item[4] not in data.npchealstat:
                             data.npchealstat[item[4]] = int(item[12])
                         else:
                             data.npchealstat[item[4]] += int(item[12])
-                            
-                #if item[7] == "14231": #梅花三弄
+
+                # if item[7] == "14231": #梅花三弄
                 #    data.numshield += 1
 
-                if item[7] == "14169": #一指回鸾
+                if item[7] == "14169":  # 一指回鸾
                     data.numpurge += 1
 
                 if int(item[14]) > 0:
                     if item[4] in self.shieldCounters:
                         if item[4] not in data.battlestat:
                             data.battlestat[item[4]] = [0, 0, 0]
-                        if int(item[7]) >= 21827 and int(item[7]) <= 21831: #桑柔
+                        if int(item[7]) >= 21827 and int(item[7]) <= 21831:  # 桑柔
                             data.battlestat[item[4]][2] += int(item[14])
                         else:
                             hasShield = self.shieldCounters[item[4]].checkTime(int(item[2]))
                             data.battlestat[item[4]][hasShield] += int(item[14])
-                            
+
             elif item[3] == "5":
-                if item[6] == "16796" and int(item[7]) >= 9: #走火入魔
-                    #print(item)
+                if item[6] == "16796" and int(item[7]) >= 9:  # 走火入魔
+                    # print(item)
                     if item[5] not in self.rumo:
                         self.rumo[item[5]] = BuffCounter("16796", self.startTime, self.finalTime)
                     self.rumo[item[5]].setState(int(item[2]), int(item[10]))
-                    
+
             elif item[3] == "8":
                 pass
 
             num += 1
-        
+
         skillCounter = SkillCounter(skillLog, self.startTime, self.finalTime, self.speed)
         skillCounter.analysisSkillData()
         data.sumBusyTime = skillCounter.sumBusyTime
         data.sumSpareTime = skillCounter.sumSpareTime
         data.spareRate = data.sumSpareTime / (data.sumBusyTime + data.sumSpareTime + 1e-10)
 
-            
         numdam = 0
         for key in data.battlestat:
             if int(occdict[key][0]) == 0:
@@ -1299,15 +1297,15 @@ class XiangZhiStatGenerator(StatGeneratorBase):
             line = data.battlestat[key]
             data.damageDict[key] = line[0] + line[1] / 1.117
             numdam += line[1] / 1.117 * 0.117 + line[2]
-        
+
         if self.mykey not in data.damageDict:
             data.damageDict[self.mykey] = numdam
         else:
             data.damageDict[self.mykey] += numdam
-            
+
         data.damageList = dictToPairs(data.damageDict)
-        data.damageList.sort(key = lambda x: -x[1])
-        
+        data.damageList.sort(key=lambda x: -x[1])
+
         for i in range(len(data.damageList)):
             data.damageList[i].append(namedict[data.damageList[i][0]][0])
             data.damageList[i].append(occdict[data.damageList[i][0]][0])
@@ -1322,10 +1320,10 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                 data.myrank = numid
                 data.mydamage = line[1]
                 sumdamage -= line[1]
-                
+
         data.healList = dictToPairs(data.healStat)
-        data.healList.sort(key = lambda x: -x[1])
-        
+        data.healList.sort(key=lambda x: -x[1])
+
         sumHeal = 0
         numid = 0
         topHeal = 0
@@ -1338,12 +1336,12 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                 data.myHealRank = numid
             if line[1] > topHeal * 0.2:
                 data.numHealer += 1
-                
+
         if data.myHealRank > data.numHealer:
             data.numHealer = data.myHealRank
-        
+
         data.healRate = data.numeffheal / sumHeal
-                
+
         sumShield = 0
         for key in self.shieldCounters:
             sumShield += self.shieldCounters[key].shieldCount
@@ -1355,15 +1353,15 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                 continue
 
             rate = self.shieldCounters[key].shieldDuration[1] / \
-                (self.shieldCounters[key].shieldDuration[0] + self.shieldCounters[key].shieldDuration[1] + 1e-10)
+                   (self.shieldCounters[key].shieldDuration[0] + self.shieldCounters[key].shieldDuration[1] + 1e-10)
             data.rateDict[key] = rate
             data.durationDict[key] = self.shieldCounters[key].shieldDuration[1]
             data.breakDict[key] = self.shieldCounters[key].breakCount
 
         data.numshield = sumShield
-            
+
         data.equalDPS = data.mydamage / (sumdamage + 1e-10) * (len(data.durationDict) - 1)
-        
+
         numrate = 0
         sumrate = 0
 
@@ -1372,20 +1370,20 @@ class XiangZhiStatGenerator(StatGeneratorBase):
             sumrate += data.rateDict[key]
 
         data.overallrate = sumrate / (numrate + 1e-10)
-        
+
         self.data = data
-    
+
     def firstStageAnalysis(self):
-        
+
         res = self.rawdata
-        
+
         if '9' not in res:
             raise Exception("数据不完整，无法生成，请确认是否生成了正确的茗伊战斗复盘记录。")
-        
+
         namedict = res['9'][0]
         occdict = res['10'][0]
         sk = res['16'][0][""]
-        
+
         for key in namedict:
             if namedict[key][0] == '"尹青羲"':
                 self.npckey = key
@@ -1396,23 +1394,23 @@ class XiangZhiStatGenerator(StatGeneratorBase):
 
         MoWenList = []
         XiangZhiList = []
-        
+
         self.healerDict = {}
-        
+
         shieldLogDict = {}
         jingshenkuifa = {}
-        
+
         self.interrupt = 0
-                    
+
         for line in sk:
             item = line[""]
             if self.startTime == 0:
                 self.startTime = int(item[2])
             self.finalTime = int(item[2])
-            
+
             if self.interrupt != 0:
                 continue
-                
+
             if item[3] == "1":
                 if item[4] not in MoWenList and item[7] in ["14067", "14298", "14302"]:
                     MoWenList.append(item[4])
@@ -1430,35 +1428,35 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                             shieldLogDict[item[5]] = [[int(item[2]), 1]]
                         else:
                             shieldLogDict[item[5]].append([int(item[2]), 1])
-                    
+
             elif item[3] == "5":
-                if item[6] in ["9334", "16911"]: #buff梅花三弄
+                if item[6] in ["9334", "16911"]:  # buff梅花三弄
                     if item[5] not in shieldLogDict:
                         shieldLogDict[item[5]] = [[int(item[2]), int(item[10])]]
                     else:
                         shieldLogDict[item[5]].append([int(item[2]), int(item[10])])
-                if item[6] in ["15774", "17200"]: #buff精神匮乏
+                if item[6] in ["15774", "17200"]:  # buff精神匮乏
                     if item[5] not in jingshenkuifa:
                         jingshenkuifa[item[5]] = BuffCounter("17200", self.startTime, self.finalTime)
                     jingshenkuifa[item[5]].setState(int(item[2]), int(item[10]))
-                    
+
             elif item[3] == "8":
                 if len(item) < 5:
                     continue
                 if item[4] in ['"嘶...这帮贼人竟如此厉害。余下将士，快随我冲出去！"'] and item[6] == '"周贽"':
                     self.interrupt = int(item[2])
-                    
+
         if self.interrupt != 0:
             self.battleTime -= (self.finalTime - self.interrupt) / 1000
             self.finalTime = self.interrupt
-        
+
         if self.myname == "":
             if len(XiangZhiList) >= 2:
                 nameList = []
                 for line in XiangZhiList:
                     nameList.append(namedict[line][0])
                 s = str(nameList)
-                raise Exception('奶歌的数量不止一个，请手动指示ID。可能的ID为：%s'%s)
+                raise Exception('奶歌的数量不止一个，请手动指示ID。可能的ID为：%s' % s)
             elif len(XiangZhiList) == 0:
                 raise Exception('没有找到奶歌，请确认数据是否正确')
             else:
@@ -1468,29 +1466,31 @@ class XiangZhiStatGenerator(StatGeneratorBase):
             for key in namedict:
                 if namedict[key][0].strip('"') == self.myname.strip('"'):
                     self.mykey = key
-        
+
         self.shieldCounters = {}
         for key in shieldLogDict:
             self.shieldCounters[key] = ShieldCounter(shieldLogDict[key], self.startTime, self.finalTime)
             self.shieldCounters[key].analysisShieldData()
-            
+
         for key in occdict:
             if occdict[key] != 0 and key not in self.shieldCounters:
                 self.shieldCounters[key] = ShieldCounter([], self.startTime, self.finalTime)
                 self.shieldCounters[key].analysisShieldData()
-            
-    def __init__(self, filename, myname, path = "", rawdata = {}):
+
+    def __init__(self, filename, myname, path="", rawdata={}):
         self.myname = myname
         super().__init__(filename[0], path, rawdata)
-        #self.filename = filename
-        #self.parseFile(path)
-            
+        # self.filename = filename
+        # self.parseFile(path)
+
+
 def plusList(a1, a2):
     a = []
     assert len(a1) == len(a2)
     for i in range(len(a1)):
         a.append(a1[i] + a2[i])
     return a
+
 
 def plusDict(d1, d2):
     d = {}
@@ -1502,7 +1502,8 @@ def plusDict(d1, d2):
         else:
             d[key] = d2[key]
     return d
-    
+
+
 def concatDict(d1, d2):
     d = {}
     for key in d1:
@@ -1511,7 +1512,8 @@ def concatDict(d1, d2):
         if key not in d:
             d[key] = d2[key]
     return d
-    
+
+
 class ActorData():
 
     def addActorData(self, a2):
@@ -1520,31 +1522,31 @@ class ActorData():
                 self.deathCount[line] = a2.deathCount[line]
             else:
                 self.deathCount[line] = plusList(self.deathCount[line], a2.deathCount[line])
-        
+
         for line in a2.hitCount:
             if line not in self.hitCount:
                 self.hitCount[line] = a2.hitCount[line]
             else:
                 self.hitCount[line] = plusDict(self.hitCount[line], a2.hitCount[line])
-        
+
         for line in a2.hitCountP2:
             if line not in self.hitCountP2:
                 self.hitCountP2[line] = a2.hitCountP2[line]
             else:
                 self.hitCountP2[line] = plusDict(self.hitCountP2[line], a2.hitCountP2[line])
-                
+
         for line in a2.innerPlace:
             if line not in self.innerPlace:
                 self.innerPlace[line] = a2.innerPlace[line]
             else:
                 self.innerPlace[line] = plusList(self.innerPlace[line], a2.innerPlace[line])
-                
+
         for line in a2.drawer:
             if line not in self.drawer:
                 self.drawer[line] = a2.drawer[line]
             else:
                 self.drawer[line] += a2.drawer[line]
-                
+
     def __init__(self):
         self.deathCount = {}
         self.hitCount = {}
@@ -1552,8 +1554,9 @@ class ActorData():
         self.innerPlace = {}
         self.drawer = {}
 
+
 class XiangZhiData():
-    
+
     def __init__(self):
         self.numheal = 0
         self.numeffheal = 0
@@ -1579,9 +1582,10 @@ class XiangZhiData():
         self.sumBusyTime = 0
         self.spareRate = 0
         self.mykey = ""
-        
+
+
 class XiangZhiOverallData(XiangZhiData):
-    
+
     def __init__(self):
         XiangZhiData.__init__(self)
         self.healTable = []
@@ -1591,22 +1595,22 @@ class XiangZhiOverallData(XiangZhiData):
         self.maxDps = 0
         self.maxDpsRank = 999
         self.maxEqualDPS = 0
-        
+
         self.rateTable = []
         self.maxRateName = ""
         self.maxRate = 0
-        
+
         self.rateList = []
         self.breakList = []
-        
+
         self.bossRateDict = {}
         self.bossBreakDict = {}
-        
+
         self.maxSingleRate = 0
         self.maxSingleRateName = ""
         self.maxSingleBreak = 0
         self.maxSingleBreakName = ""
-        
+
         self.npcHealDict = {}
         self.npcHealList = []
         self.npcRank = 0
@@ -1614,13 +1618,13 @@ class XiangZhiOverallData(XiangZhiData):
         self.npcSumHeal = 0
         self.npcHealRate = 0
         self.npcHealNum = 0
-        
-        self.mykey = ""
-        
-        self.spareRateList = []
-        
-class XiangZhiScore():
 
+        self.mykey = ""
+
+        self.spareRateList = []
+
+
+class XiangZhiScore():
     bossDict = {"铁黎": 1, "陈徽": 2, "藤原武裔": 3, "源思弦": 4, "驺吾": 5, "方有崖": 6}
     bossDictR = ["", "铁黎", "陈徽", "藤原武裔", "源思弦", "驺吾", "方有崖"]
     rateScale = [[100, 0, "A+", "不畏浮云遮望眼，只缘身在最高层。"],
@@ -1645,325 +1649,324 @@ class XiangZhiScore():
             x = -x
             for i in range(N):
                 scale[i][0] = -scale[i][0]
-        for i in range(0, N-1):
-            assert scale[i][0] < scale[i+1][0]
-        
+        for i in range(0, N - 1):
+            assert scale[i][0] < scale[i + 1][0]
+
         if x < scale[0][0]:
             score = scale[0][1]
         else:
-            for i in range(0, N-1):
-                if x >= scale[i][0] and x < scale[i+1][0]:
-                    score = scale[i][1] + (x - scale[i][0]) / (scale[i+1][0] - scale[i][0] + 1e-10) * (scale[i+1][1] - scale[i][1])
+            for i in range(0, N - 1):
+                if x >= scale[i][0] and x < scale[i + 1][0]:
+                    score = scale[i][1] + (x - scale[i][0]) / (scale[i + 1][0] - scale[i][0] + 1e-10) * (scale[i + 1][1] - scale[i][1])
                     break
             else:
-                score = scale[N-1][1]
+                score = scale[N - 1][1]
         return score
-    
+
     def analysisHPS(self, id):
         if self.map == "敖龙岛":
             if id == 1:
-                HPSList = [[2000,0], [12000,5]]
+                HPSList = [[2000, 0], [12000, 5]]
             elif id == 2:
-                HPSList = [[2000,0], [10000,5]]
+                HPSList = [[2000, 0], [10000, 5]]
             elif id == 3:
                 return 0
             elif id == 4:
-                HPSList = [[1000,0], [5000,3], [8000,5]]
+                HPSList = [[1000, 0], [5000, 3], [8000, 5]]
             elif id == 5:
-                HPSList = [[500,0], [1500,2], [2500,3], [5000,5]]
+                HPSList = [[500, 0], [1500, 2], [2500, 3], [5000, 5]]
             elif id == 6:
-                HPSList = [[500,0], [1500,4], [3000,7]]
-            hps = self.data.healTable[id-1][1]
+                HPSList = [[500, 0], [1500, 4], [3000, 7]]
+            hps = self.data.healTable[id - 1][1]
         elif self.map == "范阳夜变":
             if id == 1:
-                HPSList = [[2000,0], [6000,2], [10000,5]]
+                HPSList = [[2000, 0], [6000, 2], [10000, 5]]
             elif id == 2:
-                HPSList = [[2000,0], [6000,2], [10000,5]]
+                HPSList = [[2000, 0], [6000, 2], [10000, 5]]
             elif id == 3:
-                HPSList = [[3000,0], [8000,2], [15000,7]]
+                HPSList = [[3000, 0], [8000, 2], [15000, 7]]
             elif id == 4:
-                HPSList = [[3000,0], [8000,2], [15000,7]]
+                HPSList = [[3000, 0], [8000, 2], [15000, 7]]
             elif id == 5:
-                HPSList = [[2000,0], [5000,4], [10000,12]]
-            hps = self.data.healTable[id-1][1] + self.data.healTable[id-1][5]
+                HPSList = [[2000, 0], [5000, 4], [10000, 12]]
+            hps = self.data.healTable[id - 1][1] + self.data.healTable[id - 1][5]
         score = self.scaleScore(hps, HPSList)
         return score
-        
+
     def analysisShield(self, id):
         if self.map == "敖龙岛":
             if id == 1:
-                ShieldList = [[10,0], [16,3], [24,5]]
+                ShieldList = [[10, 0], [16, 3], [24, 5]]
             elif id == 2:
-                ShieldList = [[12,0], [18,3], [28,5]]
+                ShieldList = [[12, 0], [18, 3], [28, 5]]
             elif id == 3:
                 return 0
             elif id == 4:
-                ShieldList = [[6,0], [10,3], [16,5]]
+                ShieldList = [[6, 0], [10, 3], [16, 5]]
             elif id == 5:
-                ShieldList = [[3,0], [10,1], [25,5]]
+                ShieldList = [[3, 0], [10, 1], [25, 5]]
             elif id == 6:
-                ShieldList = [[1,0], [5,1], [13,4], [20,7]]
+                ShieldList = [[1, 0], [5, 1], [13, 4], [20, 7]]
         elif self.map == "范阳夜变":
             if id == 1:
-                ShieldList = [[7,0], [15,2], [30,5]]
+                ShieldList = [[7, 0], [15, 2], [30, 5]]
             elif id == 2:
-                ShieldList = [[7,0], [13,2], [20,5]]
+                ShieldList = [[7, 0], [13, 2], [20, 5]]
             elif id == 3:
-                ShieldList = [[7,0], [15,2], [30,7]]
+                ShieldList = [[7, 0], [15, 2], [30, 7]]
             elif id == 4:
-                ShieldList = [[7,0], [15,2], [25,7]]
+                ShieldList = [[7, 0], [15, 2], [25, 7]]
             elif id == 5:
-                ShieldList = [[5,0], [10,2], [20,12]]
-        score = self.scaleScore(self.data.healTable[id-1][8], ShieldList)
+                ShieldList = [[5, 0], [10, 2], [20, 12]]
+        score = self.scaleScore(self.data.healTable[id - 1][8], ShieldList)
         return score
-        
+
     def analysisDPS(self, id):
         if self.map == "敖龙岛":
             if id == 1:
-                DPSList = [[0.65,0], [1.15,5]]
+                DPSList = [[0.65, 0], [1.15, 5]]
             elif id == 2:
-                DPSList = [[0.4,0], [1.0,5]]
+                DPSList = [[0.4, 0], [1.0, 5]]
             elif id == 3:
-                DPSList = [[0.41,0], [1.65,10]]
+                DPSList = [[0.41, 0], [1.65, 10]]
             elif id == 4:
-                DPSList = [[0.25,0], [0.83,5]]
+                DPSList = [[0.25, 0], [0.83, 5]]
             elif id == 5:
-                DPSList = [[0.25,0], [0.65,2], [1.05,5]]
+                DPSList = [[0.25, 0], [0.65, 2], [1.05, 5]]
             elif id == 6:
-                DPSList = [[0.25,0], [0.65,2], [1.15,7]]
+                DPSList = [[0.25, 0], [0.65, 2], [1.15, 7]]
         elif self.map == "范阳夜变":
             if id == 1:
-                DPSList = [[0.65,0], [1.0,2], [1.65,5]]
+                DPSList = [[0.65, 0], [1.0, 2], [1.65, 5]]
             elif id == 2:
-                DPSList = [[0.65,0], [1.05,2], [1.65,5]]
+                DPSList = [[0.65, 0], [1.05, 2], [1.65, 5]]
             elif id == 3:
-                DPSList = [[0.4,0], [0.65,2], [1.05,7]]
+                DPSList = [[0.4, 0], [0.65, 2], [1.05, 7]]
             elif id == 4:
-                DPSList = [[0.5,0], [0.75,2], [1.2,7]]
+                DPSList = [[0.5, 0], [0.75, 2], [1.2, 7]]
             elif id == 5:
-                DPSList = [[0.3,0], [0.55,4], [1.45,12]]
-        score = self.scaleScore(self.data.dpsTable[id-1][3], DPSList)
+                DPSList = [[0.3, 0], [0.55, 4], [1.45, 12]]
+        score = self.scaleScore(self.data.dpsTable[id - 1][3], DPSList)
         return score
-        
-        
+
     def analysisRate(self, id):
         if self.map == "敖龙岛":
             if id == 1:
-                RateList = [[0.1,0], [0.3,1], [0.5,5]]
+                RateList = [[0.1, 0], [0.3, 1], [0.5, 5]]
             elif id == 2:
-                RateList = [[0.1,0], [0.25,1], [0.45,5]]
+                RateList = [[0.1, 0], [0.25, 1], [0.45, 5]]
             elif id == 3:
-                RateList = [[0.1,0], [0.5,1], [0.8,10]]
+                RateList = [[0.1, 0], [0.5, 1], [0.8, 10]]
             elif id == 4:
-                RateList = [[0.1,0], [0.2,1], [0.5,5]]
+                RateList = [[0.1, 0], [0.2, 1], [0.5, 5]]
             elif id == 5:
-                RateList = [[0.1,0], [0.2,1], [0.6,5]]
+                RateList = [[0.1, 0], [0.2, 1], [0.6, 5]]
             elif id == 6:
-                RateList = [[0.1,0], [0.2,1], [0.6,7]]
+                RateList = [[0.1, 0], [0.2, 1], [0.6, 7]]
         elif self.map == "范阳夜变":
             if id == 1:
-                RateList = [[0.1,0], [0.7,3], [0.95,5]]
+                RateList = [[0.1, 0], [0.7, 3], [0.95, 5]]
             elif id == 2:
-                RateList = [[0.1,0], [0.7,3], [0.95,5]]
+                RateList = [[0.1, 0], [0.7, 3], [0.95, 5]]
             elif id == 3:
-                RateList = [[0.1,0], [0.25,2], [0.6,7]]
+                RateList = [[0.1, 0], [0.25, 2], [0.6, 7]]
             elif id == 4:
-                RateList = [[0.1,0], [0.3,2], [0.7,7]]
+                RateList = [[0.1, 0], [0.3, 2], [0.7, 7]]
             elif id == 5:
-                RateList = [[0.1,0], [0.2,1], [0.7,12]]
-        score = self.scaleScore(self.data.rateTable[id-1][1], RateList)
+                RateList = [[0.1, 0], [0.2, 1], [0.7, 12]]
+        score = self.scaleScore(self.data.rateTable[id - 1][1], RateList)
         return score
-    
+
     def analysisSpare(self, id):
         if self.map == "敖龙岛":
             if id == 1:
-                RateList = [[0.3,0], [0.1,5]]
+                RateList = [[0.3, 0], [0.1, 5]]
             elif id == 2:
-                RateList = [[0.3,0], [0.1,5]]
+                RateList = [[0.3, 0], [0.1, 5]]
             elif id == 3:
-                RateList = [[0.5,0], [0.1,5]]
+                RateList = [[0.5, 0], [0.1, 5]]
             elif id == 4:
-                RateList = [[0.3,0], [0.1,5]]
+                RateList = [[0.3, 0], [0.1, 5]]
             elif id == 5:
-                RateList = [[0.3,0], [0.1,5]]
+                RateList = [[0.3, 0], [0.1, 5]]
             elif id == 6:
-                RateList = [[0.5,0], [0.1,7]]
+                RateList = [[0.5, 0], [0.1, 7]]
         elif self.map == "范阳夜变":
             if id == 1:
-                RateList = [[0.5,0], [0.3,1], [0.1,5]]
+                RateList = [[0.5, 0], [0.3, 1], [0.1, 5]]
             elif id == 2:
-                RateList = [[0.5,0], [0.3,1], [0.1,5]]
+                RateList = [[0.5, 0], [0.3, 1], [0.1, 5]]
             elif id == 3:
-                RateList = [[0.3,0], [0.1,6]]
+                RateList = [[0.3, 0], [0.1, 6]]
             elif id == 4:
-                RateList = [[0.3,0], [0.1,6]]
+                RateList = [[0.3, 0], [0.1, 6]]
             elif id == 5:
-                RateList = [[0.3,0], [0.1,6]]
-        score = self.scaleScore(self.data.spareRateList[id-1][1], RateList)
+                RateList = [[0.3, 0], [0.1, 6]]
+        score = self.scaleScore(self.data.spareRateList[id - 1][1], RateList)
         return score
-        
+
     def analysisPurge(self, id):
-        PurgeList = [[0,0], [3,3], [10,5]]
-        score = self.scaleScore(self.generator[id-1].data.numpurge, PurgeList)
+        PurgeList = [[0, 0], [3, 3], [10, 5]]
+        score = self.scaleScore(self.generator[id - 1].data.numpurge, PurgeList)
         return score
-    
+
     def analysisNPC(self, id):
         if self.map == "敖龙岛":
-            NPCList = [[0.15,0], [0.3,5]]
+            NPCList = [[0.15, 0], [0.3, 5]]
         elif self.map == "范阳夜变":
-            NPCList = [[0.1,0], [0.2,5]]
+            NPCList = [[0.1, 0], [0.2, 5]]
         score = self.scaleScore(self.data.npcHealRate, NPCList)
         return score
-        
+
     def analysisInner(self, id):
-        InnerList = [[0,0], [1,3], [2,5]]
-        score = self.scaleScore(sum(self.generator2[id-1].data.innerPlace[self.mykey]), InnerList)
+        InnerList = [[0, 0], [1, 3], [2, 5]]
+        score = self.scaleScore(sum(self.generator2[id - 1].data.innerPlace[self.mykey]), InnerList)
         return score
-        
+
     def analysisDrawer(self, id):
-        InnerList = [[0,0], [4,4]]
-        score = self.scaleScore(self.generator2[id-1].data.drawer[self.mykey], InnerList)
+        InnerList = [[0, 0], [4, 4]]
+        score = self.scaleScore(self.generator2[id - 1].data.drawer[self.mykey], InnerList)
         return score
-    
+
     def analysisBOSSald(self, id):
         cutOff1 = [0, 5, 5, 0, 5, 5, 7]
         cutOff2 = [0, 5, 5, 10, 5, 5, 7]
         cutOff4 = [0, 0, 0, 0, 5, 0, 5]
         cutOff0 = [0, 15, 15, 15, 20, 15, 20]
-        self.printTable.append([0, "%s 打分表"%self.bossDictR[id], ""])
+        self.printTable.append([0, "%s 打分表" % self.bossDictR[id], ""])
         c1 = 0
         c5 = 0
         if id != 3:
             s1 = self.analysisHPS(id)
-            self.printTable.append([1, "治疗量", "%.1f"%s1])
+            self.printTable.append([1, "治疗量", "%.1f" % s1])
             s2 = self.analysisShield(id)
-            self.printTable.append([1, "盾数", "%.1f"%s2])
+            self.printTable.append([1, "盾数", "%.1f" % s2])
             c1 = s1 + s2
             if c1 > cutOff1[id]:
                 c1 = cutOff1[id]
                 c5 += (s1 + s2 - cutOff1[id]) / 2
         s3 = self.analysisDPS(id)
-        self.printTable.append([1, "等效DPS", "%.1f"%s3])
+        self.printTable.append([1, "等效DPS", "%.1f" % s3])
         s4 = self.analysisRate(id)
-        self.printTable.append([1, "覆盖率", "%.1f"%s4])
+        self.printTable.append([1, "覆盖率", "%.1f" % s4])
         c2 = s3 + s4
         if c2 > cutOff2[id]:
             c2 = cutOff2[id]
             c5 += (s3 + s4 - cutOff2[id]) / 2
         s5 = self.analysisSpare(id)
-        self.printTable.append([1, "空闲比例", "%.1f"%s5])
+        self.printTable.append([1, "空闲比例", "%.1f" % s5])
         c3 = s5
-        
+
         c4 = 0
         if id == 4:
             s6 = self.analysisPurge(id)
-            self.printTable.append([1, "驱散次数", "%.1f"%s6])
+            self.printTable.append([1, "驱散次数", "%.1f" % s6])
             s7 = self.analysisNPC(id)
-            self.printTable.append([1, "NPC承疗", "%.1f"%s7])
+            self.printTable.append([1, "NPC承疗", "%.1f" % s7])
             c4 = s6 + s7
             if c4 > cutOff4[id]:
                 c4 = cutOff4[id]
                 c5 += (s6 + s7) / 2
         elif id == 5:
             s6 = self.analysisDrawer(id)
-            self.printTable.append([1, "连线", "%.1f"%s6])
+            self.printTable.append([1, "连线", "%.1f" % s6])
             c4 = s6
         elif id == 6:
             s6 = self.analysisInner(id)
-            self.printTable.append([1, "内场", "%.1f"%s6])
+            self.printTable.append([1, "内场", "%.1f" % s6])
             c4 = s6
-            
-        numDPS = self.data.dpsTable[id-1][4]
+
+        numDPS = self.data.dpsTable[id - 1][4]
         if numDPS < 16:
             s8 = 16 - numDPS
-            self.printTable.append([1, "人数修正", "%.1f"%s8])
+            self.printTable.append([1, "人数修正", "%.1f" % s8])
             c5 += s8
-        
+
         c6 = c1 + c2 + c3 + c4 + c5
         if c6 > cutOff0[id]:
             c6 = cutOff0[id]
-        
+
         c7 = 0
         c8 = 0
-        
-        num1 = sum(self.generator2[id-1].data.hitCount[self.mykey].values())
-        num2 = sum(self.generator2[id-1].data.deathCount[self.mykey])
+
+        num1 = sum(self.generator2[id - 1].data.hitCount[self.mykey].values())
+        num2 = sum(self.generator2[id - 1].data.deathCount[self.mykey])
         if num1 > 0:
             c7 = -num1
-            self.printTable.append([2, "犯错", "%.1f"%c7])
+            self.printTable.append([2, "犯错", "%.1f" % c7])
         if num2 > 0:
             c8 = -num2 * 2
-            self.printTable.append([2, "重伤", "%.1f"%c8])
-        
+            self.printTable.append([2, "重伤", "%.1f" % c8])
+
         c9 = c6 + c7 + c8
         if c9 < 0:
             c9 = 0
-        
-        self.printTable.append([3, "小计", "%.1f"%c9])
+
+        self.printTable.append([3, "小计", "%.1f" % c9])
         return c9
-        
+
     def analysisBOSSyd(self, id):
         cutOff1 = [0, 5, 5, 7, 7, 12]
         cutOff2 = [0, 5, 5, 7, 7, 12]
         cutOff4 = [0, 0, 0, 0, 0, 0, 0]
         cutOff0 = [0, 15, 15, 20, 20, 30]
-        self.printTable.append([0, "%s 打分表"%self.bossDictR[id], ""])
+        self.printTable.append([0, "%s 打分表" % self.bossDictR[id], ""])
         c1 = 0
         c5 = 0
-        
+
         s1 = self.analysisHPS(id)
-        self.printTable.append([1, "治疗量", "%.1f"%s1])
+        self.printTable.append([1, "治疗量", "%.1f" % s1])
         s2 = self.analysisShield(id)
-        self.printTable.append([1, "盾数", "%.1f"%s2])
+        self.printTable.append([1, "盾数", "%.1f" % s2])
         c1 = s1 + s2
         if c1 > cutOff1[id]:
             c1 = cutOff1[id]
             c5 += (s1 + s2 - cutOff1[id]) / 2
-            
+
         s3 = self.analysisDPS(id)
-        self.printTable.append([1, "等效DPS", "%.1f"%s3])
+        self.printTable.append([1, "等效DPS", "%.1f" % s3])
         s4 = self.analysisRate(id)
-        self.printTable.append([1, "覆盖率", "%.1f"%s4])
+        self.printTable.append([1, "覆盖率", "%.1f" % s4])
         c2 = s3 + s4
         if c2 > cutOff2[id]:
             c2 = cutOff2[id]
             c5 += (s3 + s4 - cutOff2[id]) / 2
-            
+
         s5 = self.analysisSpare(id)
-        self.printTable.append([1, "空闲比例", "%.1f"%s5])
+        self.printTable.append([1, "空闲比例", "%.1f" % s5])
         c3 = s5
-        
+
         c4 = 0
-            
-        numDPS = self.data.dpsTable[id-1][4]
+
+        numDPS = self.data.dpsTable[id - 1][4]
         if numDPS < 16:
             s8 = 16 - numDPS
-            self.printTable.append([1, "人数修正", "%.1f"%s8])
+            self.printTable.append([1, "人数修正", "%.1f" % s8])
             c5 += s8
-        
+
         c6 = c1 + c2 + c3 + c4 + c5
         if c6 > cutOff0[id]:
             c6 = cutOff0[id]
-        
+
         c7 = 0
         c8 = 0
-        
-        num1 = sum(self.generator2[id-1].data.hitCount[self.mykey].values())
-        num2 = sum(self.generator2[id-1].data.deathCount[self.mykey])
+
+        num1 = sum(self.generator2[id - 1].data.hitCount[self.mykey].values())
+        num2 = sum(self.generator2[id - 1].data.deathCount[self.mykey])
         if num1 > 0:
             c7 = -num1
-            self.printTable.append([2, "犯错", "%.1f"%c7])
+            self.printTable.append([2, "犯错", "%.1f" % c7])
         if num2 > 0:
             c8 = -num2 * 2
-            self.printTable.append([2, "重伤", "%.1f"%c8])
-        
+            self.printTable.append([2, "重伤", "%.1f" % c8])
+
         c9 = c6 + c7 + c8
         if c9 < 0:
             c9 = 0
-            
-        self.printTable.append([3, "小计", "%.1f"%c9])
+
+        self.printTable.append([3, "小计", "%.1f" % c9])
         return c9
-        
+
     def finalRate(self):
         for line in self.rateScale:
             if self.score >= line[0]:
@@ -1971,7 +1974,7 @@ class XiangZhiScore():
                 self.rate = line[2]
                 self.describe = line[3]
                 break
-        
+
     def analysisAll(self):
         if len(self.generator) == 6 and self.map == "敖龙岛":
             self.available = 1
@@ -1979,22 +1982,22 @@ class XiangZhiScore():
             for i in range(1, 7):
                 score = self.analysisBOSSald(i)
                 sumScore += score
-            self.printTable.append([0, "总分", "%.1f"%sumScore])
+            self.printTable.append([0, "总分", "%.1f" % sumScore])
             self.score = sumScore
             self.finalRate()
-        elif len(self.generator) in [4,5] and self.map == "范阳夜变":
+        elif len(self.generator) in [4, 5] and self.map == "范阳夜变":
             self.available = 1
             sumScore = 0
             for i in range(1, len(self.generator) + 1):
                 score = self.analysisBOSSyd(i)
                 sumScore += score
-            self.printTable.append([0, "总分", "%.1f"%sumScore])
+            self.printTable.append([0, "总分", "%.1f" % sumScore])
             self.score = sumScore
             self.finalRate()
         else:
             self.available = 0
             print("战斗记录不全，无法进行打分。")
-        
+
     def __init__(self, data, generator, generator2, mykey, map):
         self.data = data
         self.mykey = mykey
@@ -2010,34 +2013,35 @@ class XiangZhiScore():
             self.bossDict = {"周贽": 1, "厌夜": 2, "迟驻": 3, "白某": 4, "安小逢": 5}
             self.bossDictR = ["", "周贽", "厌夜", "迟驻", "白某", "安小逢"]
 
+
 class RawDataParser():
 
     def parseFile(self, path, filename):
         if path == "":
             name = filename
         else:
-            name = "%s\\%s"%(path, filename)
-        print("读取文件：%s"%name)
+            name = "%s\\%s" % (path, filename)
+        print("读取文件：%s" % name)
         f = open(name, "r")
         s = f.read()
         res, _ = parseLuatable(s, 8, len(s))
-        
+
         if '9' not in res:
             if len(res['']) == 17:
                 for i in range(1, 17):
-                    res[str(i)] = [res[''][i-1]]
+                    res[str(i)] = [res[''][i - 1]]
             else:
                 raise Exception("数据不完整，无法生成，请确认是否生成了正确的茗伊战斗复盘记录。")
-                
+
         return res
-    
+
     def __init__(self, filelist, path):
         self.rawdata = {}
         for filename in filelist:
             self.rawdata[filename[0]] = self.parseFile(path, filename[0])
-            
+
+
 class ActorAnalysis():
-    
     map = "敖龙岛"
     mapdetail = "未知"
     myname = ""
@@ -2054,42 +2058,42 @@ class ActorAnalysis():
     chizhuActive = 0
     baimouActive = 0
     anxiaofengActive = 0
-    
+
     def getMaskName(self, name):
         s = name.strip('"')
         if self.mask == 0:
             return s
         else:
-            return s[0] + '*' * (len(s)-1)
-            
+            return s[0] + '*' * (len(s) - 1)
+
     def getColor(self, occ):
         if self.color == 0:
             return (0, 0, 0)
-        colorDict = {"0": (0, 0, 0), 
-                     "1": (210, 180, 0),#少林
-                     "2": (127, 31, 223),#万花
-                     "4": (56, 175, 255),#纯阳
-                     "5": (255, 127, 255),#七秀
-                     "3": (160, 0, 0),#天策
-                     "8": (255, 255, 0),#藏剑
-                     "9": (205, 133, 63),#丐帮
-                     "10": (253, 84, 0),#明教
-                     "6": (63, 31, 159),#五毒
-                     "7": (0, 133, 144),#唐门
-                     "21": (180, 60, 0),#苍云
-                     "22": (100, 250, 180),#长歌
-                     "23": (71, 73, 166),#霸刀
-                     "24": (195, 171, 227),#蓬莱
-                     "25": (161, 9, 34)#凌雪
-                    }
+        colorDict = {"0": (0, 0, 0),
+                     "1": (210, 180, 0),  # 少林
+                     "2": (127, 31, 223),  # 万花
+                     "4": (56, 175, 255),  # 纯阳
+                     "5": (255, 127, 255),  # 七秀
+                     "3": (160, 0, 0),  # 天策
+                     "8": (255, 255, 0),  # 藏剑
+                     "9": (205, 133, 63),  # 丐帮
+                     "10": (253, 84, 0),  # 明教
+                     "6": (63, 31, 159),  # 五毒
+                     "7": (0, 133, 144),  # 唐门
+                     "21": (180, 60, 0),  # 苍云
+                     "22": (100, 250, 180),  # 长歌
+                     "23": (71, 73, 166),  # 霸刀
+                     "24": (195, 171, 227),  # 蓬莱
+                     "25": (161, 9, 34)  # 凌雪
+                     }
         if occ not in colorDict:
             occ = "0"
         return colorDict[occ]
-        
+
     def paint(self, filename):
-    
-        #data = self.data
-    
+
+        # data = self.data
+
         battleDate = self.battledate
         generateDate = time.strftime("%Y-%m-%d", time.localtime())
 
@@ -2099,9 +2103,9 @@ class ActorAnalysis():
         def paint(draw, content, posx, posy, font, fill):
             draw.text(
                 (posx, posy),
-                text = content,
-                font = font,
-                fill = fill
+                text=content,
+                font=font,
+                fill=fill
             )
             if self.text == 1:
                 if posy != self.pastH:
@@ -2110,7 +2114,7 @@ class ActorAnalysis():
                 else:
                     self.f.write('    ')
                 self.f.write(content)
-                
+
         def write(content):
             if self.text == 1:
                 self.f.write(content)
@@ -2134,14 +2138,14 @@ class ActorAnalysis():
         fillgray = (127, 127, 127)
         fillred = (255, 0, 0)
         draw = ImageDraw.Draw(image)
-        
+
         if self.text == 1:
             self.f = open("result.txt", "w")
 
-        paint(draw, "%s战斗记录-演员"%self.map, 290, 10, fontTitle, fillcyan)
-        
+        paint(draw, "%s战斗记录-演员" % self.map, 290, 10, fontTitle, fillcyan)
+
         if self.yanyeActive:
-            paint(draw, "[厌夜]的战斗时间为%s。"%parseTime(self.yanyeTime), 10, 60, fontText, fillblack)
+            paint(draw, "[厌夜]的战斗时间为%s。" % parseTime(self.yanyeTime), 10, 60, fontText, fillblack)
             paint(draw, "“平血”表示未识别时对白云和小剑的伤害。", 20, 90, fontSmall, fillblack)
             paint(draw, "“RUSH”表示识别成功时对假厌夜和无面鬼的伤害。", 20, 100, fontSmall, fillblack)
             paint(draw, "“无效DPS”表示识别成功时对真厌夜的伤害。", 20, 110, fontSmall, fillblack)
@@ -2159,40 +2163,40 @@ class ActorAnalysis():
             h = 75
             for line in self.yanyeTable:
                 h += 10
-                paint(draw, "%s"%self.getMaskName(line[0]), 230, h, fontSmall, self.getColor(line[1])) 
-                paint(draw, "%d"%line[2], 300, h, fontSmall, fillblack)
-                paint(draw, "%d"%line[3], 343, h, fontSmall, fillblack)
-                paint(draw, "%d"%line[4], 383, h, fontSmall, fillblack)
-                paint(draw, "%d"%line[5], 420, h, fontSmall, fillblack)
-                paint(draw, "%d"%line[6], 460, h, fontSmall, fillblack)
-                paint(draw, "%d"%line[7], 500, h, fontSmall, fillblack)
-                
+                paint(draw, "%s" % self.getMaskName(line[0]), 230, h, fontSmall, self.getColor(line[1]))
+                paint(draw, "%d" % line[2], 300, h, fontSmall, fillblack)
+                paint(draw, "%d" % line[3], 343, h, fontSmall, fillblack)
+                paint(draw, "%d" % line[4], 383, h, fontSmall, fillblack)
+                paint(draw, "%d" % line[5], 420, h, fontSmall, fillblack)
+                paint(draw, "%d" % line[6], 460, h, fontSmall, fillblack)
+                paint(draw, "%d" % line[7], 500, h, fontSmall, fillblack)
+
         if self.chizhuActive:
-            paint(draw, "[迟驻]的战斗时间为%s。"%parseTime(self.chizhuTime), 10, 300, fontText, fillblack)
+            paint(draw, "[迟驻]的战斗时间为%s。" % parseTime(self.chizhuTime), 10, 300, fontText, fillblack)
             paint(draw, "“点名时间”表示扶桑、月落、一觞的点名总时间。", 20, 330, fontSmall, fillblack)
             paint(draw, "“无视debuff”表示[无视]的层数对时间取积分。", 20, 340, fontSmall, fillblack)
             paint(draw, "“原始DPS”表示实际的DPS。", 20, 350, fontSmall, fillblack)
             paint(draw, "“等效DPS”表示考虑上面两项后，折算的DPS。", 20, 360, fontSmall, fillblack)
             write('\n')
-            
+
             paint(draw, "迟驻战斗统计", 230, 300, fontSmall, fillblack)
             paint(draw, "等效DPS", 300, 300, fontSmall, fillblack)
             paint(draw, "点名时间", 340, 300, fontSmall, fillblack)
             paint(draw, "无视debuff", 380, 300, fontSmall, fillblack)
             paint(draw, "原始DPS", 420, 300, fontSmall, fillblack)
             write('\n')
-            
+
             h = 300
             for line in self.chizhuTable:
                 h += 10
-                paint(draw, "%s"%self.getMaskName(line[0]), 230, h, fontSmall, self.getColor(line[1])) 
-                paint(draw, "%d"%line[2], 300, h, fontSmall, fillblack)
-                paint(draw, "%d"%line[3], 343, h, fontSmall, fillblack)
-                paint(draw, "%d"%line[4], 380, h, fontSmall, fillblack)
-                paint(draw, "%d"%line[5], 420, h, fontSmall, fillblack)
-                
+                paint(draw, "%s" % self.getMaskName(line[0]), 230, h, fontSmall, self.getColor(line[1]))
+                paint(draw, "%d" % line[2], 300, h, fontSmall, fillblack)
+                paint(draw, "%d" % line[3], 343, h, fontSmall, fillblack)
+                paint(draw, "%d" % line[4], 380, h, fontSmall, fillblack)
+                paint(draw, "%d" % line[5], 420, h, fontSmall, fillblack)
+
         if self.baimouActive:
-            paint(draw, "[白某]的战斗时间为%s。"%parseTime(self.baimouTime), 10, 540, fontText, fillblack)
+            paint(draw, "[白某]的战斗时间为%s。" % parseTime(self.baimouTime), 10, 540, fontText, fillblack)
             paint(draw, "“单体DPS”表示在常规阶段，对BOSS的DPS。", 20, 570, fontSmall, fillblack)
             paint(draw, "“符灵DPS”表示在推命阶段，对符灵的DPS。", 20, 580, fontSmall, fillblack)
             paint(draw, "“水牢DPS”表示对水牢的DPS", 20, 590, fontSmall, fillblack)
@@ -2200,7 +2204,7 @@ class ActorAnalysis():
             paint(draw, "“点名时间”表示受[覆舟]影响的时间。", 20, 610, fontSmall, fillblack)
             paint(draw, "“有效DPS”表示排除点名及群攻之后的DPS。", 20, 620, fontSmall, fillblack)
             write('\n')
-            
+
             paint(draw, "白某战斗统计", 230, 540, fontSmall, fillblack)
             paint(draw, "有效DPS", 300, 540, fontSmall, fillblack)
             paint(draw, "单体DPS", 340, 540, fontSmall, fillblack)
@@ -2211,16 +2215,16 @@ class ActorAnalysis():
             h = 540
             for line in self.baimouTable:
                 h += 10
-                paint(draw, "%s"%self.getMaskName(line[0]), 230, h, fontSmall, self.getColor(line[1])) 
-                paint(draw, "%d"%line[2], 300, h, fontSmall, fillblack)
-                paint(draw, "%d"%line[3], 340, h, fontSmall, fillblack)
-                paint(draw, "%d"%line[4], 380, h, fontSmall, fillblack)
-                paint(draw, "%d"%line[5], 420, h, fontSmall, fillblack)
-                paint(draw, "%d"%line[6], 460, h, fontSmall, fillblack)
-                paint(draw, "%d"%line[7], 500, h, fontSmall, fillblack)
-                
+                paint(draw, "%s" % self.getMaskName(line[0]), 230, h, fontSmall, self.getColor(line[1]))
+                paint(draw, "%d" % line[2], 300, h, fontSmall, fillblack)
+                paint(draw, "%d" % line[3], 340, h, fontSmall, fillblack)
+                paint(draw, "%d" % line[4], 380, h, fontSmall, fillblack)
+                paint(draw, "%d" % line[5], 420, h, fontSmall, fillblack)
+                paint(draw, "%d" % line[6], 460, h, fontSmall, fillblack)
+                paint(draw, "%d" % line[7], 500, h, fontSmall, fillblack)
+
         if self.anxiaofengActive:
-            paint(draw, "[安小逢]的战斗时间为%s。"%parseTime(self.anxiaofengTime), 10, 780, fontText, fillblack)
+            paint(draw, "[安小逢]的战斗时间为%s。" % parseTime(self.anxiaofengTime), 10, 780, fontText, fillblack)
             paint(draw, "“原始DPS”表示游戏中插件统计的实际DPS。", 20, 810, fontSmall, fillblack)
             paint(draw, "“安小逢DPS”表示原始DPS中属于安小逢的部分。", 20, 820, fontSmall, fillblack)
             paint(draw, "“小怪DPS”表示对狼牙斧卫和水鬼的DPS，", 20, 830, fontSmall, fillblack)
@@ -2233,8 +2237,7 @@ class ActorAnalysis():
             paint(draw, "“承伤记录”表示对[暗月血镰]技能的承伤在第几组。", 20, 900, fontSmall, fillblack)
             paint(draw, "“0”表示本次未承伤，“X”表示本次被[盯]点名。", 20, 910, fontSmall, fillblack)
             write('\n')
-            
-            
+
             paint(draw, "安小逢战斗统计", 230, 780, fontSmall, fillblack)
             paint(draw, "原始DPS", 300, 780, fontSmall, fillblack)
             paint(draw, "安小逢DPS", 340, 780, fontSmall, fillblack)
@@ -2247,42 +2250,40 @@ class ActorAnalysis():
             h = 780
             for line in self.anxiaofengTable:
                 h += 10
-                paint(draw, "%s"%self.getMaskName(line[0]), 230, h, fontSmall, self.getColor(line[1])) 
-                paint(draw, "%d"%line[2], 300, h, fontSmall, fillblack)
-                paint(draw, "%d"%line[3], 340, h, fontSmall, fillblack)
-                paint(draw, "%d"%line[4], 380, h, fontSmall, fillblack)
-                paint(draw, "%d"%line[5], 420, h, fontSmall, fillblack)
-                paint(draw, "%d"%line[6], 460, h, fontSmall, fillblack)
-                paint(draw, "%d"%line[7], 500, h, fontSmall, fillblack)
-                paint(draw, "%s"%line[8], 540, h, fontSmall, fillblack)
-                paint(draw, "%s"%line[9], 580, h, fontSmall, fillblack)
-                
+                paint(draw, "%s" % self.getMaskName(line[0]), 230, h, fontSmall, self.getColor(line[1]))
+                paint(draw, "%d" % line[2], 300, h, fontSmall, fillblack)
+                paint(draw, "%d" % line[3], 340, h, fontSmall, fillblack)
+                paint(draw, "%d" % line[4], 380, h, fontSmall, fillblack)
+                paint(draw, "%d" % line[5], 420, h, fontSmall, fillblack)
+                paint(draw, "%d" % line[6], 460, h, fontSmall, fillblack)
+                paint(draw, "%d" % line[7], 500, h, fontSmall, fillblack)
+                paint(draw, "%s" % line[8], 540, h, fontSmall, fillblack)
+                paint(draw, "%s" % line[9], 580, h, fontSmall, fillblack)
+
         write('\n')
         paint(draw, "犯错记录", 550, 70, fontSmall, fillblack)
         h = 70
         for line in self.potList:
             h += 10
-            paint(draw, "%s"%self.getMaskName(line[0]), 560, h, fontSmall, self.getColor(line[1])) 
+            paint(draw, "%s" % self.getMaskName(line[0]), 560, h, fontSmall, self.getColor(line[1]))
             fill = fillblack
             if line[2] == 0:
                 fill = fillgray
-            paint(draw, "%s"%line[3], 610, h, fontSmall, fill)
-            paint(draw, "%s"%line[4], 640, h, fontSmall, fill)
-
+            paint(draw, "%s" % line[3], 610, h, fontSmall, fill)
+            paint(draw, "%s" % line[4], 640, h, fontSmall, fill)
 
         write('\n')
-        paint(draw, "进本时间：%s"%battleDate, 700, 40, fontSmall, fillblack)
-        paint(draw, "生成时间：%s"%generateDate, 700, 50, fontSmall, fillblack)
-        paint(draw, "难度：%s"%self.mapdetail, 700, 60, fontSmall, fillblack)
-        paint(draw, "版本号：%s"%edition, 30, 1180, fontSmall, fillblack)
+        paint(draw, "进本时间：%s" % battleDate, 700, 40, fontSmall, fillblack)
+        paint(draw, "生成时间：%s" % generateDate, 700, 50, fontSmall, fillblack)
+        paint(draw, "难度：%s" % self.mapdetail, 700, 60, fontSmall, fillblack)
+        paint(draw, "版本号：%s" % edition, 30, 1180, fontSmall, fillblack)
         paint(draw, "想要生成自己的战斗记录？加入QQ群：418483739，作者QQ：957685908", 100, 1180, fontSmall, fillblack)
 
         image.save(filename)
-        
+
         if self.text == 1:
             self.f.close()
-        
-    
+
     def analysis(self):
         if self.map == "敖龙岛":
             mapid = self.generator[0].rawdata['20'][0]
@@ -2295,7 +2296,7 @@ class ActorAnalysis():
             else:
                 self.mapdetail = "未知"
 
-        if self.map == "范阳夜变":    
+        if self.map == "范阳夜变":
             mapid = self.generator[0].rawdata['20'][0]
             if mapid == "454":
                 self.mapdetail = "25人英雄"
@@ -2305,7 +2306,7 @@ class ActorAnalysis():
                 self.mapdetail = "10人普通"
             else:
                 self.mapdetail = "未知"
-            
+
         self.potList = []
         for line in self.generator:
             if line.bossname == "厌夜" and line.lastTry and line.yanyeActive:
@@ -2325,18 +2326,16 @@ class ActorAnalysis():
                 self.anxiaofengTable = line.anxiaofengResult
                 self.anxiaofengTime = line.battleTime
             self.potList += line.potList
-            
-    
+
     def loadData(self, fileList, path, raw):
         for filename in fileList:
-            res = ActorStatGenerator(filename, path, rawdata = raw[filename[0]], failThreshold = self.failThreshold, battleDate = self.battledate, mask = self.mask)
+            res = ActorStatGenerator(filename, path, rawdata=raw[filename[0]], failThreshold=self.failThreshold, battleDate=self.battledate, mask=self.mask)
             res.firstStageAnalysis()
             res.secondStageAnalysis()
             if res.win:
                 res.prepareUpload()
             self.generator.append(res)
-            
-    
+
     def __init__(self, filelist, map, path, config, raw):
         self.myname = config.xiangzhiname
         self.mask = config.mask
@@ -2350,7 +2349,6 @@ class ActorAnalysis():
 
 
 class XiangZhiAnalysis():
-    
     map = "敖龙岛"
     mapdetail = "未知"
     myname = ""
@@ -2362,14 +2360,14 @@ class XiangZhiAnalysis():
     text = 0
     speed = 3770
     pastH = 0
-    
+
     def getMaskName(self, name):
         s = name.strip('"')
         if self.mask == 0:
             return s
         else:
-            return s[0] + '*' * (len(s)-1)
-        
+            return s[0] + '*' * (len(s) - 1)
+
     def hashGroup(self):
         nameList = []
         for line in self.namedict:
@@ -2379,8 +2377,8 @@ class XiangZhiAnalysis():
         hashStr = self.battledate + self.mapdetail + self.map + edition + "".join(nameList)
         hashres = hashlib.md5(hashStr.encode(encoding="utf-8")).hexdigest()
         return hashres
-        
-    def prepareUpload(self, upload = 0):
+
+    def prepareUpload(self, upload=0):
         result = {}
         server = self.generator[0].rawdata["19"][0].strip('"')
         result["server"] = server
@@ -2406,10 +2404,10 @@ class XiangZhiAnalysis():
         allInfo["spareRate"] = data.spareRate
         allInfo["healList"] = data.healList
         allInfo["printTable"] = self.score.printTable
-        
+
         allInfo["rateList"] = data.rateList
         allInfo["breakList"] = data.breakList
-        
+
         allInfo["numheal"] = data.numheal
         allInfo["numeffheal"] = data.numeffheal
         allInfo["numshield"] = data.numshield
@@ -2433,7 +2431,7 @@ class XiangZhiAnalysis():
         if self.map == "敖龙岛":
             allInfo["sumDrawer"] = self.sumDrawer
             allInfo["sumInner"] = self.sumInner
-            
+
         for i in range(len(allInfo["rateList"])):
             allInfo["rateList"][i][2] = self.getMaskName(allInfo["rateList"][i][2])
         for i in range(len(allInfo["breakList"])):
@@ -2450,14 +2448,12 @@ class XiangZhiAnalysis():
             Jdata = json.dumps(result)
             jpost = {'jdata': Jdata}
             jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-            resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadXiangZhiData', data = jparse)
+            resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadXiangZhiData', data=jparse)
             res = json.load(resp)
             return result, res
         else:
             return result, None
-        
-    
-    
+
     def paint(self, filename):
         painter = XiangZhiPainter()
         painter.text = self.text
@@ -2465,11 +2461,11 @@ class XiangZhiAnalysis():
         painter.mask = self.mask
         painter.color = self.color
         painter.paint(self.info, "result.png")
-    
+
     def loadData(self, fileList, path, raw):
-        
+
         for filename in fileList:
-            res = XiangZhiStatGenerator(filename, self.myname, rawdata = raw[filename[0]])
+            res = XiangZhiStatGenerator(filename, self.myname, rawdata=raw[filename[0]])
             res.speed = self.speed
             res.firstStageAnalysis()
             res.secondStageAnalysis()
@@ -2478,20 +2474,20 @@ class XiangZhiAnalysis():
                 self.myname = res.myname
             elif self.myname != res.myname:
                 raise Exception("全程奶歌名称不一致，请手动指定ID")
-            
+
             res2 = ActorStatGenerator(filename, path, res.rawdata, self.myname)
             res2.startTime = res.startTime
             res2.finalTime = res.finalTime
             res2.secondStageAnalysis()
             self.generator2.append(res2)
-                
+
     def analysis(self):
-    
+
         generator = self.generator
-    
+
         self.hardBOSS = "源思弦"
         self.hardNPC = "[尹青羲]"
-        
+
         if self.map == "敖龙岛":
             mapid = generator[0].rawdata['20'][0]
             if mapid == "428":
@@ -2502,20 +2498,20 @@ class XiangZhiAnalysis():
                 self.mapdetail = "10人普通"
             else:
                 self.mapdetail = "未知"
-                
+
         if self.map == "范阳夜变":
             self.hardBOSS = "安小逢"
             self.hardNPC = "走火入魔玩家"
-            self.hitDict = {"s23621": "隐雷鞭", 
-                       "s23700": "短歌式",
-                       "b16842": "符咒禁锢",
-                       "s24029": "赤镰乱舞·矩形",
-                       "s24030": "赤镰乱舞·扇形",
-                       "s24031": "赤镰乱舞·圆形",
-                       "b17110": "绞首链",
-                       "b17301": "不听话的小孩子",
-                      }
-                      
+            self.hitDict = {"s23621": "隐雷鞭",
+                            "s23700": "短歌式",
+                            "b16842": "符咒禁锢",
+                            "s24029": "赤镰乱舞·矩形",
+                            "s24030": "赤镰乱舞·扇形",
+                            "s24031": "赤镰乱舞·圆形",
+                            "b17110": "绞首链",
+                            "b17301": "不听话的小孩子",
+                            }
+
             mapid = generator[0].rawdata['20'][0]
             if mapid == "454":
                 self.mapdetail = "25人英雄"
@@ -2525,20 +2521,19 @@ class XiangZhiAnalysis():
                 self.mapdetail = "10人普通"
             else:
                 self.mapdetail = "未知"
-        
+
         data = XiangZhiOverallData()
 
         for line in generator:
             data.numheal += line.data.numheal
             data.numeffheal += line.data.numeffheal
             data.numshield += line.data.numshield
-            data.healTable.append([line.bossname.strip('"'), int(line.data.numeffheal / line.battleTime), 
-                                   line.data.healRate, line.data.myHealRank, line.data.numHealer, 
+            data.healTable.append([line.bossname.strip('"'), int(line.data.numeffheal / line.battleTime),
+                                   line.data.healRate, line.data.myHealRank, line.data.numHealer,
                                    int(line.data.numabsorb / line.battleTime),
                                    line.data.numshield, line.battleTime, line.data.numshield / line.battleTime * 60])
             if data.mykey == "":
                 data.mykey = line.data.mykey
-
 
         for line in generator:
             data.dpsTable.append([line.bossname.strip('"'), line.data.mydamage, line.data.myrank, line.data.equalDPS, len(line.data.durationDict)])
@@ -2556,16 +2551,16 @@ class XiangZhiAnalysis():
                 data.maxRateName = line.bossname.strip('"')
             data.overallrate += line.data.overallrate
         data.overallrate /= len(data.rateTable)
-        
+
         sumTime = 0
         for line in generator:
             data.durationDict = plusDict(data.durationDict, line.data.durationDict)
             data.breakDict = plusDict(data.breakDict, line.data.breakDict)
             sumTime += line.battleTime
-        
+
         data.rateList = dictToPairs(data.durationDict)
         data.breakList = dictToPairs(data.breakDict)
-        
+
         namedict = {}
         occdict = {}
         for i in range(len(self.generator)):
@@ -2576,7 +2571,7 @@ class XiangZhiAnalysis():
             data.rateList[i].append(namedict[data.rateList[i][0]][0])
             data.rateList[i].append(occdict[data.rateList[i][0]][0])
             data.rateList[i][1] /= sumTime * 1000
-        
+
         for i in range(len(data.breakList)):
             data.breakList[i].append(namedict[data.breakList[i][0]][0])
             data.breakList[i].append(occdict[data.breakList[i][0]][0])
@@ -2584,15 +2579,15 @@ class XiangZhiAnalysis():
         self.namedict = namedict
         self.occdict = occdict
 
-        data.rateList.sort(key=lambda x:-x[1])
-        data.breakList.sort(key=lambda x:-x[1])
-        
+        data.rateList.sort(key=lambda x: -x[1])
+        data.breakList.sort(key=lambda x: -x[1])
+
         for line in data.rateList:
             data.bossRateDict[line[0]] = [0, 0, 0]
-        
+
         for line in data.breakList:
             data.bossBreakDict[line[0]] = [0, 0, 0]
-        
+
         for line in generator:
             if self.map == "范阳夜变":
                 bossNameList = ["迟驻", "白某", "安小逢"]
@@ -2604,12 +2599,12 @@ class XiangZhiAnalysis():
                         data.bossRateDict[line2][i] = line.data.durationDict[line2] / (line.battleTime * 1000)
                     for line2 in line.data.breakDict:
                         data.bossBreakDict[line2][i] = line.data.breakDict[line2]
-        
+
         data.maxSingleRate = data.rateList[0][1]
         data.maxSingleRateName = data.rateList[0][2].strip("")
         data.maxSingleBreak = data.breakList[0][1]
         data.maxSingleBreakName = data.breakList[0][2].strip("")
-        
+
         for line in generator:
             if line.bossname == "源思弦":
                 data.numpurge = line.data.numpurge
@@ -2619,13 +2614,13 @@ class XiangZhiAnalysis():
                 data.numpurge = line.data.numpurge
                 data.npchealstat = line.data.npchealstat
                 data.npcHealList = dictToPairs(data.npchealstat)
-                
-        data.npcHealList.sort(key=lambda x:-x[1])
-        
+
+        data.npcHealList.sort(key=lambda x: -x[1])
+
         for i in range(len(data.npcHealList)):
             data.npcHealList[i].append(namedict[data.npcHealList[i][0]][0])
             data.npcHealList[i].append(occdict[data.npcHealList[i][0]][0])
-            
+
         data.healDict = {}
         data.healList = []
         data.allBoss = []
@@ -2636,11 +2631,11 @@ class XiangZhiAnalysis():
                     data.healDict[name] = [0] * len(generator)
                 data.healDict[name][i] = int(line.data.healStat[name] / line.battleTime)
             data.allBoss.append(line.bossname)
-            
+
         for id in data.healDict:
             line = [namedict[id][0].strip('"'), occdict[id][0]] + data.healDict[id]
             data.healList.append(line)
-        
+
         findSelf = 0
         for line in data.npcHealList:
             if not findSelf:
@@ -2651,41 +2646,40 @@ class XiangZhiAnalysis():
             data.npcSumHeal += line[1]
         data.npcHealRate = data.npcHeal / (data.npcSumHeal + 1e-10)
         data.npcHealNum = len(data.npcHealList)
-        
+
         for line in generator:
             data.sumBusyTime += line.data.sumBusyTime
             data.sumSpareTime += line.data.sumSpareTime
             data.spareRateList.append([line.bossname.strip('"'), line.data.spareRate])
-            
+
         data.spareRate = data.sumSpareTime / (data.sumBusyTime + data.sumSpareTime + 1e-10)
-        
+
         actorData = ActorData()
         for line in self.generator2:
             actorData.addActorData(line.data)
-        
-        
+
         self.data = data
         self.actorData = actorData
         self.sumHit = sum(self.actorData.hitCount[data.mykey].values())
         self.sumDeath = sum(self.actorData.deathCount[data.mykey])
         self.sumInner = sum(self.actorData.innerPlace[data.mykey])
         self.sumDrawer = self.actorData.drawer[data.mykey]
-        
+
         self.score = XiangZhiScore(self.data, self.generator, self.generator2, data.mykey, self.map)
         self.score.analysisAll()
-        
+
         self.scoreRate = None
         if self.score.available:
-            info, res = self.prepareUpload(upload = 1)
+            info, res = self.prepareUpload(upload=1)
             if res["num"] != 0:
                 self.scoreRate = res["numOver"] / res["num"]
                 info["scoreRate"] = self.scoreRate
             info["uploaded"] = 1
         else:
-            info, res = self.prepareUpload(upload = 0)
+            info, res = self.prepareUpload(upload=0)
             info["uploaded"] = 0
         self.info = info
-    
+
     def __init__(self, filelist, map, path, config, raw):
         self.myname = config.xiangzhiname
         self.mask = config.mask
@@ -2696,43 +2690,49 @@ class XiangZhiAnalysis():
         self.loadData(filelist, path, raw)
         self.map = map
         self.battledate = '-'.join(filelist[0][0].split('-')[0:3])
-        
-        
-class FileLookUp():
 
+
+class FileLookUp():
     jx3path = ""
     basepath = "."
     specifiedFiles = []
 
     # Add by KEQX
     def specifyFiles(self, files):
-        self.specifiedFiles = files
+        def compare(a, b):
+            if a < b:
+                return -1
+            elif a > b:
+                return 1
+            else:
+                return 0
+        self.specifiedFiles = sorted(files, key=functools.cmp_to_key(compare))
 
     def getPathFromWinreg(self):
         try:
-            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\JX3Installer',)
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\JX3Installer', )
             pathres = winreg.QueryValueEx(key, "InstPath")[0]
         except:
             print("自动获取目录失败，请手动指定目录")
             pathres = ""
         self.jx3path = pathres
-        
+
     def getBasePath(self, playerName):
-        datapath = "%s\\Game\\JX3\\bin\\zhcn_hd\\interface\\MY#DATA"%self.jx3path
+        datapath = "%s\\Game\\JX3\\bin\\zhcn_hd\\interface\\MY#DATA" % self.jx3path
         resDir = ""
         l = os.listdir(datapath)
         for name in l:
-            path2 = "%s\\%s"%(datapath, name)
+            path2 = "%s\\%s" % (datapath, name)
             if os.path.isdir(path2):
                 l2 = os.listdir(path2)
                 if playerName in l2:
-                    resDir = "%s\\userdata\\fight_stat"%path2
+                    resDir = "%s\\userdata\\fight_stat" % path2
                     break
-                    
+
         self.basepath = resDir
         if resDir == "":
             print("剑三目录有误，请检查记录者角色名是否正确")
-        
+
     def getLocalFile(self):
         selectFileList = []
 
@@ -2750,12 +2750,12 @@ class FileLookUp():
         mapDict = {"铁黎": 1, "陈徽": 1, "藤原武裔": 1, "源思弦": 1, "驺吾": 1, "方有崖": 1,
                    "周贽": 2, "狼牙精锐": 2, "狼牙刀盾兵": 2, "厌夜": 2, "迟驻": 2, "白某": 2, "安小逢": 2}
         mapNameList = ["未知地图", "敖龙岛", "范阳夜变"]
-        
+
         nowBoss = 6
         bossPos = [-1] * 8
         bossPos[7] = 999
         bossList = [0] * len(selectFileList)
-        for i in range(len(selectFileList)-1, -1, -1):
+        for i in range(len(selectFileList) - 1, -1, -1):
             if selectFileList[i][-13:] == "config.jx3dat":
                 continue
             bossname = selectFileList[i].split('_')[-2]
@@ -2768,7 +2768,7 @@ class FileLookUp():
                     bossList[i] = bossDict[bossname]
             # battletime = int(selectFileList[i].split('_')[2].split('.')[0])
 
-        #for i in range(1, 7):
+        # for i in range(1, 7):
         #    if bossPos[i] == -1:
         #        for j in range(len(selectFileList)):
         #            if j > bossPos[i-1] and j < bossPos[i+1] and bossList[j] == 999:
@@ -2781,8 +2781,8 @@ class FileLookUp():
         lastNum = 0
         for i in range(1, 7):
             if bossPos[i] != -1:
-                 finalList.append([selectFileList[bossPos[i]], 0, 1])
-                
+                finalList.append([selectFileList[bossPos[i]], 0, 1])
+
         for i in range(len(selectFileList)):
             if bossList[i] != 0:
                 bossname = selectFileList[i].split('_')[-2]
@@ -2794,27 +2794,27 @@ class FileLookUp():
                 else:
                     lastNum += 1
                 finalListAll.append([selectFileList[i], lastNum, 0])
-                
+
         finalListAll[-1][2] = 1
         if finalList == []:
             print("没有合适的战斗记录，请确认目录设置或角色是否正确。")
-            
+
         finalFileName = finalList[-1][0]
         finalBossName = finalFileName.split('_')[-2]
         finalMap = mapNameList[mapDict[finalBossName]]
 
         return finalList, finalListAll, finalMap
-    
+
     def __init__(self):
         pass
-        
-class Config():
 
+
+class Config():
     items_general = {}
     items_xiangzhi = {}
     items_actor = {}
-    
-    license_fake="""
+
+    license_fake = """
 ************************************************************
 |                     jx3bla 使用协议                      |
 ************************************************************
@@ -2830,7 +2830,7 @@ class Config():
 代码，需要同时维护此协议，否则视为本协议无效。
 ************************************************************
 是否同意本协议？[Y/N]"""
-    license_true="""
+    license_true = """
 ************************************************************
 |                     jx3bla 使用协议                      |
 ************************************************************
@@ -2853,7 +2853,7 @@ class Config():
 代码，需要同时维护此协议，否则视为本协议无效。
 ************************************************************
 是否同意本协议？[Y/N]"""
-    
+
     def checkItems(self):
         try:
             self.playername = self.items_general["playername"]
@@ -2877,7 +2877,7 @@ class Config():
             assert self.checkAll in [0, 1]
         except:
             raise Exception("配置文件格式不正确，请确认。如无法定位问题，请删除config.ini，在生成的配置文件的基础上进行修改。")
-    
+
     def printDefault(self):
         g = open("config.ini", "w", encoding="utf-8")
         g.write("""[General]
@@ -2900,7 +2900,7 @@ checkall=0
 failthreshold=10""")
         g.close()
         pass
-    
+
     def setDefault(self):
         self.playername = ""
         self.basepath = ""
@@ -2914,7 +2914,7 @@ failthreshold=10""")
         self.actorActive = 1
         self.checkAll = 1
         self.failThreshold = 10
-    
+
     def __init__(self, filename):
         if not os.path.isfile(filename):
             print(self.license_fake)
@@ -2929,7 +2929,7 @@ failthreshold=10""")
             print("欢迎。请设置config.ini，并重新运行此工具。")
             os.system('pause')
             exit(0)
-            
+
         else:
             try:
                 cf = configparser.ConfigParser()
@@ -2964,14 +2964,13 @@ if __name__ == "__main__":
     cmdArgs = parseCmdArgs(sys.argv[1:])
     exitCode = 0
 
-
     try:
         config = Config("config.ini")
-        
+
         resp = urllib.request.urlopen('http://139.199.102.41:8009/getAnnouncement')
         res = json.load(resp)
         print(res["announcement"])
-        
+
         fileLookUp = FileLookUp()
 
         # Edit by KEQX
@@ -3002,7 +3001,7 @@ if __name__ == "__main__":
 
         filelist, allFilelist, map = fileLookUp.getLocalFile()
         print("开始分析。分析耗时可能较长，请耐心等待……")
-        
+
         if config.actorActive and config.checkAll:
             raw = RawDataParser(allFilelist, fileLookUp.basepath).rawdata
         else:
@@ -3015,7 +3014,7 @@ if __name__ == "__main__":
             b.paint("result.png")
             print("奶歌战斗复盘分析完成！结果保存在result.png中")
             if b.info["uploaded"]:
-                print("可以通过以下链接来查看与分享：http://139.199.102.41:8009/XiangZhiData/png?key=%s"%b.info["hash"])
+                print("可以通过以下链接来查看与分享：http://139.199.102.41:8009/XiangZhiData/png?key=%s" % b.info["hash"])
             exitCode |= 2  # 第2位设为1
 
         if config.actorActive:
