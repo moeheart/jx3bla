@@ -14,7 +14,7 @@ import functools
 
 from painter import XiangZhiPainter
 
-edition = "3.6.2"
+edition = "3.6.3"
 
 
 def parseLuatable(s, n, maxn):
@@ -524,6 +524,10 @@ class ActorStatGenerator(StatGeneratorBase):
 
                 if item[6] == "17440" and item[10] == '1':  # 偷天换日
                     self.toutianhuanri = 1
+                    
+            elif item[3] == "5":
+                if occdict[item[5]][0] != '0':
+                    self.playerIDList[item[5]] = 0
 
         for id in self.playerIDList:
             self.firstHitList[id] = 0

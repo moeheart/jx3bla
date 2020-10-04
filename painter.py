@@ -29,7 +29,7 @@ class XiangZhiPainter():
     speed = 3770
     mask = 0
     color = 1
-    edition = "3.6.2"
+    edition = "3.6.3"
     printint = 1
     
     def getMaskName(self, name):
