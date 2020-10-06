@@ -15,7 +15,7 @@ import os
 
 from painter import XiangZhiPainter
 
-version = "3.6.1"
+version = "3.7.0"
 ip = "139.199.102.41"
 announcement = "欢迎使用剑三警长(jx3bla)，新功能开发中，敬请期待！"
 app = Flask(__name__) 
@@ -29,6 +29,28 @@ def Response_headers(content):
 @app.route('/getAnnouncement', methods=['GET'])
 def getAnnouncement():
     return jsonify({'version': version, 'announcement': announcement})
+    
+@app.route('/getDpsStat', methods=['POST'])
+def getDpsStat():
+    jdata = json.loads(request.form.get('jdata'))
+    print(jdata)
+    mapDetail = jdata["mapdetail"]
+    boss = jdata["boss"]
+    
+    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    cursor = db.cursor()
+    
+    sql = '''SELECT statistics from DpsStat WHERE mapdetail = "%s" and boss = "%s"'''%(mapDetail, boss)
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    
+    if result:
+        J = result[0][0]
+        db.close()
+        return jsonify({'result': 'success', 'statistics': J})
+    else:
+        db.close()
+        return jsonify({'result': 'norecord'})
     
 @app.route('/XiangZhiData/png', methods=['GET'])
 def XiangZhiDataPng():

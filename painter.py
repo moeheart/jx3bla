@@ -90,6 +90,8 @@ class XiangZhiPainter():
     def getColor(self, occ):
         if self.color == 0:
             return (0, 0, 0)
+        if occ[-1] in ['d', 't', 'h', 'p', 'm']:
+            occ = occ[:-1]
         colorDict = {"0": (0, 0, 0), 
                      "1": (210, 180, 0),#少林
                      "2": (127, 31, 223),#万花

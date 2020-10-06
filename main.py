@@ -14,7 +14,7 @@ import functools
 
 from painter import XiangZhiPainter
 
-edition = "3.6.3"
+edition = "3.7.0beta"
 
 
 def parseLuatable(s, n, maxn):
@@ -105,6 +105,55 @@ def parseCent(num, digit=2):
         return "%s.%s" % (n1, n2)
     else:
         return "%s" % n1
+        
+        
+def checkOccDetailBySkill(default, skillID, damage):
+    if skillID in ["400", "415"] and int(damage) > 10000:
+        return '3d'
+    elif skillID in ["400", "415"] and int(damage) < 1000:
+        return '3t'
+    elif skillID in ["2636"]:
+        return '2d'
+    elif skillID in ["101", "138", "14664"]:
+        return '2h'
+    elif skillID in ["365", "2699"]:
+        return '4p'
+    elif skillID in ["301", "367"]:
+        return '4m'
+    elif skillID in ["2707", "2716"]:
+        return '5d'
+    elif skillID in ["565", "554", "555"]:
+        return '5h'
+    elif skillID in ["2572"]:
+        return '1d'
+    elif skillID in ["2589", "246", "15195"]:
+        return '1t'
+    elif skillID in ["3979"]:
+        return '10d'
+    elif skillID in ["3980", "3982", "3985"]:
+        return '10t'
+    elif skillID in ["2210", "2211", "2227"]:
+        return '6d'
+    elif skillID in ["2232", "2233", "2957"]:
+        return '6h'
+    elif skillID in ["3098", "3096", "18672"]:
+        return '7p'
+    elif skillID in ["3357", "3111", "3109"]:
+        return '7m'
+    elif skillID in ["13391", "15072"]:
+        return '21t'
+    elif skillID in ["14067", "14298", "14302"]:
+        return '22d'
+    elif skillID in ["14231", "14140", "14301"]:
+        return '22h'
+    else:
+        return default
+        
+def checkOccDetailByBuff(default, buffID):
+    if buffID in ["14309"]:
+        return '21d'
+    else:
+        return default
 
 
 class BuffCounter():
@@ -350,6 +399,7 @@ class ActorStatGenerator(StatGeneratorBase):
     sideTargetID = {}
     guishouID = {}
     yingyuanHistory = {}
+    occDetailList = {}
 
     startTime = 0
     finalTime = 0
@@ -472,6 +522,12 @@ class ActorStatGenerator(StatGeneratorBase):
         self.firstHitList = {}
 
         self.toutianhuanri = 0
+        
+        occDetailList = {}
+        
+        for line in occdict:
+            if occdict[line][0] != '0':
+                occDetailList[line] = occdict[line][0]
 
         for line in sk:
             item = line[""]
@@ -525,12 +581,22 @@ class ActorStatGenerator(StatGeneratorBase):
                 if item[6] == "17440" and item[10] == '1':  # 偷天换日
                     self.toutianhuanri = 1
                     
+                if item[4] in occDetailList and occDetailList[item[4]] in ['1', '2', '3', '4', '5', '6', '7', '10', '21', '22']:
+                    occDetailList[item[4]] = checkOccDetailBySkill(occDetailList[item[4]], item[7], item[12])
+                    
             elif item[3] == "5":
                 if occdict[item[5]][0] != '0':
                     self.playerIDList[item[5]] = 0
+                if item[4] in occDetailList and occDetailList[item[4]] in ['21']:
+                    occDetailList[item[4]] = checkOccDetailByBuff(occDetailList[item[4]], item[6])
 
         for id in self.playerIDList:
             self.firstHitList[id] = 0
+            
+        self.occDetailList = occDetailList
+        
+        #for line in occDetailList:
+        #    print(line, namedict[line], occDetailList[line])
 
     def secondStageAnalysis(self):
         res = self.rawdata
@@ -539,6 +605,14 @@ class ActorStatGenerator(StatGeneratorBase):
         occdict = res['10'][0]
         skilldict = res['11'][0]
         sk = res['16'][0][""]
+        
+        if self.occDetailList != {}:
+            occDetailList = self.occDetailList
+        else:
+            occDetailList = {}
+            for line in occdict:
+                if occdict[line][0] != '0':
+                    occDetailList[line] = occdict[line][0]
 
         data = ActorData()
 
@@ -577,7 +651,28 @@ class ActorStatGenerator(StatGeneratorBase):
                         "3": 0.82,
                         "1": 0.78,
                         "5": 0.77,
-                        "4": 0.76}
+                        "4": 0.76,
+                        "21d": 0.95,
+                        "21t": 0.95,
+                        "9": 0.94,
+                        "6d": 0.88,
+                        "6h": 0.88,
+                        "7p": 0.83,
+                        "7m": 0.83,
+                        "2d": 0.87,
+                        "2h": 0.87,
+                        "22d": 0.85,
+                        "22h": 0.85,
+                        "10d": 0.82,
+                        "10t": 0.82,
+                        "3d": 0.82,
+                        "3t": 0.82,
+                        "1d": 0.78,
+                        "1t": 0.78,
+                        "5d": 0.77,
+                        "5h": 0.77,
+                        "4p": 0.76,
+                        "4m": 0.76}
 
         rateThreshold = {"0": 0,
                          "25": 0.87,
@@ -594,7 +689,28 @@ class ActorStatGenerator(StatGeneratorBase):
                          "3": 0.72,
                          "1": 0.69,
                          "5": 0.68,
-                         "4": 0.67}
+                         "4": 0.67,
+                        "21d": 0.95,
+                        "21t": 0.95,
+                        "9": 0.94,
+                        "6d": 0.88,
+                        "6h": 0.88,
+                        "7p": 0.83,
+                        "7m": 0.83,
+                        "2d": 0.87,
+                        "2h": 0.87,
+                        "22d": 0.85,
+                        "22h": 0.85,
+                        "10d": 0.82,
+                        "10t": 0.82,
+                        "3d": 0.82,
+                        "3t": 0.82,
+                        "1d": 0.78,
+                        "1t": 0.78,
+                        "5d": 0.77,
+                        "5h": 0.77,
+                        "4p": 0.76,
+                        "4m": 0.76}
 
         self.dps = {}
         self.deathName = {}
@@ -833,7 +949,7 @@ class ActorStatGenerator(StatGeneratorBase):
                             lockReason = "未知原因"
                         lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
                         self.potList.append([namedict[item[5]][0],
-                                             occdict[item[5]][0],
+                                             occDetailList[item[5]],
                                              1,
                                              self.bossNamePrint,
                                              "%s由于 %s 被锁" % (lockTime, lockReason)])
@@ -853,14 +969,14 @@ class ActorStatGenerator(StatGeneratorBase):
                     if item[6] == "17110" and item[10] == '1':
                         lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
                         self.potList.append([namedict[item[5]][0],
-                                             occdict[item[5]][0],
+                                             occDetailList[item[5]],
                                              0,
                                              self.bossNamePrint,
                                              "%s触发P1惩罚" % lockTime])
                     if item[6] == "17301" and item[10] == '1':
                         lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
                         self.potList.append([namedict[item[5]][0],
-                                             occdict[item[5]][0],
+                                             occDetailList[item[5]],
                                              0,
                                              self.bossNamePrint,
                                              "%s触发P2惩罚" % lockTime])
@@ -874,7 +990,7 @@ class ActorStatGenerator(StatGeneratorBase):
                             elif yingyuanTop[1] == 2:
                                 reason = "假粉"
                             self.potList.append([namedict[yingyuanTop[2]][0],
-                                                 occdict[yingyuanTop[2]][0],
+                                                 occDetailList[yingyuanTop[2]],
                                                  1,
                                                  self.bossNamePrint,
                                                  "%s应援按错(%s)" % (lockTime, reason)])
@@ -885,7 +1001,7 @@ class ActorStatGenerator(StatGeneratorBase):
                             lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
                             self.jingshenkuifa[item[5]] = 1
                             self.potList.append([namedict[item[5]][0],
-                                                 occdict[item[5]][0],
+                                                 occDetailList[item[5]],
                                                  0,
                                                  self.bossNamePrint,
                                                  "%s减疗叠加20层" % lockTime])
@@ -921,7 +1037,7 @@ class ActorStatGenerator(StatGeneratorBase):
                         deathSource = "推测为摔死"
 
                     self.potList.append([namedict[item[4]][0],
-                                         occdict[item[4]][0],
+                                         occDetailList[item[4]],
                                          severe,
                                          self.bossNamePrint,
                                          "%s重伤，来源：%s" % (deathTime, deathSource)])
@@ -1002,7 +1118,7 @@ class ActorStatGenerator(StatGeneratorBase):
                 yanyeResult[line][4] = int(paneltyDPS[line] / self.battleTime)
             for line in yanyeResult:
                 if yanyeResult[line][0] + yanyeResult[line][1] + yanyeResult[line][2] - yanyeResult[line][4] > 10000:
-                    yanyeResultList.append([namedict[line][0]] + [occdict[line][0]] + [yanyeResult[line][0] + yanyeResult[line][1] + yanyeResult[line][2] - yanyeResult[line][4]] + yanyeResult[line])
+                    yanyeResultList.append([namedict[line][0]] + [occDetailList[line]] + [yanyeResult[line][0] + yanyeResult[line][1] + yanyeResult[line][2] - yanyeResult[line][4]] + yanyeResult[line])
 
             yanyeResultList.sort(key=lambda x: -x[2])
 
@@ -1023,7 +1139,7 @@ class ActorStatGenerator(StatGeneratorBase):
                 baseTime = self.battleTime - disableTime / 1000
                 if self.dps[line][1] / baseTime > 10000:
                     chizhuResult.append([namedict[line][0],
-                                         occdict[line][0],
+                                         occDetailList[line],
                                          self.dps[line][1] / baseTime,
                                          disableTime / 1000,
                                          wushiTime / 1000,
@@ -1045,7 +1161,7 @@ class ActorStatGenerator(StatGeneratorBase):
                 originDPS = (self.dps[line][0] + self.dps[line][1] + self.dps[line][2]) / self.battleTime
                 if effectiveDPS > 10000:
                     baimouResult.append([namedict[line][0],
-                                         occdict[line][0],
+                                         occDetailList[line],
                                          effectiveDPS,
                                          self.dps[line][0] / (baseTime - 170.5),
                                          self.dps[line][1] / 170.5,
@@ -1082,7 +1198,7 @@ class ActorStatGenerator(StatGeneratorBase):
                     else:
                         xuelianStr += str(ch)
                 anxiaofengResult.append([namedict[line][0],
-                                         occdict[line][0],
+                                         occDetailList[line],
                                          originDPS,
                                          bossDPS,
                                          sideDPS,
@@ -1104,7 +1220,7 @@ class ActorStatGenerator(StatGeneratorBase):
                 if line in self.dps:
                     dps = self.dps[line][0] / self.battleTime
                     bossResult.append([namedict[line][0],
-                                       occdict[line][0],
+                                       occDetailList[line],
                                        dps
                                        ])
             effectiveDPSList = bossResult
@@ -1116,38 +1232,52 @@ class ActorStatGenerator(StatGeneratorBase):
             numDPS += 1
 
         averageDPS = sumDPS / (numDPS + 1e-10)
+        
+        if self.playerIDList != {}:
+            jparse = urllib.parse.urlencode(jpost).encode('utf-8')
+            resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadXiangZhiData', data=jparse)
+            res = json.load(resp)
+            if res['result'] == 'success':
+                resultDict = json.loads(res['statistics'])
+                sumStandardDPS = 0
+                
 
-        dpsIDList = {}
-
-        for i in range(len(effectiveDPSList) - 1, -1, -1):
-            line = effectiveDPSList[i]
-            occ = str(line[1])
-            rate1 = rateStandard[occ]
-            rate2 = rateThreshold[occ]
-            lineRate = line[2] / averageDPS
-            dpsIDList[line[0]] = 1
-            if lineRate < 0.1 or (line[0].strip('"') in self.deathName and lineRate < rate2):
-                sumDPS -= line[2]
-                numDPS -= 1
-                averageDPS = sumDPS / (numDPS + 1e-10)
-                dpsIDList[line[0]] = 0
-
-            elif lineRate < rate2:
-                self.potList.append([line[0],
-                                     line[1],
-                                     1,
-                                     self.bossNamePrint,
-                                     "有效DPS未到及格线(%s%%/%s%%)" % (parseCent(lineRate, 0), parseCent(rate2, 0))])
-                sumDPS -= line[2]
-                numDPS -= 1
-                averageDPS = sumDPS / (numDPS + 1e-10)
-
-            elif lineRate < rate1:
-                self.potList.append([line[0],
-                                     line[1],
-                                     0,
-                                     self.bossNamePrint,
-                                     "有效DPS低于预警线(%s%%/%s%%)" % (parseCent(lineRate, 0), parseCent(rate1, 0))])
+                for i in range(len(effectiveDPSList) - 1, -1, -1):
+                    line = effectiveDPSList[i]
+                    occ = str(line[1])
+                    if occ[-1] in ["d", "h", "t", "p", "m"]:
+                        occ = occ[:-1]
+                    sumStandardDPS += resultDict[occ]
+                    
+                for i in range(len(effectiveDPSList) - 1, -1, -1):  
+                    line = effectiveDPSList[i]
+                    occ = str(line[1])
+                    if occ[-1] in ["d", "h", "t", "p", "m"]:
+                        occ = occ[:-1]
+                    GORate = line[2] / sumDPS * sumStandardDPS / resultDict[occ]
+                
+                    if GORate < self.qualifiedRate:
+                        sumDPS -= line[2]
+                        numDPS -= 1
+                        sumStandardDPS -= resultDict[occ]
+                        if GORate > 0.1:
+                            self.potList.append([line[0],
+                                                 line[1],
+                                                 1,
+                                                 self.bossNamePrint,
+                                                 "团队-心法DPS未到及格线(%s%%/%s%%)" % (parseCent(GORate, 0), parseCent(self.qualifiedRate, 0))])
+                    elif GORate < self.alertRate:
+                        self.potList.append([line[0],
+                                             line[1],
+                                             0,
+                                             self.bossNamePrint,
+                                             "团队-心法DPS低于预警线(%s%%/%s%%)" % (parseCent(GORate, 0), parseCent(self.alertRate, 0))])
+                    elif GORate > self.bonusRate:
+                        self.potList.append([line[0],
+                                             line[1],
+                                             3,
+                                             self.bossNamePrint,
+                                             "团队-心法DPS达到补贴线(%s%%/%s%%)" % (parseCent(GORate, 0), parseCent(self.bonusRate, 0))])
 
         if self.firstHitList != {}:
             earliestHit = 0
@@ -1159,7 +1289,7 @@ class ActorStatGenerator(StatGeneratorBase):
                     continue
                 if earliestHit == 0 or self.firstHitList[name][0] < self.firstHitList[earliestHit][0]:
                     earliestHit = name
-                if (namedict[name][0] not in dpsIDList or dpsIDList[namedict[name][0]] == 0) and int(occdict[name][0]) in [1, 3, 10, 21]:
+                if occDetailList[name] in ["1t", "3t", "10t", "21t"]:
                     if earliestTankHit == 0 or self.firstHitList[name][0] < self.firstHitList[earliestTankHit][0]:
                         earliestTankHit = name
 
@@ -1173,7 +1303,7 @@ class ActorStatGenerator(StatGeneratorBase):
                 else:
                     hitName = self.firstHitList[earliestHit][2] + "(推测)"
                 self.potList = [[namedict[earliestHit][0],
-                                 occdict[earliestHit][0],
+                                 occDetailList[earliestHit],
                                  0,
                                  self.bossNamePrint,
                                  "提前开怪：%s" % hitName]] + self.potList
@@ -1181,7 +1311,7 @@ class ActorStatGenerator(StatGeneratorBase):
         self.data = data
         self.effectiveDPSList = effectiveDPSList
 
-    def __init__(self, filename, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0):
+    def __init__(self, filename, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}):
         self.myname = myname
         self.numTry = filename[1]
         self.lastTry = filename[2]
@@ -1195,6 +1325,9 @@ class ActorStatGenerator(StatGeneratorBase):
         else:
             self.bossNamePrint = "%s.%d" % (self.bossname, self.numTry)
         self.no1Hit = {}
+        self.qualifiedRate = dpsThreshold["qualifiedRate"]
+        self.alertRate = dpsThreshold["alertRate"]
+        self.bonusRate = dpsThreshold["bonusRate"]
 
 
 class XiangZhiStatGenerator(StatGeneratorBase):
@@ -1206,6 +1339,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
     speed = 3770
     shieldCounters = {}
     rumo = {}
+    occDetailList = {}
 
     def secondStageAnalysis(self):
         res = self.rawdata
@@ -1213,6 +1347,8 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         namedict = res['9'][0]
         occdict = res['10'][0]
         sk = res['16'][0][""]
+        
+        occDetailList = self.occDetailList
 
         data = XiangZhiData()
 
@@ -1312,7 +1448,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
 
         for i in range(len(data.damageList)):
             data.damageList[i].append(namedict[data.damageList[i][0]][0])
-            data.damageList[i].append(occdict[data.damageList[i][0]][0])
+            data.damageList[i].append(occDetailList[data.damageList[i][0]])
 
         sumdamage = 0
         numid = 0
@@ -1353,6 +1489,8 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                 continue
             if key not in data.damageDict or data.damageDict[key] / self.battleTime < 10000:
                 continue
+            if occDetailList[key] in ["1t", "2h", "3t", "5h", "10t", "6h", "21t", "22h"]:
+                continue
             if key == self.mykey:
                 continue
 
@@ -1387,6 +1525,12 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         namedict = res['9'][0]
         occdict = res['10'][0]
         sk = res['16'][0][""]
+        
+        occDetailList = {}
+        
+        for line in occdict:
+            if occdict[line][0] != '0':
+                occDetailList[line] = occdict[line][0]
 
         for key in namedict:
             if namedict[key][0] == '"尹青羲"':
@@ -1432,6 +1576,10 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                             shieldLogDict[item[5]] = [[int(item[2]), 1]]
                         else:
                             shieldLogDict[item[5]].append([int(item[2]), 1])
+                            
+                if item[4] in occDetailList and occDetailList[item[4]] in ['1', '2', '3', '4', '5', '6', '7', '10', '21', '22']:
+                    occDetailList[item[4]] = checkOccDetailBySkill(occDetailList[item[4]], item[7], item[12])
+
 
             elif item[3] == "5":
                 if item[6] in ["9334", "16911"]:  # buff梅花三弄
@@ -1443,6 +1591,8 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                     if item[5] not in jingshenkuifa:
                         jingshenkuifa[item[5]] = BuffCounter("17200", self.startTime, self.finalTime)
                     jingshenkuifa[item[5]].setState(int(item[2]), int(item[10]))
+                if item[4] in occDetailList and occDetailList[item[4]] in ['21']:
+                    occDetailList[item[4]] = checkOccDetailByBuff(occDetailList[item[4]], item[6])
 
             elif item[3] == "8":
                 if len(item) < 5:
@@ -1480,6 +1630,8 @@ class XiangZhiStatGenerator(StatGeneratorBase):
             if occdict[key] != 0 and key not in self.shieldCounters:
                 self.shieldCounters[key] = ShieldCounter([], self.startTime, self.finalTime)
                 self.shieldCounters[key].analysisShieldData()
+                
+        self.occDetailList = occDetailList
 
     def __init__(self, filename, myname, path="", rawdata={}):
         self.myname = myname
@@ -1989,7 +2141,7 @@ class XiangZhiScore():
             self.printTable.append([0, "总分", "%.1f" % sumScore])
             self.score = sumScore
             self.finalRate()
-        elif len(self.generator) in [4, 5] and self.map == "范阳夜变":
+        elif len(self.generator) == 5 and self.map == "范阳夜变":
             self.available = 1
             sumScore = 0
             for i in range(1, len(self.generator) + 1):
@@ -2073,6 +2225,8 @@ class ActorAnalysis():
     def getColor(self, occ):
         if self.color == 0:
             return (0, 0, 0)
+        if occ[-1] in ['d', 't', 'h', 'p', 'm']:
+            occ = occ[:-1]
         colorDict = {"0": (0, 0, 0),
                      "1": (210, 180, 0),  # 少林
                      "2": (127, 31, 223),  # 万花
@@ -2141,6 +2295,7 @@ class ActorAnalysis():
         fillblack = (0, 0, 0)
         fillgray = (127, 127, 127)
         fillred = (255, 0, 0)
+        fillblue = (0, 0, 255
         draw = ImageDraw.Draw(image)
 
         if self.text == 1:
@@ -2265,7 +2420,7 @@ class ActorAnalysis():
                 paint(draw, "%s" % line[9], 580, h, fontSmall, fillblack)
 
         write('\n')
-        paint(draw, "犯错记录", 550, 70, fontSmall, fillblack)
+        paint(draw, "事件记录", 550, 70, fontSmall, fillblack)
         h = 70
         for line in self.potList:
             h += 10
@@ -2273,6 +2428,8 @@ class ActorAnalysis():
             fill = fillblack
             if line[2] == 0:
                 fill = fillgray
+            elif line[2] == 3:
+                fill = fillblue
             paint(draw, "%s" % line[3], 610, h, fontSmall, fill)
             paint(draw, "%s" % line[4], 640, h, fontSmall, fill)
 
@@ -2333,7 +2490,8 @@ class ActorAnalysis():
 
     def loadData(self, fileList, path, raw):
         for filename in fileList:
-            res = ActorStatGenerator(filename, path, rawdata=raw[filename[0]], failThreshold=self.failThreshold, battleDate=self.battledate, mask=self.mask)
+            res = ActorStatGenerator(filename, path, rawdata=raw[filename[0]], failThreshold=self.failThreshold, 
+                battleDate=self.battledate, mask=self.mask, dpsThreshold=self.dpsThreshold)
             res.firstStageAnalysis()
             res.secondStageAnalysis()
             if res.win:
@@ -2349,6 +2507,9 @@ class ActorAnalysis():
         self.failThreshold = config.failThreshold
         self.map = map
         self.battledate = '-'.join(filelist[0][0].split('-')[0:3])
+        self.dpsThreshold = {"qualifiedRate": config.qualifiedRate,
+                             "alertRate": config.alertRate,
+                             "bonusRate": config.bonusRate}
         self.loadData(filelist, path, raw)
 
 
@@ -2873,12 +3034,17 @@ class Config():
             self.checkAll = int(self.items_actor["checkall"])
             self.failThreshold = int(self.items_actor["failthreshold"])
             self.xiangzhiPublic = int(self.items_xiangzhi["public"])
+            self.qualifiedRate = float(self.items_actor["qualifiedRate"])
+            self.alertRate = float(self.items_actor["alertrate"])
+            self.bonusRate = float(self.items_actor["bonusrate"])
             assert self.mask in [0, 1]
             assert self.color in [0, 1]
             assert self.text in [0, 1]
             assert self.xiangzhiActive in [0, 1]
             assert self.actorActive in [0, 1]
             assert self.checkAll in [0, 1]
+            assert self.qualifiedRate <= self.alertRate
+            assert self.alertRate <= self.bonusRate
         except:
             raise Exception("配置文件格式不正确，请确认。如无法定位问题，请删除config.ini，在生成的配置文件的基础上进行修改。")
 
@@ -2901,7 +3067,10 @@ public=0
 [ActorAnalysis]
 active=1
 checkall=0
-failthreshold=10""")
+failthreshold=10
+qualifiedrate=0.75
+alertrate=0.85
+bonusrate=1.20""")
         g.close()
         pass
 
