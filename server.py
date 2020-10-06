@@ -17,7 +17,7 @@ from painter import XiangZhiPainter
 
 version = "3.7.0"
 ip = "139.199.102.41"
-announcement = "欢迎使用剑三警长(jx3bla)，新功能开发中，敬请期待！"
+announcement = "3.7.0版本更新啦！本次更新优化了DPS的计算，可以通过大数据查到谁的DPS不够啦~"
 app = Flask(__name__) 
 app.config['JSON_AS_ASCII'] = False
 

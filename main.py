@@ -14,7 +14,7 @@ import functools
 
 from painter import XiangZhiPainter
 
-edition = "3.7.0beta"
+edition = "3.7.0"
 
 
 def parseLuatable(s, n, maxn):
@@ -506,6 +506,23 @@ class ActorStatGenerator(StatGeneratorBase):
         jpost = {'jdata': Jdata}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
         urllib.request.urlopen('http://139.199.102.41:8009/uploadActorData', data=jparse)
+        
+    def getMap(self):
+        mapid = self.rawdata['20'][0]
+        if mapid == "428":
+            self.mapDetail = "25人英雄敖龙岛"
+        elif mapid == "427":
+            self.mapDetail = "25人普通敖龙岛"
+        elif mapid == "426":
+            self.mapDetail = "10人普通敖龙岛"
+        elif mapid == "454":
+            self.mapDetail = "25人英雄范阳夜变"
+        elif mapid == "453":
+            self.mapDetail = "25人普通范阳夜变"
+        elif mapid == "452":
+            self.mapDetail = "10人普通范阳夜变"
+        else:
+            self.mapDetail = "未知"
 
     def firstStageAnalysis(self):
         res = self.rawdata
@@ -1234,11 +1251,14 @@ class ActorStatGenerator(StatGeneratorBase):
         averageDPS = sumDPS / (numDPS + 1e-10)
         
         if self.playerIDList != {}:
+            result = {"mapdetail": self.mapDetail, "boss": self.bossname}
+            Jdata = json.dumps(result)
+            jpost = {'jdata': Jdata}
             jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-            resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadXiangZhiData', data=jparse)
+            resp = urllib.request.urlopen('http://139.199.102.41:8009/getDpsStat', data=jparse)
             res = json.load(resp)
             if res['result'] == 'success':
-                resultDict = json.loads(res['statistics'])
+                resultDict = json.loads(res['statistics'].replace("'", '"'))
                 sumStandardDPS = 0
                 
 
@@ -1247,19 +1267,19 @@ class ActorStatGenerator(StatGeneratorBase):
                     occ = str(line[1])
                     if occ[-1] in ["d", "h", "t", "p", "m"]:
                         occ = occ[:-1]
-                    sumStandardDPS += resultDict[occ]
+                    sumStandardDPS += resultDict[occ][2]
                     
                 for i in range(len(effectiveDPSList) - 1, -1, -1):  
                     line = effectiveDPSList[i]
                     occ = str(line[1])
                     if occ[-1] in ["d", "h", "t", "p", "m"]:
                         occ = occ[:-1]
-                    GORate = line[2] / sumDPS * sumStandardDPS / resultDict[occ]
+                    GORate = line[2] / sumDPS * sumStandardDPS / resultDict[occ][2]
                 
                     if GORate < self.qualifiedRate:
                         sumDPS -= line[2]
                         numDPS -= 1
-                        sumStandardDPS -= resultDict[occ]
+                        sumStandardDPS -= resultDict[occ][2]
                         if GORate > 0.1:
                             self.potList.append([line[0],
                                                  line[1],
@@ -1325,9 +1345,11 @@ class ActorStatGenerator(StatGeneratorBase):
         else:
             self.bossNamePrint = "%s.%d" % (self.bossname, self.numTry)
         self.no1Hit = {}
-        self.qualifiedRate = dpsThreshold["qualifiedRate"]
-        self.alertRate = dpsThreshold["alertRate"]
-        self.bonusRate = dpsThreshold["bonusRate"]
+        if dpsThreshold != {}:
+            self.qualifiedRate = dpsThreshold["qualifiedRate"]
+            self.alertRate = dpsThreshold["alertRate"]
+            self.bonusRate = dpsThreshold["bonusRate"]
+        self.getMap()
 
 
 class XiangZhiStatGenerator(StatGeneratorBase):
@@ -2295,7 +2317,7 @@ class ActorAnalysis():
         fillblack = (0, 0, 0)
         fillgray = (127, 127, 127)
         fillred = (255, 0, 0)
-        fillblue = (0, 0, 255
+        fillblue = (0, 0, 255)
         draw = ImageDraw.Draw(image)
 
         if self.text == 1:
@@ -3034,7 +3056,7 @@ class Config():
             self.checkAll = int(self.items_actor["checkall"])
             self.failThreshold = int(self.items_actor["failthreshold"])
             self.xiangzhiPublic = int(self.items_xiangzhi["public"])
-            self.qualifiedRate = float(self.items_actor["qualifiedRate"])
+            self.qualifiedRate = float(self.items_actor["qualifiedrate"])
             self.alertRate = float(self.items_actor["alertrate"])
             self.bonusRate = float(self.items_actor["bonusrate"])
             assert self.mask in [0, 1]
