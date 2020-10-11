@@ -33,7 +33,7 @@ def start_live():
     fileLookUp = FileLookUp()
     fileLookUp.initFromConfig(config)
     var.set("准备完成！基准目录为：%s"%fileLookUp.basepath)
-    liveListener = LiveListener(fileLookUp.basepath)
+    liveListener = LiveListener(fileLookUp.basepath, config)
     liveListener.startListen()
     
     
