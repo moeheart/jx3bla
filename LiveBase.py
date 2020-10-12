@@ -10,8 +10,17 @@ from ActorReplay import ActorStatGenerator
 
 class SingleBossWindow():
 
-    def getPot(self):
+    def getPot(self, tmp, num):
         print("Pot!")
+        print(tmp)
+        print(num)
+        self.scoreList[tmp] += num
+        if self.scoreList[tmp] > 0:
+            self.var.set("+%d"%self.scoreList[tmp])
+        elif self.scoreList[tmp] < 0:
+            self.var.set("%d"%self.scoreList[tmp])
+        else:
+            self.var.set("")
         
     def getColor(self, occ):
         if occ[-1] in ['d', 't', 'h', 'p', 'm']:
@@ -52,6 +61,15 @@ class SingleBossWindow():
         window = tk.Tk()
         window.title('战斗复盘')
         window.geometry('500x700')
+        
+        self.var = []
+        self.scoreList = []
+        self.var = tk.StringVar()
+        self.var.set("111")
+        
+        var = tk.StringVar()
+        var.set("111")
+        
         for i in range(len(self.potList)):
             line = self.potList[i]
             name = line[0].strip('"')
@@ -60,13 +78,23 @@ class SingleBossWindow():
             nameLabel = tk.Label(window, text=name, height=1, fg=color)
             nameLabel.grid(row=i, column=0)
             pot = line[4]
-            color = self.getPotColor(line[3])
+            color = self.getPotColor(line[2])
             potLabel = tk.Label(window, text=pot, height=1, fg=color)
             potLabel.grid(row=i, column=1)
-            button1 = tk.Button(window, text='接锅', width=6, height=1, command=self.getPot)
-            button1.grid(row=i, column=2)
-            button2 = tk.Button(window, text='领赏', width=6, height=1, command=self.getPot)
-            button2.grid(row=i, column=3)
+            
+            #self.var.append(tk.StringVar())
+            #self.var[i].set("111")
+            scoreLabel = tk.Label(window, textvariable=var, width=10, height=1)
+            scoreLabel.grid(row=i, column=2)
+            
+            tmp = i
+            button1 = tk.Button(window, text='接锅', width=6, height=1, command=lambda tmp=tmp: self.getPot(tmp, -1))
+            button1.grid(row=i, column=3)
+            button2 = tk.Button(window, text='领赏', width=6, height=1, command=lambda tmp=tmp: self.getPot(tmp, 1))
+            button2.grid(row=i, column=4)
+            
+            self.scoreList.append(0)
+            
         window.mainloop()
 
     def start(self):

@@ -974,6 +974,9 @@ class XiangZhiScore():
         elif self.map == "范阳夜变":
             self.bossDict = {"周贽": 1, "厌夜": 2, "迟驻": 3, "白某": 4, "安小逢": 5}
             self.bossDictR = ["", "周贽", "厌夜", "迟驻", "白某", "安小逢"]
+        elif self.map == "达摩洞":
+            self.bossDict = {"余晖": 1, "宓桃": 2, "武雪散": 3, "猿飞": 4, "哑头陀": 5, "岳琳": 6}
+            self.bossDictR = ["", "余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳"]
 
 
 class RawDataParser():
