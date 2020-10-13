@@ -11,16 +11,16 @@ from ActorReplay import ActorStatGenerator
 class SingleBossWindow():
 
     def getPot(self, tmp, num):
-        print("Pot!")
-        print(tmp)
-        print(num)
         self.scoreList[tmp] += num
+        scoreStr = ""
+        scoreColor = "#000000"
         if self.scoreList[tmp] > 0:
-            self.var.set("+%d"%self.scoreList[tmp])
+            scoreStr = "+%d"%self.scoreList[tmp]
+            scoreColor = "#007700"
         elif self.scoreList[tmp] < 0:
-            self.var.set("%d"%self.scoreList[tmp])
-        else:
-            self.var.set("")
+            scoreStr = "%d"%self.scoreList[tmp]
+            scoreColor = "#ff0000"
+        self.scoreLabels[tmp].config(text=scoreStr, fg=scoreColor)
         
     def getColor(self, occ):
         if occ[-1] in ['d', 't', 'h', 'p', 'm']:
@@ -60,37 +60,41 @@ class SingleBossWindow():
     def loadWindow(self):
         window = tk.Tk()
         window.title('战斗复盘')
-        window.geometry('500x700')
+        window.geometry('600x700')
         
-        self.var = []
+        canvas=tk.Canvas(window,width=550,height=500,scrollregion=(0,0,530,1000)) #创建canvas
+        canvas.place(x = 25, y = 25) #放置canvas的位置
+        frame=tk.Frame(canvas) #把frame放在canvas里
+        frame.place(width=530, height=500) #frame的长宽，和canvas差不多的
+        vbar=tk.Scrollbar(canvas,orient=tk.VERTICAL) #竖直滚动条
+        vbar.place(x = 530,width=20,height=500)
+        vbar.configure(command=canvas.yview)
+        canvas.config(yscrollcommand=vbar.set) #设置  
+        canvas.create_window((265,200), window=frame)  #create_window
+        
+        self.scoreLabels = []
         self.scoreList = []
-        self.var = tk.StringVar()
-        self.var.set("111")
-        
-        var = tk.StringVar()
-        var.set("111")
         
         for i in range(len(self.potList)):
             line = self.potList[i]
             name = line[0].strip('"')
             occ = line[1]
             color = self.getColor(occ)
-            nameLabel = tk.Label(window, text=name, height=1, fg=color)
+            nameLabel = tk.Label(frame, text=name, height=1, fg=color)
             nameLabel.grid(row=i, column=0)
             pot = line[4]
             color = self.getPotColor(line[2])
-            potLabel = tk.Label(window, text=pot, height=1, fg=color)
+            potLabel = tk.Label(frame, text=pot, height=1, fg=color)
             potLabel.grid(row=i, column=1)
             
-            #self.var.append(tk.StringVar())
-            #self.var[i].set("111")
-            scoreLabel = tk.Label(window, textvariable=var, width=10, height=1)
+            scoreLabel = tk.Label(frame, text="", width=10, height=1, font=("Arial", 12, "bold"))
             scoreLabel.grid(row=i, column=2)
+            self.scoreLabels.append(scoreLabel)
             
             tmp = i
-            button1 = tk.Button(window, text='接锅', width=6, height=1, command=lambda tmp=tmp: self.getPot(tmp, -1))
+            button1 = tk.Button(frame, text='接锅', width=6, height=1, command=lambda tmp=tmp: self.getPot(tmp, -1))
             button1.grid(row=i, column=3)
-            button2 = tk.Button(window, text='领赏', width=6, height=1, command=lambda tmp=tmp: self.getPot(tmp, 1))
+            button2 = tk.Button(frame, text='领赏', width=6, height=1, command=lambda tmp=tmp: self.getPot(tmp, 1))
             button2.grid(row=i, column=4)
             
             self.scoreList.append(0)
