@@ -255,6 +255,8 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                             data.battlestat[item[4]] = [0, 0, 0]
                         if int(item[7]) >= 21827 and int(item[7]) <= 21831:  # 桑柔
                             data.battlestat[item[4]][2] += int(item[14])
+                        elif int(item[7]) == 25232 and item[4] == self.mykey:
+                            data.battlestat[item[4]][2] += int(item[14])
                         else:
                             hasShield = self.shieldCounters[item[4]].checkTime(int(item[2]))
                             data.battlestat[item[4]][hasShield] += int(item[14])
@@ -277,13 +279,18 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         data.sumSpareTime = skillCounter.sumSpareTime
         data.spareRate = data.sumSpareTime / (data.sumBusyTime + data.sumSpareTime + 1e-10)
 
-        numdam = 0
+        numdam1 = 0
         for key in data.battlestat:
             if int(occdict[key][0]) == 0:
                 continue
             line = data.battlestat[key]
             data.damageDict[key] = line[0] + line[1] / 1.117
-            numdam += line[1] / 1.117 * 0.117 + line[2]
+            numdam1 += line[1] / 1.117 * 0.117# + line[2]
+            #data.damageDict[key] = line[0] + line[1] / 1.0554 # 110赛季数值
+            #numdam1 += line[1] / 1.0554 * 0.0554# + line[2]
+        numdam2 = data.battlestat[self.mykey][2]
+        #print(numdam1, numdam2)
+        numdam = numdam1 + numdam2
 
         if self.mykey not in data.damageDict:
             data.damageDict[self.mykey] = numdam
@@ -1155,7 +1162,7 @@ class XiangZhiAnalysis():
             elif mapid == "426":
                 self.mapdetail = "10人普通"
             else:
-                self.mapdetail = "未知"
+                self.mapdetail = "未知   "
 
         if self.map == "范阳夜变":
             self.hardBOSS = "安小逢"
@@ -1178,7 +1185,13 @@ class XiangZhiAnalysis():
             elif mapid == "452":
                 self.mapdetail = "10人普通"
             else:
-                self.mapdetail = "未知"
+                self.mapdetail = "未知   "
+                
+        if self.map == "达摩洞":
+            self.hardBOSS = "未知"
+            self.hardNPC = "未知"
+            self.hitDict = {}
+            self.mapdetail = "未知   "
 
         data = XiangZhiOverallData()
 

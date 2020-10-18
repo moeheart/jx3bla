@@ -66,6 +66,9 @@ class XiangZhiPainter():
                        "b17301": "不听话的小孩子",
                       }
             self.allBoss = ["周贽", "厌夜", "迟驻", "白某", "安小逢"]
+        elif self.map == "达摩洞":
+            self.hitDict = {}
+            self.allBoss = ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳"]
             
     def getScoreInfo(self, score):
         rateScale = [[100, 0, "A+", "不畏浮云遮望眼，只缘身在最高层。"],
@@ -169,6 +172,8 @@ class XiangZhiPainter():
         mapDetail = info["mapdetail"]
         difficulty = mapDetail[:5]
         self.map = mapDetail[5:]
+        
+        print(info["mapdetail"])
         
         self.speed = 3770
         

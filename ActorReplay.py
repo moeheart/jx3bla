@@ -73,6 +73,15 @@ class ActorStatGenerator(StatGeneratorBase):
                     "迟驻": 3,
                     "白某": 4,
                     "安小逢": 5,
+                    "余晖": 1, 
+                    "宓桃": 2, 
+                    "武雪散": 3, 
+                    "猿飞": 4, 
+                    "哑头陀": 5, 
+                    "岳琳": 6,
+                    "毗流驮迦": 5, 
+                    "毗留博叉": 5, 
+                    "充能核心": 5,
                     }
 
     def getMaskName(self, name):
@@ -945,7 +954,7 @@ class ActorStatGenerator(StatGeneratorBase):
             # if earliestTankHit != 0:
             #    print(earliestTankHit, self.firstHitList[earliestTankHit])
 
-            if earliestTankHit == 0 or self.firstHitList[earliestTankHit][0] - 500 > self.firstHitList[earliestHit][0]:
+            if earliestHit != 0 and (earliestTankHit == 0 or self.firstHitList[earliestTankHit][0] - 500 > self.firstHitList[earliestHit][0]):
                 if self.firstHitList[earliestHit][2] == "":
                     hitName = self.firstHitList[earliestHit][1]
                 else:

@@ -1,50 +1,125 @@
 import tkinter as tk
+from tkinter import messagebox
 import threading
+from PIL import Image
 from main import replay_by_window
+import re
+import os
+import time
 
 from FileLookUp import FileLookUp
 from ConfigTools import Config
-from LiveBase import LiveListener
+from LiveBase import LiveListener, AllStatWindow, LiveActorAnalysis
 
-window = tk.Tk()
-window.title('剑三警长')
-window.geometry('300x200')
+class MainWindow():
 
-var = tk.StringVar()
+    def closeWindow(self):
+        ans = messagebox.askyesno(title='提示', message='确定要关闭吗？')
+        if ans:
+            self.window.destroy()
+        else:
+            return
 
-l = tk.Label(window, text='剑三警长', font=('Arial', 24), width=30, height=2)
-l.pack()
+    def replay(self):
+        replay_by_window()
+        self.var.set("复盘完成！")
 
-def replay():
-    replay_by_window()
-    var.set("复盘完成！")
+    def start_replay(self):
+        self.var.set("复盘中，请稍候……（时间较久，请耐心等待）")
+        refreshThread = threading.Thread(target = self.replay)    
+        refreshThread.start()
+        
+    def check_live(self):
+        if False: # 调试入口
+            file = open("%s/config.jx3dat"%self.fileLookUp.basepath, "r")
+            s = file.read()
+            file.close()
+            s = re.sub(r'^(.*)bRecEverything=.{4,5}(.*)bSaveEverything1?=.{4,5}(.*)$', "\\1bRecEverything=false\\2bSaveEverything=false\\3", s)
+            file = open("%s/config.jx3dat"%self.fileLookUp.basepath, "w")
+            file.write(s)
+            file.close()
+        while(True): # 调试入口
+            break
+            time.sleep(3)
+            try:
+                file = open("%s/config.jx3dat"%self.fileLookUp.basepath, "r")
+                s = file.read()
+                res = re.search(r'bRecEverything=(.{4,5}).*bSaveHistoryOnExFi=(.{4,5}).*bSaveEverything1?=(.{4,5})', s)
+                file.close()
+                if res:
+                    if res.group(1) == "false":
+                        self.var.set("请勾选[记录所有复盘数据]。")
+                    elif res.group(3) == "false":
+                        self.var.set("请取消[不保存历史复盘数据]。")
+                    elif res.group(2) == "false":
+                        self.var.set("请勾选[脱离战斗时保存数据]。")
+                    else:
+                        break
+            except:
+                print("文件读取错误，稍后重试……")
+        self.var.set("选项设置完成，开始实时模式……")
+        
+        liveListener = LiveListener(self.fileLookUp.basepath, self.config, self.analyser)
+        liveListener.startListen()
+        
+    def start_live(self):
+        if not self.startLive:
+            #try:
+            config = Config("config.ini")
+            #except:
+            #    var.set("配置文件错误，请按指示设置")
+            #    return
+            self.startLive = True
+            fileLookUp = FileLookUp()
+            fileLookUp.initFromConfig(config)
+            
+            self.config = config
+            self.fileLookUp = fileLookUp
+            
+            l = os.listdir(fileLookUp.basepath)
+            if "config.jx3dat" not in l and False: # 调试入口
+                self.var.set("实时模式需要设置路径为实时路径。")
+                self.startLive = False
+            else:
+                self.var.set("请在游戏中设置复盘选项，才能开启实时模式。")
+                self.listenThread = threading.Thread(target = self.check_live)
+                self.listenThread.start()
+        
+    def show_history(self):
+        allStatWindow = AllStatWindow(self.analyser)
+        allStatWindow.start()
+        
+    def loadWindow(self):
+        window = tk.Tk()
+        window.title('剑三警长')
+        window.geometry('300x200')
 
-def start_replay():
-    var.set("复盘中，请稍候……（时间较久，请耐心等待）")
-    refreshThread = threading.Thread(target = replay)    
-    refreshThread.start()
-    
-def start_live():
-    #try:
-    config = Config("config.ini")
-    #except:
-    #    var.set("配置文件错误，请按指示设置")
-    #    return
-    fileLookUp = FileLookUp()
-    fileLookUp.initFromConfig(config)
-    var.set("准备完成！基准目录为：%s"%fileLookUp.basepath)
-    liveListener = LiveListener(fileLookUp.basepath, config)
-    liveListener.startListen()
-    
-    
+        self.var = tk.StringVar()
 
-b1 = tk.Button(window, text='复盘模式', bg='#ccffcc', width=12, height=1, command=start_replay)
-b1.pack()
-b1 = tk.Button(window, text='实时模式', bg='#ffcccc', width=12, height=1, command=start_live)
-b1.pack()
+        l = tk.Label(window, text='剑三警长', font=('Arial', 24), width=30, height=2)
+        l.pack()
 
-l = tk.Label(window, textvariable=var, width=40, height=1)
-l.pack()
+        b1 = tk.Button(window, text='复盘模式', bg='#ccffcc', width=12, height=1, command=self.start_replay)
+        b1.pack()
+        b2 = tk.Button(window, text='实时模式', bg='#ffcccc', width=12, height=1, command=self.start_live)
+        b2.pack()
 
-window.mainloop()
+        l = tk.Label(window, textvariable=self.var, width=40, height=1)
+        l.pack()
+        
+        b3 = tk.Button(window, text='分锅结果', height=1, command=self.show_history)
+        b3.place(x = 200, y = 160)
+        
+        self.window = window
+
+        window.protocol('WM_DELETE_WINDOW', self.closeWindow)
+        window.mainloop()
+        
+    def __init__(self):
+        self.analyser = LiveActorAnalysis()
+        self.startLive = False
+        
+if __name__ == "__main__":
+    mainWindow = MainWindow()
+    mainWindow.loadWindow()
 
