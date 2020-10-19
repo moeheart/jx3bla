@@ -9,6 +9,51 @@ from win10toast import ToastNotifier
 
 from ActorReplay import ActorStatGenerator
 
+class ToolTip(object):
+    def __init__(self, widget):
+        self.widget = widget
+        self.tipwindow = None
+        self.id = None
+        self.x = self.y = 0
+ 
+    def showtip(self, text):
+        "Display text in tooltip window"
+        self.text = text
+        if self.tipwindow or not self.text:
+            return
+        x, y, _cx, cy = self.widget.bbox("insert")
+        x = x + self.widget.winfo_rootx() + 27
+        y = y + cy + self.widget.winfo_rooty() +27
+        self.tipwindow = tw = tk.Toplevel(self.widget)
+        tw.wm_overrideredirect(1)
+        tw.wm_geometry("+%d+%d" % (x, y))
+ 
+        self.label = tk.Label(tw, text=self.text, justify=tk.LEFT,
+                      background="#ffffe0", relief=tk.SOLID, borderwidth=1,
+                      font=("Aaril", "8", "normal"))
+        self.label.pack(ipadx=1)
+ 
+    def hidetip(self):
+        tw = self.tipwindow
+        self.tipwindow = None
+        if tw:
+            tw.destroy()
+
+    def createToolTip(self, widget, text):
+        toolTip = ToolTip(widget)
+        def enter(event):
+            toolTip.showtip(text)
+        def leave(event):
+            toolTip.hidetip()
+        widget.bind('<Enter>', enter)
+        widget.bind('<Leave>', leave)
+        
+    def modifyText(self, text):
+        self.label.configure(text=text)
+        
+    def __init__(self, widget, text):
+        self.createToolTip(widget, text)
+
 class SingleBossWindow():
         
     def getColor(self, occ):
@@ -72,7 +117,7 @@ class SingleBossWindow():
         for i in range(len(self.potList)):
             self.potListScore.append(self.potList[i] + [self.scoreList[i]])
         print(self.potListScore)
-        self.analyser.addResult(self.potListScore)
+        self.analyser.changeResult(self.potListScore)
         self.window.destroy()
 
     def loadWindow(self):
@@ -98,6 +143,11 @@ class SingleBossWindow():
         self.scoreLabels = []
         self.scoreList = []
         
+        self.potListScore = []
+        for i in range(len(self.potList)):
+            self.potListScore.append(self.potList[i] + [0])
+        self.analyser.addResult(self.potListScore)
+        
         for i in range(numPot):
             line = self.potList[i]
             name = line[0].strip('"')
@@ -119,6 +169,8 @@ class SingleBossWindow():
             button1.grid(row=i, column=3)
             button2 = tk.Button(frame, text='领赏', width=6, height=1, command=lambda tmp=tmp: self.getPot(tmp, 1), bg='#ccffcc')
             button2.grid(row=i, column=4)
+            
+            self.getPlayerText(name)
             
             self.scoreList.append(0)
             
@@ -179,7 +231,25 @@ class LiveActorAnalysis():
                 playerPot[line[0]]["numPositive"] += line[-1]
             elif line[-1] < 0:
                 playerPot[line[0]]["numNegative"] += line[-1]
+        self.playerPotList = playerPot
         return playerPot
+        
+    def getPlayerText(self, player):
+        first = 1
+        s = ""
+        if player in self.playerPotList:
+            for line in self.playerPotList[player]["pot"]:
+                if first:
+                    first = 0
+                else:
+                    s += '\n'
+                s += "%s %s %s"%(line[2], line[3], str(line[4]))
+            
+        return s
+        
+    def changeResult(self, potListScore):
+        del self.potListScore[-len(potListScore):]
+        self.potListScore.extend(potListScore)
 
     def addResult(self, potListScore):
         self.potListScore.extend(potListScore)

@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import messagebox
 import threading
 from PIL import Image
-from main import replay_by_window
 import re
 import os
 import time
@@ -10,6 +9,7 @@ import time
 from FileLookUp import FileLookUp
 from ConfigTools import Config
 from LiveBase import LiveListener, AllStatWindow, LiveActorAnalysis
+from main import replay_by_window
 
 class MainWindow():
 
