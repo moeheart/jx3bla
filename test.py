@@ -7,8 +7,9 @@ import re
 import os
 import time
 
+
 class ToolTip(object):
-    def __init__(self, widget):
+    def build(self, widget):
         self.widget = widget
         self.tipwindow = None
         self.id = None
@@ -26,10 +27,10 @@ class ToolTip(object):
         tw.wm_overrideredirect(1)
         tw.wm_geometry("+%d+%d" % (x, y))
  
-        label = tk.Label(tw, text=self.text, justify=tk.LEFT,
+        self.label = tk.Label(tw, text=self.text, justify=tk.LEFT,
                       background="#ffffe0", relief=tk.SOLID, borderwidth=1,
                       font=("Aaril", "8", "normal"))
-        label.pack(ipadx=1)
+        self.label.pack(ipadx=1)
  
     def hidetip(self):
         tw = self.tipwindow
@@ -37,27 +38,46 @@ class ToolTip(object):
         if tw:
             tw.destroy()
 
-def createToolTip(widget, text):
-    toolTip = ToolTip(widget)
-    def enter(event):
-        toolTip.showtip(text)
-    def leave(event):
-        toolTip.hidetip()
-    widget.bind('<Enter>', enter)
-    widget.bind('<Leave>', leave)
-
+    def createToolTip(self, widget, text):
+        toolTip = self.build(widget)
+        def enter(event):
+            self.showtip(text)
+        def leave(event):
+            self.hidetip()
+        widget.bind('<Enter>', enter)
+        widget.bind('<Leave>', leave)
+        
+    def modifyText(self, text):
+        self.label.configure(text=text)
+        
+    def __init__(self, widget, text):
+        self.createToolTip(widget, text)
+        
 window = tk.Tk()
 window.title('test')
 window.geometry('300x200')
 
-l = tk.Label(window, text='文本', width=30, height=1)
+canvas=tk.Canvas(window,width=550,height=500,scrollregion=(0,0,530,250)) #创建canvas
+canvas.place(x = 25, y = 25) #放置canvas的位置
+frame=tk.Frame(canvas) #把frame放在canvas里
+frame.place(width=530, height=500) #frame的长宽，和canvas差不多的
+vbar=tk.Scrollbar(canvas,orient=tk.VERTICAL) #竖直滚动条
+vbar.place(x = 530,width=20,height=500)
+vbar.configure(command=canvas.yview)
+canvas.config(yscrollcommand=vbar.set) #设置  
+canvas.create_window((265,125), window=frame)  #create_window
+
+
+l = tk.Label(frame, text='文本', width=30, height=1)
 l.pack()
 
-b1 = tk.Button(window, text='按钮', bg='#ccffcc', width=12, height=1)
+b1 = tk.Button(frame, text='按钮', bg='#ccffcc', width=12, height=1)
 b1.pack()
 
-createToolTip(l, '你知道的太多了')
-createToolTip(b1, '你知道的太多了\n两行！')
+
+
+ToolTip(l, '你知道的太多了')
+ToolTip(b1, '你知道的太多了\n两行！')
 
 window.mainloop()
 

@@ -18,7 +18,7 @@ from ReplayBase import StatGeneratorBase
 from Functions import *
 from Constants import *
 
-edition = "3.7.0"
+edition = EDITION
 
 class ShieldCounter():
     shieldLog = []

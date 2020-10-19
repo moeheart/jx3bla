@@ -30,7 +30,7 @@ class MainWindow():
         refreshThread.start()
         
     def check_live(self):
-        if False: # 调试入口
+        if True: # 调试入口
             file = open("%s/config.jx3dat"%self.fileLookUp.basepath, "r")
             s = file.read()
             file.close()
@@ -39,7 +39,7 @@ class MainWindow():
             file.write(s)
             file.close()
         while(True): # 调试入口
-            break
+            #break
             time.sleep(3)
             try:
                 file = open("%s/config.jx3dat"%self.fileLookUp.basepath, "r")
@@ -58,6 +58,8 @@ class MainWindow():
             except:
                 print("文件读取错误，稍后重试……")
         self.var.set("选项设置完成，开始实时模式……")
+        toaster = ToastNotifier()
+        toaster.show_toast("选项设置完成", "选项验证正确，可以在游戏中开战并分锅啦~")
         
         liveListener = LiveListener(self.fileLookUp.basepath, self.config, self.analyser)
         liveListener.startListen()
@@ -77,7 +79,7 @@ class MainWindow():
             self.fileLookUp = fileLookUp
             
             l = os.listdir(fileLookUp.basepath)
-            if "config.jx3dat" not in l and False: # 调试入口
+            if "config.jx3dat" not in l:# and False: # 调试入口
                 self.var.set("实时模式需要设置路径为实时路径。")
                 self.startLive = False
             else:

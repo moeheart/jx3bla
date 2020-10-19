@@ -2,6 +2,7 @@ from PIL import Image, ImageFont, ImageDraw
 import numpy as np
 import time
 import os
+from Constants import *
 
 def parseTime(time):
     if time < 60:
@@ -496,3 +497,4 @@ class XiangZhiPainter():
     def __init__(self, printint = 1):
         self.scoreRate = None
         self.printint = printint
+        self.edition = EDITION

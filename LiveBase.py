@@ -10,7 +10,7 @@ from win10toast import ToastNotifier
 from ActorReplay import ActorStatGenerator
 
 class ToolTip(object):
-    def __init__(self, widget):
+    def build(self, widget):
         self.widget = widget
         self.tipwindow = None
         self.id = None
@@ -28,7 +28,7 @@ class ToolTip(object):
         tw.wm_overrideredirect(1)
         tw.wm_geometry("+%d+%d" % (x, y))
  
-        self.label = tk.Label(tw, text=self.text, justify=tk.LEFT,
+        self.label = tk.Label(tw, text=text, justify=tk.LEFT,
                       background="#ffffe0", relief=tk.SOLID, borderwidth=1,
                       font=("Aaril", "8", "normal"))
         self.label.pack(ipadx=1)
@@ -40,16 +40,18 @@ class ToolTip(object):
             tw.destroy()
 
     def createToolTip(self, widget, text):
-        toolTip = ToolTip(widget)
+        toolTip = self.build(widget)
         def enter(event):
-            toolTip.showtip(text)
+            self.showtip(text)
         def leave(event):
-            toolTip.hidetip()
+            self.hidetip()
+        self.widget = widget
         widget.bind('<Enter>', enter)
         widget.bind('<Leave>', leave)
         
-    def modifyText(self, text):
-        self.label.configure(text=text)
+    def remove(self):
+        self.widget.unbind('<Enter>')
+        self.widget.unbind('<Leave>')
         
     def __init__(self, widget, text):
         self.createToolTip(widget, text)
@@ -109,6 +111,15 @@ class SingleBossWindow():
             scoreColor = "#ff0000"
         self.scoreLabels[tmp].config(text=scoreStr, fg=scoreColor)
         
+        self.analyser.potListScore[-self.numPot + tmp][-1] = self.scoreList[tmp]
+        self.analyser.getPlayerPotList()
+        
+        text = self.analyser.getPlayerText(self.nameList[tmp])
+        self.toolTips[tmp].remove()
+        toopTip = ToolTip(self.toolTips[tmp].widget, text)
+        self.toolTips[tmp] = toopTip
+        
+        
     def final(self):
         '''
         收集分锅结果并关闭窗口。
@@ -116,7 +127,6 @@ class SingleBossWindow():
         self.potListScore = []
         for i in range(len(self.potList)):
             self.potListScore.append(self.potList[i] + [self.scoreList[i]])
-        print(self.potListScore)
         self.analyser.changeResult(self.potListScore)
         self.window.destroy()
 
@@ -125,10 +135,12 @@ class SingleBossWindow():
         使用tkinter绘制复盘窗口。
         '''
         window = tk.Toplevel()
+        #window = tk.Tk()
         window.title('战斗复盘')
         window.geometry('600x700')
         
         numPot = len(self.potList)
+        self.numPot = numPot
         
         canvas=tk.Canvas(window,width=550,height=500,scrollregion=(0,0,530,numPot*30)) #创建canvas
         canvas.place(x = 25, y = 25) #放置canvas的位置
@@ -142,11 +154,15 @@ class SingleBossWindow():
         
         self.scoreLabels = []
         self.scoreList = []
+        self.toolTips = []
+        self.nameList = []
         
         self.potListScore = []
         for i in range(len(self.potList)):
             self.potListScore.append(self.potList[i] + [0])
         self.analyser.addResult(self.potListScore)
+        
+        self.analyser.getPlayerPotList()
         
         for i in range(numPot):
             line = self.potList[i]
@@ -170,8 +186,11 @@ class SingleBossWindow():
             button2 = tk.Button(frame, text='领赏', width=6, height=1, command=lambda tmp=tmp: self.getPot(tmp, 1), bg='#ccffcc')
             button2.grid(row=i, column=4)
             
-            self.getPlayerText(name)
             
+            text = self.analyser.getPlayerText(name)
+            toopTip = ToolTip(nameLabel, text)
+            self.toolTips.append(toopTip)
+            self.nameList.append(name)
             self.scoreList.append(0)
             
         buttonFinal = tk.Button(window, text='分锅完成', width=10, height=1, command=self.final)
@@ -218,19 +237,20 @@ class LiveActorAnalysis():
         playerList.sort(key = lambda x:x[1])
         playerListSort = []
         for line in playerList:
-            playerListSort.append(line[0])
+            playerListSort.append(line[0].strip('"'))
         return playerListSort
 
     def getPlayerPotList(self):
         playerPot = {}
         for line in self.potListScore:
-            if line[0] not in playerPot:
-                playerPot[line[0]] = {"occ": line[1], "numPositive": 0, "numNegative": 0, "pot": []}
-            playerPot[line[0]]["pot"].append([line[1:]])
+            name = line[0].strip('"')
+            if name not in playerPot:
+                playerPot[name] = {"occ": line[1], "numPositive": 0, "numNegative": 0, "pot": []}
+            playerPot[name]["pot"].append(line[1:])
             if line[-1] > 0:
-                playerPot[line[0]]["numPositive"] += line[-1]
+                playerPot[name]["numPositive"] += line[-1]
             elif line[-1] < 0:
-                playerPot[line[0]]["numNegative"] += line[-1]
+                playerPot[name]["numNegative"] += line[-1]
         self.playerPotList = playerPot
         return playerPot
         
@@ -306,7 +326,6 @@ class LiveListener():
                 self.getNewBattleLog(basepath, lastFile)
             #while(True):
             #    time.sleep(5)
-            #time.sleep(987654)
 
     def startListen(self):
         '''
@@ -393,7 +412,10 @@ class AllStatWindow():
         
         i = 0
         
+        self.toolTips = []
+        
         for player in self.playerID:
+            
             line = self.playerPotList[player]
 
             name = player.strip('"')
@@ -418,6 +440,10 @@ class AllStatWindow():
             # button1 = tk.Button(window, text='调整', width=6)
             button1 = tk.Button(window, bitmap="warning", text="调整", width=60, height=15, compound=tk.LEFT, command=lambda tmp=tmp: self.getPot(tmp))
             button1.grid(row=i, column=3)
+            
+            text = self.analyser.getPlayerText(name)
+            toopTip = ToolTip(nameLabel, text)
+            self.toolTips.append(toopTip)
             
             i += 1
             
