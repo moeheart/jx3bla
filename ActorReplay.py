@@ -437,15 +437,11 @@ class ActorStatGenerator(StatGeneratorBase):
                     ballDict[line] = {"player1": 0, "player2": 0, "time1": 0, "time2": 0, "lastHit": 0, "status": 0}
             playerBallDict = {}
             for line in self.playerIDList:
-                playerBallDict = {"score": 0, "log": []}
+                playerBallDict[line] = {"score": 0, "log": []}
 
         if not self.lastTry:
             self.finalTime -= self.failThreshold * 1000
         
-        for line in namedict:
-            if namedict[line][0].strip('"') == "横绝气劲":
-                print(line)
-
         for line in sk:
             item = line[""]
 
@@ -515,7 +511,7 @@ class ActorStatGenerator(StatGeneratorBase):
                             xuelianStamp = int(item[2])
                     
                     if yuanfeiActive:
-                        if item[7] == "24655" and item[4] in ballDict and int(item[2]) - ballDict[item[4]]["lastHit"] > 200:
+                        if item[7] == "24655" and item[4] in ballDict and int(item[2]) - ballDict[item[4]]["lastHit"] > 500:
                             if ballDict[item[4]]["player1"] == 0:
                                 ballDict[item[4]]["player1"] = int(item[5])
                                 ballDict[item[4]]["time1"] = int(item[2])
@@ -529,7 +525,7 @@ class ActorStatGenerator(StatGeneratorBase):
                             else:
                                 ballDict[item[4]]["lastHit"] = int(item[2])
                                 ballDict[item[4]]["status"] = 3 #射门传到第三个人
-                        elif item[7] == "25421" and item[4] in ballDict and int(item[2]) - ballDict[item[4]]["lastHit"] > 200:
+                        elif item[7] == "25421" and item[4] in ballDict and int(item[2]) - ballDict[item[4]]["lastHit"] > 500 and ballDict[item[4]]["status"] not in [1,2,3]:
                             if ballDict[item[4]]["player1"] == 0:
                                 ballDict[item[4]]["time1"] = int(item[2])
                                 ballDict[item[4]]["lastHit"] = int(item[2])
@@ -614,7 +610,26 @@ class ActorStatGenerator(StatGeneratorBase):
                             self.dps[item[4]][3] += int(item[14])
                         if P3 and item[4] in self.playerIDList:
                             self.dps[item[4]][4] += int(item[14])
-
+                    
+                    elif yuanfeiActive:
+                        if item[7] == "25459" and item[5] in ballDict and int(item[2]) - ballDict[item[5]]["lastHit"] > 500:
+                            if ballDict[item[5]]["player1"] == 0:
+                                ballDict[item[5]]["player1"] = int(item[4])
+                                ballDict[item[5]]["time1"] = int(item[2])
+                                ballDict[item[5]]["lastHit"] = int(item[2])
+                                ballDict[item[5]]["status"] = 7 #传球成功
+                            elif ballDict[item[5]]["player2"] == 0:
+                                ballDict[item[5]]["player2"] = int(item[4])
+                                ballDict[item[5]]["time2"] = int(item[2])
+                                ballDict[item[5]]["lastHit"] = int(item[2])
+                                ballDict[item[5]]["status"] = 8 #射门成功
+                            else:
+                                ballDict[item[5]]["lastHit"] = int(item[2])
+                                ballDict[item[5]]["status"] = 9 #射门传到第三个人
+                        if item[4] in self.playerIDList:
+                            if item[4] not in self.dps:
+                                self.dps[item[4]] = [0]
+                            self.dps[item[4]][0] += int(item[14])
                     else:
                         if item[4] in self.playerIDList:
                             if item[4] not in self.dps:
@@ -932,7 +947,94 @@ class ActorStatGenerator(StatGeneratorBase):
             anxiaofengResult.sort(key=lambda x: -x[2])
             effectiveDPSList = anxiaofengResult
             self.anxiaofengResult = anxiaofengResult
-
+            
+        elif yuanfeiActive:
+            for line in ballDict:
+                player1 = str(ballDict[line]["player1"])
+                player2 = str(ballDict[line]["player2"])
+                time1 = int(ballDict[line]["time1"])
+                time2 = int(ballDict[line]["time2"])
+                if ballDict[line]["status"] == 1:
+                    playerBallDict[player1]["log"].append([time1, "%s手球犯规！"%(parseTime((time1 - self.startTime) / 1000))])
+                    playerBallDict[player1]["score"] -= 2
+                elif ballDict[line]["status"] == 2:
+                    playerBallDict[player1]["log"].append([time1, "%s传球成功！"%(parseTime((time1 - self.startTime) / 1000))])
+                    playerBallDict[player1]["score"] += 1
+                    playerBallDict[player2]["log"].append([time2, "%s手球犯规！"%(parseTime((time2 - self.startTime) / 1000))])
+                    playerBallDict[player2]["score"] -= 2
+                elif ballDict[line]["status"] == 3:
+                    playerBallDict[player1]["log"].append([time1, "%s传球成功！"%(parseTime((time1 - self.startTime) / 1000))])
+                    playerBallDict[player1]["score"] += 1
+                    playerBallDict[player2]["log"].append([time2, "%s射门打偏！"%(parseTime((time2 - self.startTime) / 1000))])
+                    playerBallDict[player2]["score"] -= 2
+                elif ballDict[line]["status"] == 5:
+                    playerBallDict[player1]["log"].append([time1, "%s传球出界！"%(parseTime((time1 - self.startTime) / 1000))])
+                    playerBallDict[player1]["score"] -= 2
+                elif ballDict[line]["status"] == 6:
+                    playerBallDict[player1]["log"].append([time1, "%s传球成功！"%(parseTime((time1 - self.startTime) / 1000))])
+                    playerBallDict[player1]["score"] += 1
+                    playerBallDict[player2]["log"].append([time2, "%s射门打偏！"%(parseTime((time2 - self.startTime) / 1000))])
+                    playerBallDict[player2]["score"] -= 2
+                elif ballDict[line]["status"] == 7:
+                    playerBallDict[player1]["log"].append([time1, "%s乌龙球！"%(parseTime((time1 - self.startTime) / 1000))])
+                    playerBallDict[player1]["score"] -= 2
+                elif ballDict[line]["status"] == 8:
+                    playerBallDict[player1]["log"].append([time1, "%s传球成功！"%(parseTime((time1 - self.startTime) / 1000))])
+                    playerBallDict[player1]["score"] += 1
+                    playerBallDict[player2]["log"].append([time2, "%s射门成功！"%(parseTime((time2 - self.startTime) / 1000))])
+                    playerBallDict[player2]["score"] += 1
+                elif ballDict[line]["status"] == 9:
+                    playerBallDict[player1]["log"].append([time1, "%s传球成功！"%(parseTime((time1 - self.startTime) / 1000))])
+                    playerBallDict[player1]["score"] += 1
+                    playerBallDict[player2]["log"].append([time2, "%s射门打偏！"%(parseTime((time2 - self.startTime) / 1000))])
+                    playerBallDict[player2]["score"] -= 2
+            
+            playerBallList = []
+            for line in playerBallDict:
+                if playerBallDict[line]["log"] != []:
+                    playerBallDict[line]["log"].sort(key = lambda x:x[0])
+                    playerBallList.append([line, playerBallDict[line]["score"], playerBallDict[line]["log"]])
+            playerBallList.sort(key = lambda x:-x[1])
+            scoreRank = 0
+            highScore = 1
+            for i in range(len(playerBallList)):
+                scoreRank += 1
+                if scoreRank <= 3 and playerBallList[i][1] > 0:
+                    highScore = playerBallList[i][1]
+                if scoreRank >= 4:
+                    break
+            for i in range(len(playerBallList)):
+                id = playerBallList[i][0]
+                if playerBallList[i][1] >= highScore:
+                    self.potList.append([namedict[id][0],
+                                         occdict[id][0],
+                                         3,
+                                         self.bossNamePrint,
+                                         "踢球得分：%d分，评级：梅西" %playerBallList[i][1],
+                                         playerBallList[i][2]])
+                elif playerBallList[i][1] >= 0:
+                    self.potList.append([namedict[id][0],
+                                         occdict[id][0],
+                                         0,
+                                         self.bossNamePrint,
+                                         "踢球得分：%d分，评级：正常" %playerBallList[i][1],
+                                         playerBallList[i][2]])
+                else:
+                    self.potList.append([namedict[id][0],
+                                         occdict[id][0],
+                                         1,
+                                         self.bossNamePrint,
+                                         "踢球得分：%d分，评级：国足" %playerBallList[i][1],
+                                         playerBallList[i][2]])
+                                             
+            bossResult = []
+            for line in self.playerIDList:
+                if line in self.dps:
+                    dps = self.dps[line][0] / self.battleTime
+                    bossResult.append([namedict[line][0],
+                                       occDetailList[line],
+                                       dps
+                                       ])
         else:
             bossResult = []
             for line in self.playerIDList:

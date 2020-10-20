@@ -493,37 +493,6 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         # self.filename = filename
         # self.parseFile(path)
 
-
-def plusList(a1, a2):
-    a = []
-    assert len(a1) == len(a2)
-    for i in range(len(a1)):
-        a.append(a1[i] + a2[i])
-    return a
-
-
-def plusDict(d1, d2):
-    d = {}
-    for key in d1:
-        d[key] = d1[key]
-    for key in d2:
-        if key in d1:
-            d[key] += d2[key]
-        else:
-            d[key] = d2[key]
-    return d
-
-
-def concatDict(d1, d2):
-    d = {}
-    for key in d1:
-        d[key] = d1[key]
-    for key in d2:
-        if key not in d:
-            d[key] = d2[key]
-    return d
-
-
 class XiangZhiData():
 
     def __init__(self):

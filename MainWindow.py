@@ -8,7 +8,7 @@ import time
 from win10toast import ToastNotifier
 
 from FileLookUp import FileLookUp
-from ConfigTools import Config
+from ConfigTools import Config, ConfigWindow
 from LiveBase import LiveListener, AllStatWindow, LiveActorAnalysis
 from main import replay_by_window
 
@@ -92,6 +92,10 @@ class MainWindow():
         allStatWindow = AllStatWindow(self.analyser)
         allStatWindow.start()
         
+    def show_config(self):
+        configWindow = ConfigWindow()
+        configWindow.start()
+        
     def loadWindow(self):
         window = tk.Tk()
         window.title('剑三警长')
@@ -111,7 +115,10 @@ class MainWindow():
         l.pack()
         
         b3 = tk.Button(window, text='分锅结果', height=1, command=self.show_history)
-        b3.place(x = 200, y = 160)
+        b3.place(x = 180, y = 160)
+        
+        b4 = tk.Button(window, text='设置', height=1, command=self.show_config)
+        b4.place(x = 250, y = 160)
         
         self.window = window
 
