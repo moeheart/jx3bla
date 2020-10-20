@@ -3,6 +3,7 @@
 
 import os
 import winreg
+import functools
 
 class FileLookUp():
     jx3path = ""
