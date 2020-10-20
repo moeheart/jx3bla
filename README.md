@@ -1,10 +1,10 @@
-# 剑网三战斗日志分析
+# 剑三警长(原剑网三战斗日志分析、奶歌复盘)
 
-JX3 **B**attle **L**og **A**nalyser v3.3.0
+JX3 **B**attle **L**og **A**nalyser v4.1.0
 
 用于深入分析剑网三中茗伊战斗复盘的框架。
 
-暂时只支持奶歌的深入分析。
+支持奶歌的复盘，与演员的复盘。
 
 具体功能还在不断完善中，为了效率可能会做出一些妥协，不慌。
 
@@ -14,7 +14,7 @@ JX3 **B**attle **L**og **A**nalyser v3.3.0
 
 运行：
 
-`python3 main.py`
+`python3 MainWindow.py`
 
 其中，每个数字对应了唯一的角色ID，但具体的文件夹要通过猜测来获得。
 
@@ -22,9 +22,13 @@ JX3 **B**attle **L**og **A**nalyser v3.3.0
 
 在`config.ini`中填写**记录者**的角色名（并不一定是奶歌的角色名）。然后运行：
 
-`python3 main.py`
+`python3 MainWindow.py`
 
 其会自动寻找对应角色的最后一次战斗记录。
+
+## 发布
+
+`pyinstaller -F -i jx3bla.ico MainWindow.py`
 
 ## 联系作者
 
