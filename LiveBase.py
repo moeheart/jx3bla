@@ -296,7 +296,7 @@ class LiveListener():
         window.start()
         
         toaster = ToastNotifier()
-        toaster.show_toast("分锅结果已生成", "[%s]的战斗复盘已经解析完毕，请打开结果界面分锅。"%liveGenerator.bossname)
+        toaster.show_toast("分锅结果已生成", "[%s]的战斗复盘已经解析完毕，请打开结果界面分锅。"%liveGenerator.bossname, icon_path='')
         
 
     def listenPath(self, basepath):

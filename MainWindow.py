@@ -60,7 +60,7 @@ class MainWindow():
                 print("文件读取错误，稍后重试……")
         self.var.set("选项设置完成，开始实时模式……")
         toaster = ToastNotifier()
-        toaster.show_toast("选项设置完成", "选项验证正确，可以在游戏中开战并分锅啦~")
+        toaster.show_toast("选项设置完成", "选项验证正确，可以在游戏中开战并分锅啦~", icon_path='')
         
         liveListener = LiveListener(self.fileLookUp.basepath, self.config, self.analyser)
         liveListener.startListen()

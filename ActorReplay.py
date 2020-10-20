@@ -23,6 +23,7 @@ class ActorStatGenerator(StatGeneratorBase):
     baimouID = ""
     anxiaofengActive = 0
     anxiaofengID = 0
+    yuanfeiActive = 0
     fulingID = {}
     sideTargetID = {}
     guishouID = {}
@@ -170,6 +171,7 @@ class ActorStatGenerator(StatGeneratorBase):
 
         self.namedict = namedict
         self.occdict = occdict
+        occDetailList = {}
 
         self.playerIDList = {}
 
@@ -234,6 +236,9 @@ class ActorStatGenerator(StatGeneratorBase):
 
                 if item[6] == "17440" and item[10] == '1':  # 偷天换日
                     self.toutianhuanri = 1
+                    
+                if namedict[item[5]][0] == '"猿飞"' and occdict[item[5]][0] == '0':
+                    self.yuanfeiActive = 1
                     
                 if item[4] in occDetailList and occDetailList[item[4]] in ['1', '2', '3', '4', '5', '6', '7', '10', '21', '22']:
                     occDetailList[item[4]] = checkOccDetailBySkill(occDetailList[item[4]], item[7], item[13])
@@ -423,9 +428,23 @@ class ActorStatGenerator(StatGeneratorBase):
             xuelianStamp = 0
             xuelianTime = 0
             xuelianCount = 0
+            
+        yuanfeiActive = self.yuanfeiActive
+        if yuanfeiActive:
+            ballDict = {}
+            for line in namedict:
+                if namedict[line][0].strip('"') == "横绝气劲":
+                    ballDict[line] = {"player1": 0, "player2": 0, "time1": 0, "time2": 0, "lastHit": 0, "status": 0}
+            playerBallDict = {}
+            for line in self.playerIDList:
+                playerBallDict = {"score": 0, "log": []}
 
         if not self.lastTry:
             self.finalTime -= self.failThreshold * 1000
+        
+        for line in namedict:
+            if namedict[line][0].strip('"') == "横绝气劲":
+                print(line)
 
         for line in sk:
             item = line[""]
@@ -436,6 +455,21 @@ class ActorStatGenerator(StatGeneratorBase):
             if item[3] == '1':  # 技能
 
                 # 群24105 单24144
+                '''
+                if item[7] in ["24654"]:
+                    print(item)
+                    print(skilldict[item[9]][0][""][0].strip('"'))
+                    
+                #if item[5] in namedict and namedict[item[5]][0].strip('"') == "横绝气劲":
+                #    print(item)
+                #if item[4] in namedict and namedict[item[4]][0].strip('"') == "横绝气劲":
+                #    print(item)
+                if item[4] in namedict and item[5] in namedict:
+                    print(namedict[item[4]], namedict[item[5]])
+                else:
+                    print("未知")
+                print(item)
+                '''
 
                 if occdict[item[5]][0] != '0':
                     data = self.checkFirst(item[5], data, occdict)
@@ -479,7 +513,35 @@ class ActorStatGenerator(StatGeneratorBase):
                                 else:
                                     self.xuelian[item[5]].append(-1)
                             xuelianStamp = int(item[2])
-
+                    
+                    if yuanfeiActive:
+                        if item[7] == "24655" and item[4] in ballDict and int(item[2]) - ballDict[item[4]]["lastHit"] > 200:
+                            if ballDict[item[4]]["player1"] == 0:
+                                ballDict[item[4]]["player1"] = int(item[5])
+                                ballDict[item[4]]["time1"] = int(item[2])
+                                ballDict[item[4]]["lastHit"] = int(item[2])
+                                ballDict[item[4]]["status"] = 1 #传球失败
+                            elif ballDict[item[4]]["player2"] == 0:
+                                ballDict[item[4]]["player2"] = int(item[5])
+                                ballDict[item[4]]["time2"] = int(item[2])
+                                ballDict[item[4]]["lastHit"] = int(item[2])
+                                ballDict[item[4]]["status"] = 2 #射门失败
+                            else:
+                                ballDict[item[4]]["lastHit"] = int(item[2])
+                                ballDict[item[4]]["status"] = 3 #射门传到第三个人
+                        elif item[7] == "25421" and item[4] in ballDict and int(item[2]) - ballDict[item[4]]["lastHit"] > 200:
+                            if ballDict[item[4]]["player1"] == 0:
+                                ballDict[item[4]]["time1"] = int(item[2])
+                                ballDict[item[4]]["lastHit"] = int(item[2])
+                                ballDict[item[4]]["status"] = 4 #无人接球
+                            elif ballDict[item[4]]["player2"] == 0:
+                                ballDict[item[4]]["time2"] = int(item[2])
+                                ballDict[item[4]]["lastHit"] = int(item[2])
+                                ballDict[item[4]]["status"] = 5 #传球出界
+                            else:
+                                ballDict[item[4]]["lastHit"] = int(item[2])
+                                ballDict[item[4]]["status"] = 6 #射门打偏
+                            
 
                 else:
 
@@ -755,6 +817,9 @@ class ActorStatGenerator(StatGeneratorBase):
                 self.win = 1
 
             num += 1
+            
+        if self.bossname in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳", "毗流驮迦", "毗留博叉", "充能核心"]:
+            self.win = 1
 
         yanyeResultList = []
 
