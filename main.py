@@ -288,9 +288,9 @@ class XiangZhiStatGenerator(StatGeneratorBase):
             numdam1 += line[1] / 1.117 * 0.117# + line[2]
             #data.damageDict[key] = line[0] + line[1] / 1.0554 # 110赛季数值
             #numdam1 += line[1] / 1.0554 * 0.0554# + line[2]
-        numdam2 = data.battlestat[self.mykey][2]
+        #numdam2 = data.battlestat[self.mykey][2]
         #print(numdam1, numdam2)
-        numdam = numdam1 + numdam2
+        numdam = numdam1# + numdam2
 
         if self.mykey not in data.damageDict:
             data.damageDict[self.mykey] = numdam
