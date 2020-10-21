@@ -6,6 +6,7 @@ import re
 import os
 import time
 from win10toast import ToastNotifier
+import traceback
 
 from FileLookUp import FileLookUp
 from ConfigTools import Config, ConfigWindow
@@ -31,11 +32,13 @@ class MainWindow():
         refreshThread.start()
         
     def check_live(self):
+        numSwitch = 2
+        nowStatus = "true"
         if True: # 调试入口
             file = open("%s/config.jx3dat"%self.fileLookUp.basepath, "r")
             s = file.read()
             file.close()
-            s = re.sub(r'^(.*)bRecEverything=.{4,5}(.*)bSaveEverything1?=.{4,5}(.*)$', "\\1bRecEverything=false\\2bSaveEverything=false\\3", s)
+            s = re.sub(r'^(.*)bRecEverything=.{4,5}(.*)bSaveEverything1?=.{4,5}(.*)bREOnlyDungeon=(.{4,5}),(.*)$', "\\1bRecEverything=false\\2bSaveEverything=false\\3bREOnlyDungeon=true\\4", s)
             file = open("%s/config.jx3dat"%self.fileLookUp.basepath, "w")
             file.write(s)
             file.close()
@@ -45,7 +48,7 @@ class MainWindow():
             try:
                 file = open("%s/config.jx3dat"%self.fileLookUp.basepath, "r")
                 s = file.read()
-                res = re.search(r'bRecEverything=(.{4,5}).*bSaveHistoryOnExFi=(.{4,5}).*bSaveEverything1?=(.{4,5})', s)
+                res = re.search(r'bRecEverything=(.{4,5}).*bSaveHistoryOnExFi=(.{4,5}).*bSaveEverything1?=(.{4,5}).*bREOnlyDungeon=(.{4,5}),', s)
                 file.close()
                 if res:
                     if res.group(1) == "false":
@@ -55,9 +58,21 @@ class MainWindow():
                     elif res.group(2) == "false":
                         self.var.set("请勾选[脱离战斗时保存数据]。")
                     else:
-                        break
+                        if res.group(4) == "true" and nowStatus == "false":
+                            nowStatus = "true"
+                            numSwitch -= 1
+                        elif res.group(4) == "false" and nowStatus == "true":
+                            nowStatus = "false"
+                            numSwitch -= 1
+                        if numSwitch > 0:
+                            self.var.set("请改变[仅在秘境中启用复盘]，剩余：%d"%numSwitch)
+                        else:
+                            break
+                else:
+                    self.var.set("设置文件结构不正确，请尝试更新茗伊插件集。")
             except:
                 print("文件读取错误，稍后重试……")
+                traceback.print_exc()
         self.var.set("选项设置完成，开始实时模式……")
         toaster = ToastNotifier()
         toaster.show_toast("选项设置完成", "选项验证正确，可以在游戏中开战并分锅啦~", icon_path='')

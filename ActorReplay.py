@@ -24,6 +24,7 @@ class ActorStatGenerator(StatGeneratorBase):
     anxiaofengActive = 0
     anxiaofengID = 0
     yuanfeiActive = 0
+    mitaoActive = 0
     fulingID = {}
     sideTargetID = {}
     guishouID = {}
@@ -240,6 +241,20 @@ class ActorStatGenerator(StatGeneratorBase):
                 if namedict[item[5]][0] == '"猿飞"' and occdict[item[5]][0] == '0':
                     self.yuanfeiActive = 1
                     
+                if namedict[item[5]][0] == '"宓桃"' and occdict[item[5]][0] == '0':
+                    if self.mitaoActive == 0:
+                        self.mitaoActive = 1
+                        self.dizzyDict = {}
+                        self.leadDict = {}
+                        
+                if self.mitaoActive:
+                    if item[7] in ["24704", "24705"]:
+                        if item[4] not in self.leadDict:
+                            self.leadDict[item[4]] = []
+                        if self.dizzyDict[item[4]] != []:
+                            self.dizzyDict[item[4]].pop()
+                        self.leadDict[item[4]].append(int(item[2]))
+                    
                 if item[4] in occDetailList and occDetailList[item[4]] in ['1', '2', '3', '4', '5', '6', '7', '10', '21', '22']:
                     occDetailList[item[4]] = checkOccDetailBySkill(occDetailList[item[4]], item[7], item[13])
                     
@@ -248,6 +263,16 @@ class ActorStatGenerator(StatGeneratorBase):
                     self.playerIDList[item[5]] = 0
                 if item[4] in occDetailList and occDetailList[item[4]] in ['21']:
                     occDetailList[item[4]] = checkOccDetailByBuff(occDetailList[item[4]], item[6])
+                if self.mitaoActive:
+                    if item[6] == "17767":
+                        if item[5] not in self.dizzyDict:
+                            self.dizzyDict[item[5]] = []
+                        if item[10] == '1':
+                            if self.dizzyDict[item[5]] == [] or self.dizzyDict[item[5]][-1][1] == 0:
+                                self.dizzyDict[item[5]].append([int(item[2]) ,1])
+                        else:
+                            if self.dizzyDict[item[5]] != []:
+                                self.dizzyDict[item[5]][-1][1] = 0
 
         for id in self.playerIDList:
             self.firstHitList[id] = 0
@@ -438,6 +463,10 @@ class ActorStatGenerator(StatGeneratorBase):
             playerBallDict = {}
             for line in self.playerIDList:
                 playerBallDict[line] = {"score": 0, "log": []}
+                
+        mitaoActive = self.mitaoActive
+        if mitaoActive:
+            pass
 
         if not self.lastTry:
             self.finalTime -= self.failThreshold * 1000
@@ -540,6 +569,7 @@ class ActorStatGenerator(StatGeneratorBase):
                             
 
                 else:
+                    calculDPS = 1
 
                     if item[13] != "0" and item[14] == "0":  # 检查反弹
                         deathHit[item[4]] = [int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13])]
@@ -553,6 +583,7 @@ class ActorStatGenerator(StatGeneratorBase):
                                 self.firstHitList[item[4]][3] = int(item[2])
 
                     if yanyeActive:
+                        calculDPS = 0
                         if item[5] in self.yanyeID:
                             yanyeLabel = self.yanyeID[item[5]]
                             yanyeHP[yanyeLabel] -= int(item[14])
@@ -584,6 +615,7 @@ class ActorStatGenerator(StatGeneratorBase):
                             yanyeHP[wumianguiLabel] -= int(item[14])
 
                     elif chizhuActive:
+                        calculDPS = 0
                         if item[5] == self.chizhuID and item[4] in self.buffCount:
                             self.dps[item[4]][0] += int(item[14])
                             self.dps[item[4]][1] += int(item[14])
@@ -592,6 +624,7 @@ class ActorStatGenerator(StatGeneratorBase):
                             #    self.dps[item[4]][1] += int(item[14]) / (1 - 0.15 * kanpo)
 
                     elif baimouActive:
+                        calculDPS = 0
                         if item[5] == self.baimouID and item[4] in self.breakBoatCount:
                             self.dps[item[4]][0] += int(item[14])
                         if item[5] in self.fulingID and item[4] in self.breakBoatCount:
@@ -600,6 +633,7 @@ class ActorStatGenerator(StatGeneratorBase):
                             self.dps[item[4]][2] += int(item[14])
 
                     elif anxiaofengActive:
+                        calculDPS = 0
                         if item[4] in self.playerIDList:
                             self.dps[item[4]][0] += int(item[14])
                         if item[5] == self.anxiaofengID and item[4] in self.playerIDList:
@@ -630,11 +664,14 @@ class ActorStatGenerator(StatGeneratorBase):
                             if item[4] not in self.dps:
                                 self.dps[item[4]] = [0]
                             self.dps[item[4]][0] += int(item[14])
-                    else:
+                    
+                    if calculDPS:
                         if item[4] in self.playerIDList:
                             if item[4] not in self.dps:
                                 self.dps[item[4]] = [0]
                             self.dps[item[4]][0] += int(item[14])
+                            
+                    
 
             elif item[3] == '5':  # 气劲
 
@@ -738,6 +775,17 @@ class ActorStatGenerator(StatGeneratorBase):
                                                  "%s减疗叠加20层" % lockTime])
                         if stack < 20 and self.jingshenkuifa[item[5]] == 1:
                             self.jingshenkuifa[item[5]] = 0
+                
+                if mitaoActive:
+                    if item[5] in self.dizzyDict and self.dizzyDict[item[5]] != [] and self.dizzyDict[item[5]][0][0] <= int(item[2]):
+                        lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                        self.potList.append([namedict[item[5]][0],
+                                             occDetailList[item[5]],
+                                             0,
+                                             self.bossNamePrint,
+                                             "%s进迷雾被魅惑" % lockTime,
+                                             ["因引导而被魅惑不计算在内"]])
+                        del self.dizzyDict[item[5]][0]
 
 
             elif item[3] == '3':  # 重伤记录
@@ -839,6 +887,8 @@ class ActorStatGenerator(StatGeneratorBase):
         yanyeResultList = []
 
         effectiveDPSList = []
+        
+        calculDPS = 1
 
         if yanyeActive:
             for line in yanyeDPS:
@@ -859,6 +909,8 @@ class ActorStatGenerator(StatGeneratorBase):
             effectiveDPSList = yanyeResultList
 
             self.yanyeResult = yanyeResultList
+            
+            calculDPS = 0
 
             # print(yanyeResultList)
 
@@ -885,6 +937,8 @@ class ActorStatGenerator(StatGeneratorBase):
             effectiveDPSList = chizhuResult
 
             self.chizhuResult = chizhuResult
+            
+            calculDPS = 0
 
         elif baimouActive:
             baimouResult = []
@@ -909,6 +963,8 @@ class ActorStatGenerator(StatGeneratorBase):
             effectiveDPSList = baimouResult
 
             self.baimouResult = baimouResult
+            
+            calculDPS = 0
 
         elif anxiaofengActive:
             for line in self.xuelian:
@@ -947,6 +1003,8 @@ class ActorStatGenerator(StatGeneratorBase):
             anxiaofengResult.sort(key=lambda x: -x[2])
             effectiveDPSList = anxiaofengResult
             self.anxiaofengResult = anxiaofengResult
+            
+            calculDPS = 0
             
         elif yuanfeiActive:
             for line in ballDict:
@@ -1026,16 +1084,20 @@ class ActorStatGenerator(StatGeneratorBase):
                                          self.bossNamePrint,
                                          "踢球得分：%d分，评级：国足" %playerBallList[i][1],
                                          playerBallList[i][2]])
-                                             
-            bossResult = []
-            for line in self.playerIDList:
-                if line in self.dps:
-                    dps = self.dps[line][0] / self.battleTime
-                    bossResult.append([namedict[line][0],
-                                       occDetailList[line],
-                                       dps
-                                       ])
-        else:
+                                       
+        elif mitaoActive:
+            for id in self.leadDict:
+                timeList = []
+                for row in self.leadDict[id]:
+                    timeList.append(parseTime((row - self.startTime) / 1000))
+                self.potList.append([namedict[id][0],
+                                     occdict[id][0],
+                                     3,
+                                     self.bossNamePrint,
+                                     "完成引导，次数：%d" %len(timeList),
+                                     timeList])
+                                       
+        if calculDPS:
             bossResult = []
             for line in self.playerIDList:
                 if line in self.dps:
@@ -1134,6 +1196,8 @@ class ActorStatGenerator(StatGeneratorBase):
 
         self.data = data
         self.effectiveDPSList = effectiveDPSList
+        
+        print(self.potList)
 
     def __init__(self, filename, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}):
         self.myname = myname
