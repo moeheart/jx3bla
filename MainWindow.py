@@ -38,7 +38,7 @@ class MainWindow():
             file = open("%s/config.jx3dat"%self.fileLookUp.basepath, "r")
             s = file.read()
             file.close()
-            s = re.sub(r'^(.*)bRecEverything=.{4,5}(.*)bSaveEverything1?=.{4,5}(.*)bREOnlyDungeon=(.{4,5}),(.*)$', "\\1bRecEverything=false\\2bSaveEverything=false\\3bREOnlyDungeon=true\\4", s)
+            s = re.sub(r'^(.*)bRecEverything=.{4,5}(.*)bSaveEverything1?=.{4,5}(.*)bREOnlyDungeon=.{4,5},(.*)$', "\\1bRecEverything=false\\2bSaveEverything=false\\3bREOnlyDungeon=true,\\4", s)
             file = open("%s/config.jx3dat"%self.fileLookUp.basepath, "w")
             file.write(s)
             file.close()
