@@ -199,6 +199,40 @@ bonusrate=%s"""%(self.playername, self.jx3path, self.basepath, self.mask, self.c
                 self.items_actor = dict(cf.items("ActorAnalysis"))
                 self.checkItems()
                 
+class LicenseWindow():
+
+    def final(self):
+        self.window.destroy()
+    
+    def get_path(self):
+        pass
+        
+    def init_checkbox(self, box, value):
+        if value == 0:
+            box.deselect()
+        else:
+            box.select()
+    
+    def loadWindow(self):
+        '''
+        弹出用户协议界面
+        '''
+        #window = tk.Toplevel()
+        window = tk.Tk()
+        window.title('用户协议')
+        window.geometry('500x400')
+
+        self.window = window
+        window.protocol('WM_DELETE_WINDOW', self.final)
+        window.mainloop()
+    
+    def start(self):
+        self.windowThread = threading.Thread(target = self.loadWindow)    
+        self.windowThread.start()
+
+    def __init__(self):
+        pass
+                
 class ConfigWindow():
 
     def final(self):
@@ -235,8 +269,8 @@ class ConfigWindow():
         '''
         使用tkinter绘制设置窗口，同时读取config.ini。
         '''
-        #window = tk.Toplevel()
-        window = tk.Tk()
+        window = tk.Toplevel()
+        #window = tk.Tk()
         window.title('设置')
         window.geometry('400x300')
         
@@ -334,7 +368,7 @@ class ConfigWindow():
 
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
-        window.mainloop()
+        #window.mainloop()
 
     def start(self):
         self.windowThread = threading.Thread(target = self.loadWindow)    

@@ -153,11 +153,11 @@ def parseCent(num, digit=2):
         
         
 def checkOccDetailBySkill(default, skillID, damage):
-    if skillID in ["18207", "18773"] and int(damage) > 10000:
-        return '3d'
-    elif skillID in ["18207", "18773"] and int(damage) < 3000:
-        return '3t'
-    elif skillID in ["2636"]:
+    #if skillID in ["18207", "18773"] and int(damage) > 10000:
+    #    return '3d'
+    #elif skillID in ["18207", "18773"] and int(damage) < 3000:
+    #    return '3t'
+    if skillID in ["2636"]:
         return '2d'
     elif skillID in ["101", "138", "14664"]:
         return '2h'
@@ -195,7 +195,11 @@ def checkOccDetailBySkill(default, skillID, damage):
         return default
         
 def checkOccDetailByBuff(default, buffID):
-    if buffID in ["14309"]:
+    if buffID in ["17885"]:
+        return default + 't'
+    elif buffID in ["7671"]:
+        return '3d'
+    elif buffID in ["14309"]:
         return '21d'
     else:
         return default

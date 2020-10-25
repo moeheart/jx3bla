@@ -4,6 +4,7 @@
 import os
 import winreg
 import functools
+from BossNameUtils import *
 
 class FileLookUp():
     jx3path = ""
@@ -73,7 +74,8 @@ class FileLookUp():
             for line in filelist:
                 if line[-6:] == "jx3dat":
                     selectFileList.append(line)
-
+        
+        '''
         bossDict = {"铁黎": 1, "陈徽": 2, "藤原武裔": 3, "源思弦": 4, "驺吾": 5, "方有崖": 6,
                     "周贽": 1, "狼牙精锐": 1, "狼牙刀盾兵": 1, "厌夜": 2, "迟驻": 3, "白某": 4, "安小逢": 5,
                     "余晖": 1, "宓桃": 2, "武雪散": 3, "猿飞": 4, "哑头陀": 5, "岳琳": 6,
@@ -83,6 +85,11 @@ class FileLookUp():
                    "余晖": 3, "宓桃": 3, "武雪散": 3, "猿飞": 3, "哑头陀": 3, "岳琳": 3,
                    "毗流驮迦": 3, "毗留博叉": 3, "充能核心": 3}
         mapNameList = ["未知地图", "敖龙岛", "范阳夜变", "达摩洞"]
+        '''
+        
+        bossDict = BOSS_DICT
+        mapDict = MAP_DICT
+        mapNameList = MAP_NAME_LIST
 
         nowBoss = 6
         bossPos = [-1] * 8

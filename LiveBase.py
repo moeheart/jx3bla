@@ -30,7 +30,7 @@ class ToolTip(object):
  
         self.label = tk.Label(tw, text=text, justify=tk.LEFT,
                       background="#ffffe0", relief=tk.SOLID, borderwidth=1,
-                      font=("Aaril", "8", "normal"))
+                      font=("Aaril", "10", "normal"))
         self.label.pack(ipadx=1)
  
     def hidetip(self):
@@ -176,6 +176,11 @@ class SingleBossWindow():
             potLabel = tk.Label(frame, text=pot, height=1, fg=color)
             potLabel.grid(row=i, column=1)
             
+            if len(line) > 5:
+                potDetail = '\n'.join(line[5])
+                if potDetail != "":
+                    toolTip = ToolTip(potLabel, potDetail)
+            
             scoreLabel = tk.Label(frame, text="", width=5, height=1, font=("Arial", 12, "bold"))
             scoreLabel.grid(row=i, column=2)
             self.scoreLabels.append(scoreLabel)
@@ -188,8 +193,8 @@ class SingleBossWindow():
             
             
             text = self.analyser.getPlayerText(name)
-            toopTip = ToolTip(nameLabel, text)
-            self.toolTips.append(toopTip)
+            toolTip = ToolTip(nameLabel, text)
+            self.toolTips.append(toolTip)
             self.nameList.append(name)
             self.scoreList.append(0)
             
@@ -263,7 +268,7 @@ class LiveActorAnalysis():
                     first = 0
                 else:
                     s += '\n'
-                s += "%s %s %s"%(line[2], line[3], str(line[4]))
+                s += "%s %s %s"%(line[2], line[3], str(line[-1]))
             
         return s
         

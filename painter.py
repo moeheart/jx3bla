@@ -32,6 +32,7 @@ class XiangZhiPainter():
     color = 1
     edition = "3.6.3"
     printint = 1
+    pastH = 0
     
     def getMaskName(self, name):
         s = name.strip('"')

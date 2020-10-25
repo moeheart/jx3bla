@@ -17,6 +17,7 @@ from ActorReplay import ActorStatGenerator, ActorData, ActorAnalysis
 from ReplayBase import StatGeneratorBase
 from Functions import *
 from Constants import *
+from BossNameUtils import *
 
 edition = EDITION
 
@@ -563,8 +564,8 @@ class XiangZhiOverallData(XiangZhiData):
 
 
 class XiangZhiScore():
-    bossDict = {"铁黎": 1, "陈徽": 2, "藤原武裔": 3, "源思弦": 4, "驺吾": 5, "方有崖": 6}
-    bossDictR = ["", "铁黎", "陈徽", "藤原武裔", "源思弦", "驺吾", "方有崖"]
+    #bossDict = {"铁黎": 1, "陈徽": 2, "藤原武裔": 3, "源思弦": 4, "驺吾": 5, "方有崖": 6}
+    #bossDictR = ["", "铁黎", "陈徽", "藤原武裔", "源思弦", "驺吾", "方有崖"]
     rateScale = [[100, 0, "A+", "不畏浮云遮望眼，只缘身在最高层。"],
                  [95, 1, "A", "独有凤凰池上客，阳春一曲和皆难。"],
                  [90, 1, "A-", "欲把一麾江海去，乐游原上望昭陵。"],
@@ -944,16 +945,7 @@ class XiangZhiScore():
         self.map = map
         self.printTable = []
         self.score = 0
-        if self.map == "敖龙岛":
-            self.bossDict = {"铁黎": 1, "陈徽": 2, "藤原武裔": 3, "源思弦": 4, "驺吾": 5, "方有崖": 6}
-            self.bossDictR = ["", "铁黎", "陈徽", "藤原武裔", "源思弦", "驺吾", "方有崖"]
-        elif self.map == "范阳夜变":
-            self.bossDict = {"周贽": 1, "厌夜": 2, "迟驻": 3, "白某": 4, "安小逢": 5}
-            self.bossDictR = ["", "周贽", "厌夜", "迟驻", "白某", "安小逢"]
-        elif self.map == "达摩洞":
-            self.bossDict = {"余晖": 1, "宓桃": 2, "武雪散": 3, "猿飞": 4, "哑头陀": 5, "岳琳": 6}
-            self.bossDictR = ["", "余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳"]
-
+        self.bossDict, self.bossDictR = getBossDictFromMap(self.map)
 
 class RawDataParser():
 

@@ -22,14 +22,16 @@ class ActorStatGenerator(StatGeneratorBase):
     baimouActive = 0
     baimouID = ""
     anxiaofengActive = 0
-    anxiaofengID = 0
+    anxiaofengID = ""
     yuanfeiActive = 0
     mitaoActive = 0
+    yatoutuoActive = 0
     fulingID = {}
     sideTargetID = {}
     guishouID = {}
     yingyuanHistory = {}
     occDetailList = {}
+    longzhuID =""
 
     startTime = 0
     finalTime = 0
@@ -247,6 +249,14 @@ class ActorStatGenerator(StatGeneratorBase):
                         self.dizzyDict = {}
                         self.leadDict = {}
                         
+                if namedict[item[5]][0] in ['"毗流驮迦"', '"毗留博叉"'] and occdict[item[5]][0] == '0':
+                    if self.yatoutuoActive == 0:
+                        self.yatoutuoActive = 1
+                        self.burstList = []
+                        
+                if namedict[item[5]][0] in ['"戏龙珠"'] and occdict[item[5]][0] == '0':
+                    self.longzhuID = item[5]
+                        
                 if self.mitaoActive:
                     if item[7] in ["24704", "24705"]:
                         if item[4] not in self.leadDict:
@@ -254,6 +264,11 @@ class ActorStatGenerator(StatGeneratorBase):
                         if self.dizzyDict[item[4]] != []:
                             self.dizzyDict[item[4]].pop()
                         self.leadDict[item[4]].append(int(item[2]))
+                        
+                if self.yatoutuoActive:
+                    if item[7] == "24650":
+                        if self.burstList == [] or int(self.burstList[-1]) + 1000 < int(item[2]):
+                            self.burstList.append(int(item[2]))
                     
                 if item[4] in occDetailList and occDetailList[item[4]] in ['1', '2', '3', '4', '5', '6', '7', '10', '21', '22']:
                     occDetailList[item[4]] = checkOccDetailBySkill(occDetailList[item[4]], item[7], item[13])
@@ -261,7 +276,7 @@ class ActorStatGenerator(StatGeneratorBase):
             elif item[3] == "5":
                 if occdict[item[5]][0] != '0':
                     self.playerIDList[item[5]] = 0
-                if item[4] in occDetailList and occDetailList[item[4]] in ['21']:
+                if item[4] in occDetailList and occDetailList[item[4]] in ['1', '3', '10', '21']:
                     occDetailList[item[4]] = checkOccDetailByBuff(occDetailList[item[4]], item[6])
                 if self.mitaoActive:
                     if item[6] == "17767":
@@ -310,6 +325,7 @@ class ActorStatGenerator(StatGeneratorBase):
         self.potList = []
 
         deathHit = {}
+        deathHitDetail = {}
 
         deathBuffDict = {"9299": 30000,  # 杯水留影
                          "16981": 30000,  # 翩然
@@ -319,6 +335,9 @@ class ActorStatGenerator(StatGeneratorBase):
                          "16349": 16349,  # 试炼逃避者
                          }
         deathBuff = {}
+        
+        for line in self.playerIDList:
+            deathHitDetail[line] = []
 
         rateStandard = {"0": 0,
                         "25": 0.98,
@@ -467,6 +486,21 @@ class ActorStatGenerator(StatGeneratorBase):
         mitaoActive = self.mitaoActive
         if mitaoActive:
             pass
+            
+        yatoutuoActive = self.yatoutuoActive
+        if yatoutuoActive:
+            playerDamageDict = {}
+            playerWork = {}
+            playerInBattle = {}
+            self.jingshenkuifa = {}
+            for line in self.playerIDList:
+                playerDamageDict[line] = [0] * len(self.burstList)
+                playerWork[line] = 0
+                playerInBattle[line] = 1
+                self.jingshenkuifa[line] = 0
+            burstCount = [0] * len(self.burstList)
+            nowBurst = 0
+            
 
         if not self.lastTry:
             self.finalTime -= self.failThreshold * 1000
@@ -516,6 +550,11 @@ class ActorStatGenerator(StatGeneratorBase):
 
                     if item[7] == "23687":
                         deathHit[item[5]] = [int(item[2]), "死线", 0]
+                        
+                    if item[13] != "0" and item[5] in deathHitDetail:
+                        if len(deathHitDetail[item[5]]) >= 5:
+                            del deathHitDetail[item[5]][0]
+                        deathHitDetail[item[5]].append([int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13]), item[4]])
 
                     if anxiaofengActive:
                         hasRumo = self.rumo[item[5]].checkState(int(item[2]))
@@ -566,13 +605,27 @@ class ActorStatGenerator(StatGeneratorBase):
                             else:
                                 ballDict[item[4]]["lastHit"] = int(item[2])
                                 ballDict[item[4]]["status"] = 6 #射门打偏
-                            
+                                
+                    if yatoutuoActive:
+                        if item[7] == "24650":
+                            if int(item[14]) != 0 and nowBurst < len(self.burstList):
+                                if abs(self.burstList[nowBurst] - int(item[2])) > 1000:
+                                    nowBurst += 1
+                                    for line in self.playerIDList:
+                                        if playerDamageDict[line][nowBurst-1] == 0 and playerInBattle[line] == 0:
+                                            playerDamageDict[line][nowBurst-1] = 2
+                                playerDamageDict[item[5]][nowBurst] = 1
+                                burstCount[nowBurst] += 1 
 
                 else:
                     calculDPS = 1
 
                     if item[13] != "0" and item[14] == "0":  # 检查反弹
                         deathHit[item[4]] = [int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13])]
+                        if item[5] in deathHitDetail:
+                            if len(deathHitDetail[item[5]]) >= 5:
+                                del deathHitDetail[item[5]][0]
+                            deathHitDetail[item[4]].append([int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13]), item[4]])
 
                     if item[4] in self.playerIDList and int(item[11]) == 0 and item[5] in namedict and namedict[item[5]][0].strip('"') in self.bossNameDict:
                         if self.firstHitList[item[4]] == 0:
@@ -664,6 +717,10 @@ class ActorStatGenerator(StatGeneratorBase):
                             if item[4] not in self.dps:
                                 self.dps[item[4]] = [0]
                             self.dps[item[4]][0] += int(item[14])
+                            
+                    elif yatoutuoActive:
+                        if item[5] == self.longzhuID and item[7] in ["242", "546", "305", "1613", "2479", "3971", "22341"]:
+                            playerWork[item[4]] += 1
                     
                     if calculDPS:
                         if item[4] in self.playerIDList:
@@ -772,7 +829,8 @@ class ActorStatGenerator(StatGeneratorBase):
                                                  occDetailList[item[5]],
                                                  0,
                                                  self.bossNamePrint,
-                                                 "%s减疗叠加20层" % lockTime])
+                                                 "%s减疗叠加20层" % lockTime,
+                                                 ["不间断的减疗只计算一次"]])
                         if stack < 20 and self.jingshenkuifa[item[5]] == 1:
                             self.jingshenkuifa[item[5]] = 0
                 
@@ -786,6 +844,21 @@ class ActorStatGenerator(StatGeneratorBase):
                                              "%s进迷雾被魅惑" % lockTime,
                                              ["因引导而被魅惑不计算在内"]])
                         del self.dizzyDict[item[5]][0]
+                        
+                if yatoutuoActive:
+                    if item[6] in ["15774", "17200"]:  # buff精神匮乏
+                        stack = int(item[10])
+                        if stack >= 20 and self.jingshenkuifa[item[5]] == 0:
+                            lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                            self.jingshenkuifa[item[5]] = 1
+                            self.potList.append([namedict[item[5]][0],
+                                                 occDetailList[item[5]],
+                                                 0,
+                                                 self.bossNamePrint,
+                                                 "%s减疗叠加20层" % lockTime,
+                                                 ["不间断的减疗只计算一次"]])
+                        if stack < 20 and self.jingshenkuifa[item[5]] == 1:
+                            self.jingshenkuifa[item[5]] = 0
 
 
             elif item[3] == '3':  # 重伤记录
@@ -814,14 +887,24 @@ class ActorStatGenerator(StatGeneratorBase):
 
                     if deathSource == "翩然":
                         deathSource = "推测为摔死"
+                        
+                    if item[4] in deathHitDetail:
+                        deathSourceDetail = ["死前所受伤害："]
+                        for line in deathHitDetail[item[4]]:
+                            name = "未知"
+                            if line[3] in namedict:
+                                name = namedict[line[3]][0].strip('"')
+                            deathSourceDetail.append("%s, %s:%s(%d)"%(parseTime((int(line[0]) - self.startTime) / 1000), name, line[1], line[2]))
 
-                    self.potList.append([namedict[item[4]][0],
-                                         occDetailList[item[4]],
-                                         severe,
-                                         self.bossNamePrint,
-                                         "%s重伤，来源：%s" % (deathTime, deathSource)])
-
-
+                        self.potList.append([namedict[item[4]][0],
+                                             occDetailList[item[4]],
+                                             severe,
+                                             self.bossNamePrint,
+                                             "%s重伤，来源：%s" % (deathTime, deathSource),
+                                             deathSourceDetail])
+                                         
+                if yatoutuoActive:
+                    playerInBattle[item[4]] = 0
 
             elif item[3] == '8':  # 喊话
                 # print(item)
@@ -875,13 +958,18 @@ class ActorStatGenerator(StatGeneratorBase):
                                '"三千世界生死限，九天有苍十方剑！"',  # 方有崖暂时以这句话代替
                                ]:
                     self.win = 1
+                    
+            elif item[3] == "10": #战斗状态变化
+                if yatoutuoActive:
+                    if item[8] in self.playerIDList and item[6] == 'true':
+                        playerInBattle[item[8]] = 1
 
             if item[3] == "6" and len(item) > 7 and item[7] == '"乌承恩"':
                 self.win = 1
 
             num += 1
             
-        if self.bossname in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳", "毗流驮迦", "毗留博叉", "充能核心"]:
+        if self.bossname in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅"]:
             self.win = 1
 
         yanyeResultList = []
@@ -1096,6 +1184,38 @@ class ActorStatGenerator(StatGeneratorBase):
                                      self.bossNamePrint,
                                      "完成引导，次数：%d" %len(timeList),
                                      timeList])
+                                     
+        elif yatoutuoActive:
+            for line in self.playerIDList:
+                if playerDamageDict[line][nowBurst] == 0 and playerInBattle[line] == 0:
+                    playerDamageDict[line][nowBurst] = 2
+            playerEscapeDict = {}
+            for line in self.playerIDList:
+                playerEscapeDict[line] = []
+            numEffective = 0
+            for i in range(len(self.burstList)):
+                if burstCount[i] > 4:
+                    numEffective += 1
+                    for line in playerDamageDict:
+                        if playerDamageDict[line][i] == 0:
+                            playerEscapeDict[line].append(str(numEffective))
+            for id in playerEscapeDict:
+                if len(playerEscapeDict[id]) > 0:
+                    s = ",".join(playerEscapeDict[id])
+                    self.potList.append([namedict[id][0],
+                                         occdict[id][0],
+                                         0,
+                                         self.bossNamePrint,
+                                         "承伤逃课，次数：%d" %len(playerEscapeDict[id]),
+                                         ["总承伤次数：%d"%numEffective, "逃课记录：%s"%s]])  
+            for id in playerWork:
+                if playerWork[id] > 0:
+                    self.potList.append([namedict[id][0],
+                                         occdict[id][0],
+                                         3,
+                                         self.bossNamePrint,
+                                         "控制戏龙珠，次数：%d" %playerWork[id],
+                                         ["大部分推拉技能都会被计入这项统计中，用于补贴"]]),                                          
                                        
         if calculDPS:
             bossResult = []
@@ -1141,6 +1261,10 @@ class ActorStatGenerator(StatGeneratorBase):
                     if occ[-1] in ["d", "h", "t", "p", "m"]:
                         occ = occ[:-1]
                     GORate = line[2] / sumDPS * sumStandardDPS / resultDict[occ][2]
+                    
+                    occDPS = resultDict[occ][2]
+                    GODPS = sumDPS / sumStandardDPS * occDPS
+                    DPSDetail = ["实际DPS：%d"%line[2], "心法平均DPS：%d"%occDPS, "团队-心法平均DPS：%d"%GODPS]
                 
                     if GORate < self.qualifiedRate:
                         sumDPS -= line[2]
@@ -1151,19 +1275,22 @@ class ActorStatGenerator(StatGeneratorBase):
                                                  line[1],
                                                  1,
                                                  self.bossNamePrint,
-                                                 "团队-心法DPS未到及格线(%s%%/%s%%)" % (parseCent(GORate, 0), parseCent(self.qualifiedRate, 0))])
+                                                 "团队-心法DPS未到及格线(%s%%/%s%%)" % (parseCent(GORate, 0), parseCent(self.qualifiedRate, 0)),
+                                                 DPSDetail])
                     elif GORate < self.alertRate:
                         self.potList.append([line[0],
                                              line[1],
                                              0,
                                              self.bossNamePrint,
-                                             "团队-心法DPS低于预警线(%s%%/%s%%)" % (parseCent(GORate, 0), parseCent(self.alertRate, 0))])
+                                             "团队-心法DPS低于预警线(%s%%/%s%%)" % (parseCent(GORate, 0), parseCent(self.alertRate, 0)),
+                                             DPSDetail])
                     elif GORate > self.bonusRate:
                         self.potList.append([line[0],
                                              line[1],
                                              3,
                                              self.bossNamePrint,
-                                             "团队-心法DPS达到补贴线(%s%%/%s%%)" % (parseCent(GORate, 0), parseCent(self.bonusRate, 0))])
+                                             "团队-心法DPS达到补贴线(%s%%/%s%%)" % (parseCent(GORate, 0), parseCent(self.bonusRate, 0)),
+                                             DPSDetail])
 
         if self.firstHitList != {}:
             earliestHit = 0
@@ -1196,8 +1323,6 @@ class ActorStatGenerator(StatGeneratorBase):
 
         self.data = data
         self.effectiveDPSList = effectiveDPSList
-        
-        print(self.potList)
 
     def __init__(self, filename, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}):
         self.myname = myname

@@ -2,6 +2,7 @@
 # 复盘相关方法的基类库。
 
 from Functions import *
+from BossNameUtils import *
 
 class StatGeneratorBase():
     filename = ""
@@ -27,7 +28,7 @@ class StatGeneratorBase():
             else:
                 raise Exception("数据不完整，无法生成，请确认是否生成了正确的茗伊战斗复盘记录。")
 
-        self.bossname = self.filename.split('_')[1]
+        self.bossname = getNickToBoss(self.filename.split('_')[1])
         self.battleTime = int(self.filename.split('_')[2].split('.')[0])
 
     def __init__(self, filename, path="", rawdata={}):
@@ -37,6 +38,6 @@ class StatGeneratorBase():
         else:
             self.filename = filename
             self.rawdata = rawdata
-            self.bossname = self.filename.split('_')[1]
+            self.bossname = getNickToBoss(self.filename.split('_')[1])
             self.battleTime = int(self.filename.split('_')[2].split('.')[0])
             
