@@ -9,7 +9,7 @@ from win10toast import ToastNotifier
 import traceback
 
 from FileLookUp import FileLookUp
-from ConfigTools import Config, ConfigWindow
+from ConfigTools import Config, ConfigWindow, LicenseWindow
 from LiveBase import LiveListener, AllStatWindow, LiveActorAnalysis
 from main import replay_by_window
 
@@ -111,6 +111,10 @@ class MainWindow():
         configWindow = ConfigWindow()
         configWindow.start()
         
+    def show_license(self):
+        licenseWindow = LicenseWindow()
+        licenseWindow.start()
+        
     def loadWindow(self):
         window = tk.Tk()
         window.title('剑三警长')
@@ -134,6 +138,9 @@ class MainWindow():
         
         b4 = tk.Button(window, text='设置', height=1, command=self.show_config)
         b4.place(x = 250, y = 160)
+        
+        b5 = tk.Button(window, text='协议', height=1, command=self.show_license)
+        b5.place(x = 120, y = 160)
         
         self.window = window
 
