@@ -16,7 +16,7 @@ from Constants import *
 
 from painter import XiangZhiPainter
 
-version = VERSION
+version = EDITION
 ip = "139.199.102.41"
 announcement = "当前最新版本为5.1.0版本，欢迎大家使用，收集足够的数据之后就可以给出评分参考啦！"
 app = Flask(__name__) 
