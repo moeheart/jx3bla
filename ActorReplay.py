@@ -613,16 +613,23 @@ class ActorStatGenerator(StatGeneratorBase):
                         if item[7] == "24472":
                             playerHitDict[item[5]]["num"] += 5
                             playerHitDict[item[5]]["log"].append("%s，寒刃血莲：5层"%parseTime((int(item[2]) - self.startTime) / 1000))    
-                        if item[7] == "24465":
+                        if item[7] == "24465" and int(item[13]) > 0:
                             playerUltDict[item[5]]["num"] += 1
                             playerUltDict[item[5]]["log"].append("%s，引导：震天血盾"%parseTime((int(item[2]) - self.startTime) / 1000)) 
                             if item[5] in playerHitDict:
                                 playerHitDict[item[5]]["num"] -= 5
-                        if item[7] == "24473":
+                        if item[7] == "24473" and int(item[13]) > 0:
                             playerUltDict[item[5]]["num"] += 1
                             playerUltDict[item[5]]["log"].append("%s，引导：血莲绽放"%parseTime((int(item[2]) - self.startTime) / 1000))
                             if item[5] in playerHitDict:
                                 playerHitDict[item[5]]["num"] -= 5
+                               
+                        '''
+                        if item[5] in namedict and namedict[item[5]][0] == '"这个靓仔"' and (int(item[14]) > 0 or item[7] in ["24465", "24473"]):
+                            if item[9] in skilldict:
+                                print(skilldict[item[9]][0][""][0].strip('"'))
+                            print(item)
+                        '''
 
                     if yuanfeiActive:
                         if item[7] == "24655" and item[4] in ballDict and int(item[2]) - ballDict[item[4]]["lastHit"] > 500:
@@ -994,7 +1001,7 @@ class ActorStatGenerator(StatGeneratorBase):
                         sideTime += 20
                         guishouTime += 20
                         
-                print(item)
+                #print(item)
                 
                 if yuhuiActive:
                     if item[4] == '"是时候用你们的鲜血来换取最高的欢呼声了！"':
@@ -1014,6 +1021,7 @@ class ActorStatGenerator(StatGeneratorBase):
                                '"情况不太对……咳咳……"',  # 驺吾没有通关喊话，暂时以这句话代替
                                '"三千世界生死限，九天有苍十方剑！"',  # 方有崖暂时以这句话代替
                                '"不可能！我才是……血斗场的……王者……"', #余晖通关喊话
+                               '"咳咳，不打了，我还不想现在死，咱们来日方长……"', #宓桃通关喊话
                                
                                ]:
                     self.win = 1
@@ -1028,7 +1036,7 @@ class ActorStatGenerator(StatGeneratorBase):
 
             num += 1
             
-        if self.bossname in ["宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅"]:
+        if self.bossname in ["武雪散", "猿飞", "哑头陀", "岳琳&岳琅"]:
             self.win = 1
 
         yanyeResultList = []
@@ -1187,8 +1195,8 @@ class ActorStatGenerator(StatGeneratorBase):
                                              "完成引导，次数：%d" %playerUltDict[line]["num"],
                                              playerUltDict[line]["log"]])
 
-                for line in self.potList:
-                    print(line)
+                #for line in self.potList:
+                #    print(line)
             
         elif yuanfeiActive:
             for line in ballDict:
