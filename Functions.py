@@ -125,8 +125,9 @@ def dictToPairs(dict):
 
 
 def calculSpeed(speed, origin):
-    tmp = int(speed / 188.309 * 10.24);
-    y = int(origin * 1024 / (tmp + 1024));
+    #tmp = int(speed / 188.309 * 10.24)   # 100赛季数值
+    tmp = int(speed / 438.5625 * 10.24)   # 110赛季数值
+    y = int(origin * 1024 / (tmp + 1024))
     return y
 
 

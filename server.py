@@ -12,12 +12,13 @@ import urllib.request
 import hashlib
 import configparser
 import os
+from Constants import *
 
 from painter import XiangZhiPainter
 
-version = "3.7.0"
+version = VERSION
 ip = "139.199.102.41"
-announcement = "3.7.0版本更新啦！本次更新优化了DPS的计算，可以通过大数据查到谁的DPS不够啦~"
+announcement = "当前最新版本为5.1.0版本，欢迎大家使用，收集足够的数据之后就可以给出评分参考啦！"
 app = Flask(__name__) 
 app.config['JSON_AS_ASCII'] = False
 
@@ -99,6 +100,11 @@ def uploadActorData():
     hash = jdata["hash"]
     statistics = jdata["statistics"]
     
+    if "win" not in jdata:
+        jdata["win"] = 1
+        
+    win = int(jdata["win"])
+    
     db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
     cursor = db.cursor()
     
@@ -110,8 +116,8 @@ def uploadActorData():
         db.close()
         return jsonify({'result': 'dupid'})
         
-    sql = """INSERT INTO ActorStat VALUES ("%s", "%s", "%s", "%s", "%s", "%s", "%s")"""%(
-        server, boss, battleDate, mapDetail, edition, hash, statistics)
+    sql = """INSERT INTO ActorStat VALUES ("%s", "%s", "%s", "%s", "%s", "%s", %d, "%s")"""%(
+        server, boss, battleDate, mapDetail, edition, hash, win, statistics)
     cursor.execute(sql)
     db.commit()
     db.close()

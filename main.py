@@ -287,13 +287,13 @@ class XiangZhiStatGenerator(StatGeneratorBase):
             if int(occdict[key][0]) == 0:
                 continue
             line = data.battlestat[key]
-            data.damageDict[key] = line[0] + line[1] / 1.117
-            numdam1 += line[1] / 1.117 * 0.117# + line[2]
-            #data.damageDict[key] = line[0] + line[1] / 1.0554 # 110赛季数值
-            #numdam1 += line[1] / 1.0554 * 0.0554# + line[2]
-        #numdam2 = data.battlestat[self.mykey][2]
+            #data.damageDict[key] = line[0] + line[1] / 1.117 # 100赛季数值
+            #numdam1 += line[1] / 1.117 * 0.117# + line[2]
+            data.damageDict[key] = line[0] + line[1] / 1.0554 # 110赛季数值
+            numdam1 += line[1] / 1.0554 * 0.0554# + line[2]
+        numdam2 = data.battlestat[self.mykey][2]
         #print(numdam1, numdam2)
-        numdam = numdam1# + numdam2
+        numdam = numdam1 + numdam2
 
         if self.mykey not in data.damageDict:
             data.damageDict[self.mykey] = numdam
@@ -1151,10 +1151,16 @@ class XiangZhiAnalysis():
                 self.mapdetail = "未知   "
                 
         if self.map == "达摩洞":
+            mapid = generator[0].rawdata['20'][0]
             self.hardBOSS = "未知"
             self.hardNPC = "未知"
             self.hitDict = {}
-            self.mapdetail = "未知   "
+            if mapid == "484":
+                self.mapdetail = "25人英雄"
+            elif mapid == "483":
+                self.mapdetail = "25人普通"
+            elif mapid == "482":
+                self.mapdetail = "10人普通"
 
         data = XiangZhiOverallData()
 
@@ -1303,7 +1309,7 @@ class XiangZhiAnalysis():
         self.score.analysisAll()
 
         self.scoreRate = None
-        if self.score.available:
+        if self.score.available or self.map == "达摩洞":
             info, res = self.prepareUpload(upload=1)
             if res["num"] != 0:
                 self.scoreRate = res["numOver"] / res["num"]
@@ -1344,7 +1350,6 @@ def replay_by_window():
 
     try:
         config = Config("config.ini")
-
         resp = urllib.request.urlopen('http://139.199.102.41:8009/getAnnouncement')
         res = json.load(resp)
         print(res["announcement"])

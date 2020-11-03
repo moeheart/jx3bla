@@ -113,6 +113,7 @@ class XiangZhiPainter():
                      "23": (71, 73, 166),#霸刀
                      "24": (195, 171, 227),#蓬莱
                      "25": (161, 9, 34)#凌雪
+                     "26": (166, 83, 251)#衍天
                     }
         if occ not in colorDict:
             occ = "0"
@@ -174,8 +175,6 @@ class XiangZhiPainter():
         mapDetail = info["mapdetail"]
         difficulty = mapDetail[:5]
         self.map = mapDetail[5:]
-        
-        print(info["mapdetail"])
         
         self.speed = 3770
         
@@ -461,7 +460,7 @@ class XiangZhiPainter():
         
         write('\n')
         if stat["printTable"] == []:
-            paint(draw, "由于全程战斗数据不完整，无法生成评分。", 30, 690, fontText, fillblack)
+            paint(draw, "由于全程战斗数据不完整或标准待定，无法生成评分。", 30, 690, fontText, fillblack)
         else:
             fillRate = (0, 0, 0)
             if self.scoreColor == 0: 

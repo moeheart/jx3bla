@@ -12,6 +12,7 @@ from FileLookUp import FileLookUp
 from ConfigTools import Config, ConfigWindow, LicenseWindow
 from LiveBase import LiveListener, AllStatWindow, LiveActorAnalysis
 from main import replay_by_window
+from Constants import *
 
 class MainWindow():
 
@@ -82,11 +83,7 @@ class MainWindow():
         
     def start_live(self):
         if not self.startLive:
-            #try:
             config = Config("config.ini")
-            #except:
-            #    var.set("配置文件错误，请按指示设置")
-            #    return
             self.startLive = True
             fileLookUp = FileLookUp()
             fileLookUp.initFromConfig(config)
@@ -112,8 +109,14 @@ class MainWindow():
         configWindow.start()
         
     def show_license(self):
-        licenseWindow = LicenseWindow()
+        licenseWindow = LicenseWindow(self.window)
         licenseWindow.start()
+        
+    def checkConfig(self):
+        if not os.path.isfile("config.ini"):
+            time.sleep(0.5)
+            configThread = threading.Thread(target = self.show_license)    
+            configThread.start()
         
     def loadWindow(self):
         window = tk.Tk()
@@ -130,8 +133,8 @@ class MainWindow():
         b2 = tk.Button(window, text='实时模式', bg='#ffcccc', width=12, height=1, command=self.start_live)
         b2.pack()
 
-        l = tk.Label(window, textvariable=self.var, width=40, height=1)
-        l.pack()
+        l2 = tk.Label(window, textvariable=self.var, width=40, height=1)
+        l2.pack()
         
         b3 = tk.Button(window, text='分锅结果', height=1, command=self.show_history)
         b3.place(x = 180, y = 160)
@@ -139,12 +142,18 @@ class MainWindow():
         b4 = tk.Button(window, text='设置', height=1, command=self.show_config)
         b4.place(x = 250, y = 160)
         
-        b5 = tk.Button(window, text='协议', height=1, command=self.show_license)
-        b5.place(x = 120, y = 160)
+        l3 = tk.Label(window, text="版本号：%s"%EDITION, height=1)
+        l3.place(x = 20, y = 160)
+        
+        #b5 = tk.Button(window, text='协议', height=1, command=self.show_license)
+        #b5.place(x = 120, y = 160)
         
         self.window = window
 
         window.protocol('WM_DELETE_WINDOW', self.closeWindow)
+        
+        self.checkConfig()
+        
         window.mainloop()
         
     def __init__(self):

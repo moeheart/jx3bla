@@ -31,7 +31,8 @@ class FileLookUp():
             key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\JX3Installer', )
             pathres = winreg.QueryValueEx(key, "InstPath")[0]
         except:
-            print("自动获取目录失败，请手动指定目录")
+            print("自动获取目录失败，请手动指定剑三目录")
+            self.basepath = "自动获取目录失败，请手动指定剑三目录"
             pathres = ""
         self.jx3path = pathres
 
@@ -54,7 +55,8 @@ class FileLookUp():
 
         self.basepath = resDir
         if resDir == "":
-            print("剑三目录有误，请检查记录者角色名是否正确")
+            print("查找角色失败，请检查记录者角色名或剑三目录是否正确")
+            self.basepath = "查找角色失败，请检查记录者角色名或剑三目录是否正确"
 
     def getLocalFile(self):
         '''
@@ -154,17 +156,17 @@ class FileLookUp():
         if config.basepath != "":
             print("指定基准目录，使用：%s" % config.basepath)
             self.basepath = config.basepath
+            return ""
         elif config.playername == "":
             self.basepath = '.'  # 这一句有点废话的意思，但为了让别人看得清晰还是写上吧
             print("没有指定记录者角色名，将查找当前目录下的文件……")
         else:
             if config.jx3path != "":
-                print("指定剑三目录，使用：%s" % config.jx3path)
                 self.jx3path = config.jx3path
             else:
-                print("无指定目录，自动查找目录……")
                 self.getPathFromWinreg()
             self.getBasePath(config.playername)
+        return self.basepath
             
     def __init__(self):
         pass 

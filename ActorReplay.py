@@ -26,12 +26,14 @@ class ActorStatGenerator(StatGeneratorBase):
     yuanfeiActive = 0
     mitaoActive = 0
     yatoutuoActive = 0
+    yuhuiActive = 0
     fulingID = {}
     sideTargetID = {}
     guishouID = {}
     yingyuanHistory = {}
     occDetailList = {}
     longzhuID =""
+    upload = 0
 
     startTime = 0
     finalTime = 0
@@ -131,6 +133,8 @@ class ActorStatGenerator(StatGeneratorBase):
         result["mapdetail"] = self.rawdata['20'][0].strip('"')
         result["edition"] = EDITION
         result["hash"] = self.hashGroup()
+        result["win"] = self.win
+        result["time"] = int(time.time())
         allInfo = {}
         allInfo["effectiveDPSList"] = self.effectiveDPSList
         allInfo["potList"] = self.potList
@@ -162,6 +166,12 @@ class ActorStatGenerator(StatGeneratorBase):
             self.mapDetail = "25人普通范阳夜变"
         elif mapid == "452":
             self.mapDetail = "10人普通范阳夜变"
+        elif mapid == "484":
+            self.mapDetail = "25人英雄达摩洞"
+        elif mapid == "483":
+            self.mapDetail = "25人普通达摩洞"
+        elif mapid == "482":
+            self.mapDetail = "10人普通达摩洞"
         else:
             self.mapDetail = "未知"
 
@@ -256,12 +266,15 @@ class ActorStatGenerator(StatGeneratorBase):
                         
                 if namedict[item[5]][0] in ['"戏龙珠"'] and occdict[item[5]][0] == '0':
                     self.longzhuID = item[5]
+                    
+                if namedict[item[5]][0] == '"余晖"' and occdict[item[5]][0] == '0':
+                   self.yuhuiActive = 1
                         
                 if self.mitaoActive:
                     if item[7] in ["24704", "24705"]:
                         if item[4] not in self.leadDict:
                             self.leadDict[item[4]] = []
-                        if self.dizzyDict[item[4]] != []:
+                        if item[4] in self.dizzyDict and self.dizzyDict[item[4]] != []:
                             self.dizzyDict[item[4]].pop()
                         self.leadDict[item[4]].append(int(item[2]))
                         
@@ -279,7 +292,7 @@ class ActorStatGenerator(StatGeneratorBase):
                 if item[4] in occDetailList and occDetailList[item[4]] in ['1', '3', '10', '21']:
                     occDetailList[item[4]] = checkOccDetailByBuff(occDetailList[item[4]], item[6])
                 if self.mitaoActive:
-                    if item[6] == "17767":
+                    if item[6] in ["17767", "17919"]:
                         if item[5] not in self.dizzyDict:
                             self.dizzyDict[item[5]] = []
                         if item[10] == '1':
@@ -483,6 +496,15 @@ class ActorStatGenerator(StatGeneratorBase):
             for line in self.playerIDList:
                 playerBallDict[line] = {"score": 0, "log": []}
                 
+        yuhuiActive = self.yuhuiActive
+        if yuhuiActive:
+            playerHitDict = {}
+            playerUltDict = {}
+            for line in self.playerIDList:
+                playerHitDict[line] = {"num": 0, "log": []}
+                playerUltDict[line] = {"num": 0, "log": []}
+            countHit = 1
+                
         mitaoActive = self.mitaoActive
         if mitaoActive:
             pass
@@ -577,7 +599,31 @@ class ActorStatGenerator(StatGeneratorBase):
                                 else:
                                     self.xuelian[item[5]].append(-1)
                             xuelianStamp = int(item[2])
-                    
+                            
+                    if yuhuiActive:
+                        if item[7] == "24438":
+                            playerHitDict[item[5]]["num"] += 3
+                            playerHitDict[item[5]]["log"].append("%s，血海寒刀：3层"%parseTime((int(item[2]) - self.startTime) / 1000))
+                        if item[7] == "24464":
+                            playerHitDict[item[5]]["num"] += 5
+                            playerHitDict[item[5]]["log"].append("%s，摧城盾冲：5层"%parseTime((int(item[2]) - self.startTime) / 1000))
+                        if item[7] in ["24471", "24533"]:
+                            playerHitDict[item[5]]["num"] += 5
+                            playerHitDict[item[5]]["log"].append("%s，无尽刀狱：5层"%parseTime((int(item[2]) - self.startTime) / 1000))
+                        if item[7] == "24472":
+                            playerHitDict[item[5]]["num"] += 5
+                            playerHitDict[item[5]]["log"].append("%s，寒刃血莲：5层"%parseTime((int(item[2]) - self.startTime) / 1000))    
+                        if item[7] == "24465":
+                            playerUltDict[item[5]]["num"] += 1
+                            playerUltDict[item[5]]["log"].append("%s，引导：震天血盾"%parseTime((int(item[2]) - self.startTime) / 1000)) 
+                            if item[5] in playerHitDict:
+                                playerHitDict[item[5]]["num"] -= 5
+                        if item[7] == "24473":
+                            playerUltDict[item[5]]["num"] += 1
+                            playerUltDict[item[5]]["log"].append("%s，引导：血莲绽放"%parseTime((int(item[2]) - self.startTime) / 1000))
+                            if item[5] in playerHitDict:
+                                playerHitDict[item[5]]["num"] -= 5
+
                     if yuanfeiActive:
                         if item[7] == "24655" and item[4] in ballDict and int(item[2]) - ballDict[item[4]]["lastHit"] > 500:
                             if ballDict[item[4]]["player1"] == 0:
@@ -902,6 +948,10 @@ class ActorStatGenerator(StatGeneratorBase):
                                              self.bossNamePrint,
                                              "%s重伤，来源：%s" % (deathTime, deathSource),
                                              deathSourceDetail])
+                        
+                        if yuhuiActive and countHit:
+                            playerHitDict[item[4]]["num"] += 10
+                            playerHitDict[item[4]]["log"].append("%s，重伤：10层"%parseTime((int(item[2]) - self.startTime) / 1000)) 
                                          
                 if yatoutuoActive:
                     playerInBattle[item[4]] = 0
@@ -943,7 +993,14 @@ class ActorStatGenerator(StatGeneratorBase):
                     if item[4] in ['"哼哼哼哼……"']:
                         sideTime += 20
                         guishouTime += 20
-                    pass
+                        
+                print(item)
+                
+                if yuhuiActive:
+                    if item[4] == '"是时候用你们的鲜血来换取最高的欢呼声了！"':
+                        countHit = 0
+                
+                
                 if item[4] in ['"可恶…"',
                                '"哈哈哈哈哈，一群蠢货！手刃好友的滋味如何？"',
                                '"呵！算你们机灵。不过既然来了范阳，就别想都能活着回去。"',
@@ -956,6 +1013,8 @@ class ActorStatGenerator(StatGeneratorBase):
                                '"…… …… ……"',
                                '"情况不太对……咳咳……"',  # 驺吾没有通关喊话，暂时以这句话代替
                                '"三千世界生死限，九天有苍十方剑！"',  # 方有崖暂时以这句话代替
+                               '"不可能！我才是……血斗场的……王者……"', #余晖通关喊话
+                               
                                ]:
                     self.win = 1
                     
@@ -969,7 +1028,7 @@ class ActorStatGenerator(StatGeneratorBase):
 
             num += 1
             
-        if self.bossname in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅"]:
+        if self.bossname in ["宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅"]:
             self.win = 1
 
         yanyeResultList = []
@@ -1094,6 +1153,43 @@ class ActorStatGenerator(StatGeneratorBase):
             
             calculDPS = 0
             
+        elif yuhuiActive:
+            if self.mapDetail != "10人普通达摩洞":
+                playerHitList = []
+                for line in playerHitDict:
+                    if playerHitDict[line]["num"] != 0:
+                        playerHitList.append([line, playerHitDict[line]["num"], playerHitDict[line]["log"]])
+                playerHitList.sort(key = lambda x:-x[1])
+                for i in range(len(playerHitList)):
+                    id = playerHitList[i][0]
+                    if playerHitList[i][1] >= 10:
+                        self.potList.append([namedict[id][0],
+                                             occdict[id][0],
+                                             1,
+                                             self.bossNamePrint,
+                                             "狂热崇拜值叠加：%d层" %playerHitList[i][1],
+                                             playerHitList[i][2]])
+                    elif playerHitList[i][1] > 0:
+                        self.potList.append([namedict[id][0],
+                                             occdict[id][0],
+                                             0,
+                                             self.bossNamePrint,
+                                             "狂热崇拜值叠加：%d层" %playerHitList[i][1],
+                                             playerHitList[i][2]])
+                
+                for line in playerUltDict:
+                    id = line
+                    if playerUltDict[line]["num"] > 0:
+                        self.potList.append([namedict[id][0],
+                                             occdict[id][0],
+                                             3,
+                                             self.bossNamePrint,
+                                             "完成引导，次数：%d" %playerUltDict[line]["num"],
+                                             playerUltDict[line]["log"]])
+
+                for line in self.potList:
+                    print(line)
+            
         elif yuanfeiActive:
             for line in ballDict:
                 player1 = str(ballDict[line]["player1"])
@@ -1187,8 +1283,9 @@ class ActorStatGenerator(StatGeneratorBase):
                                      
         elif yatoutuoActive:
             for line in self.playerIDList:
-                if playerDamageDict[line][nowBurst] == 0 and playerInBattle[line] == 0:
-                    playerDamageDict[line][nowBurst] = 2
+                if nowBurst < len(playerDamageDict[line]):
+                    if playerDamageDict[line][nowBurst] == 0 and playerInBattle[line] == 0:
+                        playerDamageDict[line][nowBurst] = 2
             playerEscapeDict = {}
             for line in self.playerIDList:
                 playerEscapeDict[line] = []
@@ -1323,6 +1420,10 @@ class ActorStatGenerator(StatGeneratorBase):
 
         self.data = data
         self.effectiveDPSList = effectiveDPSList
+        if self.win:
+            self.upload = 1
+        if self.mapDetail in ["25人英雄达摩洞", "25人普通达摩洞", "10人普通达摩洞"]:
+            self.upload = 1
 
     def __init__(self, filename, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}):
         self.myname = myname
@@ -1430,7 +1531,8 @@ class ActorAnalysis():
                      "22": (100, 250, 180),  # 长歌
                      "23": (71, 73, 166),  # 霸刀
                      "24": (195, 171, 227),  # 蓬莱
-                     "25": (161, 9, 34)  # 凌雪
+                     "25": (161, 9, 34),  # 凌雪
+                     "26": (166, 83, 251), # 衍天
                      }
         if occ not in colorDict:
             occ = "0"
@@ -1655,6 +1757,17 @@ class ActorAnalysis():
                 self.mapdetail = "10人普通"
             else:
                 self.mapdetail = "未知"
+                
+        if self.map == "达摩洞":
+            mapid = self.generator[0].rawdata['20'][0]
+            if mapid == "484":
+                self.mapdetail = "25人英雄"
+            elif mapid == "483":
+                self.mapdetail = "25人普通"
+            elif mapid == "482":
+                self.mapdetail = "10人普通"
+            else:
+                self.mapdetail = "未知"
 
         self.potList = []
         for line in self.generator:
@@ -1682,7 +1795,7 @@ class ActorAnalysis():
                 battleDate=self.battledate, mask=self.mask, dpsThreshold=self.dpsThreshold)
             res.firstStageAnalysis()
             res.secondStageAnalysis()
-            if res.win:
+            if res.upload:
                 res.prepareUpload()
             self.generator.append(res)
 
@@ -1699,3 +1812,4 @@ class ActorAnalysis():
                              "alertRate": config.alertRate,
                              "bonusRate": config.bonusRate}
         self.loadData(filelist, path, raw)
+        
