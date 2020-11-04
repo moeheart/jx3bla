@@ -273,8 +273,9 @@ class LiveActorAnalysis():
         return s
         
     def changeResult(self, potListScore):
-        del self.potListScore[-len(potListScore):]
-        self.potListScore.extend(potListScore)
+        if len(potListScore) != 0:
+            del self.potListScore[-len(potListScore):]
+            self.potListScore.extend(potListScore)
 
     def addResult(self, potListScore):
         self.potListScore.extend(potListScore)
