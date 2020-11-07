@@ -1019,6 +1019,8 @@ class XiangZhiAnalysis():
         result["public"] = self.public
         allInfo = {}
         data = self.data
+        allInfo["speed"] = self.speed
+        
         allInfo["healTable"] = data.healTable
         allInfo["dpsTable"] = data.dpsTable
         allInfo["rateTable"] = data.rateTable
@@ -1231,8 +1233,12 @@ class XiangZhiAnalysis():
         for line in generator:
             if self.map == "范阳夜变":
                 bossNameList = ["迟驻", "白某", "安小逢"]
-            else:
+            elif self.map == "敖龙岛":
                 bossNameList = ["铁黎", "陈徽", "藤原武裔"]
+            elif self.map == "达摩洞":
+                bossNameList = ["宓桃", "哑头陀", "岳琳&岳琅"]
+            else:
+                bossNameList = ["宓桃", "哑头陀", "岳琳&岳琅"]
             for i in range(len(bossNameList)):
                 if line.bossname == bossNameList[i]:
                     for line2 in line.data.durationDict:

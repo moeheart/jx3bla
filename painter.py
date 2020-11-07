@@ -113,7 +113,7 @@ class XiangZhiPainter():
                      "23": (71, 73, 166),#霸刀
                      "24": (195, 171, 227),#蓬莱
                      "25": (161, 9, 34),#凌雪
-                     "26": (166, 83, 251),#衍天
+                     "211": (166, 83, 251),#衍天
                     }
         if occ not in colorDict:
             occ = "0"
@@ -176,7 +176,10 @@ class XiangZhiPainter():
         difficulty = mapDetail[:5]
         self.map = mapDetail[5:]
         
-        self.speed = 3770
+        if "speed" in stat:
+            self.speed = stat["speed"]
+        else:
+            self.speed = 3770
         
         self.getHitDict()
         

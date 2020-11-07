@@ -1022,6 +1022,8 @@ class ActorStatGenerator(StatGeneratorBase):
                                '"三千世界生死限，九天有苍十方剑！"',  # 方有崖暂时以这句话代替
                                '"不可能！我才是……血斗场的……王者……"', #余晖通关喊话
                                '"咳咳，不打了，我还不想现在死，咱们来日方长……"', #宓桃通关喊话
+                               '"能和妾身玩这么久的人你们还是第一个，不过妾身一心只惦记着小将军……"', #宓桃25人通关喊话
+                               '"想不到我武雪散竟亡于这……畜生道……可悲啊……"', #武雪散通关喊话
                                
                                ]:
                     self.win = 1
@@ -1036,7 +1038,7 @@ class ActorStatGenerator(StatGeneratorBase):
 
             num += 1
             
-        if self.bossname in ["武雪散", "猿飞", "哑头陀", "岳琳&岳琅"]:
+        if self.bossname in ["猿飞", "哑头陀", "岳琳&岳琅"]:
             self.win = 1
 
         yanyeResultList = []
@@ -1243,7 +1245,10 @@ class ActorStatGenerator(StatGeneratorBase):
             for line in playerBallDict:
                 if playerBallDict[line]["log"] != []:
                     playerBallDict[line]["log"].sort(key = lambda x:x[0])
-                    playerBallList.append([line, playerBallDict[line]["score"], playerBallDict[line]["log"]])
+                    ballActualLog = []
+                    for t in playerBallDict[line]["log"]:
+                        ballActualLog.append(t[1])
+                    playerBallList.append([line, playerBallDict[line]["score"], ballActualLog])
             playerBallList.sort(key = lambda x:-x[1])
             scoreRank = 0
             highScore = 1
@@ -1356,15 +1361,19 @@ class ActorStatGenerator(StatGeneratorBase):
                 for i in range(len(effectiveDPSList) - 1, -1, -1):
                     line = effectiveDPSList[i]
                     occ = str(line[1])
-                    if occ[-1] in ["d", "h", "t", "p", "m"]:
-                        occ = occ[:-1]
+                    if occ not in resultDict:
+                        resultDict[occ] = ["xx", "xx", 50000]
+                    #if occ[-1] in ["d", "h", "t", "p", "m"]:
+                    #    occ = occ[:-1]
                     sumStandardDPS += resultDict[occ][2]
                     
                 for i in range(len(effectiveDPSList) - 1, -1, -1):  
                     line = effectiveDPSList[i]
                     occ = str(line[1])
-                    if occ[-1] in ["d", "h", "t", "p", "m"]:
-                        occ = occ[:-1]
+                    if occ not in resultDict:
+                        resultDict[occ] = ["xx", "xx", 50000]
+                    #if occ[-1] in ["d", "h", "t", "p", "m"]:
+                    #    occ = occ[:-1]
                     GORate = line[2] / sumDPS * sumStandardDPS / resultDict[occ][2]
                     
                     occDPS = resultDict[occ][2]
@@ -1540,7 +1549,7 @@ class ActorAnalysis():
                      "23": (71, 73, 166),  # 霸刀
                      "24": (195, 171, 227),  # 蓬莱
                      "25": (161, 9, 34),  # 凌雪
-                     "26": (166, 83, 251), # 衍天
+                     "211": (166, 83, 251), # 衍天
                      }
         if occ not in colorDict:
             occ = "0"
