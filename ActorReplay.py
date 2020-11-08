@@ -507,7 +507,8 @@ class ActorStatGenerator(StatGeneratorBase):
                 
         mitaoActive = self.mitaoActive
         if mitaoActive:
-            pass
+            self.lastLead = "0"
+            self.lastLeadTime = "0"
             
         yatoutuoActive = self.yatoutuoActive
         if yatoutuoActive:
@@ -623,13 +624,6 @@ class ActorStatGenerator(StatGeneratorBase):
                             playerUltDict[item[5]]["log"].append("%s，引导：血莲绽放"%parseTime((int(item[2]) - self.startTime) / 1000))
                             if item[5] in playerHitDict:
                                 playerHitDict[item[5]]["num"] -= 5
-                               
-                        '''
-                        if item[5] in namedict and namedict[item[5]][0] == '"这个靓仔"' and (int(item[14]) > 0 or item[7] in ["24465", "24473"]):
-                            if item[9] in skilldict:
-                                print(skilldict[item[9]][0][""][0].strip('"'))
-                            print(item)
-                        '''
 
                     if yuanfeiActive:
                         if item[7] == "24655" and item[4] in ballDict and int(item[2]) - ballDict[item[4]]["lastHit"] > 500:
@@ -750,6 +744,11 @@ class ActorStatGenerator(StatGeneratorBase):
                             self.dps[item[4]][3] += int(item[14])
                         if P3 and item[4] in self.playerIDList:
                             self.dps[item[4]][4] += int(item[14])
+                            
+                    if mitaoActive:
+                        if item[7] in ["24704", "24705"]:
+                            self.lastLead = item[4]
+                            self.lastLeadTime = item[2]
                     
                     elif yuanfeiActive:
                         if item[7] == "25459" and item[5] in ballDict and int(item[2]) - ballDict[item[5]]["lastHit"] > 500:
@@ -766,10 +765,6 @@ class ActorStatGenerator(StatGeneratorBase):
                             else:
                                 ballDict[item[5]]["lastHit"] = int(item[2])
                                 ballDict[item[5]]["status"] = 9 #射门传到第三个人
-                        if item[4] in self.playerIDList:
-                            if item[4] not in self.dps:
-                                self.dps[item[4]] = [0]
-                            self.dps[item[4]][0] += int(item[14])
                             
                     elif yatoutuoActive:
                         if item[5] == self.longzhuID and item[7] in ["242", "546", "305", "1613", "2479", "3971", "22341"]:
@@ -1006,6 +1001,17 @@ class ActorStatGenerator(StatGeneratorBase):
                 if yuhuiActive:
                     if item[4] == '"是时候用你们的鲜血来换取最高的欢呼声了！"':
                         countHit = 0
+                        
+                if mitaoActive:
+                    if item[4] == '"你……你不是宓桃大人！"':
+                        if self.lastLead != "0" and int(item[2]) - int(self.lastLeadTime) < 13000 and int(item[2]) - int(self.lastLeadTime) > 1000:
+                            id = self.lastLead
+                            self.potList.append([namedict[self.lastLead][0],
+                                                 occDetailList[self.lastLead],
+                                                 1,
+                                                 self.bossNamePrint,
+                                                 "%s引导出错" % parseTime((int(item[2]) - self.startTime) / 1000),
+                                                 ["持续时间：%ss/14s"%((int(item[2]) - int(self.lastLeadTime)) / 1000)]])
                 
                 
                 if item[4] in ['"可恶…"',
@@ -1024,7 +1030,9 @@ class ActorStatGenerator(StatGeneratorBase):
                                '"咳咳，不打了，我还不想现在死，咱们来日方长……"', #宓桃通关喊话
                                '"能和妾身玩这么久的人你们还是第一个，不过妾身一心只惦记着小将军……"', #宓桃25人通关喊话
                                '"想不到我武雪散竟亡于这……畜生道……可悲啊……"', #武雪散通关喊话
-                               
+                               '"呃啊...啊，这双腿...还是...大不如....从前了...."', #猿飞通关喊话
+                               '"…… …… …… ……"', #哑头陀通关喊话
+                               '"你们竟敢染指琅弟心中所好，通通该死！"', #岳琳&岳琅通关喊话
                                ]:
                     self.win = 1
                     
@@ -1038,8 +1046,8 @@ class ActorStatGenerator(StatGeneratorBase):
 
             num += 1
             
-        if self.bossname in ["猿飞", "哑头陀", "岳琳&岳琅"]:
-            self.win = 1
+        #if self.bossname in ["哑头陀", "岳琳&岳琅"]:
+        #    self.win = 1
 
         yanyeResultList = []
 
@@ -1437,10 +1445,14 @@ class ActorStatGenerator(StatGeneratorBase):
 
         self.data = data
         self.effectiveDPSList = effectiveDPSList
+        
+        #print(self.potList)
         if self.win:
             self.upload = 1
-        if self.mapDetail in ["25人英雄达摩洞", "25人普通达摩洞", "10人普通达摩洞"]:
+        if self.mapDetail in ["25人英雄达摩洞"]:
             self.upload = 1
+        
+        #print(self.potList)
 
     def __init__(self, filename, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}):
         self.myname = myname

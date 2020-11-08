@@ -137,7 +137,7 @@ bonusrate=%s"""%(self.playername, self.jx3path, self.basepath, self.mask, self.c
             if build:
                 self.printDefault()
             else:
-                raise "config.ini不存在，请检查使用方法，或删除重试。"
+                print("config.ini不存在，请检查使用方法，或删除重试。")
         else:
             try:
                 cf = configparser.ConfigParser()
@@ -262,6 +262,35 @@ class LicenseWindow():
 
     def __init__(self, mainWindow):
         self.mainWindow = mainWindow
+        
+class AnnounceWindow():
+
+    def final(self):
+        self.window.destroy()
+    
+    def loadWindow(self):
+        '''
+        使用tkinter绘制公告窗口。
+        '''
+        window = tk.Toplevel()
+        window.title('公告')
+        window.geometry('400x200')
+
+        self.window = window
+        
+        l = tk.Message(window, text=self.announcement, font=('宋体', 10), width=380, anchor='nw', justify=tk.LEFT)
+        l.pack()
+        self.label = l
+        
+        window.protocol('WM_DELETE_WINDOW', self.final)
+
+    def start(self):
+        self.windowThread = threading.Thread(target = self.loadWindow)    
+        self.windowThread.start()
+
+    def __init__(self, announcement):
+        self.announcement = announcement
+        pass
                 
 class ConfigWindow():
 
@@ -306,7 +335,7 @@ class ConfigWindow():
         '''
         使用tkinter绘制设置窗口，同时读取config.ini。
         '''
-        window = tk.Toplevel()
+        window = tk.Toplevel(self.mainWindow)
         #window = tk.Tk()
         window.title('设置')
         window.geometry('400x300')
@@ -428,6 +457,6 @@ class ConfigWindow():
         self.windowThread = threading.Thread(target = self.loadWindow)    
         self.windowThread.start()
 
-    def __init__(self):
-        pass
+    def __init__(self, window):
+        self.mainWindow = window
                 

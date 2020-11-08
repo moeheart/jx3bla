@@ -1356,9 +1356,9 @@ def replay_by_window():
 
     try:
         config = Config("config.ini")
-        resp = urllib.request.urlopen('http://139.199.102.41:8009/getAnnouncement')
-        res = json.load(resp)
-        print(res["announcement"])
+        #resp = urllib.request.urlopen('http://139.199.102.41:8009/getAnnouncement')
+        #res = json.load(resp)
+        #print(res["announcement"])
 
         fileLookUp = FileLookUp()
 

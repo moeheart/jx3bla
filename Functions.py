@@ -162,6 +162,10 @@ def checkOccDetailBySkill(default, skillID, damage):
         return '2d'
     elif skillID in ["101", "138", "14664"]:
         return '2h'
+    elif skillID in ["444"]:
+        return '3d'
+    elif skillID in ["15115"]:
+        return '3t'
     elif skillID in ["365", "2699"]:
         return '4p'
     elif skillID in ["301", "367"]:

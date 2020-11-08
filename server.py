@@ -18,7 +18,7 @@ from painter import XiangZhiPainter
 
 version = EDITION
 ip = "139.199.102.41"
-announcement = "当前最新版本为5.1.0版本，欢迎大家使用，收集足够的数据之后就可以给出评分参考啦！"
+announcement = "全新的DPS统计已出炉，大家可以关注一下，看一下各门派的表现~"
 app = Flask(__name__) 
 app.config['JSON_AS_ASCII'] = False
 

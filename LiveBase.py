@@ -296,6 +296,8 @@ class LiveListener():
                 battleDate=battleDate, mask=self.config.mask, dpsThreshold=self.dpsThreshold)
         liveGenerator.firstStageAnalysis()
         liveGenerator.secondStageAnalysis()
+        if liveGenerator.upload:
+            liveGenerator.prepareUpload()
         
         window = SingleBossWindow(self.analyser)
         window.addPotList(liveGenerator.potList)
