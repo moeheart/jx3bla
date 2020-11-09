@@ -351,6 +351,8 @@ class XiangZhiPainter():
             
         if self.map == "范阳夜变":
             bossNameList = ["迟驻", "白某", "安小逢"]
+        elif self.map == "达摩洞":
+            bossNameList = ["宓桃", "哑头陀", "岳琳&岳琅"]
         else:
             bossNameList = ["铁黎", "陈徽", "藤原武裔"]
 

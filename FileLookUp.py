@@ -42,7 +42,11 @@ class FileLookUp():
         params
         - playerName 玩家名。
         '''
-        datapath = "%s\\Game\\JX3\\bin\\zhcn_hd\\interface\\MY#DATA" % self.jx3path
+        l1 = os.listdir(self.jx3path)
+        if "bin" in l1:
+            datapath = "%s\\bin\\zhcn_hd\\interface\\MY#DATA" % self.jx3path
+        else:
+            datapath = "%s\\Game\\JX3\\bin\\zhcn_hd\\interface\\MY#DATA" % self.jx3path
         resDir = ""
         l = os.listdir(datapath)
         for name in l:
