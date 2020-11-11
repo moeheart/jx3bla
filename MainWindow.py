@@ -47,7 +47,7 @@ class MainWindow():
             file.close()
         while(True): # 调试入口
             #break
-            time.sleep(3)
+            time.sleep(1)
             try:
                 file = open("%s/config.jx3dat"%self.fileLookUp.basepath, "r")
                 s = file.read()

@@ -235,14 +235,14 @@ class LiveActorAnalysis():
                 occ = line[1]
                 if occ[-1] in ['d', 't', 'h', 'p', 'm']:
                     occ = occ[:-1]
-                player[line[0]] = int(occ)
+                player[line[0].strip('"')] = int(occ)
         playerList = []
         for line in player:
-            playerList.append([line, player[line]])
+            playerList.append([line.strip('"'), player[line]])
         playerList.sort(key = lambda x:x[1])
         playerListSort = []
         for line in playerList:
-            playerListSort.append(line[0].strip('"'))
+            playerListSort.append(line[0])
         return playerListSort
 
     def getPlayerPotList(self):
