@@ -9,6 +9,7 @@ from win10toast import ToastNotifier
 import traceback
 import urllib
 import json
+import webbrowser
 
 from FileLookUp import FileLookUp
 from ConfigTools import Config, ConfigWindow, LicenseWindow, AnnounceWindow
@@ -118,6 +119,9 @@ class MainWindow():
         announceWindow = AnnounceWindow(self.announcement)
         announceWindow.start()
         
+    def manual_update(self):
+        webbrowser.open(self.updateurl)
+        
     def checkConfig(self):
         if not os.path.isfile("config.ini"):
             time.sleep(0.5)
@@ -133,6 +137,7 @@ class MainWindow():
         res = json.load(resp)
         self.announcement = res["announcement"]
         self.newestEdition = res["version"]
+        self.updateurl = res["url"]
 
         self.var = tk.StringVar()
 
@@ -156,10 +161,13 @@ class MainWindow():
         b5 = tk.Button(window, text='公告', height=1, command=self.show_announcement)
         b5.place(x = 250, y = 20)
         
-        
         showEdition = EDITION
         if EDITION < self.newestEdition:
             showEdition = "%s(有更新)"%EDITION
+            
+            b6 = tk.Button(window, text='更新', height=1, command=self.manual_update)
+            b6.place(x = 140, y = 160)
+            
         l3 = tk.Label(window, text="版本号：%s"%showEdition, height=1)
         l3.place(x = 20, y = 160) 
         
