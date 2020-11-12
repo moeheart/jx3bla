@@ -7,12 +7,11 @@ from Constants import *
 import subprocess
 
 if __name__ == "__main__":
+    #第一步：运行Release.ps1
+    #第二步：将生成的exe文件上传到网盘
+    #第三步：运行此脚本
     
-    args = [r"powershell", r"Release.ps1", EDITION]
-    p = subprocess.Popen(args, stdout=subprocess.PIPE)
-    dt = p.stdout.read()
-    
-    url = input("exe文件生成完毕，在上传至网盘后，记录其下载链接：")
+    url = input("请记录下载链接：")
     result = {"version": EDITION, "announcement": ANNOUNCEMENT, "url": url}
     Jdata = json.dumps(result)
     jpost = {'jdata': Jdata}

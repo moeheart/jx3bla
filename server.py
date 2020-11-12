@@ -42,7 +42,7 @@ def getAnnouncement():
     return jsonify({'version': version, 'announcement': announcement, 'url': updateurl})
 
 @app.route('/setAnnouncement', methods=['POST'])
-def getAnnouncement():
+def setAnnouncement():
     jdata = json.loads(request.form.get('jdata'))
     print(jdata)
     version = jdata["version"]
