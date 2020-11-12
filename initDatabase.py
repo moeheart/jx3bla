@@ -18,6 +18,7 @@ cursor = db.cursor()
 
 cursor.execute("DROP TABLE IF EXISTS XiangZhiStat")
 cursor.execute("DROP TABLE IF EXISTS ActorStat")
+cursor.execute("DROP TABLE IF EXISTS PreloadInfo")
 
 sql = """CREATE TABLE XiangZhiStat (
          server VARCHAR(32),
@@ -41,6 +42,13 @@ sql = """CREATE TABLE ActorStat (
          edition VARCHAR(32),
          hash VARCHAR(32) primary key,
          statistics VARCHAR(16000)
+         ) DEFAULT CHARSET utf8mb4"""
+cursor.execute(sql)
+
+sql = """CREATE TABLE PreloadInfo(
+         edition VARCHAR(32),
+         announcement VARCHAR(1024), 
+         updateurl VARCHAR(1024),
          ) DEFAULT CHARSET utf8mb4"""
 cursor.execute(sql)
 

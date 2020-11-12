@@ -29,7 +29,37 @@ def Response_headers(content):
     
 @app.route('/getAnnouncement', methods=['GET'])
 def getAnnouncement():
-    return jsonify({'version': version, 'announcement': announcement})
+    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    cursor = db.cursor()
+    sql = '''SELECT * FROM PreloadInfo;'''
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    version = result[0][0]
+    announcement = result[0][1]
+    updateurl = result[0][2]
+    
+    db.close()
+    return jsonify({'version': version, 'announcement': announcement, 'url': updateurl})
+
+@app.route('/setAnnouncement', methods=['POST'])
+def getAnnouncement():
+    jdata = json.loads(request.form.get('jdata'))
+    print(jdata)
+    version = jdata["version"]
+    announcement = jdata["announcement"]
+    updateurl = jdata["updateurl"]
+    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    cursor = db.cursor()
+    
+    sql = '''DELETE FROM PreloadInfo;'''
+    cursor.execute(sql)
+    sql = '''INSERT INFO PreloadInfo VALUES("%s", "%s", "%s");'''%(version, announcement, updateurl)
+    cursor.execute(sql)
+    
+    db.commit()
+    db.close()
+    
+    return jsonify({'result': 'success'})
     
 @app.route('/getDpsStat', methods=['POST'])
 def getDpsStat():
