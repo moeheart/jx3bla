@@ -12,7 +12,7 @@ if __name__ == "__main__":
     #第三步：运行此脚本
     
     url = input("请记录下载链接：")
-    result = {"version": EDITION, "announcement": ANNOUNCEMENT, "url": url}
+    result = {"version": EDITION, "announcement": ANNOUNCEMENT, "updateurl": url}
     Jdata = json.dumps(result)
     jpost = {'jdata': Jdata}
     jparse = urllib.parse.urlencode(jpost).encode('utf-8')

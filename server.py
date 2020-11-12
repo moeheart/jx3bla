@@ -53,7 +53,7 @@ def setAnnouncement():
     
     sql = '''DELETE FROM PreloadInfo;'''
     cursor.execute(sql)
-    sql = '''INSERT INFO PreloadInfo VALUES("%s", "%s", "%s");'''%(version, announcement, updateurl)
+    sql = '''INSERT INTO PreloadInfo VALUES ("%s", "%s", "%s");'''%(version, announcement, updateurl)
     cursor.execute(sql)
     
     db.commit()
