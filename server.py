@@ -143,8 +143,12 @@ def uploadActorData():
     result = cursor.fetchall()
     
     if result and result[0][6] == 1:
+        print("Find Duplicated")
         db.close()
         return jsonify({'result': 'dupid'})
+        
+    sql = '''DELETE FROM ActorStat WHERE hash = "%s"'''%hash
+    cursor.execute(sql)
         
     sql = """INSERT INTO ActorStat VALUES ("%s", "%s", "%s", "%s", "%s", "%s", %d, "%s")"""%(
         server, boss, battleDate, mapDetail, edition, hash, win, statistics)
