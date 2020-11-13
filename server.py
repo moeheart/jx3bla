@@ -142,7 +142,7 @@ def uploadActorData():
     cursor.execute(sql)
     result = cursor.fetchall()
     
-    if result:
+    if result and result[0][6] == 1:
         db.close()
         return jsonify({'result': 'dupid'})
         
