@@ -205,10 +205,11 @@ class XiangZhiPainter():
             
         npcRank = 0
         npcNum = 0
-        for i in range(len(stat["npcHealList"])):
-            if info["id"] == stat["npcHealList"][i][2]:
-                npcRank = i + 1
-            npcNum += 1
+        if type(stat["numpurge"]) == type(0):
+            for i in range(len(stat["npcHealList"])):
+                if info["id"] == stat["npcHealList"][i][2]:
+                    npcRank = i + 1
+                npcNum += 1
             
         spareRate = 0
         sumSpare = 0
@@ -257,15 +258,32 @@ class XiangZhiPainter():
         paint(draw, "下次知道该把谁放在最后了吧！", 30, base+60, fontText, fillblack)
         write('\n')
 
-        base = base + 90
-        paint(draw, "[%s]可以说是整个副本最难的BOSS，"%stat["hardBOSS"], 30, base, fontText, fillblack)
-        paint(draw, "你在其中使用了%d次[一指回鸾]，"%stat["numpurge"], 30, base+15, fontText, fillblack)
-        paint(draw, "你对%s的治疗量是%d点，占比%s%%，"%(stat["hardNPC"], stat["npcHeal"], parseCent(stat["npcHealRate"])), 30, base+30, fontText, fillblack)
-        paint(draw, "在所有奶妈中排名第%d/%d位，"%(npcRank, npcNum), 30, base+45, fontText, fillblack)
-        paint(draw, "是不是觉得自己能打能奶，文武双全！", 30, base+60, fontText, fillblack)
-        write('\n')
+        if type(stat["numpurge"]) == type(0):
+            base = base + 90
+            paint(draw, "[%s]可以说是整个副本最难的BOSS，"%stat["hardBOSS"], 30, base, fontText, fillblack)
+            paint(draw, "你在其中使用了%d次[一指回鸾]，"%stat["numpurge"], 30, base+15, fontText, fillblack)
+            paint(draw, "你对%s的治疗量是%d点，占比%s%%，"%(stat["hardNPC"], stat["npcHeal"], parseCent(stat["npcHealRate"])), 30, base+30, fontText, fillblack)
+            paint(draw, "在所有奶妈中排名第%d/%d位，"%(npcRank, npcNum), 30, base+45, fontText, fillblack)
+            paint(draw, "是不是觉得自己能打能奶，文武双全！", 30, base+60, fontText, fillblack)
+            write('\n')
+            base = base + 90
+        else:
+            num = len(stat["numpurge"])
+            base = base + 90
+            s1 = "、".join(stat["hardBOSS"])
+            s2 = str(stat["numpurge"][0])
+            for i in range(1, num):
+                s2 += "、%d"%stat["numpurge"][i]
+            paint(draw, "[%s]在副本中有额外的治疗阶段，"%s1, 30, base, fontText, fillblack)
+            paint(draw, "你在其中分别使用了%s次[一指回鸾]，"%s2, 30, base+15, fontText, fillblack)
+            for i in range(len(stat["hardBOSS"])):
+                npc = stat["hardNPC"][i]
+                npcheal = stat["npcHeal"][i]
+                paint(draw, "你对%s的治疗量是%d点，"%(npc, npcheal), 30, base+30+15*i, fontText, fillblack)
+            paint(draw, "是不是觉得自己能打能奶，文武双全！", 30, base+30+15*num, fontText, fillblack)
+            write('\n')
+            base = base+60+15*num
         
-        base = base + 90
         paint(draw, "治疗职业在副本中一点也不比DPS轻松，", 30, base, fontText, fillblack)
         paint(draw, "按照%d加速计算，"%self.speed, 30, base+15, fontText, fillblack)
         paint(draw, "你在副本中的空闲时间比例为%s%%，"%parseCent(spareRate), 30, base+30, fontText, fillblack)
@@ -372,7 +390,7 @@ class XiangZhiPainter():
             paint(draw, "%s%%"%parseCent(stat["bossRateDict"][line[0]][0], 0), 465, h, fontSmall, fillblack) 
             paint(draw, "%s%%"%parseCent(stat["bossRateDict"][line[0]][1], 0), 490, h, fontSmall, fillblack) 
             paint(draw, "%s%%"%parseCent(stat["bossRateDict"][line[0]][2], 0), 515, h, fontSmall, fillblack)
-            if h > 550:
+            if h > 530:
                 break
 
         write('\n')
@@ -395,26 +413,43 @@ class XiangZhiPainter():
                 paint(draw, "%.1f"%stat["bossBreakDict"][line[0]][0], 650, h, fontSmall, fillblack) 
                 paint(draw, "%.1f"%stat["bossBreakDict"][line[0]][1], 675, h, fontSmall, fillblack) 
                 paint(draw, "%.1f"%stat["bossBreakDict"][line[0]][2], 700, h, fontSmall, fillblack)
-            if h > 550:
+            if h > 530:
                 break
 
-        write('\n')
-        h = 550
-        paint(draw, "%s治疗量统计"%stat["hardNPC"], 345, h, fontSmall, fillblack)
-        for line in stat["npcHealList"]:
-            h += 10
-            paint(draw, "%s"%self.getMaskName(line[2]), 360, h, fontSmall, self.getColor(line[3]))
-            paint(draw, "%d"%line[1], 440, h, fontSmall, fillblack)
-            if h > 610:
-                break
+        if type(stat["numpurge"]) == type(0):
+            write('\n')
+            h = 550
+            paint(draw, "%s治疗量统计"%stat["hardNPC"], 345, h, fontSmall, fillblack)
+            for line in stat["npcHealList"]:
+                h += 10
+                paint(draw, "%s"%self.getMaskName(line[2]), 360, h, fontSmall, self.getColor(line[3]))
+                paint(draw, "%d"%line[1], 440, h, fontSmall, fillblack)
+                if h > 610:
+                    break
+        else:
+            write('\n')
+            h = 550
+            num = len(stat["hardNPC"])
+            s1 = "、".join(stat["hardNPC"])
+            paint(draw, "%s治疗量统计"%s1, 345, h, fontSmall, fillblack)
+            for line in stat["npcHealList"][0]:
+                h += 10
+                paint(draw, "%s"%self.getMaskName(line[2]), 360, h, fontSmall, self.getColor(line[3]))
+                paint(draw, "%d"%line[1], 440, h, fontSmall, fillblack)
+                for i in range(1, num):
+                    for line2 in stat["npcHealList"][i]:
+                        if line2[2] == line[2]:
+                            paint(draw, "%d"%line2[1], 440+40*i, h, fontSmall, fillblack)
+                if h > 590:
+                    break
              
         write('\n')
         h = 550
-        paint(draw, "空闲比例表", 500, h, fontSmall, fillblack)
+        paint(draw, "空闲比例表", 520, h, fontSmall, fillblack)
         for line in stat["spareRateList"]:
             h += 10
-            paint(draw, "%s"%line[0], 510, h, fontSmall, fillblack)
-            paint(draw, "%s%%"%parseCent(line[1]), 560, h, fontSmall, fillblack)
+            paint(draw, "%s"%line[0], 530, h, fontSmall, fillblack)
+            paint(draw, "%s%%"%parseCent(line[1]), 580, h, fontSmall, fillblack)
             
         write('\n')
         h = 550

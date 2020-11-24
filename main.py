@@ -245,6 +245,12 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                             data.npchealstat[item[4]] = int(item[12])
                         else:
                             data.npchealstat[item[4]] += int(item[12])
+                            
+                if item[12] != '0' and self.npckey != 0:
+                    if item[4] not in data.npchealstat:
+                        data.npchealstat[item[4]] = int(item[12])
+                    else:
+                        data.npchealstat[item[4]] += int(item[12])
 
                 # if item[7] == "14231": #梅花三弄
                 #    data.numshield += 1
@@ -394,6 +400,9 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                 self.npckey = key
                 break
             if namedict[key][0] == '"安小逢"':
+                self.npckey = key
+                break
+            if namedict[key][0] in ['"宓桃"', '"毗留博叉"']:
                 self.npckey = key
                 break
 
@@ -1068,8 +1077,14 @@ class XiangZhiAnalysis():
             allInfo["breakList"][i][2] = self.getMaskName(allInfo["breakList"][i][2])
         for i in range(len(allInfo["maxDpsTable"])):
             allInfo["maxDpsTable"][i][2] = self.getMaskName(allInfo["maxDpsTable"][i][2])
-        for i in range(len(allInfo["npcHealList"])):
-            allInfo["npcHealList"][i][2] = self.getMaskName(allInfo["npcHealList"][i][2])
+        if type(data.numpurge) == type(0):
+            for i in range(len(allInfo["npcHealList"])):
+                allInfo["npcHealList"][i][2] = self.getMaskName(allInfo["npcHealList"][i][2])
+        else:
+            for j in range(len(data.numpurge)):
+                for i in range(len(allInfo["npcHealList"][j])):
+                    #print(allInfo["npcHealList"])
+                    allInfo["npcHealList"][j][i][2] = self.getMaskName(allInfo["npcHealList"][j][i][2])
         result["statistics"] = allInfo
 
         result["id"] = self.getMaskName(result["id"])
@@ -1154,8 +1169,8 @@ class XiangZhiAnalysis():
                 
         if self.map == "达摩洞":
             mapid = generator[0].rawdata['20'][0]
-            self.hardBOSS = "未知"
-            self.hardNPC = "未知"
+            self.hardBOSS = ["宓桃", "哑头陀"]
+            self.hardNPC = ["蛊心魅智阶段", "充能阶段"]
             self.hitDict = {}
             if mapid == "484":
                 self.mapdetail = "25人英雄"
@@ -1250,22 +1265,64 @@ class XiangZhiAnalysis():
         data.maxSingleRateName = data.rateList[0][2].strip("")
         data.maxSingleBreak = data.breakList[0][1]
         data.maxSingleBreakName = data.breakList[0][2].strip("")
+        
+        if type(self.hardBOSS) != type("0"):
+            num = len(self.hardBOSS)
+            data.numpurge = [0] * num
+            data.npchealstat = [{}] * num
+            data.npcHealList = [[]] * num
 
         for line in generator:
-            if line.bossname == "源思弦":
-                data.numpurge = line.data.numpurge
-                data.npchealstat = line.data.npchealstat
-                data.npcHealList = dictToPairs(data.npchealstat)
-            if line.bossname == "安小逢":
-                data.numpurge = line.data.numpurge
-                data.npchealstat = line.data.npchealstat
-                data.npcHealList = dictToPairs(data.npchealstat)
-
-        data.npcHealList.sort(key=lambda x: -x[1])
-
-        for i in range(len(data.npcHealList)):
-            data.npcHealList[i].append(namedict[data.npcHealList[i][0]][0])
-            data.npcHealList[i].append(occdict[data.npcHealList[i][0]][0])
+            if line.bossname in ["源思弦", "安小逢", "宓桃", "哑头陀"]:
+                if line.bossname == self.hardBOSS:
+                    data.numpurge = line.data.numpurge
+                    data.npchealstat = line.data.npchealstat
+                    data.npcHealList = dictToPairs(data.npchealstat)
+                    data.npcHealList.sort(key=lambda x: -x[1])
+                    for i in range(len(data.npcHealList)):
+                        data.npcHealList[i].append(namedict[data.npcHealList[i][0]][0])
+                        data.npcHealList[i].append(occdict[data.npcHealList[i][0]][0])
+                elif type(self.hardBOSS) != type("0"):
+                    num = len(self.hardBOSS)
+                    for i in range(num):
+                        if line.bossname == self.hardBOSS[i]:
+                            data.numpurge[i] = line.data.numpurge
+                            data.npchealstat[i] = line.data.npchealstat
+                            data.npcHealList[i] = dictToPairs(data.npchealstat[i])
+                            data.npcHealList[i].sort(key=lambda x: -x[1])
+                            for j in range(len(data.npcHealList[i])):
+                                data.npcHealList[i][j].append(namedict[data.npcHealList[i][j][0]][0])
+                                data.npcHealList[i][j].append(occdict[data.npcHealList[i][j][0]][0])
+                                
+        if type(data.numpurge) == type(int):
+            findSelf = 0
+            for line in data.npcHealList:
+                if not findSelf:
+                    data.npcRank += 1
+                if line[0] == data.mykey and not findSelf:
+                    data.npcHeal = line[1]
+                    findSelf = 1
+                data.npcSumHeal += line[1]
+            data.npcHealRate = data.npcHeal / (data.npcSumHeal + 1e-10)
+            data.npcHealNum = len(data.npcHealList)
+        else:
+            num = len(self.hardBOSS)
+            data.npcRank = [0] * num
+            data.npcHeal = [0] * num
+            data.npcSumHeal = [0] * num
+            data.npcHealRate = [0] * num
+            data.npcHealNum = [0] * num
+            for i in range(num):
+                findSelf = 0
+                for line in data.npcHealList[i]:
+                    if not findSelf:
+                        data.npcRank[i] += 1
+                    if line[0] == data.mykey and not findSelf:
+                        data.npcHeal[i] = line[1]
+                        findSelf = 1
+                    data.npcSumHeal[i] += line[1]
+                data.npcHealRate[i] = data.npcHeal[i] / (data.npcSumHeal[i] + 1e-10)
+                data.npcHealNum[i] = len(data.npcHealList[i])
 
         data.healDict = {}
         data.healList = []
@@ -1281,17 +1338,6 @@ class XiangZhiAnalysis():
         for id in data.healDict:
             line = [namedict[id][0].strip('"'), occdict[id][0]] + data.healDict[id]
             data.healList.append(line)
-
-        findSelf = 0
-        for line in data.npcHealList:
-            if not findSelf:
-                data.npcRank += 1
-            if line[0] == data.mykey and not findSelf:
-                data.npcHeal = line[1]
-                findSelf = 1
-            data.npcSumHeal += line[1]
-        data.npcHealRate = data.npcHeal / (data.npcSumHeal + 1e-10)
-        data.npcHealNum = len(data.npcHealList)
 
         for line in generator:
             data.sumBusyTime += line.data.sumBusyTime
