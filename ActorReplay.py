@@ -349,8 +349,15 @@ class ActorStatGenerator(StatGeneratorBase):
                          }
         deathBuff = {}
         
+        xiaoyaoCount = {}
+        
         for line in self.playerIDList:
             deathHitDetail[line] = []
+            xiaoyaoCount[line] = {"18280": 0, #辅助药品
+                                  "18281": 0, #增强药品 
+                                  "18303": 0, #辅助食品
+                                  "18304": 0, #增强食品
+                                  }
 
         rateStandard = {"0": 0,
                         "25": 0.98,
@@ -797,6 +804,9 @@ class ActorStatGenerator(StatGeneratorBase):
                     if item[5] not in deathBuff:
                         deathBuff[item[5]] = {}
                     deathBuff[item[5]][item[6]] = [int(item[2]), skilldict[item[8]][0][""][0].strip('"'), deathBuffDict[item[6]]]
+                    
+                if item[6] in ["18280", "18281", "18303", "18304"] and item[5] in self.playerIDList and item[10] == '1':
+                    xiaoyaoCount[item[5]][item[6]] = 1
 
                 if yanyeActive:
                     if item[6] == "16913":  # 厌夜威压buff
@@ -1442,6 +1452,20 @@ class ActorStatGenerator(StatGeneratorBase):
                                  0,
                                  self.bossNamePrint,
                                  "提前开怪：%s" % hitName]] + self.potList
+                                 
+        checkXiaoYao = 0
+        for line in xiaoyaoCount:
+            if sum(list(xiaoyaoCount[line].values())) == 4:
+                checkXiaoYao = 1
+        
+        if checkXiaoYao:
+            for line in xiaoyaoCount:
+                if sum(list(xiaoyaoCount[line].values())) < 4 and occDetailList[line] not in ["1t", "3t", "10t", "21t", "2h", "5h", "6h", "22h"]:
+                    self.potList = [[namedict[earliestHit][0],
+                                     occDetailList[earliestHit],
+                                     0,
+                                     self.bossNamePrint,
+                                     "小药数量错误：%d" % sum(list(xiaoyaoCount[line].values()))]] + self.potList
 
         self.data = data
         self.effectiveDPSList = effectiveDPSList
