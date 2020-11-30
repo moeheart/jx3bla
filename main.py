@@ -190,6 +190,29 @@ class XiangZhiStatGenerator(StatGeneratorBase):
     shieldCounters = {}
     rumo = {}
     occDetailList = {}
+    
+    def getMap(self):
+        mapid = self.rawdata['20'][0]
+        if mapid == "428":
+            self.mapDetail = "25人英雄敖龙岛"
+        elif mapid == "427":
+            self.mapDetail = "25人普通敖龙岛"
+        elif mapid == "426":
+            self.mapDetail = "10人普通敖龙岛"
+        elif mapid == "454":
+            self.mapDetail = "25人英雄范阳夜变"
+        elif mapid == "453":
+            self.mapDetail = "25人普通范阳夜变"
+        elif mapid == "452":
+            self.mapDetail = "10人普通范阳夜变"
+        elif mapid == "484":
+            self.mapDetail = "25人英雄达摩洞"
+        elif mapid == "483":
+            self.mapDetail = "25人普通达摩洞"
+        elif mapid == "482":
+            self.mapDetail = "10人普通达摩洞"
+        else:
+            self.mapDetail = "未知"
 
     def secondStageAnalysis(self):
         res = self.rawdata
@@ -208,6 +231,12 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         skillLog = []
 
         self.rumo = {}
+        
+        if self.activeBoss in ["宓桃", "哑头陀"]:
+            hpsActive = 0
+            hpsTime = 0
+            hpsSumTime = 0
+            numSmall = 0
 
         for line in sk:
             item = line[""]
@@ -246,11 +275,12 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                         else:
                             data.npchealstat[item[4]] += int(item[12])
                             
-                if item[12] != '0' and self.npckey != 0:
-                    if item[4] not in data.npchealstat:
-                        data.npchealstat[item[4]] = int(item[12])
-                    else:
-                        data.npchealstat[item[4]] += int(item[12])
+                if self.activeBoss in ["宓桃", "哑头陀"]:     
+                    if item[12] != '0' and self.npckey != 0 and hpsActive:
+                        if item[4] not in data.npchealstat:
+                            data.npchealstat[item[4]] = int(item[12])
+                        else:
+                            data.npchealstat[item[4]] += int(item[12])
 
                 # if item[7] == "14231": #梅花三弄
                 #    data.numshield += 1
@@ -276,9 +306,33 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                     if item[5] not in self.rumo:
                         self.rumo[item[5]] = BuffCounter("16796", self.startTime, self.finalTime)
                     self.rumo[item[5]].setState(int(item[2]), int(item[10]))
+                if item[6] == "17798" and item[10] == "1" and self.activeBoss == "哑头陀" and hpsTime == 0:
+                    hpsActive = 1
+                    hpsTime = item[2]
+                    numSmall = 2
 
             elif item[3] == "8":
-                pass
+                if self.activeBoss == "宓桃":
+                    if item[4] == '"人多的时候更有乐趣，大家一起来嘛~"':
+                        hpsActive = 1
+                        hpsTime = item[2]
+                        numSmall = 1
+                        if self.mapDetail == "25人英雄达摩洞":
+                            numSmall = 2
+                            
+            elif item[3] == '3':  # 重伤记录
+                if self.activeBoss == "宓桃":
+                    if item[4] in namedict and namedict[item[4]][0] in ['"天欲宫弟子"', '"天欲宫男宠"'] and (item[4] not in occdict or occdict[item[4]][0] == '0'):
+                        numSmall -= 1
+                        if numSmall == 0:
+                            hpsSumTime += (int(item[2]) - int(hpsTime)) / 1000
+                            hpsActive = 0
+                if self.activeBoss == "哑头陀":
+                    if item[4] in namedict and namedict[item[4]][0] in ['"充能核心"'] and (item[4] not in occdict or occdict[item[4]][0] == '0'):
+                        numSmall -= 1
+                        if numSmall == 0:
+                            hpsSumTime += (int(item[2]) - int(hpsTime)) / 1000
+                            hpsActive = 0
 
             num += 1
 
@@ -372,6 +426,10 @@ class XiangZhiStatGenerator(StatGeneratorBase):
 
         numrate = 0
         sumrate = 0
+        
+        if self.activeBoss in ["宓桃", "哑头陀"]:  
+            for line in data.npchealstat:
+                data.npchealstat[line] /= hpsSumTime
 
         for key in data.rateDict:
             numrate += 1
@@ -418,6 +476,8 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         jingshenkuifa = {}
 
         self.interrupt = 0
+        
+        self.activeBoss = ""
 
         for line in sk:
             item = line[""]
@@ -448,7 +508,11 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                             
                 if item[4] in occDetailList and occDetailList[item[4]] in ['1', '2', '3', '4', '5', '6', '7', '10', '21', '22']:
                     occDetailList[item[4]] = checkOccDetailBySkill(occDetailList[item[4]], item[7], item[12])
-
+                    
+                if item[5] in namedict and namedict[item[5]][0] == '"宓桃"':
+                    self.activeBoss = "宓桃"
+                if item[5] in namedict and namedict[item[5]][0] == '"毗留博叉"':
+                    self.activeBoss = "哑头陀"
 
             elif item[3] == "5":
                 if item[6] in ["9334", "16911"]:  # buff梅花三弄
@@ -505,6 +569,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
     def __init__(self, filename, myname, path="", rawdata={}):
         self.myname = myname
         super().__init__(filename[0], path, rawdata)
+        self.getMap()
         # self.filename = filename
         # self.parseFile(path)
 

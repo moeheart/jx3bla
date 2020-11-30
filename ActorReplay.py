@@ -26,6 +26,7 @@ class ActorStatGenerator(StatGeneratorBase):
     yuanfeiActive = 0
     mitaoActive = 0
     yatoutuoActive = 0
+    yuelinActive = 0
     yuhuiActive = 0
     fulingID = {}
     sideTargetID = {}
@@ -263,6 +264,9 @@ class ActorStatGenerator(StatGeneratorBase):
                     if self.yatoutuoActive == 0:
                         self.yatoutuoActive = 1
                         self.burstList = []
+                        
+                if namedict[item[5]][0] == '"岳琳"' and occdict[item[5]][0] == '0':
+                    self.yuelinActive = 1
                         
                 if namedict[item[5]][0] in ['"戏龙珠"'] and occdict[item[5]][0] == '0':
                     self.longzhuID = item[5]
@@ -530,6 +534,10 @@ class ActorStatGenerator(StatGeneratorBase):
                 self.jingshenkuifa[line] = 0
             burstCount = [0] * len(self.burstList)
             nowBurst = 0
+            
+        yuelinActive = self.yuelinActive
+        if yuelinActive:
+            pass
             
 
         if not self.lastTry:
@@ -917,6 +925,24 @@ class ActorStatGenerator(StatGeneratorBase):
                                                  ["不间断的减疗只计算一次"]])
                         if stack < 20 and self.jingshenkuifa[item[5]] == 1:
                             self.jingshenkuifa[item[5]] = 0
+                            
+                if yuelinActive:
+                    if item[6] in ["17899"] and int(item[10]) in [8,9]:
+                        lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                        self.potList.append([namedict[item[5]][0],
+                                             occDetailList[item[5]],
+                                             0,
+                                             self.bossNamePrint,
+                                             "%s传功失败：%d层" % (lockTime, int(item[10])),
+                                             ["8-9层通常不影响通关，无伤大雅。"]])
+                    if item[6] in ["17899"] and int(item[10]) in [1,2,3,4,5,6,7]:
+                        lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                        self.potList.append([namedict[item[5]][0],
+                                             occDetailList[item[5]],
+                                             1,
+                                             self.bossNamePrint,
+                                             "%s传功失败：%d层" % (lockTime, int(item[10])),
+                                             ["7层以下通常为纯演员，建议分锅。"]])
 
 
             elif item[3] == '3':  # 重伤记录

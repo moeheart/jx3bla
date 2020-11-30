@@ -432,16 +432,20 @@ class XiangZhiPainter():
             num = len(stat["hardNPC"])
             s1 = "、".join(stat["hardNPC"])
             paint(draw, "%s治疗量统计"%s1, 345, h, fontSmall, fillblack)
-            for line in stat["npcHealList"][0]:
-                h += 10
-                paint(draw, "%s"%self.getMaskName(line[2]), 360, h, fontSmall, self.getColor(line[3]))
-                paint(draw, "%d"%line[1], 440, h, fontSmall, fillblack)
-                for i in range(1, num):
-                    for line2 in stat["npcHealList"][i]:
-                        if line2[2] == line[2]:
-                            paint(draw, "%d"%line2[1], 440+40*i, h, fontSmall, fillblack)
-                if h > 590:
-                    break
+            while stat["npcHealList"] != [] and stat["npcHealList"][0] == []:
+                del stat["npcHealList"][0]
+                num -= 1
+            if stat["npcHealList"] != []:
+                for line in stat["npcHealList"][0]:
+                    h += 10
+                    paint(draw, "%s"%self.getMaskName(line[2]), 360, h, fontSmall, self.getColor(line[3]))
+                    paint(draw, "%d"%line[1], 440, h, fontSmall, fillblack)
+                    for i in range(1, num):
+                        for line2 in stat["npcHealList"][i]:
+                            if line2[2] == line[2]:
+                                paint(draw, "%d"%line2[1], 440+40*i, h, fontSmall, fillblack)
+                    if h > 590:
+                        break
              
         write('\n')
         h = 550
