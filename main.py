@@ -643,21 +643,29 @@ class XiangZhiOverallData(XiangZhiData):
 
 
 class XiangZhiScore():
-    #bossDict = {"铁黎": 1, "陈徽": 2, "藤原武裔": 3, "源思弦": 4, "驺吾": 5, "方有崖": 6}
-    #bossDictR = ["", "铁黎", "陈徽", "藤原武裔", "源思弦", "驺吾", "方有崖"]
-    rateScale = [[100, 0, "A+", "不畏浮云遮望眼，只缘身在最高层。"],
-                 [95, 1, "A", "独有凤凰池上客，阳春一曲和皆难。"],
-                 [90, 1, "A-", "欲把一麾江海去，乐游原上望昭陵。"],
-                 [85, 2, "B+", "敢将十指夸针巧，不把双眉斗画长。"],
-                 [80, 2, "B", "云想衣裳花想容，春风拂槛露华浓。"],
-                 [77, 2, "B-", "疏影横斜水清浅，暗香浮动月黄昏。"],
-                 [73, 3, "C+", "青山隐隐水迢迢，秋尽江南草未凋。"],
-                 [70, 3, "C", "花径不曾缘客扫，蓬门今始为君开。"],
-                 [67, 3, "C-", "上穷碧落下黄泉，两处茫茫皆不见。"],
-                 [63, 4, "D+", "人世几回伤往事，山形依旧枕寒流。"],
-                 [60, 4, "D", "总为浮云能蔽日，长安不见使人愁。"],
-                 [0, 6, "F", "仰天大笑出门去，我辈岂是蓬蒿人。"]]
     map = "敖龙岛"
+    
+    def getRateScale(self, mapdetail):
+        if map == "达摩洞":
+            self.rateScale = [[100, 11, "天道", "天间璀璨，无上荣光。"],
+                         [90, 12, "人道", "纷繁乱世，不忘初心。"],
+                         [80, 13, "阿修罗道", "心存善念，莫问前程。"],
+                         [70, 14, "畜生道", "入此道者，受截图发群，团长点名之业报。"],
+                         [60, 15, "饿鬼道", "入此道者，受团队出警，团员避雷之业报。"],
+                         [0, 16, "地狱道", "入此道者，受踢出团队，贴吧818之业报。"]]
+        else:
+            self.rateScale = [[100, 0, "A+", "不畏浮云遮望眼，只缘身在最高层。"],
+                         [95, 1, "A", "独有凤凰池上客，阳春一曲和皆难。"],
+                         [90, 1, "A-", "欲把一麾江海去，乐游原上望昭陵。"],
+                         [85, 2, "B+", "敢将十指夸针巧，不把双眉斗画长。"],
+                         [80, 2, "B", "云想衣裳花想容，春风拂槛露华浓。"],
+                         [77, 2, "B-", "疏影横斜水清浅，暗香浮动月黄昏。"],
+                         [73, 3, "C+", "青山隐隐水迢迢，秋尽江南草未凋。"],
+                         [70, 3, "C", "花径不曾缘客扫，蓬门今始为君开。"],
+                         [67, 3, "C-", "上穷碧落下黄泉，两处茫茫皆不见。"],
+                         [63, 4, "D+", "人世几回伤往事，山形依旧枕寒流。"],
+                         [60, 4, "D", "总为浮云能蔽日，长安不见使人愁。"],
+                         [0, 6, "F", "仰天大笑出门去，我辈岂是蓬蒿人。"]]
 
     def scaleScore(self, x, scale):
         N = len(scale)
@@ -1012,19 +1020,30 @@ class XiangZhiScore():
             self.printTable.append([0, "总分", "%.1f" % sumScore])
             self.score = sumScore
             self.finalRate()
+        elif len(self.generator) == 6 and self.mapdetail == "25人普通达摩洞":
+            self.available = 1
+            sumScore = 0
+            for i in range(1, 7):
+                score = self.analysisBOSSptdmd(i)
+                sumScore += score
+            self.printTable.append([0, "总分", "%.1f" % sumScore])
+            self.score = sumScore
+            self.finalRate()
         else:
             self.available = 0
             print("战斗记录不全，无法进行打分。")
 
-    def __init__(self, data, generator, generator2, mykey, map):
+    def __init__(self, data, generator, generator2, mykey, map, mapdetail):
         self.data = data
         self.mykey = mykey
         self.generator = generator
         self.generator2 = generator2
         self.map = map
+        self.mapdetail = mapdetail
         self.printTable = []
         self.score = 0
         self.bossDict, self.bossDictR = getBossDictFromMap(self.map)
+        self.rateScale = self.getRateScale(self.map)
 
 class RawDataParser():
 
@@ -1425,7 +1444,7 @@ class XiangZhiAnalysis():
         self.sumInner = sum(self.actorData.innerPlace[data.mykey])
         self.sumDrawer = self.actorData.drawer[data.mykey]
 
-        self.score = XiangZhiScore(self.data, self.generator, self.generator2, data.mykey, self.map)
+        self.score = XiangZhiScore(self.data, self.generator, self.generator2, data.mykey, self.map, self.mapdetail)
         self.score.analysisAll()
 
         self.scoreRate = None
