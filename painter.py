@@ -86,19 +86,28 @@ class XiangZhiPainter():
                       }
             self.allBoss = ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳"]
             
-    def getScoreInfo(self, score):
-        rateScale = [[100, 0, "A+", "不畏浮云遮望眼，只缘身在最高层。"],
-                     [95, 1, "A", "独有凤凰池上客，阳春一曲和皆难。"],
-                     [90, 1, "A-", "欲把一麾江海去，乐游原上望昭陵。"],
-                     [85, 2, "B+", "敢将十指夸针巧，不把双眉斗画长。"],
-                     [80, 2, "B", "云想衣裳花想容，春风拂槛露华浓。"],
-                     [77, 2, "B-", "疏影横斜水清浅，暗香浮动月黄昏。"],
-                     [73, 3, "C+", "青山隐隐水迢迢，秋尽江南草未凋。"],
-                     [70, 3, "C", "花径不曾缘客扫，蓬门今始为君开。"],
-                     [67, 3, "C-", "上穷碧落下黄泉，两处茫茫皆不见。"],
-                     [63, 4, "D+", "人世几回伤往事，山形依旧枕寒流。"],
-                     [60, 4, "D", "总为浮云能蔽日，长安不见使人愁。"],
-                     [0, 6, "F", "仰天大笑出门去，我辈岂是蓬蒿人。"]]
+    def getScoreInfo(self, score, map):
+        if map == "达摩洞":
+            rateScale = [[100, 11, "天道", "天间璀璨，无上荣光。"],
+                         [90, 12, "人道", "纷繁乱世，不忘初心。"],
+                         [80, 13, "阿修罗道", "心存善念，莫问前程。"],
+                         [70, 14, "畜生道", "入此道者，受截图发群，团长点名之业报。"],
+                         [60, 15, "饿鬼道", "入此道者，受团队出警，团员避雷之业报。"],
+                         [0, 16, "地狱道", "入此道者，受踢出团队，贴吧818之业报。"]]
+        else:
+            rateScale = [[100, 0, "A+", "不畏浮云遮望眼，只缘身在最高层。"],
+                         [95, 1, "A", "独有凤凰池上客，阳春一曲和皆难。"],
+                         [90, 1, "A-", "欲把一麾江海去，乐游原上望昭陵。"],
+                         [85, 2, "B+", "敢将十指夸针巧，不把双眉斗画长。"],
+                         [80, 2, "B", "云想衣裳花想容，春风拂槛露华浓。"],
+                         [77, 2, "B-", "疏影横斜水清浅，暗香浮动月黄昏。"],
+                         [73, 3, "C+", "青山隐隐水迢迢，秋尽江南草未凋。"],
+                         [70, 3, "C", "花径不曾缘客扫，蓬门今始为君开。"],
+                         [67, 3, "C-", "上穷碧落下黄泉，两处茫茫皆不见。"],
+                         [63, 4, "D+", "人世几回伤往事，山形依旧枕寒流。"],
+                         [60, 4, "D", "总为浮云能蔽日，长安不见使人愁。"],
+                         [0, 6, "F", "仰天大笑出门去，我辈岂是蓬蒿人。"]]
+                         
         for line in rateScale:
             if score >= line[0]:
                 self.scoreColor = line[1]
@@ -233,7 +242,7 @@ class XiangZhiPainter():
             numSpare += 1
         spareRate = sumSpare / (numSpare + 1e-10)
         
-        self.getScoreInfo(info["score"])
+        self.getScoreInfo(info["score"], self.map)
         
         paint(draw, "%s战斗记录-奶歌"%self.map, 290, 10, fontTitle, fillcyan)
         paint(draw, "可爱的奶歌[%s]："%info["id"], 10, 50, fontText, fillblack)
@@ -531,8 +540,22 @@ class XiangZhiPainter():
                 fillRate = (0, 128, 255)
             elif self.scoreColor == 4:
                 fillRate = (128, 255, 0)
-            else:
+            elif self.scoreColor == 6:
                 fillRate = (255, 0, 0)
+            elif self.scoreColor == 11:
+                fillRate = (219, 219, 219)
+            elif self.scoreColor == 12:
+                fillRate = (219, 219, 0)
+            elif self.scoreColor == 13:
+                fillRate = (0, 219, 0)
+            elif self.scoreColor == 14:
+                fillRate = (0, 0, 219)
+            elif self.scoreColor == 15:
+                fillRate = (219, 0, 0)
+            elif self.scoreColor == 16:
+                fillRate = (65, 65, 65)
+            else:
+                fillRate = (0, 0, 0)
             paint(draw, "基于以上数据，你的评分为：", 30, 690, fontText, fillblack)
             paint(draw, self.scoreLevel, 220, 680, fontBig, fillRate)
             if "scoreRate" in info:

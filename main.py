@@ -646,7 +646,7 @@ class XiangZhiScore():
     map = "敖龙岛"
     
     def getRateScale(self, mapdetail):
-        if map == "达摩洞":
+        if mapdetail == "25人普通达摩洞":
             self.rateScale = [[100, 11, "天道", "天间璀璨，无上荣光。"],
                          [90, 12, "人道", "纷繁乱世，不忘初心。"],
                          [80, 13, "阿修罗道", "心存善念，莫问前程。"],
@@ -716,6 +716,20 @@ class XiangZhiScore():
             elif id == 5:
                 HPSList = [[2000, 0], [5000, 4], [10000, 12]]
             hps = self.data.healTable[id - 1][1] + self.data.healTable[id - 1][5]
+        elif self.mapdetail == "25人普通达摩洞":
+            if id == 1:
+                HPSList = [[1000, 0], [5000, 3], [10000, 5]]
+            elif id == 2:
+                HPSList = [[3000, 0], [16000, 3], [30000, 5]]
+            elif id == 3:
+                HPSList = [[2000, 0], [6000, 3], [12000, 5]]
+            elif id == 4:
+                HPSList = [[1000, 0], [4000, 3], [8000, 5]]
+            elif id == 5:
+                HPSList = [[2000, 0], [8000, 2], [15000, 4]]
+            elif id == 6:
+                HPSList = [[2000, 0], [9000, 3], [18000, 7]]
+            hps = self.data.healTable[id - 1][1] + self.data.healTable[id - 1][5]
         score = self.scaleScore(hps, HPSList)
         return score
 
@@ -744,6 +758,19 @@ class XiangZhiScore():
                 ShieldList = [[7, 0], [15, 2], [25, 7]]
             elif id == 5:
                 ShieldList = [[5, 0], [10, 2], [20, 12]]
+        elif self.mapdetail == "25人普通达摩洞":
+            if id == 1:
+                ShieldList = [[3, 0], [9, 3], [15, 5]]
+            elif id == 2:
+                ShieldList = [[5, 0], [16, 3], [22, 5]]
+            elif id == 3:
+                ShieldList = [[4, 0], [14, 3], [20, 5]]
+            elif id == 4:
+                ShieldList = [[3, 0], [12, 3], [18, 5]]
+            elif id == 5:
+                ShieldList = [[3, 0], [12, 2], [18, 4]]
+            elif id == 6:
+                ShieldList = [[5, 0], [12, 3], [21, 7]]
         score = self.scaleScore(self.data.healTable[id - 1][8], ShieldList)
         return score
 
@@ -772,6 +799,19 @@ class XiangZhiScore():
                 DPSList = [[0.5, 0], [0.75, 2], [1.2, 7]]
             elif id == 5:
                 DPSList = [[0.3, 0], [0.55, 4], [1.45, 12]]
+        elif self.mapdetail == "25人普通达摩洞":
+            if id == 1:
+                DPSList = [[0.8, 0], [2.0, 5]]
+            elif id == 2:
+                DPSList = [[0.3, 0], [1.3, 5]]
+            elif id == 3:
+                DPSList = [[0.5, 0], [1.8, 5]]
+            elif id == 4:
+                DPSList = [[0.5, 0], [1.8, 5]]
+            elif id == 5:
+                DPSList = [[0.5, 0], [1.8, 4]]
+            elif id == 6:
+                DPSList = [[0.3, 0], [1.4, 7]]
         score = self.scaleScore(self.data.dpsTable[id - 1][3], DPSList)
         return score
 
@@ -800,6 +840,19 @@ class XiangZhiScore():
                 RateList = [[0.1, 0], [0.3, 2], [0.7, 7]]
             elif id == 5:
                 RateList = [[0.1, 0], [0.2, 1], [0.7, 12]]
+        elif self.mapdetail == "25人普通达摩洞":
+            if id == 1:
+                RateList = [[0.1, 0], [0.7, 1], [0.9, 5]]
+            elif id == 2:
+                RateList = [[0.1, 0], [0.15, 1], [0.55, 5]]
+            elif id == 3:
+                RateList = [[0.1, 0], [0.5, 1], [0.85, 5]]
+            elif id == 4:
+                RateList = [[0.1, 0], [0.5, 1], [0.8, 5]]
+            elif id == 5:
+                RateList = [[0.1, 0], [0.5, 1], [0.8, 4]]
+            elif id == 6:
+                RateList = [[0.1, 0], [0.3, 1], [0.75, 7]]
         score = self.scaleScore(self.data.rateTable[id - 1][1], RateList)
         return score
 
@@ -828,20 +881,45 @@ class XiangZhiScore():
                 RateList = [[0.3, 0], [0.1, 6]]
             elif id == 5:
                 RateList = [[0.3, 0], [0.1, 6]]
+        elif self.mapdetail == "25人普通达摩洞":
+            if id == 1:
+                RateList = [[0.5, 0], [0.1, 5]]
+            elif id == 2:
+                RateList = [[0.3, 0], [0.1, 5]]
+            elif id == 3:
+                RateList = [[0.35, 0], [0.15, 5]]
+            elif id == 4:
+                RateList = [[0.3, 0], [0.1, 5]]
+            elif id == 5:
+                RateList = [[0.3, 0], [0.1, 5]]
+            elif id == 6:
+                RateList = [[0.35, 0], [0.15, 6]]
         score = self.scaleScore(self.data.spareRateList[id - 1][1], RateList)
         return score
 
     def analysisPurge(self, id):
-        PurgeList = [[0, 0], [3, 3], [10, 5]]
+        if self.map == "敖龙岛" or self.map == "范阳夜变":
+            PurgeList = [[0, 0], [3, 3], [10, 5]]
+        elif self.mapdetail == "25人普通达摩洞":
+            PurgeList = [[0, 0], [5, 3], [20, 5]]
         score = self.scaleScore(self.generator[id - 1].data.numpurge, PurgeList)
         return score
 
     def analysisNPC(self, id):
         if self.map == "敖龙岛":
             NPCList = [[0.15, 0], [0.3, 5]]
+            compareRate = self.data.npcHealRate
         elif self.map == "范阳夜变":
             NPCList = [[0.1, 0], [0.2, 5]]
-        score = self.scaleScore(self.data.npcHealRate, NPCList)
+            compareRate = self.data.npcHealRate
+        elif self.mapdetail == "25人普通达摩洞":
+            if id == 2:
+                NPCList = [[0.1, 0], [0.3, 5]]
+                compareRate = self.data.npcHealRate[0]
+            elif id == 5:
+                NPCList = [[0.05, 0], [0.3, 2]]
+                compareRate = self.data.npcHealRate[1]
+        score = self.scaleScore(compareRate, NPCList)
         return score
 
     def analysisInner(self, id):
@@ -862,6 +940,10 @@ class XiangZhiScore():
         self.printTable.append([0, "%s 打分表" % self.bossDictR[id], ""])
         c1 = 0
         c5 = 0
+        
+        
+        
+        
         if id != 3:
             s1 = self.analysisHPS(id)
             self.printTable.append([1, "治疗量", "%.1f" % s1])
@@ -992,6 +1074,81 @@ class XiangZhiScore():
 
         self.printTable.append([3, "小计", "%.1f" % c9])
         return c9
+        
+    def analysisBOSSptdmd(self, id):
+        cutOff1 = [0, 5, 5, 5, 5, 4, 7]
+        cutOff2 = [0, 5, 5, 5, 5, 4, 7]
+        cutOff4 = [0, 5, 0, 0, 0, 2, 0]
+        cutOff0 = [0, 15, 20, 15, 15, 15, 20]
+        self.printTable.append([0, "%s 打分表" % self.bossDictR[id], ""])
+        c1 = 0
+        c5 = 0
+        
+        s1 = self.analysisHPS(id)
+        self.printTable.append([1, "治疗量", "%.1f" % s1])
+        s2 = self.analysisShield(id)
+        self.printTable.append([1, "盾数", "%.1f" % s2])
+        c1 = s1 + s2
+        if c1 > cutOff1[id]:
+            c1 = cutOff1[id]
+            c5 += (s1 + s2 - cutOff1[id]) / 2
+            
+        s3 = self.analysisDPS(id)
+        self.printTable.append([1, "等效DPS", "%.1f" % s3])
+        s4 = self.analysisRate(id)
+        self.printTable.append([1, "覆盖率", "%.1f" % s4])
+        c2 = s3 + s4
+        if c2 > cutOff2[id]:
+            c2 = cutOff2[id]
+            c5 += (s3 + s4 - cutOff2[id]) / 2
+
+        s5 = self.analysisSpare(id)
+        self.printTable.append([1, "空闲比例", "%.1f" % s5])
+        c3 = s5
+
+        c4 = 0
+        if id == 2:
+            s6 = self.analysisPurge(id)
+            self.printTable.append([1, "驱散次数", "%.1f" % s6])
+            s7 = self.analysisNPC(id)
+            self.printTable.append([1, "AOE治疗", "%.1f" % s7])
+            c4 = s6 + s7
+            if c4 > cutOff4[id]:
+                c4 = cutOff4[id]
+                c5 += (s6 + s7) / 2
+        elif id == 5:
+            s7 = self.analysisNPC(id)
+            self.printTable.append([1, "AOE治疗", "%.1f" % s7])
+            c4 = s7
+
+        numDPS = self.data.dpsTable[id - 1][4]
+        if numDPS < 16:
+            s8 = 16 - numDPS
+            self.printTable.append([1, "人数修正", "%.1f" % s8])
+            c5 += s8
+
+        c6 = c1 + c2 + c3 + c4 + c5
+        if c6 > cutOff0[id]:
+            c6 = cutOff0[id]
+
+        c7 = 0
+        c8 = 0
+
+        num1 = sum(self.generator2[id - 1].data.hitCount[self.mykey].values())
+        num2 = sum(self.generator2[id - 1].data.deathCount[self.mykey])
+        if num1 > 0:
+            c7 = -num1
+            self.printTable.append([2, "犯错", "%.1f" % c7])
+        if num2 > 0:
+            c8 = -num2 * 2
+            self.printTable.append([2, "重伤", "%.1f" % c8])
+
+        c9 = c6 + c7 + c8
+        if c9 < 0:
+            c9 = 0
+
+        self.printTable.append([3, "小计", "%.1f" % c9])
+        return c9
 
     def finalRate(self):
         for line in self.rateScale:
@@ -1039,11 +1196,11 @@ class XiangZhiScore():
         self.generator = generator
         self.generator2 = generator2
         self.map = map
-        self.mapdetail = mapdetail
+        self.mapdetail = mapdetail + map
         self.printTable = []
         self.score = 0
         self.bossDict, self.bossDictR = getBossDictFromMap(self.map)
-        self.rateScale = self.getRateScale(self.map)
+        self.getRateScale(self.mapdetail)
 
 class RawDataParser():
 

@@ -186,6 +186,8 @@ def uploadXiangZhiData():
     num = 0
     numOver = 0
     for line in result:
+        if line[0] == 0:
+            continue
         num += 1
         if score > line[0]:
             numOver += 1
