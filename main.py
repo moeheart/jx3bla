@@ -357,6 +357,8 @@ class XiangZhiStatGenerator(StatGeneratorBase):
             numdam2 = 0
         #print(numdam1, numdam2)
         numdam = numdam1 + numdam2
+        
+        print(data.damageDict)
 
         if self.mykey not in data.damageDict:
             data.damageDict[self.mykey] = numdam
@@ -365,8 +367,14 @@ class XiangZhiStatGenerator(StatGeneratorBase):
 
         data.damageList = dictToPairs(data.damageDict)
         data.damageList.sort(key=lambda x: -x[1])
+        
+        print(data.damageList)
+        print(self.mykey)
 
         for i in range(len(data.damageList)):
+            print(i)
+            print(data.damageList[i][0])
+            print(namedict[data.damageList[i][0]])
             data.damageList[i].append(namedict[data.damageList[i][0]][0])
             data.damageList[i].append(occDetailList[data.damageList[i][0]])
 
