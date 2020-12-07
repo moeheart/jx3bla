@@ -1526,8 +1526,16 @@ class XiangZhiAnalysis():
                     data.npcHealList = dictToPairs(data.npchealstat)
                     data.npcHealList.sort(key=lambda x: -x[1])
                     for i in range(len(data.npcHealList)):
+                        if data.npcHealList[i][0] not in namedict:
+                            continue
                         data.npcHealList[i].append(namedict[data.npcHealList[i][0]][0])
                         data.npcHealList[i].append(occdict[data.npcHealList[i][0]][0])
+                    delLabel = []
+                    for j in range(len(data.npcHealList)):
+                        if len(data.npcHealList[j]) < 4:
+                            delLabel.append(j)
+                    for j in delLabel:
+                        del data.npcHealList[j]
                 elif type(self.hardBOSS) != type("0"):
                     num = len(self.hardBOSS)
                     for i in range(num):
@@ -1537,8 +1545,16 @@ class XiangZhiAnalysis():
                             data.npcHealList[i] = dictToPairs(data.npchealstat[i])
                             data.npcHealList[i].sort(key=lambda x: -x[1])
                             for j in range(len(data.npcHealList[i])):
+                                if data.npcHealList[i][j][0] not in namedict:
+                                    continue
                                 data.npcHealList[i][j].append(namedict[data.npcHealList[i][j][0]][0])
                                 data.npcHealList[i][j].append(occdict[data.npcHealList[i][j][0]][0])
+                            delLabel = []
+                            for j in range(len(data.npcHealList[i])):
+                                if len(data.npcHealList[i][j]) < 4:
+                                    delLabel.append(j)
+                            for j in delLabel:
+                                del data.npcHealList[i][j]
                                 
         if type(data.numpurge) == type(int):
             findSelf = 0
