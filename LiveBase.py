@@ -5,6 +5,7 @@ import threading
 import os
 import time
 import tkinter as tk
+from tkinter import messagebox
 from win10toast import ToastNotifier
 
 from ActorReplay import ActorStatGenerator
@@ -111,7 +112,10 @@ class SingleBossWindow():
             scoreColor = "#ff0000"
         self.scoreLabels[tmp].config(text=scoreStr, fg=scoreColor)
         
-        self.analyser.potListScore[-self.numPot + tmp][-1] = self.scoreList[tmp]
+        #self.analyser.potListScore[-self.numPot + tmp][-1] = self.scoreList[tmp]
+        
+        self.analyser.setSinglePotScore(self.bossNum, tmp, self.scoreList[tmp])
+        
         self.analyser.getPlayerPotList()
         
         text = self.analyser.getPlayerText(self.nameList[tmp])
@@ -124,11 +128,44 @@ class SingleBossWindow():
         '''
         收集分锅结果并关闭窗口。
         '''
+        self.windowAlive = False
         self.potListScore = []
         for i in range(len(self.potList)):
             self.potListScore.append(self.potList[i] + [self.scoreList[i]])
-        self.analyser.changeResult(self.potListScore)
+        self.analyser.changeResult(self.potListScore, self.bossNum)
         self.window.destroy()
+        
+    def finalPrev(self):
+        '''
+        收集分锅结果并关闭窗口，尝试打开前一个BOSS的窗口。
+        '''
+        prevNum = self.bossNum - 1
+        if self.analyser.checkBossExists(prevNum):
+            self.final()
+            self.bossNum = prevNum
+            self.addPotList(self.analyser.potContainer.getBoss(prevNum))
+            self.start()
+        else:
+            messagebox.showinfo(title='嘶', message='前序BOSS未找到。')
+    
+    def finalNext(self):
+        '''
+        收集分锅结果并关闭窗口，尝试打开后一个BOSS的窗口。
+        '''
+        nextNum = self.bossNum + 1
+        if self.analyser.checkBossExists(nextNum):
+            self.final()
+            self.bossNum = nextNum
+            self.addPotList(self.analyser.potContainer.getBoss(nextNum))
+            self.start()
+        else:
+            messagebox.showinfo(title='嘶', message='后继BOSS未找到。')
+            
+    def showDetail(self):
+        '''
+        显示战斗统计详情。
+        '''
+        messagebox.showinfo(title='嘶', message='制作中，敬请期待！')
 
     def loadWindow(self):
         '''
@@ -158,9 +195,17 @@ class SingleBossWindow():
         self.nameList = []
         
         self.potListScore = []
+
         for i in range(len(self.potList)):
-            self.potListScore.append(self.potList[i] + [0])
-        self.analyser.addResult(self.potListScore)
+            if len(self.potList[i]) == 6:
+                self.potListScore.append(self.potList[i] + [0])
+                self.scoreList.append(0)
+            else:
+                self.potListScore.append(self.potList[i])
+                self.scoreList.append(self.potList[i][-1])
+                
+        if not self.analyser.checkBossExists(self.bossNum):
+            self.analyser.addResult(self.potListScore, self.bossNum)
         
         self.analyser.getPlayerPotList()
         
@@ -191,35 +236,89 @@ class SingleBossWindow():
             button2 = tk.Button(frame, text='领赏', width=6, height=1, command=lambda tmp=tmp: self.getPot(tmp, 1), bg='#ccffcc')
             button2.grid(row=i, column=4)
             
-            
             text = self.analyser.getPlayerText(name)
             toolTip = ToolTip(nameLabel, text)
             self.toolTips.append(toolTip)
             self.nameList.append(name)
-            self.scoreList.append(0)
+            
+        for i in range(len(self.potList)):
+            self.getPot(i, 0)
             
         buttonFinal = tk.Button(window, text='分锅完成', width=10, height=1, command=self.final)
         buttonFinal.place(x = 250, y = 540)
+        
+        buttonPrev = tk.Button(window, text='<<', width=2, height=1, command=self.finalPrev)
+        buttonPrev.place(x = 220, y = 540)
+        
+        buttonNext = tk.Button(window, text='>>', width=2, height=1, command=self.finalNext)
+        buttonNext.place(x = 340, y = 540)
+        
+        buttonDetail = tk.Button(window, text='数据统计', width=10, height=1, command=self.showDetail)
+        buttonDetail.place(x = 250, y = 570)
         
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
         #window.mainloop()
 
     def start(self):
+        self.windowAlive = True
         self.windowThread = threading.Thread(target = self.loadWindow)    
         self.windowThread.start()
         
     def addPotList(self, potList):
         self.potList = potList
+        
+    def alive(self):
+        return self.windowAlive
 
-    def __init__(self, analyser):
+    def __init__(self, analyser, bossNum):
         self.analyser = analyser
+        self.bossNum = bossNum
 
 class LiveActorStatGenerator(ActorStatGenerator):
     
     def __init__(self, filename, path="", myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}):
         super().__init__(filename, path, rawdata={}, failThreshold=failThreshold, 
             battleDate=battleDate, mask=mask, dpsThreshold=dpsThreshold)
+            
+class PotContainer():
+    '''
+    锅的记录类。
+    '''
+    
+    def getAll(self):
+        '''
+        查找所有的锅。
+        return
+        - 分锅与打分的列表，list格式
+        '''
+        result = []
+        for line in self.pot:
+            result.extend(self.pot[line])
+        return result
+    
+    def getBoss(self, bossid):
+        '''
+        查找对应boss的锅。
+        return
+        - 分锅与打分的列表，list格式
+        '''
+        bossidStr = str(bossid)
+        return self.pot[bossidStr]
+    
+    def addBoss(self, bossid, potListScore):
+        '''
+        当一个BOSS结束时，把分锅记录加入总记录中。
+        或是当修改锅时，按对应的bossid取代原有的分锅记录。
+        params
+        - bossid 按时间顺序的BOSS编号。
+        - potListScore 分锅与打分的列表，list格式
+        '''
+        bossidStr = str(bossid)
+        self.pot[bossidStr] = potListScore
+    
+    def __init__(self):
+        self.pot = {}
 
 class LiveActorAnalysis():
 
@@ -230,6 +329,7 @@ class LiveActorAnalysis():
         - playerListSort 排好序的ID列表
         '''
         player = {}
+        self.potListScore = self.potContainer.getAll()
         for line in self.potListScore:
             if line[0] not in player:
                 occ = line[1]
@@ -247,6 +347,7 @@ class LiveActorAnalysis():
 
     def getPlayerPotList(self):
         playerPot = {}
+        self.potListScore = self.potContainer.getAll()
         for line in self.potListScore:
             name = line[0].strip('"')
             if name not in playerPot:
@@ -272,16 +373,34 @@ class LiveActorAnalysis():
             
         return s
         
-    def changeResult(self, potListScore):
-        if len(potListScore) != 0:
-            del self.potListScore[-len(potListScore):]
-            self.potListScore.extend(potListScore)
+    def setSinglePotScore(self, bossNum, pos, pot):
+        '''
+        设定单个分锅记录的锅数。
+        params
+        - bossNum BOSS编号
+        - tmp 记录的位置
+        - pot 修改后的锅数
+        '''
+        bossidStr = str(bossNum)
+        self.potContainer.pot[bossidStr][pos][-1] = pot
+        
+    def changeResult(self, potListScore, bossNum):
+        self.potContainer.addBoss(bossNum, potListScore)
+        #if len(potListScore) != 0:
+        #    del self.potListScore[-len(potListScore):]
+        #    self.potListScore.extend(potListScore)
 
-    def addResult(self, potListScore):
-        self.potListScore.extend(potListScore)
+    def addResult(self, potListScore, bossNum):
+        #self.potListScore.extend(potListScore)
+        self.potContainer.addBoss(bossNum, potListScore)
+        
+    def checkBossExists(self, bossNum):
+        bossNumStr = str(bossNum)
+        return bossNumStr in self.potContainer.pot
     
     def __init__(self):
-        self.potListScore = []
+        #self.potListScore = []
+        self.potContainer = PotContainer()
 
 class LiveListener():
 
@@ -298,8 +417,14 @@ class LiveListener():
         liveGenerator.secondStageAnalysis()
         if liveGenerator.upload:
             liveGenerator.prepareUpload()
+            
+        self.bossNum += 1
         
-        window = SingleBossWindow(self.analyser)
+        if self.window is not None and self.window.alive():
+            self.window.final()
+        
+        window = SingleBossWindow(self.analyser, self.bossNum)
+        self.window = window
         window.addPotList(liveGenerator.potList)
         window.start()
         
@@ -355,6 +480,9 @@ class LiveListener():
                              "alertRate": config.alertRate,
                              "bonusRate": config.bonusRate}
         self.analyser = analyser
+        
+        self.bossNum = 0
+        self.window = None
                              
 
 class AllStatWindow():
@@ -473,8 +601,5 @@ class AllStatWindow():
     def __init__(self, analyser):
         self.analyser = analyser
         self.addPotList()
-    
-    
-    
         
         

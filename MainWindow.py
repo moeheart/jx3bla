@@ -82,6 +82,12 @@ class MainWindow():
         toaster.show_toast("选项设置完成", "选项验证正确，可以在游戏中开战并分锅啦~", icon_path='')
         
         liveListener = LiveListener(self.fileLookUp.basepath, self.config, self.analyser)
+        self.liveListener = liveListener
+        liveListener.startListen()
+        
+    def check_live_quick(self):
+        liveListener = LiveListener(self.fileLookUp.basepath, self.config, self.analyser)
+        self.liveListener = liveListener
         liveListener.startListen()
         
     def start_live(self):
@@ -102,6 +108,37 @@ class MainWindow():
                 self.var.set("请在游戏中设置复盘选项，才能开启实时模式。")
                 self.listenThread = threading.Thread(target = self.check_live)
                 self.listenThread.start()
+                
+    def log_once(self, lastFile):
+        self.liveListener.getNewBattleLog(self.fileLookUp.basepath, lastFile)
+                
+    def live_once(self):
+        if not self.startLive:
+            config = Config("config.ini")
+            self.startLive = True
+            fileLookUp = FileLookUp()
+            fileLookUp.initFromConfig(config)
+            
+            self.config = config
+            self.fileLookUp = fileLookUp
+            
+            self.listenThread = threading.Thread(target = self.check_live_quick)
+            self.listenThread.start()
+            
+            self.startLive = True
+            
+        filelist = os.listdir(self.fileLookUp.basepath)
+        dataList = [x for x in filelist if x[-12:] == '.fstt.jx3dat']
+        if dataList != []:
+            lastFile = dataList[-1]
+        else:
+            lastFile = ""
+        if lastFile != "":
+            newestFile = lastFile
+            print("Newest File: %s"%lastFile)
+            self.listenThread = threading.Thread(target = self.log_once, args = (lastFile,)) 
+            self.listenThread.setDaemon(True);
+            self.listenThread.start()
         
     def show_history(self):
         allStatWindow = AllStatWindow(self.analyser)
@@ -160,6 +197,9 @@ class MainWindow():
         
         b5 = tk.Button(window, text='公告', height=1, command=self.show_announcement)
         b5.place(x = 250, y = 20)
+        
+        b6 = tk.Button(window, text='+', bg='#ffcccc', width=1, height=1, command=self.live_once)
+        b6.place(x = 200, y = 108)
         
         showEdition = EDITION
         if EDITION < self.newestEdition:

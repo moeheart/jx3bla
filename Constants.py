@@ -1,5 +1,5 @@
 # Created by moeheart at 10/11/2020
 # 全局用到的部分常量。
 
-EDITION = "5.4.2"
-ANNOUNCEMENT = "奶歌评分功能正式上线！欢迎大家开启复盘，挑战自我~"
+EDITION = "5.5.0"
+ANNOUNCEMENT = "作者的团终于开荒结束啦。接下来的时间会逐步更新yx分锅的全部功能，争取在削弱之前能让大家用上！"
