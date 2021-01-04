@@ -197,7 +197,7 @@ class SingleBossWindow():
         self.potListScore = []
 
         for i in range(len(self.potList)):
-            if len(self.potList[i]) == 6:
+            if len(self.potList[i]) <= 6:
                 self.potListScore.append(self.potList[i] + [0])
                 self.scoreList.append(0)
             else:

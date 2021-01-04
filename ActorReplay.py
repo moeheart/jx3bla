@@ -1501,8 +1501,8 @@ class ActorStatGenerator(StatGeneratorBase):
         if checkXiaoYao:
             for line in xiaoyaoCount:
                 if sum(list(xiaoyaoCount[line].values())) < 4 and occDetailList[line] not in ["1t", "3t", "10t", "21t", "2h", "5h", "6h", "22h"]:
-                    self.potList = [[namedict[earliestHit][0],
-                                     occDetailList[earliestHit],
+                    self.potList = [[namedict[line][0],
+                                     occDetailList[line],
                                      0,
                                      self.bossNamePrint,
                                      "小药数量错误：%d" % sum(list(xiaoyaoCount[line].values()))]] + self.potList
