@@ -1506,6 +1506,10 @@ class ActorStatGenerator(StatGeneratorBase):
                                      0,
                                      self.bossNamePrint,
                                      "小药数量错误：%d" % sum(list(xiaoyaoCount[line].values()))]] + self.potList
+                                     
+        for line in self.potList:
+            if len(line) == 5:
+                line.append([])
 
         self.data = data
         self.effectiveDPSList = effectiveDPSList
