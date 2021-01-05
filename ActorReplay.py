@@ -343,6 +343,8 @@ class ActorStatGenerator(StatGeneratorBase):
             for line in occdict:
                 if occdict[line][0] != '0':
                     occDetailList[line] = occdict[line][0]
+                    
+        detail = {"boss": "未知"}
 
         data = ActorData()
 
@@ -529,6 +531,12 @@ class ActorStatGenerator(StatGeneratorBase):
                 playerHitDict[line] = {"num": 0, "log": []}
                 playerUltDict[line] = {"num": 0, "log": []}
             countHit = 1
+            
+            #余晖数据格式：
+            #4 P1dps; 5 P2dps; 6 狂热层数;
+            #承伤：点名+1组ID(list)，点名+2组ID(list)，逃课ID
+            
+            detail["name"] = "余晖"
                 
         mitaoActive = self.mitaoActive
         if mitaoActive:
