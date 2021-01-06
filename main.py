@@ -402,7 +402,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         if data.myHealRank > data.numHealer:
             data.numHealer = data.myHealRank
 
-        data.healRate = data.numeffheal / sumHeal
+        data.healRate = data.numeffheal / (sumHeal + 1e-10)
 
         sumShield = 0
         for key in self.shieldCounters:
