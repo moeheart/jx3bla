@@ -530,6 +530,7 @@ class ActorStatGenerator(StatGeneratorBase):
             for line in self.playerIDList:
                 playerHitDict[line] = {"num": 0, "log": []}
                 playerUltDict[line] = {"num": 0, "log": []}
+                self.dps[line] = [0, 0, 0, 0, 0]
             countHit = 1
             
             #余晖数据格式：
@@ -797,8 +798,6 @@ class ActorStatGenerator(StatGeneratorBase):
                     elif yuhuiActive:
                         calculDPS = 0
                         if item[4] in self.playerIDList:
-                            if item[4] not in self.dps:
-                                self.dps[item[4]] = [0, 0, 0, 0, 0]
                             self.dps[item[4]][0] += int(item[14])
                             if phase == 1:
                                 self.dps[item[4]][2] += int(item[14])
@@ -950,18 +949,16 @@ class ActorStatGenerator(StatGeneratorBase):
                     if item[6] == "17685" and int(item[10]) > 0:
                         playerHitDict[item[5]]["num"] += 5
                         playerHitDict[item[5]]["log"].append("%s，易怒之人：5层"%parseTime((int(item[2]) - self.startTime) / 1000))
-                        
                     if item[6] == "17613" and int(item[10]) > 0:
                         playerUltDict[item[5]]["num"] += 1
                         playerUltDict[item[5]]["log"].append("%s，引导：震天血盾"%parseTime((int(item[2]) - self.startTime) / 1000)) 
-                        #if item[5] in playerHitDict:
-                        #    playerHitDict[item[5]]["num"] -= 5
                     if item[6] == "17911" and int(item[10]) > 0:
                         playerUltDict[item[5]]["num"] += 1
                         playerUltDict[item[5]]["log"].append("%s，引导：血莲绽放"%parseTime((int(item[2]) - self.startTime) / 1000))
-                        #if item[5] in playerHitDict:
-                        #    playerHitDict[item[5]]["num"] -= 5
-                
+                    if item[6] == "17616" and int(item[10]) > 0:
+                        #寒刃绞杀处理逻辑
+                        pass
+                        
                 if mitaoActive:
                     if item[5] in self.dizzyDict and self.dizzyDict[item[5]] != [] and self.dizzyDict[item[5]][0][0] <= int(item[2]):
                         lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
@@ -1159,6 +1156,7 @@ class ActorStatGenerator(StatGeneratorBase):
         effectiveDPSList = []
         
         calculDPS = 1
+        recordGORate = 0
 
         if yanyeActive:
             for line in yanyeDPS:
@@ -1276,6 +1274,7 @@ class ActorStatGenerator(StatGeneratorBase):
             
             calculDPS = 0
             
+        #余晖整体复盘
         elif yuhuiActive:
             if self.mapDetail != "10人普通达摩洞":
                 playerHitList = []
@@ -1309,6 +1308,29 @@ class ActorStatGenerator(StatGeneratorBase):
                                              self.bossNamePrint,
                                              "完成引导，次数：%d" %playerUltDict[line]["num"],
                                              playerUltDict[line]["log"]])
+            calculDPS = 0
+            recordGORate = 1
+            bossResult = []
+            P1Time = (P1FinalTime - self.startTime) / 1000
+            P2Time = (P2FinalTime - P1FinalTime) / 1000
+            
+            for line in self.playerIDList:
+                if line in self.dps:
+                    dps = self.dps[line][0] / self.battleTime
+                    P1dps = self.dps[line][2] / P1Time
+                    P2dps = self.dps[line][3] / P2Time
+                    chongBai = playerHitDict[line]["num"]
+                    bossResult.append([namedict[line][0],
+                                       occDetailList[line],
+                                       dps,
+                                       0,
+                                       P1dps,
+                                       P2dps,
+                                       chongBai
+                                       ])
+                    bossResult.sort(key = lambda x:-x[2])
+            effectiveDPSList = bossResult
+            
 
                 #for line in self.potList:
                 #    print(line)
@@ -1449,6 +1471,7 @@ class ActorStatGenerator(StatGeneratorBase):
                                        occDetailList[line],
                                        dps
                                        ])
+            bossResult.sort(key = lambda x:-x[2])
             effectiveDPSList = bossResult
 
         sumDPS = 0
@@ -1518,6 +1541,12 @@ class ActorStatGenerator(StatGeneratorBase):
                                              self.bossNamePrint,
                                              "团队-心法DPS达到补贴线(%s%%/%s%%)" % (parseCent(GORate, 0), parseCent(self.bonusRate, 0)),
                                              DPSDetail])
+                                             
+                    if recordGORate:
+                        for i in range(len(bossResult)):
+                            if bossResult[i][0] == namedict[line[0]][0]:
+                                bossResult[i][3] = GORate
+                            
 
         if self.firstHitList != {}:
             earliestHit = 0
@@ -1575,7 +1604,10 @@ class ActorStatGenerator(StatGeneratorBase):
         if self.mapDetail in ["25人英雄达摩洞"]:
             self.upload = 1
         
-        #print(self.potList)
+        print(self.potList)
+        print(effectiveDPSList)
+        for line in effectiveDPSList:
+            print(line)
 
     def __init__(self, filename, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}):
         self.myname = myname
