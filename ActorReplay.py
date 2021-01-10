@@ -539,6 +539,9 @@ class ActorStatGenerator(StatGeneratorBase):
             
             detail["boss"] = "余晖"
             detail["jiaosha"] = []
+            jiaoshaNum = 0
+            jiaoshaTime = 0
+            
             P1FinalTime = 0
             P2FinalTime = 0
             phase = 1
@@ -662,6 +665,17 @@ class ActorStatGenerator(StatGeneratorBase):
                         if item[7] == "24497" and phase == 1:
                             phase = 2
                             P1FinalTime = int(item[2])
+                        
+                        if item[7] == "24469": #寒刃绞杀
+                            if int(item[2]) - jiaoshaTime > 500 and jiaoshaNum <= 3:
+                                jiaoshaNum += 1
+                            jiaoshaTime = int(item[2])
+                            if jiaoshaNum == 3:
+                                if item[5] != detail["jiaosha"][-1][0][0][0]:
+                                    detail["jiaosha"][-1][0].append([item[5], namedict[item[5]][0], occDetailList[item[5]]])
+                            elif jiaoshaNum == 4:
+                                if item[5] not in detail["jiaosha"][-1][1][0][0]:
+                                    detail["jiaosha"][-1][1].append([item[5], namedict[item[5]][0], occDetailList[item[5]]])
                         '''
                         if item[7] == "24465" and int(item[13]) > 0:
                             playerUltDict[item[5]]["num"] += 1
@@ -946,6 +960,18 @@ class ActorStatGenerator(StatGeneratorBase):
                             self.jingshenkuifa[item[5]] = 0
                             
                 if yuhuiActive:
+                    if jiaoshaNum >= 4 and int(item[2]) - 3000 > jiaoshaTime:
+                        for line in self.playerIDList:
+                            leave = 1
+                            for line2 in detail["jiaosha"][-1][0]:
+                                if line2[0] == line:
+                                    leave = 0
+                            for line2 in detail["jiaosha"][-1][1]:
+                                if line2[0] == line:
+                                    leave = 0
+                            if leave:
+                                detail["jiaosha"][-1][2].append([line, namedict[line][0], occDetailList[line]])
+                        jiaoshaNum = 0
                     if item[6] == "17685" and int(item[10]) > 0:
                         playerHitDict[item[5]]["num"] += 5
                         playerHitDict[item[5]]["log"].append("%s，易怒之人：5层"%parseTime((int(item[2]) - self.startTime) / 1000))
@@ -956,6 +982,14 @@ class ActorStatGenerator(StatGeneratorBase):
                         playerUltDict[item[5]]["num"] += 1
                         playerUltDict[item[5]]["log"].append("%s，引导：血莲绽放"%parseTime((int(item[2]) - self.startTime) / 1000))
                     if item[6] == "17616" and int(item[10]) > 0:
+                        if jiaoshaNum == 0:
+                            detail["jiaosha"].append([[], [], []])
+                            detail["jiaosha"][-1][0].append([item[5], namedict[item[5]][0], occDetailList[item[5]]])
+                            jiaoshaNum += 1
+                        elif jiaoshaNum == 1:
+                            detail["jiaosha"][-1][1].append([item[5], namedict[item[5]][0], occDetailList[item[5]]])
+                            jiaoshaNum += 1
+                            
                         #寒刃绞杀处理逻辑
                         pass
                         
@@ -1605,9 +1639,9 @@ class ActorStatGenerator(StatGeneratorBase):
             self.upload = 1
         
         print(self.potList)
-        print(effectiveDPSList)
         for line in effectiveDPSList:
             print(line)
+        print(detail)
 
     def __init__(self, filename, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}):
         self.myname = myname
