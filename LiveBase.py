@@ -9,6 +9,8 @@ from tkinter import messagebox
 from win10toast import ToastNotifier
 
 from ActorReplay import ActorStatGenerator
+from replayer.Base import SpecificBossWindow
+from replayer.Yuhui import YuHuiWindow
 
 class ToolTip(object):
     def build(self, widget):
@@ -77,7 +79,8 @@ class SingleBossWindow():
                      "22": (100, 250, 180),#长歌
                      "23": (71, 73, 166),#霸刀
                      "24": (195, 171, 227),#蓬莱
-                     "25": (161, 9, 34)#凌雪
+                     "25": (161, 9, 34),#凌雪
+                     "211": (166, 83, 251),#衍天
                     }
         res = (0, 0, 0)
         if occ in colorDict:
@@ -161,11 +164,32 @@ class SingleBossWindow():
         else:
             messagebox.showinfo(title='嘶', message='后继BOSS未找到。')
             
+    def setDetail(self, potList, effectiveDPSList, detail):
+        '''
+        初始化详细复盘的数据。
+        - params
+        potList 分锅记录。
+        effectiveDPSList DPS详细统计，包括每名玩家在特定算法下的DPS。
+        detail 详细复盘记录。
+        '''
+        self.effectiveDPSList = effectiveDPSList
+        self.detail = detail
+        self.hasDetail = 1
+        if "boss" in detail:
+            if detail["boss"] == "余晖":
+                self.specificBossWindow = YuHuiWindow(effectiveDPSList, detail)
+            else:
+                self.specificBossWindow = SpecificBossWindow()
+                self.hasDetail = 0
+        
     def showDetail(self):
         '''
         显示战斗统计详情。
         '''
-        messagebox.showinfo(title='嘶', message='制作中，敬请期待！')
+        if self.hasDetail:
+            self.specificBossWindow.start()
+        else:
+            messagebox.showinfo(title='嘶', message='制作中，敬请期待！')
 
     def loadWindow(self):
         '''
@@ -426,6 +450,7 @@ class LiveListener():
         window = SingleBossWindow(self.analyser, self.bossNum)
         self.window = window
         window.addPotList(liveGenerator.potList)
+        window.setDetail(liveGenerator.potList, liveGenerator.effectiveDPSList, liveGenerator.detail)
         window.start()
         
         toaster = ToastNotifier()

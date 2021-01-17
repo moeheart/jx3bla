@@ -115,7 +115,56 @@ def parseLuatable(s, n, maxn):
             break
     nowobj[nowkey] = nowitems
     return nowobj, nowi
+    
+def getColor(occ):
+    '''
+    根据门派获取颜色。
+    params
+    - occ 门派代码。
+    return
+    - 颜色RGB代码。
+    '''
+    if occ[-1] in ['d', 't', 'h', 'p', 'm']:
+        occ = occ[:-1]
+    colorDict = {"0": (0, 0, 0), 
+                 "1": (210, 180, 0),#少林
+                 "2": (127, 31, 223),#万花
+                 "4": (56, 175, 255),#纯阳
+                 "5": (255, 127, 255),#七秀
+                 "3": (160, 0, 0),#天策
+                 "8": (255, 255, 0),#藏剑
+                 "9": (205, 133, 63),#丐帮
+                 "10": (253, 84, 0),#明教
+                 "6": (63, 31, 159),#五毒
+                 "7": (0, 133, 144),#唐门
+                 "21": (180, 60, 0),#苍云
+                 "22": (100, 250, 180),#长歌
+                 "23": (71, 73, 166),#霸刀
+                 "24": (195, 171, 227),#蓬莱
+                 "25": (161, 9, 34),#凌雪
+                 "211": (166, 83, 251),#衍天
+                }
+    res = (0, 0, 0)
+    if occ in colorDict:
+        res = colorDict[occ]
+    return "#%s%s%s"%(str(hex(res[0]))[-2:].replace('x', '0'), 
+                      str(hex(res[1]))[-2:].replace('x', '0'),
+                      str(hex(res[2]))[-2:].replace('x', '0'))
 
+def getPotColor(level):
+    '''
+    在分锅记录中，根据锅的等级获取颜色。
+    params
+    - occ 等级。
+    return
+    - 颜色RGB代码。
+    '''
+    if level == 0:
+        return "#777777"
+    elif level == 1:
+        return "#000000"
+    else:
+        return "#0000ff"
 
 def dictToPairs(dict):
     pairs = []
