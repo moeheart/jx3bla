@@ -462,30 +462,6 @@ class ActorStatGenerator(StatGeneratorBase):
                 
         
         bossAnalyser.initBattle()
-        '''
-        yuhuiActive = self.yuhuiActive
-        if yuhuiActive:
-            playerHitDict = {}
-            playerUltDict = {}
-            for line in self.playerIDList:
-                playerHitDict[line] = {"num": 0, "log": []}
-                playerUltDict[line] = {"num": 0, "log": []}
-                self.dps[line] = [0, 0, 0, 0, 0]
-            countHit = 1
-            
-            #余晖数据格式：
-            #4 P1dps; 5 P2dps; 6 狂热层数;
-            #承伤：点名+1组ID(list)，点名+2组ID(list)，逃课ID
-            
-            detail["boss"] = "余晖"
-            detail["jiaosha"] = []
-            jiaoshaNum = 0
-            jiaoshaTime = 0
-            
-            P1FinalTime = 0
-            P2FinalTime = 0
-            phase = 1
-        '''
                 
         mitaoActive = self.mitaoActive
         if mitaoActive:
@@ -588,39 +564,6 @@ class ActorStatGenerator(StatGeneratorBase):
                                 else:
                                     self.xuelian[item[5]].append(-1)
                             xuelianStamp = int(item[2])
-
-                    '''
-                    if yuhuiActive:
-                        ultCount = 2
-                        if self.mapDetail == "25人英雄达摩洞":
-                            ultCount = 5
-                        if item[7] == "24438":
-                            playerHitDict[item[5]]["num"] += 3
-                            playerHitDict[item[5]]["log"].append("%s，血海寒刀：3层"%parseTime((int(item[2]) - self.startTime) / 1000))
-                        if item[7] == "24464":
-                            playerHitDict[item[5]]["num"] += ultCount
-                            playerHitDict[item[5]]["log"].append("%s，摧城盾冲：%d层"%(parseTime((int(item[2]) - self.startTime) / 1000), ultCount))
-                        if item[7] in ["24471", "24533"]:
-                            playerHitDict[item[5]]["num"] += 8
-                            playerHitDict[item[5]]["log"].append("%s，无尽刀狱：8层"%parseTime((int(item[2]) - self.startTime) / 1000))
-                        if item[7] == "24472":
-                            playerHitDict[item[5]]["num"] += ultCount
-                            playerHitDict[item[5]]["log"].append("%s，寒刃血莲：%d层"%(parseTime((int(item[2]) - self.startTime) / 1000), ultCount))
-                        if item[7] == "24497" and phase == 1:
-                            phase = 2
-                            P1FinalTime = int(item[2])
-                        
-                        if item[7] == "24469": #寒刃绞杀
-                            if int(item[2]) - jiaoshaTime > 500 and jiaoshaNum <= 3:
-                                jiaoshaNum += 1
-                            jiaoshaTime = int(item[2])
-                            if jiaoshaNum == 3:
-                                if item[5] != detail["jiaosha"][-1][0][0][0]:
-                                    detail["jiaosha"][-1][0].append([item[5], namedict[item[5]][0], occDetailList[item[5]]])
-                            elif jiaoshaNum == 4:
-                                if item[5] not in detail["jiaosha"][-1][1][0][0]:
-                                    detail["jiaosha"][-1][1].append([item[5], namedict[item[5]][0], occDetailList[item[5]]])
-                    '''
                     
                     if yuanfeiActive:
                         if item[7] == "24655" and item[4] in ballDict and int(item[2]) - ballDict[item[4]]["lastHit"] > 500:
@@ -740,19 +683,7 @@ class ActorStatGenerator(StatGeneratorBase):
                         if item[5] in self.guishouID and item[4] in self.playerIDList:
                             self.dps[item[4]][3] += int(item[14])
                         if P3 and item[4] in self.playerIDList:
-                            self.dps[item[4]][4] += int(item[14])
-                            
-                        '''
-                        elif yuhuiActive:
-                            calculDPS = 0
-                            if item[4] in self.playerIDList:
-                                self.dps[item[4]][0] += int(item[14])
-                                if phase == 1:
-                                    self.dps[item[4]][2] += int(item[14])
-                                else:
-                                    self.dps[item[4]][3] += int(item[14])
-                        '''
-                        
+                            self.dps[item[4]][4] += int(item[14])   
                             
                     elif mitaoActive:
                         if item[7] in ["24704", "24705"]:
@@ -893,42 +824,6 @@ class ActorStatGenerator(StatGeneratorBase):
                                                  ["不间断的减疗只计算一次"]])
                         if stack < 20 and self.jingshenkuifa[item[5]] == 1:
                             self.jingshenkuifa[item[5]] = 0
-                            
-                '''
-                if yuhuiActive:
-                    if jiaoshaNum >= 4 and int(item[2]) - 3000 > jiaoshaTime:
-                        for line in self.playerIDList:
-                            leave = 1
-                            for line2 in detail["jiaosha"][-1][0]:
-                                if line2[0] == line:
-                                    leave = 0
-                            for line2 in detail["jiaosha"][-1][1]:
-                                if line2[0] == line:
-                                    leave = 0
-                            if leave:
-                                detail["jiaosha"][-1][2].append([line, namedict[line][0], occDetailList[line]])
-                        jiaoshaNum = 0
-                    if item[6] == "17685" and int(item[10]) > 0:
-                        playerHitDict[item[5]]["num"] += 5
-                        playerHitDict[item[5]]["log"].append("%s，易怒之人：5层"%parseTime((int(item[2]) - self.startTime) / 1000))
-                    if item[6] == "17613" and int(item[10]) > 0:
-                        playerUltDict[item[5]]["num"] += 1
-                        playerUltDict[item[5]]["log"].append("%s，引导：震天血盾"%parseTime((int(item[2]) - self.startTime) / 1000)) 
-                    if item[6] == "17911" and int(item[10]) > 0:
-                        playerUltDict[item[5]]["num"] += 1
-                        playerUltDict[item[5]]["log"].append("%s，引导：血莲绽放"%parseTime((int(item[2]) - self.startTime) / 1000))
-                    if item[6] == "17616" and int(item[10]) > 0:
-                        if jiaoshaNum == 0:
-                            detail["jiaosha"].append([[], [], []])
-                            detail["jiaosha"][-1][0].append([item[5], namedict[item[5]][0], occDetailList[item[5]]])
-                            jiaoshaNum += 1
-                        elif jiaoshaNum == 1:
-                            detail["jiaosha"][-1][1].append([item[5], namedict[item[5]][0], occDetailList[item[5]]])
-                            jiaoshaNum += 1
-                            
-                        #寒刃绞杀处理逻辑
-                        pass
-                '''
                         
                 if mitaoActive:
                     if item[5] in self.dizzyDict and self.dizzyDict[item[5]] != [] and self.dizzyDict[item[5]][0][0] <= int(item[2]):
@@ -1061,21 +956,6 @@ class ActorStatGenerator(StatGeneratorBase):
                     if item[4] in ['"哼哼哼哼……"']:
                         sideTime += 20
                         guishouTime += 20
-                        
-                #print(item)
-                
-                '''
-                if yuhuiActive:
-                    if item[4] == '"是时候用你们的鲜血来换取最高的欢呼声了！"':
-                        countHit = 0
-                    if item[4] == '"不可能！我才是……血斗场的……王者……"':
-                        P2FinalTime = int(item[2])
-                        if P1FinalTime == 0:
-                            P1FinalTime = P2FinalTime - 1
-                    #if item[4] == '"你们是值得我认真对待的对手！"':
-                    #    P1FinalTime = int(item[2])
-                    #    phase = 2
-                '''
                         
                 if mitaoActive:
                     if item[4] == '"你……你不是宓桃大人！"':
@@ -1251,69 +1131,6 @@ class ActorStatGenerator(StatGeneratorBase):
             self.anxiaofengResult = anxiaofengResult
             
             calculDPS = 0
-            
-            '''
-            #余晖整体复盘
-            elif yuhuiActive:
-                if self.mapDetail != "10人普通达摩洞":
-                    playerHitList = []
-                    for line in playerHitDict:
-                        if playerHitDict[line]["num"] != 0:
-                            playerHitList.append([line, playerHitDict[line]["num"], playerHitDict[line]["log"]])
-                    playerHitList.sort(key = lambda x:-x[1])
-                    for i in range(len(playerHitList)):
-                        id = playerHitList[i][0]
-                        if playerHitList[i][1] >= 10:
-                            self.potList.append([namedict[id][0],
-                                                 occdict[id][0],
-                                                 1,
-                                                 self.bossNamePrint,
-                                                 "狂热崇拜值叠加：%d层" %playerHitList[i][1],
-                                                 playerHitList[i][2]])
-                        elif playerHitList[i][1] > 0:
-                            self.potList.append([namedict[id][0],
-                                                 occdict[id][0],
-                                                 0,
-                                                 self.bossNamePrint,
-                                                 "狂热崇拜值叠加：%d层" %playerHitList[i][1],
-                                                 playerHitList[i][2]])
-                    
-                    for line in playerUltDict:
-                        id = line
-                        if playerUltDict[line]["num"] > 0:
-                            self.potList.append([namedict[id][0],
-                                                 occdict[id][0],
-                                                 3,
-                                                 self.bossNamePrint,
-                                                 "完成引导，次数：%d" %playerUltDict[line]["num"],
-                                                 playerUltDict[line]["log"]])
-                calculDPS = 0
-                recordGORate = 1
-                bossResult = []
-                P1Time = (P1FinalTime - self.startTime) / 1000
-                P2Time = (P2FinalTime - P1FinalTime) / 1000
-                
-                for line in self.playerIDList:
-                    if line in self.dps:
-                        dps = self.dps[line][0] / self.battleTime
-                        P1dps = self.dps[line][2] / P1Time
-                        P2dps = self.dps[line][3] / P2Time
-                        chongBai = playerHitDict[line]["num"]
-                        bossResult.append([namedict[line][0],
-                                           occDetailList[line],
-                                           dps,
-                                           0,
-                                           P1dps,
-                                           P2dps,
-                                           chongBai
-                                           ])
-                        bossResult.sort(key = lambda x:-x[2])
-                effectiveDPSList = bossResult
-                
-
-                    #for line in self.potList:
-                    #    print(line)
-            '''
             
         elif yuanfeiActive:
             for line in ballDict:
