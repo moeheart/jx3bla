@@ -23,7 +23,7 @@ class MiTaoWindow():
         '''
         window = tk.Toplevel()
         #window = tk.Tk()
-        window.title('余晖详细复盘')
+        window.title('宓桃详细复盘')
         window.geometry('1000x800')
         
         frame1 = tk.Frame(window)
@@ -127,62 +127,28 @@ class MitaoReplayer(SpecificReplayer):
         '''
         生成复盘结果的流程。需要维护effectiveDPSList, potList与detail。
         '''
-        
-        if self.mapDetail != "10人普通达摩洞":
-            playerHitList = []
-            for line in self.playerHitDict:
-                if self.playerHitDict[line]["num"] != 0:
-                    playerHitList.append([line, self.playerHitDict[line]["num"], self.playerHitDict[line]["log"]])
-            playerHitList.sort(key = lambda x:-x[1])
-            for i in range(len(playerHitList)):
-                id = playerHitList[i][0]
-                if playerHitList[i][1] >= 10:
-                    self.potList.append([self.namedict[id][0],
-                                         self.occdict[id][0],
-                                         1,
-                                         self.bossNamePrint,
-                                         "狂热崇拜值叠加：%d层" %playerHitList[i][1],
-                                         playerHitList[i][2]])
-                elif playerHitList[i][1] > 0:
-                    self.potList.append([self.namedict[id][0],
-                                         self.occdict[id][0],
-                                         0,
-                                         self.bossNamePrint,
-                                         "狂热崇拜值叠加：%d层" %playerHitList[i][1],
-                                         playerHitList[i][2]])
-            
-            for line in self.playerUltDict:
-                id = line
-                if self.playerUltDict[line]["num"] > 0:
-                    self.potList.append([self.namedict[id][0],
-                                         self.occdict[id][0],
-                                         3,
-                                         self.bossNamePrint,
-                                         "完成引导，次数：%d" %self.playerUltDict[line]["num"],
-                                         self.playerUltDict[line]["log"]])
-                                         
-        recordGORate = 1
+        for id in self.leadDict:
+            timeList = []
+            for row in self.leadDict[id]:
+                timeList.append(parseTime((row - self.startTime) / 1000))
+            self.potList.append([namedict[id][0],
+                                 occdict[id][0],
+                                 3,
+                                 self.bossNamePrint,
+                                 "完成引导，次数：%d" %len(timeList),
+                                 timeList])
+                                 
         bossResult = []
-        P1Time = (self.P1FinalTime - self.startTime) / 1000
-        P2Time = (self.P2FinalTime - self.P1FinalTime) / 1000
-        
         for line in self.playerIDList:
             if line in self.dps:
                 dps = self.dps[line][0] / self.battleTime
-                P1dps = self.dps[line][2] / P1Time
-                P2dps = self.dps[line][3] / P2Time
-                chongBai = self.playerHitDict[line]["num"]
-                bossResult.append([self.namedict[line][0],
-                                   self.occDetailList[line],
-                                   dps,
-                                   0,
-                                   P1dps,
-                                   P2dps,
-                                   chongBai
+                bossResult.append([namedict[line][0],
+                                   occDetailList[line],
+                                   dps
                                    ])
-                bossResult.sort(key = lambda x:-x[2])
+        bossResult.sort(key = lambda x:-x[2])
         self.effectiveDPSList = bossResult
-        
+                                 
         return self.effectiveDPSList, self.potList, self.detail
 
     def analyseSecondStage(self, item):
@@ -200,7 +166,16 @@ class MitaoReplayer(SpecificReplayer):
         elif item[3] == '5': #气劲
             if self.occdict[item[5]][0] == '0':
                 return
-            pass
+                
+            if item[5] in self.dizzyDict and self.dizzyDict[item[5]] != [] and self.dizzyDict[item[5]][0][0] <= int(item[2]):
+                lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                self.potList.append([self.namedict[item[5]][0],
+                                     self.occDetailList[item[5]],
+                                     0,
+                                     self.bossNamePrint,
+                                     "%s进迷雾被魅惑" % lockTime,
+                                     ["会计算因引导而被魅惑的情况"]])
+                del self.dizzyDict[item[5]][0]
                     
         elif item[3] == '8':
 
@@ -223,15 +198,18 @@ class MitaoReplayer(SpecificReplayer):
         self.activeBoss = "宓桃"
         
         #宓桃数据格式：
-        #4 P1dps; 5 P2dps; 6 狂热层数;
-        #承伤：点名+1组ID(list)，点名+2组ID(list)，逃课ID
+        #4
+        #
         
+        self.dps = {}
         self.detail["boss"] = "宓桃"
 
 
-    def __init__(self, playerIDList, mapDetail, res, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
+    def __init__(self, playerIDList, mapDetail, res, occDetailList, startTime, finalTime, battleTime, bossNamePrint, dizzyDict, leadDict):
         '''
         对类本身进行初始化。
         '''
         super().__init__(playerIDList, mapDetail, res, occDetailList, startTime, finalTime, battleTime, bossNamePrint)
+        self.dizzyDict = dizzyDict
+        self.leadDict = leadDict
 

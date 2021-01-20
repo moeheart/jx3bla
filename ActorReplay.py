@@ -14,6 +14,7 @@ from Constants import *
 
 from replayer.Base import SpecificReplayer
 from replayer.Yuhui import YuhuiReplayer
+from replayer.Mitao import MitaoReplayer
 
 class ActorStatGenerator(StatGeneratorBase):
     yanyeID = {}
@@ -277,6 +278,7 @@ class ActorStatGenerator(StatGeneratorBase):
                         self.mitaoActive = 1
                         self.dizzyDict = {}
                         self.leadDict = {}
+                    self.bossAnalyseName = "宓桃"
                         
                 if namedict[item[5]][0] in ['"毗流驮迦"', '"毗留博叉"'] and occdict[item[5]][0] == '0':
                     if self.yatoutuoActive == 0:
@@ -388,6 +390,8 @@ class ActorStatGenerator(StatGeneratorBase):
         
         if self.bossAnalyseName == "余晖":
             bossAnalyser = YuhuiReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "宓桃":
+            bossAnalyser = MitaoReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint, self.dizzyDict, self.leadDict)
         else:
             bossAnalyser = SpecificReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
             
@@ -464,9 +468,11 @@ class ActorStatGenerator(StatGeneratorBase):
         bossAnalyser.initBattle()
                 
         mitaoActive = self.mitaoActive
+        '''
         if mitaoActive:
             self.lastLead = "0"
             self.lastLeadTime = "0"
+        '''
             
         yatoutuoActive = self.yatoutuoActive
         if yatoutuoActive:
@@ -684,11 +690,13 @@ class ActorStatGenerator(StatGeneratorBase):
                             self.dps[item[4]][3] += int(item[14])
                         if P3 and item[4] in self.playerIDList:
                             self.dps[item[4]][4] += int(item[14])   
-                            
-                    elif mitaoActive:
-                        if item[7] in ["24704", "24705"]:
-                            self.lastLead = item[4]
-                            self.lastLeadTime = item[2]
+                    
+                        '''
+                        elif mitaoActive:
+                            if item[7] in ["24704", "24705"]:
+                                self.lastLead = item[4]
+                                self.lastLeadTime = item[2]
+                        '''
                     
                     elif yuanfeiActive:
                         if item[7] == "25459" and item[5] in ballDict and int(item[2]) - ballDict[item[5]]["lastHit"] > 500:
@@ -824,7 +832,8 @@ class ActorStatGenerator(StatGeneratorBase):
                                                  ["不间断的减疗只计算一次"]])
                         if stack < 20 and self.jingshenkuifa[item[5]] == 1:
                             self.jingshenkuifa[item[5]] = 0
-                        
+                
+                '''
                 if mitaoActive:
                     if item[5] in self.dizzyDict and self.dizzyDict[item[5]] != [] and self.dizzyDict[item[5]][0][0] <= int(item[2]):
                         lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
@@ -835,6 +844,7 @@ class ActorStatGenerator(StatGeneratorBase):
                                              "%s进迷雾被魅惑" % lockTime,
                                              ["因引导而被魅惑不计算在内"]])
                         del self.dizzyDict[item[5]][0]
+                '''
                         
                 if yatoutuoActive:
                     if item[6] in ["15774", "17200"]:  # buff精神匮乏
@@ -957,6 +967,7 @@ class ActorStatGenerator(StatGeneratorBase):
                         sideTime += 20
                         guishouTime += 20
                         
+                '''        
                 if mitaoActive:
                     if item[4] == '"你……你不是宓桃大人！"':
                         if self.lastLead != "0" and int(item[2]) - int(self.lastLeadTime) < 13000 and int(item[2]) - int(self.lastLeadTime) > 1000:
@@ -967,6 +978,7 @@ class ActorStatGenerator(StatGeneratorBase):
                                                  self.bossNamePrint,
                                                  "%s引导出错" % parseTime((int(item[2]) - self.startTime) / 1000),
                                                  ["持续时间：%ss/14s"%((int(item[2]) - int(self.lastLeadTime)) / 1000)]])
+                '''
                 
                 
                 if item[4] in ['"可恶…"',
@@ -1011,7 +1023,7 @@ class ActorStatGenerator(StatGeneratorBase):
         calculDPS = 1
         recordGORate = 0
         
-        if self.bossAnalyser.activeBoss in ["余晖"]:
+        if self.bossAnalyser.activeBoss in ["余晖", "宓桃"]:
             effectiveDPSList, potList, detail = self.bossAnalyser.getResult()
             self.potList = potList
             calculDPS = 0
@@ -1214,18 +1226,20 @@ class ActorStatGenerator(StatGeneratorBase):
                                          self.bossNamePrint,
                                          "踢球得分：%d分，评级：国足" %playerBallList[i][1],
                                          playerBallList[i][2]])
-                                       
-        elif mitaoActive:
-            for id in self.leadDict:
-                timeList = []
-                for row in self.leadDict[id]:
-                    timeList.append(parseTime((row - self.startTime) / 1000))
-                self.potList.append([namedict[id][0],
-                                     occdict[id][0],
-                                     3,
-                                     self.bossNamePrint,
-                                     "完成引导，次数：%d" %len(timeList),
-                                     timeList])
+        
+            '''
+            elif mitaoActive:
+                for id in self.leadDict:
+                    timeList = []
+                    for row in self.leadDict[id]:
+                        timeList.append(parseTime((row - self.startTime) / 1000))
+                    self.potList.append([namedict[id][0],
+                                         occdict[id][0],
+                                         3,
+                                         self.bossNamePrint,
+                                         "完成引导，次数：%d" %len(timeList),
+                                         timeList])
+            '''
                                      
         elif yatoutuoActive:
             for line in self.playerIDList:
