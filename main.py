@@ -431,7 +431,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         
         if self.activeBoss in ["宓桃", "哑头陀"]:  
             for line in data.npchealstat:
-                data.npchealstat[line] /= hpsSumTime
+                data.npchealstat[line] /= (hpsSumTime + 1e-10)
 
         for key in data.rateDict:
             numrate += 1

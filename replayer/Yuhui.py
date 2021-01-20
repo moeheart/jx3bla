@@ -237,7 +237,6 @@ class YuhuiReplayer(SpecificReplayer):
                             self.detail["jiaosha"][-1][1].append([item[5], self.namedict[item[5]][0].strip('"'), self.occDetailList[item[5]]])
                         
             else:
-                self.calculDPS = 0
                 if item[4] in self.playerIDList:
                     self.dps[item[4]][0] += int(item[14])
                     if self.phase == 1:
@@ -285,7 +284,6 @@ class YuhuiReplayer(SpecificReplayer):
                 self.P2FinalTime = int(item[2])
                 if self.P1FinalTime == 0:
                     self.P1FinalTime = self.P2FinalTime - 1
-            if item[4] == '"不可能！我才是……血斗场的……王者……"':
                 self.win = 1
         
     def analyseFirstStage(self, item):

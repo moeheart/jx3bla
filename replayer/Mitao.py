@@ -193,86 +193,18 @@ class MitaoReplayer(SpecificReplayer):
         '''
         if item[3] == '1':  # 技能
             if self.occdict[item[5]][0] != '0':
-                ultCount = 2
-                if self.mapDetail == "25人英雄达摩洞":
-                    ultCount = 5
-                if item[7] == "24438":
-                    self.playerHitDict[item[5]]["num"] += 3
-                    self.playerHitDict[item[5]]["log"].append("%s，血海寒刀：3层"%parseTime((int(item[2]) - self.startTime) / 1000))
-                if item[7] == "24464":
-                    self.playerHitDict[item[5]]["num"] += ultCount
-                    self.playerHitDict[item[5]]["log"].append("%s，摧城盾冲：%d层"%(parseTime((int(item[2]) - self.startTime) / 1000), ultCount))
-                if item[7] in ["24471", "24533"]:
-                    self.playerHitDict[item[5]]["num"] += 8
-                    self.playerHitDict[item[5]]["log"].append("%s，无尽刀狱：8层"%parseTime((int(item[2]) - self.startTime) / 1000))
-                if item[7] == "24472":
-                    self.playerHitDict[item[5]]["num"] += ultCount
-                    self.playerHitDict[item[5]]["log"].append("%s，寒刃血莲：%d层"%(parseTime((int(item[2]) - self.startTime) / 1000), ultCount))
-                if item[7] == "24497" and self.phase == 1:
-                    self.phase = 2
-                    self.P1FinalTime = int(item[2])
-                
-                if item[7] == "24469": #寒刃绞杀
-                    if int(item[2]) - self.jiaoshaTime > 500 and self.jiaoshaNum <= 3:
-                        self.jiaoshaNum += 1
-                    self.jiaoshaTime = int(item[2])
-                    if self.jiaoshaNum == 3:
-                        if item[5] not in self.detail["jiaosha"][-1][0][0][0] and item[5] not in self.detail["jiaosha"][-1][0][-1][0]:
-                            self.detail["jiaosha"][-1][0].append([item[5], self.namedict[item[5]][0].strip('"'), self.occDetailList[item[5]]])
-                    elif self.jiaoshaNum == 4:
-                        if item[5] not in self.detail["jiaosha"][-1][1][0][0] and item[5] not in self.detail["jiaosha"][-1][1][-1][0]:
-                            self.detail["jiaosha"][-1][1].append([item[5], self.namedict[item[5]][0].strip('"'), self.occDetailList[item[5]]])
-                        
+                pass      
             else:
-                self.calculDPS = 0
-                if item[4] in self.playerIDList:
-                    self.dps[item[4]][0] += int(item[14])
-                    if self.phase == 1:
-                        self.dps[item[4]][2] += int(item[14])
-                    else:
-                        self.dps[item[4]][3] += int(item[14])
+                pass
                         
         elif item[3] == '5': #气劲
             if self.occdict[item[5]][0] == '0':
                 return
-            if self.jiaoshaNum >= 4 and int(item[2]) - 3000 > self.jiaoshaTime:
-                for line in self.playerIDList:
-                    leave = 1
-                    for line2 in self.detail["jiaosha"][-1][0]:
-                        if line2[0] == line:
-                            leave = 0
-                    for line2 in self.detail["jiaosha"][-1][1]:
-                        if line2[0] == line:
-                            leave = 0
-                    if leave:
-                        self.detail["jiaosha"][-1][2].append([line, self.namedict[line][0].strip('"'), self.occDetailList[line]])
-                self.jiaoshaNum = 0
-            if item[6] == "17685" and int(item[10]) > 0:
-                self.playerHitDict[item[5]]["num"] += 5
-                self.playerHitDict[item[5]]["log"].append("%s，易怒之人：5层"%parseTime((int(item[2]) - self.startTime) / 1000))
-            if item[6] == "17613" and int(item[10]) > 0:
-                self.playerUltDict[item[5]]["num"] += 1
-                self.playerUltDict[item[5]]["log"].append("%s，引导：震天血盾"%parseTime((int(item[2]) - self.startTime) / 1000)) 
-            if item[6] == "17911" and int(item[10]) > 0:
-                self.playerUltDict[item[5]]["num"] += 1
-                self.playerUltDict[item[5]]["log"].append("%s，引导：血莲绽放"%parseTime((int(item[2]) - self.startTime) / 1000))
-            if item[6] == "17616" and int(item[10]) > 0:
-                if self.jiaoshaNum == 0:
-                    self.detail["jiaosha"].append([[], [], []])
-                    self.detail["jiaosha"][-1][0].append([item[5], self.namedict[item[5]][0].strip('"'), self.occDetailList[item[5]]])
-                    self.jiaoshaNum += 1
-                elif self.jiaoshaNum == 1:
-                    self.detail["jiaosha"][-1][1].append([item[5], self.namedict[item[5]][0].strip('"'), self.occDetailList[item[5]]])
-                    self.jiaoshaNum += 1
+            pass
                     
         elif item[3] == '8':
-            if item[4] == '"是时候用你们的鲜血来换取最高的欢呼声了！"':
-                self.countHit = 0
-            if item[4] == '"不可能！我才是……血斗场的……王者……"':
-                self.P2FinalTime = int(item[2])
-                if self.P1FinalTime == 0:
-                    self.P1FinalTime = self.P2FinalTime - 1
-            if item[4] == '"不可能！我才是……血斗场的……王者……"':
+
+            if item[4] == '"能和妾身玩这么久的人你们还是第一个，不过妾身一心只惦记着小将军……"':
                 self.win = 1
         
     def analyseFirstStage(self, item):
@@ -290,27 +222,12 @@ class MitaoReplayer(SpecificReplayer):
         '''
         self.activeBoss = "宓桃"
         
-        self.dps = {}
-        self.playerHitDict = {}
-        self.playerUltDict = {}
-        for line in self.playerIDList:
-            self.playerHitDict[line] = {"num": 0, "log": []}
-            self.playerUltDict[line] = {"num": 0, "log": []}
-            self.dps[line] = [0, 0, 0, 0, 0]
-        self.countHit = 1
-        
         #宓桃数据格式：
         #4 P1dps; 5 P2dps; 6 狂热层数;
         #承伤：点名+1组ID(list)，点名+2组ID(list)，逃课ID
         
         self.detail["boss"] = "宓桃"
-        self.detail["jiaosha"] = []
-        self.jiaoshaNum = 0
-        self.jiaoshaTime = 0
-        
-        self.P1FinalTime = 0
-        self.P2FinalTime = 0
-        self.phase = 1
+
 
     def __init__(self, playerIDList, mapDetail, res, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
         '''

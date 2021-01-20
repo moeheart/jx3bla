@@ -982,8 +982,8 @@ class ActorStatGenerator(StatGeneratorBase):
                                '"情况不太对……咳咳……"',  # 驺吾没有通关喊话，暂时以这句话代替
                                '"三千世界生死限，九天有苍十方剑！"',  # 方有崖暂时以这句话代替
                                #'"不可能！我才是……血斗场的……王者……"', #余晖通关喊话
-                               '"咳咳，不打了，我还不想现在死，咱们来日方长……"', #宓桃通关喊话
-                               '"能和妾身玩这么久的人你们还是第一个，不过妾身一心只惦记着小将军……"', #宓桃25人通关喊话
+                               #'"咳咳，不打了，我还不想现在死，咱们来日方长……"', #宓桃通关喊话
+                               #'"能和妾身玩这么久的人你们还是第一个，不过妾身一心只惦记着小将军……"', #宓桃25人通关喊话
                                '"想不到我武雪散竟亡于这……畜生道……可悲啊……"', #武雪散通关喊话
                                '"呃啊...啊，这双腿...还是...大不如....从前了...."', #猿飞通关喊话
                                '"…… …… …… ……"', #哑头陀通关喊话
@@ -1015,6 +1015,7 @@ class ActorStatGenerator(StatGeneratorBase):
             effectiveDPSList, potList, detail = self.bossAnalyser.getResult()
             self.potList = potList
             calculDPS = 0
+            self.win = self.bossAnalyser.win
 
         if yanyeActive:
             for line in yanyeDPS:
