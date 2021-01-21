@@ -5,6 +5,130 @@
 
 from replayer.Base import *
 
+class PurgeCounter():
+    '''
+    检测特定角色对于特定buff的驱散类。
+    '''
+    
+    def recordPurge(self, item):
+        '''
+        记录对应的item中的驱散技能。
+        这里的item必须经过检验，确定是技能类别。
+        '''
+        if item[7] in self.purgeSkill:
+            self.player = item[4]
+            self.time = int(item[2])
+    
+    def checkPurge(self, item):
+        '''
+        检测对应的item是否是监控buff消失事件，若是则结算，并返回
+        这里的item必须经过检验，确定是气劲类别，并且是玩家。
+        '''
+        if item[6] in self.targetBuff and int(item[10]) == 0:
+            #以500毫秒为界限，避免数据丢失导致错乱
+            if int(item[2]) - self.time < 500:
+                return self.player
+        return "0" 
+    
+    def __init__(self, buffList):
+        self.targetBuff = buffList
+        self.purgeSkill = ["133", #清风垂露
+                           "2654", #利针
+                           "138", #提针
+                           "566", #跳珠憾玉
+                           "3052", #蝶鸾子技能
+                           "14169", #一指回鸾
+                          ]
+        self.player = "0"
+        self.time = 0
+        
+class CriticalHealCounter():
+    '''
+    检测特定角色的关键治疗量类。
+    除了传统的治疗量，还会同时记录减伤所等效的治疗量。
+    '''
+    
+    def setCriticalTime(self, time):
+        '''
+        设定关键治疗的过期时间。
+        '''
+        if time > self.expireTime:
+            self.expireTime = time
+    
+    def recordHeal(self, item):
+        '''
+        记录对应的item中的治疗量。
+        这里的item必须经过检验，确定是技能类别。
+        '''
+        if int(item[2]) > self.expireTime:
+            self.unactive()
+        
+        if not self.activeNum:
+            return {}
+            
+        result = {}
+        heal = int(item[12])
+        damage = int(item[14])
+        if heal > 0:
+            result[item[4]] = heal
+        
+        if damage > 0:
+            deductRate = 0
+            for line in self.deductStatus:
+                if self.deductStatus[line] != "0":
+                    deductRate += self.deductDict[line]
+            #若减伤系数总和大于1，则跳过处理
+            if deductRate < 1:
+                originDamage = damage / (1 - deductRate)
+                for line in self.deductStatus:
+                    if self.deductStatus[line] != "0":
+                        if self.deductStatus[line] not in result:
+                            result[self.deductStatus[line]] = 0
+                        result[self.deductStatus[line]] += originDamage * self.deductDict[line]
+                        
+        return result
+        
+    def checkDeduct(self, item):
+        '''
+        记录对应的item中，减伤的获得或消失。
+        这里的item必须经过检验，确定是气劲类别，并且是玩家。
+        '''
+        if item[6] in self.deductDict:
+            if int(item[10]) > 0:
+                #添加减伤
+                self.deductStatus[item[6]] = item[4]
+            else:
+                #移除减伤
+                self.deductStatus[item[6]] = "0"
+        
+    def unactive(self):
+        '''
+        关闭计数。
+        '''
+        self.activeNum = 0
+        
+    def active(self):
+        '''
+        开启计数。
+        '''
+        self.activeNum = 1
+    
+    def __init__(self):
+        #仅列举大部分治疗心法给队友的减伤。
+        self.deductDict = {"9336": 0.3, #寒梅
+                           "9337": 0.3, #寒梅
+                           "6636": 0.45, #圣手织天
+                           "122": 0.45, #春泥护花
+                           "6264": 0.6, #南柯
+                           "9933": 0.3, #折叶
+                           "684": 0.4, #风袖（天地）
+                          }
+                          
+        self.deductStatus = {}
+        
+        self.activeNum = 0
+        self.expireTime = 0
+        
 class MiTaoWindow():
     '''
     宓桃的专有复盘窗口类。
@@ -131,8 +255,8 @@ class MitaoReplayer(SpecificReplayer):
             timeList = []
             for row in self.leadDict[id]:
                 timeList.append(parseTime((row - self.startTime) / 1000))
-            self.potList.append([namedict[id][0],
-                                 occdict[id][0],
+            self.potList.append([self.namedict[id][0],
+                                 self.occdict[id][0],
                                  3,
                                  self.bossNamePrint,
                                  "完成引导，次数：%d" %len(timeList),
@@ -142,12 +266,15 @@ class MitaoReplayer(SpecificReplayer):
         for line in self.playerIDList:
             if line in self.dps:
                 dps = self.dps[line][0] / self.battleTime
-                bossResult.append([namedict[line][0],
-                                   occDetailList[line],
+                bossResult.append([self.namedict[line][0],
+                                   self.occDetailList[line],
                                    dps
                                    ])
         bossResult.sort(key = lambda x:-x[2])
         self.effectiveDPSList = bossResult
+        
+        #for line in self.dps:
+        #    print(self.namedict[line][0], self.dps[line])
                                  
         return self.effectiveDPSList, self.potList, self.detail
 
@@ -158,14 +285,44 @@ class MitaoReplayer(SpecificReplayer):
         - item 复盘数据，意义同茗伊复盘。
         '''
         if item[3] == '1':  # 技能
+        
+
             if self.occdict[item[5]][0] != '0':
-                pass      
+                self.purgeCounter[item[5]].recordPurge(item)
+                
+                #检测关键治疗
+                healRes = self.criticalHealCounter[item[5]].recordHeal(item)
+                if healRes != {}:
+                    for line in healRes:
+                        self.dps[line][7] += healRes[line] 
+                    #print(int(item[2]) - self.startTime, healRes, self.namedict[item[5]][0], self.criticalHealCounter[item[5]].activeNum)
+                
             else:
-                pass
+                #开始引导的判定
+                if item[7] in ["24704", "24705"]:
+                    self.criticalHealCounter[item[4]].active()
+                    self.criticalHealCounter[item[4]].setCriticalTime(int(item[2]) + 8000) #8秒后解除
                         
         elif item[3] == '5': #气劲
             if self.occdict[item[5]][0] == '0':
                 return
+            
+            self.criticalHealCounter[item[5]].checkDeduct(item)
+                
+            purgeRes = self.purgeCounter[item[5]].checkPurge(item)
+            if purgeRes != "0":
+                #有效驱散计数
+                self.dps[purgeRes][8] += 1
+                #name = self.namedict[purgeRes][0]
+                #print(name, item[2])
+                
+            if item[6] in ["17767", "17919"] and int(item[10]) > 0:
+                self.criticalHealCounter[item[5]].active()
+                self.criticalHealCounter[item[5]].setCriticalTime(int(item[2]) + 3000) #3秒后解除
+                    
+            if item[6] in ["17768", "17769"] and int(item[10]) > 0:
+                self.criticalHealCounter[item[5]].active()
+                self.criticalHealCounter[item[5]].setCriticalTime(int(item[2]) + 10000) #10秒后解除
                 
             if item[5] in self.dizzyDict and self.dizzyDict[item[5]] != [] and self.dizzyDict[item[5]][0][0] <= int(item[2]):
                 lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
@@ -198,12 +355,18 @@ class MitaoReplayer(SpecificReplayer):
         self.activeBoss = "宓桃"
         
         #宓桃数据格式：
-        #4
+        #4 易伤层数; 5 常规阶段dps; 6 小怪阶段dps; 7 引导次数; 8 小怪阶段hps; 9 关键治疗; 10 有效驱散次数
         #
         
         self.dps = {}
         self.detail["boss"] = "宓桃"
-
+        
+        self.purgeCounter = {}
+        self.criticalHealCounter = {}
+        for line in self.playerIDList:
+            self.purgeCounter[line] = PurgeCounter(["17760", "17767", "17919"])
+            self.criticalHealCounter[line] = CriticalHealCounter()
+            self.dps[line] = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     def __init__(self, playerIDList, mapDetail, res, occDetailList, startTime, finalTime, battleTime, bossNamePrint, dizzyDict, leadDict):
         '''
