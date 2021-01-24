@@ -11,6 +11,7 @@ from win10toast import ToastNotifier
 from ActorReplay import ActorStatGenerator
 from replayer.Base import SpecificBossWindow
 from replayer.Yuhui import YuHuiWindow
+from replayer.Mitao import MiTaoWindow
 
 class ToolTip(object):
     def build(self, widget):
@@ -178,6 +179,8 @@ class SingleBossWindow():
         if "boss" in detail:
             if detail["boss"] == "余晖":
                 self.specificBossWindow = YuHuiWindow(effectiveDPSList, detail)
+            elif detail["boss"] == "宓桃":
+                self.specificBossWindow = MiTaoWindow(effectiveDPSList, detail)
             else:
                 self.specificBossWindow = SpecificBossWindow()
                 self.hasDetail = 0
@@ -301,9 +304,9 @@ class SingleBossWindow():
 
 class LiveActorStatGenerator(ActorStatGenerator):
     
-    def __init__(self, filename, path="", myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}):
+    def __init__(self, filename, path="", myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}, uploadTiantiFlag=0):
         super().__init__(filename, path, rawdata={}, failThreshold=failThreshold, 
-            battleDate=battleDate, mask=mask, dpsThreshold=dpsThreshold)
+            battleDate=battleDate, mask=mask, dpsThreshold=dpsThreshold, uploadTiantiFlag=uploadTiantiFlag)
             
 class PotContainer():
     '''
@@ -436,7 +439,7 @@ class LiveListener():
         '''
         battleDate = '-'.join(lastFile.split('-')[0:3])
         liveGenerator = LiveActorStatGenerator([lastFile, 0, 1], basepath, failThreshold=self.config.failThreshold, 
-                battleDate=battleDate, mask=self.config.mask, dpsThreshold=self.dpsThreshold)
+                battleDate=battleDate, mask=self.config.mask, dpsThreshold=self.dpsThreshold, uploadTiantiFlag=self.config.uploadTianti)
         liveGenerator.firstStageAnalysis()
         liveGenerator.secondStageAnalysis()
         if liveGenerator.upload:
@@ -455,6 +458,9 @@ class LiveListener():
         
         toaster = ToastNotifier()
         toaster.show_toast("分锅结果已生成", "[%s]的战斗复盘已经解析完毕，请打开结果界面分锅。"%liveGenerator.bossname, icon_path='')
+        
+        if liveGenerator.uploadTianti:
+            liveGenerator.prepareUploadTianti()
         
 
     def listenPath(self, basepath):

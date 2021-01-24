@@ -38,6 +38,10 @@ class Config():
             self.qualifiedRate = float(self.items_actor["qualifiedrate"])
             self.alertRate = float(self.items_actor["alertrate"])
             self.bonusRate = float(self.items_actor["bonusrate"])
+            if "uploadtianti" in self.items_actor:
+                self.uploadTianti = int(self.items_actor["uploadtianti"])
+            else:
+                self.uploadTianti = 1
             assert self.mask in [0, 1]
             assert self.color in [0, 1]
             assert self.text in [0, 1]
@@ -46,6 +50,7 @@ class Config():
             assert self.checkAll in [0, 1]
             assert self.qualifiedRate <= self.alertRate
             assert self.alertRate <= self.bonusRate
+            assert self.uploadTianti in [0, 1]
         except:
             raise Exception("配置文件格式不正确，请确认。如无法定位问题，请删除config.ini，在生成的配置文件的基础上进行修改。")
 
@@ -74,7 +79,8 @@ checkall=0
 failthreshold=10
 qualifiedrate=0.75
 alertrate=0.85
-bonusrate=1.20""")
+bonusrate=1.20
+uploadtianti=1""")
         g.close()
         pass
         
@@ -103,9 +109,10 @@ checkall=%d
 failthreshold=%s
 qualifiedrate=%s
 alertrate=%s
-bonusrate=%s"""%(self.playername, self.jx3path, self.basepath, self.mask, self.color, self.text, 
+bonusrate=%s
+uploadtianti=%d"""%(self.playername, self.jx3path, self.basepath, self.mask, self.color, self.text, 
         self.xiangzhiActive, self.xiangzhiname, self.speed, self.xiangzhiPublic, 
-        self.actorActive, self.checkAll, self.failThreshold, self.qualifiedRate, self.alertRate, self.bonusRate))
+        self.actorActive, self.checkAll, self.failThreshold, self.qualifiedRate, self.alertRate, self.bonusRate, self.uploadTianti))
         
         g.close()
         pass
@@ -311,6 +318,7 @@ class ConfigWindow():
         self.config.qualifiedRate = self.entry3_4.get()
         self.config.alertRate = self.entry3_5.get()
         self.config.bonusRate = self.entry3_6.get()
+        self.config.uploadTianti = self.var3_7.get()
         self.config.printSettings()
         
         self.window.destroy()
@@ -397,6 +405,8 @@ class ConfigWindow():
         self.entry3_5 = tk.Entry(frame3, show=None)
         self.label3_6 = tk.Label(frame3, text='DPS补贴线')
         self.entry3_6 = tk.Entry(frame3, show=None)
+        self.var3_7 = tk.IntVar(window)
+        self.cb3_7 = tk.Checkbutton(frame3, text = "上传至DPS天梯", variable = self.var3_7, onvalue = 1, offvalue = 0)
         self.cb3_1.grid(row=0, column=0)
         self.cb3_2.grid(row=1, column=0)
         self.label3_3.grid(row=2, column=0)
@@ -407,6 +417,7 @@ class ConfigWindow():
         self.entry3_5.grid(row=4, column=1)
         self.label3_6.grid(row=5, column=0)
         self.entry3_6.grid(row=5, column=1)
+        self.cb3_7.grid(row=6, column=0)
         
         notebook.add(frame1, text='全局')
         notebook.add(frame2, text='奶歌')
@@ -431,6 +442,7 @@ class ConfigWindow():
         self.entry3_4.insert(0, config.qualifiedRate)
         self.entry3_5.insert(0, config.alertRate)
         self.entry3_6.insert(0, config.bonusRate) 
+        self.init_checkbox(self.cb3_7, config.uploadTianti)
         
         ToolTip(self.label1_1, "在当前电脑上线的角色的ID，同时也是记录者。\n通常情况下，只需要指定此项。\n如果指定了基准路径，则无需指定此项。")
         ToolTip(self.label1_2, "剑三路径，一般是名为JX3的文件夹，其下应当有Games文件夹或bin文件夹。\n在自动获取路径失败时，需要指定此项，这通常是由于剑三客户端本身或者安装的方式异于常人。\n指定此项时，必须指定角色名。\n如果指定了基准路径，则无需指定此项。")
@@ -448,6 +460,7 @@ class ConfigWindow():
         ToolTip(self.label3_4, "团队-心法DPS的及格线。\n如果全程低于这个值，一般代表没有工资，或者需要转老板。\n以1为单位。")
         ToolTip(self.label3_5, "团队-心法DPS的预警线。\n如果有BOSS低于这个值，一般代表后续需要重点关注。\n以1为单位。")
         ToolTip(self.label3_6, "团队-心法DPS的补贴线。\n如果全程高于这个值，一般代表可以发DPS补贴。\n以1为单位。")
+        ToolTip(self.cb3_7, "是否在复盘完成时将数据上传至DPS天梯榜。")
 
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)

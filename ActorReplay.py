@@ -2,7 +2,9 @@
 # 演员复盘的基础方法库。
 
 import json
+import threading
 import urllib.request
+import requests
 import hashlib
 import time
 import os
@@ -28,7 +30,6 @@ class ActorStatGenerator(StatGeneratorBase):
     anxiaofengActive = 0
     anxiaofengID = ""
     yuanfeiActive = 0
-    mitaoActive = 0
     yatoutuoActive = 0
     yuelinActive = 0
 
@@ -39,6 +40,7 @@ class ActorStatGenerator(StatGeneratorBase):
     occDetailList = {}
     longzhuID =""
     upload = 0
+    uploadTianti = 0
     bossAnalyseName = "未知"
 
     startTime = 0
@@ -143,6 +145,22 @@ class ActorStatGenerator(StatGeneratorBase):
         hashStr = self.battleDate + self.bossname + self.rawdata['20'][0].strip('"') + EDITION + "".join(nameList)
         hashres = hashlib.md5(hashStr.encode(encoding="utf-8")).hexdigest()
         return hashres
+        
+    def uploadTiantiFunc(self):
+        headers = {
+            "User-Agent": "jx3bla"
+        }
+        files = {'file':open(self.filePath, 'rb'), 
+                 'Content-Disposition': 'form-data', 
+                 "Content-Type": "application/octet-stream",
+                 "filename" : self.filename[0]}
+        data = {'test': 'test'}
+        response = requests.post('http://j3dps.com/fightlog/upload/average?isShareData=true&isCurrentPlayerOnly=false', data=data, headers=headers, files=files)
+        print("DPS天梯上传完成！")
+        
+    def prepareUploadTianti(self):
+        refreshThread = threading.Thread(target = self.uploadTiantiFunc)    
+        refreshThread.start()
 
     def prepareUpload(self):
         result = {}
@@ -274,10 +292,6 @@ class ActorStatGenerator(StatGeneratorBase):
                     self.yuanfeiActive = 1
                     
                 if namedict[item[5]][0] == '"宓桃"' and occdict[item[5]][0] == '0':
-                    if self.mitaoActive == 0:
-                        self.mitaoActive = 1
-                        self.dizzyDict = {}
-                        self.leadDict = {}
                     self.bossAnalyseName = "宓桃"
                         
                 if namedict[item[5]][0] in ['"毗流驮迦"', '"毗留博叉"'] and occdict[item[5]][0] == '0':
@@ -294,14 +308,6 @@ class ActorStatGenerator(StatGeneratorBase):
                 if namedict[item[5]][0] == '"余晖"' and occdict[item[5]][0] == '0':
                    self.bossAnalyseName = "余晖"
                         
-                if self.mitaoActive:
-                    if item[7] in ["24704", "24705"]:
-                        if item[4] not in self.leadDict:
-                            self.leadDict[item[4]] = []
-                        if item[4] in self.dizzyDict and self.dizzyDict[item[4]] != []:
-                            self.dizzyDict[item[4]].pop()
-                        self.leadDict[item[4]].append(int(item[2]))
-                        
                 if self.yatoutuoActive:
                     if item[7] == "24650":
                         if self.burstList == [] or int(self.burstList[-1]) + 1000 < int(item[2]):
@@ -315,16 +321,6 @@ class ActorStatGenerator(StatGeneratorBase):
                     self.playerIDList[item[5]] = 0
                 if item[4] in occDetailList and occDetailList[item[4]] in ['1', '3', '10', '21']:
                     occDetailList[item[4]] = checkOccDetailByBuff(occDetailList[item[4]], item[6])
-                if self.mitaoActive:
-                    if item[6] in ["17767", "17919"]:
-                        if item[5] not in self.dizzyDict:
-                            self.dizzyDict[item[5]] = []
-                        if item[10] == '1':
-                            if self.dizzyDict[item[5]] == [] or self.dizzyDict[item[5]][-1][1] == 0:
-                                self.dizzyDict[item[5]].append([int(item[2]) ,1])
-                        else:
-                            if self.dizzyDict[item[5]] != []:
-                                self.dizzyDict[item[5]][-1][1] = 0
 
         for id in self.playerIDList:
             self.firstHitList[id] = 0
@@ -391,7 +387,7 @@ class ActorStatGenerator(StatGeneratorBase):
         if self.bossAnalyseName == "余晖":
             bossAnalyser = YuhuiReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
         elif self.bossAnalyseName == "宓桃":
-            bossAnalyser = MitaoReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint, self.dizzyDict, self.leadDict)
+            bossAnalyser = MitaoReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
         else:
             bossAnalyser = SpecificReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
             
@@ -466,13 +462,6 @@ class ActorStatGenerator(StatGeneratorBase):
                 
         
         bossAnalyser.initBattle()
-                
-        mitaoActive = self.mitaoActive
-        '''
-        if mitaoActive:
-            self.lastLead = "0"
-            self.lastLeadTime = "0"
-        '''
             
         yatoutuoActive = self.yatoutuoActive
         if yatoutuoActive:
@@ -691,12 +680,6 @@ class ActorStatGenerator(StatGeneratorBase):
                         if P3 and item[4] in self.playerIDList:
                             self.dps[item[4]][4] += int(item[14])   
                     
-                        '''
-                        elif mitaoActive:
-                            if item[7] in ["24704", "24705"]:
-                                self.lastLead = item[4]
-                                self.lastLeadTime = item[2]
-                        '''
                     
                     elif yuanfeiActive:
                         if item[7] == "25459" and item[5] in ballDict and int(item[2]) - ballDict[item[5]]["lastHit"] > 500:
@@ -832,19 +815,6 @@ class ActorStatGenerator(StatGeneratorBase):
                                                  ["不间断的减疗只计算一次"]])
                         if stack < 20 and self.jingshenkuifa[item[5]] == 1:
                             self.jingshenkuifa[item[5]] = 0
-                
-                '''
-                if mitaoActive:
-                    if item[5] in self.dizzyDict and self.dizzyDict[item[5]] != [] and self.dizzyDict[item[5]][0][0] <= int(item[2]):
-                        lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
-                        self.potList.append([namedict[item[5]][0],
-                                             occDetailList[item[5]],
-                                             0,
-                                             self.bossNamePrint,
-                                             "%s进迷雾被魅惑" % lockTime,
-                                             ["因引导而被魅惑不计算在内"]])
-                        del self.dizzyDict[item[5]][0]
-                '''
                         
                 if yatoutuoActive:
                     if item[6] in ["15774", "17200"]:  # buff精神匮乏
@@ -966,20 +936,6 @@ class ActorStatGenerator(StatGeneratorBase):
                     if item[4] in ['"哼哼哼哼……"']:
                         sideTime += 20
                         guishouTime += 20
-                        
-                '''        
-                if mitaoActive:
-                    if item[4] == '"你……你不是宓桃大人！"':
-                        if self.lastLead != "0" and int(item[2]) - int(self.lastLeadTime) < 13000 and int(item[2]) - int(self.lastLeadTime) > 1000:
-                            id = self.lastLead
-                            self.potList.append([namedict[self.lastLead][0],
-                                                 occDetailList[self.lastLead],
-                                                 1,
-                                                 self.bossNamePrint,
-                                                 "%s引导出错" % parseTime((int(item[2]) - self.startTime) / 1000),
-                                                 ["持续时间：%ss/14s"%((int(item[2]) - int(self.lastLeadTime)) / 1000)]])
-                '''
-                
                 
                 if item[4] in ['"可恶…"',
                                '"哈哈哈哈哈，一群蠢货！手刃好友的滋味如何？"',
@@ -1226,20 +1182,6 @@ class ActorStatGenerator(StatGeneratorBase):
                                          self.bossNamePrint,
                                          "踢球得分：%d分，评级：国足" %playerBallList[i][1],
                                          playerBallList[i][2]])
-        
-            '''
-            elif mitaoActive:
-                for id in self.leadDict:
-                    timeList = []
-                    for row in self.leadDict[id]:
-                        timeList.append(parseTime((row - self.startTime) / 1000))
-                    self.potList.append([namedict[id][0],
-                                         occdict[id][0],
-                                         3,
-                                         self.bossNamePrint,
-                                         "完成引导，次数：%d" %len(timeList),
-                                         timeList])
-            '''
                                      
         elif yatoutuoActive:
             for line in self.playerIDList:
@@ -1417,13 +1359,15 @@ class ActorStatGenerator(StatGeneratorBase):
             self.upload = 1
         if self.mapDetail in ["25人英雄达摩洞"]:
             self.upload = 1
+            if self.win and self.uploadTiantiFlag:
+                self.uploadTianti = 1
         
         #print(self.potList)
         #for line in effectiveDPSList:
         #    print(line)
         #print(detail)
 
-    def __init__(self, filename, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}):
+    def __init__(self, filename, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}, uploadTiantiFlag=0):
         self.myname = myname
         self.numTry = filename[1]
         self.lastTry = filename[2]
@@ -1431,7 +1375,9 @@ class ActorStatGenerator(StatGeneratorBase):
         self.win = 0
         self.battleDate = battleDate
         self.mask = mask
+        self.uploadTiantiFlag = uploadTiantiFlag
         super().__init__(filename[0], path, rawdata)
+        self.filePath = path + '\\' + filename[0]
         if self.numTry == 0:
             self.bossNamePrint = self.bossname
         else:
@@ -1790,12 +1736,14 @@ class ActorAnalysis():
     def loadData(self, fileList, path, raw):
         for filename in fileList:
             res = ActorStatGenerator(filename, path, rawdata=raw[filename[0]], failThreshold=self.failThreshold, 
-                battleDate=self.battledate, mask=self.mask, dpsThreshold=self.dpsThreshold)
+                battleDate=self.battledate, mask=self.mask, dpsThreshold=self.dpsThreshold, uploadTiantiFlag=self.uploadTiantiFlag)
             res.firstStageAnalysis()
             res.secondStageAnalysis()
             if res.upload:
                 res.prepareUpload()
             self.generator.append(res)
+            if res.uploadTianti:
+                res.prepareUploadTianti()
 
     def __init__(self, filelist, map, path, config, raw):
         self.myname = config.xiangzhiname
@@ -1804,6 +1752,7 @@ class ActorAnalysis():
         self.text = config.text
         self.speed = config.speed
         self.failThreshold = config.failThreshold
+        self.uploadTiantiFlag = config.uploadTianti
         self.map = map
         self.battledate = '-'.join(filelist[0][0].split('-')[0:3])
         self.dpsThreshold = {"qualifiedRate": config.qualifiedRate,

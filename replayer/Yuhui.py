@@ -300,6 +300,7 @@ class YuhuiReplayer(SpecificReplayer):
         在战斗开始时的初始化流程，当第二阶段复盘开始时运行。
         '''
         self.activeBoss = "余晖"
+        self.win = 0
         
         self.dps = {}
         self.playerHitDict = {}
@@ -312,7 +313,7 @@ class YuhuiReplayer(SpecificReplayer):
         
         #余晖数据格式：
         #4 P1dps; 5 P2dps; 6 狂热层数;
-        #承伤：点名+1组ID(list)，点名+2组ID(list)，逃课ID
+        #绞杀：点名+1组ID(list)，点名+2组ID(list)，逃课ID
         
         self.detail["boss"] = "余晖"
         self.detail["jiaosha"] = []

@@ -1,17 +1,15 @@
-# Created by moeheart at 1/19/2021
-# 宓桃的定制复盘方法库。
-# 宓桃是达摩洞2号首领，复盘主要集中在以下几个方面：
-# 1. 引导阶段的驱散、引导细节
-# 2. 引导阶段的DPS、HPS、关键治疗量
-# 3. 常规阶段的易伤层数
+# Created by moeheart at 1/24/2021
+# 武雪散的定制复盘方法库。
+# 武雪散是达摩洞3号首领，复盘主要集中在以下几个方面：
+# （TODO 文档待补充）
 
 from replayer.Base import *
-from replayer.utils import PurgeCounter, CriticalHealCounter
+from replayer.utils import CriticalHealCounter
 from Functions import *
         
-class MiTaoWindow():
+class WuXueSanWindow():
     '''
-    宓桃的专有复盘窗口类。
+    武雪散的专有复盘窗口类。
     ''' 
     
     def final(self):
@@ -143,35 +141,18 @@ class MiTaoWindow():
         self.effectiveDPSList = effectiveDPSList
         self.detail = detail
 
-class MitaoReplayer(SpecificReplayer):
+class WuXueSanReplayer(SpecificReplayer):
 
     def countFinal(self, nowTime):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
-        if self.phase == 1:
-            self.P1SumTime += nowTime - self.phaseStart
-        else:
-            self.P2SumTime += nowTime - self.phaseStart
         self.phase = 0
 
     def getResult(self):
         '''
         生成复盘结果的流程。需要维护effectiveDPSList, potList与detail。
         '''
-        if self.phase != 0:
-            self.countFinal(self.finalTime)
-        
-        for id in self.leadDict:
-            timeList = []
-            for row in self.leadDict[id]:
-                timeList.append(parseTime((row - self.startTime) / 1000))
-            self.potList.append([self.namedict[id][0],
-                                 self.occdict[id][0],
-                                 3,
-                                 self.bossNamePrint,
-                                 "完成引导，次数：%d" %len(timeList),
-                                 timeList])
         
         #4 被控时间; 5 易伤层数; 6 常规阶段dps; 7 小怪阶段dps; 8 引导次数; 9 小怪阶段hps; 10 关键治疗; 11 有效驱散次数
         bossResult = []
@@ -198,7 +179,6 @@ class MitaoReplayer(SpecificReplayer):
         self.effectiveDPSList = bossResult
         
         #print(self.dps)
-        
         #for line in self.effectiveDPSList:
         #    print(line)
                                  
@@ -211,42 +191,11 @@ class MitaoReplayer(SpecificReplayer):
         - item 复盘数据，意义同茗伊复盘。
         '''
         if item[3] == '1':  # 技能
-        
 
             if self.occdict[item[5]][0] != '0':
-                self.purgeCounter[item[5]].recordPurge(item)
-                
-                #检测关键治疗
-                healRes = self.criticalHealCounter[item[5]].recordHeal(item)
-                if healRes != {}:
-                    for line in healRes:
-                        self.dps[line][8] += healRes[line] 
-                    #print(int(item[2]) - self.startTime, healRes, self.namedict[item[5]][0], self.criticalHealCounter[item[5]].activeNum)
-                    
-                if item[11] != '0' and item[10] != '7': #非化解
-                    if self.phase == 2:
-                        self.dps[item[4]][7] += int(item[12])
-                
+                pass
             else:
-                #开始引导的判定
-                if item[7] in ["24704", "24705"]:
-                    self.criticalHealCounter[item[4]].active()
-                    self.criticalHealCounter[item[4]].setCriticalTime(int(item[2]) + 8000) #8秒后解除
-                    self.dps[item[4]][6] += 1
-                    purge = self.lastPurge[item[4]]
-                    if purge in self.namedict:
-                        purgeName = self.namedict[purge][0].strip('"')
-                        purgeOcc = self.occDetailList[purge]
-                    else:
-                        purgeName = "未知"
-                        purgeOcc = "0"
-                    self.detail["lead"].append([self.namedict[item[4]][0].strip('"'), self.occDetailList[item[4]],
-                                                purgeName, purgeOcc, 
-                                                parseTime((int(item[2]) - self.startTime) / 1000)])
-                                                
-                    if item[4] not in self.leadDict:
-                        self.leadDict[item[4]] = []
-                    self.leadDict[item[4]].append(int(item[2]))
+                pass
                     
                 #计算DPS
                 if item[4] in self.playerIDList:
@@ -259,67 +208,19 @@ class MitaoReplayer(SpecificReplayer):
         elif item[3] == '5': #气劲
             if self.occdict[item[5]][0] == '0':
                 return
-            
-            self.criticalHealCounter[item[5]].checkDeduct(item)
-                
-            purgeRes = self.purgeCounter[item[5]].checkPurge(item)
-            if purgeRes != "0":
-                #有效驱散计数
-                self.dps[purgeRes][9] += 1
-                
-            if item[6] in ["17767", "17919"] and int(item[10]) > 0:
-                self.criticalHealCounter[item[5]].active()
-                self.criticalHealCounter[item[5]].setCriticalTime(int(item[2]) + 3000) #3秒后解除
-                
-                #魅惑保护，只计算短时间内第一次被魅惑
-                if item[5] not in self.dizzyDict or int(item[2]) - self.dizzyDict[item[5]] > 2000:
-                    lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
-                    self.potList.append([self.namedict[item[5]][0],
-                                         self.occDetailList[item[5]],
-                                         0,
-                                         self.bossNamePrint,
-                                         "%s进迷雾被魅惑" % lockTime,
-                                         ["会计算因引导而被魅惑的情况"]])
-                                         
-                self.dizzyDict[item[5]] = int(item[2])
-                
-            if item[6] in ["17767", "17919"] and int(item[10]) == 0:
-                purgeRes = self.purgeCounter[item[5]].checkPurge(item)
-                self.lastPurge[item[5]] = purgeRes
-                    
-            if item[6] in ["17768", "17769"] and int(item[10]) > 0:
-                self.criticalHealCounter[item[5]].active()
-                self.criticalHealCounter[item[5]].setCriticalTime(int(item[2]) + 10000) #10秒后解除
-                
-            if item[6] in ["17201"]:
-                if self.firstP1:
-                    self.dps[item[5]][3] = int(item[10])
-                    
-            if item[6] in ["17767", "17919", "17768", "17769", "17709", "17710"]: #魅惑，引导，嗜血缥缈
-                self.buffCounter[item[5]].setState(int(item[2]), int(item[10]))
+
+            pass
                     
         elif item[3] == '8':
-
+        
             if item[4] == '"人多的时候更有乐趣，大家一起来嘛~"':
-                self.phase = 2
-                self.firstP1 = 0
-                self.P1SumTime += int(item[2]) - self.phaseStart
-                self.phaseStart = int(item[2])
-                self.numSmall = 1
-                if self.mapDetail == "25人英雄达摩洞":
-                    self.numSmall = 2
+                pass
 
-            if item[4] == '"能和妾身玩这么久的人你们还是第一个，不过妾身一心只惦记着小将军……"':
+            if item[4] == '"想不到我武雪散竟亡于这……畜生道……可悲啊……"':
                 self.win = 1
-                self.countFinal(int(item[2]))
                 
         elif item[3] == '3': #重伤记录
-            if item[4] in self.namedict and self.namedict[item[4]][0] in ['"天欲宫弟子"', '"天欲宫男宠"'] and (item[4] not in self.occdict or self.occdict[item[4]][0] == '0'):
-                self.numSmall -= 1
-                if self.numSmall == 0:
-                    self.phase = 1
-                    self.P2SumTime += int(item[2]) - self.phaseStart
-                    self.phaseStart = int(item[2])
+            pass
                     
         
     def analyseFirstStage(self, item):
@@ -335,36 +236,18 @@ class MitaoReplayer(SpecificReplayer):
         '''
         在战斗开始时的初始化流程，当第二阶段复盘开始时运行。
         '''
-        self.activeBoss = "宓桃"
+        self.activeBoss = "武雪散"
         
         #宓桃数据格式：
         #4 被控时间; 5 易伤层数; 6 常规阶段dps; 7 小怪阶段dps; 8 引导次数; 9 小怪阶段hps; 10 关键治疗; 11 有效驱散次数
         #引导：引导ID，驱散ID
         
         self.dps = {}
-        self.detail["boss"] = "宓桃"
+        self.detail["boss"] = "武雪散"
         self.win = 0
         
-        self.leadDict = {}
-        self.dizzyDict = {}
-        self.detail["lead"] = []
-        self.phase = 1
-        self.phaseStart = self.startTime
-        self.numSmall = 0
-        self.P1SumTime = 0
-        self.P2SumTime = 0
-        self.firstP1 = 1
-        
-        self.purgeCounter = {}
-        self.criticalHealCounter = {}
-        self.buffCounter = {}
-        self.lastPurge = {}
         for line in self.playerIDList:
-            self.purgeCounter[line] = PurgeCounter(["17760", "17767", "17919"])
-            self.criticalHealCounter[line] = CriticalHealCounter()
             self.dps[line] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            self.buffCounter[line] = BuffCounter(0, self.startTime, self.finalTime)
-            self.lastPurge[line] = 0
 
     def __init__(self, playerIDList, mapDetail, res, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
         '''
