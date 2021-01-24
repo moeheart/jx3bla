@@ -1,6 +1,76 @@
 # Created by moeheart at 1/24/2021
 # 复盘的常用函数库。
 
+class DpsShiftWindow():
+    '''
+    DPS滑动窗口类，用于在战斗记录中识别出停手的时间点，并统计对应的DPS。
+    使用两个连在一起的窗口，长度为a与b，不断向右滑动。当a中的DPS总量与b中的DPS总量比例小于一个值时，判定中间的位置出现了停手。
+    '''
+    
+    def calSetADps(self):
+        '''
+        计算集合A中的所有DPS。
+        '''
+        return self.damage
+    
+    def checkItem(self, item):
+        '''
+        处理一条战斗记录。
+        '''
+        # 处理战斗记录本身
+        if item[4] in self.damage:
+            self.damage[item[4]] += int(item[14])
+            self.logA.append([int(item[2]), item[4], int(item[14])])
+            self.damageA += int(item[14])
+        
+        #将A中的超时记录转移给B
+        self.middleTime = int(item[2]) - self.a
+        while len(self.logA) > 0 and self.middleTime > self.logA[0][0]:
+            player = self.logA[0][1]
+            dam = self.logA[0][2]
+            self.damageA -= dam
+            self.damage[player] -= dam
+            
+            self.logB.append([int(item[2]), player, dam])
+            self.damageB += dam
+            
+            del self.logA[0]
+            
+        #将B中的超时记录移除
+        self.expireTime = int(item[2]) - self.a - self.b
+        while len(self.logB) > 0 and self.expireTime > self.logB[0][0]:
+            player = self.logB[0][1]
+            dam = self.logB[0][2]
+            self.damageB -= dam
+            
+            del self.logB[0]
+            
+        if self.expireTime > self.startTime:
+            self.initialized = 1
+            
+        #判断是否出现停手
+        self.stopped = 0
+        if self.initialized and self.damageA / self.damageB < self.rate:
+            self.stopped = 1
+        
+        return self.stopped
+    
+    def __init__(self, playerIDs, a, b, rate, startTime): 
+        self.damage = {}
+        for line in playerIDs:
+            self.damage[line] = 0
+        self.a = a * 1000
+        self.b = b * 1000
+        self.rate = rate
+        self.startTime = startTime
+        
+        self.middleTime = self.startTime - self.a
+        self.initialized = 0
+        self.logA = [] #队列A中的记录
+        self.logB = [] #队列B中的记录
+        self.damageA = 0
+        self.damageB = 0
+
 class PurgeCounter():
     '''
     检测特定角色对于特定buff的驱散类。
@@ -123,6 +193,6 @@ class CriticalHealCounter():
         self.deductStatus = {}
         
         self.activeNum = 0
-        self.expireTime = 0
+        self.expireTime = 99999999999
         
         

@@ -166,8 +166,8 @@ class YuhuiReplayer(SpecificReplayer):
                                          
         recordGORate = 1
         bossResult = []
-        P1Time = (self.P1FinalTime - self.startTime) / 1000
-        P2Time = (self.P2FinalTime - self.P1FinalTime) / 1000
+        P1Time = (self.P1FinalTime - self.startTime) / 1000 + 1e-10
+        P2Time = (self.P2FinalTime - self.P1FinalTime) / 1000 + 1e-10
         
         for line in self.playerIDList:
             if line in self.dps:

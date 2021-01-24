@@ -17,6 +17,7 @@ from Constants import *
 from replayer.Base import SpecificReplayer
 from replayer.Yuhui import YuhuiReplayer
 from replayer.Mitao import MitaoReplayer
+from replayer.Wuxuesan import WuXueSanReplayer
 
 class ActorStatGenerator(StatGeneratorBase):
     yanyeID = {}
@@ -155,8 +156,8 @@ class ActorStatGenerator(StatGeneratorBase):
                  "Content-Type": "application/octet-stream",
                  "filename" : self.filename[0]}
         data = {'test': 'test'}
-        response = requests.post('http://j3dps.com/fightlog/upload/average?isShareData=true&isCurrentPlayerOnly=false', data=data, headers=headers, files=files)
-        print("DPS天梯上传完成！")
+        #response = requests.post('http://j3dps.com/fightlog/upload/average?isShareData=true&isCurrentPlayerOnly=false', data=data, headers=headers, files=files)
+        #print("DPS天梯上传完成！")
         
     def prepareUploadTianti(self):
         refreshThread = threading.Thread(target = self.uploadTiantiFunc)    
@@ -290,9 +291,6 @@ class ActorStatGenerator(StatGeneratorBase):
                     
                 if namedict[item[5]][0] == '"猿飞"' and occdict[item[5]][0] == '0':
                     self.yuanfeiActive = 1
-                    
-                if namedict[item[5]][0] == '"宓桃"' and occdict[item[5]][0] == '0':
-                    self.bossAnalyseName = "宓桃"
                         
                 if namedict[item[5]][0] in ['"毗流驮迦"', '"毗留博叉"'] and occdict[item[5]][0] == '0':
                     if self.yatoutuoActive == 0:
@@ -307,6 +305,12 @@ class ActorStatGenerator(StatGeneratorBase):
                     
                 if namedict[item[5]][0] == '"余晖"' and occdict[item[5]][0] == '0':
                    self.bossAnalyseName = "余晖"
+                   
+                if namedict[item[5]][0] == '"宓桃"' and occdict[item[5]][0] == '0':
+                    self.bossAnalyseName = "宓桃"
+                    
+                if namedict[item[5]][0] == '"武雪散"' and occdict[item[5]][0] == '0':
+                    self.bossAnalyseName = "武雪散"
                         
                 if self.yatoutuoActive:
                     if item[7] == "24650":
@@ -388,6 +392,8 @@ class ActorStatGenerator(StatGeneratorBase):
             bossAnalyser = YuhuiReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
         elif self.bossAnalyseName == "宓桃":
             bossAnalyser = MitaoReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "武雪散":
+            bossAnalyser = WuXueSanReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
         else:
             bossAnalyser = SpecificReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
             
@@ -979,7 +985,7 @@ class ActorStatGenerator(StatGeneratorBase):
         calculDPS = 1
         recordGORate = 0
         
-        if self.bossAnalyser.activeBoss in ["余晖", "宓桃"]:
+        if self.bossAnalyser.activeBoss in ["余晖", "宓桃", "武雪散"]:
             effectiveDPSList, potList, detail = self.bossAnalyser.getResult()
             self.potList = potList
             calculDPS = 0

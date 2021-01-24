@@ -12,6 +12,7 @@ from ActorReplay import ActorStatGenerator
 from replayer.Base import SpecificBossWindow
 from replayer.Yuhui import YuHuiWindow
 from replayer.Mitao import MiTaoWindow
+from replayer.Wuxuesan import WuXueSanWindow
 
 class ToolTip(object):
     def build(self, widget):
@@ -181,6 +182,8 @@ class SingleBossWindow():
                 self.specificBossWindow = YuHuiWindow(effectiveDPSList, detail)
             elif detail["boss"] == "宓桃":
                 self.specificBossWindow = MiTaoWindow(effectiveDPSList, detail)
+            elif detail["boss"] == "武雪散":
+                self.specificBossWindow = WuXueSanWindow(effectiveDPSList, detail)
             else:
                 self.specificBossWindow = SpecificBossWindow()
                 self.hasDetail = 0
@@ -457,7 +460,7 @@ class LiveListener():
         window.start()
         
         toaster = ToastNotifier()
-        toaster.show_toast("分锅结果已生成", "[%s]的战斗复盘已经解析完毕，请打开结果界面分锅。"%liveGenerator.bossname, icon_path='')
+        toaster.show_toast("分锅结果已生成", "[%s]的战斗复盘已经解析完毕，请打开结果界面分锅。"%liveGenerator.bossname, icon_path='jx3bla.ico')
         
         if liveGenerator.uploadTianti:
             liveGenerator.prepareUploadTianti()

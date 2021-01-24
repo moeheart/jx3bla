@@ -351,8 +351,8 @@ class MitaoReplayer(SpecificReplayer):
         self.phase = 1
         self.phaseStart = self.startTime
         self.numSmall = 0
-        self.P1SumTime = 0
-        self.P2SumTime = 0
+        self.P1SumTime = 1e-10
+        self.P2SumTime = 1e-10
         self.firstP1 = 1
         
         self.purgeCounter = {}

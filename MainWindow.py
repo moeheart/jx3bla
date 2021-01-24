@@ -78,8 +78,9 @@ class MainWindow():
                 print("文件读取错误，稍后重试……")
                 traceback.print_exc()
         self.var.set("选项设置完成，开始实时模式……")
+        print("由于图标设置异常，请忽略与jx3bla.ico相关的报错，其对使用不会产生实质性影响。")
         toaster = ToastNotifier()
-        toaster.show_toast("选项设置完成", "选项验证正确，可以在游戏中开战并分锅啦~", icon_path='')
+        toaster.show_toast("选项设置完成", "选项验证正确，可以在游戏中开战并分锅啦~", icon_path='jx3bla.ico')
         
         liveListener = LiveListener(self.fileLookUp.basepath, self.config, self.analyser)
         self.liveListener = liveListener
@@ -89,6 +90,7 @@ class MainWindow():
         liveListener = LiveListener(self.fileLookUp.basepath, self.config, self.analyser)
         self.liveListener = liveListener
         liveListener.startListen()
+        self.var.set("快速实时模式已开启，请关注终端界面……")
         
     def start_live(self):
         if not self.startLive:
