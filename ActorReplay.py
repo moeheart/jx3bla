@@ -156,8 +156,8 @@ class ActorStatGenerator(StatGeneratorBase):
                  "Content-Type": "application/octet-stream",
                  "filename" : self.filename[0]}
         data = {'test': 'test'}
-        #response = requests.post('http://j3dps.com/fightlog/upload/average?isShareData=true&isCurrentPlayerOnly=false', data=data, headers=headers, files=files)
-        #print("DPS天梯上传完成！")
+        response = requests.post('http://j3dps.com/fightlog/upload/average?isShareData=true&isCurrentPlayerOnly=false', data=data, headers=headers, files=files)
+        print("DPS天梯上传完成！")
         
     def prepareUploadTianti(self):
         refreshThread = threading.Thread(target = self.uploadTiantiFunc)    

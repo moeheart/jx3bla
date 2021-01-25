@@ -158,6 +158,11 @@ class WuXueSanReplayer(SpecificReplayer):
         for i in range(0, 3):
             gmzTime[i] = self.gmzFinalTime[i] - self.gmzStartTime[i] + 1e-10
             
+        print(gmzTime)
+        print(self.gmzFinalTime)
+        print(self.gmzStartTime)
+        print(self.gmzNum)
+            
         P2Time = 1e-10
         if self.P2Final != 0:
             P2Time = self.P2Final - self.P2Start
@@ -232,6 +237,18 @@ class WuXueSanReplayer(SpecificReplayer):
                         
                 if item[7] == "24388": #银丝千织
                     self.dps[item[5]][9] += 1
+                    
+                if item[7] == "17514": #鬼门针保护
+                    self.gmzProtectTime = int(item[2])
+                
+                if self.gmzPhase == 1 and int(item[2]) - self.gmzProtectTime > 2000:
+                    self.gmzNum = 0
+                    self.gmzPhase = 0
+                    for line in self.gmzSet:
+                        self.dps[line][self.gmzLabel] = -1
+                    self.gmzFinalTime[self.gmzLabel - 4] = int(item[2])
+                    for line in self.criticalHealCounter:
+                        self.criticalHealCounter[line].unactive()
                         
             else:
             
@@ -302,6 +319,7 @@ class WuXueSanReplayer(SpecificReplayer):
                     self.gmzNum += 1
                     self.gmzSet.append(item[5])
                     self.criticalHealCounter[item[5]].active()
+                    self.gmzProtectTime = int(item[2])
                 
                 elif int(item[10]) == 0: #鬼门针消失
                     self.gmzNum -= 1
@@ -369,6 +387,7 @@ class WuXueSanReplayer(SpecificReplayer):
         self.gmzPhase = 0 #是否处于鬼门针阶段
         self.gmzLabel = 3 #鬼门针所属脚标，对应DPS数据格式
         self.gmzSet = [] #鬼门针被点名的ID
+        self.gmzProtectTime = 0 #鬼门针伤害的时间，用于保护鬼门针消失不受丢失buff的影响
         self.gmzStartTime = [0, 0, 0, 0]
         self.gmzFinalTime = [0, 0, 0, 0]
         
