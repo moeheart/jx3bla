@@ -231,6 +231,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         skillLog = []
 
         self.rumo = {}
+        hpsActive = 0
         
         if self.activeBoss in ["宓桃", "哑头陀"]:
             hpsActive = 0
@@ -343,6 +344,9 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         data.sumBusyTime = skillCounter.sumBusyTime
         data.sumSpareTime = skillCounter.sumSpareTime
         data.spareRate = data.sumSpareTime / (data.sumBusyTime + data.sumSpareTime + 1e-10)
+        
+        if hpsActive:
+            hpsSumTime += (self.finalTime - int(hpsTime)) / 1000
 
         numdam1 = 0
         for key in data.battlestat:

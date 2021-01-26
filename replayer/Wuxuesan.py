@@ -158,11 +158,6 @@ class WuXueSanReplayer(SpecificReplayer):
         for i in range(0, 3):
             gmzTime[i] = self.gmzFinalTime[i] - self.gmzStartTime[i] + 1e-10
             
-        print(gmzTime)
-        print(self.gmzFinalTime)
-        print(self.gmzStartTime)
-        print(self.gmzNum)
-            
         P2Time = 1e-10
         if self.P2Final != 0:
             P2Time = self.P2Final - self.P2Start
@@ -221,7 +216,8 @@ class WuXueSanReplayer(SpecificReplayer):
                 healRes = self.criticalHealCounter[item[5]].recordHeal(item)
                 if healRes != {}:
                     for line in healRes:
-                        self.dps[line][10] += healRes[line]
+                        if line in self.playerIDList:
+                            self.dps[line][10] += healRes[line]
                         
                 if item[11] != '0' and item[10] != '7': #非化解
                     if self.cjjqPhase:

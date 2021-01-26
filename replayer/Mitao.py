@@ -220,12 +220,14 @@ class MitaoReplayer(SpecificReplayer):
                 healRes = self.criticalHealCounter[item[5]].recordHeal(item)
                 if healRes != {}:
                     for line in healRes:
-                        self.dps[line][8] += healRes[line] 
+                        if line in self.playerIDList:
+                            self.dps[line][8] += healRes[line] 
                     #print(int(item[2]) - self.startTime, healRes, self.namedict[item[5]][0], self.criticalHealCounter[item[5]].activeNum)
                     
                 if item[11] != '0' and item[10] != '7': #非化解
                     if self.phase == 2:
-                        self.dps[item[4]][7] += int(item[12])
+                        if item[4] in self.playerIDList:
+                            self.dps[item[4]][7] += int(item[12])
                 
             else:
                 #开始引导的判定
@@ -261,11 +263,15 @@ class MitaoReplayer(SpecificReplayer):
                 return
             
             self.criticalHealCounter[item[5]].checkDeduct(item)
+            
+            self.purgeCounter[item[5]].recordDeduct(item)
                 
             purgeRes = self.purgeCounter[item[5]].checkPurge(item)
             if purgeRes != "0":
                 #有效驱散计数
                 self.dps[purgeRes][9] += 1
+                if self.purgeCounter[item[5]].purgeBuff in ["17767", "17919"]:
+                    self.lastPurge[item[5]] = purgeRes
                 
             if item[6] in ["17767", "17919"] and int(item[10]) > 0:
                 self.criticalHealCounter[item[5]].active()
@@ -282,10 +288,6 @@ class MitaoReplayer(SpecificReplayer):
                                          ["会计算因引导而被魅惑的情况"]])
                                          
                 self.dizzyDict[item[5]] = int(item[2])
-                
-            if item[6] in ["17767", "17919"] and int(item[10]) == 0:
-                purgeRes = self.purgeCounter[item[5]].checkPurge(item)
-                self.lastPurge[item[5]] = purgeRes
                     
             if item[6] in ["17768", "17769"] and int(item[10]) > 0:
                 self.criticalHealCounter[item[5]].active()

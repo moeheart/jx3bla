@@ -84,17 +84,25 @@ class PurgeCounter():
         if item[7] in self.purgeSkill:
             self.player = item[4]
             self.time = int(item[2])
+            
+    def recordDeduct(self, item):
+        '''
+        检测对应的item是否是监控buff消失事件，若是则记录消失状态，准备之后结算。
+        这里的item必须经过检验，确定是气劲类别，并且是玩家。
+        '''
+        if item[6] in self.targetBuff and int(item[10]) == 0:
+            self.purgeTime = int(item[2])
+            self.purgeBuff = item[6]
     
     def checkPurge(self, item):
         '''
         检测对应的item是否是监控buff消失事件，若是则结算，并返回
         这里的item必须经过检验，确定是气劲类别，并且是玩家。
         '''
-        if item[6] in self.targetBuff and int(item[10]) == 0:
-            #以500毫秒为界限，避免数据丢失导致错乱
-            if int(item[2]) - self.time < 500:
-                return self.player
-        return "0" 
+        if self.purgeTime == 0 or int(item[2]) - self.purgeTime < 100: #结算延迟100毫秒
+            return "0"
+        self.purgeTime = 0
+        return self.player
     
     def __init__(self, buffList):
         self.targetBuff = buffList
@@ -107,6 +115,7 @@ class PurgeCounter():
                           ]
         self.player = "0"
         self.time = 0
+        self.purgeTime = 0
         
 class CriticalHealCounter():
     '''
