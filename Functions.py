@@ -32,6 +32,18 @@ class BuffCounter():
         self.finalTime = finalTime
         self.log = [[startTime, 0]]
         
+def parseEdition(e):
+    '''
+    封装版本号，得到对应的代表数。
+    '''
+    s = e.split('.')
+    if len(s) == 3:
+        return int(s[0]) * 1000000 + int(s[1]) * 1000 + int(s[2])
+    elif len(s) == 2:
+        return int(s[0]) * 1000000 + int(s[1]) * 1000
+    else:
+        return int(s[0]) * 1000000
+        
 def plusList(a1, a2):
     a = []
     assert len(a1) == len(a2)

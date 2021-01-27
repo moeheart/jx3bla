@@ -156,8 +156,13 @@ class ActorStatGenerator(StatGeneratorBase):
                  "Content-Type": "application/octet-stream",
                  "filename" : self.filename[0]}
         data = {'test': 'test'}
-        response = requests.post('http://j3dps.com/fightlog/upload/average?isShareData=true&isCurrentPlayerOnly=false', data=data, headers=headers, files=files)
-        print("DPS天梯上传完成！")
+        try:
+            response = requests.post('http://j3dps.com/fightlog/upload/average?isShareData=true&isCurrentPlayerOnly=false', data=data, headers=headers, files=files)
+            t = response.text
+            J = json.loads(t)
+            print("[%s]DPS天梯上传完成！结果链接：https://j3dps.com/chart?bossId=%s"%(self.bossname, J["bossId"]))
+        except:
+            print("DPS天梯上传出错……")
         
     def prepareUploadTianti(self):
         refreshThread = threading.Thread(target = self.uploadTiantiFunc)    
@@ -485,8 +490,11 @@ class ActorStatGenerator(StatGeneratorBase):
             
         yuelinActive = self.yuelinActive
         if yuelinActive:
-            pass
-            
+            self.yuelinBuff = 50
+            self.yuelinSource = "未知"
+            self.yuelinStack = {}
+            for line in self.playerIDList:
+                self.yuelinStack[line] = [0, 0]
 
         if not self.lastTry:
             self.finalTime -= self.failThreshold * 1000
@@ -603,7 +611,7 @@ class ActorStatGenerator(StatGeneratorBase):
                                         if playerDamageDict[line][nowBurst-1] == 0 and playerInBattle[line] == 0:
                                             playerDamageDict[line][nowBurst-1] = 2
                                 playerDamageDict[item[5]][nowBurst] = 1
-                                burstCount[nowBurst] += 1 
+                                burstCount[nowBurst] += 1   
 
                 else:
                     calculDPS = 1
@@ -855,6 +863,24 @@ class ActorStatGenerator(StatGeneratorBase):
                                              "%s传功失败：%d层" % (lockTime, int(item[10])),
                                              ["7层以下通常为纯演员，建议分锅。"]])
 
+                    if self.mapDetail == "25人英雄达摩洞":
+                        if item[6] in ["17675"]:
+                            if int(item[10]) > self.yuelinStack[item[5]][0] and int(item[2]) - self.yuelinStack[item[5]][1] > 500:
+                                if self.yuelinSource != "未知":
+                                    self.yuelinBuff += 1
+                                    lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                                    severe = 1
+                                    if self.yuelinBuff > 60:
+                                        severe = 0
+                                    self.potList.append([namedict[item[5]][0],
+                                                         occDetailList[item[5]],
+                                                         severe,
+                                                         self.bossNamePrint,
+                                                         "%s，第%d层：%s" % (lockTime, self.yuelinBuff, self.yuelinSource),
+                                                         ["层数从50层开始计算，等效于对结果的影响。"]])
+                            self.yuelinStack[item[5]][0] = int(item[10])
+                            self.yuelinStack[item[5]][1] = int(item[2])
+
 
             elif item[3] == '3':  # 重伤记录
                 
@@ -906,7 +932,7 @@ class ActorStatGenerator(StatGeneratorBase):
                     playerInBattle[item[4]] = 0
 
             elif item[3] == '8':  # 喊话
-                # print(item)
+                #print(item)
                 if len(item) < 5:
                     continue
                 if yanyeActive:
@@ -942,6 +968,12 @@ class ActorStatGenerator(StatGeneratorBase):
                     if item[4] in ['"哼哼哼哼……"']:
                         sideTime += 20
                         guishouTime += 20
+                        
+                if yuelinActive:
+                    if item[4] in ['"飞隼！"', '"狂雁！"', '"落鹰！"', '"伏鹫！"']:
+                        self.yuelinSource = item[4].strip('"')
+                    if item[4] in ['"让冰冷与黑暗吞噬你们……"']:
+                        self.yuelinSource = "未知"
                 
                 if item[4] in ['"可恶…"',
                                '"哈哈哈哈哈，一群蠢货！手刃好友的滋味如何？"',

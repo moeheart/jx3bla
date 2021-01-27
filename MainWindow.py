@@ -16,6 +16,7 @@ from ConfigTools import Config, ConfigWindow, LicenseWindow, AnnounceWindow
 from LiveBase import LiveListener, AllStatWindow, LiveActorAnalysis
 from main import replay_by_window
 from Constants import *
+from Functions import *
 
 class MainWindow():
 
@@ -204,7 +205,7 @@ class MainWindow():
         b6.place(x = 200, y = 108)
         
         showEdition = EDITION
-        if EDITION < self.newestEdition:
+        if parseEdition(EDITION) < parseEdition(self.newestEdition):
             showEdition = "%s(有更新)"%EDITION
             
             b6 = tk.Button(window, text='更新', height=1, command=self.manual_update)
