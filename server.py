@@ -82,6 +82,59 @@ def getDpsStat():
     else:
         db.close()
         return jsonify({'result': 'norecord'})
+        
+@app.route('/XiangZhiTable.html', methods=['GET'])
+def XiangZhiTable():
+    map = request.args.get('map')
+    page = request.args.get('page')
+    order = request.args.get('order')
+    
+    if map is None:
+        map = '25人普通达摩洞'
+    if page is None:
+        page = 1
+    if order is None:
+        order = "score"
+        
+    page = int(page)
+    
+    if map not in ['25人普通达摩洞', '25人英雄达摩洞']:
+        return jsonify({'result': '地图不正确'})
+    if order not in ['score', 'battledate']:
+        return jsonify({'result': '排序方式不正确'})
+    
+    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    cursor = db.cursor()
+    
+    edition = "5.1.0"
+    mapdetail = map
+
+    sql = """SELECT server, id, score, battledate, mapdetail, edition, hash FROM XiangZhiStat WHERE edition>='%s' AND mapdetail='%s' AND public=1"""%(edition, mapdetail)
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    
+    result = list(result)
+    
+    pageNum = int((len(result) + 29) / 30)
+    
+    if order == "score":
+        result.sort(key=lambda x:-x[2])
+    elif order == "battledate":
+        result.sort(key=lambda x:x[3])
+        result = result[::-1]
+        
+        
+    start = (page-1)*30
+    end = page*30
+    if start >= len(result):
+        start = len(result)-1
+    if end >= len(result):
+        end = len(result)
+    result = result[start:end]
+
+
+    return render_template("XiangZhiTable.html", result=result, edition=EDITION, 
+                           order=order, map=map, page=page, pagenum=pageNum)
     
 @app.route('/XiangZhiData/png', methods=['GET'])
 def XiangZhiDataPng():

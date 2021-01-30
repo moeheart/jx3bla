@@ -1,0 +1,58 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="../static/XiangZhiTable.css?v={{EDITION}}" />
+	</head>
+	<body>
+		<div class="title"> 奶歌战斗记录 </div>
+		<div class="notice"> 界面还没有做，先鸽了，咕咕咕。核心逻辑实现了就好啦。 </div>
+		<div class="map"> 
+			<a href='/XiangZhiTable.html?order={{order}}&map=25人普通达摩洞&&page={{page}}'> 25人普通达摩洞 </a>
+			<a href='/XiangZhiTable.html?order={{order}}&map=25人英雄达摩洞&&page={{page}}'> 25人英雄达摩洞 </a>
+		</div>
+		<table id="table">
+		  <tr>
+			<th> 服务器 </th>
+			<th> 角色名 </th>
+			<th> <a href='/XiangZhiTable.html?order=score&map={{map}}&&page={{page}}'> 评分 </a> </th>
+			<th> <a href='/XiangZhiTable.html?order=battledate&map={{map}}&&page={{page}}'> 日期 </a> </th>
+			<th> 地图 </th>
+			<th> 版本号 </th>
+			<th> 结果 </th>
+		  </tr>
+		</table>
+		
+		<div class="links" id="links"> </div>
+
+	</body>
+	
+	<script src="../static/jquery-3.3.1.js"></script>
+	<script>
+		result="{{result}}";
+		res1 = result.replaceAll('&#39;', '"');
+		res1 = res1.replaceAll('(', "[");
+		res1 = res1.replaceAll(')', "]");
+		res2 = JSON.parse(res1)
+		
+		var table=$("#table");
+		for (var i in res2){
+			var tr = $("<tr></tr>");
+			tr.appendTo(table);
+			for (var j in res2[i]) {
+				if (j < 6) {
+					var td = $("<td>"+res2[i][j]+"</td>");
+					td.appendTo(tr);
+				}
+				else {
+					var td = $("<td><a href='http://139.199.102.41:8009/XiangZhiData/png?key="+res2[i][j]+"'>链接</td>");
+					td.appendTo(tr);
+				}
+			}
+		}
+		
+		var links=$("#links");
+		for (var i = 1; i <= {{pagenum}}; i++){
+			var a = $("<a href='/XiangZhiTable.html?order={{order}}&map=25人英雄达摩洞&&page="+i+"'> "+i+" </a>");
+			a.appendTo(links);
+		}
+	</script>
+</html>
