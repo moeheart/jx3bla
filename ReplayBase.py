@@ -18,7 +18,13 @@ class StatGeneratorBase():
         print("读取文件：%s" % name)
         f = open(name, "r")
         s = f.read()
-        res, _ = parseLuatable(s, 8, len(s))
+        
+        if self.window is not None:
+            bossname = getNickToBoss(self.filename.split('_')[1])
+            self.window.setNotice({"t1": "正在读取[%s]..."%bossname, "c1": "#000000"})
+        
+        luatableAnalyser = LuaTableAnalyser(self.window)
+        res = luatableAnalyser.analyse(s)
         self.rawdata = res
 
         if '9' not in self.rawdata:
@@ -31,7 +37,8 @@ class StatGeneratorBase():
         self.bossname = getNickToBoss(self.filename.split('_')[1])
         self.battleTime = int(self.filename.split('_')[2].split('.')[0])
 
-    def __init__(self, filename, path="", rawdata={}):
+    def __init__(self, filename, path="", rawdata={}, window = None):
+        self.window = window
         if rawdata == {}:
             self.filename = filename
             self.parseFile(path)

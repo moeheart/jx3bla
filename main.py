@@ -1218,7 +1218,13 @@ class RawDataParser():
         print("读取文件：%s" % name)
         f = open(name, "r")
         s = f.read()
-        res, _ = parseLuatable(s, 8, len(s))
+        
+        if self.window is not None:
+            bossname = getNickToBoss(filename.split('_')[1])
+            self.window.setNotice({"t1": "正在读取[%s]..."%bossname, "c1": "#000000"})
+        
+        luatableAnalyser = LuaTableAnalyser(self.window)
+        res = luatableAnalyser.analyse(s)
 
         if '9' not in res:
             if len(res['']) == 17:
@@ -1229,8 +1235,9 @@ class RawDataParser():
 
         return res
 
-    def __init__(self, filelist, path):
+    def __init__(self, filelist, path, window = None):
         self.rawdata = {}
+        self.window = window
         for filename in filelist:
             self.rawdata[filename[0]] = self.parseFile(path, filename[0])
 
@@ -1660,7 +1667,7 @@ def parseCmdArgs(argv):
     parser.add_argument('--files', type=str, help='Set which file to analyse, separated by semicolon.', default='')
     return parser.parse_args(argv)
     
-def replay_by_window():
+def replay_by_window(window):
 
     # Add by KEQX
     cmdArgs = parseCmdArgs(sys.argv[1:])
@@ -1692,9 +1699,9 @@ def replay_by_window():
         print("开始分析。分析耗时可能较长，请耐心等待……")
 
         if config.actorActive and config.checkAll:
-            raw = RawDataParser(allFilelist, fileLookUp.basepath).rawdata
+            raw = RawDataParser(allFilelist, fileLookUp.basepath, window).rawdata
         else:
-            raw = RawDataParser(filelist, fileLookUp.basepath).rawdata
+            raw = RawDataParser(filelist, fileLookUp.basepath, window).rawdata
 
         print("分析数据完毕，开始制图。咕叽咕叽咕叽￣ω￣=")
         if config.xiangzhiActive:

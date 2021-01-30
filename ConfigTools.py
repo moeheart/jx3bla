@@ -1,5 +1,6 @@
 # Created by moeheart at 10/10/2020
-# 处理config.ini，包括所有选项的解析。之后可能会加入在程序内定制config的功能，因此可能还有导出。
+# 处理config.ini，包括所有选项的解析与导出。
+# 目前还加入了一些其它的子窗口，例如公告栏。
 
 import threading
 import os
@@ -8,6 +9,7 @@ import time
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+import webbrowser
 
 from LiveBase import ToolTip
 from FileLookUp import FileLookUp
@@ -223,6 +225,7 @@ class LicenseWindow():
             self.final()
         else:
             Config("config.ini", 1)
+            self.lock.Unlock()
             self.window.destroy()
         
     def hit_cancel(self):
@@ -267,13 +270,23 @@ class LicenseWindow():
         self.windowThread = threading.Thread(target = self.loadWindow)    
         self.windowThread.start()
 
-    def __init__(self, mainWindow):
+    def __init__(self, mainWindow, lock):
         self.mainWindow = mainWindow
+        self.lock = lock
         
 class AnnounceWindow():
 
     def final(self):
         self.window.destroy()
+        
+    def show_tutorial(self):
+        webbrowser.open("https://www.bilibili.com/video/BV1Xp4y1s7vu")
+        
+    def show_help(self):
+        webbrowser.open("https://wws.lanzous.com/iAcQIksz66f")
+        
+    def show_update(self):
+        webbrowser.open("https://github.com/moeheart/jx3bla/blob/master/update.md")
     
     def loadWindow(self):
         '''
@@ -288,6 +301,18 @@ class AnnounceWindow():
         l = tk.Message(window, text=self.announcement, font=('宋体', 10), width=380, anchor='nw', justify=tk.LEFT)
         l.pack()
         self.label = l
+        
+        l2 = tk.Message(window, text="反馈QQ群：418483739", font=('宋体', 10), width=380, anchor='nw', justify=tk.LEFT)
+        l2.place(x = 30, y = 140)
+        
+        b3 = tk.Button(window, text='复盘指南', height=1, command=self.show_tutorial)
+        b3.place(x = 50, y = 160)
+        
+        b4 = tk.Button(window, text='帮助文档', height=1, command=self.show_help)
+        b4.place(x = 160, y = 160)
+        
+        b5 = tk.Button(window, text='更新内容', height=1, command=self.show_update)
+        b5.place(x = 270, y = 160)
         
         window.protocol('WM_DELETE_WINDOW', self.final)
 

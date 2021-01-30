@@ -72,61 +72,84 @@ def concatDict(d1, d2):
         if key not in d:
             d[key] = d2[key]
     return d
+    
+class LuaTableAnalyser():
+    '''
+    Lua Table到python dict的解析类，中间维护一个显示百分比的算法。
+    '''
 
+    def parseLuatable(self, n, maxn):
+            
+        numLeft = 0
+        nowi = n
+        nowobj = {}
+        nowkey = ""
+        keystart = 0
+        nowitem = ""
+        nowitems = []
+        nowquote = 0
+        
+        while True:
+        
+            if int(nowi / maxn * 100) > self.lastPercent:
+                self.lastPercent = int(nowi / maxn * 100)
+                if self.hasWindow:
+                    self.window.setNotice({"t2": "已完成：%d%%"%self.lastPercent, "c2": "#0000ff"})
 
-def parseLuatable(s, n, maxn):
-    numLeft = 0
-    nowi = n
-    nowobj = {}
-    nowkey = ""
-    keystart = 0
-    nowitem = ""
-    nowitems = []
-    nowquote = 0
-    while True:
-        # print(nowobj)
-        c = s[nowi]
-        if c == "[":
-            if nowitems != []:
-                nowobj[nowkey] = nowitems
-                nowkey = ""
-                nowitem = ""
-                nowitems = []
-            keystart = 1
-        elif c == "{":
-            # print(nowi)
-            jdata, pn = parseLuatable(s, nowi + 1, maxn)
-            nowitems.append(jdata)
-            nowi = pn
-        elif keystart == 1:
-            if c == "]":
-                keystart = 0
-            else:
-                nowkey += c
-        elif keystart == 0:
-            if c == '"':
-                nowquote = (nowquote + 1) % 2
-            if c == "," and nowquote != 1:
-                if nowitem != "":
-                    nowitems.append(nowitem)
-                nowitem = ""
-            elif c == "}":
+            c = self.s[nowi]
+            if c == "[":
+                if nowitems != []:
+                    nowobj[nowkey] = nowitems
+                    nowkey = ""
+                    nowitem = ""
+                    nowitems = []
+                keystart = 1
+            elif c == "{":
+                # print(nowi)
+                jdata, pn = self.parseLuatable(nowi + 1, maxn)
+                nowitems.append(jdata)
+                nowi = pn
+            elif keystart == 1:
+                if c == "]":
+                    keystart = 0
+                else:
+                    nowkey += c
+            elif keystart == 0:
+                if c == '"':
+                    nowquote = (nowquote + 1) % 2
+                if c == "," and nowquote != 1:
+                    if nowitem != "":
+                        nowitems.append(nowitem)
+                    nowitem = ""
+                elif c == "}":
+                    if nowitem != "":
+                        nowitems.append(nowitem)
+                    nowobj[nowkey] = nowitems
+                    return nowobj, nowi
+                elif c != '=':
+                    nowitem += c
+            if c == "}":
                 if nowitem != "":
                     nowitems.append(nowitem)
                 nowobj[nowkey] = nowitems
                 return nowobj, nowi
-            elif c != '=':
-                nowitem += c
-        if c == "}":
-            if nowitem != "":
-                nowitems.append(nowitem)
-            nowobj[nowkey] = nowitems
-            return nowobj, nowi
-        nowi += 1
-        if nowi >= maxn:
-            break
-    nowobj[nowkey] = nowitems
-    return nowobj, nowi
+            nowi += 1
+            if nowi >= maxn:
+                break
+        nowobj[nowkey] = nowitems
+        return nowobj, nowi
+        
+    def analyse(self, s):
+        self.s = s
+        self.lastPercent = 0
+        res, _ = self.parseLuatable(8, len(self.s))
+        return res
+        
+    def __init__(self, window = None):
+        self.hasWindow = False
+        if window is not None:
+            self.hasWindow = True
+            self.window = window
     
 def getColor(occ):
     '''

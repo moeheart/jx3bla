@@ -371,7 +371,7 @@ class ActorStatGenerator(StatGeneratorBase):
         deathHit = {}
         deathHitDetail = {}
 
-        deathBuffDict = {"9299": 30000,  # 杯水留影
+        deathBuffDict = {"9299": 35000,  # 杯水留影
                          "16981": 30000,  # 翩然
                          "17128": 5000,  # 阴阳逆乱}
                          "16892": 36000,  # 应援
@@ -927,6 +927,20 @@ class ActorStatGenerator(StatGeneratorBase):
                                              
                         if self.bossAnalyser.activeBoss == "余晖":
                             self.bossAnalyser.recordDeath(item)
+                            
+                        if self.yuelinActive:
+                            if deathSource == "未知":
+                                self.yuelinBuff += 1
+                                lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                                severe = 1
+                                if self.yuelinBuff > 60:
+                                    severe = 0
+                                self.potList.append([namedict[item[4]][0],
+                                                     occDetailList[item[4]],
+                                                     severe,
+                                                     self.bossNamePrint,
+                                                     "%s，第%d层：%s（推测）" % (lockTime, self.yuelinBuff, self.yuelinSource),
+                                                     ["层数从50层开始计算，等效于对结果的影响。", "此条根据重伤记录推测，不一定准确。"]])
                                          
                 if yatoutuoActive:
                     playerInBattle[item[4]] = 0
@@ -1405,7 +1419,7 @@ class ActorStatGenerator(StatGeneratorBase):
         #    print(line)
         #print(detail)
 
-    def __init__(self, filename, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}, uploadTiantiFlag=0):
+    def __init__(self, filename, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}, uploadTiantiFlag=0, window=None):
         self.myname = myname
         self.numTry = filename[1]
         self.lastTry = filename[2]
@@ -1414,7 +1428,7 @@ class ActorStatGenerator(StatGeneratorBase):
         self.battleDate = battleDate
         self.mask = mask
         self.uploadTiantiFlag = uploadTiantiFlag
-        super().__init__(filename[0], path, rawdata)
+        super().__init__(filename[0], path, rawdata, window)
         self.filePath = path + '\\' + filename[0]
         if self.numTry == 0:
             self.bossNamePrint = self.bossname

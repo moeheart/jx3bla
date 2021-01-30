@@ -307,9 +307,9 @@ class SingleBossWindow():
 
 class LiveActorStatGenerator(ActorStatGenerator):
     
-    def __init__(self, filename, path="", myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}, uploadTiantiFlag=0):
+    def __init__(self, filename, path="", myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}, uploadTiantiFlag=0, window=None):
         super().__init__(filename, path, rawdata={}, failThreshold=failThreshold, 
-            battleDate=battleDate, mask=mask, dpsThreshold=dpsThreshold, uploadTiantiFlag=uploadTiantiFlag)
+            battleDate=battleDate, mask=mask, dpsThreshold=dpsThreshold, uploadTiantiFlag=uploadTiantiFlag, window=window)
             
 class PotContainer():
     '''
@@ -442,7 +442,7 @@ class LiveListener():
         '''
         battleDate = '-'.join(lastFile.split('-')[0:3])
         liveGenerator = LiveActorStatGenerator([lastFile, 0, 1], basepath, failThreshold=self.config.failThreshold, 
-                battleDate=battleDate, mask=self.config.mask, dpsThreshold=self.dpsThreshold, uploadTiantiFlag=self.config.uploadTianti)
+                battleDate=battleDate, mask=self.config.mask, dpsThreshold=self.dpsThreshold, uploadTiantiFlag=self.config.uploadTianti, window=self.mainwindow)
         liveGenerator.firstStageAnalysis()
         liveGenerator.secondStageAnalysis()
         if liveGenerator.upload:
@@ -488,7 +488,7 @@ class LiveListener():
                 lastFile = ""
             if lastFile != newestFile:# or True:  #调试入口
                 newestFile = lastFile
-                print("Newest File: %s"%lastFile)
+                print("检测到新的复盘记录: %s"%lastFile)
                 time.sleep(0.5)
                 self.getNewBattleLog(basepath, lastFile)
             #while(True):
@@ -502,7 +502,7 @@ class LiveListener():
         self.listenThread.setDaemon(True);
         self.listenThread.start()
     
-    def __init__(self, basepath, config, analyser):
+    def __init__(self, basepath, config, analyser, mainwindow):
         '''
         构造方法。
         params
@@ -514,6 +514,7 @@ class LiveListener():
                              "alertRate": config.alertRate,
                              "bonusRate": config.bonusRate}
         self.analyser = analyser
+        self.mainwindow = mainwindow
         
         self.bossNum = 0
         self.window = None
