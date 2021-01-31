@@ -460,6 +460,7 @@ class XiangZhiPainter():
                 num -= 1
             if type(stat["npcHealList"][0][1]) == type(0.0):
                 stat["npcHealList"] = [stat["npcHealList"]]
+                num = 1
             if stat["npcHealList"] != []:
                 for line in stat["npcHealList"][0]:
                     h += 10
