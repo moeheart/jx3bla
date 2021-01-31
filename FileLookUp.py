@@ -49,13 +49,18 @@ class FileLookUp():
             datapath = "%s\\Game\\JX3\\bin\\zhcn_hd\\interface\\MY#DATA" % self.jx3path
         resDir = ""
         l = os.listdir(datapath)
+        
+        resTime = 0
+        
         for name in l:
             path2 = "%s\\%s" % (datapath, name)
             if os.path.isdir(path2):
                 l2 = os.listdir(path2)
                 if playerName in l2:
-                    resDir = "%s\\userdata\\fight_stat" % path2
-                    break
+                    newresTime = os.path.getmtime(path2)
+                    if newresTime > resTime:
+                        resTime = newresTime
+                        resDir = "%s\\userdata\\fight_stat" % path2
 
         self.basepath = resDir
         if resDir == "":

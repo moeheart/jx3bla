@@ -443,7 +443,10 @@ class LiveListener():
         battleDate = '-'.join(lastFile.split('-')[0:3])
         liveGenerator = LiveActorStatGenerator([lastFile, 0, 1], basepath, failThreshold=self.config.failThreshold, 
                 battleDate=battleDate, mask=self.config.mask, dpsThreshold=self.dpsThreshold, uploadTiantiFlag=self.config.uploadTianti, window=self.mainwindow)
-        liveGenerator.firstStageAnalysis()
+                
+        analysisExitCode = liveGenerator.firstStageAnalysis()
+        if analysisExitCode == 1:
+            raise Exception("实时模式下数据格式错误，请再次检查设置。如不能解决问题，尝试重启程序。")
         liveGenerator.secondStageAnalysis()
         if liveGenerator.upload:
             liveGenerator.prepareUpload()
@@ -452,6 +455,9 @@ class LiveListener():
         
         if self.window is not None and self.window.alive():
             self.window.final()
+        
+        if self.mainwindow is not None:
+            self.mainwindow.setNotice({"t1": "[%s]分析完成！"%liveGenerator.bossname, "c1": "#000000", "t2": ""})
         
         window = SingleBossWindow(self.analyser, self.bossNum)
         self.window = window

@@ -326,6 +326,9 @@ class AnnounceWindow():
                 
 class ConfigWindow():
 
+    def show_xiangzhiTianti(self):
+        webbrowser.open("http://139.199.102.41:8009/XiangZhiTable.html")
+
     def final(self):
         self.config.playername = self.entry1_1.get()
         self.config.jx3path = self.entry1_2.get()
@@ -347,6 +350,9 @@ class ConfigWindow():
         self.config.printSettings()
         
         self.window.destroy()
+        
+    def clear_basepath(self, event):
+        self.entry1_3.delete(0, tk.END)
     
     def get_path(self):
         self.config.playername = self.entry1_1.get()
@@ -417,6 +423,8 @@ class ConfigWindow():
         self.label2_3.grid(row=2, column=0)
         self.entry2_3.grid(row=2, column=1)
         self.cb2_4.grid(row=3, column=0)
+        self.button2_5 = tk.Button(frame2, text='查看奶歌复盘天梯', height=1, command=self.show_xiangzhiTianti)
+        self.button2_5.grid(row=4, column=0)
         
         self.var3_1 = tk.IntVar(window)
         self.cb3_1 = tk.Checkbutton(frame3, text = "启用演员复盘", variable = self.var3_1, onvalue = 1, offvalue = 0)
@@ -486,6 +494,9 @@ class ConfigWindow():
         ToolTip(self.label3_5, "团队-心法DPS的预警线。\n如果有BOSS低于这个值，一般代表后续需要重点关注。\n以1为单位。")
         ToolTip(self.label3_6, "团队-心法DPS的补贴线。\n如果全程高于这个值，一般代表可以发DPS补贴。\n以1为单位。")
         ToolTip(self.cb3_7, "是否在复盘完成时将数据上传至DPS天梯榜。")
+        
+        self.entry1_1.bind('<Button-1>', self.clear_basepath)
+        self.entry1_2.bind('<Button-1>', self.clear_basepath)
 
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)

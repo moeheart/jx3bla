@@ -484,6 +484,10 @@ class XiangZhiStatGenerator(StatGeneratorBase):
         self.interrupt = 0
         
         self.activeBoss = ""
+        
+        if len(sk) == 0:
+            raise Exception('复盘信息格式错误，请确认设置是否正确。如果不清楚细节，请先使用实时模式。')
+            return 1 #格式错误
 
         for line in sk:
             item = line[""]
@@ -571,6 +575,8 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                 self.shieldCounters[key].analysisShieldData()
                 
         self.occDetailList = occDetailList
+        
+        return 0 #正确结束
 
     def __init__(self, filename, myname, path="", rawdata={}):
         self.myname = myname
@@ -1369,7 +1375,9 @@ class XiangZhiAnalysis():
         for filename in fileList:
             res = XiangZhiStatGenerator(filename, self.myname, rawdata=raw[filename[0]])
             res.speed = self.speed
-            res.firstStageAnalysis()
+            analysisExitCode = res.firstStageAnalysis()
+            if analysisExitCode == 1:
+                continue
             res.secondStageAnalysis()
             self.generator.append(res)
             if self.myname == "":

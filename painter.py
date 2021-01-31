@@ -281,7 +281,7 @@ class XiangZhiPainter():
         paint(draw, "下次知道该把谁放在最后了吧！", 30, base+60, fontText, fillblack)
         write('\n')
 
-        if type(stat["numpurge"]) == type(0):
+        if type(stat["numpurge"]) == type(0) or type(stat["numpurge"]) == type(0.0):
             base = base + 90
             paint(draw, "[%s]可以说是整个副本最难的BOSS，"%stat["hardBOSS"], 30, base, fontText, fillblack)
             paint(draw, "你在其中使用了%d次[一指回鸾]，"%stat["numpurge"], 30, base+15, fontText, fillblack)

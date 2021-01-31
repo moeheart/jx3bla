@@ -225,6 +225,10 @@ class ActorStatGenerator(StatGeneratorBase):
         namedict = res['9'][0]
         occdict = res['10'][0]
         sk = res['16'][0][""]
+        
+        if len(sk) == 0:
+            raise Exception('复盘信息格式错误，请确认设置是否正确。如果不清楚细节，请先使用实时模式。')
+            return 1 #格式错误
 
         self.namedict = namedict
         self.occdict = occdict
@@ -335,6 +339,8 @@ class ActorStatGenerator(StatGeneratorBase):
             self.firstHitList[id] = 0
             
         self.occDetailList = occDetailList
+        
+        return 0 #正确结束
         
         #for line in occDetailList:
         #    print(line, namedict[line], occDetailList[line])
@@ -1789,7 +1795,10 @@ class ActorAnalysis():
         for filename in fileList:
             res = ActorStatGenerator(filename, path, rawdata=raw[filename[0]], failThreshold=self.failThreshold, 
                 battleDate=self.battledate, mask=self.mask, dpsThreshold=self.dpsThreshold, uploadTiantiFlag=self.uploadTiantiFlag)
-            res.firstStageAnalysis()
+                
+            analysisExitCode = res.firstStageAnalysis()
+            if analysisExitCode == 1:
+                continue
             res.secondStageAnalysis()
             if res.upload:
                 res.prepareUpload()

@@ -127,6 +127,8 @@ class MainWindow():
             return
         liveListener = LiveListener(self.fileLookUp.basepath, self.config, self.analyser, self)
         self.liveListener = liveListener
+        messagebox.showinfo(title='警告', message='快速实时模式主要用于调试，如果不了解原理，有极大概率无法正常运行。')
+        
         liveListener.startListen()
         self.setNotice({"t1": "快速实时模式已开启，请关注终端界面……", "c1": "#000000", "t2": "快速模式仅用于调试，新手勿入QAQ", "c2": "#ff0000"})
         
