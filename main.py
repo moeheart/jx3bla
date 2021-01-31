@@ -289,7 +289,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                 if item[7] == "14169":  # 一指回鸾
                     data.numpurge += 1
 
-                if int(item[14]) > 0:
+                if int(item[14]) > 0 and item[7] not in ["24710", "24730", "25426", "25445"]: #技能黑名单
                     if item[4] in self.shieldCounters:
                         if item[4] not in data.battlestat:
                             data.battlestat[item[4]] = [0, 0, 0]
@@ -741,6 +741,19 @@ class XiangZhiScore():
                 HPSList = [[2000, 0], [8000, 2], [15000, 4]]
             elif id == 6:
                 HPSList = [[2000, 0], [9000, 3], [18000, 7]]
+        elif self.mapdetail == "25人英雄达摩洞":
+            if id == 1:
+                HPSList = [[1000, 0], [7000, 3], [14000, 5]]
+            elif id == 2:
+                HPSList = [[4000, 0], [20000, 3], [35000, 5]]
+            elif id == 3:
+                HPSList = [[2000, 0], [12000, 3], [18000, 5]]
+            elif id == 4:
+                HPSList = [[1000, 0], [7000, 3], [14000, 5]]
+            elif id == 5:
+                HPSList = [[2000, 0], [9000, 2], [16000, 4]]
+            elif id == 6:
+                HPSList = [[2000, 0], [9000, 3], [13000, 7]]
             hps = self.data.healTable[id - 1][1] + self.data.healTable[id - 1][5]
         score = self.scaleScore(hps, HPSList)
         return score
@@ -781,6 +794,19 @@ class XiangZhiScore():
                 ShieldList = [[3, 0], [12, 3], [18, 5]]
             elif id == 5:
                 ShieldList = [[3, 0], [12, 2], [18, 4]]
+            elif id == 6:
+                ShieldList = [[5, 0], [12, 3], [21, 7]]
+        elif self.mapdetail == "25人英雄达摩洞":
+            if id == 1:
+                ShieldList = [[3, 0], [13, 3], [20, 5]]
+            elif id == 2:
+                ShieldList = [[5, 0], [16, 3], [22, 5]]
+            elif id == 3:
+                ShieldList = [[4, 0], [14, 3], [19, 5]]
+            elif id == 4:
+                ShieldList = [[4, 0], [15, 3], [20, 5]]
+            elif id == 5:
+                ShieldList = [[3, 0], [11, 2], [17, 4]]
             elif id == 6:
                 ShieldList = [[5, 0], [12, 3], [21, 7]]
         score = self.scaleScore(self.data.healTable[id - 1][8], ShieldList)
@@ -824,6 +850,19 @@ class XiangZhiScore():
                 DPSList = [[0.5, 0], [1.8, 4]]
             elif id == 6:
                 DPSList = [[0.3, 0], [1.4, 7]]
+        elif self.mapdetail == "25人英雄达摩洞":
+            if id == 1:
+                DPSList = [[0.6, 0], [1.8, 5]]
+            elif id == 2:
+                DPSList = [[0.3, 0], [1.3, 5]]
+            elif id == 3:
+                DPSList = [[0.5, 0], [1.6, 5]]
+            elif id == 4:
+                DPSList = [[0.5, 0], [1.7, 5]]
+            elif id == 5:
+                DPSList = [[0.3, 0], [1.3, 4]]
+            elif id == 6:
+                DPSList = [[0.3, 0], [1.2, 7]]
         score = self.scaleScore(self.data.dpsTable[id - 1][3], DPSList)
         return score
 
@@ -857,6 +896,19 @@ class XiangZhiScore():
                 RateList = [[0.1, 0], [0.7, 1], [0.9, 5]]
             elif id == 2:
                 RateList = [[0.1, 0], [0.15, 1], [0.55, 5]]
+            elif id == 3:
+                RateList = [[0.1, 0], [0.5, 1], [0.85, 5]]
+            elif id == 4:
+                RateList = [[0.1, 0], [0.5, 1], [0.8, 5]]
+            elif id == 5:
+                RateList = [[0.1, 0], [0.5, 1], [0.8, 4]]
+            elif id == 6:
+                RateList = [[0.1, 0], [0.3, 1], [0.75, 7]]
+        elif self.mapdetail == "25人英雄达摩洞":
+            if id == 1:
+                RateList = [[0.1, 0], [0.7, 1], [0.95, 5]]
+            elif id == 2:
+                RateList = [[0.1, 0], [0.2, 1], [0.6, 5]]
             elif id == 3:
                 RateList = [[0.1, 0], [0.5, 1], [0.85, 5]]
             elif id == 4:
@@ -906,6 +958,19 @@ class XiangZhiScore():
                 RateList = [[0.3, 0], [0.1, 5]]
             elif id == 6:
                 RateList = [[0.35, 0], [0.15, 6]]
+        elif self.mapdetail == "25人英雄达摩洞":
+            if id == 1:
+                RateList = [[0.5, 0], [0.1, 5]]
+            elif id == 2:
+                RateList = [[0.3, 0], [0.1, 5]]
+            elif id == 3:
+                RateList = [[0.35, 0], [0.15, 5]]
+            elif id == 4:
+                RateList = [[0.3, 0], [0.1, 5]]
+            elif id == 5:
+                RateList = [[0.45, 0], [0.25, 5]]
+            elif id == 6:
+                RateList = [[0.35, 0], [0.15, 6]]
         score = self.scaleScore(self.data.spareRateList[id - 1][1], RateList)
         return score
 
@@ -913,6 +978,8 @@ class XiangZhiScore():
         if self.map == "敖龙岛" or self.map == "范阳夜变":
             PurgeList = [[0, 0], [3, 3], [10, 5]]
         elif self.mapdetail == "25人普通达摩洞":
+            PurgeList = [[0, 0], [5, 3], [20, 5]]
+        elif self.mapdetail == "25人英雄达摩洞":
             PurgeList = [[0, 0], [5, 3], [20, 5]]
         score = self.scaleScore(self.generator[id - 1].data.numpurge, PurgeList)
         return score
@@ -927,6 +994,13 @@ class XiangZhiScore():
         elif self.mapdetail == "25人普通达摩洞":
             if id == 2:
                 NPCList = [[0.1, 0], [0.3, 5]]
+                compareRate = self.data.npcHealRate[0]
+            elif id == 5:
+                NPCList = [[0.05, 0], [0.3, 2]]
+                compareRate = self.data.npcHealRate[1]
+        elif self.mapdetail == "25人英雄达摩洞":
+            if id == 2:
+                NPCList = [[0.1, 0], [0.35, 5]]
                 compareRate = self.data.npcHealRate[0]
             elif id == 5:
                 NPCList = [[0.05, 0], [0.3, 2]]
@@ -1190,6 +1264,15 @@ class XiangZhiScore():
             self.score = sumScore
             self.finalRate()
         elif len(self.generator) == 6 and self.mapdetail == "25人普通达摩洞":
+            self.available = 1
+            sumScore = 0
+            for i in range(1, 7):
+                score = self.analysisBOSSptdmd(i)
+                sumScore += score
+            self.printTable.append([0, "总分", "%.1f" % sumScore])
+            self.score = sumScore
+            self.finalRate()
+        elif len(self.generator) == 6 and self.mapdetail == "25人英雄达摩洞":
             self.available = 1
             sumScore = 0
             for i in range(1, 7):
