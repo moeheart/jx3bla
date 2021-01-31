@@ -458,6 +458,8 @@ class XiangZhiPainter():
             while stat["npcHealList"] != [] and stat["npcHealList"][0] == []:
                 del stat["npcHealList"][0]
                 num -= 1
+            if type(stat["npcHealList"][0][1]) == type(0.0):
+                stat["npcHealList"] = [stat["npcHealList"]]
             if stat["npcHealList"] != []:
                 for line in stat["npcHealList"][0]:
                     h += 10
