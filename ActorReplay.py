@@ -334,6 +334,11 @@ class ActorStatGenerator(StatGeneratorBase):
                     self.playerIDList[item[5]] = 0
                 if item[4] in occDetailList and occDetailList[item[4]] in ['1', '3', '10', '21']:
                     occDetailList[item[4]] = checkOccDetailByBuff(occDetailList[item[4]], item[6])
+                    
+            elif item[3] == "10": #角色出现及进战
+                if item[5] in occdict and occdict[item[5]][0] != '0':
+                    self.playerIDList[item[5]] = 0
+                
 
         for id in self.playerIDList:
             self.firstHitList[id] = 0
@@ -1037,6 +1042,8 @@ class ActorStatGenerator(StatGeneratorBase):
         calculDPS = 1
         recordGORate = 0
         
+        self.battleTime += 1e-10 #防止0战斗时间导致错误
+        
         if self.bossAnalyser.activeBoss in ["余晖", "宓桃", "武雪散"]:
             effectiveDPSList, potList, detail = self.bossAnalyser.getResult()
             self.potList = potList
@@ -1419,6 +1426,9 @@ class ActorStatGenerator(StatGeneratorBase):
             self.upload = 1
             if self.win and self.uploadTiantiFlag:
                 self.uploadTianti = 1
+                
+        #for line in self.playerIDList:
+        #    print(namedict[line])
         
         #print(self.potList)
         #for line in effectiveDPSList:
