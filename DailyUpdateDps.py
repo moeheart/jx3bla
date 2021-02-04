@@ -21,7 +21,7 @@ def RefreshDps():
     edition = "5.1.0"
     mapdetail = "25人英雄达摩洞"
     
-    sql = """DROUP TABLE IF EXISTS HighestDps"""
+    sql = """DROP TABLE IF EXISTS HighestDps"""
     cursor.execute(sql)
 
     sql = """SELECT * FROM ActorStat WHERE edition>='%s' AND win=1"""%edition
