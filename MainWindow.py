@@ -59,6 +59,12 @@ class MainWindow():
             self.var2.set(d["t2"])
         if "c2" in d:
             self.text2.config(fg=d["c2"])
+            
+    def setTianwangInfo(self, playerIDList, server):
+        self.server = server
+        for id in playerIDList:
+            if id not in self.playerIDs:
+                self.playerIDs.append(id)
 
     def replay(self):
         replay_by_window(self)
@@ -187,6 +193,16 @@ class MainWindow():
             self.listenThread = threading.Thread(target = self.log_once, args = (lastFile,)) 
             self.listenThread.setDaemon(True);
             self.listenThread.start()
+            
+    def show_tianwang(self):
+        if self.lock.state():
+            return
+        if self.playerIDs == []:
+            messagebox.showinfo(title='提示', message='需要有实时战斗记录才能使用天网系统。在目前的版本中，建议取消最短战斗时间限制，使用七苦一乐宝箱作为检测工具。')
+        else:
+            ids = "+".join(self.playerIDs)
+            url = "http://139.199.102.41:8009/Tianwang.html?server=%s&ids=%s"%(self.server, ids)
+            webbrowser.open(url)
         
     def show_history(self):
         if self.lock.state():
@@ -264,8 +280,11 @@ class MainWindow():
         b5 = tk.Button(window, text='公告', height=1, command=self.show_announcement)
         b5.place(x = 250, y = 20)
         
-        b6 = tk.Button(window, text='+', bg='#ffcccc', width=1, height=1, command=self.live_once)
-        b6.place(x = 200, y = 108)
+        b6 = tk.Button(window, text='天网', height=1, command=self.show_tianwang)
+        b6.place(x = 20, y = 20)
+        
+        b7 = tk.Button(window, text='+', bg='#ffcccc', width=1, height=1, command=self.live_once)
+        b7.place(x = 200, y = 108)
         
         showEdition = EDITION
         if parseEdition(EDITION) < parseEdition(self.newestEdition):
@@ -292,6 +311,7 @@ class MainWindow():
         self.analyser = LiveActorAnalysis()
         self.startLive = False
         self.lock = SingleBlockLocker()
+        self.playerIDs = []
         
 if __name__ == "__main__":
     mainWindow = MainWindow()

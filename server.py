@@ -94,7 +94,7 @@ def Tianwang():
 
     playerDps = {}
 
-    ids_split = ids.split('+')
+    ids_split = ids.split(' ')
     for id in ids_split:
         sql = '''SELECT occ, map, boss, dps from HighestDps WHERE server = "%s" and player = "%s"'''%(server, id)
         cursor.execute(sql)

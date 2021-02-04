@@ -1419,6 +1419,13 @@ class ActorStatGenerator(StatGeneratorBase):
         self.effectiveDPSList = effectiveDPSList
         self.detail = detail
         
+        self.server = self.rawdata["19"][0].strip('"')
+        
+        ids = {}
+        for line in self.playerIDList:
+            ids[namedict[line][0].strip('"')] = 0
+        self.ids = ids
+        
         #print(self.potList)
         if self.win:
             self.upload = 1

@@ -468,9 +468,10 @@ class LiveListener():
         toaster = ToastNotifier()
         toaster.show_toast("分锅结果已生成", "[%s]的战斗复盘已经解析完毕，请打开结果界面分锅。"%liveGenerator.bossname, icon_path='jx3bla.ico')
         
+        self.mainwindow.setTianwangInfo(liveGenerator.ids, liveGenerator.server)
+        
         if liveGenerator.uploadTianti:
             liveGenerator.prepareUploadTianti()
-        
 
     def listenPath(self, basepath):
         '''
