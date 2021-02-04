@@ -23,6 +23,16 @@ def RefreshDps():
     
     sql = """DROP TABLE IF EXISTS HighestDps"""
     cursor.execute(sql)
+    
+    sql = """CREATE TABLE HighestDps(
+             server VARCHAR(32),
+             player VARCHAR(32),
+             occ VARCHAR(32),
+             map VARCHAR(32),
+             boss VARCHAR(32),
+             dps INT
+             ) DEFAULT CHARSET utf8mb4"""
+    cursor.execute(sql)
 
     sql = """SELECT * FROM ActorStat WHERE edition>='%s' AND win=1"""%edition
     cursor.execute(sql)
