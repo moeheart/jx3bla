@@ -83,6 +83,35 @@ def getDpsStat():
         db.close()
         return jsonify({'result': 'norecord'})
         
+@app.route('/Tianwang.html', methods=['GET'])
+def Tianwang():
+ 
+    server = request.args.get('server')
+    ids = request.args.get('ids')
+    
+    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    cursor = db.cursor()
+
+    playerDps = {}
+
+    ids_split = ids.split('+')
+    for id in ids_split:
+        sql = '''SELECT occ, map, boss, dps from HighestDps WHERE server = "%s" and player = "%s"'''%(server, id)
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        playerDps[id] = {}
+        for line in result:
+            playerDps[id]["occ"] = line[0]
+            if line[1] not in playerDps[id]:
+                playerDps[id][line[1]] = [0, 0, 0, 0, 0, 0]
+            if line[2] in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅"]:
+                bossNum = {"余晖": 0, "宓桃": 1, "武雪散": 2, "猿飞": 3, "哑头陀": 4, "岳琳&岳琅": 5}[line[2]]
+                playerDps[id][line[1]][bossNum] = line[3]
+
+    db.close()
+
+    return render_template("Tianwang.html", playerDps=playerDps, edition=EDITION)
+        
 @app.route('/XiangZhiTable.html', methods=['GET'])
 def XiangZhiTable():
     map = request.args.get('map')
@@ -112,6 +141,8 @@ def XiangZhiTable():
     sql = """SELECT server, id, score, battledate, mapdetail, edition, hash FROM XiangZhiStat WHERE edition>='%s' AND mapdetail='%s' AND public=1"""%(edition, mapdetail)
     cursor.execute(sql)
     result = cursor.fetchall()
+    
+    db.close()
     
     result = list(result)
     
@@ -147,6 +178,8 @@ def XiangZhiDataPng():
         sql = '''SELECT * FROM XiangZhiStat WHERE hash = "%s"'''%key
         cursor.execute(sql)
         result = cursor.fetchall()
+        
+        db.close()
         
         if result:
             line = result[0]
