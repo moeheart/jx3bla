@@ -52,5 +52,15 @@ sql = """CREATE TABLE PreloadInfo(
          ) DEFAULT CHARSET utf8mb4"""
 cursor.execute(sql)
 
+sql = """CREATE TABLE HighestDps(
+         server VARCHAR(32),
+         player VARCHAR(32),
+         occ VARCHAR(32),
+         map VARCHAR(32),
+         boss VARCHAR(32),
+         dps INT
+         ) DEFAULT CHARSET utf8mb4"""
+cursor.execute(sql)
+
 db.commit()
 db.close()
