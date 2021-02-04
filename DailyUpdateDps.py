@@ -9,7 +9,7 @@ import time
 
 
 def RefreshDps():
-    ip = "139.199.102.41"
+    ip = "127.0.0.1"
     config = configparser.RawConfigParser()
     config.readfp(open('settings.cfg'))
 
@@ -20,6 +20,9 @@ def RefreshDps():
     
     edition = "5.1.0"
     mapdetail = "25人英雄达摩洞"
+    
+    sql = """DROUP TABLE IF EXISTS HighestDps"""%edition
+    cursor.execute(sql)
 
     sql = """SELECT * FROM ActorStat WHERE edition>='%s' AND win=1"""%edition
     cursor.execute(sql)
