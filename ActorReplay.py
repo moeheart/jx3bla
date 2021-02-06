@@ -252,6 +252,9 @@ class ActorStatGenerator(StatGeneratorBase):
             if self.startTime == 0:
                 self.startTime = int(item[2])
             self.finalTime = int(item[2])
+            
+            if len(item) > 5 and item[5] not in occdict:
+                occdict[item[5]] = ['0']
 
             if item[3] == "1":
                 if item[5] not in namedict:
@@ -940,7 +943,7 @@ class ActorStatGenerator(StatGeneratorBase):
                             self.bossAnalyser.recordDeath(item)
                             
                         if self.yuelinActive:
-                            if deathSource == "未知":
+                            if deathSource == "未知" and self.yuelinSource != "未知" and int(item[2]) - self.yuelinStack[item[4]][1] > 500:
                                 self.yuelinBuff += 1
                                 lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
                                 severe = 1

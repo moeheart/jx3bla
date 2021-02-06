@@ -104,28 +104,51 @@ class MiTaoWindow():
         for i in range(len(self.detail["lead"])):
             rowNum += 1
             single = self.detail["lead"][i]
-        
-            text10 = single[4]
+            
+            text10 = "进雾"
             label10 = tk.Label(frame2, text=text10, height=1)
             label10.grid(row=rowNum, column=0)
-        
-            text11 = "驱散"
+            
+            text11 = single[4]
             label11 = tk.Label(frame2, text=text11, height=1)
             label11.grid(row=rowNum, column=1)
-            color = getColor(single[3])
-            name = single[2]
-            label12 = tk.Label(frame2, text=name, height=1, fg=color)
+            
+            text12 = "驱散"
+            label12 = tk.Label(frame2, text=text12, height=1)
             label12.grid(row=rowNum, column=2)
             
-            text13 = "引导"
+            text13 = single[5]
             label13 = tk.Label(frame2, text=text13, height=1)
             label13.grid(row=rowNum, column=3)
-            color = getColor(single[1])
-            name = single[0]
+            
+            color = getColor(single[3])
+            name = single[2]
             label14 = tk.Label(frame2, text=name, height=1, fg=color)
             label14.grid(row=rowNum, column=4)
-
-
+            
+            text15 = "引导"
+            label15 = tk.Label(frame2, text=text15, height=1)
+            label15.grid(row=rowNum, column=5)
+            
+            text16 = single[6]
+            label16 = tk.Label(frame2, text=text16, height=1)
+            label16.grid(row=rowNum, column=6)
+            
+            color = getColor(single[1])
+            name = single[0]
+            label17 = tk.Label(frame2, text=name, height=1, fg=color)
+            label17.grid(row=rowNum, column=7)
+            
+        for i in range(len(self.detail["punish"])):
+            rowNum += 1
+            
+            text10 = "惩罚"
+            label10 = tk.Label(frame2, text=text10, height=1)
+            label10.grid(row=rowNum, column=0)
+            
+            text11 = self.detail["punish"][i]
+            label11 = tk.Label(frame2, text=text11, height=1)
+            label11.grid(row=rowNum, column=1)
         
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
@@ -242,9 +265,17 @@ class MitaoReplayer(SpecificReplayer):
                     else:
                         purgeName = "未知"
                         purgeOcc = "0"
+                        
+                    line4 = "未知"
+                    if self.dizzyContinueDict[item[4]] > self.startTime:
+                        line4 = parseTime((self.dizzyContinueDict[item[4]] - self.startTime) / 1000)
+                    
                     self.detail["lead"].append([self.namedict[item[4]][0].strip('"'), self.occDetailList[item[4]],
                                                 purgeName, purgeOcc, 
-                                                parseTime((int(item[2]) - self.startTime) / 1000)])
+                                                line4, 
+                                                parseTime((self.lastPurgeTime[item[4]] - self.startTime) / 1000), 
+                                                parseTime((int(item[2]) - self.startTime) / 1000), 
+                                                ])
                                                 
                     if item[4] not in self.leadDict:
                         self.leadDict[item[4]] = []
@@ -272,6 +303,7 @@ class MitaoReplayer(SpecificReplayer):
                 self.dps[purgeRes][9] += 1
                 if self.purgeCounter[item[5]].purgeBuff in ["17767", "17919"]:
                     self.lastPurge[item[5]] = purgeRes
+                    self.lastPurgeTime[item[5]] = int(item[2])
                 
             if item[6] in ["17767", "17919"] and int(item[10]) > 0:
                 self.criticalHealCounter[item[5]].active()
@@ -286,6 +318,7 @@ class MitaoReplayer(SpecificReplayer):
                                          self.bossNamePrint,
                                          "%s进迷雾被魅惑" % lockTime,
                                          ["会计算因引导而被魅惑的情况"]])
+                    self.dizzyContinueDict[item[5]] = int(item[2])
                                          
                 self.dizzyDict[item[5]] = int(item[2])
                     
@@ -315,6 +348,9 @@ class MitaoReplayer(SpecificReplayer):
                 self.win = 1
                 self.countFinal(int(item[2]))
                 
+            if item[4] == '"宓桃大人~我一定帮你除掉他们！"':
+                self.detail["punish"].append(parseTime((int(item[2]) - self.startTime) / 1000))
+                
         elif item[3] == '3': #重伤记录
             if item[4] in self.namedict and self.namedict[item[4]][0] in ['"天欲宫弟子"', '"天欲宫男宠"'] and (item[4] not in self.occdict or self.occdict[item[4]][0] == '0'):
                 self.numSmall -= 1
@@ -341,7 +377,8 @@ class MitaoReplayer(SpecificReplayer):
         
         #宓桃数据格式：
         #4 被控时间; 5 易伤层数; 6 常规阶段dps; 7 小怪阶段dps; 8 引导次数; 9 小怪阶段hps; 10 关键治疗; 11 有效驱散次数
-        #引导：引导ID，驱散ID
+        #引导：引导ID，驱散ID，进雾时间，驱散时间，开始引导时间
+        #惩罚：触发惩罚时间
         
         self.dps = {}
         self.detail["boss"] = "宓桃"
@@ -349,7 +386,9 @@ class MitaoReplayer(SpecificReplayer):
         
         self.leadDict = {}
         self.dizzyDict = {}
+        self.dizzyContinueDict = {} #每次连续的进雾眩晕初始时间
         self.detail["lead"] = []
+        self.detail["punish"] = []
         self.phase = 1
         self.phaseStart = self.startTime
         self.numSmall = 0
@@ -361,12 +400,15 @@ class MitaoReplayer(SpecificReplayer):
         self.criticalHealCounter = {}
         self.buffCounter = {}
         self.lastPurge = {}
+        self.lastPurgeTime = {}
         for line in self.playerIDList:
             self.purgeCounter[line] = PurgeCounter(["17760", "17767", "17919"])
             self.criticalHealCounter[line] = CriticalHealCounter()
             self.dps[line] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             self.buffCounter[line] = BuffCounter(0, self.startTime, self.finalTime)
             self.lastPurge[line] = 0
+            self.lastPurgeTime[line] = 0
+            self.dizzyContinueDict[line] = 0
 
     def __init__(self, playerIDList, mapDetail, res, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
         '''

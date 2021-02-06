@@ -149,6 +149,8 @@ class SingleBossWindow():
             self.final()
             self.bossNum = prevNum
             self.addPotList(self.analyser.potContainer.getBoss(prevNum))
+            a, b, c = self.analyser.potContainer.getDetail(prevNum)
+            self.setDetail(a, b, c)
             self.start()
         else:
             messagebox.showinfo(title='嘶', message='前序BOSS未找到。')
@@ -162,6 +164,8 @@ class SingleBossWindow():
             self.final()
             self.bossNum = nextNum
             self.addPotList(self.analyser.potContainer.getBoss(nextNum))
+            a, b, c = self.analyser.potContainer.getDetail(nextNum)
+            self.setDetail(a, b, c)
             self.start()
         else:
             messagebox.showinfo(title='嘶', message='后继BOSS未找到。')
@@ -235,7 +239,7 @@ class SingleBossWindow():
                 self.scoreList.append(self.potList[i][-1])
                 
         if not self.analyser.checkBossExists(self.bossNum):
-            self.analyser.addResult(self.potListScore, self.bossNum)
+            self.analyser.addResult(self.potListScore, self.bossNum, self.effectiveDPSList, self.detail)
         
         self.analyser.getPlayerPotList()
         
@@ -304,6 +308,8 @@ class SingleBossWindow():
     def __init__(self, analyser, bossNum):
         self.analyser = analyser
         self.bossNum = bossNum
+        self.effectiveDPSList = []
+        self.detail = {}
 
 class LiveActorStatGenerator(ActorStatGenerator):
     
@@ -326,6 +332,17 @@ class PotContainer():
         for line in self.pot:
             result.extend(self.pot[line])
         return result
+        
+    def getDetail(self, bossid):
+        '''
+        查找对应boss的详细记录。
+        return
+        - 分锅与打分的列表，list格式
+        - 战斗复盘中的DPS列表
+        - 战斗复盘中的特定BOSS细节
+        '''
+        bossidStr = str(bossid)
+        return self.pot[bossidStr], self.effectiveDPSList[bossidStr], self.detail[bossidStr]
     
     def getBoss(self, bossid):
         '''
@@ -336,19 +353,26 @@ class PotContainer():
         bossidStr = str(bossid)
         return self.pot[bossidStr]
     
-    def addBoss(self, bossid, potListScore):
+    def addBoss(self, bossid, potListScore, effectiveDPSList=[], detail={}, change=1):
         '''
         当一个BOSS结束时，把分锅记录加入总记录中。
         或是当修改锅时，按对应的bossid取代原有的分锅记录。
         params
         - bossid 按时间顺序的BOSS编号。
         - potListScore 分锅与打分的列表，list格式
+        - effectiveDPSList 战斗复盘中的DPS列表
+        - detail 战斗复盘中的特定BOSS细节
         '''
         bossidStr = str(bossid)
         self.pot[bossidStr] = potListScore
+        if change:
+            self.effectiveDPSList[bossidStr] = effectiveDPSList
+            self.detail[bossidStr] = detail
     
     def __init__(self):
         self.pot = {}
+        self.effectiveDPSList = {}
+        self.detail = {}
 
 class LiveActorAnalysis():
 
@@ -415,14 +439,14 @@ class LiveActorAnalysis():
         self.potContainer.pot[bossidStr][pos][-1] = pot
         
     def changeResult(self, potListScore, bossNum):
-        self.potContainer.addBoss(bossNum, potListScore)
+        self.potContainer.addBoss(bossNum, potListScore, change=0)
         #if len(potListScore) != 0:
         #    del self.potListScore[-len(potListScore):]
         #    self.potListScore.extend(potListScore)
 
-    def addResult(self, potListScore, bossNum):
+    def addResult(self, potListScore, bossNum, effectiveDPSList, detail):
         #self.potListScore.extend(potListScore)
-        self.potContainer.addBoss(bossNum, potListScore)
+        self.potContainer.addBoss(bossNum, potListScore, effectiveDPSList, detail)
         
     def checkBossExists(self, bossNum):
         bossNumStr = str(bossNum)

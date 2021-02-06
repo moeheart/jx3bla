@@ -35,3 +35,59 @@ td {
 	padding-left: 20px;
 	padding-right: 20px;
 }
+
+.playerid{
+	font-weight: bold;
+}
+
+.occ-1, .occ-1d, .occ-1t{
+	color: rgb(210, 180, 0);
+}
+.occ-2, .occ-2d, .occ-2h{
+	color: rgb(127, 31, 223);
+}
+.occ-3, .occ-3d, .occ-3t{
+	color: rgb(160, 0, 0);
+}
+.occ-4, .occ-4p, .occ-4m{
+	color: rgb(56, 175, 255);
+}
+.occ-5, .occ-5d, .occ-5h{
+	color: rgb(255, 127, 255);
+}
+.occ-6, .occ-6d, .occ-6h{
+	color: rgb(63, 31, 159);
+}
+.occ-7, .occ-7p, .occ-7m{
+	color: rgb(0, 133, 144);
+}
+.occ-8{
+	color: rgb(255, 255, 0);
+}
+.occ-9{
+	color: rgb(205, 133, 63);
+}
+.occ-10, .occ-10d, .occ-10t{
+	color: rgb(253, 84, 0);
+}
+.occ-21, .occ-21d, .occ-21t{
+	color: rgb(180, 60, 0);
+}
+.occ-22, .occ-22d, .occ-22h{
+	color: rgb(100, 250, 180);
+}
+.occ-23{
+	color: rgb(71, 73, 166);
+}
+.occ-24{
+	color: rgb(195, 171, 227);
+}
+.occ-25{
+	color: rgb(161, 9, 34);
+}
+.occ-211{
+	color: rgb(166, 83, 251);
+}
+
+
+

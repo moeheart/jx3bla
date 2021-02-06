@@ -90,11 +90,12 @@ class LuaTableAnalyser():
         nowquote = 0
         
         while True:
-        
-            if int(nowi / maxn * 100) > self.lastPercent:
-                self.lastPercent = int(nowi / maxn * 100)
+                    
+            if nowi > self.nextI:
+                self.lastPercent += 1
                 if self.hasWindow:
                     self.window.setNotice({"t2": "已完成：%d%%"%self.lastPercent, "c2": "#0000ff"})
+                self.nextI = int((self.lastPercent + 1) * self.maxn / 100)
 
             c = self.s[nowi]
             if c == "[":
@@ -142,7 +143,9 @@ class LuaTableAnalyser():
     def analyse(self, s):
         self.s = s
         self.lastPercent = 0
-        res, _ = self.parseLuatable(8, len(self.s))
+        self.maxn = len(self.s)
+        self.nextI = int((self.lastPercent + 1) * self.maxn / 100)
+        res, _ = self.parseLuatable(8, self.maxn)
         return res
         
     def __init__(self, window = None):

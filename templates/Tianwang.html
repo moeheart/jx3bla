@@ -7,21 +7,15 @@
 		<div class="notice"> 界面还没有做，先鸽了，咕咕咕。核心逻辑实现了就好啦。 </div>
 		<div class="notice"> 本页面显示了对应角色在剑三警长的统计中，拥有的历史最高DPS。 </div>
 		
+		<div class="map"> 
+			<a href="javascript:setMap('25人普通达摩洞')"> 25人普通达摩洞 </a>
+			<a href="javascript:setMap('25人英雄达摩洞')"> 25人英雄达摩洞 </a>
+		</div>
+		
 		<table id="table">
-		  <tr>
-			<th> 角色名 </th>
-			<th> 地图 </th>
-			<th> 余晖 </th>
-			<th> 宓桃 </th>
-			<th> 武雪散 </th>
-			<th> 猿飞 </th>
-			<th> 哑头陀 </th>
-			<th> 岳琳&岳琅 </th>
-		  </tr>
+		
 		</table>
 		
-		<div class="links" id="links"> </div>
-
 	</body>
 	
 	<script src="../static/jquery-3.3.1.js"></script>
@@ -30,66 +24,82 @@
 		res1 = playerDps.replaceAll('&#39;', '"');
 		res1 = res1.replaceAll('(', "[");
 		res1 = res1.replaceAll(')', "]");
-		res2 = JSON.parse(res1)
-		
-		var table=$("#table");
-		for (var id in res2){
-			console.log(id)
-			var tr = $("<tr></tr>");
-			tr.appendTo(table);
-			dpsList1 = [0, 0, 0, 0, 0, 0]
-			if ("25人普通达摩洞" in res2[id]) {
-				dpsList1 = res2[id]["25人普通达摩洞"];
-			}
-			var td = $("<td>"+id+"</td>");
-			td.appendTo(tr);
-			var td = $("<td>"+"25人普通达摩洞"+"</td>");
-			td.appendTo(tr);
-			for (var j in dpsList1) {
-				var td = $("<td>"+dpsList1[j]+"</td>");
-				td.appendTo(tr);
+		res2 = JSON.parse(res1);
+		dpsTable = []
+		for (id in res2) {
+			var obj = {"name": id};
+			for (map in res2[id]) {
+				obj[map] = res2[id][map];
 			}
 			
-			var tr = $("<tr></tr>");
-			tr.appendTo(table);
-			dpsList1 = [0, 0, 0, 0, 0, 0]
-			if ("25人英雄达摩洞" in res2[id]) {
-				dpsList1 = res2[id]["25人英雄达摩洞"];
+			stdMaps = ["25人普通达摩洞", "25人英雄达摩洞"];
+			for (map in stdMaps) {
+				if (!(stdMaps[map] in obj)) {
+					obj[stdMaps[map]] = [0, 0, 0, 0, 0, 0];
+				}
 			}
-			var td = $("<td>"+""+"</td>");
-			td.appendTo(tr);
-			var td = $("<td>"+"25人英雄达摩洞"+"</td>");
-			td.appendTo(tr);
-			for (var j in dpsList1) {
-				var td = $("<td>"+dpsList1[j]+"</td>");
+			
+			dpsTable.push(obj);
+		}
+		
+		map = "25人普通达摩洞";
+		order = 0;
+		
+		refreshPage();
+		
+		function refreshPage() {
+			var table=$("#table");
+			table.html('');
+			
+			headers = $("<tr></tr>");
+			headers.appendTo(table);
+			
+			var th = $("<th>"+"角色名"+"</th>");
+			th.appendTo(headers);
+			var th = $("<th>"+"地图"+"</th>");
+			th.appendTo(headers);
+			bossName = ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅"];
+			for (i in bossName) {
+				var name = bossName[i];
+				var th = $("<th><a href='javascript:setOrder("+ i + ")'>"+name+"</a></th>");
+				th.appendTo(headers);
+			}
+			
+			dpsTable.sort(function(x, y){return y[map][order] - x[map][order]});
+			
+			for (i in dpsTable) {
+				dpsItem = dpsTable[i];
+				//console.log(id);
+				var tr = $("<tr></tr>");
+				tr.appendTo(table);
+				dpsList1 = [0, 0, 0, 0, 0, 0]
+				if (map in dpsItem) {
+					dpsList1 = dpsItem[map];
+				}
+				var td = $("<td>"+dpsItem["name"]+"</td>");
+				td.addClass("occ-"+dpsItem["occ"]);
+				td.addClass("playerid");
+				
 				td.appendTo(tr);
-			}
-
-		}
-		
-		
-		/*
-		var table=$("#table");
-		for (var i in res2){
-			var tr = $("<tr></tr>");
-			tr.appendTo(table);
-			for (var j in res2[i]) {
-				if (j < 6) {
-					var td = $("<td>"+res2[i][j]+"</td>");
-					td.appendTo(tr);
-				}
-				else {
-					var td = $("<td><a href='http://139.199.102.41:8009/XiangZhiData/png?key="+res2[i][j]+"'>链接</td>");
+				var td = $("<td>"+map+"</td>");
+				td.appendTo(tr);
+				for (var j in dpsList1) {
+					var td = $("<td>"+dpsList1[j]+"</td>");
 					td.appendTo(tr);
 				}
 			}
+			
 		}
 		
-		var links=$("#links");
-		for (var i = 1; i <= {{pagenum}}; i++){
-			var a = $("<a href='/XiangZhiTable.html?order={{order}}&map=25人英雄达摩洞&&page="+i+"'> "+i+" </a>");
-			a.appendTo(links);
+		function setMap(s) {
+			map = s;
+			refreshPage();
 		}
-		*/
+		
+		function setOrder(s) {
+			order = s;
+			refreshPage();
+		}
+		
 	</script>
 </html>
