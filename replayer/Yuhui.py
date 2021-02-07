@@ -107,7 +107,7 @@ class YuHuiWindow():
                 name = single[2][j][1]
                 label33 = tk.Label(frame2, text=name, width = 8, height=1, fg=color)
                 label33.grid(row=rowNum, column=2+j)
-        
+       
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
         #window.mainloop()
