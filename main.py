@@ -741,6 +741,7 @@ class XiangZhiScore():
                 HPSList = [[2000, 0], [8000, 2], [15000, 4]]
             elif id == 6:
                 HPSList = [[2000, 0], [9000, 3], [18000, 7]]
+            hps = self.data.healTable[id - 1][1] + self.data.healTable[id - 1][5]
         elif self.mapdetail == "25人英雄达摩洞":
             if id == 1:
                 HPSList = [[1000, 0], [7000, 3], [14000, 5]]
@@ -1431,6 +1432,8 @@ class XiangZhiAnalysis():
                 for i in range(len(allInfo["npcHealList"][j])):
                     #print(allInfo["npcHealList"])
                     allInfo["npcHealList"][j][i][2] = self.getMaskName(allInfo["npcHealList"][j][i][2])
+        for i in range(len(allInfo["healList"])):
+            allInfo["healList"][i][0] = self.getMaskName(allInfo["healList"][i][0])
         result["statistics"] = allInfo
 
         result["id"] = self.getMaskName(result["id"])

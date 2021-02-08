@@ -271,7 +271,7 @@ class YuanfeiReplayer(SpecificReplayer):
 
         for i in range(1, 5):
             phaseTime[i] = (self.phaseFinal[i] - self.phaseStart[i]) / 1000
-            if phaseTime[i] < 0:
+            if phaseTime[i] <= 0:
                 phaseTime[i] = 1e+20
   
         bossResult = []
@@ -422,7 +422,7 @@ class YuanfeiReplayer(SpecificReplayer):
             if item[4] == '"呃啊...啊，这双腿...还是...大不如....从前了...."':
                 self.phase = 0
                 self.phaseFinal[self.phaseStep] = int(item[2])
-                if self.phaseStep == 4: #防止将自动刷新的战斗记录识别为通关
+                if self.phaseStep == 4 or self.mapDetail != "25人英雄达摩洞": #防止将自动刷新的战斗记录识别为通关
                     self.win = 1
                 
             if "睁大你的眼睛！" in item[4] or "看看老子这招！" in item[4] or "来尝尝老子的气劲！" in item[4] or "能接下老子这招么？" in item[4]:
