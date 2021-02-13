@@ -282,6 +282,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                             data.npchealstat[item[4]] = int(item[12])
                         else:
                             data.npchealstat[item[4]] += int(item[12])
+                        #print(data.npchealstat)
 
                 # if item[7] == "14231": #梅花三弄
                 #    data.numshield += 1

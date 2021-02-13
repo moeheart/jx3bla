@@ -646,7 +646,9 @@ class ActorStatGenerator(StatGeneratorBase):
                             deathHitDetail[item[4]].append([int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13]), item[4]])
 
                     if item[4] in self.playerIDList and int(item[11]) == 0 and item[5] in namedict and namedict[item[5]][0].strip('"') in self.bossNameDict:
-                        if self.firstHitList[item[4]] == 0:
+                        if item[7] in ["2516"]:
+                            pass
+                        elif self.firstHitList[item[4]] == 0:
                             self.firstHitList[item[4]] = [int(item[2]), skilldict[item[9]][0][""][0].strip('"'), "", 0]
                         elif self.firstHitList[item[4]][1][0] == '#' and self.firstHitList[item[4]][2] == "":
                             if skilldict[item[9]][0][""][0].strip('"')[0] != "#":

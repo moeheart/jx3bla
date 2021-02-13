@@ -7,6 +7,7 @@ import time
 import tkinter as tk
 from tkinter import messagebox
 from win10toast import ToastNotifier
+import pyperclip
 
 from ActorReplay import ActorStatGenerator
 from replayer.Base import SpecificBossWindow
@@ -129,6 +130,12 @@ class SingleBossWindow():
         toopTip = ToolTip(self.toolTips[tmp].widget, text)
         self.toolTips[tmp] = toopTip
         
+    def copyPot(self, tmp):
+        text = self.potList[tmp][4]
+        player = self.potList[tmp][0].strip('"')
+        copyText = "[%s]：%s"%(player, text)
+        pyperclip.copy(copyText)
+        messagebox.showinfo(title='提示', message='复制成功！')
         
     def final(self):
         '''
@@ -211,17 +218,17 @@ class SingleBossWindow():
         window = tk.Toplevel()
         #window = tk.Tk()
         window.title('战斗复盘')
-        window.geometry('600x700')
+        window.geometry('650x700')
         
         numPot = len(self.potList)
         self.numPot = numPot
         
-        canvas=tk.Canvas(window,width=550,height=500,scrollregion=(0,0,530,numPot*30)) #创建canvas
+        canvas=tk.Canvas(window,width=600,height=500,scrollregion=(0,0,580,numPot*30)) #创建canvas
         canvas.place(x = 25, y = 25) #放置canvas的位置
         frame=tk.Frame(canvas) #把frame放在canvas里
-        frame.place(width=530, height=500) #frame的长宽，和canvas差不多的
+        frame.place(width=580, height=500) #frame的长宽，和canvas差不多的
         vbar=tk.Scrollbar(canvas,orient=tk.VERTICAL) #竖直滚动条
-        vbar.place(x = 530,width=20,height=500)
+        vbar.place(x = 580,width=20,height=500)
         vbar.configure(command=canvas.yview)
         canvas.config(yscrollcommand=vbar.set) #设置  
         canvas.create_window((265,numPot*15), window=frame)  #create_window
@@ -272,6 +279,8 @@ class SingleBossWindow():
             button1.grid(row=i, column=3)
             button2 = tk.Button(frame, text='领赏', width=6, height=1, command=lambda tmp=tmp: self.getPot(tmp, 1), bg='#ccffcc')
             button2.grid(row=i, column=4)
+            button3 = tk.Button(frame, text='复制', width=6, height=1, command=lambda tmp=tmp: self.copyPot(tmp), bg='#ccccff')
+            button3.grid(row=i, column=5)
             
             text = self.analyser.getPlayerText(name)
             toolTip = ToolTip(nameLabel, text)

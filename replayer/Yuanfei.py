@@ -338,6 +338,30 @@ class YuanfeiReplayer(SpecificReplayer):
         if item[3] == '1':  # 技能
 
             if self.occdict[item[5]][0] != '0':
+                        
+                if item[7] == "24590":
+                    self.shanTuiID = item[5]
+                    self.shanTuiTime = int(item[2])
+                        
+                if item[7] == "24648":
+                    self.shanTuiLog.append([int(item[2]), self.namedict[item[5]][0].strip('"'), self.occdict[item[5]][0]])
+                    
+                if self.shanTuiTime != 0 and int(item[2]) - self.shanTuiTime > 5000:
+                    shanTuiVictims = ["受害者名单："]
+                    numVictims = 0
+                    for i in range(len(self.shanTuiLog)):
+                        line = self.shanTuiLog[i]
+                        numVictims += 1
+                        shanTuiVictims.append(line[1])
+                    if numVictims > 0:
+                        self.potList.append([self.namedict[self.shanTuiID][0],
+                                             self.occdict[self.shanTuiID][0],
+                                             1,
+                                             self.bossNamePrint,
+                                             "%s闪腿害人：%d个" %(parseTime((int(item[2]) - self.startTime - 5000)/1000), numVictims),
+                                             shanTuiVictims])
+                    self.shanTuiLog = []
+                    self.shanTuiTime = 0
             
                 healRes = self.criticalHealCounter[item[5]].recordHeal(item)
                 if healRes != {}:
@@ -484,6 +508,10 @@ class YuanfeiReplayer(SpecificReplayer):
         
         self.criticalHealCounter = {}
         self.buffCounter = {}
+        
+        self.shanTuiID = ""
+        self.shanTuiTime = 0
+        self.shanTuiLog = []
         
         self.playerBallDict = {}
         for line in self.playerIDList:

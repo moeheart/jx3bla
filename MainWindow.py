@@ -119,7 +119,7 @@ class MainWindow():
             except:
                 print("文件读取错误，稍后重试……")
                 traceback.print_exc()
-        self.setNotice({"t1": "选项设置完成，开始实时模式……", "c1": "#000000"})
+        self.setNotice({"t1": "选项设置完成，开始实时模式……", "c1": "#000000", "t2": "开启成功！", "c2": "#00ff00"})
         #print("由于图标设置异常，请忽略与jx3bla.ico相关的报错，其对使用不会产生实质性影响。")
         toaster = ToastNotifier()
         toaster.show_toast("选项设置完成", "选项验证正确，可以在游戏中开战并分锅啦~", icon_path='jx3bla.ico')
