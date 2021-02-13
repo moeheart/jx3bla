@@ -43,7 +43,7 @@ def RefreshDps():
              map VARCHAR(32),
              boss VARCHAR(32),
              severe INT, 
-             pot VARCHAR(64),
+             pot VARCHAR(64)
              ) DEFAULT CHARSET utf8mb4"""
     cursor.execute(sql)
 
