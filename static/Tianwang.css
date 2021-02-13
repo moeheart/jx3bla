@@ -1,3 +1,8 @@
+.hidden{
+	display: none;
+}
+
+
 .title{
 	font-size: 32px;
 	margin: auto;
@@ -38,6 +43,19 @@ td {
 
 .playerid{
 	font-weight: bold;
+}
+
+.pot-hidden{
+	background-color: #ccffff;
+	font-size: 12px;
+}
+
+.pot-header{
+	font-size: 16px;
+}
+
+.severe-0{
+	color: #777777;
 }
 
 .occ-1, .occ-1d, .occ-1t{

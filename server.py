@@ -93,24 +93,36 @@ def Tianwang():
     cursor = db.cursor()
 
     playerDps = {}
+    playerPot = {}
 
     ids_split = ids.split(' ')
     for id in ids_split:
-        sql = '''SELECT occ, map, boss, dps from HighestDps WHERE server = "%s" and player = "%s"'''%(server, id)
+        sql = '''SELECT occ, map, boss, dps, num from HighestDps WHERE server = "%s" and player = "%s"'''%(server, id)
         cursor.execute(sql)
         result = cursor.fetchall()
         playerDps[id] = {}
         for line in result:
             playerDps[id]["occ"] = line[0]
             if line[1] not in playerDps[id]:
-                playerDps[id][line[1]] = [0, 0, 0, 0, 0, 0]
+                playerDps[id][line[1]] = [0, 0, 0, 0, 0, 0, 0]
             if line[2] in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅"]:
                 bossNum = {"余晖": 0, "宓桃": 1, "武雪散": 2, "猿飞": 3, "哑头陀": 4, "岳琳&岳琅": 5}[line[2]]
                 playerDps[id][line[1]][bossNum] = line[3]
+                playerDps[id][line[1]][6] += line[4]
+                
+        sql = '''SELECT occ, map, boss, battledate, severe, pot from PotHistory WHERE server = "%s" and player = "%s"'''%(server, id)
+        cursor.execute(sql)
+        result = cursor.fetchall()   
+        playerPot[id] = {}
+        for line in result:
+            if line[1] not in playerPot[id]:
+                playerPot[id][line[1]] = []
+            if line[2] in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅"]:
+                playerPot[id][line[1]].append([line[2], line[3], line[4], line[5]])
 
     db.close()
 
-    return render_template("Tianwang.html", playerDps=playerDps, edition=EDITION)
+    return render_template("Tianwang.html", playerDps=playerDps, playerPot=playerPot, edition=EDITION)
         
 @app.route('/XiangZhiTable.html', methods=['GET'])
 def XiangZhiTable():

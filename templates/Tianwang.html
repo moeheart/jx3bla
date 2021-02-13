@@ -21,21 +21,29 @@
 	<script src="../static/jquery-3.3.1.js"></script>
 	<script>
 		playerDps="{{playerDps}}";
+		playerPot="{{playerPot}}";
+		
 		res1 = playerDps.replaceAll('&#39;', '"');
 		res1 = res1.replaceAll('(', "[");
 		res1 = res1.replaceAll(')', "]");
-		res2 = JSON.parse(res1);
+		JplayerDps = JSON.parse(res1);
+		
+		res2 = playerPot.replaceAll('&#39;', '"');
+		res2 = res2.replaceAll('(', "[");
+		res2 = res2.replaceAll(')', "]");
+		JplayerPot = JSON.parse(res2);
+		
 		dpsTable = []
-		for (id in res2) {
+		for (id in JplayerDps) {
 			var obj = {"name": id};
-			for (map in res2[id]) {
-				obj[map] = res2[id][map];
+			for (map in JplayerDps[id]) {
+				obj[map] = JplayerDps[id][map];
 			}
 			
 			stdMaps = ["25人普通达摩洞", "25人英雄达摩洞"];
 			for (map in stdMaps) {
 				if (!(stdMaps[map] in obj)) {
-					obj[stdMaps[map]] = [0, 0, 0, 0, 0, 0];
+					obj[stdMaps[map]] = [0, 0, 0, 0, 0, 0, 0];
 				}
 			}
 			
@@ -45,7 +53,27 @@
 		map = "25人普通达摩洞";
 		order = 0;
 		
+		getPotInfo();
 		refreshPage();
+		
+		function getPotInfo() {
+			playerPotStat = {}
+			for (player in JplayerPot) {
+				playerPotStat[player] = {}
+				for (var map in JplayerPot[player]) {
+					playerPotStat[player][map] = [0, 0]
+					for (var i in JplayerPot[player][map]) {
+						if (JplayerPot[player][map][i][2] == 1) {
+							playerPotStat[player][map][0]++;
+							playerPotStat[player][map][1]++;
+						}
+						else if (JplayerPot[player][map][i][2] == 0) {
+							playerPotStat[player][map][0]++;
+						}
+					}
+				}
+			}
+		}
 		
 		function refreshPage() {
 			var table=$("#table");
@@ -58,17 +86,24 @@
 			th.appendTo(headers);
 			var th = $("<th>"+"地图"+"</th>");
 			th.appendTo(headers);
-			bossName = ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅"];
+			bossName = ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅", "记录数量", "犯错次数", "展开"];
 			for (i in bossName) {
 				var name = bossName[i];
-				var th = $("<th><a href='javascript:setOrder("+ i + ")'>"+name+"</a></th>");
-				th.appendTo(headers);
+				if (i <= 5) {
+					var th = $("<th><a href='javascript:setOrder("+ i + ")'>"+name+"</a></th>");
+					th.appendTo(headers);
+				}
+				else {
+					var th = $("<th>"+name+"</th>");
+					th.appendTo(headers);
+				}
 			}
 			
 			dpsTable.sort(function(x, y){return y[map][order] - x[map][order]});
 			
 			for (i in dpsTable) {
 				dpsItem = dpsTable[i];
+				var name = dpsItem["name"];
 				//console.log(id);
 				var tr = $("<tr></tr>");
 				tr.appendTo(table);
@@ -76,7 +111,7 @@
 				if (map in dpsItem) {
 					dpsList1 = dpsItem[map];
 				}
-				var td = $("<td>"+dpsItem["name"]+"</td>");
+				var td = $("<td>"+name+"</td>");
 				td.addClass("occ-"+dpsItem["occ"]);
 				td.addClass("playerid");
 				
@@ -87,8 +122,68 @@
 					var td = $("<td>"+dpsList1[j]+"</td>");
 					td.appendTo(tr);
 				}
+				
+				if (map in playerPotStat[name]) {
+				
+					var td = $("<td>"+playerPotStat[name][map][0]+"</td>");
+					td.appendTo(tr);
+					
+					var td = $("<td></td>");
+					td.appendTo(tr);
+					
+					var td_a = $("<a id='"+ "expand-" + name +"' href='javascript:expandDetail(\""+ name + "\")'></a>")
+					td_a.html("+");
+					td_a.appendTo(td);
+
+				}
+				
+				else {
+				
+					var td = $("<td>"+"0"+"</td>");
+					td.appendTo(tr);
+					
+				}
+				
+				if (map in playerPotStat[name]) {
+					var tr = $("<tr id='"+ "pot-" + name +"'></tr>");
+					tr.appendTo(table);
+					tr.addClass("pot-hidden");
+					tr.addClass("hidden");
+					
+					var td = $('<td colspan=11></td>');
+					td.appendTo(tr);
+					
+					var div = $("<div></div>")
+					div.appendTo(td);
+					
+					var headerdiv = $("<div>" + "共有" + playerPotStat[name][map][0] + "条犯错记录，其中" + playerPotStat[name][map][1] + "条为严重犯错。" + "</div>");
+					headerdiv.addClass("pot-header")
+					headerdiv.appendTo(div);
+					
+					
+					for (var i in JplayerPot[name][map]) {
+						var record = JplayerPot[name][map][i];
+						if (record[2] > 1) {
+							continue;
+						}
+						var singlediv = $("<div>" + record[1] + " " + record[0] + " " + record[3] + "</div>");
+						singlediv.addClass("severe-"+record[2])
+						singlediv.appendTo(div);
+					}
+				}
 			}
-			
+		}
+		
+		function expandDetail(s){
+			var html = $('#expand-'+s).html();
+			if (html == "+") {
+				$('#pot-'+s).removeClass("hidden");
+				$('#expand-'+s).html("-");
+			}
+			else if (html == "-") {
+				$('#pot-'+s).addClass("hidden");
+				$('#expand-'+s).html("+");
+			}
 		}
 		
 		function setMap(s) {

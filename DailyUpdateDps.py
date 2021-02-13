@@ -96,7 +96,7 @@ def RefreshDps():
             severe = line[2]
             pot = line[4]
             if "小药" not in pot:
-                potServer.append([player, occ, severe, pot])
+                potServer.append([player, occ, severe, pot, battleDate])
 
     for map in dpsAll:
         mapName = {"483":"25人普通达摩洞", "484":"25人英雄达摩洞"}[map]
@@ -119,6 +119,7 @@ def RefreshDps():
                     occ = line[1]
                     severe = line[2]
                     pot = line[3]
+                    battleDate = line[4]
                     sql = """INSERT INTO PotHistory VALUES ("%s", "%s", "%s", "%s", "%s", "%s", %d, "%s")"""%(server, player, occ, battleDate, mapName, boss, severe, pot)
                     cursor.execute(sql)
                 
