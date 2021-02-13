@@ -28,6 +28,7 @@ def RefreshDps():
              occ VARCHAR(32),
              map VARCHAR(32),
              boss VARCHAR(32),
+             num INT, 
              dps INT
              ) DEFAULT CHARSET utf8mb4"""
     cursor.execute(sql)
