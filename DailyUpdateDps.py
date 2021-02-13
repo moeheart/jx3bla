@@ -95,7 +95,7 @@ def RefreshDps():
             occ = line[1]
             severe = line[2]
             pot = line[4]
-            if "小药" not in pot:
+            if "小药" not in pot and "DPS" not in pot:
                 potServer.append([player, occ, severe, pot, battleDate])
 
     for map in dpsAll:
