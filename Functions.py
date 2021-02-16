@@ -37,6 +37,8 @@ def parseEdition(e):
     封装版本号，得到对应的代表数。
     '''
     s = e.split('.')
+    if "beta" in s[2]:
+        return 0
     if len(s) == 3:
         return int(s[0]) * 1000000 + int(s[1]) * 1000 + int(s[2])
     elif len(s) == 2:

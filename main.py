@@ -339,6 +339,8 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                             hpsActive = 0
 
             num += 1
+            
+        self.lastTimeStamp = int(sk[-1][""][1])
 
         skillCounter = SkillCounter(skillLog, self.startTime, self.finalTime, self.speed)
         skillCounter.analysisSkillData()
@@ -1337,14 +1339,14 @@ class XiangZhiAnalysis():
     map = "敖龙岛"
     mapdetail = "未知"
     myname = ""
-    generator = []
-    generator2 = []
     battledate = ""
     mask = 0
     color = 1
     text = 0
     speed = 3770
     pastH = 0
+    #generator = []
+    #generator2 = []
 
     def getMaskName(self, name):
         s = name.strip('"')
@@ -1359,7 +1361,10 @@ class XiangZhiAnalysis():
             if line in self.occdict and self.occdict[line][0].strip('"') != "0":
                 nameList.append(self.namedict[line][0].strip('"'))
         nameList.sort()
-        hashStr = self.battledate + self.mapdetail + self.map + edition + "".join(nameList)
+        
+        hourAndMinute = time.strftime("-%H-%M", time.localtime(self.lastTimeStamp))
+        
+        hashStr = self.battledate + hourAndMinute + self.mapdetail + self.map + "".join(nameList)
         hashres = hashlib.md5(hashStr.encode(encoding="utf-8")).hexdigest()
         return hashres
 
@@ -1467,6 +1472,8 @@ class XiangZhiAnalysis():
                 continue
             res.secondStageAnalysis()
             self.generator.append(res)
+            self.lastTimeStamp = res.lastTimeStamp
+            
             if self.myname == "":
                 self.myname = res.myname
             elif self.myname != res.myname:
@@ -1741,6 +1748,8 @@ class XiangZhiAnalysis():
         self.info = info
 
     def __init__(self, filelist, map, path, config, raw):
+        self.generator = []
+        self.generator2 = []
         self.myname = config.xiangzhiname
         self.mask = config.mask
         self.color = config.color
@@ -1770,9 +1779,6 @@ def replay_by_window(window):
 
     try:
         config = Config("config.ini")
-        #resp = urllib.request.urlopen('http://139.199.102.41:8009/getAnnouncement')
-        #res = json.load(resp)
-        #print(res["announcement"])
 
         fileLookUp = FileLookUp()
 

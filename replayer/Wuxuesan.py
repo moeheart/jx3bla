@@ -1,7 +1,7 @@
 # Created by moeheart at 1/24/2021
 # 武雪散的定制复盘方法库。
 # 武雪散是达摩洞3号首领，复盘主要集中在以下几个方面：
-# （TODO 文档待补充）
+# 鬼门针、穿脊牵肌的伤害及治疗。
 
 from replayer.Base import *
 from replayer.utils import CriticalHealCounter, DpsShiftWindow
@@ -179,7 +179,7 @@ class WuXueSanReplayer(SpecificReplayer):
                         gmzDps[i] = -1
 
                 dps = self.dps[line][0] / self.battleTime
-                bossResult.append([self.namedict[line][0],
+                bossResult.append([self.namedict[line][0].strip('"'),
                                    self.occDetailList[line],
                                    dps, 
                                    0,
@@ -327,7 +327,8 @@ class WuXueSanReplayer(SpecificReplayer):
                     self.criticalHealCounter[item[5]].unactive()
                     
         elif item[3] == '8':
-                
+            if len(item) <= 4:
+                return
             if item[4] == '"出乎意料...你们竟然还未死绝，是我大意了。"':
                 self.qslPhase = 1
                 

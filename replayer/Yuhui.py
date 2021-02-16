@@ -175,7 +175,7 @@ class YuhuiReplayer(SpecificReplayer):
                 P1dps = self.dps[line][2] / P1Time
                 P2dps = self.dps[line][3] / P2Time
                 chongBai = self.playerHitDict[line]["num"]
-                bossResult.append([self.namedict[line][0],
+                bossResult.append([self.namedict[line][0].strip('"'),
                                    self.occDetailList[line],
                                    dps,
                                    0,
@@ -278,6 +278,8 @@ class YuhuiReplayer(SpecificReplayer):
                     self.jiaoshaNum += 1
                     
         elif item[3] == '8':
+            if len(item) <= 4:
+                return
             if item[4] == '"是时候用你们的鲜血来换取最高的欢呼声了！"':
                 self.countHit = 0
             if item[4] == '"不可能！我才是……血斗场的……王者……"':

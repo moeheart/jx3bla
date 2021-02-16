@@ -13,6 +13,7 @@ import hashlib
 import configparser
 import os
 from Constants import *
+from Functions import *
 
 from painter import XiangZhiPainter
 
@@ -241,9 +242,12 @@ def uploadActorData():
     result = cursor.fetchall()
     
     if result and result[0][6] == 1:
-        print("Find Duplicated")
-        db.close()
-        return jsonify({'result': 'dupid'})
+        if parseEdition(result[0][4]) >= parseEdition(edition):
+            print("Find Duplicated")
+            db.close()
+            return jsonify({'result': 'dupid'})
+        else:
+            print("Update edition")
         
     sql = '''DELETE FROM ActorStat WHERE hash = "%s"'''%hash
     cursor.execute(sql)
@@ -297,8 +301,15 @@ def uploadXiangZhiData():
     result = cursor.fetchall()
     
     if result:
-        db.close()
-        return jsonify({'result': 'dupid', 'num': num, 'numOver': numOver})
+        if parseEdition(result[0][5]) >= parseEdition(edition):
+            print("Find Duplicated")
+            db.close()
+            return jsonify({'result': 'dupid', 'num': num, 'numOver': numOver})
+        else:
+            print("Update edition")
+    
+    sql = '''DELETE FROM ActorStat WHERE hash = "%s"'''%hash
+    cursor.execute(sql)
         
     sql = """INSERT INTO XiangZhiStat VALUES ("%s", "%s", %d, "%s", "%s", "%s", "%s", "%s", %d)"""%(
         server, id, score, battleDate, mapDetail, edition, hash, statistics, public)

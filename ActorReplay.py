@@ -19,6 +19,7 @@ from replayer.Yuhui import YuhuiReplayer
 from replayer.Mitao import MitaoReplayer
 from replayer.Wuxuesan import WuXueSanReplayer
 from replayer.Yuanfei import YuanfeiReplayer
+from replayer.Yatoutuo import YatoutuoReplayer
 
 class ActorStatGenerator(StatGeneratorBase):
     yanyeID = {}
@@ -31,7 +32,6 @@ class ActorStatGenerator(StatGeneratorBase):
     baimouID = ""
     anxiaofengActive = 0
     anxiaofengID = ""
-    yuanfeiActive = 0
     yatoutuoActive = 0
     yuelinActive = 0
 
@@ -144,7 +144,11 @@ class ActorStatGenerator(StatGeneratorBase):
             if line in self.occdict and self.occdict[line][0].strip('"') != "0":
                 nameList.append(self.namedict[line][0].strip('"'))
         nameList.sort()
-        hashStr = self.battleDate + self.bossname + self.rawdata['20'][0].strip('"') + EDITION + "".join(nameList)
+        
+        hourAndMinute = time.strftime("-%H-%M", time.localtime(self.lastTimeStamp))
+        
+        hashStr = self.battleDate + hourAndMinute + self.bossname + self.rawdata['20'][0].strip('"') + "".join(nameList)
+        
         hashres = hashlib.md5(hashStr.encode(encoding="utf-8")).hexdigest()
         return hashres
         
@@ -170,6 +174,8 @@ class ActorStatGenerator(StatGeneratorBase):
         refreshThread.start()
 
     def prepareUpload(self):
+        if "beta" in EDITION:
+            return
         result = {}
         server = self.rawdata["19"][0].strip('"')
         result["server"] = server
@@ -309,9 +315,6 @@ class ActorStatGenerator(StatGeneratorBase):
                         
                 if namedict[item[5]][0] == '"岳琳"' and occdict[item[5]][0] == '0':
                     self.yuelinActive = 1
-                        
-                if namedict[item[5]][0] in ['"戏龙珠"'] and occdict[item[5]][0] == '0':
-                    self.longzhuID = item[5]
                     
                 if namedict[item[5]][0] == '"余晖"' and occdict[item[5]][0] == '0':
                    self.bossAnalyseName = "余晖"
@@ -324,7 +327,9 @@ class ActorStatGenerator(StatGeneratorBase):
                     
                 if namedict[item[5]][0] == '"猿飞"' and occdict[item[5]][0] == '0':
                     self.bossAnalyseName = "猿飞"
-                    self.yuanfeiActive = 1
+                    
+                if namedict[item[5]][0] in ['"毗流驮迦"', '"毗留博叉"'] and occdict[item[5]][0] == '0':
+                    self.bossAnalyseName = "哑头陀"
                         
                 if self.yatoutuoActive:
                     if item[7] == "24650":
@@ -417,6 +422,8 @@ class ActorStatGenerator(StatGeneratorBase):
             bossAnalyser = WuXueSanReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
         elif self.bossAnalyseName == "猿飞":
             bossAnalyser = YuanfeiReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "哑头陀":
+            bossAnalyser = YatoutuoReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
         else:
             bossAnalyser = SpecificReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
             
@@ -478,22 +485,10 @@ class ActorStatGenerator(StatGeneratorBase):
             xuelianStamp = 0
             xuelianTime = 0
             xuelianCount = 0
-            
-        '''
-        yuanfeiActive = self.yuanfeiActive
-        if yuanfeiActive:
-            ballDict = {}
-            for line in namedict:
-                if namedict[line][0].strip('"') == "横绝气劲":
-                    ballDict[line] = {"player1": 0, "player2": 0, "time1": 0, "time2": 0, "lastHit": 0, "status": 0}
-            playerBallDict = {}
-            for line in self.playerIDList:
-                playerBallDict[line] = {"score": 0, "log": []}
-        '''
-                
-        
+
         bossAnalyser.initBattle()
             
+        '''
         yatoutuoActive = self.yatoutuoActive
         if yatoutuoActive:
             playerDamageDict = {}
@@ -507,6 +502,7 @@ class ActorStatGenerator(StatGeneratorBase):
                 self.jingshenkuifa[line] = 0
             burstCount = [0] * len(self.burstList)
             nowBurst = 0
+        '''
             
         yuelinActive = self.yuelinActive
         if yuelinActive:
@@ -595,35 +591,6 @@ class ActorStatGenerator(StatGeneratorBase):
                             xuelianStamp = int(item[2])
                     
                     '''
-                    if yuanfeiActive:
-                        if item[7] == "24655" and item[4] in ballDict and int(item[2]) - ballDict[item[4]]["lastHit"] > 500:
-                            if ballDict[item[4]]["player1"] == 0:
-                                ballDict[item[4]]["player1"] = int(item[5])
-                                ballDict[item[4]]["time1"] = int(item[2])
-                                ballDict[item[4]]["lastHit"] = int(item[2])
-                                ballDict[item[4]]["status"] = 1 #传球失败
-                            elif ballDict[item[4]]["player2"] == 0:
-                                ballDict[item[4]]["player2"] = int(item[5])
-                                ballDict[item[4]]["time2"] = int(item[2])
-                                ballDict[item[4]]["lastHit"] = int(item[2])
-                                ballDict[item[4]]["status"] = 2 #射门失败
-                            else:
-                                ballDict[item[4]]["lastHit"] = int(item[2])
-                                ballDict[item[4]]["status"] = 3 #射门传到第三个人
-                        elif item[7] == "25421" and item[4] in ballDict and int(item[2]) - ballDict[item[4]]["lastHit"] > 500 and ballDict[item[4]]["status"] not in [1,2,3]:
-                            if ballDict[item[4]]["player1"] == 0:
-                                ballDict[item[4]]["time1"] = int(item[2])
-                                ballDict[item[4]]["lastHit"] = int(item[2])
-                                ballDict[item[4]]["status"] = 4 #无人接球
-                            elif ballDict[item[4]]["player2"] == 0:
-                                ballDict[item[4]]["time2"] = int(item[2])
-                                ballDict[item[4]]["lastHit"] = int(item[2])
-                                ballDict[item[4]]["status"] = 5 #传球出界
-                            else:
-                                ballDict[item[4]]["lastHit"] = int(item[2])
-                                ballDict[item[4]]["status"] = 6 #射门打偏
-                    '''
-                                
                     if yatoutuoActive:
                         if item[7] == "24650":
                             if int(item[14]) != 0 and nowBurst < len(self.burstList):
@@ -634,6 +601,7 @@ class ActorStatGenerator(StatGeneratorBase):
                                             playerDamageDict[line][nowBurst-1] = 2
                                 playerDamageDict[item[5]][nowBurst] = 1
                                 burstCount[nowBurst] += 1   
+                    '''
 
                 else:
                     calculDPS = 1
@@ -719,26 +687,10 @@ class ActorStatGenerator(StatGeneratorBase):
                             self.dps[item[4]][4] += int(item[14])   
                     
                         '''
-                        elif yuanfeiActive:
-                            if item[7] == "25459" and item[5] in ballDict and int(item[2]) - ballDict[item[5]]["lastHit"] > 500:
-                                if ballDict[item[5]]["player1"] == 0:
-                                    ballDict[item[5]]["player1"] = int(item[4])
-                                    ballDict[item[5]]["time1"] = int(item[2])
-                                    ballDict[item[5]]["lastHit"] = int(item[2])
-                                    ballDict[item[5]]["status"] = 7 #传球成功
-                                elif ballDict[item[5]]["player2"] == 0:
-                                    ballDict[item[5]]["player2"] = int(item[4])
-                                    ballDict[item[5]]["time2"] = int(item[2])
-                                    ballDict[item[5]]["lastHit"] = int(item[2])
-                                    ballDict[item[5]]["status"] = 8 #射门成功
-                                else:
-                                    ballDict[item[5]]["lastHit"] = int(item[2])
-                                    ballDict[item[5]]["status"] = 9 #射门传到第三个人
+                        elif yatoutuoActive:
+                            if item[5] == self.longzhuID and item[7] in ["242", "546", "305", "1613", "2479", "3971", "22341"]:
+                                playerWork[item[4]] += 1
                         '''
-                            
-                    elif yatoutuoActive:
-                        if item[5] == self.longzhuID and item[7] in ["242", "546", "305", "1613", "2479", "3971", "22341"]:
-                            playerWork[item[4]] += 1
                     
                     if calculDPS:
                         if item[4] in self.playerIDList:
@@ -854,7 +806,8 @@ class ActorStatGenerator(StatGeneratorBase):
                                                  ["不间断的减疗只计算一次"]])
                         if stack < 20 and self.jingshenkuifa[item[5]] == 1:
                             self.jingshenkuifa[item[5]] = 0
-                        
+                
+                '''
                 if yatoutuoActive:
                     if item[6] in ["15774", "17200"]:  # buff精神匮乏
                         stack = int(item[10])
@@ -869,6 +822,7 @@ class ActorStatGenerator(StatGeneratorBase):
                                                  ["不间断的减疗只计算一次"]])
                         if stack < 20 and self.jingshenkuifa[item[5]] == 1:
                             self.jingshenkuifa[item[5]] = 0
+                '''
                             
                 if yuelinActive:
                     if item[6] in ["17899"] and int(item[10]) in [8,9]:
@@ -966,9 +920,11 @@ class ActorStatGenerator(StatGeneratorBase):
                                                      self.bossNamePrint,
                                                      "%s，第%d层：%s（推测）" % (lockTime, self.yuelinBuff, self.yuelinSource),
                                                      ["层数从50层开始计算，等效于对结果的影响。", "此条根据重伤记录推测，不一定准确。"]])
-                                         
+                
+                '''
                 if yatoutuoActive:
                     playerInBattle[item[4]] = 0
+                '''
 
             elif item[3] == '8':  # 喊话
                 #print(item)
@@ -1037,17 +993,19 @@ class ActorStatGenerator(StatGeneratorBase):
                     self.win = 1
                     
             elif item[3] == "10": #战斗状态变化
+                '''
                 if yatoutuoActive:
                     if item[8] in self.playerIDList and item[6] == 'true':
                         playerInBattle[item[8]] = 1
+                '''
+                pass
 
             if item[3] == "6" and len(item) > 7 and item[7] == '"乌承恩"':
                 self.win = 1
 
             num += 1
             
-        #if self.bossname in ["哑头陀", "岳琳&岳琅"]:
-        #    self.win = 1
+        self.lastTimeStamp = int(sk[-1][""][1])
 
         yanyeResultList = []
 
@@ -1058,7 +1016,7 @@ class ActorStatGenerator(StatGeneratorBase):
         
         self.battleTime += 1e-10 #防止0战斗时间导致错误
         
-        if self.bossAnalyser.activeBoss in ["余晖", "宓桃", "武雪散", "猿飞"]:
+        if self.bossAnalyser.activeBoss in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀"]:
             effectiveDPSList, potList, detail = self.bossAnalyser.getResult()
             self.potList = potList
             calculDPS = 0
@@ -1179,91 +1137,8 @@ class ActorStatGenerator(StatGeneratorBase):
             self.anxiaofengResult = anxiaofengResult
             
             calculDPS = 0
-            
-            '''
-            elif yuanfeiActive:
-                for line in ballDict:
-                    player1 = str(ballDict[line]["player1"])
-                    player2 = str(ballDict[line]["player2"])
-                    time1 = int(ballDict[line]["time1"])
-                    time2 = int(ballDict[line]["time2"])
-                    if ballDict[line]["status"] == 1:
-                        playerBallDict[player1]["log"].append([time1, "%s手球犯规！"%(parseTime((time1 - self.startTime) / 1000))])
-                        playerBallDict[player1]["score"] -= 2
-                    elif ballDict[line]["status"] == 2:
-                        playerBallDict[player1]["log"].append([time1, "%s传球成功！"%(parseTime((time1 - self.startTime) / 1000))])
-                        playerBallDict[player1]["score"] += 1
-                        playerBallDict[player2]["log"].append([time2, "%s手球犯规！"%(parseTime((time2 - self.startTime) / 1000))])
-                        playerBallDict[player2]["score"] -= 2
-                    elif ballDict[line]["status"] == 3:
-                        playerBallDict[player1]["log"].append([time1, "%s传球成功！"%(parseTime((time1 - self.startTime) / 1000))])
-                        playerBallDict[player1]["score"] += 1
-                        playerBallDict[player2]["log"].append([time2, "%s射门打偏！"%(parseTime((time2 - self.startTime) / 1000))])
-                        playerBallDict[player2]["score"] -= 2
-                    elif ballDict[line]["status"] == 5:
-                        playerBallDict[player1]["log"].append([time1, "%s传球出界！"%(parseTime((time1 - self.startTime) / 1000))])
-                        playerBallDict[player1]["score"] -= 2
-                    elif ballDict[line]["status"] == 6:
-                        playerBallDict[player1]["log"].append([time1, "%s传球成功！"%(parseTime((time1 - self.startTime) / 1000))])
-                        playerBallDict[player1]["score"] += 1
-                        playerBallDict[player2]["log"].append([time2, "%s射门打偏！"%(parseTime((time2 - self.startTime) / 1000))])
-                        playerBallDict[player2]["score"] -= 2
-                    elif ballDict[line]["status"] == 7:
-                        playerBallDict[player1]["log"].append([time1, "%s乌龙球！"%(parseTime((time1 - self.startTime) / 1000))])
-                        playerBallDict[player1]["score"] -= 2
-                    elif ballDict[line]["status"] == 8:
-                        playerBallDict[player1]["log"].append([time1, "%s传球成功！"%(parseTime((time1 - self.startTime) / 1000))])
-                        playerBallDict[player1]["score"] += 1
-                        playerBallDict[player2]["log"].append([time2, "%s射门成功！"%(parseTime((time2 - self.startTime) / 1000))])
-                        playerBallDict[player2]["score"] += 1
-                    elif ballDict[line]["status"] == 9:
-                        playerBallDict[player1]["log"].append([time1, "%s传球成功！"%(parseTime((time1 - self.startTime) / 1000))])
-                        playerBallDict[player1]["score"] += 1
-                        playerBallDict[player2]["log"].append([time2, "%s射门打偏！"%(parseTime((time2 - self.startTime) / 1000))])
-                        playerBallDict[player2]["score"] -= 2
-                
-                playerBallList = []
-                for line in playerBallDict:
-                    if playerBallDict[line]["log"] != []:
-                        playerBallDict[line]["log"].sort(key = lambda x:x[0])
-                        ballActualLog = []
-                        for t in playerBallDict[line]["log"]:
-                            ballActualLog.append(t[1])
-                        playerBallList.append([line, playerBallDict[line]["score"], ballActualLog])
-                playerBallList.sort(key = lambda x:-x[1])
-                scoreRank = 0
-                highScore = 1
-                for i in range(len(playerBallList)):
-                    scoreRank += 1
-                    if scoreRank <= 3 and playerBallList[i][1] > 0:
-                        highScore = playerBallList[i][1]
-                    if scoreRank >= 4:
-                        break
-                for i in range(len(playerBallList)):
-                    id = playerBallList[i][0]
-                    if playerBallList[i][1] >= highScore:
-                        self.potList.append([namedict[id][0],
-                                             occdict[id][0],
-                                             3,
-                                             self.bossNamePrint,
-                                             "踢球得分：%d分，评级：梅西" %playerBallList[i][1],
-                                             playerBallList[i][2]])
-                    elif playerBallList[i][1] >= 0:
-                        self.potList.append([namedict[id][0],
-                                             occdict[id][0],
-                                             0,
-                                             self.bossNamePrint,
-                                             "踢球得分：%d分，评级：正常" %playerBallList[i][1],
-                                             playerBallList[i][2]])
-                    else:
-                        self.potList.append([namedict[id][0],
-                                             occdict[id][0],
-                                             1,
-                                             self.bossNamePrint,
-                                             "踢球得分：%d分，评级：国足" %playerBallList[i][1],
-                                             playerBallList[i][2]])
-            '''
-                                     
+        
+        '''
         elif yatoutuoActive:
             for line in self.playerIDList:
                 if nowBurst < len(playerDamageDict[line]):
@@ -1295,7 +1170,8 @@ class ActorStatGenerator(StatGeneratorBase):
                                          3,
                                          self.bossNamePrint,
                                          "控制戏龙珠，次数：%d" %playerWork[id],
-                                         ["大部分推拉技能都会被计入这项统计中，用于补贴"]]),                                          
+                                         ["大部分推拉技能都会被计入这项统计中，用于补贴"]])
+        '''
                                        
         if calculDPS:
             bossResult = []
@@ -1317,7 +1193,13 @@ class ActorStatGenerator(StatGeneratorBase):
 
         averageDPS = sumDPS / (numDPS + 1e-10)
         
-        if self.playerIDList != {}:
+        skipDPS = 0
+        if self.mapDetail == "25人英雄达摩洞" and self.bossname in ["哑头陀", "岳琳&岳琅"]:
+            skipDPS = 1
+        if self.bossname == "岳琳&岳琅":
+            skipDPS = 1
+        
+        if self.playerIDList != {} and not skipDPS:
             result = {"mapdetail": self.mapDetail, "boss": self.bossname}
             Jdata = json.dumps(result)
             jpost = {'jdata': Jdata}
@@ -1479,6 +1361,7 @@ class ActorStatGenerator(StatGeneratorBase):
             self.alertRate = dpsThreshold["alertRate"]
             self.bonusRate = dpsThreshold["bonusRate"]
         self.getMap()
+        self.lastTimeStamp = 0
         
 class ActorData():
 

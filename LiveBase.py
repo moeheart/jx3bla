@@ -15,6 +15,7 @@ from replayer.Yuhui import YuHuiWindow
 from replayer.Mitao import MiTaoWindow
 from replayer.Wuxuesan import WuXueSanWindow
 from replayer.Yuanfei import YuanFeiWindow
+from replayer.Yatoutuo import YatoutuoWindow
 
 class ToolTip(object):
     def build(self, widget):
@@ -198,6 +199,8 @@ class SingleBossWindow():
                 self.specificBossWindow = WuXueSanWindow(effectiveDPSList, detail)
             elif detail["boss"] == "猿飞":
                 self.specificBossWindow = YuanFeiWindow(effectiveDPSList, detail)
+            elif detail["boss"] == "哑头陀":
+                self.specificBossWindow = YatoutuoWindow(effectiveDPSList, detail)
             else:
                 self.specificBossWindow = SpecificBossWindow()
                 self.hasDetail = 0

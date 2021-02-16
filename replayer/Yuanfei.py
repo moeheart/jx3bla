@@ -1,7 +1,7 @@
 # Created by moeheart at 02/08/2021
 # 猿飞的定制复盘方法库。
 # 猿飞是达摩洞4号首领，复盘主要集中在以下几个方面：
-# （TODO 文档待补充）
+# 踢球、承伤，与常规阶段的治疗。
 
 from replayer.Base import *
 from replayer.utils import CriticalHealCounter
@@ -182,46 +182,6 @@ class YuanfeiReplayer(SpecificReplayer):
         '''
         
         '''
-            for line in ballDict:
-                player1 = str(ballDict[line]["player1"])
-                player2 = str(ballDict[line]["player2"])
-                time1 = int(ballDict[line]["time1"])
-                time2 = int(ballDict[line]["time2"])
-                if ballDict[line]["status"] == 1:
-                    playerBallDict[player1]["log"].append([time1, "%s手球犯规！"%(parseTime((time1 - self.startTime) / 1000))])
-                    playerBallDict[player1]["score"] -= 2
-                elif ballDict[line]["status"] == 2:
-                    playerBallDict[player1]["log"].append([time1, "%s传球成功！"%(parseTime((time1 - self.startTime) / 1000))])
-                    playerBallDict[player1]["score"] += 1
-                    playerBallDict[player2]["log"].append([time2, "%s手球犯规！"%(parseTime((time2 - self.startTime) / 1000))])
-                    playerBallDict[player2]["score"] -= 2
-                elif ballDict[line]["status"] == 3:
-                    playerBallDict[player1]["log"].append([time1, "%s传球成功！"%(parseTime((time1 - self.startTime) / 1000))])
-                    playerBallDict[player1]["score"] += 1
-                    playerBallDict[player2]["log"].append([time2, "%s射门打偏！"%(parseTime((time2 - self.startTime) / 1000))])
-                    playerBallDict[player2]["score"] -= 2
-                elif ballDict[line]["status"] == 5:
-                    playerBallDict[player1]["log"].append([time1, "%s传球出界！"%(parseTime((time1 - self.startTime) / 1000))])
-                    playerBallDict[player1]["score"] -= 2
-                elif ballDict[line]["status"] == 6:
-                    playerBallDict[player1]["log"].append([time1, "%s传球成功！"%(parseTime((time1 - self.startTime) / 1000))])
-                    playerBallDict[player1]["score"] += 1
-                    playerBallDict[player2]["log"].append([time2, "%s射门打偏！"%(parseTime((time2 - self.startTime) / 1000))])
-                    playerBallDict[player2]["score"] -= 2
-                elif ballDict[line]["status"] == 7:
-                    playerBallDict[player1]["log"].append([time1, "%s乌龙球！"%(parseTime((time1 - self.startTime) / 1000))])
-                    playerBallDict[player1]["score"] -= 2
-                elif ballDict[line]["status"] == 8:
-                    playerBallDict[player1]["log"].append([time1, "%s传球成功！"%(parseTime((time1 - self.startTime) / 1000))])
-                    playerBallDict[player1]["score"] += 1
-                    playerBallDict[player2]["log"].append([time2, "%s射门成功！"%(parseTime((time2 - self.startTime) / 1000))])
-                    playerBallDict[player2]["score"] += 1
-                elif ballDict[line]["status"] == 9:
-                    playerBallDict[player1]["log"].append([time1, "%s传球成功！"%(parseTime((time1 - self.startTime) / 1000))])
-                    playerBallDict[player1]["score"] += 1
-                    playerBallDict[player2]["log"].append([time2, "%s射门打偏！"%(parseTime((time2 - self.startTime) / 1000))])
-                    playerBallDict[player2]["score"] -= 2
-            
             playerBallList = []
             for line in playerBallDict:
                 if playerBallDict[line]["log"] != []:
@@ -281,7 +241,7 @@ class YuanfeiReplayer(SpecificReplayer):
                 self.dps[line][2] = self.buffCounter[line].sumTime() / 1000
 
                 dps = int(self.dps[line][0] / self.battleTime)
-                bossResult.append([self.namedict[line][0],
+                bossResult.append([self.namedict[line][0].strip('"'),
                                    self.occDetailList[line],
                                    dps, 
                                    0,
@@ -442,7 +402,8 @@ class YuanfeiReplayer(SpecificReplayer):
                     self.criticalHealCounter[item[5]].unactive()       
                     
         elif item[3] == '8':
-
+            if len(item) <= 4:
+                return
             if item[4] == '"呃啊...啊，这双腿...还是...大不如....从前了...."':
                 self.phase = 0
                 self.phaseFinal[self.phaseStep] = int(item[2])

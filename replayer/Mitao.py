@@ -204,7 +204,7 @@ class MitaoReplayer(SpecificReplayer):
                 self.dps[line][2] = self.buffCounter[line].sumTime() / 1000
             
                 dps = self.dps[line][0] / self.battleTime
-                bossResult.append([self.namedict[line][0],
+                bossResult.append([self.namedict[line][0].strip('"'),
                                    self.occDetailList[line],
                                    dps, 
                                    0, 
@@ -334,6 +334,8 @@ class MitaoReplayer(SpecificReplayer):
                 self.buffCounter[item[5]].setState(int(item[2]), int(item[10]))
                     
         elif item[3] == '8':
+            if len(item) <= 4:
+                return
 
             if item[4] == '"人多的时候更有乐趣，大家一起来嘛~"':
                 self.phase = 2
