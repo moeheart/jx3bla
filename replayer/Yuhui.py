@@ -213,14 +213,20 @@ class YuhuiReplayer(SpecificReplayer):
                     self.playerHitDict[item[5]]["num"] += 3
                     self.playerHitDict[item[5]]["log"].append("%s，血海寒刀：3层"%parseTime((int(item[2]) - self.startTime) / 1000))
                 if item[7] == "24464":
-                    self.playerHitDict[item[5]]["num"] += ultCount
-                    self.playerHitDict[item[5]]["log"].append("%s，摧城盾冲：%d层"%(parseTime((int(item[2]) - self.startTime) / 1000), ultCount))
+                    if item[5] in self.playerUltDict and self.playerUltDict[item[5]]["num"] > 0:
+                        pass
+                    else:
+                        self.playerHitDict[item[5]]["num"] += ultCount
+                        self.playerHitDict[item[5]]["log"].append("%s，摧城盾冲：%d层"%(parseTime((int(item[2]) - self.startTime) / 1000), ultCount))
                 if item[7] in ["24471", "24533"]:
                     self.playerHitDict[item[5]]["num"] += 8
                     self.playerHitDict[item[5]]["log"].append("%s，无尽刀狱：8层"%parseTime((int(item[2]) - self.startTime) / 1000))
                 if item[7] == "24472":
-                    self.playerHitDict[item[5]]["num"] += ultCount
-                    self.playerHitDict[item[5]]["log"].append("%s，寒刃血莲：%d层"%(parseTime((int(item[2]) - self.startTime) / 1000), ultCount))
+                    if item[5] in self.playerUltDict and self.playerUltDict[item[5]]["num"] > 0:
+                        pass
+                    else:
+                        self.playerHitDict[item[5]]["num"] += ultCount
+                        self.playerHitDict[item[5]]["log"].append("%s，寒刃血莲：%d层"%(parseTime((int(item[2]) - self.startTime) / 1000), ultCount))
                 if item[7] == "24497" and self.phase == 1:
                     self.phase = 2
                     self.P1FinalTime = int(item[2])

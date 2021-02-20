@@ -311,14 +311,17 @@ class MitaoReplayer(SpecificReplayer):
                 
                 #魅惑保护，只计算短时间内第一次被魅惑
                 if item[5] not in self.dizzyDict or int(item[2]) - self.dizzyDict[item[5]] > 2000:
-                    lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
-                    self.potList.append([self.namedict[item[5]][0],
-                                         self.occDetailList[item[5]],
-                                         0,
-                                         self.bossNamePrint,
-                                         "%s进迷雾被魅惑" % lockTime,
-                                         ["会计算因引导而被魅惑的情况"]])
-                    self.dizzyContinueDict[item[5]] = int(item[2])
+                    if self.phase == 2 or (int(item[2]) - self.startTime > 80000 and int(item[2]) - self.startTime < 90000):
+                        pass
+                    else:
+                        lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                        self.potList.append([self.namedict[item[5]][0],
+                                             self.occDetailList[item[5]],
+                                             0,
+                                             self.bossNamePrint,
+                                             "%s进迷雾被魅惑" % lockTime,
+                                             ["不会计算因引导而被魅惑的情况，暂时排除了引导阶段与其之前短时间的魅惑统计。"]])
+                        self.dizzyContinueDict[item[5]] = int(item[2])
                                          
                 self.dizzyDict[item[5]] = int(item[2])
                     
