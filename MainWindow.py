@@ -13,7 +13,7 @@ import webbrowser
 
 from FileLookUp import FileLookUp
 from ConfigTools import Config, ConfigWindow, LicenseWindow, AnnounceWindow
-from LiveBase import LiveListener, AllStatWindow, LiveActorAnalysis
+from LiveBase import LiveListener, AllStatWindow, LiveActorAnalysis, SingleBossWindow
 from main import replay_by_window
 from Constants import *
 from Functions import *
@@ -65,6 +65,16 @@ class MainWindow():
         for id in playerIDList:
             if id not in self.playerIDs:
                 self.playerIDs.append(id)
+                
+    def NoticeXiangZhi(self):
+        '''
+        在关底BOSS打完后提醒进行奶歌复盘。由BOSS复盘窗口调用。
+        '''
+        ans = messagebox.askyesno(title='提示', message='副本的关底BOSS已复盘完毕，要进行奶歌复盘吗？')
+        if ans:
+            self.start_replay()
+        else:
+            return
 
     def replay(self):
         replay_by_window(self)
@@ -210,6 +220,13 @@ class MainWindow():
         allStatWindow = AllStatWindow(self.analyser)
         allStatWindow.start()
         
+    def show_last_replay(self):
+        if self.lock.state():
+            return
+        if self.startLive:
+            replayWindow = SingleBossWindow(self.liveListener.analyser, -1, self)
+            replayWindow.constructReplayByNum(-1)
+        
     def show_config(self):
         if self.lock.state():
             return
@@ -271,8 +288,11 @@ class MainWindow():
         text2.pack()
         self.text2 = text2
         
-        b3 = tk.Button(window, text='分锅结果', height=1, command=self.show_history)
+        b3 = tk.Button(window, text='总结', height=1, command=self.show_history)
         b3.place(x = 180, y = 180)
+        
+        b32 = tk.Button(window, text='复盘', height=1, command=self.show_last_replay)
+        b32.place(x = 215, y = 180)
         
         b4 = tk.Button(window, text='设置', height=1, command=self.show_config)
         b4.place(x = 250, y = 180)
@@ -312,6 +332,7 @@ class MainWindow():
         self.startLive = False
         self.lock = SingleBlockLocker()
         self.playerIDs = []
+        self.hasNoticeXiangzhi = 0
         
 if __name__ == "__main__":
     mainWindow = MainWindow()

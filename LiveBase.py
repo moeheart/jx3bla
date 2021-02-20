@@ -4,6 +4,7 @@
 import threading
 import os
 import time
+import traceback
 import tkinter as tk
 from tkinter import messagebox
 from win10toast import ToastNotifier
@@ -148,6 +149,26 @@ class SingleBossWindow():
             self.potListScore.append(self.potList[i] + [self.scoreList[i]])
         self.analyser.changeResult(self.potListScore, self.bossNum)
         self.window.destroy()
+        if "boss" in self.detail and self.detail["boss"] in ["岳琳&岳琅"] and "win" in self.detail and self.detail["win"] == 1:
+            if self.mainwindow.hasNoticeXiangzhi == 0:
+                self.mainwindow.hasNoticeXiangzhi = 1
+                self.mainwindow.NoticeXiangZhi()
+                
+    def constructReplayByNum(self, num):
+        '''
+        根据序号来打开对应的BOSS复盘窗口，要求序号必须合法
+        params
+        - num 对应的序号，如果序号为-1，表示选择最后一个BOSS
+        '''
+        if num == -1:
+            num = self.analyser.getLastBossNum()
+        if num == "None":
+            return
+        self.bossNum = int(num)
+        self.addPotList(self.analyser.potContainer.getBoss(num))
+        a, b, c = self.analyser.potContainer.getDetail(num)
+        self.setDetail(a, b, c)
+        self.start()
         
     def finalPrev(self):
         '''
@@ -156,11 +177,7 @@ class SingleBossWindow():
         prevNum = self.bossNum - 1
         if self.analyser.checkBossExists(prevNum):
             self.final()
-            self.bossNum = prevNum
-            self.addPotList(self.analyser.potContainer.getBoss(prevNum))
-            a, b, c = self.analyser.potContainer.getDetail(prevNum)
-            self.setDetail(a, b, c)
-            self.start()
+            self.constructReplayByNum(prevNum)
         else:
             messagebox.showinfo(title='嘶', message='前序BOSS未找到。')
     
@@ -171,11 +188,7 @@ class SingleBossWindow():
         nextNum = self.bossNum + 1
         if self.analyser.checkBossExists(nextNum):
             self.final()
-            self.bossNum = nextNum
-            self.addPotList(self.analyser.potContainer.getBoss(nextNum))
-            a, b, c = self.analyser.potContainer.getDetail(nextNum)
-            self.setDetail(a, b, c)
-            self.start()
+            self.constructReplayByNum(nextNum)
         else:
             messagebox.showinfo(title='嘶', message='后继BOSS未找到。')
             
@@ -320,9 +333,10 @@ class SingleBossWindow():
     def alive(self):
         return self.windowAlive
 
-    def __init__(self, analyser, bossNum):
+    def __init__(self, analyser, bossNum, mainwindow):
         self.analyser = analyser
         self.bossNum = bossNum
+        self.mainwindow = mainwindow
         self.effectiveDPSList = []
         self.detail = {}
 
@@ -466,6 +480,9 @@ class LiveActorAnalysis():
     def checkBossExists(self, bossNum):
         bossNumStr = str(bossNum)
         return bossNumStr in self.potContainer.pot
+        
+    def getLastBossNum(self):
+        return list(self.potContainer.pot.keys())[-1]
     
     def __init__(self):
         #self.potListScore = []
@@ -482,13 +499,18 @@ class LiveListener():
         battleDate = '-'.join(lastFile.split('-')[0:3])
         liveGenerator = LiveActorStatGenerator([lastFile, 0, 1], basepath, failThreshold=self.config.failThreshold, 
                 battleDate=battleDate, mask=self.config.mask, dpsThreshold=self.dpsThreshold, uploadTiantiFlag=self.config.uploadTianti, window=self.mainwindow)
-                
-        analysisExitCode = liveGenerator.firstStageAnalysis()
-        if analysisExitCode == 1:
-            raise Exception("实时模式下数据格式错误，请再次检查设置。如不能解决问题，尝试重启程序。")
-        liveGenerator.secondStageAnalysis()
-        if liveGenerator.upload:
-            liveGenerator.prepareUpload()
+        
+        try:
+            analysisExitCode = liveGenerator.firstStageAnalysis()
+            if analysisExitCode == 1:
+                raise Exception("实时模式下数据格式错误，请再次检查设置。如不能解决问题，尝试重启程序。")
+            liveGenerator.secondStageAnalysis()
+            if liveGenerator.upload:
+                liveGenerator.prepareUpload()
+        except Exception as e:
+            traceback.print_exc()
+            self.mainwindow.setNotice({"t1": "[%s]分析失败！"%liveGenerator.bossname, "c1": "#000000", "t2": "请保留数据，并反馈给作者~", "c2": "#ff0000"})
+            return
             
         self.bossNum += 1
         
@@ -498,7 +520,7 @@ class LiveListener():
         if self.mainwindow is not None:
             self.mainwindow.setNotice({"t1": "[%s]分析完成！"%liveGenerator.bossname, "c1": "#000000", "t2": ""})
         
-        window = SingleBossWindow(self.analyser, self.bossNum)
+        window = SingleBossWindow(self.analyser, self.bossNum, self.mainwindow)
         self.window = window
         window.addPotList(liveGenerator.potList)
         window.setDetail(liveGenerator.potList, liveGenerator.effectiveDPSList, liveGenerator.detail)
@@ -586,7 +608,8 @@ class AllStatWindow():
                      "22": (100, 250, 180),#长歌
                      "23": (71, 73, 166),#霸刀
                      "24": (195, 171, 227),#蓬莱
-                     "25": (161, 9, 34)#凌雪
+                     "25": (161, 9, 34),#凌雪
+                     "211": (166, 83, 251),#衍天
                     }
         res = (0, 0, 0)
         if occ in colorDict:
@@ -622,7 +645,7 @@ class AllStatWindow():
         使用tkinter绘制复盘窗口。
         '''
         window = tk.Toplevel()
-        window.title('分锅统计')
+        window.title('总结')
         window.geometry('600x700')
         
         numPlayer = len(self.playerID)
@@ -655,8 +678,8 @@ class AllStatWindow():
             
             tmp = i
             # button1 = tk.Button(window, text='调整', width=6)
-            button1 = tk.Button(window, bitmap="warning", text="调整", width=60, height=15, compound=tk.LEFT, command=lambda tmp=tmp: self.getPot(tmp))
-            button1.grid(row=i, column=3)
+            # button1 = tk.Button(window, bitmap="warning", text="调整", width=60, height=15, compound=tk.LEFT, command=lambda tmp=tmp: self.getPot(tmp))
+            # button1.grid(row=i, column=3)
             
             text = self.analyser.getPlayerText(name)
             toopTip = ToolTip(nameLabel, text)
@@ -675,7 +698,7 @@ class AllStatWindow():
         self.windowThread.start()
         
     def addPotList(self):
-        self.potListScore = self.analyser.potListScore
+        self.potListScore = self.analyser.potContainer.getAll()
         self.playerPotList = self.analyser.getPlayerPotList()
         self.playerID = self.analyser.getPlayer()
 
