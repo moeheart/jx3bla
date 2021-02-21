@@ -858,9 +858,12 @@ class ActorStatGenerator(StatGeneratorBase):
                             if deathSource == "杯水留影":
                                 severe = 0
                                 
-                    if deathSource in ["百邪癫狂", "横绝气劲·爆"]:
+                    if "百邪癫狂" in deathSource:
                         severe = 0
-
+                        
+                    if "横绝气劲·爆" in deathSource:
+                        severe = 0
+                    
                     if deathSource == "翩然":
                         deathSource = "推测为摔死"
                         

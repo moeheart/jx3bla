@@ -321,7 +321,7 @@ class MitaoReplayer(SpecificReplayer):
                                              self.bossNamePrint,
                                              "%s进迷雾被魅惑" % lockTime,
                                              ["不会计算因引导而被魅惑的情况，暂时排除了引导阶段与其之前短时间的魅惑统计。"]])
-                        self.dizzyContinueDict[item[5]] = int(item[2])
+                    self.dizzyContinueDict[item[5]] = int(item[2])
                                          
                 self.dizzyDict[item[5]] = int(item[2])
                     

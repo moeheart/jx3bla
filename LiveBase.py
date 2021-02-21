@@ -648,6 +648,8 @@ class AllStatWindow():
         window.title('总结')
         window.geometry('600x700')
         
+        
+        
         numPlayer = len(self.playerID)
         
         i = 0
