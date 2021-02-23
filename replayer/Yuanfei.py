@@ -94,6 +94,8 @@ class YuanFeiWindow():
             label11.grid(row=rowNum, column=0)
             
             for k in [0, 1, 2, 3]:
+                if single[k] == []:
+                    continue
                 text12 = "点名"
                 label12 = tk.Label(frame2, text=text12, height=1)
                 label12.grid(row=rowNum, column=1)
