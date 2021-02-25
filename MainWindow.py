@@ -217,7 +217,7 @@ class MainWindow():
     def show_history(self):
         if self.lock.state():
             return
-        allStatWindow = AllStatWindow(self.analyser)
+        allStatWindow = AllStatWindow(self.analyser, self)
         allStatWindow.start()
         
     def show_last_replay(self):

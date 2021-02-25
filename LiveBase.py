@@ -381,6 +381,15 @@ class PotContainer():
         '''
         bossidStr = str(bossid)
         return self.pot[bossidStr]
+        
+    def getBossName(self, bossid):
+        '''
+        查找对应boss的名称。
+        return
+        - 字符串格式的BOSS名。
+        '''
+        bossidStr = str(bossid)
+        return self.detail[bossidStr]["boss"]
     
     def addBoss(self, bossid, potListScore, effectiveDPSList=[], detail={}, change=1):
         '''
@@ -404,6 +413,18 @@ class PotContainer():
         self.detail = {}
 
 class LiveActorAnalysis():
+
+    def getBossName(self):
+        '''
+        从结果记录中提取所有BOSS的名称，记录为字典形式。
+        return
+        - bossDict key为数字，value为boss名称。
+        '''
+        bossDict = {}
+        lastNum = int(list(self.potContainer.pot.keys())[-1])
+        for i in range(1, lastNum + 1):
+            bossDict[str(i)] = self.potContainer.getBossName(i)
+        return bossDict
 
     def getPlayer(self):
         '''
@@ -634,6 +655,15 @@ class AllStatWindow():
         '''
         pass
         
+    def openBoss(self, bossID):
+        '''
+        打开对应BOSS的复盘界面。
+        params
+        - bossID 需要打开的BOSS的ID。
+        '''
+        replayWindow = SingleBossWindow(self.analyser, bossID, self.mainWindow)
+        replayWindow.constructReplayByNum(bossID)
+        
     def final(self):
         '''
         关闭窗口。
@@ -648,7 +678,19 @@ class AllStatWindow():
         window.title('总结')
         window.geometry('600x700')
         
-        
+        frame1 = tk.Frame(window)
+        frame1.pack()
+
+        bossDict = self.analyser.getBossName()
+        for id in bossDict:
+            idNum = int(id)
+            button = tk.Button(frame1, text=bossDict[id], width=10, height=1, command=lambda idNum=idNum:self.openBoss(idNum))
+            row = (idNum-1) // 6
+            column = (idNum-1) % 6
+            button.grid(row=row, column=column)
+            
+        frame2 = tk.Frame(window)
+        frame2.pack()
         
         numPlayer = len(self.playerID)
         
@@ -663,24 +705,24 @@ class AllStatWindow():
             name = player.strip('"')
             occ = line["occ"]
             color = self.getColor(occ)
-            nameLabel = tk.Label(window, text=name, width = 13, fg=color)
+            nameLabel = tk.Label(frame2, text=name, width = 13, fg=color)
             nameLabel.grid(row=i, column=0)
             
             posNumText = ""
             if line["numPositive"] > 0:
                 posNumText = "+%s"%str(line["numPositive"])
-            positiveLabel = tk.Label(window, text=posNumText, width=5, fg="#007700", font=("Arial", 12, "bold"))
+            positiveLabel = tk.Label(frame2, text=posNumText, width=5, fg="#007700", font=("Arial", 12, "bold"))
             positiveLabel.grid(row=i, column=1)
             
             negNumText = ""
             if line["numNegative"] < 0:
                 negNumText = "%s"%str(line["numNegative"])
-            negativeLabel = tk.Label(window, text=negNumText, width=5, fg="#ff0000", font=("Arial", 12, "bold"))
+            negativeLabel = tk.Label(frame2, text=negNumText, width=5, fg="#ff0000", font=("Arial", 12, "bold"))
             negativeLabel.grid(row=i, column=2)
             
             tmp = i
-            # button1 = tk.Button(window, text='调整', width=6)
-            # button1 = tk.Button(window, bitmap="warning", text="调整", width=60, height=15, compound=tk.LEFT, command=lambda tmp=tmp: self.getPot(tmp))
+            # button1 = tk.Button(frame2, text='调整', width=6)
+            # button1 = tk.Button(frame2, bitmap="warning", text="调整", width=60, height=15, compound=tk.LEFT, command=lambda tmp=tmp: self.getPot(tmp))
             # button1.grid(row=i, column=3)
             
             text = self.analyser.getPlayerText(name)
@@ -690,7 +732,7 @@ class AllStatWindow():
             i += 1
             
         buttonFinal = tk.Button(window, text='查看完成', width=10, height=1, command=self.final)
-        buttonFinal.place(x = 250, y = 640)
+        buttonFinal.place(x = 250, y = 670)
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
         #window.mainloop()
@@ -704,8 +746,9 @@ class AllStatWindow():
         self.playerPotList = self.analyser.getPlayerPotList()
         self.playerID = self.analyser.getPlayer()
 
-    def __init__(self, analyser):
+    def __init__(self, analyser, mainWindow):
         self.analyser = analyser
+        self.mainWindow = mainWindow
         self.addPotList()
         
         

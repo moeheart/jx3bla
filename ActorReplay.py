@@ -1264,6 +1264,8 @@ class ActorStatGenerator(StatGeneratorBase):
                 line.append([])
                 
         detail["win"] = self.win
+        if "boss" not in detail:
+            detail["boss"] = self.bossname
 
         self.data = data
         self.effectiveDPSList = effectiveDPSList
