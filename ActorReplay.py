@@ -527,23 +527,6 @@ class ActorStatGenerator(StatGeneratorBase):
 
             if item[3] == '1':  # 技能
 
-                # 群24105 单24144
-                '''
-                if item[7] in ["24654"]:
-                    print(item)
-                    print(skilldict[item[9]][0][""][0].strip('"'))
-                    
-                #if item[5] in namedict and namedict[item[5]][0].strip('"') == "横绝气劲":
-                #    print(item)
-                #if item[4] in namedict and namedict[item[4]][0].strip('"') == "横绝气劲":
-                #    print(item)
-                if item[4] in namedict and item[5] in namedict:
-                    print(namedict[item[4]], namedict[item[5]])
-                else:
-                    print("未知")
-                print(item)
-                '''
-
                 if occdict[item[5]][0] != '0':
                     data = self.checkFirst(item[5], data, occdict)
                     if item[7] in self.actorSkillList and int(item[10]) != 2:
@@ -860,9 +843,12 @@ class ActorStatGenerator(StatGeneratorBase):
                                 
                     if "百邪癫狂" in deathSource:
                         severe = 0
-                        
                     if "横绝气劲·爆" in deathSource:
                         severe = 0
+                    if "堕天腿" in deathSource:
+                        severe = 0
+                    if "嗔" in deathSource:
+                        severe = 0 
                     
                     if deathSource == "翩然":
                         deathSource = "推测为摔死"

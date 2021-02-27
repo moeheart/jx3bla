@@ -124,6 +124,11 @@ def Tianwang():
     db.close()
 
     return render_template("Tianwang.html", playerDps=playerDps, playerPot=playerPot, edition=EDITION)
+    
+@app.route('/TianwangSearch.html', methods=['GET'])
+def TianwangSearch():
+
+    return render_template("TianwangSearch.html", edition=EDITION)
         
 @app.route('/XiangZhiTable.html', methods=['GET'])
 def XiangZhiTable():

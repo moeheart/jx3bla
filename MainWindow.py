@@ -208,7 +208,9 @@ class MainWindow():
         if self.lock.state():
             return
         if self.playerIDs == []:
-            messagebox.showinfo(title='提示', message='需要有实时战斗记录才能使用天网系统。在目前的版本中，建议取消最短战斗时间限制，使用七苦一乐宝箱作为检测工具。')
+            url = "http://139.199.102.41:8009/TianwangSearch.html"
+            webbrowser.open(url)
+            #messagebox.showinfo(title='提示', message='需要有实时战斗记录才能使用天网系统。在目前的版本中，建议取消最短战斗时间限制，使用七苦一乐宝箱作为检测工具。')
         else:
             ids = "+".join(self.playerIDs)
             url = "http://139.199.102.41:8009/Tianwang.html?server=%s&ids=%s"%(self.server, ids)

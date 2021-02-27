@@ -15,7 +15,7 @@
 	text-align: center;
 }
 
-.map {
+.map, .bottom{
 	text-align: center;
 }
 
@@ -39,6 +39,20 @@ th {
 td {
 	padding-left: 20px;
 	padding-right: 20px;
+}
+
+.content div{
+	margin: auto;
+	width: 400px;
+}
+
+.content{
+	margin: auto;
+}
+
+#ids{
+	width: 300px;
+	height: 200px;
 }
 
 .playerid{
