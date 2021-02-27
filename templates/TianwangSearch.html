@@ -33,7 +33,7 @@
 		function submit(){
 			server = $('#server').val();
 			ids = $('#ids').val();
-			idsSplit = ids.split("/ |\[|\]/");
+			idsSplit = ids.split(/ |\[|\]/);
 			idsConcat = "";
 			for (i in idsSplit){
 				if (idsSplit[i] != "") {
