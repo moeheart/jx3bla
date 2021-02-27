@@ -1,0 +1,52 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="../static/Tianwang.css?v={{EDITION}}" />
+	</head>
+	<body>
+		<div class="title"> 剑三警长-天网 </div>
+		<div class="notice"> 界面还没有做，先鸽了，咕咕咕。核心逻辑实现了就好啦。 </div>
+		
+		<div class="content">
+			<div class="intro"> 请设置需要查询的服务器与角色名。</div>
+			<div class="intro"> 服务器需要是主服务器，例如：天鹅坪。</div>
+			<div class="intro"> 角色名可以是多个（上限：50），用空格或者中括号隔开。</div>
+			<div class="intro"> 例如：[玩家名一][玩家名二][玩家名三]。</div>
+			<div class="intro"> 又例如：玩家名一 玩家名二 玩家名三。</div>
+			<div>
+				服务器
+				<input id="server" type="text" name="server">
+			</div>
+			<div>
+				玩家ID
+				<input id="ids" type="text" name="ids">
+			</div>
+			<div>
+				<input id="submit" type="button" onclick="submit()" value="查询">
+			</div>
+		</div>
+
+		
+	</body>
+	
+	<script src="../static/jquery-3.3.1.js"></script>
+	<script>
+		function submit(){
+			server = $('#server').val();
+			ids = $('#ids').val();
+			idsSplit = ids.split("/ |\[|\]/");
+			idsConcat = "";
+			for (i in idsSplit){
+				if (idsSplit[i] != "") {
+					if (idsConcat == "") {
+						idsConcat = idsSplit[i];
+					}
+					else {
+						idsConcat = idsConcat + '+' + idsSplit[i];
+					}
+				}
+			}
+			window.location.href = "/Tianwang.html?server="+server+"&ids="+idsConcat;
+		}
+		
+	</script>
+</html>
