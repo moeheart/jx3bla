@@ -1331,11 +1331,12 @@ class RawDataParser():
 
         return res
 
-    def __init__(self, filelist, path, window = None):
-        self.rawdata = {}
+    def __init__(self, filelist, path, window = None, raw = {}):
+        self.rawdata = raw
         self.window = window
         for filename in filelist:
-            self.rawdata[filename[0]] = self.parseFile(path, filename[0])
+            if filename[0] not in self.rawdata:
+                self.rawdata[filename[0]] = self.parseFile(path, filename[0])
 
 
 class XiangZhiAnalysis():
@@ -1784,7 +1785,9 @@ class OverallReplayer():
             filelist, allFilelist, map = fileLookUp.getLocalFile()
             print("开始分析。分析耗时可能较长，请耐心等待……")
 
-            if config.actorActive and config.checkAll:
+            if self.useRaw:
+                raw = RawDataParser(filelist, fileLookUp.basepath, window, self.raw).rawdata
+            elif config.actorActive and config.checkAll:
                 raw = RawDataParser(allFilelist, fileLookUp.basepath, window).rawdata
             else:
                 raw = RawDataParser(filelist, fileLookUp.basepath, window).rawdata
@@ -1809,9 +1812,13 @@ class OverallReplayer():
 
         except Exception as e:
             traceback.print_exc()
+            
+    def setRawData(self, raw):
+        self.useRaw = True
+        self.raw = raw
     
     def __init__(self):
-        pass
+        self.useRaw = False
 
 def replay():
 

@@ -66,11 +66,11 @@ class MainWindow():
             if id not in self.playerIDs:
                 self.playerIDs.append(id)
                 
-    def addRawData(self, rawdata):
+    def addRawData(self, filename, rawdata):
         '''
         向主窗体类中加入Rawdata，用于在复盘模式与实时模式中共享数据。
         '''
-        self.rawData.append(rawdata)
+        self.rawData[filename] = rawdata
         
                 
     def NoticeXiangZhi(self):
@@ -85,6 +85,8 @@ class MainWindow():
 
     def replay(self):
         replayer = OverallReplayer()
+        if self.rawData != {}:
+            replayer.setRawData(self.rawData)
         replayer.replay(self) # 此处将MainWindow类本身传入
         self.setNotice({"t1": "复盘完成！", "c1": "#000000", "t2": ""})
 
@@ -343,7 +345,7 @@ class MainWindow():
         self.lock = SingleBlockLocker()
         self.playerIDs = []
         self.hasNoticeXiangzhi = 0
-        self.rawData = []
+        self.rawData = {}
         
 if __name__ == "__main__":
     mainWindow = MainWindow()

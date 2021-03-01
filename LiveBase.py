@@ -528,7 +528,7 @@ class LiveListener():
             liveGenerator.secondStageAnalysis()
             if liveGenerator.upload:
                 liveGenerator.prepareUpload()
-            self.mainwindow.addRawData(liveGenerator.getRawData())
+            self.mainwindow.addRawData(lastFile, liveGenerator.getRawData())
         except Exception as e:
             traceback.print_exc()
             self.mainwindow.setNotice({"t1": "[%s]分析失败！"%liveGenerator.bossname, "c1": "#000000", "t2": "请保留数据，并反馈给作者~", "c2": "#ff0000"})
