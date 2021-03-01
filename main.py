@@ -1,3 +1,6 @@
+# 上古时期文件，主要是难以归类的类、方法。
+# 以后重构，咕咕咕。
+
 import os
 from PIL import Image, ImageFont, ImageDraw
 import numpy as np
@@ -507,7 +510,7 @@ class XiangZhiStatGenerator(StatGeneratorBase):
                 if item[4] not in XiangZhiList and item[7] in ["14231", "14140", "14301"]:
                     XiangZhiList.append(item[4])
                     self.healerDict[item[4]] = 0
-                if item[4] not in self.healerDict and item[7] in ["565", "554", "555", "2232", "6662", "2233", "6675", "2231", "101", "142", "138"]:
+                if item[4] not in self.healerDict and item[7] in ["565", "554", "555", "2232", "6662", "2233", "6675", "2231", "101", "142", "138", "16852", "18864"]:
                     self.healerDict[item[4]] = 0
                 if item[7] == "14231":
                     jingshenkuifaStack = 0
@@ -1770,63 +1773,45 @@ def parseCmdArgs(argv):
     parser.add_argument('--basepath', type=str, help='Set which file to analyse, separated by semicolon.', default='')
     parser.add_argument('--files', type=str, help='Set which file to analyse, separated by semicolon.', default='')
     return parser.parse_args(argv)
+          
+class OverallReplayer():
     
-def replay_by_window(window):
-
-    # Add by KEQX
-    cmdArgs = parseCmdArgs(sys.argv[1:])
-    exitCode = 0
-
-    try:
-        config = Config("config.ini")
-
-        fileLookUp = FileLookUp()
-
-        # Edit by KEQX
-        # 优先级递降：
-        if cmdArgs.basepath != "":
-            print("指定基准目录，使用：%s" % cmdArgs.basepath)
-            fileLookUp.basepath = cmdArgs.basepath
-        else:
+    def replay(self, window):
+        try:
+            config = Config("config.ini")
+            fileLookUp = FileLookUp()
             fileLookUp.initFromConfig(config)
+            filelist, allFilelist, map = fileLookUp.getLocalFile()
+            print("开始分析。分析耗时可能较长，请耐心等待……")
 
-        # Add by KEQX
-        if cmdArgs.files != '':
-            if "/" in cmdArgs.files or "\\" in cmdArgs.files:
-                raise Exception('--files参数是文件名而非路径，不应包含"/"或"\\"')
-            fileLookUp.specifyFiles(cmdArgs.files.split(";"))
-
-        filelist, allFilelist, map = fileLookUp.getLocalFile()
-        print("开始分析。分析耗时可能较长，请耐心等待……")
-
-        if config.actorActive and config.checkAll:
-            raw = RawDataParser(allFilelist, fileLookUp.basepath, window).rawdata
-        else:
-            raw = RawDataParser(filelist, fileLookUp.basepath, window).rawdata
-
-        print("分析数据完毕，开始制图。咕叽咕叽咕叽￣ω￣=")
-        if config.xiangzhiActive:
-            b = XiangZhiAnalysis(filelist, map, fileLookUp.basepath, config, raw)
-            b.analysis()
-            b.paint("result.png")
-            print("奶歌战斗复盘分析完成！结果保存在result.png中")
-            if b.info["uploaded"]:
-                print("可以通过以下链接来查看与分享：http://139.199.102.41:8009/XiangZhiData/png?key=%s" % b.info["hash"])
-            exitCode |= 2  # 第2位设为1
-
-        if config.actorActive:
-            if config.checkAll:
-                c = ActorAnalysis(allFilelist, map, fileLookUp.basepath, config, raw)
+            if config.actorActive and config.checkAll:
+                raw = RawDataParser(allFilelist, fileLookUp.basepath, window).rawdata
             else:
-                c = ActorAnalysis(filelist, map, fileLookUp.basepath, config, raw)
-            c.analysis()
-            c.paint("actor.png")
-            print("演员战斗复盘分析完成！结果保存在actor.png中")
-            exitCode |= 4  # 第3位设为1
+                raw = RawDataParser(filelist, fileLookUp.basepath, window).rawdata
 
-    except Exception as e:
-        traceback.print_exc()
-        exitCode |= 1  # 错误的退出点
+            print("分析数据完毕，开始制图。咕叽咕叽咕叽￣ω￣=")
+            if config.xiangzhiActive:
+                b = XiangZhiAnalysis(filelist, map, fileLookUp.basepath, config, raw)
+                b.analysis()
+                b.paint("result.png")
+                print("奶歌战斗复盘分析完成！结果保存在result.png中")
+                if b.info["uploaded"]:
+                    print("可以通过以下链接来查看与分享：http://139.199.102.41:8009/XiangZhiData/png?key=%s" % b.info["hash"])
+
+            if config.actorActive:
+                if config.checkAll:
+                    c = ActorAnalysis(allFilelist, map, fileLookUp.basepath, config, raw)
+                else:
+                    c = ActorAnalysis(filelist, map, fileLookUp.basepath, config, raw)
+                c.analysis()
+                c.paint("actor.png")
+                print("演员战斗复盘分析完成！结果保存在actor.png中")
+
+        except Exception as e:
+            traceback.print_exc()
+    
+    def __init__(self):
+        pass
 
 def replay():
 

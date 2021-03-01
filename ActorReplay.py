@@ -1279,6 +1279,9 @@ class ActorStatGenerator(StatGeneratorBase):
         #for line in effectiveDPSList:
         #    print(line)
         #print(detail)
+        
+    def getRawData(self):
+        return self.rawdata
 
     def __init__(self, filename, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}, uploadTiantiFlag=0, window=None):
         self.myname = myname

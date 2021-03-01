@@ -1,6 +1,6 @@
 # 剑三警长(原剑网三战斗日志分析、奶歌复盘)
 
-JX3 **B**attle **L**og **A**nalyser v4.1.0
+JX3 **B**attle **L**og **A**nalyser v6.1.0
 
 用于深入分析剑网三中茗伊战斗复盘的框架。
 

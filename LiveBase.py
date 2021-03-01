@@ -342,7 +342,7 @@ class SingleBossWindow():
 
 class LiveActorStatGenerator(ActorStatGenerator):
     
-    def __init__(self, filename, path="", myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}, uploadTiantiFlag=0, window=None):
+    def __init__(self, filename, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}, uploadTiantiFlag=0, window=None):
         super().__init__(filename, path, rawdata={}, failThreshold=failThreshold, 
             battleDate=battleDate, mask=mask, dpsThreshold=dpsThreshold, uploadTiantiFlag=uploadTiantiFlag, window=window)
             
@@ -528,6 +528,7 @@ class LiveListener():
             liveGenerator.secondStageAnalysis()
             if liveGenerator.upload:
                 liveGenerator.prepareUpload()
+            self.mainwindow.addRawData(liveGenerator.getRawData())
         except Exception as e:
             traceback.print_exc()
             self.mainwindow.setNotice({"t1": "[%s]分析失败！"%liveGenerator.bossname, "c1": "#000000", "t2": "请保留数据，并反馈给作者~", "c2": "#ff0000"})

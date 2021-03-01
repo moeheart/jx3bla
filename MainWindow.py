@@ -14,7 +14,7 @@ import webbrowser
 from FileLookUp import FileLookUp
 from ConfigTools import Config, ConfigWindow, LicenseWindow, AnnounceWindow
 from LiveBase import LiveListener, AllStatWindow, LiveActorAnalysis, SingleBossWindow
-from main import replay_by_window
+from main import OverallReplayer
 from Constants import *
 from Functions import *
 from GenerateFiles import *
@@ -66,6 +66,13 @@ class MainWindow():
             if id not in self.playerIDs:
                 self.playerIDs.append(id)
                 
+    def addRawData(self, rawdata):
+        '''
+        向主窗体类中加入Rawdata，用于在复盘模式与实时模式中共享数据。
+        '''
+        self.rawData.append(rawdata)
+        
+                
     def NoticeXiangZhi(self):
         '''
         在关底BOSS打完后提醒进行奶歌复盘。由BOSS复盘窗口调用。
@@ -77,7 +84,8 @@ class MainWindow():
             return
 
     def replay(self):
-        replay_by_window(self)
+        replayer = OverallReplayer()
+        replayer.replay(self) # 此处将MainWindow类本身传入
         self.setNotice({"t1": "复盘完成！", "c1": "#000000", "t2": ""})
 
     def start_replay(self):
@@ -335,6 +343,7 @@ class MainWindow():
         self.lock = SingleBlockLocker()
         self.playerIDs = []
         self.hasNoticeXiangzhi = 0
+        self.rawData = []
         
 if __name__ == "__main__":
     mainWindow = MainWindow()
