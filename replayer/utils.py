@@ -202,6 +202,6 @@ class CriticalHealCounter():
         self.deductStatus = {}
         
         self.activeNum = 0
-        self.expireTime = 99999999999
+        self.expireTime = 0
         
         

@@ -244,7 +244,7 @@ class MitaoReplayer(SpecificReplayer):
                 if healRes != {}:
                     for line in healRes:
                         if line in self.playerIDList:
-                            self.dps[line][8] += healRes[line] 
+                            self.dps[line][8] += healRes[line]
                     #print(int(item[2]) - self.startTime, healRes, self.namedict[item[5]][0], self.criticalHealCounter[item[5]].activeNum)
                     
                 if item[11] != '0' and item[10] != '7': #非化解
