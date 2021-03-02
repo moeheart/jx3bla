@@ -1802,6 +1802,9 @@ class OverallReplayer():
                     print("可以通过以下链接来查看与分享：http://139.199.102.41:8009/XiangZhiData/png?key=%s" % b.info["hash"])
 
             if config.actorActive:
+                window.setRawData(raw)
+                
+                
                 if config.checkAll:
                     c = ActorAnalysis(allFilelist, map, fileLookUp.basepath, config, raw)
                 else:

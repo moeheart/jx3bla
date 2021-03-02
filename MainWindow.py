@@ -82,6 +82,14 @@ class MainWindow():
             self.start_replay()
         else:
             return
+            
+    def setRawData(self, raw):
+        '''
+        将RawData设定为对应的raw。用于复盘模式得到raw数据后向主界面上报。
+        params
+        - raw 对应的raw数据。
+        '''
+        self.rawData = raw
 
     def replay(self):
         replayer = OverallReplayer()
