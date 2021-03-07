@@ -71,7 +71,6 @@ class MainWindow():
         向主窗体类中加入Rawdata，用于在复盘模式与实时模式中共享数据。
         '''
         self.rawData[filename] = rawdata
-        
                 
     def NoticeXiangZhi(self):
         '''
@@ -90,8 +89,23 @@ class MainWindow():
         - raw 对应的raw数据。
         '''
         self.rawData = raw
+        
+    def liveForReplay(self):
+        '''
+        用存储的raw数据复盘进行所有实时模式的复盘。
+        '''
+        if not self.hasReplayed and not self.startLive:
+            self.liveListener.getAllBattleLog(self.fileLookUp.basepath, self.rawData)
+            self.hasReplayed = True
 
     def replay(self):
+        config = Config("config.ini")
+        fileLookUp = FileLookUp()
+        fileLookUp.initFromConfig(config)
+        self.config = config
+        self.fileLookUp = fileLookUp
+        liveListener = LiveListener(self.fileLookUp.basepath, self.config, self.analyser, self)
+        self.liveListener = liveListener
         replayer = OverallReplayer()
         if self.rawData != {}:
             replayer.setRawData(self.rawData)
@@ -174,7 +188,6 @@ class MainWindow():
             self.startLive = True
             fileLookUp = FileLookUp()
             fileLookUp.initFromConfig(config)
-            
             self.config = config
             self.fileLookUp = fileLookUp
             
@@ -243,7 +256,7 @@ class MainWindow():
     def show_last_replay(self):
         if self.lock.state():
             return
-        if self.startLive:
+        if self.startLive or self.hasReplayed:
             replayWindow = SingleBossWindow(self.liveListener.analyser, -1, self)
             replayWindow.constructReplayByNum(-1)
         
@@ -350,6 +363,7 @@ class MainWindow():
     def __init__(self):
         self.analyser = LiveActorAnalysis()
         self.startLive = False
+        self.hasReplayed = False
         self.lock = SingleBlockLocker()
         self.playerIDs = []
         self.hasNoticeXiangzhi = 0

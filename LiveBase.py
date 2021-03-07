@@ -8,6 +8,7 @@ import traceback
 import tkinter as tk
 from tkinter import messagebox
 from win10toast import ToastNotifier
+from Functions import *
 import pyperclip
 
 from ActorReplay import ActorStatGenerator
@@ -17,6 +18,7 @@ from replayer.Mitao import MiTaoWindow
 from replayer.Wuxuesan import WuXueSanWindow
 from replayer.Yuanfei import YuanFeiWindow
 from replayer.Yatoutuo import YatoutuoWindow
+from replayer.Yuelinyuelang import YuelinyuelangWindow
 
 class ToolTip(object):
     def build(self, widget):
@@ -214,6 +216,8 @@ class SingleBossWindow():
                 self.specificBossWindow = YuanFeiWindow(effectiveDPSList, detail)
             elif detail["boss"] == "哑头陀":
                 self.specificBossWindow = YatoutuoWindow(effectiveDPSList, detail)
+            elif detail["boss"] == "岳琳&岳琅":
+                self.specificBossWindow = YuelinyuelangWindow(effectiveDPSList, detail)
             else:
                 self.specificBossWindow = SpecificBossWindow()
                 self.hasDetail = 0
@@ -343,7 +347,7 @@ class SingleBossWindow():
 class LiveActorStatGenerator(ActorStatGenerator):
     
     def __init__(self, filename, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}, uploadTiantiFlag=0, window=None):
-        super().__init__(filename, path, rawdata={}, failThreshold=failThreshold, 
+        super().__init__(filename, path, rawdata=rawdata, failThreshold=failThreshold, 
             battleDate=battleDate, mask=mask, dpsThreshold=dpsThreshold, uploadTiantiFlag=uploadTiantiFlag, window=window)
             
 class PotContainer():
@@ -511,14 +515,36 @@ class LiveActorAnalysis():
 
 class LiveListener():
 
-    def getNewBattleLog(self, basepath, lastFile):
+    def getAllBattleLog(self, basepath, rawData):
         '''
+        复盘模式中对所有战斗记录进行复盘。
         params
-        - basepath: 监控的路径
-        - lastFile: 新增的文件，通常是刚刚完成的战斗复盘
+        - basepath 监控的路径
+        - rawData 字典类型，key为文件名，value为对应的raw数据。
         '''
-        battleDate = '-'.join(lastFile.split('-')[0:3])
-        liveGenerator = LiveActorStatGenerator([lastFile, 0, 1], basepath, failThreshold=self.config.failThreshold, 
+        for fileName in rawData:
+            liveGenerator = self.getOneBattleLog(basepath, fileName, rawData[fileName])
+            potListScore = []
+            for i in range(len(liveGenerator.potList)):
+                if len(liveGenerator.potList[i]) <= 6:
+                    potListScore.append(liveGenerator.potList[i] + [0])
+                else:
+                    potListScore.append(liveGenerator.potList[i])
+            
+            self.analyser.addResult(potListScore, self.bossNum, liveGenerator.effectiveDPSList, liveGenerator.detail)
+
+    def getOneBattleLog(self, basepath, fileName, raw={}):
+        '''
+        在对一条战斗记录进行复盘。
+        params
+        - basepath 监控的路径
+        - lastFile 复盘数据对应的文件名
+        - raw raw文件。如果是实时模式则为空，现场读取；否则从之前的记录中继承。
+        return
+        - liveGenerator 实时复盘对象，用于后续处理流程。
+        '''
+        battleDate = '-'.join(fileName.split('-')[0:3])
+        liveGenerator = LiveActorStatGenerator([fileName, 0, 1], basepath, rawdata=raw, failThreshold=self.config.failThreshold, 
                 battleDate=battleDate, mask=self.config.mask, dpsThreshold=self.dpsThreshold, uploadTiantiFlag=self.config.uploadTianti, window=self.mainwindow)
         
         try:
@@ -528,13 +554,27 @@ class LiveListener():
             liveGenerator.secondStageAnalysis()
             if liveGenerator.upload:
                 liveGenerator.prepareUpload()
-            self.mainwindow.addRawData(lastFile, liveGenerator.getRawData())
+            if liveGenerator.win:
+                self.mainwindow.addRawData(fileName, liveGenerator.getRawData())
+            else:
+                DestroyRaw(liveGenerator.getRawData())
         except Exception as e:
             traceback.print_exc()
             self.mainwindow.setNotice({"t1": "[%s]分析失败！"%liveGenerator.bossname, "c1": "#000000", "t2": "请保留数据，并反馈给作者~", "c2": "#ff0000"})
-            return
+            return liveGenerator
             
         self.bossNum += 1
+        self.mainwindow.setTianwangInfo(liveGenerator.ids, liveGenerator.server)
+        return liveGenerator
+
+    def getNewBattleLog(self, basepath, lastFile):
+        '''
+        实时模式中复盘战斗记录，并控制窗口弹出、数据记录。
+        params
+        - basepath: 监控的路径
+        - lastFile: 新增的文件，通常是刚刚完成的战斗复盘
+        '''
+        liveGenerator = self.getOneBattleLog(basepath, lastFile)
         
         if self.window is not None and self.window.alive():
             self.window.final()
@@ -547,8 +587,6 @@ class LiveListener():
         window.addPotList(liveGenerator.potList)
         window.setDetail(liveGenerator.potList, liveGenerator.effectiveDPSList, liveGenerator.detail)
         window.start()
-        
-        self.mainwindow.setTianwangInfo(liveGenerator.ids, liveGenerator.server)
         
         toaster = ToastNotifier()
         toaster.show_toast("分锅结果已生成", "[%s]的战斗复盘已经解析完毕，请打开结果界面分锅。"%liveGenerator.bossname, icon_path='jx3bla.ico')

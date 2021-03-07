@@ -20,6 +20,7 @@ from replayer.Mitao import MitaoReplayer
 from replayer.Wuxuesan import WuXueSanReplayer
 from replayer.Yuanfei import YuanfeiReplayer
 from replayer.Yatoutuo import YatoutuoReplayer
+from replayer.Yuelinyuelang import YuelinyuelangReplayer
 
 class ActorStatGenerator(StatGeneratorBase):
     yanyeID = {}
@@ -312,12 +313,9 @@ class ActorStatGenerator(StatGeneratorBase):
                     if self.yatoutuoActive == 0:
                         self.yatoutuoActive = 1
                         self.burstList = []
-                        
-                if namedict[item[5]][0] == '"岳琳"' and occdict[item[5]][0] == '0':
-                    self.yuelinActive = 1
-                    
+   
                 if namedict[item[5]][0] == '"余晖"' and occdict[item[5]][0] == '0':
-                   self.bossAnalyseName = "余晖"
+                    self.bossAnalyseName = "余晖"
                    
                 if namedict[item[5]][0] == '"宓桃"' and occdict[item[5]][0] == '0':
                     self.bossAnalyseName = "宓桃"
@@ -330,6 +328,9 @@ class ActorStatGenerator(StatGeneratorBase):
                     
                 if namedict[item[5]][0] in ['"毗流驮迦"', '"毗留博叉"'] and occdict[item[5]][0] == '0':
                     self.bossAnalyseName = "哑头陀"
+                    
+                if namedict[item[5]][0] == '"岳琳"' and occdict[item[5]][0] == '0':
+                    self.bossAnalyseName = "岳琳&岳琅"
                         
                 if self.yatoutuoActive:
                     if item[7] == "24650":
@@ -424,6 +425,8 @@ class ActorStatGenerator(StatGeneratorBase):
             bossAnalyser = YuanfeiReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
         elif self.bossAnalyseName == "哑头陀":
             bossAnalyser = YatoutuoReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "岳琳&岳琅":
+            bossAnalyser = YuelinyuelangReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
         else:
             bossAnalyser = SpecificReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
             
@@ -489,21 +492,6 @@ class ActorStatGenerator(StatGeneratorBase):
         bossAnalyser.initBattle()
             
         '''
-        yatoutuoActive = self.yatoutuoActive
-        if yatoutuoActive:
-            playerDamageDict = {}
-            playerWork = {}
-            playerInBattle = {}
-            self.jingshenkuifa = {}
-            for line in self.playerIDList:
-                playerDamageDict[line] = [0] * len(self.burstList)
-                playerWork[line] = 0
-                playerInBattle[line] = 1
-                self.jingshenkuifa[line] = 0
-            burstCount = [0] * len(self.burstList)
-            nowBurst = 0
-        '''
-            
         yuelinActive = self.yuelinActive
         if yuelinActive:
             self.yuelinBuff = 50
@@ -513,6 +501,7 @@ class ActorStatGenerator(StatGeneratorBase):
                 self.yuelinStack[line] = [0, 0]
             self.yuelinTime = 0
             detail["boss"] = "岳琳&岳琅"
+        '''
 
         if not self.lastTry:
             self.finalTime -= self.failThreshold * 1000
@@ -778,7 +767,8 @@ class ActorStatGenerator(StatGeneratorBase):
                                                  ["不间断的减疗只计算一次"]])
                         if stack < 20 and self.jingshenkuifa[item[5]] == 1:
                             self.jingshenkuifa[item[5]] = 0
-                            
+                
+                '''
                 if yuelinActive:
                     if item[6] in ["17899"] and int(item[10]) in [8,9]:
                         lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
@@ -814,6 +804,7 @@ class ActorStatGenerator(StatGeneratorBase):
                                                          ["层数从50层开始计算，等效于对结果的影响。"]])
                             self.yuelinStack[item[5]][0] = int(item[10])
                             self.yuelinStack[item[5]][1] = int(item[2])
+                '''
 
 
             elif item[3] == '3':  # 重伤记录
@@ -868,9 +859,10 @@ class ActorStatGenerator(StatGeneratorBase):
                                              "%s重伤，来源：%s" % (deathTime, deathSource),
                                              deathSourceDetail])
                                              
-                        if self.bossAnalyser.activeBoss == "余晖":
-                            self.bossAnalyser.recordDeath(item)
-                            
+                        if self.bossAnalyser.activeBoss in ["余晖", "岳琳&岳琅"]:
+                            self.bossAnalyser.recordDeath(item, deathSource)
+                        
+                        '''
                         if self.yuelinActive:
                             if deathSource == "未知" and self.yuelinSource != "未知" and int(item[2]) - self.yuelinStack[item[4]][1] > 500:
                                 cycleTime = 1
@@ -894,11 +886,7 @@ class ActorStatGenerator(StatGeneratorBase):
                                                          self.bossNamePrint,
                                                          "%s，第%d层：%s（推测）" % (lockTime, self.yuelinBuff, self.yuelinSource),
                                                          ["层数从50层开始计算，等效于对结果的影响。", "此条根据重伤记录推测，不一定准确。"]])
-                
-                '''
-                if yatoutuoActive:
-                    playerInBattle[item[4]] = 0
-                '''
+                        '''
 
             elif item[3] == '8':  # 喊话
                 #print(item)
@@ -938,6 +926,7 @@ class ActorStatGenerator(StatGeneratorBase):
                         sideTime += 20
                         guishouTime += 20
                         
+                '''
                 if yuelinActive:
                     if item[4] in ['"飞隼！"', '"狂雁！"', '"落鹰！"', '"伏鹫！"']:
                         self.yuelinSource = item[4].strip('"')
@@ -945,6 +934,7 @@ class ActorStatGenerator(StatGeneratorBase):
                     if item[4] in ['"让冰冷与黑暗吞噬你们……"']:
                         self.yuelinSource = "未知"
                         self.yuelinTime = int(item[2])
+                '''
                 
                 if item[4] in ['"可恶…"',
                                '"哈哈哈哈哈，一群蠢货！手刃好友的滋味如何？"',
@@ -958,13 +948,6 @@ class ActorStatGenerator(StatGeneratorBase):
                                '"…… …… ……"',
                                '"情况不太对……咳咳……"',  # 驺吾没有通关喊话，暂时以这句话代替
                                '"三千世界生死限，九天有苍十方剑！"',  # 方有崖暂时以这句话代替
-                               #'"不可能！我才是……血斗场的……王者……"', #余晖通关喊话
-                               #'"咳咳，不打了，我还不想现在死，咱们来日方长……"', #宓桃通关喊话
-                               #'"能和妾身玩这么久的人你们还是第一个，不过妾身一心只惦记着小将军……"', #宓桃25人通关喊话
-                               #'"想不到我武雪散竟亡于这……畜生道……可悲啊……"', #武雪散通关喊话
-                               #'"呃啊...啊，这双腿...还是...大不如....从前了...."', #猿飞通关喊话
-                               '"…… …… …… ……"', #哑头陀通关喊话
-                               '"你们竟敢染指琅弟心中所好，通通该死！"', #岳琳&岳琅通关喊话
                                ]:
                     self.win = 1
                     
@@ -987,7 +970,7 @@ class ActorStatGenerator(StatGeneratorBase):
         
         self.battleTime += 1e-10 #防止0战斗时间导致错误
         
-        if self.bossAnalyser.activeBoss in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀"]:
+        if self.bossAnalyser.activeBoss in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅"]:
             effectiveDPSList, potList, detail = self.bossAnalyser.getResult()
             self.potList = potList
             calculDPS = 0

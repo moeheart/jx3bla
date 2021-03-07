@@ -188,11 +188,12 @@ class YuhuiReplayer(SpecificReplayer):
         
         return self.effectiveDPSList, self.potList, self.detail
         
-    def recordDeath(self, item):
+    def recordDeath(self, item, deathSource):
         '''
         在有玩家重伤时记录狂热值的额外代码。
         params
         - item 复盘数据，意义同茗伊复盘。
+        - deathSource 重伤来源。
         '''
         if self.countHit:
             self.playerHitDict[item[4]]["num"] += 10

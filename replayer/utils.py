@@ -17,6 +17,9 @@ class DpsShiftWindow():
         '''
         处理一条战斗记录。
         '''
+        if item[7] in ["25445"]:
+            return 0
+        
         # 处理战斗记录本身
         if item[4] in self.damage:
             self.damage[item[4]] += int(item[14])
@@ -50,7 +53,7 @@ class DpsShiftWindow():
             
         #判断是否出现停手
         self.stopped = 0
-        if self.initialized and self.damageA / self.damageB < self.rate:
+        if self.initialized and self.damageA / (self.damageB + 1e-10) < self.rate:
             self.stopped = 1
         
         return self.stopped
@@ -127,7 +130,7 @@ class CriticalHealCounter():
         '''
         设定关键治疗的过期时间。
         '''
-        if time > self.expireTime:
+        if time > self.expireTime or time == -1:
             self.expireTime = time
     
     def recordHeal(self, item):
@@ -135,7 +138,7 @@ class CriticalHealCounter():
         记录对应的item中的治疗量。
         这里的item必须经过检验，确定是技能类别。
         '''
-        if int(item[2]) > self.expireTime:
+        if int(item[2]) > self.expireTime and self.expireTime != -1:
             self.unactive()
         
         if not self.activeNum:

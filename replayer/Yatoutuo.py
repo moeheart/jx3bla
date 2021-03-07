@@ -1,9 +1,7 @@
 # Created by moeheart at 02/14/2021
 # 哑头陀的定制复盘方法库。
 # 哑头陀是达摩洞5号首领，复盘主要集中在以下几个方面：
-# (TODO)
-
-# 被控时间、真假剑1、打醒迷神钉、机甲详细复盘
+# 被控时间、真假剑、打醒迷神钉(TODO)、机甲详细复盘
 
 from replayer.Base import *
 from replayer.utils import CriticalHealCounter

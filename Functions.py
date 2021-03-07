@@ -75,6 +75,12 @@ def concatDict(d1, d2):
             d[key] = d2[key]
     return d
     
+def DestroyRaw(raw):
+    '''
+    销毁一个raw数据以释放内存。
+    '''
+    raw['16'] = []
+    
 class LuaTableAnalyser():
     '''
     Lua Table到python dict的解析类，中间维护一个显示百分比的算法。

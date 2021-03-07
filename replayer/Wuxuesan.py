@@ -315,6 +315,7 @@ class WuXueSanReplayer(SpecificReplayer):
                     self.gmzNum += 1
                     self.gmzSet.append(item[5])
                     self.criticalHealCounter[item[5]].active()
+                    self.criticalHealCounter[item[5]].setCriticalTime(-1)
                     self.gmzProtectTime = int(item[2])
                 
                 elif int(item[10]) == 0: #鬼门针消失

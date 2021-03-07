@@ -1800,11 +1800,12 @@ class OverallReplayer():
                 print("奶歌战斗复盘分析完成！结果保存在result.png中")
                 if b.info["uploaded"]:
                     print("可以通过以下链接来查看与分享：http://139.199.102.41:8009/XiangZhiData/png?key=%s" % b.info["hash"])
-
+            
             if config.actorActive:
                 window.setRawData(raw)
+                window.liveForReplay()
                 
-                
+            '''
                 if config.checkAll:
                     c = ActorAnalysis(allFilelist, map, fileLookUp.basepath, config, raw)
                 else:
@@ -1812,6 +1813,7 @@ class OverallReplayer():
                 c.analysis()
                 c.paint("actor.png")
                 print("演员战斗复盘分析完成！结果保存在actor.png中")
+            '''
 
         except Exception as e:
             traceback.print_exc()

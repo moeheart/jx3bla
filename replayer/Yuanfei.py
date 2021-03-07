@@ -342,6 +342,11 @@ class YuanfeiReplayer(SpecificReplayer):
                     self.ballDict[item[4]]["kick"].append(["", "0", int(item[2]), 3]) #3代表爆炸
                     
                 if item[7] == "24646": #堕天腿
+                    if self.duotianNum in [1,2,3]:
+                        for i in range(self.duotianNum, 4):
+                            self.detail["duotian"][-1][i].append(["0", "未知", "0"])
+                        self.duotianNum = 4
+                        
                     if int(item[2]) - self.duotianTime > 500 and self.duotianNum in [4,5,6,7]:
                         self.duotianNum += 1
                     if self.duotianNum >= 5:
@@ -400,6 +405,7 @@ class YuanfeiReplayer(SpecificReplayer):
             if item[6] == "17699":
                 if int(item[10]) == 1:
                     self.criticalHealCounter[item[5]].active()
+                    self.criticalHealCounter[item[5]].setCriticalTime(-1)
                 elif int(item[10]) == 0:
                     self.criticalHealCounter[item[5]].unactive()       
                     
