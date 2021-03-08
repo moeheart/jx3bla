@@ -89,9 +89,15 @@ class MiTaoWindow():
             label7.grid(row=i+1, column=6)
             label8 = tk.Label(frame1, text=int(self.effectiveDPSList[i][8]), height=1)
             label8.grid(row=i+1, column=7)
-            label9 = tk.Label(frame1, text=int(self.effectiveDPSList[i][9]), height=1)
+            color = "#000000"
+            if self.effectiveDPSList[i][9] > 0 and getOccType(self.effectiveDPSList[i][1]) == "healer":
+                color = "#00ff00"
+            label9 = tk.Label(frame1, text=int(self.effectiveDPSList[i][9]), height=1, fg=color)
             label9.grid(row=i+1, column=8)
-            label10 = tk.Label(frame1, text=int(self.effectiveDPSList[i][10]), height=1)
+            color = "#000000"
+            if self.effectiveDPSList[i][10] > 0 and getOccType(self.effectiveDPSList[i][1]) == "healer":
+                color = "#00ff00"
+            label10 = tk.Label(frame1, text=int(self.effectiveDPSList[i][10]), height=1, fg=color)
             label10.grid(row=i+1, column=9)
             label11 = tk.Label(frame1, text=int(self.effectiveDPSList[i][11]), height=1)
             label11.grid(row=i+1, column=10)

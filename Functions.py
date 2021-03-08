@@ -161,6 +161,21 @@ class LuaTableAnalyser():
         if window is not None:
             self.hasWindow = True
             self.window = window
+            
+def getOccType(occ):
+    '''
+    根据门派获取团队定位(dps/T/奶)
+    params
+    - occ 门派代码。
+    return
+    - 字符串，为tank/dps/healer之一。
+    '''
+    if occ in ['1t', '3t', '10t', '21t']:
+        return "tank"
+    elif occ in ['2h', '5h', '6h', '22h']:
+        return "healer"
+    else:
+        return "dps"
     
 def getColor(occ):
     '''
