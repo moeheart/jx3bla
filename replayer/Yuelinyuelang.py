@@ -344,7 +344,10 @@ class YuelinyuelangReplayer(SpecificReplayer):
                 return
                 
             if item[6] in ["17899", "17732"]:
-                self.buffCounter[item[5]].setState(int(item[2]), int(item[10]))
+                layer = int(item[10])
+                if layer > 1:
+                    layer = 1
+                self.buffCounter[item[5]].setState(int(item[2]), layer)
                 
             if item[6] in ["17899"]:
                 if self.dps[item[5]][7] == 0:
