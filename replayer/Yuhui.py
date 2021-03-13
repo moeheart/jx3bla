@@ -57,8 +57,16 @@ class YuHuiWindow():
             label1.grid(row=i+1, column=0)
             label2 = tk.Label(frame1, text=int(self.effectiveDPSList[i][2]), height=1)
             label2.grid(row=i+1, column=1)
-            label3 = tk.Label(frame1, text=parseCent(self.effectiveDPSList[i][3], 0) + '%', height=1)
+            
+            if getOccType(self.effectiveDPSList[i][1]) != "healer":
+                text3 = str(self.effectiveDPSList[i][3]) + '%'
+                color3 = "#000000"
+            else:
+                text3 = self.effectiveDPSList[i][3]
+                color3 = "#00ff00"
+            label3 = tk.Label(frame1, text=text3, height=1, fg=color3)
             label3.grid(row=i+1, column=2)
+            
             label4 = tk.Label(frame1, text=int(self.effectiveDPSList[i][4]), height=1)
             label4.grid(row=i+1, column=3)
             label5 = tk.Label(frame1, text=int(self.effectiveDPSList[i][5]), height=1)
@@ -171,14 +179,18 @@ class YuhuiReplayer(SpecificReplayer):
         
         for line in self.playerIDList:
             if line in self.dps:
-                dps = self.dps[line][0] / self.battleTime
-                P1dps = self.dps[line][2] / P1Time
-                P2dps = self.dps[line][3] / P2Time
+                dps = int(self.dps[line][0] / self.battleTime)
+                P1dps = int(self.dps[line][2] / P1Time)
+                P2dps = int(self.dps[line][3] / P2Time)
                 chongBai = self.playerHitDict[line]["num"]
+                
+                if getOccType(self.occDetailList[line]) == "healer":
+                    self.dps[line][1] = int(self.hps[line] / self.battleTime)
+
                 bossResult.append([self.namedict[line][0].strip('"'),
                                    self.occDetailList[line],
                                    dps,
-                                   0,
+                                   self.dps[line][1],
                                    P1dps,
                                    P2dps,
                                    chongBai
@@ -207,6 +219,11 @@ class YuhuiReplayer(SpecificReplayer):
         '''
         if item[3] == '1':  # 技能
             if self.occdict[item[5]][0] != '0':
+            
+                if item[11] != '0' and item[10] != '7': #非化解
+                    if item[4] in self.playerIDList:
+                        self.hps[item[4]] += int(item[12])
+            
                 ultCount = 2
                 if self.mapDetail == "25人英雄达摩洞":
                     ultCount = 5
@@ -312,12 +329,14 @@ class YuhuiReplayer(SpecificReplayer):
         self.win = 0
         
         self.dps = {}
+        self.hps = {}
         self.playerHitDict = {}
         self.playerUltDict = {}
         for line in self.playerIDList:
             self.playerHitDict[line] = {"num": 0, "log": []}
             self.playerUltDict[line] = {"num": 0, "log": []}
             self.dps[line] = [0, 0, 0, 0, 0]
+            self.hps[line] = 0
         self.countHit = 1
         
         #余晖数据格式：

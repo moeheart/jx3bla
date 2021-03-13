@@ -88,8 +88,16 @@ class YuelinyuelangWindow():
             label1.grid(row=i+1, column=0)
             label2 = tk.Label(frame1, text=int(self.effectiveDPSList[i][2]), height=1)
             label2.grid(row=i+1, column=1)
-            label3 = tk.Label(frame1, text=parseCent(self.effectiveDPSList[i][3], 0) + '%', height=1)
+            
+            if getOccType(self.effectiveDPSList[i][1]) != "healer":
+                text3 = str(self.effectiveDPSList[i][3]) + '%'
+                color3 = "#000000"
+            else:
+                text3 = self.effectiveDPSList[i][3]
+                color3 = "#00ff00"
+            label3 = tk.Label(frame1, text=text3, height=1, fg=color3)
             label3.grid(row=i+1, column=2)
+            
             label4 = tk.Label(frame1, text=int(self.effectiveDPSList[i][4]), height=1)
             label4.grid(row=i+1, column=3)
             label5 = tk.Label(frame1, text=int(self.effectiveDPSList[i][5]), height=1)
@@ -100,7 +108,14 @@ class YuelinyuelangWindow():
             label7.grid(row=i+1, column=6)
             label8 = tk.Label(frame1, text=int(self.effectiveDPSList[i][8]), height=1)
             label8.grid(row=i+1, column=7)
-            label9 = tk.Label(frame1, text=int(self.effectiveDPSList[i][9]), height=1)
+            
+            color = "#000000"
+            if int(self.effectiveDPSList[i][9]) == 0:
+                color = ConvertRgbToStr((160, 160, 160))
+            else:
+                n = (int(self.effectiveDPSList[i][9]) - 1) * 12
+                color = ConvertRgbToStr((n, n, n))
+            label9 = tk.Label(frame1, text=int(self.effectiveDPSList[i][9]), height=1, fg=color)
             label9.grid(row=i+1, column=8)
             label10 = tk.Label(frame1, text=int(self.effectiveDPSList[i][10]), height=1)
             label10.grid(row=i+1, column=9)
@@ -112,9 +127,17 @@ class YuelinyuelangWindow():
             label13.grid(row=i+1, column=12)
             label14 = tk.Label(frame1, text=int(self.effectiveDPSList[i][14]), height=1)
             label14.grid(row=i+1, column=13)
-            label15 = tk.Label(frame1, text=int(self.effectiveDPSList[i][15]), height=1)
+            
+            color = "#000000"
+            if self.effectiveDPSList[i][15] > 0 and getOccType(self.effectiveDPSList[i][1]) == "healer":
+                color = "#00ff00"
+            label15 = tk.Label(frame1, text=int(self.effectiveDPSList[i][15]), height=1, fg=color)
             label15.grid(row=i+1, column=14)
-            label16 = tk.Label(frame1, text=int(self.effectiveDPSList[i][16]), height=1)
+            
+            color = "#000000"
+            if self.effectiveDPSList[i][16] > 0 and getOccType(self.effectiveDPSList[i][1]) == "healer":
+                color = "#00ff00"
+            label16 = tk.Label(frame1, text=int(self.effectiveDPSList[i][16]), height=1, fg=color)
             label16.grid(row=i+1, column=15)
             
         frame2 = tk.Frame(window)
@@ -141,7 +164,12 @@ class YuelinyuelangWindow():
                 
                 columnNum += 1
                 text12 = log[1]
-                label12 = tk.Label(frame2, text=text12, height=1)
+                color = "#000000"
+                if text12 == "爆杀":
+                    color = "#ff0000"
+                elif text12 == "留痕":
+                    color = "#0000ff"
+                label12 = tk.Label(frame2, text=text12, height=1, fg=color)
                 label12.grid(row=rowNum, column=columnNum)
         
         self.window = window
@@ -198,12 +226,15 @@ class YuelinyuelangReplayer(SpecificReplayer):
             if line in self.dps:
 
                 self.dps[line][2] = self.buffCounter[line].sumTime() / 1000
+                
+                if getOccType(self.occDetailList[line]) == "healer":
+                    self.dps[line][1] = int(self.hps[line] / self.battleTime)
 
                 dps = int(self.dps[line][0] / self.battleTime)
                 bossResult.append([self.namedict[line][0].strip('"'),
                                    self.occDetailList[line],
                                    dps, 
-                                   0,
+                                   self.dps[line][1],
                                    self.dps[line][2],
                                    int(self.dps[line][3] / (phaseTime[1] + phaseTime[2])),
                                    int(self.dps[line][4] / phaseTime[2]),
@@ -263,6 +294,10 @@ class YuelinyuelangReplayer(SpecificReplayer):
 
             if self.occdict[item[5]][0] != '0':
             
+                if item[11] != '0' and item[10] != '7': #非化解
+                    if item[4] in self.playerIDList:
+                        self.hps[item[4]] += int(item[12])
+            
                 healRes = self.criticalHealCounter[item[5]].recordHeal(item)
                 if healRes != {}:
                     if self.phase == 2:
@@ -289,6 +324,20 @@ class YuelinyuelangReplayer(SpecificReplayer):
                     elif item[7] == "25427":
                         self.kongjianNum[item[4]] = 0
                         self.detail["kongjian"][item[4]]["log"].append([parseTime((int(item[2]) - self.startTime)/1000), "留痕"])
+                        
+                if item[7] in ["24670"]:
+                    if self.citieNum >= 1:
+                        self.citieNum = 0
+                        lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                        
+                        for i in range(2):
+                            id = self.citieID[i]
+                            self.potList.append([self.namedict[id][0],
+                                                 self.occDetailList[id],
+                                                 1,
+                                                 self.bossNamePrint,
+                                                 "%s，磁铁爆炸" % (lockTime),
+                                                 ["磁力引爆时，两方都会计入犯错记录中。"]])
                     
             else:
             
@@ -370,6 +419,25 @@ class YuelinyuelangReplayer(SpecificReplayer):
                                      self.bossNamePrint,
                                      "%s传功失败：%d层" % (lockTime, int(item[10])),
                                      ["8层以下通常为纯演员，建议分锅。"]])
+                                     
+            if item[6] in ["17732"]:
+                if int(item[10]) == 1:
+                    if self.citieNum < 2:
+                        self.citieID[self.citieNum] = item[5]
+                        self.citieTime[item[5]] = int(item[2])
+                        self.citieNum += 1
+                
+                elif int(item[10]) == 0:
+                    if self.citieNum > 0:
+                        self.citieNum -= 1
+                        if int(item[2]) - self.citieTime[item[5]] < 18500 and self.citieNum == 0:
+                            lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                            self.potList.append([self.namedict[item[5]][0],
+                                                 self.occDetailList[item[5]],
+                                                 0,
+                                                 self.bossNamePrint,
+                                                 "%s，磁铁解早" % lockTime,
+                                                 ["解磁铁的时间小于18.5秒，并且是后解的一方。"]])
 
             if self.mapDetail == "25人英雄达摩洞":
                 if item[6] in ["17675"]:
@@ -388,10 +456,8 @@ class YuelinyuelangReplayer(SpecificReplayer):
                                                  ["层数从50层开始计算，等效于对结果的影响。"]])
                     self.yuelinStack[item[5]][0] = int(item[10])
                     self.yuelinStack[item[5]][1] = int(item[2])
-                
                     
         elif item[3] == '8':
-            #print(item)
         
             if len(item) <= 4:
                 return
@@ -469,6 +535,7 @@ class YuelinyuelangReplayer(SpecificReplayer):
         #4 被控时间 5 常规BOSS 6 蟊贼DPS 7 传功DPS 8 莽夫DPS 9 传功顺序 10 P4DPS 11 P4停手1 12 P4停手2 13 P4停手3 14 P4爆发 15 P2关键治疗量 16 P4关键治疗量
         
         self.dps = {}
+        self.hps = {}
         self.detail["boss"] = "岳琳&岳琅"
         self.win = 0
         self.phase = 0
@@ -500,14 +567,20 @@ class YuelinyuelangReplayer(SpecificReplayer):
         self.criticalHealCounter = {}
         self.buffCounter = {}
         
+        self.citieTime = {}
+        self.citieNum = 0
+        self.citieID = ["0", "0"]
+        
         for line in self.playerIDList:
             self.dps[line] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            self.hps[line] = 0
             self.buffCounter[line] = BuffCounter(0, self.startTime, self.finalTime)
             self.criticalHealCounter[line] = CriticalHealCounter()
             if self.occDetailList[line] in ['1t', '3t', '10t', '21t']:
                 self.criticalHealCounter[line].active()
                 self.criticalHealCounter[line].setCriticalTime(-1)
             self.kongjianNum[line] = 0
+            self.citieTime[line] = 0
         
 
     def __init__(self, playerIDList, mapDetail, res, occDetailList, startTime, finalTime, battleTime, bossNamePrint):

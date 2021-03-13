@@ -85,8 +85,16 @@ class YatoutuoWindow():
             label1.grid(row=i+1, column=0)
             label2 = tk.Label(frame1, text=int(self.effectiveDPSList[i][2]), height=1)
             label2.grid(row=i+1, column=1)
-            label3 = tk.Label(frame1, text=parseCent(self.effectiveDPSList[i][3], 0) + '%', height=1)
+            
+            if getOccType(self.effectiveDPSList[i][1]) != "healer":
+                text3 = str(self.effectiveDPSList[i][3]) + '%'
+                color3 = "#000000"
+            else:
+                text3 = self.effectiveDPSList[i][3]
+                color3 = "#00ff00"
+            label3 = tk.Label(frame1, text=text3, height=1, fg=color3)
             label3.grid(row=i+1, column=2)
+            
             label4 = tk.Label(frame1, text=int(self.effectiveDPSList[i][4]), height=1)
             label4.grid(row=i+1, column=3)
             label5 = tk.Label(frame1, text=int(self.effectiveDPSList[i][5]), height=1)
@@ -235,13 +243,16 @@ class YatoutuoReplayer(SpecificReplayer):
         for line in self.playerIDList:
             if line in self.dps:
 
-                self.dps[line][2] = self.buffCounter[line].sumTime() / 1000
+                self.dps[line][2] = int(self.buffCounter[line].sumTime() / 1000)
+                
+                if getOccType(self.occDetailList[line]) == "healer":
+                    self.dps[line][1] = int(self.hps[line] / self.battleTime)
 
                 dps = int(self.dps[line][0] / self.battleTime)
                 bossResult.append([self.namedict[line][0].strip('"'),
                                    self.occDetailList[line],
                                    dps, 
-                                   0,
+                                   self.dps[line][1],
                                    self.dps[line][2],
                                    int(self.dps[line][3] / phaseTime[1]),
                                    int(self.dps[line][4] / phaseTime[2]),
@@ -269,6 +280,10 @@ class YatoutuoReplayer(SpecificReplayer):
         if item[3] == '1':  # 技能
 
             if self.occdict[item[5]][0] != '0':
+                if item[11] != '0' and item[10] != '7': #非化解
+                    if item[4] in self.playerIDList:
+                        self.hps[item[4]] += int(item[12])
+            
                 if item[7] == "24650":
                     if int(item[14]) != 0:
                     
@@ -444,6 +459,7 @@ class YatoutuoReplayer(SpecificReplayer):
         #机甲：玩家ID、门派；每个阶段的时间、伞击数量、挥拳数量
         
         self.dps = {}
+        self.hps = {}
         self.detail["boss"] = "哑头陀"
         self.detail["jijia"] = {"player": ["未知", "0"], "action": [[0, 0, 0], [0, 0, 0], [0, 0, 0]]}
         self.win = 0
@@ -480,6 +496,7 @@ class YatoutuoReplayer(SpecificReplayer):
         self.hexinNum = 0
         for line in self.playerIDList:
             self.dps[line] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            self.hps[line] = 0
             self.buffCounter[line] = BuffCounter(0, self.startTime, self.finalTime)
             self.playerWork[line] = 0
             self.jingshenkuifa[line] = 0

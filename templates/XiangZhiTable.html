@@ -28,9 +28,9 @@
 	<script src="../static/jquery-3.3.1.js"></script>
 	<script>
 		result="{{result}}";
-		res1 = result.replaceAll('&#39;', '"');
-		res1 = res1.replaceAll('(', "[");
-		res1 = res1.replaceAll(')', "]");
+		res1 = result.replace(/&#39;/g, '"');
+		res1 = res1.replace(/\(/g, "[");
+		res1 = res1.replace(/\)/g, "]");
 		res2 = JSON.parse(res1)
 		
 		var table=$("#table");

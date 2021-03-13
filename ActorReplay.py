@@ -975,6 +975,7 @@ class ActorStatGenerator(StatGeneratorBase):
             self.potList = potList
             calculDPS = 0
             self.win = self.bossAnalyser.win
+            recordGORate = 1
 
         if yanyeActive:
             for line in yanyeDPS:
@@ -1118,7 +1119,7 @@ class ActorStatGenerator(StatGeneratorBase):
         if self.bossname == "岳琳&岳琅":
             skipDPS = 1
         
-        if self.playerIDList != {} and not skipDPS:
+        if self.playerIDList != {}:
             result = {"mapdetail": self.mapDetail, "boss": self.bossname}
             Jdata = json.dumps(result)
             jpost = {'jdata': Jdata}
@@ -1129,7 +1130,6 @@ class ActorStatGenerator(StatGeneratorBase):
                 resultDict = json.loads(res['statistics'].replace("'", '"'))
                 sumStandardDPS = 0
                 
-
                 for i in range(len(effectiveDPSList) - 1, -1, -1):
                     line = effectiveDPSList[i]
                     occ = str(line[1])
@@ -1156,14 +1156,14 @@ class ActorStatGenerator(StatGeneratorBase):
                         sumDPS -= line[2]
                         numDPS -= 1
                         sumStandardDPS -= resultDict[occ][2]
-                        if GORate > 0.1:
+                        if GORate > 0.1 and not skipDPS:
                             self.bossAnalyser.addPot([line[0],
                                                  line[1],
                                                  1,
                                                  self.bossNamePrint,
                                                  "团队-心法DPS未到及格线(%s%%/%s%%)" % (parseCent(GORate, 0), parseCent(self.qualifiedRate, 0)),
                                                  DPSDetail])
-                    elif GORate < self.alertRate:
+                    elif GORate < self.alertRate and not skipDPS:
                         self.bossAnalyser.addPot([line[0],
                                              line[1],
                                              0,
@@ -1171,7 +1171,7 @@ class ActorStatGenerator(StatGeneratorBase):
                                              "团队-心法DPS低于预警线(%s%%/%s%%)" % (parseCent(GORate, 0), parseCent(self.alertRate, 0)),
                                              DPSDetail])
                                              
-                    elif GORate > self.bonusRate:
+                    elif GORate > self.bonusRate and not skipDPS:
                         self.bossAnalyser.addPot([line[0],
                                              line[1],
                                              3,
@@ -1179,10 +1179,8 @@ class ActorStatGenerator(StatGeneratorBase):
                                              "团队-心法DPS达到补贴线(%s%%/%s%%)" % (parseCent(GORate, 0), parseCent(self.bonusRate, 0)),
                                              DPSDetail])
                                              
-                    if recordGORate:
-                        for i in range(len(bossResult)):
-                            if bossResult[i][0] == namedict[line[0]][0]:
-                                bossResult[i][3] = GORate
+                    if recordGORate and getOccType(line[1]) != "healer":
+                        effectiveDPSList[i][3] = int(GORate * 100)
                             
 
         if self.firstHitList != {}:

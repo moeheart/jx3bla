@@ -78,8 +78,16 @@ class WuXueSanWindow():
             label1.grid(row=i+1, column=0)
             label2 = tk.Label(frame1, text=int(self.effectiveDPSList[i][2]), height=1)
             label2.grid(row=i+1, column=1)
-            label3 = tk.Label(frame1, text=parseCent(self.effectiveDPSList[i][3], 0) + '%', height=1)
+            
+            if getOccType(self.effectiveDPSList[i][1]) != "healer":
+                text3 = str(self.effectiveDPSList[i][3]) + '%'
+                color3 = "#000000"
+            else:
+                text3 = self.effectiveDPSList[i][3]
+                color3 = "#00ff00"
+            label3 = tk.Label(frame1, text=text3, height=1, fg=color3)
             label3.grid(row=i+1, column=2)
+            
             label4 = tk.Label(frame1, text=int(self.effectiveDPSList[i][4]), height=1)
             label4.grid(row=i+1, column=3)
             label5 = tk.Label(frame1, text=int(self.effectiveDPSList[i][5]))
@@ -115,9 +123,17 @@ class WuXueSanWindow():
             label10.grid(row=i+1, column=9)
             label11 = tk.Label(frame1, text=int(self.effectiveDPSList[i][11]), height=1)
             label11.grid(row=i+1, column=10)
-            label12 = tk.Label(frame1, text=int(self.effectiveDPSList[i][12]), height=1)
+            
+            color = "#000000"
+            if self.effectiveDPSList[i][12] > 0 and getOccType(self.effectiveDPSList[i][1]) == "healer":
+                color = "#00ff00"
+            label12 = tk.Label(frame1, text=int(self.effectiveDPSList[i][12]), height=1, fg=color)
             label12.grid(row=i+1, column=11)
-            label13 = tk.Label(frame1, text=int(self.effectiveDPSList[i][13]), height=1)
+            
+            color = "#000000"
+            if self.effectiveDPSList[i][13] > 0 and getOccType(self.effectiveDPSList[i][1]) == "healer":
+                color = "#00ff00"
+            label13 = tk.Label(frame1, text=int(self.effectiveDPSList[i][13]), height=1, fg=color)
             label13.grid(row=i+1, column=12)
         
         self.window = window
@@ -174,25 +190,29 @@ class WuXueSanReplayer(SpecificReplayer):
                 self.dps[line][2] = self.buffCounter[line].sumTime() / 1000
                 gmzDps = [0, 0, 0]
                 for i in range(0, 3):
-                    gmzDps[i] = self.dps[line][i+4] / gmzTime[i] * 1000
-                    if gmzDps[i] < 0:
+                    if self.dps[line][i+4] < 0:
                         gmzDps[i] = -1
+                    else:
+                        gmzDps[i] = int(self.dps[line][i+4] / gmzTime[i] * 1000)
+                        
+                if getOccType(self.occDetailList[line]) == "healer":
+                    self.dps[line][1] = int(self.hps[line] / self.battleTime)
 
-                dps = self.dps[line][0] / self.battleTime
+                dps = int(self.dps[line][0] / self.battleTime)
                 bossResult.append([self.namedict[line][0].strip('"'),
                                    self.occDetailList[line],
                                    dps, 
-                                   0,
+                                   self.dps[line][1],
                                    self.dps[line][2], 
-                                   self.dps[line][3] / stoppedTime * 1000, 
+                                   int(self.dps[line][3] / stoppedTime * 1000), 
                                    gmzDps[0],
                                    gmzDps[1],
                                    gmzDps[2],
                                    self.dps[line][7],
-                                   self.dps[line][8] / P2Time * 1000,
+                                   int(self.dps[line][8] / P2Time * 1000),
                                    self.dps[line][9],
                                    self.dps[line][10],
-                                   self.dps[line][11] / cjjqTime * 1000,
+                                   int(self.dps[line][11] / cjjqTime * 1000),
                                    ])
         bossResult.sort(key = lambda x:-x[2])
         self.effectiveDPSList = bossResult
@@ -212,6 +232,10 @@ class WuXueSanReplayer(SpecificReplayer):
         if item[3] == '1':  # 技能
 
             if self.occdict[item[5]][0] != '0':
+            
+                if item[11] != '0' and item[10] != '7': #非化解
+                    if item[4] in self.playerIDList:
+                        self.hps[item[4]] += int(item[12])
             
                 healRes = self.criticalHealCounter[item[5]].recordHeal(item)
                 if healRes != {}:
@@ -366,6 +390,7 @@ class WuXueSanReplayer(SpecificReplayer):
         #4 被控时间; 5 停手DPS; 6 鬼门针1; 7 鬼门针2; 8 鬼门针3; 9 千丝乱技能数; 10 最后阶段DPS; 11 跳绳崴脚; 12 关键治疗量; 13 穿脊牵肌HPS
         
         self.dps = {}
+        self.hps = {}
         self.detail["boss"] = "武雪散"
         self.win = 0
         
@@ -403,6 +428,7 @@ class WuXueSanReplayer(SpecificReplayer):
         
         for line in self.playerIDList:
             self.dps[line] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            self.hps[line] = 0
             self.buffCounter[line] = BuffCounter(0, self.startTime, self.finalTime)
             self.cjjqCount[line] = 0
             self.criticalHealCounter[line] = CriticalHealCounter()

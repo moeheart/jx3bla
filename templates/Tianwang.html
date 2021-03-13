@@ -27,14 +27,14 @@
 		playerDps="{{playerDps}}";
 		playerPot="{{playerPot}}";
 		
-		res1 = playerDps.replaceAll('&#39;', '"');
-		res1 = res1.replaceAll('(', "[");
-		res1 = res1.replaceAll(')', "]");
+		res1 = playerDps.replace(/&#39;/g, '"');
+		res1 = res1.replace(/\(/g, "[");
+		res1 = res1.replace(/\)/g, "]");
 		JplayerDps = JSON.parse(res1);
 		
-		res2 = playerPot.replaceAll('&#39;', '"');
-		res2 = res2.replaceAll('(', "[");
-		res2 = res2.replaceAll(')', "]");
+		res2 = playerPot.replace(/&#39;/g, '"');
+		res2 = res2.replace(/\(/g, "[");
+		res2 = res2.replace(/\)/g, "]");
 		JplayerPot = JSON.parse(res2);
 		
 		dpsTable = []

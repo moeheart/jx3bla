@@ -66,8 +66,16 @@ class YuanFeiWindow():
             label1.grid(row=i+1, column=0)
             label2 = tk.Label(frame1, text=int(self.effectiveDPSList[i][2]), height=1)
             label2.grid(row=i+1, column=1)
-            label3 = tk.Label(frame1, text=parseCent(self.effectiveDPSList[i][3], 0) + '%', height=1)
+            
+            if getOccType(self.effectiveDPSList[i][1]) != "healer":
+                text3 = str(self.effectiveDPSList[i][3]) + '%'
+                color3 = "#000000"
+            else:
+                text3 = self.effectiveDPSList[i][3]
+                color3 = "#00ff00"
+            label3 = tk.Label(frame1, text=text3, height=1, fg=color3)
             label3.grid(row=i+1, column=2)
+            
             label4 = tk.Label(frame1, text=int(self.effectiveDPSList[i][4]), height=1)
             label4.grid(row=i+1, column=3)
             label5 = tk.Label(frame1, text=int(self.effectiveDPSList[i][5]), height=1)
@@ -78,7 +86,12 @@ class YuanFeiWindow():
             label7.grid(row=i+1, column=6)
             label8 = tk.Label(frame1, text=int(self.effectiveDPSList[i][8]), height=1)
             label8.grid(row=i+1, column=7)
-            label9 = tk.Label(frame1, text=int(self.effectiveDPSList[i][9]), height=1)
+            
+            color = "#000000"
+            if self.effectiveDPSList[i][9] > 0 and getOccType(self.effectiveDPSList[i][1]) == "healer":
+                color = "#00ff00"
+
+            label9 = tk.Label(frame1, text=int(self.effectiveDPSList[i][9]), height=1, fg=color)
             label9.grid(row=i+1, column=8)
             
         frame2 = tk.Frame(window)
@@ -112,17 +125,6 @@ class YuanFeiWindow():
                     label15 = tk.Label(frame2, text=name, width = 8, height=1, fg=color)
                     label15.grid(row=rowNum, column=3+j)
                 rowNum += 1
-                
-            '''
-            text32 = "逃课"
-            label32 = tk.Label(frame2, text=text32, height=1)
-            label32.grid(row=rowNum, column=1)
-            for j in range(len(single[4])):
-                color = getColor(single[4][j][2])
-                name = single[4][j][1]
-                label33 = tk.Label(frame2, text=name, width = 8, height=1, fg=color)
-                label33.grid(row=rowNum, column=2+j)
-            '''
                 
         frame3 = tk.Frame(window)
         frame3.pack(side = tk.TOP)
@@ -240,13 +242,16 @@ class YuanfeiReplayer(SpecificReplayer):
         for line in self.playerIDList:
             if line in self.dps:
 
-                self.dps[line][2] = self.buffCounter[line].sumTime() / 1000
+                self.dps[line][2] = int(self.buffCounter[line].sumTime() / 1000)
+                
+                if getOccType(self.occDetailList[line]) == "healer":
+                    self.dps[line][1] = int(self.hps[line] / self.battleTime)
 
                 dps = int(self.dps[line][0] / self.battleTime)
                 bossResult.append([self.namedict[line][0].strip('"'),
                                    self.occDetailList[line],
                                    dps, 
-                                   0,
+                                   self.dps[line][1],
                                    self.dps[line][2], 
                                    int(self.dps[line][3] / phaseTime[1]), 
                                    int(self.dps[line][4] / phaseTime[2]),
@@ -300,6 +305,10 @@ class YuanfeiReplayer(SpecificReplayer):
         if item[3] == '1':  # 技能
 
             if self.occdict[item[5]][0] != '0':
+            
+                if item[11] != '0' and item[10] != '7': #非化解
+                    if item[4] in self.playerIDList:
+                        self.hps[item[4]] += int(item[12])
                         
                 if item[7] == "24590":
                     self.shanTuiID = item[5]
@@ -459,6 +468,7 @@ class YuanfeiReplayer(SpecificReplayer):
         #踢球 time: 发球时间; kick: ID，心法，时间，踢球状态
         
         self.dps = {}
+        self.hps = {}
         self.detail["boss"] = "猿飞"
         self.win = 0
         
@@ -485,6 +495,7 @@ class YuanfeiReplayer(SpecificReplayer):
         self.playerBallDict = {}
         for line in self.playerIDList:
             self.dps[line] = [0, 0, 0, 0, 0, 0, 0, 0]
+            self.hps[line] = 0
             self.criticalHealCounter[line] = CriticalHealCounter()
             self.playerBallDict[line] = {"score": 0, "log": []}
             self.buffCounter[line] = BuffCounter(0, self.startTime, self.finalTime)

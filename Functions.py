@@ -176,6 +176,16 @@ def getOccType(occ):
         return "healer"
     else:
         return "dps"
+        
+def ConvertRgbToStr(res):
+    '''
+    将数组形式的RGB代码转换为字符串形式
+    params
+    - res 数组形式的RGB代码
+    '''
+    return "#%s%s%s"%(str(hex(res[0]))[-2:].replace('x', '0'), 
+        str(hex(res[1]))[-2:].replace('x', '0'),
+        str(hex(res[2]))[-2:].replace('x', '0'))
     
 def getColor(occ):
     '''

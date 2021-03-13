@@ -12,10 +12,25 @@
 			<div class="intro"> 角色名可以是多个（上限：50），用空格或者中括号隔开。</div>
 			<div class="intro"> 例如：[玩家名一][玩家名二][玩家名三]。</div>
 			<div class="intro"> 又例如：玩家名一 玩家名二 玩家名三。</div>
-			<div>
-				服务器
-				<input id="server" type="text" name="server">
-			</div>
+			
+			<div> 服务器 <select id="server-select">
+				<option>幽月轮</option>
+				<option>绝代天骄</option>
+				<option>斗转星移</option>
+				<option>天鹅坪</option>
+				<option>梦江南</option>
+				<option>破阵子</option>
+				<option>唯我独尊</option>
+				<option>蝶恋花</option>
+				<option>长安城</option>
+				<option>乾坤一掷</option>
+				<option>飞龙在天</option>
+				<option>剑胆琴心</option>
+				<option>龙争虎斗</option>
+				<option>青梅煮酒</option>
+				<option>山雨欲来</option>
+			</select> </div> 
+			
 			<div>
 				玩家ID
 				<input id="ids" type="text" name="ids">
@@ -31,7 +46,7 @@
 	<script src="../static/jquery-3.3.1.js"></script>
 	<script>
 		function submit(){
-			server = $('#server').val();
+			server = $('#server-select').val();
 			ids = $('#ids').val();
 			idsSplit = ids.split(/ |\[|\]/);
 			idsConcat = "";
