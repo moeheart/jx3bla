@@ -136,20 +136,24 @@ class MainWindow():
             try:
                 file = open("%s/config.jx3dat"%self.fileLookUp.basepath, "r")
                 s = file.read()
-                res = re.search(r'bRecEverything=(.{4,5}).*bSaveHistoryOnExFi=(.{4,5}).*bSaveEverything1?=(.{4,5}).*bREOnlyDungeon=(.{4,5}),', s)
+                res = re.search(r'bRecEverything=(.{4,5}).*bSaveHistoryOnExFi=(.{4,5}).*nMaxHistory=([0-9]+),nMinFightTime=([0-9\-]+),bSaveEverything1?=(.{4,5}).*bREOnlyDungeon=(.{4,5}),', s)
                 file.close()
                 if res:
                     if res.group(1) == "false":
                         self.setNotice({"t1": "请勾选[记录所有复盘数据]。", "c1": "#000000", "t2": "点击[公告]以获取教程。", "c2": "#ff0000"})
-                    elif res.group(3) == "false":
+                    elif res.group(5) == "false":
                         self.setNotice({"t1": "请取消[不保存历史复盘数据]。", "c1": "#000000", "t2": "点击[公告]以获取教程。", "c2": "#ff0000"})
                     elif res.group(2) == "false":
                         self.setNotice({"t1": "请勾选[脱离战斗时保存数据]。", "c1": "#000000", "t2": "点击[公告]以获取教程。", "c2": "#ff0000"})
+                    elif int(res.group(3)) < 50 and self.config.plugindetail:
+                        self.setNotice({"t1": "请将[最大历史记录设置]设为50以上。", "c1": "#000000", "t2": "可以在[设置]中设定跳过本步。", "c2": "#ff0000"})
+                    elif int(res.group(4)) > 10 and self.config.plugindetail:
+                        self.setNotice({"t1": "请将[过滤短时战斗]设为10秒以下。", "c1": "#000000", "t2": "可以在[设置]中设定跳过本步。", "c2": "#ff0000"})
                     else:
-                        if res.group(4) == "true" and nowStatus == "false":
+                        if res.group(6) == "true" and nowStatus == "false":
                             nowStatus = "true"
                             numSwitch -= 1
-                        elif res.group(4) == "false" and nowStatus == "true":
+                        elif res.group(6) == "false" and nowStatus == "true":
                             nowStatus = "false"
                             numSwitch -= 1
                         if numSwitch > 0:

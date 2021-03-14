@@ -15,6 +15,10 @@ from LiveBase import ToolTip
 from FileLookUp import FileLookUp
 
 class Config():
+    '''
+    设置类，负责读取与写入config.ini，并且维护各种设置选项。
+    '''
+    
     items_general = {}
     items_xiangzhi = {}
     items_actor = {}
@@ -44,6 +48,10 @@ class Config():
                 self.uploadTianti = int(self.items_actor["uploadtianti"])
             else:
                 self.uploadTianti = 1
+            if "plugindetail" in self.items_actor:
+                self.plugindetail = int(self.items_actor["plugindetail"])
+            else:
+                self.plugindetail = 1
             assert self.mask in [0, 1]
             assert self.color in [0, 1]
             assert self.text in [0, 1]
@@ -53,6 +61,7 @@ class Config():
             assert self.qualifiedRate <= self.alertRate
             assert self.alertRate <= self.bonusRate
             assert self.uploadTianti in [0, 1]
+            assert self.plugindetail in [0, 1]
         except:
             raise Exception("配置文件格式不正确，请确认。如无法定位问题，请删除config.ini，在生成的配置文件的基础上进行修改。")
 
@@ -82,7 +91,8 @@ failthreshold=10
 qualifiedrate=0.75
 alertrate=0.85
 bonusrate=1.20
-uploadtianti=1""")
+uploadtianti=1
+plugindetail=1""")
         g.close()
         pass
         
@@ -112,9 +122,10 @@ failthreshold=%s
 qualifiedrate=%s
 alertrate=%s
 bonusrate=%s
-uploadtianti=%d"""%(self.playername, self.jx3path, self.basepath, self.mask, self.color, self.text, 
+uploadtianti=%d
+plugindetail=%d"""%(self.playername, self.jx3path, self.basepath, self.mask, self.color, self.text, 
         self.xiangzhiActive, self.xiangzhiname, self.speed, self.xiangzhiPublic, 
-        self.actorActive, self.checkAll, self.failThreshold, self.qualifiedRate, self.alertRate, self.bonusRate, self.uploadTianti))
+        self.actorActive, self.checkAll, self.failThreshold, self.qualifiedRate, self.alertRate, self.bonusRate, self.uploadTianti, self.plugindetail))
         
         g.close()
         pass
@@ -325,6 +336,9 @@ class AnnounceWindow():
         pass
                 
 class ConfigWindow():
+    '''
+    设置窗口类，将各种设置选项可视化，并维护交互的接口。
+    '''
 
     def show_xiangzhiTianti(self):
         webbrowser.open("http://139.199.102.41:8009/XiangZhiTable.html")
@@ -347,6 +361,7 @@ class ConfigWindow():
         self.config.alertRate = self.entry3_5.get()
         self.config.bonusRate = self.entry3_6.get()
         self.config.uploadTianti = self.var3_7.get()
+        self.config.plugindetail = self.var3_8.get()
         self.config.printSettings()
         
         self.window.destroy()
@@ -440,6 +455,8 @@ class ConfigWindow():
         self.entry3_6 = tk.Entry(frame3, show=None)
         self.var3_7 = tk.IntVar(window)
         self.cb3_7 = tk.Checkbutton(frame3, text = "上传至DPS天梯", variable = self.var3_7, onvalue = 1, offvalue = 0)
+        self.var3_8 = tk.IntVar(window)
+        self.cb3_8 = tk.Checkbutton(frame3, text = "复盘文件保险", variable = self.var3_8, onvalue = 1, offvalue = 0)
         self.cb3_1.grid(row=0, column=0)
         self.cb3_2.grid(row=1, column=0)
         self.label3_3.grid(row=2, column=0)
@@ -451,6 +468,7 @@ class ConfigWindow():
         self.label3_6.grid(row=5, column=0)
         self.entry3_6.grid(row=5, column=1)
         self.cb3_7.grid(row=6, column=0)
+        self.cb3_8.grid(row=7, column=0)
         
         notebook.add(frame1, text='全局')
         notebook.add(frame2, text='奶歌')
@@ -476,6 +494,7 @@ class ConfigWindow():
         self.entry3_5.insert(0, config.alertRate)
         self.entry3_6.insert(0, config.bonusRate) 
         self.init_checkbox(self.cb3_7, config.uploadTianti)
+        self.init_checkbox(self.cb3_8, config.plugindetail)
         
         ToolTip(self.label1_1, "在当前电脑上线的角色的ID，同时也是记录者。\n通常情况下，只需要指定此项。\n如果指定了基准路径，则无需指定此项。")
         ToolTip(self.label1_2, "剑三路径，一般是名为JX3的文件夹，其下应当有Games文件夹或bin文件夹。\n在自动获取路径失败时，需要指定此项，这通常是由于剑三客户端本身或者安装的方式异于常人。\n指定此项时，必须指定角色名。\n如果指定了基准路径，则无需指定此项。")
@@ -494,6 +513,7 @@ class ConfigWindow():
         ToolTip(self.label3_5, "团队-心法DPS的预警线。\n如果有BOSS低于这个值，一般代表后续需要重点关注。\n以1为单位。")
         ToolTip(self.label3_6, "团队-心法DPS的补贴线。\n如果全程高于这个值，一般代表可以发DPS补贴。\n以1为单位。")
         ToolTip(self.cb3_7, "是否在复盘完成时将数据上传至DPS天梯榜。")
+        ToolTip(self.cb3_8, "为了降低复盘文件丢失的可能性设置的选项。\n如果开启，则会在实时模式之前检查最大记录数与最小脱战时间，反之则不检查。")
         
         self.entry1_1.bind('<Button-1>', self.clear_basepath)
         self.entry1_2.bind('<Button-1>', self.clear_basepath)
