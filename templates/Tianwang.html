@@ -115,7 +115,7 @@
 				//console.log(id);
 				var tr = $("<tr></tr>");
 				tr.appendTo(table);
-				dpsList1 = [0, 0, 0, 0, 0, 0]
+				dpsList1 = [0, 0, 0, 0, 0, 0, 0]
 				if (map in dpsItem) {
 					dpsList1 = dpsItem[map];
 				}
@@ -131,9 +131,13 @@
 					td.appendTo(tr);
 				}
 				
+				var boss_num = dpsList1[6];
+				
 				if (map in playerPotStat[namePrint]) {
 				
-					var td = $("<td>"+playerPotStat[namePrint][map][0]+"</td>");
+					var prob = playerPotStat[namePrint][map][1] / boss_num;
+				
+					var td = $("<td>"+prob+"</td>");
 					td.appendTo(tr);
 					
 					var td = $("<td></td>");
