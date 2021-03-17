@@ -93,7 +93,7 @@
 			th.appendTo(headers);
 			var th = $("<th>"+"地图"+"</th>");
 			th.appendTo(headers);
-			bossName = ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅", "记录数量", "犯错次数", "展开"];
+			bossName = ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅", "记录数量", "犯错比例", "展开"];
 			for (i in bossName) {
 				var name = bossName[i];
 				if (i <= 5) {
@@ -136,8 +136,10 @@
 				if (map in playerPotStat[namePrint]) {
 				
 					var prob = playerPotStat[namePrint][map][1] / boss_num;
+					
+					var prob_show = (prob*100).toFixed(2) + '%'
 				
-					var td = $("<td>"+prob+"</td>");
+					var td = $("<td>"+prob_show+"</td>");
 					td.appendTo(tr);
 					
 					var td = $("<td></td>");
