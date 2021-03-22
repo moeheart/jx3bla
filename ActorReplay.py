@@ -241,6 +241,8 @@ class ActorStatGenerator(StatGeneratorBase):
         self.namedict = namedict
         self.occdict = occdict
         occDetailList = {}
+        
+        self.effectiveDPSList = []
 
         self.playerIDList = {}
 
@@ -647,20 +649,12 @@ class ActorStatGenerator(StatGeneratorBase):
                         if P3 and item[4] in self.playerIDList:
                             self.dps[item[4]][4] += int(item[14])   
                     
-                        '''
-                        elif yatoutuoActive:
-                            if item[5] == self.longzhuID and item[7] in ["242", "546", "305", "1613", "2479", "3971", "22341"]:
-                                playerWork[item[4]] += 1
-                        '''
-                    
                     if calculDPS:
                         if item[4] in self.playerIDList:
                             if item[4] not in self.dps:
                                 self.dps[item[4]] = [0]
                             self.dps[item[4]][0] += int(item[14])
                             
-                    
-
             elif item[3] == '5':  # 气劲
 
                 if occdict[item[5]][0] == '0':
@@ -767,45 +761,6 @@ class ActorStatGenerator(StatGeneratorBase):
                                                  ["不间断的减疗只计算一次"]])
                         if stack < 20 and self.jingshenkuifa[item[5]] == 1:
                             self.jingshenkuifa[item[5]] = 0
-                
-                '''
-                if yuelinActive:
-                    if item[6] in ["17899"] and int(item[10]) in [8,9]:
-                        lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
-                        self.potList.append([namedict[item[5]][0],
-                                             occDetailList[item[5]],
-                                             0,
-                                             self.bossNamePrint,
-                                             "%s传功失败：%d层" % (lockTime, int(item[10])),
-                                             ["8-9层通常不影响通关，无伤大雅。"]])
-                    if item[6] in ["17899"] and int(item[10]) in [1,2,3,4,5,6,7]:
-                        lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
-                        self.potList.append([namedict[item[5]][0],
-                                             occDetailList[item[5]],
-                                             1,
-                                             self.bossNamePrint,
-                                             "%s传功失败：%d层" % (lockTime, int(item[10])),
-                                             ["7层以下通常为纯演员，建议分锅。"]])
-
-                    if self.mapDetail == "25人英雄达摩洞":
-                        if item[6] in ["17675"]:
-                            if int(item[10]) > self.yuelinStack[item[5]][0] and int(item[2]) - self.yuelinStack[item[5]][1] > 500:
-                                if self.yuelinSource != "未知":
-                                    self.yuelinBuff += 1
-                                    lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
-                                    severe = 1
-                                    if self.yuelinBuff > 60:
-                                        severe = 0
-                                    self.potList.append([namedict[item[5]][0],
-                                                         occDetailList[item[5]],
-                                                         severe,
-                                                         self.bossNamePrint,
-                                                         "%s，第%d层：%s" % (lockTime, self.yuelinBuff, self.yuelinSource),
-                                                         ["层数从50层开始计算，等效于对结果的影响。"]])
-                            self.yuelinStack[item[5]][0] = int(item[10])
-                            self.yuelinStack[item[5]][1] = int(item[2])
-                '''
-
 
             elif item[3] == '3':  # 重伤记录
                 
@@ -861,32 +816,6 @@ class ActorStatGenerator(StatGeneratorBase):
                                              
                         if self.bossAnalyser.activeBoss in ["余晖", "岳琳&岳琅"]:
                             self.bossAnalyser.recordDeath(item, deathSource)
-                        
-                        '''
-                        if self.yuelinActive:
-                            if deathSource == "未知" and self.yuelinSource != "未知" and int(item[2]) - self.yuelinStack[item[4]][1] > 500:
-                                cycleTime = 1
-                                if self.yuelinSource == "狂雁！":
-                                    cycleTime = 2
-                                if self.yuelinSource == "落鹰！":
-                                    cycleTime = 3
-
-                                if int(item[2]) - self.yuelinTime > 5000:
-                                    cycleTime = 0
-                                    
-                                for i in range(cycleTime):
-                                    self.yuelinBuff += 1
-                                    lockTime = parseTime((int(item[2]) - self.startTime) / 1000)
-                                    severe = 1
-                                    if self.yuelinBuff > 60:
-                                        severe = 0
-                                    self.potList.append([namedict[item[4]][0],
-                                                         occDetailList[item[4]],
-                                                         severe,
-                                                         self.bossNamePrint,
-                                                         "%s，第%d层：%s（推测）" % (lockTime, self.yuelinBuff, self.yuelinSource),
-                                                         ["层数从50层开始计算，等效于对结果的影响。", "此条根据重伤记录推测，不一定准确。"]])
-                        '''
 
             elif item[3] == '8':  # 喊话
                 #print(item)
@@ -925,16 +854,6 @@ class ActorStatGenerator(StatGeneratorBase):
                     if item[4] in ['"哼哼哼哼……"']:
                         sideTime += 20
                         guishouTime += 20
-                        
-                '''
-                if yuelinActive:
-                    if item[4] in ['"飞隼！"', '"狂雁！"', '"落鹰！"', '"伏鹫！"']:
-                        self.yuelinSource = item[4].strip('"')
-                        self.yuelinTime = int(item[2])
-                    if item[4] in ['"让冰冷与黑暗吞噬你们……"']:
-                        self.yuelinSource = "未知"
-                        self.yuelinTime = int(item[2])
-                '''
                 
                 if item[4] in ['"可恶…"',
                                '"哈哈哈哈哈，一群蠢货！手刃好友的滋味如何？"',
@@ -1146,10 +1065,10 @@ class ActorStatGenerator(StatGeneratorBase):
                         resultDict[occ] = ["xx", "xx", 50000]
                     #if occ[-1] in ["d", "h", "t", "p", "m"]:
                     #    occ = occ[:-1]
-                    GORate = line[2] / sumDPS * sumStandardDPS / resultDict[occ][2]
+                    GORate = line[2] / (sumDPS + 1e-10) * sumStandardDPS / (resultDict[occ][2] + 1e-10)
                     
                     occDPS = resultDict[occ][2]
-                    GODPS = sumDPS / sumStandardDPS * occDPS
+                    GODPS = sumDPS / (sumStandardDPS + 1e-10) * occDPS
                     DPSDetail = ["实际DPS：%d"%line[2], "心法平均DPS：%d"%occDPS, "团队-心法平均DPS：%d"%GODPS]
                 
                     if GORate < self.qualifiedRate:

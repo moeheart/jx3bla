@@ -6,6 +6,7 @@ import os
 import time
 import traceback
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 from win10toast import ToastNotifier
 from Functions import *
@@ -21,6 +22,9 @@ from replayer.Yatoutuo import YatoutuoWindow
 from replayer.Yuelinyuelang import YuelinyuelangWindow
 
 class ToolTip(object):
+    '''
+    浮动标签类，用于实现简单的浮动标签。
+    '''
     def build(self, widget):
         self.widget = widget
         self.tipwindow = None
@@ -66,8 +70,104 @@ class ToolTip(object):
         
     def __init__(self, widget, text):
         self.createToolTip(widget, text)
+        
+class PotExtendWindow():
+    '''
+    锅的扩展窗口类。用于维护添加锅的窗体。
+    '''
+    
+    def final(self):
+        '''
+        收集分锅结果并关闭窗口。
+        '''
+        self.windowAlive = False
+        self.singleBossWindow.potExtendRunning = False
+        self.window.destroy()
+        
+    def Act(self):
+        '''
+        实施加锅。
+        '''
+        playerID = self.playerValue.get()
+        potLevel = self.lvlValue.get()
+        potDescription = "[手动]" + self.descEntry.get()
+        try:
+            score = int(self.scoreEntry.get())
+        except:
+            score = 0
+        
+        potLevelNum = 1
+        if potLevel == "轻微":
+            potLevelNum = 0
+        elif potLevel == "严重":
+            potLevelNum = 1
+        elif potLevel == "补贴":
+            potLevelNum = 3
+            
+        if playerID in self.playerIDDict:
+            playerOcc = self.playerIDDict[playerID]
+            self.pot = [playerID, playerOcc, potLevelNum, self.bossName, potDescription, []]
+            self.singleBossWindow.AddPot(self.pot, score)
+        self.final()
+    
+    def loadWindow(self):
+        '''
+        使用tkinter绘制复盘窗口。
+        '''
+        window = tk.Toplevel()
+        window.title('加锅')
+        window.geometry('300x120')
+        
+        tk.Label(window, text="玩家ID", height=1).grid(row=0, column=0)
+        self.playerValue = tk.StringVar()
+        playerCombobox = ttk.Combobox(window, textvariable=self.playerValue)
+        playerCombobox["values"] = self.playerIDList 
+        playerCombobox.current(0) 
+        playerCombobox.grid(row=0, column=1)
+        
+        tk.Label(window, text="分锅描述", height=1).grid(row=1, column=0)
+        self.descEntry = tk.Entry(window, show=None)
+        self.descEntry.grid(row=1, column=1)
+        
+        tk.Label(window, text="分锅等级", height=1).grid(row=2, column=0)
+        self.lvlValue = tk.StringVar()
+        lvlCombobox = ttk.Combobox(window, textvariable=self.lvlValue)
+        lvlCombobox["values"] = ("严重", "轻微", "补贴")  
+        lvlCombobox.current(0) 
+        lvlCombobox.grid(row=2, column=1)
+        
+        tk.Label(window, text="评分", height=1).grid(row=3, column=0)
+        self.scoreEntry = tk.Entry(window, show=None)
+        self.scoreEntry.grid(row=3, column=1)
+        
+        tk.Button(window, text='加锅', width=10, height=1, command=self.Act).grid(row=4, column=0)
+        
+        self.window = window
+        window.protocol('WM_DELETE_WINDOW', self.final)
+    
+    def start(self):
+        self.windowAlive = True
+        self.windowThread = threading.Thread(target = self.loadWindow)    
+        self.windowThread.start()
+        
+    def alive(self):
+        return self.windowAlive
+
+    def __init__(self, singleBossWindow):
+        self.windowAlive = False
+        self.singleBossWindow = singleBossWindow
+        self.playerList = singleBossWindow.analyser.getPlayer()
+        self.playerIDDict = {}
+        self.playerIDList = []
+        for line in self.playerList:
+            self.playerIDDict[line[0]] = line[1]
+            self.playerIDList.append(line[0])
+        self.bossName = singleBossWindow.detail["boss"]
 
 class SingleBossWindow():
+    '''
+    单个BOSS复盘结果类。维护复盘结果的窗体，与简单的信息收集逻辑。
+    '''
         
     def getColor(self, occ):
         if occ[-1] in ['d', 't', 'h', 'p', 'm']:
@@ -105,6 +205,24 @@ class SingleBossWindow():
         else:
             return "#0000ff"
             
+    def AddPot(self, pot, score):
+        '''
+        新增一条锅。暂时的处理方式为添加的锅不会在记录中显示，而是添加到记录中，刷新后才显示。
+        params
+        - pot 锅
+        '''
+        self.potList.append(pot)
+        self.scoreList.append(score)
+        
+    def StartPotExtend(self):
+        '''
+        开启加锅界面。
+        '''
+        if self.potExtendRunning == False:
+            self.potExtendWindow = PotExtendWindow(self)
+            self.potExtendWindow.start()
+            self.potExtendRunning = True
+            
     def getPot(self, tmp, num):
         '''
         分锅结果变化的处理函数。
@@ -135,6 +253,11 @@ class SingleBossWindow():
         self.toolTips[tmp] = toopTip
         
     def copyPot(self, tmp):
+        '''
+        点击复制按钮的处理函数。
+        params
+        - tmp 记录编号
+        '''
         text = self.potList[tmp][4]
         player = self.potList[tmp][0].strip('"')
         copyText = "[%s]：%s"%(player, text)
@@ -146,6 +269,10 @@ class SingleBossWindow():
         收集分锅结果并关闭窗口。
         '''
         self.windowAlive = False
+        
+        if self.potExtendRunning == True:
+            self.potExtendWindow.final()
+        
         self.potListScore = []
         for i in range(len(self.potList)):
             self.potListScore.append(self.potList[i] + [self.scoreList[i]])
@@ -319,8 +446,11 @@ class SingleBossWindow():
         buttonNext = tk.Button(window, text='>>', width=2, height=1, command=self.finalNext)
         buttonNext.place(x = 340, y = 540)
         
+        buttonDetail = tk.Button(window, text='加锅界面', width=10, height=1, command=self.StartPotExtend)
+        buttonDetail.place(x = 200, y = 570)
+        
         buttonDetail = tk.Button(window, text='数据统计', width=10, height=1, command=self.showDetail)
-        buttonDetail.place(x = 250, y = 570)
+        buttonDetail.place(x = 300, y = 570)
         
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
@@ -343,6 +473,7 @@ class SingleBossWindow():
         self.mainwindow = mainwindow
         self.effectiveDPSList = []
         self.detail = {}
+        self.potExtendRunning = False
 
 class LiveActorStatGenerator(ActorStatGenerator):
     
@@ -357,7 +488,7 @@ class PotContainer():
     
     def getAll(self):
         '''
-        查找所有的锅。
+        返回所有的锅。
         return
         - 分锅与打分的列表，list格式
         '''
@@ -366,9 +497,38 @@ class PotContainer():
             result.extend(self.pot[line])
         return result
         
+    def getPlayerOcc(self):
+        '''
+        获取记录中的角色与门派。用effectiveDpsList作为信息来源。
+        return
+        - list格式的角色与门派组合。
+        '''
+        playerOcc = {}
+        playerOccNum = {}
+        for key in self.effectiveDPSList:
+            dpsList = self.effectiveDPSList[key]
+            for line in dpsList:
+                if line[0] not in playerOcc:
+                    playerOcc[line[0]] = line[1]
+                    occ = line[1]
+                    if occ[-1] in ['d', 't', 'h', 'p', 'm']:
+                        occ = occ[:-1]
+                    playerOccNum[line[0]] = int(occ)
+                        
+        playerList = []
+        for line in playerOccNum:
+            playerList.append([line.strip('"'), playerOccNum[line], playerOcc[line]])
+        playerList.sort(key = lambda x:x[1])
+        
+        playerListSort = []
+        for line in playerList:
+            playerListSort.append([line[0], line[2]])
+            
+        return playerListSort
+        
     def getDetail(self, bossid):
         '''
-        查找对应boss的详细记录。
+        返回对应boss的详细记录。
         return
         - 分锅与打分的列表，list格式
         - 战斗复盘中的DPS列表
@@ -379,7 +539,7 @@ class PotContainer():
     
     def getBoss(self, bossid):
         '''
-        查找对应boss的锅。
+        返回对应boss的锅。
         return
         - 分锅与打分的列表，list格式
         '''
@@ -417,6 +577,9 @@ class PotContainer():
         self.detail = {}
 
 class LiveActorAnalysis():
+    '''
+    实时演员信息类。维护当前结果信息的存储与获取。
+    '''
 
     def getBossName(self):
         '''
@@ -434,9 +597,12 @@ class LiveActorAnalysis():
         '''
         从结果记录中提取所有ID与门派，按门派顺序排序
         return
-        - playerListSort 排好序的ID列表
+        - playerListSort 排好序的ID与门派列表
+        '''
+        return self.potContainer.getPlayerOcc()
         '''
         player = {}
+        playerocc = {}
         self.potListScore = self.potContainer.getAll()
         for line in self.potListScore:
             if line[0] not in player:
@@ -444,14 +610,17 @@ class LiveActorAnalysis():
                 if occ[-1] in ['d', 't', 'h', 'p', 'm']:
                     occ = occ[:-1]
                 player[line[0].strip('"')] = int(occ)
+                playerocc[line[0].strip('"')] = line[1]
         playerList = []
         for line in player:
-            playerList.append([line.strip('"'), player[line]])
+            playerList.append([line.strip('"'), player[line], playerocc[line]])
         playerList.sort(key = lambda x:x[1])
+        
         playerListSort = []
         for line in playerList:
-            playerListSort.append(line[0])
+            playerListSort.append([line[0], line[2]])
         return playerListSort
+        '''
 
     def getPlayerPotList(self):
         playerPot = {}
@@ -514,6 +683,9 @@ class LiveActorAnalysis():
         self.potContainer = PotContainer()
 
 class LiveListener():
+    '''
+    复盘监听类，在实时模式中控制开始复盘的时机。
+    '''
 
     def getAllBattleLog(self, basepath, rawData):
         '''
@@ -646,7 +818,6 @@ class LiveListener():
         
         self.bossNum = 0
         self.window = None
-                             
 
 class AllStatWindow():
     
@@ -739,9 +910,9 @@ class AllStatWindow():
         
         for player in self.playerID:
             
-            line = self.playerPotList[player]
+            line = self.playerPotList[player[0]]
 
-            name = player.strip('"')
+            name = player[0].strip('"')
             occ = line["occ"]
             color = self.getColor(occ)
             nameLabel = tk.Label(frame2, text=name, width = 13, fg=color)
