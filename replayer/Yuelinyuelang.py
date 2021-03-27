@@ -251,6 +251,14 @@ class YuelinyuelangReplayer(SpecificReplayer):
                                    ])
         bossResult.sort(key = lambda x:-x[2])
         self.effectiveDPSList = bossResult
+        
+        for line in self.kongjianKill:
+            self.potList.append([self.namedict[line][0],
+                                 self.occDetailList[line],
+                                 3,
+                                 self.bossNamePrint,
+                                 "完成控剑：%d次" % self.kongjianKill[line],
+                                 []])
             
         return self.effectiveDPSList, self.potList, self.detail
         
@@ -321,6 +329,9 @@ class YuelinyuelangReplayer(SpecificReplayer):
                     elif item[7] == "25426":
                         self.kongjianNum[item[4]] = 0
                         self.detail["kongjian"][item[4]]["log"].append([parseTime((int(item[2]) - self.startTime)/1000), "爆杀"])
+                        if item[4] not in self.kongjianKill:
+                            self.kongjianKill[item[4]] = 0
+                        self.kongjianKill[item[4]] += 1
                     elif item[7] == "25427":
                         self.kongjianNum[item[4]] = 0
                         self.detail["kongjian"][item[4]]["log"].append([parseTime((int(item[2]) - self.startTime)/1000), "留痕"])
@@ -353,6 +364,10 @@ class YuelinyuelangReplayer(SpecificReplayer):
                     elif item[7] == "25426":
                         self.kongjianNum[item[4]] = 0
                         self.detail["kongjian"][item[4]]["log"].append([parseTime((int(item[2]) - self.startTime)/1000), "爆杀"])
+                        if item[4] not in self.kongjianKill:
+                            self.kongjianKill[item[4]] = 0
+                        self.kongjianKill[item[4]] += 1
+                        
                     elif item[7] == "25427":
                         self.kongjianNum[item[4]] = 0
                         self.detail["kongjian"][item[4]]["log"].append([parseTime((int(item[2]) - self.startTime)/1000), "留痕"])
@@ -556,6 +571,7 @@ class YuelinyuelangReplayer(SpecificReplayer):
         self.detail["stop"] = []
         self.detail["kongjian"] = {}
         self.kongjianNum = {}
+        self.kongjianKill = {}
         
         self.yuelinBuff = 50
         self.yuelinSource = "未知"

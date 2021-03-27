@@ -19,6 +19,7 @@ cursor = db.cursor()
 cursor.execute("DROP TABLE IF EXISTS XiangZhiStat")
 cursor.execute("DROP TABLE IF EXISTS ActorStat")
 cursor.execute("DROP TABLE IF EXISTS PreloadInfo")
+cursor.execute("DROP TABLE IF EXISTS HighestDps")
 
 sql = """CREATE TABLE XiangZhiStat (
          server VARCHAR(32),
@@ -59,6 +60,17 @@ sql = """CREATE TABLE HighestDps(
          map VARCHAR(32),
          boss VARCHAR(32),
          dps INT
+         ) DEFAULT CHARSET utf8mb4"""
+cursor.execute(sql)
+
+sql = """CREATE TABLE UserInfo(
+         uuid VARCHAR(32) primary key,
+         id VARCHAR(32),
+         mac VARCHAR(32),
+         ip VARCHAR(32),
+         regtime INT,
+         score INT,
+         exp INT,
          ) DEFAULT CHARSET utf8mb4"""
 cursor.execute(sql)
 

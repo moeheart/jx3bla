@@ -473,6 +473,7 @@ class SingleBossWindow():
         self.mainwindow = mainwindow
         self.effectiveDPSList = []
         self.detail = {}
+        self.windowAlive = False
         self.potExtendRunning = False
 
 class LiveActorStatGenerator(ActorStatGenerator):
@@ -910,7 +911,10 @@ class AllStatWindow():
         
         for player in self.playerID:
             
-            line = self.playerPotList[player[0]]
+            if player[0] in self.playerPotList:
+                line = self.playerPotList[player[0]]
+            else:
+                line = {"occ": player[1], "numPositive": 0, "numNegative": 0, "pot": []}
 
             name = player[0].strip('"')
             occ = line["occ"]

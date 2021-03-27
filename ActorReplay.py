@@ -224,6 +224,12 @@ class ActorStatGenerator(StatGeneratorBase):
             self.mapDetail = "25人普通达摩洞"
         elif mapid == "482":
             self.mapDetail = "10人普通达摩洞"
+        elif mapid == "520":
+            self.mapDetail = "25人英雄白帝江关"
+        elif mapid == "519":
+            self.mapDetail = "25人普通白帝江关"
+        elif mapid == "518":
+            self.mapDetail = "10人普通白帝江关"
         else:
             self.mapDetail = "未知"
 
@@ -379,7 +385,7 @@ class ActorStatGenerator(StatGeneratorBase):
                 if occdict[line][0] != '0':
                     occDetailList[line] = occdict[line][0]
                     
-        detail = {"boss": "未知"}
+        detail = {"boss": self.bossNamePrint}
 
         data = ActorData()
 

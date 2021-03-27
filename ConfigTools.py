@@ -6,7 +6,11 @@ import threading
 import os
 import configparser
 import time
+import re
+import uuid
 import tkinter as tk
+import urllib.request
+
 from tkinter import ttk
 from tkinter import messagebox
 import webbrowser
@@ -22,10 +26,22 @@ class Config():
     items_general = {}
     items_xiangzhi = {}
     items_actor = {}
-
+    items_user = {}
+    
+    def getNewUuid(self):
+        '''
+        与服务器通信，取得一个新的uuid。
+        '''
+        mac = "-".join(re.findall(r".{2}",uuid.uuid1().hex[-12:].upper()))
+        jpost = {'mac': mac}
+        jparse = urllib.parse.urlencode(jpost).encode('utf-8')
+        resp = urllib.request.urlopen('http://139.199.102.41:8009/getUuid', data=jparse)
+        res = json.load(resp)
+        return res["uuid"]
+        
     def checkItems(self):
         '''
-        检查config.ini是否符合规范的方法。
+        检查config.ini是否符合规范。
         '''
         try:
             self.playername = self.items_general["playername"]
@@ -52,6 +68,19 @@ class Config():
                 self.plugindetail = int(self.items_actor["plugindetail"])
             else:
                 self.plugindetail = 1
+            if "uuid" in self.items_user:
+                self.userUuid = self.items_user["uuid"]
+            else:
+                self.userUuid = ""
+            if "id" in self.items_user:
+                self.userId = self.items_user["id"]
+            else:
+                self.userId = ""
+                
+            if self.userUuid == "":
+                uuid = self.getNewUuid()
+                self.userUuid = uuid
+                
             assert self.mask in [0, 1]
             assert self.color in [0, 1]
             assert self.text in [0, 1]
@@ -92,7 +121,11 @@ qualifiedrate=0.75
 alertrate=0.85
 bonusrate=1.20
 uploadtianti=1
-plugindetail=1""")
+plugindetail=1
+
+[UserAnalysis]
+uuid=
+id=""")
         g.close()
         pass
         
@@ -123,9 +156,14 @@ qualifiedrate=%s
 alertrate=%s
 bonusrate=%s
 uploadtianti=%d
-plugindetail=%d"""%(self.playername, self.jx3path, self.basepath, self.mask, self.color, self.text, 
+plugindetail=%d
+
+[UserAnalysis]
+uuid=%s
+id=%s"""%(self.playername, self.jx3path, self.basepath, self.mask, self.color, self.text, 
         self.xiangzhiActive, self.xiangzhiname, self.speed, self.xiangzhiPublic, 
-        self.actorActive, self.checkAll, self.failThreshold, self.qualifiedRate, self.alertRate, self.bonusRate, self.uploadTianti, self.plugindetail))
+        self.actorActive, self.checkAll, self.failThreshold, self.qualifiedRate, self.alertRate, self.bonusRate, self.uploadTianti, self.plugindetail,
+        self.userUuid, self.userId))
         
         g.close()
         pass
@@ -146,6 +184,8 @@ plugindetail=%d"""%(self.playername, self.jx3path, self.basepath, self.mask, sel
         self.actorActive = 1
         self.checkAll = 1
         self.failThreshold = 10
+        self.userUuid = ""
+        self.userId = ""
 
     def __init__(self, filename, build=0):
         '''
@@ -165,6 +205,10 @@ plugindetail=%d"""%(self.playername, self.jx3path, self.basepath, self.mask, sel
                 self.items_general = dict(cf.items("General"))
                 self.items_xiangzhi = dict(cf.items("XiangZhiAnalysis"))
                 self.items_actor = dict(cf.items("ActorAnalysis"))
+                if cf.has_option("UserAnalysis", "uuid"):
+                    self.items_user = dict(cf.items("UserAnalysis"))
+                else:
+                    self.items_user = {"uuid": "", "id": ""}
                 self.checkItems()
             except:
                 cf = configparser.ConfigParser()
@@ -172,9 +216,16 @@ plugindetail=%d"""%(self.playername, self.jx3path, self.basepath, self.mask, sel
                 self.items_general = dict(cf.items("General"))
                 self.items_xiangzhi = dict(cf.items("XiangZhiAnalysis"))
                 self.items_actor = dict(cf.items("ActorAnalysis"))
+                if cf.has_option("UserAnalysis", "uuid"):
+                    self.items_user = dict(cf.items("UserAnalysis"))
+                else:
+                    self.items_user = {"uuid": "", "id": ""}
                 self.checkItems()
                 
 class LicenseWindow():
+    """
+    用户协议窗口类，用于展示用户协议与交互。
+    """
 
     license_fake = """
 ************************************************************
@@ -362,9 +413,30 @@ class ConfigWindow():
         self.config.bonusRate = self.entry3_6.get()
         self.config.uploadTianti = self.var3_7.get()
         self.config.plugindetail = self.var3_8.get()
+        self.config.userId = self.userId
         self.config.printSettings()
         
         self.window.destroy()
+        
+    def register(self):
+        uuid = self.config.userUuid
+        id = self.entry4_2.get() 
+        jpost = {'uuid': uuid, 'id': id}
+        jparse = urllib.parse.urlencode(jpost).encode('utf-8')
+        resp = urllib.request.urlopen('http://139.199.102.41:8009/setUserId', data=jparse)
+        res = json.load(resp)
+        if res["result"] == "dupid":
+            self.entry4_2.delete(0, tk.END)
+            self.entry4_2.insert(0, "用户名已存在")
+        elif res["result"] == "hasuuid":
+            self.entry4_2.delete(0, tk.END)
+            self.entry4_2.insert(0, "唯一标识已使用")
+        elif res["result"] == "nouuid":
+            self.entry4_2.delete(0, tk.END)
+            self.entry4_2.insert(0, "唯一标识出错")
+        else:
+            messagebox.showinfo(title='提示', message='注册成功！')
+            self.userId = id
         
     def clear_basepath(self, event):
         self.entry1_3.delete(0, tk.END)
@@ -389,6 +461,10 @@ class ConfigWindow():
         '''
         使用tkinter绘制设置窗口，同时读取config.ini。
         '''
+        
+        self.config = Config("config.ini")
+        config = self.config
+        
         window = tk.Toplevel(self.mainWindow)
         #window = tk.Tk()
         window.title('设置')
@@ -399,6 +475,7 @@ class ConfigWindow():
         frame1 = tk.Frame(notebook)
         frame2 = tk.Frame(notebook)
         frame3 = tk.Frame(notebook)
+        frame4 = tk.Frame(notebook)
         
         self.label1_1 = tk.Label(frame1, text='玩家ID')
         self.entry1_1 = tk.Entry(frame1, show=None)
@@ -470,13 +547,32 @@ class ConfigWindow():
         self.cb3_7.grid(row=6, column=0)
         self.cb3_8.grid(row=7, column=0)
         
+        self.label4_1 = tk.Label(frame4, text='用户唯一标识')
+        self.label4_1_1 = tk.Label(frame4, text = config.userUuid)
+        self.label4_2 = tk.Label(frame4, text='用户名')
+        self.entry4_2 = tk.Entry(frame4, show=None)
+        self.button4_2 = tk.Button(frame4, text='注册', command=self.register)
+        self.label4_3 = tk.Label(frame4, text='积分')
+        self.label4_3_1 = tk.Label(frame4, text='0')
+        self.label4_4 = tk.Label(frame4, text='经验值')
+        self.label4_4_1 = tk.Label(frame4, text='0/30')
+        
+        self.label4_1.grid(row=0, column=0)
+        self.label4_1_1.grid(row=0, column=1)
+        self.label4_2.grid(row=1, column=0)
+        self.entry4_2.grid(row=1, column=1)
+        self.button4_2.grid(row=1, column=2)
+        self.label4_3.grid(row=2, column=0)
+        self.label4_3_1.grid(row=2, column=1)
+        self.label4_4.grid(row=3, column=0)
+        self.label4_4_1.grid(row=3, column=1)
+        
         notebook.add(frame1, text='全局')
         notebook.add(frame2, text='奶歌')
         notebook.add(frame3, text='演员')
+        notebook.add(frame4, text='用户')
         notebook.pack(padx=10, pady=5, fill=tk.BOTH, expand=True)
         
-        self.config = Config("config.ini")
-        config = self.config
         self.entry1_1.insert(0, config.playername)
         self.entry1_2.insert(0, config.jx3path)
         self.entry1_3.insert(0, config.basepath)
@@ -495,6 +591,8 @@ class ConfigWindow():
         self.entry3_6.insert(0, config.bonusRate) 
         self.init_checkbox(self.cb3_7, config.uploadTianti)
         self.init_checkbox(self.cb3_8, config.plugindetail)
+        self.userId = config.userId
+        self.entry4_2.insert(0, config.userId) 
         
         ToolTip(self.label1_1, "在当前电脑上线的角色的ID，同时也是记录者。\n通常情况下，只需要指定此项。\n如果指定了基准路径，则无需指定此项。")
         ToolTip(self.label1_2, "剑三路径，一般是名为JX3的文件夹，其下应当有Games文件夹或bin文件夹。\n在自动获取路径失败时，需要指定此项，这通常是由于剑三客户端本身或者安装的方式异于常人。\n指定此项时，必须指定角色名。\n如果指定了基准路径，则无需指定此项。")
@@ -514,6 +612,10 @@ class ConfigWindow():
         ToolTip(self.label3_6, "团队-心法DPS的补贴线。\n如果全程高于这个值，一般代表可以发DPS补贴。\n以1为单位。")
         ToolTip(self.cb3_7, "是否在复盘完成时将数据上传至DPS天梯榜。")
         ToolTip(self.cb3_8, "为了降低复盘文件丢失的可能性设置的选项。\n如果开启，则会在实时模式之前检查最大记录数与最小脱战时间，反之则不检查。")
+        ToolTip(self.label4_1, "用来验证用户唯一性的字符串。")
+        ToolTip(self.label4_2, "代表玩家ID的用户名，用于在社区中展示。\n第一次使用时，需要点击右方的注册，之后则不可修改。")
+        ToolTip(self.label4_3, "暂未实装。")
+        ToolTip(self.label4_4, "暂未实装。")
         
         self.entry1_1.bind('<Button-1>', self.clear_basepath)
         self.entry1_2.bind('<Button-1>', self.clear_basepath)

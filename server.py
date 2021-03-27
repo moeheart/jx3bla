@@ -62,6 +62,59 @@ def setAnnouncement():
     
     return jsonify({'result': 'success'})
     
+@app.route('/getUuid', methods=['POST'])
+def getUuid():
+    mac = request.form.get('mac')
+    ip = request.remote_addr
+    intTime = int(time.time())
+    
+    hashStr = mac + ip + str(intTime)
+    uuid = hashlib.md5(hashStr.encode(encoding="utf-8")).hexdigest()
+    
+    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    cursor = db.cursor()
+    
+    sql = '''INSERT INTO UserInfo VALUES ("%s", "%s", "%s", "%s", %d, %d, %d);'''%(uuid, "", mac, ip, intTime, 0, 0)
+    cursor.execute(sql)
+    
+    db.commit()
+    db.close()
+    
+    return jsonify({'uuid': uuid})
+    
+@app.route('/setUserId', methods=['POST'])
+def setUserId():
+    uuid = request.form.get('uuid')
+    id = request.form.get('id')
+    
+    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    cursor = db.cursor()
+    
+    sql = '''SELECT * from UserInfo WHERE uuid = "%s"'''%(uuid)
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    
+    sql = '''SELECT * from UserInfo WHERE id = "%s"'''%(id)
+    cursor.execute(sql)
+    result2 = cursor.fetchall()
+    
+    if result:
+    
+        if result[0][1] != "":
+            db.close()
+            return jsonify({'result': 'hasuuid'})
+        elif result2:
+            db.close()
+            return jsonify({'result': 'dupid'})
+        else:
+            sql = """UPDATE UserInfo SET id="%s" WHERE uuid="%s";"""%(id, uuid)
+            db.commit()
+            db.close()
+            return jsonify({'result': 'success'})
+    else:
+        db.close()
+        return jsonify({'result': 'nouuid'})
+    
 @app.route('/getDpsStat', methods=['POST'])
 def getDpsStat():
     jdata = json.loads(request.form.get('jdata'))

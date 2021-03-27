@@ -90,9 +90,9 @@ class FileLookUp():
         mapDict = MAP_DICT
         mapNameList = MAP_NAME_LIST
 
-        nowBoss = 6
-        bossPos = [-1] * 8
-        bossPos[7] = 999
+        nowBoss = 7
+        bossPos = [-1] * 9
+        bossPos[8] = 999
         bossList = [0] * len(selectFileList)
         for i in range(len(selectFileList) - 1, -1, -1):
             if selectFileList[i][-13:] == "config.jx3dat":
@@ -118,7 +118,7 @@ class FileLookUp():
         finalListAll = []
         lastName = ""
         lastNum = 0
-        for i in range(1, 7):
+        for i in range(1, 8):
             if bossPos[i] != -1:
                 finalList.append([selectFileList[bossPos[i]], 0, 1])
 

@@ -272,6 +272,9 @@ class YuanfeiReplayer(SpecificReplayer):
             if self.ballDict[line]["kick"] != []:
                 ballList.append({"ball": line, "kick": self.ballDict[line]["kick"]})
                 
+        ballPlayerDict = {}
+        ballOccDict = {}
+                
         ballList.sort(key=lambda x:x["kick"][0][2]) #按照第一次踢球时间排序
         
         for line in ballList:
@@ -285,8 +288,23 @@ class YuanfeiReplayer(SpecificReplayer):
                 elif l[3] == 3:
                     kickStatus = "出界"
                 res.append([l[0], l[1], parseTime((l[2] - self.startTime)/1000), kickStatus])
+                
+                if (self.mapDetail == "25人普通达摩洞" and len(line["kick"]) >= 2) or len(line["kick"]) >= 4:
+                    if l[3] == 1:
+                        if l[0] not in ballPlayerDict:
+                            ballPlayerDict[l[0]] = 0
+                            ballOccDict[l[0]] = l[1]
+                        ballPlayerDict[l[0]] += 1
         
             self.detail["ball"].append(res)
+
+        for line in ballPlayerDict:
+            self.potList.append([line,
+                                 ballOccDict[line],
+                                 3,
+                                 self.bossNamePrint,
+                                 "完成踢球：%d次" %ballPlayerDict[line],
+                                 []])
 
         #for line in self.detail["ball"]:
         #    print(line)
