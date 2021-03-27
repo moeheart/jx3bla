@@ -70,7 +70,7 @@ sql = """CREATE TABLE UserInfo(
          ip VARCHAR(32),
          regtime INT,
          score INT,
-         exp INT,
+         exp INT
          ) DEFAULT CHARSET utf8mb4"""
 cursor.execute(sql)
 

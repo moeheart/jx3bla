@@ -108,6 +108,7 @@ def setUserId():
             return jsonify({'result': 'dupid'})
         else:
             sql = """UPDATE UserInfo SET id="%s" WHERE uuid="%s";"""%(id, uuid)
+            cursor.execute(sql)
             db.commit()
             db.close()
             return jsonify({'result': 'success'})
