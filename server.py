@@ -65,7 +65,7 @@ def setAnnouncement():
 @app.route('/getUuid', methods=['POST'])
 def getUuid():
     mac = request.form.get('mac')
-    ip = request.remote_addr
+    userip = request.remote_addr
     intTime = int(time.time())
     
     hashStr = mac + ip + str(intTime)
@@ -74,7 +74,7 @@ def getUuid():
     db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
     cursor = db.cursor()
     
-    sql = '''INSERT INTO UserInfo VALUES ("%s", "%s", "%s", "%s", %d, %d, %d);'''%(uuid, "", mac, ip, intTime, 0, 0)
+    sql = '''INSERT INTO UserInfo VALUES ("%s", "%s", "%s", "%s", %d, %d, %d);'''%(uuid, "", mac, userip, intTime, 0, 0)
     cursor.execute(sql)
     
     db.commit()
