@@ -426,7 +426,7 @@ class ConfigWindow():
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
         resp = urllib.request.urlopen('http://139.199.102.41:8009/setUserId', data=jparse)
         res = json.load(resp)
-        print(res)
+
         if res["result"] == "dupid":
             self.entry4_2.delete(0, tk.END)
             self.entry4_2.insert(0, "用户名已存在")
