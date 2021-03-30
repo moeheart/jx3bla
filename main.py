@@ -1541,6 +1541,18 @@ class XiangZhiAnalysis():
                 self.mapdetail = "25人普通"
             elif mapid == "482":
                 self.mapdetail = "10人普通"
+                
+        if self.map == "白帝江关":
+            mapid = generator[0].rawdata['20'][0]
+            self.hardBOSS = ["宫傲"]
+            self.hardNPC = ["宫傲"]
+            self.hitDict = {}
+            if mapid == "520":
+                self.mapdetail = "25人英雄"
+            elif mapid == "519":
+                self.mapdetail = "25人普通"
+            elif mapid == "518":
+                self.mapdetail = "10人普通"
 
         data = XiangZhiOverallData()
 

@@ -85,6 +85,10 @@ class XiangZhiPainter():
                        "s24625": "鹰啄式",
                       }
             self.allBoss = ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳"]
+        elif self.map == "白帝江关":
+            self.hitDict = {
+                      }
+            self.allBoss = ["罗芬&胡汤", "赵八嫂", "海荼", "姜集苦", "宇文灭", "宫威", "宫傲"]
             
     def getScoreInfo(self, score, map):
         if map == "达摩洞":
