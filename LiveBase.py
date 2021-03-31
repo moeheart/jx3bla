@@ -723,7 +723,9 @@ class LiveListener():
         try:
             analysisExitCode = liveGenerator.firstStageAnalysis()
             if analysisExitCode == 1:
+                messagebox.showinfo(title='提示', message='实时模式下数据格式错误，请再次检查设置。如不能解决问题，尝试重启程序。\n在此状态下，大部分功能将不能正常使用。')
                 raise Exception("实时模式下数据格式错误，请再次检查设置。如不能解决问题，尝试重启程序。")
+                
             liveGenerator.secondStageAnalysis()
             if liveGenerator.upload:
                 liveGenerator.prepareUpload()

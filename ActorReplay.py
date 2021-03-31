@@ -242,8 +242,11 @@ class ActorStatGenerator(StatGeneratorBase):
         occdict = res['10'][0]
         sk = res['16'][0][""]
         
+        self.window.playerEquipment = res['18']
+        #print(res['18'])
+        
         if len(sk) == 0:
-            raise Exception('复盘信息格式错误，请确认设置是否正确。如果不清楚细节，请先使用实时模式。')
+            #raise Exception('复盘信息格式错误，请确认设置是否正确。如果不清楚细节，请先使用实时模式。')
             return 1 #格式错误
 
         self.namedict = namedict
@@ -1219,6 +1222,10 @@ class ActorStatGenerator(StatGeneratorBase):
             self.bonusRate = dpsThreshold["bonusRate"]
         self.getMap()
         self.lastTimeStamp = 0
+        
+        self.potList = []
+        self.detail = {"boss": "未知"}
+        self.effectiveDPSList = []
         
 class ActorData():
 

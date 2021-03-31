@@ -279,7 +279,7 @@ class MainWindow():
     def show_announcement(self):
         if self.lock.state():
             return
-        announceWindow = AnnounceWindow(self.announcement)
+        announceWindow = AnnounceWindow(self.announcement, self)
         announceWindow.start()
         
     def manual_update(self):
@@ -372,6 +372,7 @@ class MainWindow():
         self.playerIDs = []
         self.hasNoticeXiangzhi = 0
         self.rawData = {}
+        self.playerEquipment = []
         
 if __name__ == "__main__":
     mainWindow = MainWindow()

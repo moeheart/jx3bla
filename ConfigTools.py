@@ -18,6 +18,7 @@ import webbrowser
 
 from LiveBase import ToolTip
 from FileLookUp import FileLookUp
+from EquipmentExport import HuajianExportEquipment, EquipmentAnalyser
 
 class Config():
     '''
@@ -338,6 +339,10 @@ class LicenseWindow():
         self.lock = lock
         
 class AnnounceWindow():
+    '''
+    公告窗口类，提供公告窗口的展示。
+    现有的公告窗口拼凑了较多的功能，之后可能会改名。
+    '''
 
     def final(self):
         self.window.destroy()
@@ -350,6 +355,13 @@ class AnnounceWindow():
         
     def show_update(self):
         webbrowser.open("https://github.com/moeheart/jx3bla/blob/master/update.md")
+        
+    def show_export_equip(self):
+        if self.mainWindow.playerEquipment == []:
+            messagebox.showinfo(title='提示', message='还未读取记录，请至少读取一条记录再试。')
+            return
+        self.exportEquip = ExportEquipmentWindow(self.mainWindow.playerEquipment)
+        self.exportEquip.start()
     
     def loadWindow(self):
         '''
@@ -372,9 +384,12 @@ class AnnounceWindow():
         b3.place(x = 50, y = 160)
         
         b4 = tk.Button(window, text='帮助文档', height=1, command=self.show_help)
-        b4.place(x = 160, y = 160)
+        b4.place(x = 123, y = 160)
         
         b5 = tk.Button(window, text='更新内容', height=1, command=self.show_update)
+        b5.place(x = 196, y = 160)
+        
+        b5 = tk.Button(window, text='导出配装', height=1, command=self.show_export_equip)
         b5.place(x = 270, y = 160)
         
         window.protocol('WM_DELETE_WINDOW', self.final)
@@ -383,9 +398,62 @@ class AnnounceWindow():
         self.windowThread = threading.Thread(target = self.loadWindow)    
         self.windowThread.start()
 
-    def __init__(self, announcement):
+    def __init__(self, announcement, mainWindow):
         self.announcement = announcement
-        pass
+        self.mainWindow = mainWindow
+        
+class ExportEquipmentWindow():
+    '''
+    配装导出窗口类，用于支持配装计算器的一站式导入。
+    '''
+    
+    def final(self):
+        self.window.destroy()
+        
+    def export_huajian(self):
+        l = os.listdir('.')
+        if "花间DPS配装计算器—奉天证道beta1.01.xlsx" not in l:
+            messagebox.showinfo(title='导出失败', message='请将[花间DPS配装计算器—奉天证道beta1.01.xlsx]放在当前目录下。')
+            return
+            
+        equipmentAnalyser = EquipmentAnalyser()
+        equips = equipmentAnalyser.convert(self.playerEquipment)
+        huajianExportEquipment = HuajianExportEquipment()
+        huajianExportEquipment.export(equips)
+        messagebox.showinfo(title='导出成功', message='导出成功！保存在[计算器手动缝合版.xlsx]。')
+        
+    def export_more(self):
+        messagebox.showinfo(title='提示', message='更多功能，敬请期待！')
+    
+    def loadWindow(self):
+        '''
+        使用tkinter绘制公告窗口。
+        '''
+        window = tk.Toplevel()
+        window.title('导出配装信息')
+        window.geometry('300x200')
+
+        self.window = window
+        
+        text = "玩家装分：%s"%list(self.playerEquipment[0].values())[0][0][''][1]
+        l = tk.Message(window, text=text, font=('宋体', 10), width=380, anchor='nw', justify=tk.LEFT)
+        l.pack()
+        
+        b2 = tk.Button(window, text='导出花间计算器', height=1, command=self.export_huajian)
+        b2.pack()
+        
+        b3 = tk.Button(window, text='更多功能，敬请期待', height=1, command=self.export_more)
+        b3.pack()
+        
+        window.protocol('WM_DELETE_WINDOW', self.final)
+
+    def start(self):
+        self.windowThread = threading.Thread(target = self.loadWindow)    
+        self.windowThread.start()
+        
+    def __init__(self, playerEquipment):
+        self.playerEquipment = playerEquipment
+
                 
 class ConfigWindow():
     '''
