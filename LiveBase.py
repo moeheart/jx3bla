@@ -42,11 +42,25 @@ class ToolTip(object):
         self.tipwindow = tw = tk.Toplevel(self.widget)
         tw.wm_overrideredirect(1)
         tw.wm_geometry("+%d+%d" % (x, y))
- 
-        self.label = tk.Label(tw, text=text, justify=tk.LEFT,
-                      background="#ffffe0", relief=tk.SOLID, borderwidth=1,
-                      font=("Aaril", "10", "normal"))
-        self.label.pack(ipadx=1)
+        
+        tf = tk.Frame(tw, relief=tk.SOLID, borderwidth=1, bg="#ffffe0")
+        tf.pack(ipadx=1)
+        
+        textList = text.split('\n')
+        
+        for line in textList:
+            if line == "":
+                fg = "#000000"
+            if line[0] == "-":
+                fg = "#ff0000"
+            elif line[0] == "+":
+                fg = "#00ff00"
+            else:
+                fg = "#000000"
+            label = tk.Label(tf, text=line, fg=fg, justify=tk.LEFT,
+                          background="#ffffe0", anchor='nw', 
+                          font=("Aaril", "10", "normal"))
+            label.pack(anchor = tk.NW)
  
     def hidetip(self):
         tw = self.tipwindow

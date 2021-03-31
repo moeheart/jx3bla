@@ -526,6 +526,9 @@ class ConfigWindow():
             box.deselect()
         else:
             box.select()
+            
+    def lvlup(self):
+        pass
     
     def loadWindow(self):
         '''
@@ -625,7 +628,27 @@ class ConfigWindow():
         self.label4_3 = tk.Label(frame4, text='积分')
         self.label4_3_1 = tk.Label(frame4, text='0')
         self.label4_4 = tk.Label(frame4, text='经验值')
-        self.label4_4_1 = tk.Label(frame4, text='0/30')
+        
+        self.frame4_4 = tk.Frame(frame4)
+        
+        rankNow = "二级警员"
+        rankNext = "一级警员"
+        rankBar = "15/30"
+        rankPercent = 0.5
+        
+        self.label4_4_1 = tk.Label(self.frame4_4, text=rankNow)
+        self.label4_4_2 = ttk.Progressbar(self.frame4_4)
+        self.label4_4_2['maximum'] = 1
+        self.label4_4_2['value'] = rankPercent
+        ToolTip(self.label4_4_2, rankBar)
+        
+        self.label4_4_4 = tk.Label(self.frame4_4, text=rankNext)
+        self.button4_4_5 = tk.Button(frame4, text='升级', command=self.lvlup)
+        
+        self.label4_4_1.grid(row=0, column=0)
+        self.label4_4_2.grid(row=0, column=1)
+        self.label4_4_4.grid(row=0, column=2)
+        
         
         self.label4_1.grid(row=0, column=0)
         self.label4_1_1.grid(row=0, column=1)
@@ -635,7 +658,8 @@ class ConfigWindow():
         self.label4_3.grid(row=2, column=0)
         self.label4_3_1.grid(row=2, column=1)
         self.label4_4.grid(row=3, column=0)
-        self.label4_4_1.grid(row=3, column=1)
+        self.frame4_4.grid(row=3, column=1)
+        self.button4_4_5.grid(row=3, column=2)
         
         notebook.add(frame1, text='全局')
         notebook.add(frame2, text='奶歌')
