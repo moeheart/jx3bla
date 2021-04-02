@@ -582,6 +582,59 @@ class HuajianExportEquipment():
 
     def __init__(self):
         self.initDict()
+        
+class ExcelExportEquipment():
+
+    '''
+    导出为Excel可以粘贴的矩阵。
+    '''
+    def export(self, equips):
+        result = ""
+        for id in ["2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "0", "1"]:
+            if id in equips:
+                line = equips[id]
+                result += line["id"]
+                result += "\t"
+                if "star" in line:
+                    result += str(line["star"])
+                else:
+                    result += "0"
+                result += "\t"
+                if "magic" in line:
+                    result += line["magic"]
+                else:
+                    result += ""
+                result += "\t"
+                if "magic2" in line:
+                    result += line["magic2"]
+                else:
+                    result += ""
+                result += "\t"
+                if "plug1" in line:
+                    result += str(line["plug1"])
+                else:
+                    result += ""
+                result += "\t"
+                if "plug2" in line:
+                    result += str(line["plug2"])
+                else:
+                    result += ""
+                result += "\t"
+                if "plug3" in line:
+                    result += str(line["plug3"])
+                else:
+                    result += ""
+                result += "\t"
+                if "plug0" in line:
+                    result += str(line["plug0"])
+                else:
+                    result += ""
+            result += "\n"
+            
+        return result[:-1]
+    
+    def __init__(self):
+        pass
 
 class EquipmentAnalyser():
     '''
@@ -632,8 +685,11 @@ class EquipmentAnalyser():
                     plugID = g[""][1]
                     plug = {"": 0, "24423": 1, "24424": 2, "24425": 3, "24426": 4, "24427": 5, "24428": 6, "24429": 7, "24430": 8,
                                    "24442": 1, "24443": 2, "24444": 3, "24445": 4, "24446": 5, "24447": 6, "24448": 7, "24449": 8}[plugID]
-                    equip["plug%d"%i] = plug 
+                    equip["plug%d"%i] = plug
+            if "0" in d[4]:
+                equip["plug0"] = d[4]["0"][0][""][1]
             equip["magic"] = d[5]
+            equip["magic2"] = d[6]
             equips[equip["pos"]] = equip
         return equips
     

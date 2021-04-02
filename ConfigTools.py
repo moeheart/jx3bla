@@ -11,6 +11,7 @@ import uuid
 import json
 import tkinter as tk
 import urllib.request
+import pyperclip
 
 from tkinter import ttk
 from tkinter import messagebox
@@ -18,7 +19,7 @@ import webbrowser
 
 from LiveBase import ToolTip
 from FileLookUp import FileLookUp
-from EquipmentExport import HuajianExportEquipment, EquipmentAnalyser
+from EquipmentExport import HuajianExportEquipment, ExcelExportEquipment, EquipmentAnalyser
 
 class Config():
     '''
@@ -422,6 +423,15 @@ class ExportEquipmentWindow():
         huajianExportEquipment.export(equips)
         messagebox.showinfo(title='导出成功', message='导出成功！保存在[计算器手动缝合版.xlsx]。')
         
+    def export_excel(self):
+        equipmentAnalyser = EquipmentAnalyser()
+        equips = equipmentAnalyser.convert(self.playerEquipment)
+        excelExportEquipment = ExcelExportEquipment()
+        result = excelExportEquipment.export(equips)
+        pyperclip.copy(result)
+        messagebox.showinfo(title='提示', message='导出到剪贴板成功！')
+        
+        
     def export_more(self):
         messagebox.showinfo(title='提示', message='更多功能，敬请期待！')
     
@@ -442,8 +452,11 @@ class ExportEquipmentWindow():
         b2 = tk.Button(window, text='导出花间计算器', height=1, command=self.export_huajian)
         b2.pack()
         
-        b3 = tk.Button(window, text='更多功能，敬请期待', height=1, command=self.export_more)
+        b3 = tk.Button(window, text='导出表格到剪贴板', height=1, command=self.export_excel)
         b3.pack()
+        
+        b4 = tk.Button(window, text='更多功能，敬请期待', height=1, command=self.export_more)
+        b4.pack()
         
         window.protocol('WM_DELETE_WINDOW', self.final)
 
