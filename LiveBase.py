@@ -492,8 +492,8 @@ class SingleBossWindow():
 
 class LiveActorStatGenerator(ActorStatGenerator):
     
-    def __init__(self, filename, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}, uploadTiantiFlag=0, window=None):
-        super().__init__(filename, path, rawdata=rawdata, failThreshold=failThreshold, 
+    def __init__(self, filename, config, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}, uploadTiantiFlag=0, window=None):
+        super().__init__(filename, config, path, rawdata=rawdata, failThreshold=failThreshold, 
             battleDate=battleDate, mask=mask, dpsThreshold=dpsThreshold, uploadTiantiFlag=uploadTiantiFlag, window=window)
             
 class PotContainer():
@@ -731,7 +731,7 @@ class LiveListener():
         - liveGenerator 实时复盘对象，用于后续处理流程。
         '''
         battleDate = '-'.join(fileName.split('-')[0:3])
-        liveGenerator = LiveActorStatGenerator([fileName, 0, 1], basepath, rawdata=raw, failThreshold=self.config.failThreshold, 
+        liveGenerator = LiveActorStatGenerator([fileName, 0, 1], self.config, basepath, rawdata=raw, failThreshold=self.config.failThreshold, 
                 battleDate=battleDate, mask=self.config.mask, dpsThreshold=self.dpsThreshold, uploadTiantiFlag=self.config.uploadTianti, window=self.mainwindow)
         
         try:
@@ -743,6 +743,8 @@ class LiveListener():
             liveGenerator.secondStageAnalysis()
             if liveGenerator.upload:
                 liveGenerator.prepareUpload()
+            if liveGenerator.uploadTianti:
+                liveGenerator.prepareUploadTianti()
             if liveGenerator.win:
                 self.mainwindow.addRawData(fileName, liveGenerator.getRawData())
             else:
@@ -780,8 +782,8 @@ class LiveListener():
         toaster = ToastNotifier()
         toaster.show_toast("分锅结果已生成", "[%s]的战斗复盘已经解析完毕，请打开结果界面分锅。"%liveGenerator.bossname, icon_path='jx3bla.ico')
         
-        if liveGenerator.uploadTianti:
-            liveGenerator.prepareUploadTianti()
+        #if liveGenerator.uploadTianti:
+        #    liveGenerator.prepareUploadTianti()
 
     def listenPath(self, basepath):
         '''

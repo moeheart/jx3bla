@@ -1,4 +1,4 @@
-git add *.py *.ini *.md
+git add *.py *.md
 git commit -m "[Auto]Update as the log"
 git push origin
 pyinstaller -F -i jx3bla.ico MainWindow.py

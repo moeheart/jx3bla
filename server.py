@@ -293,6 +293,20 @@ def uploadActorData():
         
     win = int(jdata["win"])
     
+    if "time" not in jdata:
+        jdata["time"] = 0
+    if "begintime" not in jdata:
+        jdata["begintime"] = 0
+    if "userid" not in jdata:
+        jdata["userid"] = "unknown"
+        
+    submitTime = jdata["time"]
+    battleTime = jdata["begintime"]
+    userID = jdata["userid"]
+    editionFull = parseEdition(edition)
+    
+    #增加五个字段：editionfull INT, userid VARCHAR(32), battletime INT, submittime INT, instanceid VARCHAR(32)
+    
     db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
     cursor = db.cursor()
     
@@ -336,6 +350,20 @@ def uploadXiangZhiData():
         jdata["public"] = 0
         
     public = jdata["public"]
+    
+    if "time" not in jdata:
+        jdata["time"] = 0
+    if "begintime" not in jdata:
+        jdata["begintime"] = 0
+    if "userid" not in jdata:
+        jdata["userid"] = "unknown"
+        
+    submitTime = jdata["time"]
+    battleTime = jdata["begintime"]
+    userID = jdata["userid"]
+    editionFull = parseEdition(edition)
+    
+    #增加五个字段：editionfull INT, userid VARCHAR(32), battletime INT, submittime INT, instanceid VARCHAR(32)
     
     db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
     cursor = db.cursor()

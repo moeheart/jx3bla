@@ -1383,6 +1383,14 @@ class XiangZhiAnalysis():
         result["edition"] = edition
         result["hash"] = self.hashGroup()
         result["public"] = self.public
+        
+        result["time"] = int(time.time())
+        result["starttime"] = self.beginTime
+        result["userid"] = self.config.items_user["uuid"]
+        print(result["time"])
+        print(result["starttime"])
+        print(result["userid"])
+        
         allInfo = {}
         data = self.data
         allInfo["speed"] = self.speed
@@ -1483,11 +1491,12 @@ class XiangZhiAnalysis():
             elif self.myname != res.myname:
                 raise Exception("全程奶歌名称不一致，请手动指定ID")
 
-            res2 = ActorStatGenerator(filename, path, res.rawdata, self.myname)
+            res2 = ActorStatGenerator(filename, self.config, path, res.rawdata, self.myname)
             res2.startTime = res.startTime
             res2.finalTime = res.finalTime
             res2.secondStageAnalysis()
             self.generator2.append(res2)
+            self.beginTime = res2.beginTime
 
     def analysis(self):
 
@@ -1772,6 +1781,7 @@ class XiangZhiAnalysis():
         self.text = config.text
         self.speed = config.speed
         self.public = config.xiangzhiPublic
+        self.config = config
         self.loadData(filelist, path, raw)
         self.map = map
         self.battledate = '-'.join(filelist[0][0].split('-')[0:3])

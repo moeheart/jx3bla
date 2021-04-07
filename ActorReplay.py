@@ -188,7 +188,17 @@ class ActorStatGenerator(StatGeneratorBase):
         result["edition"] = EDITION
         result["hash"] = self.hashGroup()
         result["win"] = self.win
+        
         result["time"] = int(time.time())
+        result["begintime"] = self.beginTime
+        result["userid"] = self.config.items_user["uuid"]
+        #result["instancecd"] = self.instanceCD
+        
+        print(result["begintime"])
+        print(result["time"])
+        print(result["userid"])
+        #print(result["instancecd"])
+        
         allInfo = {}
         allInfo["effectiveDPSList"] = self.effectiveDPSList
         allInfo["potList"] = self.potList
@@ -384,6 +394,10 @@ class ActorStatGenerator(StatGeneratorBase):
         occdict = res['10'][0]
         skilldict = res['11'][0]
         sk = res['16'][0][""]
+        
+        #self.instanceCD = '0'#res[''][0]
+        self.beginTime = int(res['4'][0])
+        #print(res['18'][0])
         
         if self.occDetailList != {}:
             occDetailList = self.occDetailList
@@ -1200,10 +1214,11 @@ class ActorStatGenerator(StatGeneratorBase):
     def getRawData(self):
         return self.rawdata
 
-    def __init__(self, filename, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}, uploadTiantiFlag=0, window=None):
+    def __init__(self, filename, config, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}, uploadTiantiFlag=0, window=None):
         self.myname = myname
         self.numTry = filename[1]
         self.lastTry = filename[2]
+        self.config = config
         self.failThreshold = failThreshold
         self.win = 0
         self.battleDate = battleDate

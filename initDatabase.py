@@ -34,7 +34,7 @@ sql = """CREATE TABLE XiangZhiStat (
          ) DEFAULT CHARSET utf8mb4"""
 cursor.execute(sql)
 
-#在XiangZhiStat最后增加三个字段：userid VARCHAR(32)，time INT，instance VARCHAR(32)
+#在XiangZhiStat最后增加五个字段：editionfull INT, userid VARCHAR(32), battletime INT, submittime INT, instanceid VARCHAR(32)
 
 sql = """CREATE TABLE ActorStat (
          server VARCHAR(32),
@@ -47,7 +47,7 @@ sql = """CREATE TABLE ActorStat (
          ) DEFAULT CHARSET utf8mb4"""
 cursor.execute(sql)
 
-#在ActorStat最后增加两个字段：userid VARCHAR(32)，time INT，instance VARCHAR(32)
+#在ActorStat最后增加五个字段：editionfull INT, userid VARCHAR(32), battletime INT, submittime INT, instanceid VARCHAR(32)
 
 sql = """CREATE TABLE PreloadInfo(
          edition VARCHAR(32),
@@ -79,11 +79,34 @@ cursor.execute(sql)
 
 #在UserInfo最后增加11个字段：item(1-10) INT, lvl INT
 
+sql = """CREATE TABLE ScoreInfo(
+         id VARCHAR(32),
+         userid VARCHAR(32),
+         time INT,
+         val INT) DEFAULT CHARSET utf8mb4"""
+
 #新建一个表ScoreInfo，表示积分变动，记录scoreid，userid，时间，变化量。
 
-#新建一个表CommentInfo，用于收集评价，记录commentid，区服，玩家名，userid，时间，分类，等级，评论内容，instanceid
+sql = """CREATE TABLE CommentInfo(
+         id VARCHAR(32),
+         server VARCHAR(32),
+         player VARCHAR(32),
+         userid VARCHAR(32),
+         instanceid VARCHAR(32),
+         time INT,
+         type INT,
+         power INT,
+         content VARCHAR(1280)) DEFAULT CHARSET utf8mb4"""
 
-#新建一个表InstanceInfo，表示副本信息，记录instanceid，日期，区服，副本ID。
+#新建一个表CommentInfo，用于收集评价，记录commentid，区服，玩家名，userid，时间，分类，等级，评论内容
+
+sql = """CREATE TABLE InstanceInfo(
+         id VARCHAR(32),
+         server VARCHAR(32),
+         date VARCHAR(32),
+         cd VARCHAR(32)) DEFAULT CHARSET utf8mb4"""
+
+#新建一个表InstanceInfo，表示副本信息，记录instanceid，区服，日期，副本ID。
 
 db.commit()
 db.close()
