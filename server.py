@@ -74,7 +74,7 @@ def getUuid():
     db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
     cursor = db.cursor()
     
-    sql = '''INSERT INTO UserInfo VALUES ("%s", "%s", "%s", "%s", %d, %d, %d);'''%(uuid, "", mac, userip, intTime, 0, 0)
+    sql = '''INSERT INTO UserInfo VALUES ("%s", "%s", "%s", "%s", %d, %d, %d, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);'''%(uuid, "", mac, userip, intTime, 0, 0)
     cursor.execute(sql)
     
     db.commit()
@@ -325,8 +325,8 @@ def uploadActorData():
     sql = '''DELETE FROM ActorStat WHERE hash = "%s"'''%hash
     cursor.execute(sql)
         
-    sql = """INSERT INTO ActorStat VALUES ("%s", "%s", "%s", "%s", "%s", "%s", %d, "%s")"""%(
-        server, boss, battleDate, mapDetail, edition, hash, win, statistics)
+    sql = """INSERT INTO ActorStat VALUES ("%s", "%s", "%s", "%s", "%s", "%s", %d, "%s", %d, "%s", %d, %d, "")"""%(
+        server, boss, battleDate, mapDetail, edition, hash, win, statistics, editionFull, userID, battleTime, submitTime)
     cursor.execute(sql)
     db.commit()
     db.close()
@@ -398,8 +398,8 @@ def uploadXiangZhiData():
     sql = '''DELETE FROM ActorStat WHERE hash = "%s"'''%hash
     cursor.execute(sql)
         
-    sql = """INSERT INTO XiangZhiStat VALUES ("%s", "%s", %d, "%s", "%s", "%s", "%s", "%s", %d)"""%(
-        server, id, score, battleDate, mapDetail, edition, hash, statistics, public)
+    sql = """INSERT INTO XiangZhiStat VALUES ("%s", "%s", %d, "%s", "%s", "%s", "%s", "%s", %d, %d, "%s", %d, %d, "")"""%(
+        server, id, score, battleDate, mapDetail, edition, hash, statistics, public, editionFull, userID, battleTime, submitTime)
     cursor.execute(sql)
     db.commit()
     db.close()
