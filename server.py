@@ -361,7 +361,7 @@ def uploadComment():
         sql = """UPDATE UserInfo SET item%d=%d WHERE uuid="%s";"""%(deductItem-1, result[0][deductItem-1]-1, userid)
         cursor.execute(sql)
         
-    sql = """INSERT INTO CommentInfo ("%s", "%s", "%s", "%s", "%s", "%s", %d, %d, %d, "%s", "%s")"""%(
+    sql = """INSERT INTO CommentInfo VALUES("%s", "%s", "%s", "%s", "%s", "%s", %d, %d, %d, "%s", "%s")"""%(
         hash, server, player, userid, mapdetail, "", beginTime, dtype, power, content, pot)
     cursor.execute(sql)
         
