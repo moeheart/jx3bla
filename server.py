@@ -275,6 +275,97 @@ def XiangZhiDataPng():
             return render_template("XiangZhiPng.html", key = key)
         
     return jsonify({'result': '记录不存在'})
+    
+@app.route('/uploadComment', methods=['POST'])
+def uploadComment():
+    jdata = json.loads(request.form.get('jdata'))
+    print(jdata) 
+
+    dtype = jdata["type"]
+    power = jdata["power"]
+    content = jdata["content"]
+    pot = jdata["pot"]
+    server = jdata["server"]
+    userid = jdata["userid"]
+    mapdetail = jdata["mapdetail"]
+    beginTime = jdata["time"]
+    player = jdata["player"]
+    hash = jdata["hash"]
+    
+    sql = '''SELECT time from CommentInfo WHERE server = "%s" AND player = "%s" and userid = "%s" and mapdetail = "%s"'''%(server, player, userid, mapdetail)
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    
+    if result:
+        date1 = time.strftime("%Y-%m-%d", beginTime)
+        for line in result:
+            date2 = time.strftime("%Y-%m-%d", line[0])
+            if date1 == date2:
+                db.close()
+                return jsonify({'result': 'duplicate'})
+                
+    # 检查能量是否合法
+    sql = '''SELECT item1, item2, item3, item4, score, lvl from UserInfo WHERE uuid = "%s"'''%(userid)
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    
+    if not result:
+        db.close()
+        return jsonify({'result': 'lack'})
+        
+    if power == 3 and result[0][5] < 2:
+        db.close()
+        return jsonify({'result': 'denied'})
+        
+    deductItem = 0
+    deductScore = 0
+    if power == 2:
+        if dtype == 1:
+            if result[0][0] > 0:
+                deductItem = 1
+            else:
+                deductScore = 8
+        else:
+            if result[0][2] > 0:
+                deductItem = 3
+            else:
+                deductScore = 8
+    if power == 3:
+        if dtype == 1:
+            if result[0][1] > 0:
+                deductItem = 2
+            else:
+                deductScore = 20
+        else:
+            if result[0][3] > 0:
+                deductItem = 4
+            else:
+                deductScore = 20
+    
+    if deductScore > 0 and result[0][4] < deductScore:
+        db.close()
+        return jsonify({'result': 'denied'})
+
+    if deductScore > 0:
+        sql = """INSERT INTO ScoreInfo VALUES ("", "%s", %d, "%s", %d)"""%(
+            userid, int(time.time()), "进行评价：%s"%hash, -deductScore)
+        cursor.execute(sql)
+        
+        sql = """UPDATE UserInfo SET score=%d WHERE uuid="%s";"""%(result[0][4]-deductScore, userid)
+        cursor.execute(sql)
+        
+    elif deductItem > 0:
+        sql = """UPDATE UserInfo SET item%d=%d WHERE uuid="%s";"""%(deductItem-1, result[0][deductItem-1]-1, userid)
+        cursor.execute(sql)
+        
+    sql = """INSERT INTO CommentInfo ("%s", "%s", "%s", "%s", "%s", "%s", %d, %d, %d, "%s", "%s")"""%(
+        hash, server, player, userid, mapdetail, "", beginTime, dtype, power, content, pot)
+    cursor.execute(sql)
+        
+    db.commit()
+    db.close()
+    return jsonify({'result': 'success'})
+
 
 @app.route('/uploadActorData', methods=['POST'])
 def uploadActorData():

@@ -83,20 +83,23 @@ sql = """CREATE TABLE ScoreInfo(
          id VARCHAR(32),
          userid VARCHAR(32),
          time INT,
+         reason VARCHAR(128), 
          val INT) DEFAULT CHARSET utf8mb4"""
 
-#新建一个表ScoreInfo，表示积分变动，记录scoreid，userid，时间，变化量。
+#新建一个表ScoreInfo，表示积分变动，记录scoreid，userid，时间，原因，变化量。
 
 sql = """CREATE TABLE CommentInfo(
          id VARCHAR(32),
          server VARCHAR(32),
          player VARCHAR(32),
          userid VARCHAR(32),
+         mapdetail VARCHAR(32),
          instanceid VARCHAR(32),
          time INT,
          type INT,
          power INT,
-         content VARCHAR(1280)) DEFAULT CHARSET utf8mb4"""
+         content VARCHAR(1280),
+         pot VARCHAR(1280)) DEFAULT CHARSET utf8mb4"""
 
 #新建一个表CommentInfo，用于收集评价，记录commentid，区服，玩家名，userid，时间，分类，等级，评论内容
 

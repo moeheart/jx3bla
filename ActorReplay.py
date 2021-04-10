@@ -194,9 +194,9 @@ class ActorStatGenerator(StatGeneratorBase):
         result["userid"] = self.config.items_user["uuid"]
         #result["instancecd"] = self.instanceCD
         
-        print(result["begintime"])
-        print(result["time"])
-        print(result["userid"])
+        #print(result["begintime"])
+        #print(result["time"])
+        #print(result["userid"])
         #print(result["instancecd"])
         
         allInfo = {}
