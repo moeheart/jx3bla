@@ -5,6 +5,10 @@ import threading
 import os
 import time
 import traceback
+import hashlib
+import urllib.request
+import requests
+import json
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -111,7 +115,7 @@ class CommentWindow():
         result["time"] = self.beginTime
         result["player"] = self.targetID
         
-        hashStr = result["server"] + result["player"] + result["userid"] + result["mapdetail"] + result["time"]
+        hashStr = result["server"] + result["player"] + result["userid"] + result["mapdetail"] + str(result["time"])
         hashres = hashlib.md5(hashStr.encode(encoding="utf-8")).hexdigest()
         
         result["hash"] = hashres
@@ -1039,7 +1043,7 @@ class AllStatWindow():
         server = self.analyser.getServer()
         userid = self.mainWindow.config.items_user["uuid"]
         mapDetail = self.analyser.getMapDetail()
-        beginTime = self.analyser.getbeginTime()
+        beginTime = self.analyser.getBeginTime()
         commentWindow = CommentWindow(id, occ, pots, server, userid, mapDetail, beginTime)
         commentWindow.start()
         

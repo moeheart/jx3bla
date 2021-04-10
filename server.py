@@ -292,6 +292,9 @@ def uploadComment():
     player = jdata["player"]
     hash = jdata["hash"]
     
+    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    cursor = db.cursor()
+    
     sql = '''SELECT time from CommentInfo WHERE server = "%s" AND player = "%s" and userid = "%s" and mapdetail = "%s"'''%(server, player, userid, mapdetail)
     cursor.execute(sql)
     result = cursor.fetchall()
