@@ -137,7 +137,7 @@ class CommentWindow():
         elif res['result'] == 'duplicate':
             messagebox.showinfo(title='失败', message='评价失败，你对该玩家提交过相同的评价。')
         elif res['result'] == 'denied':
-            messagebox.showinfo(title='失败', message='评价失败，你的等级不足以使用此功能。')
+            messagebox.showinfo(title='失败', message='评价失败，你的等级无法以使用此功能。')
         
         
     def start(self):

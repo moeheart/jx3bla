@@ -347,7 +347,7 @@ def uploadComment():
     
     if deductScore > 0 and result[0][4] < deductScore:
         db.close()
-        return jsonify({'result': 'denied'})
+        return jsonify({'result': 'lack'})
 
     if deductScore > 0:
         sql = """INSERT INTO ScoreInfo VALUES ("", "%s", %d, "%s", %d)"""%(
@@ -358,7 +358,7 @@ def uploadComment():
         cursor.execute(sql)
         
     elif deductItem > 0:
-        sql = """UPDATE UserInfo SET item%d=%d WHERE uuid="%s";"""%(deductItem-1, result[0][deductItem-1]-1, userid)
+        sql = """UPDATE UserInfo SET item%d=%d WHERE uuid="%s";"""%(deductItem, result[0][deductItem-1]-1, userid)
         cursor.execute(sql)
         
     sql = """INSERT INTO CommentInfo VALUES("%s", "%s", "%s", "%s", "%s", "%s", %d, %d, %d, "%s", "%s")"""%(
