@@ -300,9 +300,9 @@ def uploadComment():
     result = cursor.fetchall()
     
     if result:
-        date1 = time.strftime("%Y-%m-%d", beginTime)
+        date1 = time.strftime("%Y-%m-%d", time.localtime(beginTime))
         for line in result:
-            date2 = time.strftime("%Y-%m-%d", line[0])
+            date2 = time.strftime("%Y-%m-%d", time.localtime(line[0]))
             if date1 == date2:
                 db.close()
                 return jsonify({'result': 'duplicate'})
