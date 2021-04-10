@@ -1385,11 +1385,8 @@ class XiangZhiAnalysis():
         result["public"] = self.public
         
         result["time"] = int(time.time())
-        result["starttime"] = self.beginTime
+        result["begintime"] = self.beginTime
         result["userid"] = self.config.items_user["uuid"]
-        print(result["time"])
-        print(result["starttime"])
-        print(result["userid"])
         
         allInfo = {}
         data = self.data
