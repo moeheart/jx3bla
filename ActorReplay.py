@@ -218,6 +218,8 @@ class ActorStatGenerator(StatGeneratorBase):
         
         res = json.load(resp)
         
+        print(res)
+        
         if self.window is not None:
             if res["scoreStatus"] == "illegal":
                 self.window.setNotice({"t2": "未增加荣誉值，原因：非指定地图", "c2": "#ff0000"})

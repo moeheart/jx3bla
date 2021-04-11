@@ -925,7 +925,7 @@ class LiveListener():
             self.window.final()
         
         if self.mainwindow is not None:
-            self.mainwindow.setNotice({"t1": "[%s]分析完成！"%liveGenerator.bossname, "c1": "#000000", "t2": ""})
+            self.mainwindow.setNotice({"t1": "[%s]分析完成！"%liveGenerator.bossname, "c1": "#000000"})
         
         window = SingleBossWindow(self.analyser, self.bossNum, self.mainwindow)
 

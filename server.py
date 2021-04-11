@@ -428,17 +428,17 @@ def uploadActorData():
         response['scoreStatus'] = 'notwin'
     
     if result and result[0][6] == 1:
-        lastTime = result[0][11]
-        if submitTime - lastTime > 180:
-            scoreSuccess = 0
-            response['scoreStatus'] = 'expire'
-            
         sql = '''SELECT * from ScoreInfo WHERE reason LIKE "%s"'''%(hash)
         cursor.execute(sql)
         result2 = cursor.fetchall()
         if result2:
             scoreSuccess = 0
             response['scoreStatus'] = 'dupid'
+    
+        lastTime = result[0][11]
+        if submitTime - lastTime > 180:
+            scoreSuccess = 0
+            response['scoreStatus'] = 'expire'
             
         if parseEdition(result[0][4]) >= parseEdition(edition):
             print("Find Duplicated")
@@ -448,7 +448,7 @@ def uploadActorData():
         else:
             print("Update edition")
             
-    sql = '''SELECT * from UserInfo WHERE uuid = "%s"'''%(userid)
+    sql = '''SELECT * from UserInfo WHERE uuid = "%s"'''%(userID)
     cursor.execute(sql)
     result = cursor.fetchall()
     if not result or result[0][1] == "":
@@ -456,7 +456,7 @@ def uploadActorData():
         response['scoreStatus'] = 'nologin'
         
     if scoreSuccess and scoreAdd > 0:
-        sql = """UPDATE UserInfo SET score=%d WHERE uuid="%s";"""%(result[0][4]+scoreAdd, userid)
+        sql = """UPDATE UserInfo SET score=%d WHERE uuid="%s";"""%(result[0][4]+scoreAdd, userID)
         cursor.execute(sql)
         
         sql = """INSERT INTO ScoreInfo VALUES ("", "%s", %d, "%s", %d)"""%(
