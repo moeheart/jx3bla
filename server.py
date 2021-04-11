@@ -162,7 +162,7 @@ def userLvlup():
             response["result"] = "success"
             item = [0, 0, 0, 0]
             for i in range(4):
-                item[i] = result[0][7]+i
+                item[i] = result[0][7+i]
             rewardTable = []
             if lvl == 0:
                 rewardTable = [2,0,2,0]
@@ -181,6 +181,7 @@ def userLvlup():
             for i in range(4):
                 if rewardTable[i] > 0:
                     rewardContent.append("[%s]*%d"%(rewardItem[i], rewardTable[i]))
+                    item[i] += rewardTable[i]
             rewardTxt += ','.join(rewardContent)
             
             if lvl == 1:
