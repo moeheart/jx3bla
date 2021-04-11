@@ -50,7 +50,7 @@ class Config():
             self.score = 0
             self.lvl = 0
         
-        else：
+        else:
             self.userItems = [res["item1"], res["item2"], res["item3"], res["item4"]]
             self.exp = res["exp"]
             self.score = res["score"]
@@ -118,7 +118,7 @@ class Config():
                 uuid = self.getNewUuid()
                 self.userUuid = uuid
                 
-            
+            self.getUserInfo()
                 
             assert self.mask in [0, 1]
             assert self.color in [0, 1]
@@ -577,7 +577,7 @@ class ConfigWindow():
             box.select()
             
     def lvlup(self):
-        jpost = {'uuid': self.userUuid}
+        jpost = {'uuid': self.config.userUuid}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
         resp = urllib.request.urlopen('http://139.199.102.41:8009/userLvlup', data=jparse)
         res = json.load(resp)
@@ -687,10 +687,10 @@ class ConfigWindow():
         
         self.frame4_4 = tk.Frame(frame4)
         
-        rankNow = self.rankNow
-        rankNext = self.rankNext
-        rankBar = self.rankBar
-        rankPercent = self.rankPercent
+        rankNow = config.rankNow
+        rankNext = config.rankNext
+        rankBar = config.rankBar
+        rankPercent = config.rankPercent
         
         self.label4_4_1 = tk.Label(self.frame4_4, text=rankNow)
         self.label4_4_2 = ttk.Progressbar(self.frame4_4)
@@ -706,7 +706,7 @@ class ConfigWindow():
         self.label4_4_4.grid(row=0, column=2)
         
         self.frame4_5 = tk.Frame(frame4)
-        self.label4_5_1 = tk.Label(self.frame4, text="道具数量")
+        self.label4_5_1 = tk.Label(frame4, text="道具数量")
         self.label4_5_1a = tk.Label(self.frame4_5, text="中级点赞卡")
         self.label4_5_1b = tk.Label(self.frame4_5, text=config.userItems[0])
         self.label4_5_2a = tk.Label(self.frame4_5, text="高级点赞卡")
@@ -735,7 +735,7 @@ class ConfigWindow():
         self.frame4_4.grid(row=3, column=1)
         if rankPercent >= 1:
             self.button4_4_5.grid(row=3, column=2)
-        self.label4_5.grid(row=4, column=0)
+        self.label4_5_1.grid(row=4, column=0)
         self.frame4_5.grid(row=4, column=1)
         
         notebook.add(frame1, text='全局')

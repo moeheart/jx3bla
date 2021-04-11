@@ -160,7 +160,7 @@ def userLvlup():
         exp = result[0][6]
         if exp >= LVLTABLE[lvl+1]:
             response["result"] = "success"
-            items = [0, 0, 0, 0]
+            item = [0, 0, 0, 0]
             for i in range(4):
                 item[i] = result[0][7]+i
             rewardTable = []
