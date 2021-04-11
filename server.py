@@ -536,7 +536,7 @@ def uploadActorData():
         response['scoreStatus'] = 'nologin'
         
     if scoreSuccess and scoreAdd > 0:
-        sql = """UPDATE UserInfo SET score=%d WHERE uuid="%s";"""%(result[0][4]+scoreAdd, userID)
+        sql = """UPDATE UserInfo SET score=%d, exp=%d WHERE uuid="%s";"""%(result[0][5]+scoreAdd, result[0][6]+scoreAdd, userID)
         cursor.execute(sql)
         
         sql = """INSERT INTO ScoreInfo VALUES ("", "%s", %d, "%s", %d)"""%(
