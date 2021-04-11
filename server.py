@@ -448,7 +448,7 @@ def uploadActorData():
         else:
             print("Update edition")
             
-    sql = '''SELECT * from UserInfo WHERE uuid = "%s"'''%(uuid)
+    sql = '''SELECT * from UserInfo WHERE uuid = "%s"'''%(userid)
     cursor.execute(sql)
     result = cursor.fetchall()
     if not result or result[0][1] == "":
