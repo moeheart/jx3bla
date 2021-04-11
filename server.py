@@ -430,7 +430,7 @@ def uploadActorData():
         response['scoreStatus'] = 'notwin'
     
     if result and result[0][6] == 1:
-        sql = '''SELECT * from ScoreInfo WHERE reason LIKE "*%s*"'''%(hash)
+        sql = '''SELECT * from ScoreInfo WHERE reason LIKE "%%%s%%"'''%(hash)
         cursor.execute(sql)
         result2 = cursor.fetchall()
         if result2:
@@ -467,6 +467,7 @@ def uploadActorData():
         
     if dupID:
         print("Find Duplicated")
+        db.commit()
         db.close()
         response['result'] = 'dupid'
         return jsonify(response)
