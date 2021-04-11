@@ -421,24 +421,24 @@ def uploadActorData():
         scoreAdd = 4
     else:
         scoreSuccess = 0
-        result['scoreStatus'] = 'illegal'
+        response['scoreStatus'] = 'illegal'
         
     if win == 0:
         scoreSuccess = 0
-        result['scoreStatus'] = 'notwin'
+        response['scoreStatus'] = 'notwin'
     
     if result and result[0][6] == 1:
         lastTime = result[0][11]
         if submitTime - lastTime > 180:
             scoreSuccess = 0
-            result['scoreStatus'] = 'expire'
+            response['scoreStatus'] = 'expire'
             
         sql = '''SELECT * from ScoreInfo WHERE reason LIKE "%s"'''%(hash)
         cursor.execute(sql)
         result = cursor.fetchall()
         if result:
             scoreSuccess = 0
-            result['scoreStatus'] = 'dupid'
+            response['scoreStatus'] = 'dupid'
             
         if parseEdition(result[0][4]) >= parseEdition(edition):
             print("Find Duplicated")
@@ -453,7 +453,7 @@ def uploadActorData():
     result = cursor.fetchall()
     if not result or result[0][1] == "":
         scoreSuccess = 0
-        result['scoreStatus'] = 'nologin'
+        response['scoreStatus'] = 'nologin'
         
     if scoreSuccess and scoreAdd > 0:
         sql = """UPDATE UserInfo SET score=%d WHERE uuid="%s";"""%(result[0][4]+scoreAdd, userid)
@@ -463,8 +463,8 @@ def uploadActorData():
             userid, int(time.time()), "提交战斗记录：%s"%hash, scoreAdd)
         cursor.execute(sql)
         
-        result['scoreStatus'] = 'success'
-        result['scoreAdd'] = scoreAdd
+        response['scoreStatus'] = 'success'
+        response['scoreAdd'] = scoreAdd
             
     sql = '''DELETE FROM ActorStat WHERE hash = "%s"'''%hash
     cursor.execute(sql)
