@@ -413,6 +413,8 @@ def uploadActorData():
     scoreSuccess = 1
     scoreAdd = 0
     
+    dupID = 0
+    
     if mapDetail == '484':
         scoreAdd = 2
     elif mapDetail == '519':
@@ -428,7 +430,7 @@ def uploadActorData():
         response['scoreStatus'] = 'notwin'
     
     if result and result[0][6] == 1:
-        sql = '''SELECT * from ScoreInfo WHERE reason LIKE "%s"'''%(hash)
+        sql = '''SELECT * from ScoreInfo WHERE reason LIKE "*%s*"'''%(hash)
         cursor.execute(sql)
         result2 = cursor.fetchall()
         if result2:
@@ -441,10 +443,7 @@ def uploadActorData():
             response['scoreStatus'] = 'expire'
             
         if parseEdition(result[0][4]) >= parseEdition(edition):
-            print("Find Duplicated")
-            db.close()
-            response['result'] = 'dupid'
-            return jsonify(response)
+            dupID = 1
         else:
             print("Update edition")
             
@@ -465,6 +464,12 @@ def uploadActorData():
         
         response['scoreStatus'] = 'success'
         response['scoreAdd'] = scoreAdd
+        
+    if dupID:
+        print("Find Duplicated")
+        db.close()
+        response['result'] = 'dupid'
+        return jsonify(response)
             
     sql = '''DELETE FROM ActorStat WHERE hash = "%s"'''%hash
     cursor.execute(sql)
