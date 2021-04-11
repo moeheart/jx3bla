@@ -193,7 +193,8 @@ def userLvlup():
             
             sql = """UPDATE UserInfo SET item1=%d, item2=%d, item3=%d, item4=%d, lvl=%d WHERE uuid="%s";"""%(item[0], item[1], item[2], item[3], lvl+1, uuid)
             cursor.execute(sql)
-            
+    
+    db.commit()
     db.close()
     return jsonify(response)
     
