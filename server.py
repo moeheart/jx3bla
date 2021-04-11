@@ -382,6 +382,8 @@ def uploadActorData():
     hash = jdata["hash"]
     statistics = jdata["statistics"]
     
+    response = {}
+    
     if "win" not in jdata:
         jdata["win"] = 1
         
@@ -408,14 +410,62 @@ def uploadActorData():
     cursor.execute(sql)
     result = cursor.fetchall()
     
+    scoreSuccess = 1
+    scoreAdd = 0
+    
+    if mapDetail == '484':
+        scoreAdd = 2
+    elif mapDetail == '519':
+        scoreAdd = 1
+    elif mapDetail == '520':
+        scoreAdd = 4
+    else:
+        scoreSuccess = 0
+        result['scoreStatus'] = 'illegal'
+        
+    if win == 0:
+        scoreSuccess = 0
+        result['scoreStatus'] = 'notwin'
+    
     if result and result[0][6] == 1:
+        lastTime = result[0][11]
+        if submitTime - lastTime > 180:
+            scoreSuccess = 0
+            result['scoreStatus'] = 'expire'
+            
+        sql = '''SELECT * from ScoreInfo WHERE reason LIKE "%s"'''%(hash)
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        if result:
+            scoreSuccess = 0
+            result['scoreStatus'] = 'dupid'
+            
         if parseEdition(result[0][4]) >= parseEdition(edition):
             print("Find Duplicated")
             db.close()
-            return jsonify({'result': 'dupid'})
+            response['result'] = 'dupid'
+            return jsonify(response)
         else:
             print("Update edition")
+            
+    sql = '''SELECT * from UserInfo WHERE uuid = "%s"'''%(uuid)
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    if not result or result[0][1] == "":
+        scoreSuccess = 0
+        result['scoreStatus'] = 'nologin'
         
+    if scoreSuccess and scoreAdd > 0:
+        sql = """UPDATE UserInfo SET score=%d WHERE uuid="%s";"""%(result[0][4]+scoreAdd, userid)
+        cursor.execute(sql)
+        
+        sql = """INSERT INTO ScoreInfo VALUES ("", "%s", %d, "%s", %d)"""%(
+            userid, int(time.time()), "提交战斗记录：%s"%hash, scoreAdd)
+        cursor.execute(sql)
+        
+        result['scoreStatus'] = 'success'
+        result['scoreAdd'] = scoreAdd
+            
     sql = '''DELETE FROM ActorStat WHERE hash = "%s"'''%hash
     cursor.execute(sql)
         
@@ -424,8 +474,9 @@ def uploadActorData():
     cursor.execute(sql)
     db.commit()
     db.close()
-    
-    return jsonify({'result': 'success'})
+   
+    response['result'] = 'success'
+    return jsonify(response)
     
 @app.route('/uploadXiangZhiData', methods=['POST'])
 def uploadXiangZhiData():

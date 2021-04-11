@@ -214,7 +214,23 @@ class ActorStatGenerator(StatGeneratorBase):
 
         jpost = {'jdata': Jdata}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        urllib.request.urlopen('http://139.199.102.41:8009/uploadActorData', data=jparse)
+        resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadActorData', data=jparse)
+        
+        res = json.load(resp)
+        
+        if self.window is not None:
+            if res["scoreStatus"] == "illegal":
+                self.window.setNotice({"t2": "未增加荣誉值，原因：非指定地图", "c2": "#ff0000"})
+            elif res["scoreStatus"] == "notwin":
+                self.window.setNotice({"t2": "未增加荣誉值，原因：未击败BOSS", "c2": "#ff0000"})
+            elif res["scoreStatus"] == "expire":
+                self.window.setNotice({"t2": "未增加荣誉值，原因：数据已被他人上传", "c2": "#ff0000"})
+            elif res["scoreStatus"] == "dupid":
+                self.window.setNotice({"t2": "未增加荣誉值，原因：数据已被自己上传", "c2": "#ff0000"})
+            elif res["scoreStatus"] == "nologin":
+                self.window.setNotice({"t2": "未增加荣誉值，原因：未注册用户名", "c2": "#ff0000"})
+            elif res["scoreStatus"] == "success":
+                self.window.setNotice({"t2": "数据上传成功，荣誉值增加：%d"%res["scoreAdd"], "c2": "#00ff00"})
         
     def getMap(self):
         mapid = self.rawdata['20'][0]
