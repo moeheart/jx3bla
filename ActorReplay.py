@@ -218,7 +218,7 @@ class ActorStatGenerator(StatGeneratorBase):
         
         res = json.load(resp)
         
-        print(res)
+        #print(res)
         
         if self.window is not None:
             if res["scoreStatus"] == "illegal":

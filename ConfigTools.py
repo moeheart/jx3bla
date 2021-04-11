@@ -20,6 +20,7 @@ import webbrowser
 from LiveBase import ToolTip
 from FileLookUp import FileLookUp
 from EquipmentExport import HuajianExportEquipment, ExcelExportEquipment, EquipmentAnalyser
+from Constants import *
 
 class Config():
     '''
@@ -31,6 +32,39 @@ class Config():
     items_actor = {}
     items_user = {}
     
+    def getUserInfo(self):
+        '''
+        与服务器通信，获取当前uuid的用户信息并保存在config中。
+        '''
+        jpost = {'uuid': self.userUuid}
+        jparse = urllib.parse.urlencode(jpost).encode('utf-8')
+        resp = urllib.request.urlopen('http://139.199.102.41:8009/getUserInfo', data=jparse)
+        res = json.load(resp)
+        
+        if res['exist'] == 0:
+            messagebox.showinfo(title='错误', message='用户唯一标识出错，将重新生成并清除用户数据。如果遇到问题，请联系作者。')
+            uuid = self.getNewUuid()
+            self.userUuid = uuid
+            self.userItems = [0, 0, 0, 0]
+            self.exp = 0
+            self.score = 0
+            self.lvl = 0
+        
+        else：
+            self.userItems = [res["item1"], res["item2"], res["item3"], res["item4"]]
+            self.exp = res["exp"]
+            self.score = res["score"]
+            self.lvl = res["lvl"]
+            
+        self.rankNow = LVLNAME[self.lvl]
+        self.rankNext = LVLNAME[self.lvl+1]
+        self.rankBar = "%d/%d"%(self.exp, LVLTABLE[self.lvl+1])
+        
+        if self.exp >= LVLTABLE[self.lvl+1]:
+            self.rankPercent = 1
+        else:
+            self.rankPercent = (self.exp - LVLTABLE[self.lvl]) / (LVLTABLE[self.lvl+1] - LVLTABLE[self.lvl])
+
     def getNewUuid(self):
         '''
         与服务器通信，取得一个新的uuid。
@@ -83,6 +117,8 @@ class Config():
             if self.userUuid == "":
                 uuid = self.getNewUuid()
                 self.userUuid = uuid
+                
+            
                 
             assert self.mask in [0, 1]
             assert self.color in [0, 1]
@@ -541,7 +577,14 @@ class ConfigWindow():
             box.select()
             
     def lvlup(self):
-        pass
+        jpost = {'uuid': self.userUuid}
+        jparse = urllib.parse.urlencode(jpost).encode('utf-8')
+        resp = urllib.request.urlopen('http://139.199.102.41:8009/userLvlup', data=jparse)
+        res = json.load(resp)
+        if res["result"] == "fail":
+            messagebox.showinfo(title='错误', message='升级失败！')
+        elif res["result"] == "success":
+            messagebox.showinfo(title='成功', message='升级成功！\n%s'%res["info"])
     
     def loadWindow(self):
         '''
@@ -644,10 +687,10 @@ class ConfigWindow():
         
         self.frame4_4 = tk.Frame(frame4)
         
-        rankNow = "二级警员"
-        rankNext = "一级警员"
-        rankBar = "15/30"
-        rankPercent = 0.5
+        rankNow = self.rankNow
+        rankNext = self.rankNext
+        rankBar = self.rankBar
+        rankPercent = self.rankPercent
         
         self.label4_4_1 = tk.Label(self.frame4_4, text=rankNow)
         self.label4_4_2 = ttk.Progressbar(self.frame4_4)
@@ -662,6 +705,24 @@ class ConfigWindow():
         self.label4_4_2.grid(row=0, column=1)
         self.label4_4_4.grid(row=0, column=2)
         
+        self.frame4_5 = tk.Frame(frame4)
+        self.label4_5_1 = tk.Label(self.frame4, text="道具数量")
+        self.label4_5_1a = tk.Label(self.frame4_5, text="中级点赞卡")
+        self.label4_5_1b = tk.Label(self.frame4_5, text=config.userItems[0])
+        self.label4_5_2a = tk.Label(self.frame4_5, text="高级点赞卡")
+        self.label4_5_2b = tk.Label(self.frame4_5, text=config.userItems[1])
+        self.label4_5_3a = tk.Label(self.frame4_5, text="中级吐槽卡")
+        self.label4_5_3b = tk.Label(self.frame4_5, text=config.userItems[2])
+        self.label4_5_4a = tk.Label(self.frame4_5, text="高级吐槽卡")
+        self.label4_5_4b = tk.Label(self.frame4_5, text=config.userItems[3])
+        self.label4_5_1a.grid(row=0, column=0)
+        self.label4_5_1b.grid(row=0, column=1)
+        self.label4_5_2a.grid(row=1, column=0)
+        self.label4_5_2b.grid(row=1, column=1)
+        self.label4_5_3a.grid(row=2, column=0)
+        self.label4_5_3b.grid(row=2, column=1)
+        self.label4_5_4a.grid(row=3, column=0)
+        self.label4_5_4b.grid(row=3, column=1)
         
         self.label4_1.grid(row=0, column=0)
         self.label4_1_1.grid(row=0, column=1)
@@ -672,7 +733,10 @@ class ConfigWindow():
         self.label4_3_1.grid(row=2, column=1)
         self.label4_4.grid(row=3, column=0)
         self.frame4_4.grid(row=3, column=1)
-        self.button4_4_5.grid(row=3, column=2)
+        if rankPercent >= 1:
+            self.button4_4_5.grid(row=3, column=2)
+        self.label4_5.grid(row=4, column=0)
+        self.frame4_5.grid(row=4, column=1)
         
         notebook.add(frame1, text='全局')
         notebook.add(frame2, text='奶歌')

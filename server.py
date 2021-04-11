@@ -115,6 +115,87 @@ def setUserId():
     else:
         db.close()
         return jsonify({'result': 'nouuid'})
+        
+
+@app.route('/getUserInfo', methods=['POST'])
+def getUserInfo():
+    uuid = request.form.get('uuid')
+    
+    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    cursor = db.cursor()
+    sql = '''SELECT * from UserInfo WHERE uuid = "%s"'''%(uuid)
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    
+    response = {'exist': 0}
+    
+    if result:
+        response["exist"] = 1
+        response["item1"] = result[0][7]
+        response["item2"] = result[0][8]
+        response["item3"] = result[0][9]
+        response["item4"] = result[0][10]
+        response["exp"] = result[0][6]
+        response["score"] = result[0][5]
+        response["lvl"] = result[0][17]
+        
+    db.close()
+    return jsonify(response)
+    
+    
+@app.route('/userLvlup', methods=['POST'])
+def userLvlup():
+    uuid = request.form.get('uuid')
+    
+    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    cursor = db.cursor()
+    sql = '''SELECT * from UserInfo WHERE uuid = "%s"'''%(uuid)
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    
+    response = {'result': "fail"}
+    
+    if result:
+        lvl = result[0][17]
+        exp = result[0][6]
+        if exp >= LVLTABLE[lvl+1]:
+            response["result"] = "success"
+            items = [0, 0, 0, 0]
+            for i in range(4):
+                item[i] = result[0][7]+i
+            rewardTable = []
+            if lvl == 0:
+                rewardTable = [2,0,2,0]
+            elif lvl <= 3:
+                rewardTable = [4,2,4,2]
+            elif lvl <= 6:
+                rewardTable = [10,4,10,4]
+            elif lvl <= 9:
+                rewardTable = [15,6,15,6]
+            else:
+                rewardTable = [0,10,0,10]
+            
+            rewardTxt = "你获得了升级奖励："
+            rewardItem = ["中级点赞卡", "中级吐槽卡", "高级点赞卡", "高级吐槽卡"]
+            rewardContent = []
+            for i in range(4):
+                if rewardTable[i] > 0:
+                    rewardContent.append("[%s]*%d"%(rewardItem[i], rewardTable[i]))
+            rewardTxt += ','.join(rewardContent)
+            
+            if lvl == 1:
+                rewardTxt += '\n你解锁了功能：使用高级能量'
+            
+            if lvl == 4:
+                rewardTxt += '\n你解锁了功能：使用超级避雷'
+                
+            response["info"] = rewardTxt
+            
+            sql = """UPDATE UserInfo SET item1=%d, item2=%d, item3=%d, item4=%d, lvl=%d WHERE uuid="%s";"""%(item[0], item[1], item[2], item[3], lvl+1, uuid)
+            cursor.execute(sql)
+            
+    db.close()
+    return jsonify(response)
     
 @app.route('/getDpsStat', methods=['POST'])
 def getDpsStat():
@@ -436,11 +517,11 @@ def uploadActorData():
         if result2:
             scoreSuccess = 0
             response['scoreStatus'] = 'dupid'
-    
-        lastTime = result[0][11]
-        if submitTime - lastTime > 180:
-            scoreSuccess = 0
-            response['scoreStatus'] = 'expire'
+        else:
+            lastTime = result[0][11]
+            if submitTime - lastTime > 180:
+                scoreSuccess = 0
+                response['scoreStatus'] = 'expire'
             
         if parseEdition(result[0][4]) >= parseEdition(edition):
             dupID = 1
