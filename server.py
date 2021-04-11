@@ -460,7 +460,7 @@ def uploadActorData():
         cursor.execute(sql)
         
         sql = """INSERT INTO ScoreInfo VALUES ("", "%s", %d, "%s", %d)"""%(
-            userid, int(time.time()), "提交战斗记录：%s"%hash, scoreAdd)
+            userID, int(time.time()), "提交战斗记录：%s"%hash, scoreAdd)
         cursor.execute(sql)
         
         response['scoreStatus'] = 'success'
