@@ -435,8 +435,8 @@ def uploadActorData():
             
         sql = '''SELECT * from ScoreInfo WHERE reason LIKE "%s"'''%(hash)
         cursor.execute(sql)
-        result = cursor.fetchall()
-        if result:
+        result2 = cursor.fetchall()
+        if result2:
             scoreSuccess = 0
             response['scoreStatus'] = 'dupid'
             
