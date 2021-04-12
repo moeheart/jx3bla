@@ -132,6 +132,7 @@ class CommentWindow():
         
         if res['result'] == 'success':
             messagebox.showinfo(title='成功', message='评价成功！')
+            self.final()
         elif res['result'] == 'lack':
             messagebox.showinfo(title='失败', message='评价失败，你的积分与能量卡不足以进行此次评价，请尝试使用更低的能量等级。')
         elif res['result'] == 'duplicate':
@@ -163,6 +164,8 @@ class CommentWindow():
         label1 = tk.Label(window, text="评价类别", height=1)
         label1.grid(row=1, column=0)
         
+        ToolTip(label1, "选取评价类别。点赞会增加目标的信誉分，而吐槽会扣除目标的信誉分。\n在同一场战斗数据中，只能对同一名玩家评价一次。")
+        
         frame1 = tk.Frame(window)
         radio11 = tk.Radiobutton(frame1,text='点赞',variable=self.var1,value=1)
         radio11.grid(row=0, column=0)
@@ -183,6 +186,12 @@ class CommentWindow():
         radio23 = tk.Radiobutton(frame2,text='高',variable=self.var2,value=3)
         radio23.grid(row=0, column=3)
         frame2.grid(row=2, column=1)
+        
+        ToolTip(label2, "选取评价能量，会影响分数变化的多少。")
+        
+        ToolTip(radio21, "使用低能量，分数变化为2，无消耗。")
+        ToolTip(radio21, "使用中能量，分数变化为8，消耗中级能量卡或8点积分。")
+        ToolTip(radio21, "使用高能量，分数变化为20，消耗高级能量卡或20点积分。")
         
         potDesLabel = tk.Label(window, text="犯错记录")
         potDesLabel.grid(row=3, column=0)

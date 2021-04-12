@@ -232,6 +232,10 @@ def Tianwang():
 
     playerDps = {}
     playerPot = {}
+    
+    allInfo = {}
+    
+    stdMap = ["25人普通达摩洞", "25人英雄达摩洞", "25人普通白帝江关", "25人英雄白帝江关"]
 
     ids_split = ids.split(' ')
     for id in ids_split:
@@ -243,8 +247,10 @@ def Tianwang():
             playerDps[id]["occ"] = line[0]
             if line[1] not in playerDps[id]:
                 playerDps[id][line[1]] = [0, 0, 0, 0, 0, 0, 0]
-            if line[2] in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅"]:
-                bossNum = {"余晖": 0, "宓桃": 1, "武雪散": 2, "猿飞": 3, "哑头陀": 4, "岳琳&岳琅": 5}[line[2]]
+            if line[2] in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅", 
+                           "胡汤&罗芬", "赵八嫂", "海荼", "姜集苦", "宇文灭", "宫威", "宫傲"]:
+                bossNum = {"余晖": 0, "宓桃": 1, "武雪散": 2, "猿飞": 3, "哑头陀": 4, "岳琳&岳琅": 5, 
+                           "胡汤&罗芬": 0, "赵八嫂": 1, "海荼": 2, "姜集苦": 3, "宇文灭": 4, "宫威": 5, "宫傲": 6}[line[2]]
                 playerDps[id][line[1]][bossNum] = line[3]
                 playerDps[id][line[1]][6] += line[4]
                 
@@ -255,8 +261,13 @@ def Tianwang():
         for line in result:
             if line[1] not in playerPot[id]:
                 playerPot[id][line[1]] = []
-            if line[2] in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅"]:
+            if line[2] in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅",
+                           "胡汤&罗芬", "赵八嫂", "海荼", "姜集苦", "宇文灭", "宫威", "宫傲"]:
                 playerPot[id][line[1]].append([line[2], line[3], line[4], line[5]])
+                
+        
+        if line[1] in stdMap:
+            allInfo[line[1]][id] = {}
 
     db.close()
 

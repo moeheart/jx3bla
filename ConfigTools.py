@@ -682,7 +682,7 @@ class ConfigWindow():
         self.entry4_2 = tk.Entry(frame4, show=None)
         self.button4_2 = tk.Button(frame4, text='注册', command=self.register)
         self.label4_3 = tk.Label(frame4, text='积分')
-        self.label4_3_1 = tk.Label(frame4, text='0')
+        self.label4_3_1 = tk.Label(frame4, text=config.score)
         self.label4_4 = tk.Label(frame4, text='经验值')
         
         self.frame4_4 = tk.Frame(frame4)
@@ -785,8 +785,9 @@ class ConfigWindow():
         ToolTip(self.cb3_8, "为了降低复盘文件丢失的可能性设置的选项。\n如果开启，则会在实时模式之前检查最大记录数与最小脱战时间，反之则不检查。")
         ToolTip(self.label4_1, "用来验证用户唯一性的字符串。")
         ToolTip(self.label4_2, "代表玩家ID的用户名，用于在社区中展示。\n第一次使用时，需要点击右方的注册，之后则不可修改。")
-        ToolTip(self.label4_3, "暂未实装。")
-        ToolTip(self.label4_4, "暂未实装。")
+        ToolTip(self.label4_3, "玩家的积分。积分可用于中级、高级评价的消耗，或是在活动中兑换实物奖品。")
+        ToolTip(self.label4_4, "玩家的经验值。当经验值满足升级条件时即可升级，升级后会获得一些道具奖励，并且解锁部分额外功能。")
+        ToolTip(self.label4_5_1, "玩家的道具数量。")
         
         self.entry1_1.bind('<Button-1>', self.clear_basepath)
         self.entry1_2.bind('<Button-1>', self.clear_basepath)
