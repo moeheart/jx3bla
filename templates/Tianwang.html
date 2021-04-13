@@ -10,6 +10,8 @@
 		<div class="map"> 
 			<a href="javascript:setMap('25人普通达摩洞')"> 25人普通达摩洞 </a>
 			<a href="javascript:setMap('25人英雄达摩洞')"> 25人英雄达摩洞 </a>
+			<a href="javascript:setMap('25人普通白帝江关')"> 25人普通白帝江关 </a>
+			<a href="javascript:setMap('25人英雄白帝江关')"> 25人英雄白帝江关 </a>
 		</div>
 		
 		<table id="table">
@@ -17,70 +19,38 @@
 		</table>
 		
 		<div class="bottom">
-			<a href="/TianwangSearch.html"> 指定查询 </div>
+			<a href="/TianwangSearch.html"> 指定查询 </div> </a>
 		</div>
 		
 	</body>
 	
 	<script src="../static/jquery-3.3.1.js"></script>
 	<script>
-		playerDps="{{playerDps}}";
-		playerPot="{{playerPot}}";
+		allInfo="{{allInfo}}"
 		
-		res1 = playerDps.replace(/&#39;/g, '"');
-		res1 = res1.replace(/\(/g, "[");
-		res1 = res1.replace(/\)/g, "]");
-		JplayerDps = JSON.parse(res1);
+		res3 = allInfo.replace(/&#39;/g, '"');
+		res3 = res3.replace(/\(/g, "[");
+		res3 = res3.replace(/\)/g, "]");
+		JallInfo = JSON.parse(res3);
 		
-		res2 = playerPot.replace(/&#39;/g, '"');
-		res2 = res2.replace(/\(/g, "[");
-		res2 = res2.replace(/\)/g, "]");
-		JplayerPot = JSON.parse(res2);
-		
-		dpsTable = []
-		for (id in JplayerDps) {
-			var obj = {"name": id};
-			for (map in JplayerDps[id]) {
-				obj[map] = JplayerDps[id][map];
+		stdMaps = ["25人普通达摩洞", "25人英雄达摩洞", "25人普通白帝江关", "25人英雄白帝江关"];
+		showTable = {}
+		for (var i in stdMaps) {
+			var map = stdMaps[i];
+			showTable[map] = [];
+			for (var player in JallInfo[map]) {
+				var d = JallInfo[map][player];
+				var l = [player];
+				l = l.concat(d["dps"]);
+				l = l.concat([d["credit"], d["numRecord"], d["potRate"], "+"]);
+				showTable[map].push(l);
 			}
-			
-			stdMaps = ["25人普通达摩洞", "25人英雄达摩洞"];
-			for (map in stdMaps) {
-				if (!(stdMaps[map] in obj)) {
-					obj[stdMaps[map]] = [0, 0, 0, 0, 0, 0, 0];
-				}
-			}
-			
-			dpsTable.push(obj);
 		}
 		
 		map = "25人普通达摩洞";
-		order = 0;
-		
-		getPotInfo();
+		order = 1;
+
 		refreshPage();
-		
-		function getPotInfo() {
-			playerPotStat = {}
-			for (player in JplayerPot) {
-				playerPotStat[player] = {}
-				for (var map in JplayerPot[player]) {
-					playerPotStat[player][map] = [0, 0]
-					
-					JplayerPot[player][map].sort(function(x, y){if (y[1] < x[1]) return 1; else if (y[1] == x[1]) return 0; else return -1;});
-					
-					for (var i in JplayerPot[player][map]) {
-						if (JplayerPot[player][map][i][2] == 1) {
-							playerPotStat[player][map][0]++;
-							playerPotStat[player][map][1]++;
-						}
-						else if (JplayerPot[player][map][i][2] == 0) {
-							playerPotStat[player][map][0]++;
-						}
-					}
-				}
-			}
-		}
 		
 		function refreshPage() {
 			var table=$("#table");
@@ -89,14 +59,20 @@
 			headers = $("<tr></tr>");
 			headers.appendTo(table);
 			
-			var th = $("<th>"+"角色名"+"</th>");
-			th.appendTo(headers);
-			var th = $("<th>"+"地图"+"</th>");
-			th.appendTo(headers);
-			bossName = ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅", "记录数量", "犯错比例", "展开"];
-			for (i in bossName) {
-				var name = bossName[i];
-				if (i <= 5) {
+			if (map == "25人普通达摩洞" || map == "25人英雄达摩洞") {
+				bossName = ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅"];
+			}
+			else {
+				bossName = ["胡汤&罗芬", "赵八嫂", "海荼", "姜集苦", "宇文灭", "宫威", "宫傲"];
+			}
+			
+			var bossNum = bossName.length;
+			
+			headerName = ["角色名"].concat(bossName).concat(["信誉分", "记录数量", "犯错比例", "展开"]);
+			
+			for (i in headerName) {
+				var name = headerName[i];
+				if (name != "角色名" && name != "展开") {
 					var th = $("<th><a href='javascript:setOrder("+ i + ")'>"+name+"</a></th>");
 					th.appendTo(headers);
 				}
@@ -106,84 +82,73 @@
 				}
 			}
 			
-			dpsTable.sort(function(x, y){return y[map][order] - x[map][order]});
+			showTable[map].sort(function(x, y){return y[order] - x[order]});
 			
-			for (i in dpsTable) {
-				dpsItem = dpsTable[i];
-				var namePrint = dpsItem["name"];
-				var name = namePrint.replaceAll('@', '-');
+			for (i in showTable[map]) {
+				var showItem = showTable[map][i];
+				var player = showItem[0];
+				var infoItem = JallInfo[map][player];
+				var name = player.replaceAll('@', '-');
 				//console.log(id);
+				
 				var tr = $("<tr></tr>");
 				tr.appendTo(table);
-				dpsList1 = [0, 0, 0, 0, 0, 0, 0]
-				if (map in dpsItem) {
-					dpsList1 = dpsItem[map];
-				}
-				var td = $("<td>"+namePrint+"</td>");
-				td.addClass("occ-"+dpsItem["occ"]);
-				td.addClass("playerid");
 				
-				td.appendTo(tr);
-				var td = $("<td>"+map+"</td>");
-				td.appendTo(tr);
-				for (var j in dpsList1) {
-					var td = $("<td>"+dpsList1[j]+"</td>");
-					td.appendTo(tr);
-				}
-				
-				var boss_num = dpsList1[6];
-				
-				if (map in playerPotStat[namePrint]) {
-				
-					var prob = playerPotStat[namePrint][map][1] / boss_num;
-					
-					var prob_show = (prob*100).toFixed(2) + '%'
-				
-					var td = $("<td>"+prob_show+"</td>");
-					td.appendTo(tr);
-					
-					var td = $("<td></td>");
-					td.appendTo(tr);
-					
-					var td_a = $("<a id='"+ "expand-" + name +"' href='javascript:expandDetail(\""+ name + "\")'></a>")
-					td_a.html("+");
-					td_a.appendTo(td);
-
-				}
-				
-				else {
-				
-					var td = $("<td>"+"0"+"</td>");
-					td.appendTo(tr);
-					
-				}
-				
-				if (map in playerPotStat[namePrint]) {
-					var tr = $("<tr id='"+ "pot-" + name +"'></tr>");
-					tr.appendTo(table);
-					tr.addClass("pot-hidden");
-					tr.addClass("hidden");
-					
-					var td = $('<td colspan=11></td>');
-					td.appendTo(tr);
-					
-					var div = $("<div></div>")
-					div.appendTo(td);
-					
-					var headerdiv = $("<div>" + "共有" + playerPotStat[namePrint][map][0] + "条犯错记录，其中" + playerPotStat[namePrint][map][1] + "条为严重犯错。" + "</div>");
-					headerdiv.addClass("pot-header")
-					headerdiv.appendTo(div);
-					
-					
-					for (var i in JplayerPot[namePrint][map]) {
-						var record = JplayerPot[namePrint][map][i];
-						if (record[2] > 1) {
-							continue;
-						}
-						var singlediv = $("<div>" + record[1] + " " + record[0] + " " + record[3] + "</div>");
-						singlediv.addClass("severe-"+record[2])
-						singlediv.appendTo(div);
+				for (var j in showItem) {
+					if (j == bossNum + 4) {
+						var td = $("<td></td>");
+						var td_a = $("<a id='"+ "expand-" + name +"' href='javascript:expandDetail(\""+ name + "\")'></a>")
+						td_a.html("+");
+						td_a.appendTo(td);
+						td.appendTo(tr);
 					}
+					else {
+						var showText = showItem[j];
+						if (j == bossNum + 3) {
+							showText = (showText*100).toFixed(2) + '%'
+						}
+						var td = $("<td>"+showText+"</td>");
+						if (j == 0) {
+							td.addClass("occ-"+infoItem["occ"]);
+							td.addClass("playerid");
+						}
+						td.appendTo(tr);
+					}
+				}
+				
+				var tr = $("<tr id='"+ "pot-" + name +"'></tr>");
+				tr.appendTo(table);
+				tr.addClass("pot-hidden");
+				tr.addClass("hidden");
+				
+				var td = $('<td colspan=11></td>');
+				td.appendTo(tr);
+				
+				var div = $("<div></div>")
+				div.appendTo(td);
+				
+				var headerdiv = $("<div>" + "共有" + infoItem["potSum"] + "条犯错记录，其中" + infoItem["potSevere"] + "条为严重犯错。" + "</div>");
+				headerdiv.addClass("pot-header")
+				headerdiv.appendTo(div);
+				
+				for (var i in infoItem["pot"]) {
+					var record = infoItem["pot"][i];
+					if (record[2] > 1) {
+						continue;
+					}
+					var singlediv = $("<div>" + record[1] + " " + record[0] + " " + record[3] + "</div>");
+					singlediv.addClass("severe-"+record[2])
+					singlediv.appendTo(div);
+				}
+				
+				var headerdiv = $("<div>" + "共有" + infoItem["numComments"] + "条评价。" + "</div>");
+				headerdiv.addClass("pot-header");
+				headerdiv.appendTo(div);
+				
+				for (var i in infoItem["comments"]) {
+					var record = infoItem["comments"][i];
+					var singlediv = $("<div>" + record[0] + " " + record[1] + " " + record[2] + " " + record[3] + "</div>");
+					singlediv.appendTo(div);
 				}
 			}
 		}

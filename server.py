@@ -232,10 +232,14 @@ def Tianwang():
 
     playerDps = {}
     playerPot = {}
+    playerNum = {}
+    playerComment = {}
     
     allInfo = {}
     
     stdMap = ["25人普通达摩洞", "25人英雄达摩洞", "25人普通白帝江关", "25人英雄白帝江关"]
+    mapToBoss = {"25人普通达摩洞": 6, "25人英雄达摩洞": 6, "25人普通白帝江关": 7, "25人英雄白帝江关": 7}
+    creditThreshold = [[0, 100], [6, 0.5], [12, 0.4], [18, 0.3], [24, 0.2], [30, 0.1]]
 
     ids_split = ids.split(' ')
     for id in ids_split:
@@ -243,35 +247,103 @@ def Tianwang():
         cursor.execute(sql)
         result = cursor.fetchall()
         playerDps[id] = {}
+        playerNum[id] = {}
+        playerPot[id] = {}
+        playerComment[id] = []
+        
+        credit = 75
+        
+        for map in stdMap:
+            playerDps[id][map] = [0] * mapToBoss[map]
+            playerNum[id][map] = 0
+            playerPot[id][map] = []
+            if "occ" not in playerDps[id]:
+                playerDps[id]["occ"] = 0
+        
         for line in result:
             playerDps[id]["occ"] = line[0]
-            if line[1] not in playerDps[id]:
-                playerDps[id][line[1]] = [0, 0, 0, 0, 0, 0, 0]
+
             if line[2] in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅", 
                            "胡汤&罗芬", "赵八嫂", "海荼", "姜集苦", "宇文灭", "宫威", "宫傲"]:
                 bossNum = {"余晖": 0, "宓桃": 1, "武雪散": 2, "猿飞": 3, "哑头陀": 4, "岳琳&岳琅": 5, 
                            "胡汤&罗芬": 0, "赵八嫂": 1, "海荼": 2, "姜集苦": 3, "宇文灭": 4, "宫威": 5, "宫傲": 6}[line[2]]
                 playerDps[id][line[1]][bossNum] = line[3]
-                playerDps[id][line[1]][6] += line[4]
+                playerNum[id][line[1]] += line[4]
                 
         sql = '''SELECT occ, map, boss, battledate, severe, pot from PotHistory WHERE server = "%s" and player = "%s"'''%(server, id)
         cursor.execute(sql)
         result = cursor.fetchall()   
-        playerPot[id] = {}
         for line in result:
-            if line[1] not in playerPot[id]:
-                playerPot[id][line[1]] = []
             if line[2] in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅",
                            "胡汤&罗芬", "赵八嫂", "海荼", "姜集苦", "宇文灭", "宫威", "宫傲"]:
                 playerPot[id][line[1]].append([line[2], line[3], line[4], line[5]])
                 
+        sql = '''SELECT mapdetail, type, power, content, id FROM CommentInfo WHERE server = "%s" and player = "%s"'''%(server, id)
+        cursor.execute(sql)
+        result = cursor.fetchall()   
+        for line in result:
+            if line[0] in stdMap:
+                powerDes = ""
+                creditChange = 0
+                if line[2] == 1:
+                    powerDes = "初级"
+                    creditChange = 2
+                elif line[2] == 2:
+                    powerDes = "中级"
+                    creditChange = 8
+                else:
+                    powerDes = "高级"
+                    creditChange = 20
+                typeDes = ""
+                if line[1] == 1:
+                    typeDes = "点赞"
+                elif line[1] == 2:
+                    typeDes = "吐槽"
+                    creditChange *= -1
+                playerComment[id].append([line[0], typeDes, powerDes, line[3], line[4]])
+                credit += creditChange
         
-        if line[1] in stdMap:
-            allInfo[line[1]][id] = {}
+        for line in stdMap:
+            d = {}
+            if line not in allInfo:
+                allInfo[line] = {}
+            allInfo[line][id] = d
+            d["numBoss"] = mapToBoss[line]
+            d["dps"] = playerDps[id][line]
+            d["occ"] = playerDps[id]["occ"]
+            d["pot"] = playerPot[id][line]
+            d["potSevere"] = 0
+            d["potSum"] = 0
+            for pot in d["pot"]:
+                if pot[2] == 1:
+                    d["potSevere"] += 1
+                    d["potSum"] += 1
+                elif pot[2] == 0:
+                    d["potSum"] += 1
+            d["numRecord"] = playerNum[id][line]
+            d["potRate"] = d["potSevere"] / (d["numRecord"] + 1e-10)
+            d["comments"] = playerComment[id]
+            d["numComments"] = len(d["comments"])
+            
+            creditChange = 0
+            for i in range(len(creditThreshold)):
+                std = creditThreshold[i]
+                if d["numRecord"] >= std[0] and d["potRate"] <= std[1]:
+                    creditChange = i
+            
+            credit += creditChange
+            
+        if credit > 100:
+            credit = 100
+        if credit < 0:
+            credit = 0
+            
+        for line in stdMap:
+            allInfo[line][id]["credit"] = credit
 
     db.close()
 
-    return render_template("Tianwang.html", playerDps=playerDps, playerPot=playerPot, edition=EDITION)
+    return render_template("Tianwang.html", allInfo=allInfo, edition=EDITION)
     
 @app.route('/TianwangSearch.html', methods=['GET'])
 def TianwangSearch():
