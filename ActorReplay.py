@@ -22,6 +22,7 @@ from replayer.Yuanfei import YuanfeiReplayer
 from replayer.Yatoutuo import YatoutuoReplayer
 from replayer.Yuelinyuelang import YuelinyuelangReplayer
 
+from replayer.GongWei import GongWeiReplayer
 from replayer.GongAo import GongAoReplayer
 
 class ActorStatGenerator(StatGeneratorBase):
@@ -373,6 +374,9 @@ class ActorStatGenerator(StatGeneratorBase):
                 if namedict[item[5]][0] == '"岳琳"' and occdict[item[5]][0] == '0':
                     self.bossAnalyseName = "岳琳&岳琅"
                     
+                if namedict[item[5]][0] == '"宫威"' and occdict[item[5]][0] == '0':
+                    self.bossAnalyseName = "宫威"
+                    
                 if namedict[item[5]][0] == '"宫傲"' and occdict[item[5]][0] == '0':
                     self.bossAnalyseName = "宫傲"
                         
@@ -475,6 +479,8 @@ class ActorStatGenerator(StatGeneratorBase):
             bossAnalyser = YatoutuoReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
         elif self.bossAnalyseName == "岳琳&岳琅":
             bossAnalyser = YuelinyuelangReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "宫威":
+            bossAnalyser = GongWeiReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
         elif self.bossAnalyseName == "宫傲":
             bossAnalyser = GongAoReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
         else:
@@ -938,7 +944,7 @@ class ActorStatGenerator(StatGeneratorBase):
         
         self.battleTime += 1e-10 #防止0战斗时间导致错误
         
-        if self.bossAnalyser.activeBoss in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅"]:
+        if self.bossAnalyser.activeBoss in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅", "宫威", "宫傲"]:
             effectiveDPSList, potList, detail = self.bossAnalyser.getResult()
             self.potList = potList
             calculDPS = 0
