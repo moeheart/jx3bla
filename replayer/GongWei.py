@@ -216,8 +216,6 @@ class GongWeiReplayer(SpecificReplayer):
                                    ])
         bossResult.sort(key = lambda x:-x[2])
         self.effectiveDPSList = bossResult
-        
-        print(self.win)
             
         return self.effectiveDPSList, self.potList, self.detail
         

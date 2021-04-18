@@ -22,6 +22,11 @@ from replayer.Yuanfei import YuanfeiReplayer
 from replayer.Yatoutuo import YatoutuoReplayer
 from replayer.Yuelinyuelang import YuelinyuelangReplayer
 
+from replayer.HuTangLuoFen import HuTangLuoFenReplayer
+from replayer.ZhaoBasao import ZhaoBasaoReplayer
+from replayer.HaiTu import HaiTuReplayer
+from replayer.JiangJiku import JiangJikuReplayer
+from replayer.YuwenMie import YuwenMieReplayer
 from replayer.GongWei import GongWeiReplayer
 from replayer.GongAo import GongAoReplayer
 
@@ -374,6 +379,21 @@ class ActorStatGenerator(StatGeneratorBase):
                 if namedict[item[5]][0] == '"岳琳"' and occdict[item[5]][0] == '0':
                     self.bossAnalyseName = "岳琳&岳琅"
                     
+                if namedict[item[5]][0] == '"罗芬"' and occdict[item[5]][0] == '0':
+                    self.bossAnalyseName = "胡汤&罗芬"
+                    
+                if namedict[item[5]][0] == '"赵八嫂"' and occdict[item[5]][0] == '0':
+                    self.bossAnalyseName = "赵八嫂"
+                    
+                if namedict[item[5]][0] == '"海荼"' and occdict[item[5]][0] == '0':
+                    self.bossAnalyseName = "海荼"
+                    
+                if namedict[item[5]][0] == '"姜集苦"' and occdict[item[5]][0] == '0':
+                    self.bossAnalyseName = "姜集苦"
+                    
+                if namedict[item[5]][0] == '"宇文灭"' and occdict[item[5]][0] == '0':
+                    self.bossAnalyseName = "宇文灭"
+                    
                 if namedict[item[5]][0] == '"宫威"' and occdict[item[5]][0] == '0':
                     self.bossAnalyseName = "宫威"
                     
@@ -416,6 +436,8 @@ class ActorStatGenerator(StatGeneratorBase):
         occdict = res['10'][0]
         skilldict = res['11'][0]
         sk = res['16'][0][""]
+        
+        #print(res['8'][0])
         
         #self.instanceCD = '0'#res[''][0]
         self.beginTime = int(res['4'][0])
@@ -479,6 +501,16 @@ class ActorStatGenerator(StatGeneratorBase):
             bossAnalyser = YatoutuoReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
         elif self.bossAnalyseName == "岳琳&岳琅":
             bossAnalyser = YuelinyuelangReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "胡汤&罗芬":
+            bossAnalyser = HuTangLuoFenReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "赵八嫂":
+            bossAnalyser = ZhaoBasaoReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "海荼":
+            bossAnalyser = HaiTuReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "姜集苦":
+            bossAnalyser = JiangJikuReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "宇文灭":
+            bossAnalyser = YuwenMieReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
         elif self.bossAnalyseName == "宫威":
             bossAnalyser = GongWeiReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
         elif self.bossAnalyseName == "宫傲":
@@ -582,7 +614,7 @@ class ActorStatGenerator(StatGeneratorBase):
                         deathHit[item[5]] = [int(item[2]), "死线", 0]
                         
                     if item[13] != "0" and item[5] in deathHitDetail:
-                        if len(deathHitDetail[item[5]]) >= 15:
+                        if len(deathHitDetail[item[5]]) >= 25:
                             del deathHitDetail[item[5]][0]
                         deathHitDetail[item[5]].append([int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13]), item[4], -1])
                         
@@ -847,6 +879,10 @@ class ActorStatGenerator(StatGeneratorBase):
                         severe = 0
                     if "嗔" in deathSource:
                         severe = 0 
+                    if "邪水之握" in deathSource:
+                        severe = 0
+                    if "能量爆裂" in deathSource:
+                        severe = 0
                     
                     if deathSource == "翩然":
                         deathSource = "推测为摔死"
@@ -944,7 +980,8 @@ class ActorStatGenerator(StatGeneratorBase):
         
         self.battleTime += 1e-10 #防止0战斗时间导致错误
         
-        if self.bossAnalyser.activeBoss in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅", "宫威", "宫傲"]:
+        if self.bossAnalyser.activeBoss in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅", 
+                                            "胡汤&罗芬", "赵八嫂", "海荼", "姜集苦", "宇文灭", "宫威", "宫傲"]:
             effectiveDPSList, potList, detail = self.bossAnalyser.getResult()
             self.potList = potList
             calculDPS = 0
@@ -1226,6 +1263,8 @@ class ActorStatGenerator(StatGeneratorBase):
             self.upload = 1
             if self.win and self.uploadTiantiFlag:
                 self.uploadTianti = 1
+                
+        print("win=", self.win)
                 
         #for line in self.playerIDList:
         #    print(namedict[line])

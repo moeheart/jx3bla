@@ -1,13 +1,13 @@
 # Created by moeheart at 03/29/2021
-# 宫傲的定制复盘方法库。
-# 宫傲是白帝江关7号首领，复盘主要集中在以下几个方面：
+# 海荼的定制复盘方法库。
+# 海荼是白帝江关3号首领，复盘主要集中在以下几个方面：
 # (TODO)
 
 from replayer.Base import *
 from replayer.utils import CriticalHealCounter, DpsShiftWindow
 from Functions import *
         
-class GongAoWindow():
+class HaiTuWindow():
     '''
     岳琳&岳琅的专有复盘窗口类。
     ''' 
@@ -188,14 +188,13 @@ class GongAoWindow():
         self.effectiveDPSList = effectiveDPSList
         self.detail = detail
 
-class GongAoReplayer(SpecificReplayer):
+class HaiTuReplayer(SpecificReplayer):
 
     def countFinal(self, nowTime):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
         pass
-        #self.phase = 0
 
     def getResult(self):
         '''
@@ -217,9 +216,6 @@ class GongAoReplayer(SpecificReplayer):
                                    ])
         bossResult.sort(key = lambda x:-x[2])
         self.effectiveDPSList = bossResult
-        
-        #for line in self.shuiqiuDps:
-        #    print(self.shuiqiuDps[line])
             
         return self.effectiveDPSList, self.potList, self.detail
         
@@ -239,80 +235,6 @@ class GongAoReplayer(SpecificReplayer):
         - item 复盘数据，意义同茗伊复盘。
         '''
         
-        if self.luanliuTime != 0 and int(item[2]) - self.luanliuTime >= 500:
-            # 结算水球
-            if abs(self.luanliuTime - self.huiShuiTime) < 500: 
-                if len(self.luanliuID) >= 2:
-                    victims = ["受害者名单："]
-                    for line in self.luanliuID:
-                        victims.append(self.namedict[line][0].strip('"'))
-                    potTime = parseTime((int(item[2]) - self.startTime) / 1000)
-                    self.potList.append([self.namedict[self.huiShuiID][0],
-                                         self.occDetailList[self.huiShuiID],
-                                         1,
-                                         self.bossNamePrint,
-                                         "%s水球害人：%d个" % (potTime, len(self.luanliuID)),
-                                         victims])
-                else:
-                    potTime = parseTime((int(item[2]) - self.startTime) / 1000)
-                    potID = self.luanliuID[0] 
-                    self.potList.append([self.namedict[potID][0],
-                                         self.occDetailList[potID],
-                                         0,
-                                         self.bossNamePrint,
-                                         "%s被水球击中，来源：%s" % (potTime, self.namedict[self.huiShuiID][0].strip('"')),
-                                         ["水球只命中一个人时，由被命中者背锅。"]])
-            self.luanliuTime = 0
-            self.luanliuID = []
-            self.huishuiTime = 0
-            self.huiShuiID = "0"
-            
-        if self.shuiqiuBurstTime != 0 and int(item[2]) - self.shuiqiuBurstTime >= 500:
-            #结算源流之心爆炸
-            for shuiqiuID in self.shuiqiuDps:
-                if int(item[2]) - self.shuiqiuDps[shuiqiuID]["time"] <= 20000:
-                    #合法伤害量
-                    damageStd = 1710000
-                    if self.shuiqiuDps[shuiqiuID]["sum"] != damageStd:
-                        #开始分锅
-                        damageSet = []
-                        potSet = []
-                        lastPlayer = "0"
-                        lastPlayerPercent = 1
-                        for player in self.shuiqiuDps[shuiqiuID]:
-                            if player in ["sum", "time"]:
-                                continue
-                            percent = self.shuiqiuDps[shuiqiuID][player] / damageStd
-                            damageSet.append([percent, self.namedict[player][0].strip('"'), parseCent(percent)])
-                            if percent > 0.03:
-                                if percent < 0.15:
-                                    potSet.append([player, parseCent(percent)])
-                                else:
-                                    if percent < lastPlayerPercent:
-                                        lastPlayer = player
-                                        lastPlayerPercent = percent
-                        if potSet == [] and lastPlayer != "0":
-                            potSet.append([lastPlayer, parseCent(lastPlayerPercent)])
-                        damageSet.sort(key = lambda x:-x[0])
-                            
-                        potDes = ["对应水球转火记录："]
-                        for line in damageSet:
-                            potDes.append("%s: %s%%"%(line[1], line[2]))
-                        for line in potSet:
-                            potTime = parseTime((int(item[2]) - self.startTime) / 1000)
-                            potID = line[0]
-                            self.potList.append([self.namedict[potID][0],
-                                                 self.occDetailList[potID],
-                                                 1,
-                                                 self.bossNamePrint,
-                                                 "%s水球承伤不足并爆炸：%s%%" % (potTime, line[1]),
-                                                 potDes])
-
-            self.shuiqiuBurstTime = 0
-                        
-            
-            
-        
         if item[3] == '1':  # 技能
 
             if self.occdict[item[5]][0] != '0':
@@ -320,69 +242,51 @@ class GongAoReplayer(SpecificReplayer):
                 if item[11] != '0' and item[10] != '7': #非化解
                     if item[4] in self.playerIDList:
                         self.hps[item[4]] += int(item[12])
-                        
-                if item[7] == "26596":
-                    self.shuiqiuBurstTime = int(item[2])
                     
             else:
             
                 if item[4] in self.playerIDList:
                     self.dps[item[4]][0] += int(item[14])
-                    
-                    if item[5] in self.shuiqiuDps:
-                        if item[4] not in self.shuiqiuDps[item[5]]:
-                            self.shuiqiuDps[item[5]][item[4]] = 0
-                        self.shuiqiuDps[item[5]][item[4]] += int(item[14])
-                        self.shuiqiuDps[item[5]]['sum'] += int(item[14])
+                
+            if item[7] == "26656":
+                self.phase = 3
      
                 
         elif item[3] == '5': #气劲
             if self.occdict[item[5]][0] == '0':
                 return
-                
-            if item[6] in ["19130"]:
-                if int(item[10]) == 0:
-                    self.huiShuiTime = int(item[2])
-                    self.huiShuiID = item[5]
-                
-            if item[6] in ["18892"]:
-                self.luanliuTime = int(item[2])
-                self.luanliuID.append(item[5])
-                
-                
-            if item[6] in ["19053"] and int(item[10]) == 1: #邪水之握
-                if int(item[2]) - self.wushuiLast[item[5]] < 500:
+             
+            '''
+            if item[6] == "18946" and int(item[10]) >= 1 and self.phase == 2:
+                if int(item[2]) - self.xiashuiTime[item[5]] > 10000:
                     potTime = parseTime((int(item[2]) - self.startTime) / 1000)
                     potID = item[5]
                     self.potList.append([self.namedict[potID][0],
                                          self.occDetailList[potID],
-                                         1,
+                                         0,
                                          self.bossNamePrint,
-                                         "%s额外邪水之握" % (potTime),
-                                         ["由于在邪水之握时没有出蓝圈，被额外选为邪水之握的目标。"]])
-                
-                
-            if item[6] in ["19083"] and int(item[10]) == 1: #污浊之水
-                self.wushuiLast[item[5]] = int(item[2])
+                                         "%s下水被拉" % (potTime),
+                                         ["在P2下水，需要挣扎，影响输出进度。"]])
+                self.xiashuiTime[item[5]] = int(item[2])
+            '''
                     
         elif item[3] == '8':
         
             if len(item) <= 4:
                 return
                 
-        elif item[3] == '3': #重伤记录
+            #print(item)
+            
+            print(parseTime((int(item[2]) - self.startTime) / 1000))
+            
+            if item[4] in ['"…… ……"']:
+                self.phase = 2
                 
-            pass
-            
-        elif item[3] == '6': #进入、离开场景
-            
-            if len(item) >= 8 and item[7] == '"宫傲宝箱"':
+            if item[4] in ['"吾之大业还未……"']:
                 self.win = 1
                 
-            if len(item) >= 8 and item[7] == '"源流之心"' and item[4] == '1':
-                self.shuiqiuDps[item[6]] = {'sum': 0, 'time': int(item[2])}
-                self.shuiqiuNum += 1
-            
+        elif item[3] == '3': #重伤记录
+                
             pass
             
         elif item[3] == "10": #战斗状态变化
@@ -401,29 +305,23 @@ class GongAoReplayer(SpecificReplayer):
         '''
         在战斗开始时的初始化流程，当第二阶段复盘开始时运行。
         '''
-        self.activeBoss = "宫傲"
+        self.activeBoss = "海荼"
         
-        #宫傲数据格式：
+        #海荼数据格式：
         #(TODO)待英雄实装后更新
         
         self.dps = {}
         self.hps = {}
-        self.detail["boss"] = "宫傲"
+        self.detail["boss"] = "海荼"
         self.win = 0
+        self.phase = 1
         
-        self.huiShuiTime = 0
-        self.huiShuiID = "0"
-        self.luanliuTime = 0
-        self.luanliuID = []
-        self.wushuiLast = {}
-        self.shuiqiuDps = {}
-        self.shuiqiuNum = 0
-        self.shuiqiuBurstTime = 0
+        self.xiashuiTime = {}
         
         for line in self.playerIDList:
             self.dps[line] = [0, 0]
             self.hps[line] = 0
-            self.wushuiLast[line] = 0
+            self.xiashuiTime[line] = 0
 
     def __init__(self, playerIDList, mapDetail, res, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
         '''
