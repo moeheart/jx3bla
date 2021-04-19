@@ -65,6 +65,14 @@ class SpecificReplayer():
         生成复盘结果的流程。需要维护effectiveDPSList, potList与detail。
         '''
         pass
+        
+    def recordEquipment(self, equipmentDict):
+        '''
+        记录装备信息流程，只在白帝江关之后的副本中会用到。
+        params
+        - equipmentDict 经过处理的装备信息。
+        '''
+        self.equipmentDict = equipmentDict
 
     def analyseSecondStage(self, item):
         '''

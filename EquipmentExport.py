@@ -647,10 +647,13 @@ class EquipmentAnalyser():
         params
         - s 茗伊复盘数据（处在[18]）
         '''
-        a = list(s[0].values())[0][0]['']
+        a = s[0]['']
         b = a[2]['']
 
         equips = {}
+        
+        equips["score"] = int(a[1])
+        equips["description"] = ""
 
         for c in b:
             d = c['']

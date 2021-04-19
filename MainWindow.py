@@ -372,7 +372,7 @@ class MainWindow():
         self.playerIDs = []
         self.hasNoticeXiangzhi = 0
         self.rawData = {}
-        self.playerEquipment = []
+        self.playerEquipment = {}
         
 if __name__ == "__main__":
     mainWindow = MainWindow()

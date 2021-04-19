@@ -453,15 +453,17 @@ class ExportEquipmentWindow():
             messagebox.showinfo(title='导出失败', message='请将[花间DPS配装计算器—奉天证道beta1.01.xlsx]放在当前目录下。')
             return
             
+        key = list(self.playerEquipment.keys())[0]
         equipmentAnalyser = EquipmentAnalyser()
-        equips = equipmentAnalyser.convert(self.playerEquipment)
+        equips = equipmentAnalyser.convert(self.playerEquipment[key])
         huajianExportEquipment = HuajianExportEquipment()
         huajianExportEquipment.export(equips)
         messagebox.showinfo(title='导出成功', message='导出成功！保存在[计算器手动缝合版.xlsx]。')
         
     def export_excel(self):
+        key = list(self.playerEquipment.keys())[0]
         equipmentAnalyser = EquipmentAnalyser()
-        equips = equipmentAnalyser.convert(self.playerEquipment)
+        equips = equipmentAnalyser.convert(self.playerEquipment[key])
         excelExportEquipment = ExcelExportEquipment()
         result = excelExportEquipment.export(equips)
         pyperclip.copy(result)

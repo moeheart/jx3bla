@@ -52,8 +52,8 @@ def RefreshDps():
     cursor.execute(sql)
     result = cursor.fetchall()
 
-    dpsAll = {"483": {}, "484": {}}
-    potAll = {"483": {}, "484": {}}
+    dpsAll = {"483": {}, "484": {}, "519": {}, "520": {}}
+    potAll = {"483": {}, "484": {}, "519": {}, "520": {}}
 
     for rec in result:
         server = rec[0]
@@ -99,7 +99,7 @@ def RefreshDps():
                 potServer.append([player, occ, severe, pot, battleDate])
 
     for map in dpsAll:
-        mapName = {"483":"25人普通达摩洞", "484":"25人英雄达摩洞"}[map]
+        mapName = {"483":"25人普通达摩洞", "484":"25人英雄达摩洞", "519": "25人普通白帝江关", "520": "25人英雄白帝江关"}[map]
         for boss in dpsAll[map]:
             for server in dpsAll[map][boss]:
                 for player in dpsAll[map][boss][server]:
@@ -111,7 +111,7 @@ def RefreshDps():
                     cursor.execute(sql)
 
     for map in potAll:
-        mapName = {"483":"25人普通达摩洞", "484":"25人英雄达摩洞"}[map]
+        mapName = {"483":"25人普通达摩洞", "484":"25人英雄达摩洞", "519": "25人普通白帝江关", "520": "25人英雄白帝江关"}[map]
         for boss in potAll[map]:
             for server in potAll[map][boss]:
                 for line in potAll[map][boss][server]:

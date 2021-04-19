@@ -25,6 +25,8 @@ from replayer.Yuanfei import YuanFeiWindow
 from replayer.Yatoutuo import YatoutuoWindow
 from replayer.Yuelinyuelang import YuelinyuelangWindow
 
+from replayer.GongAo import GongAoWindow
+
 class ToolTip(object):
     '''
     浮动标签类，用于实现简单的浮动标签。
@@ -498,6 +500,8 @@ class SingleBossWindow():
                 self.specificBossWindow = YatoutuoWindow(effectiveDPSList, detail)
             elif detail["boss"] == "岳琳&岳琅":
                 self.specificBossWindow = YuelinyuelangWindow(effectiveDPSList, detail)
+            elif detail["boss"] == "宫傲":
+                self.specificBossWindow = GongAoWindow(effectiveDPSList, detail)
             else:
                 self.specificBossWindow = SpecificBossWindow()
                 self.hasDetail = 0

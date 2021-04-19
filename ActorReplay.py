@@ -13,6 +13,7 @@ from PIL import Image, ImageFont, ImageDraw
 from ReplayBase import StatGeneratorBase
 from Functions import *
 from Constants import *
+from EquipmentExport import EquipmentAnalyser
 
 from replayer.Base import SpecificReplayer
 from replayer.Yuhui import YuhuiReplayer
@@ -276,7 +277,9 @@ class ActorStatGenerator(StatGeneratorBase):
         occdict = res['10'][0]
         sk = res['16'][0][""]
         
-        self.window.playerEquipment = res['18']
+        for line in res['18'][0]:
+            self.window.playerEquipment[line] = res['18'][0][line]
+        #self.window.playerEquipment = res['18']
         #print(res['18'])
         
         if len(sk) == 0:
@@ -292,6 +295,9 @@ class ActorStatGenerator(StatGeneratorBase):
         self.playerIDList = {}
 
         self.firstHitList = {}
+        
+        #统计装备的各项特性
+        self.equipmentDict = {}
 
         self.toutianhuanri = 0
         
@@ -422,6 +428,12 @@ class ActorStatGenerator(StatGeneratorBase):
         for id in self.playerIDList:
             self.firstHitList[id] = 0
             
+        equipmentAnalyser = EquipmentAnalyser()
+        for id in self.playerIDList:
+            if id in self.window.playerEquipment:
+                equips = equipmentAnalyser.convert(self.window.playerEquipment[id])
+                self.equipmentDict[id] = equips
+            
         self.occDetailList = occDetailList
         
         return 0 #正确结束
@@ -441,7 +453,13 @@ class ActorStatGenerator(StatGeneratorBase):
         
         #self.instanceCD = '0'#res[''][0]
         self.beginTime = int(res['4'][0])
+        
         #print(res['18'][0])
+        #for line in res['18'][0]:
+        #    print(line)
+        #    print(namedict[line][0])
+        #    print(res['18'][0][line][0][''][1])
+        #    print(res['18'][0][line])
         
         if self.occDetailList != {}:
             occDetailList = self.occDetailList
@@ -519,6 +537,8 @@ class ActorStatGenerator(StatGeneratorBase):
             bossAnalyser = SpecificReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
             
         self.bossAnalyser = bossAnalyser
+        
+        self.bossAnalyser.recordEquipment(self.equipmentDict)
         
         self.potList = bossAnalyser.potList
 
