@@ -2,6 +2,7 @@
 # 配装导出库，用于与计算器对接，实现一站式操作。
 
 from openpyxl import load_workbook
+from EquipmentType import *
 
 class HuajianExportEquipment():
     '''
@@ -641,6 +642,53 @@ class EquipmentAnalyser():
     装备分析类，将茗伊复盘中的数据转为json形式。
     '''
     
+    def getSketch(self, equips):
+        '''
+        根据全身装备，得到简要的装备说明（如4惊尘，2精简，大橙武）
+        '''
+        res = {"星演": 0, "惊尘": 0, "百相": 0, "切糕": 0, "精简": 0, "特效腰坠": 0, "特效武器": 0, "门派特效": 0, "大橙武": 0}
+        
+        for key in equips:
+            if key not in ["score", "description", "sketch"]:
+                equip = equips[key]
+                id_full = "%s,%s"%(equip["id_cat"], equip["id"])
+                if id_full in EQUIPMENT_TYPE:
+                    t = EQUIPMENT_TYPE[id_full]
+                    if t not in res:
+                        res[t] = 1
+                    else:
+                        res[t] += 1
+        
+        sketch = []
+        #计算套装
+        if res["星演"] >= 4 or res["惊尘"] >= 4 or res["百相"] >= 4:
+            sketch.append("4件套")
+        elif res["惊尘"] >= 2 and (res["星演"] >= 2 or res["百相"] >= 2):
+            sketch.append("4件套")
+        elif res["惊尘"] >= 2:
+            sketch.append("2惊尘")
+        elif res["星演"] >= 2:
+            sketch.append("2星演")
+        elif res["百相"] >= 2:
+            sketch.append("2百相")
+            
+        if res["切糕"] >= 1:
+            sketch.append("%d切糕"%res["切糕"])
+        if res["精简"] >= 1:
+            sketch.append("%d精简"%res["精简"])
+        if res["特效腰坠"] >= 1:
+            sketch.append("腰坠")
+        if res["特效武器"] >= 1:
+            sketch.append("特效武器")
+        if res["门派特效"] >= 1:
+            sketch.append("门派特效")
+        if res["大橙武"] >= 1:
+            sketch.append("大橙武")
+            
+        sketchStr = ','.join(sketch)
+        return sketchStr
+                    
+    
     def convert(self, s):
         '''
         进行转换。
@@ -694,6 +742,9 @@ class EquipmentAnalyser():
             equip["magic"] = d[5]
             equip["magic2"] = d[6]
             equips[equip["pos"]] = equip
+            
+        equips["sketch"] = self.getSketch(equips)
+             
         return equips
     
     def __init__(self):

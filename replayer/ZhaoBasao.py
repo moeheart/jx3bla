@@ -103,7 +103,7 @@ class ZhaoBasaoReplayer(SpecificReplayer):
                 line = self.stat[id]
                 if id in self.equipmentDict:
                     line[4] = self.equipmentDict[id]["score"]
-                    line[5] = self.equipmentDict[id]["description"]
+                    line[5] = self.equipmentDict[id]["sketch"]
                 
                 if getOccType(self.occDetailList[id]) == "healer":
                     line[3] = int(self.hps[id] / self.battleTime)

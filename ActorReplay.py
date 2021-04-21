@@ -460,6 +460,7 @@ class ActorStatGenerator(StatGeneratorBase):
         #    print(namedict[line][0])
         #    print(res['18'][0][line][0][''][1])
         #    print(res['18'][0][line])
+        #    print(self.equipmentDict[line]["sketch"])
         
         if self.occDetailList != {}:
             occDetailList = self.occDetailList
@@ -1284,7 +1285,7 @@ class ActorStatGenerator(StatGeneratorBase):
             if self.win and self.uploadTiantiFlag:
                 self.uploadTianti = 1
                 
-        print("win=", self.win)
+        #print("win=", self.win)
                 
         #for line in self.playerIDList:
         #    print(namedict[line])

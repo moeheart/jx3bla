@@ -388,7 +388,7 @@ class AnnounceWindow():
         webbrowser.open("https://www.bilibili.com/video/BV1Xp4y1s7vu")
         
     def show_help(self):
-        webbrowser.open("https://wws.lanzous.com/iAcQIksz66f")
+        webbrowser.open("https://wwe.lanzous.com/i2332od2wja")
         
     def show_update(self):
         webbrowser.open("https://github.com/moeheart/jx3bla/blob/master/update.md")
