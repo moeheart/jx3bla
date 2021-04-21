@@ -25,6 +25,12 @@ from replayer.Yuanfei import YuanFeiWindow
 from replayer.Yatoutuo import YatoutuoWindow
 from replayer.Yuelinyuelang import YuelinyuelangWindow
 
+from replayer.HuTangLuoFen import HuTangLuoFenWindow
+from replayer.ZhaoBasao import ZhaoBasaoWindow
+from replayer.HaiTu import HaiTuWindow
+from replayer.JiangJiku import JiangJikuWindow
+from replayer.YuwenMie import YuwenMieWindow
+from replayer.GongWei import GongWeiWindow
 from replayer.GongAo import GongAoWindow
 
 class ToolTip(object):
@@ -500,6 +506,18 @@ class SingleBossWindow():
                 self.specificBossWindow = YatoutuoWindow(effectiveDPSList, detail)
             elif detail["boss"] == "岳琳&岳琅":
                 self.specificBossWindow = YuelinyuelangWindow(effectiveDPSList, detail)
+            elif detail["boss"] == "胡汤&罗芬":
+                self.specificBossWindow = HuTangLuoFenWindow(effectiveDPSList, detail)
+            elif detail["boss"] == "赵八嫂":
+                self.specificBossWindow = ZhaoBasaoWindow(effectiveDPSList, detail)
+            elif detail["boss"] == "海荼":
+                self.specificBossWindow = HaiTuWindow(effectiveDPSList, detail)
+            elif detail["boss"] == "姜集苦":
+                self.specificBossWindow = JiangJikuWindow(effectiveDPSList, detail)
+            elif detail["boss"] == "宇文灭":
+                self.specificBossWindow = YuwenMieWindow(effectiveDPSList, detail)
+            elif detail["boss"] == "宫威":
+                self.specificBossWindow = GongWeiWindow(effectiveDPSList, detail)
             elif detail["boss"] == "宫傲":
                 self.specificBossWindow = GongAoWindow(effectiveDPSList, detail)
             else:

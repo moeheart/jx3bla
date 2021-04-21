@@ -634,7 +634,7 @@ class ActorStatGenerator(StatGeneratorBase):
                         deathHit[item[5]] = [int(item[2]), "死线", 0]
                         
                     if item[13] != "0" and item[5] in deathHitDetail:
-                        if len(deathHitDetail[item[5]]) >= 25:
+                        if len(deathHitDetail[item[5]]) >= 20:
                             del deathHitDetail[item[5]][0]
                         deathHitDetail[item[5]].append([int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13]), item[4], -1])
                         
@@ -1324,6 +1324,7 @@ class ActorStatGenerator(StatGeneratorBase):
         self.potList = []
         self.detail = {"boss": "未知"}
         self.effectiveDPSList = []
+        self.equipmentDict = {}
         
 class ActorData():
 

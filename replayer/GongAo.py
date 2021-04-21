@@ -9,7 +9,7 @@ from Functions import *
         
 class GongAoWindow():
     '''
-    岳琳&岳琅的专有复盘窗口类。
+    宫傲的专有复盘窗口类。
     ''' 
     
     def final(self):
@@ -34,51 +34,41 @@ class GongAoWindow():
         #通用格式：
         #0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
         
-        label01 = tk.Label(frame1, text="玩家名", width = 13, height=1)
-        label01.grid(row=0, column=0)
-        label02 = tk.Label(frame1, text="有效DPS", height=1)
-        label02.grid(row=0, column=1)
-        ToolTip(label02, "全程DPS。与游戏中不同的是，重伤时间也会被计算在内。\n在岳琳&岳琅，会同时排除曳影剑·爆杀的伤害。")
-        label03 = tk.Label(frame1, text="团队-心法DPS", height=1)
-        label03.grid(row=0, column=2)
-        ToolTip(label03, "综合考虑当前团队情况与对应心法的全局表现，计算的百分比。平均水平为100%。")
-        label04 = tk.Label(frame1, text="装分", height=1)
-        label04.grid(row=0, column=3)
-        ToolTip(label04, "玩家的装分，可能会获取失败。")
-        label05 = tk.Label(frame1, text="详情", height=1)
-        label05.grid(row=0, column=4)
-        ToolTip(label05, "装备详细描述，暂未实装。")
-        label06 = tk.Label(frame1, text="被控", height=1)
-        label06.grid(row=0, column=5)
-        ToolTip(label06, "受到影响无法正常输出的时间，以秒计。")
+        tb = TableConstructor(frame1)
+        
+        tb.AppendHeader("玩家名", "", width=13)
+        tb.AppendHeader("有效DPS", "全程DPS。与游戏中不同的是，重伤时间也会被计算在内。")
+        tb.AppendHeader("团队-心法DPS", "综合考虑当前团队情况与对应心法的全局表现，计算的百分比。平均水平为100%。")
+        tb.AppendHeader("装分", "玩家的装分，可能会获取失败。")
+        tb.AppendHeader("详情", "装备详细描述，暂未完全实装。")
+        tb.AppendHeader("被控", "受到影响无法正常输出的时间，以秒计。")
+        tb.AppendHeader("水球DPS", "对源流之心的DPS，分母以场上全部水球计算。")
+        tb.EndOfLine()
         
         for i in range(len(self.effectiveDPSList)):
             name = self.effectiveDPSList[i][0]
             color = getColor(self.effectiveDPSList[i][1])
-            label1 = tk.Label(frame1, text=name, width = 13, height=1, fg=color)
-            label1.grid(row=i+1, column=0)
-            label2 = tk.Label(frame1, text=int(self.effectiveDPSList[i][2]), height=1)
-            label2.grid(row=i+1, column=1)
-            
+            tb.AppendContext(name, color=color, width=13)
+            tb.AppendContext(int(self.effectiveDPSList[i][2]))
+
             if getOccType(self.effectiveDPSList[i][1]) != "healer":
                 text3 = str(self.effectiveDPSList[i][3]) + '%'
                 color3 = "#000000"
             else:
                 text3 = self.effectiveDPSList[i][3]
                 color3 = "#00ff00"
-            label3 = tk.Label(frame1, text=text3, height=1, fg=color3)
-            label3.grid(row=i+1, column=2)
+            tb.AppendContext(text3, color=color3)
             
-            text4 = "未知"
+            text4 = "-"
             if self.effectiveDPSList[i][4] != -1:
                 text4 = int(self.effectiveDPSList[i][4])
-            label4 = tk.Label(frame1, text=text4, height=1)
-            label4.grid(row=i+1, column=3)
+            tb.AppendContext(text4)
             
-            label5 = tk.Label(frame1, text=self.effectiveDPSList[i][5], height=1)
-            label5.grid(row=i+1, column=4)
-            label6 = tk.Label(frame1, text=int(self.effectiveDPSList[i][6]), height=1)
-            label6.grid(row=i+1, column=5)
+            tb.AppendContext(self.effectiveDPSList[i][5])
+            tb.AppendContext(int(self.effectiveDPSList[i][6]))
+            tb.AppendContext(int(self.effectiveDPSList[i][7]))
+            
+            tb.EndOfLine()
         
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
@@ -109,6 +99,9 @@ class GongAoReplayer(SpecificReplayer):
         '''
         生成复盘结果的流程。需要维护effectiveDPSList, potList与detail。
         '''
+        
+        if self.shuiqiuStartTime != 0:
+            self.shuiqiuSumTime += self.finalTime - self.shuiqiuStartTime
 
         bossResult = []
         for id in self.playerIDList:
@@ -128,7 +121,8 @@ class GongAoReplayer(SpecificReplayer):
                                    line[3],
                                    line[4],
                                    line[5],
-                                   line[6]
+                                   line[6], 
+                                   int(line[7] / self.shuiqiuSumTime * 1000)
                                    ])
         bossResult.sort(key = lambda x:-x[2])
         self.effectiveDPSList = bossResult
@@ -187,7 +181,7 @@ class GongAoReplayer(SpecificReplayer):
             for shuiqiuID in self.shuiqiuDps:
                 if int(item[2]) - self.shuiqiuDps[shuiqiuID]["time"] <= 20000:
                     #合法伤害量
-                    damageStd = 1710000
+                    damageStd = 1900000
                     if self.shuiqiuDps[shuiqiuID]["sum"] != damageStd:
                         #开始分锅
                         damageSet = []
@@ -199,7 +193,7 @@ class GongAoReplayer(SpecificReplayer):
                                 continue
                             percent = self.shuiqiuDps[shuiqiuID][player] / damageStd
                             damageSet.append([percent, self.namedict[player][0].strip('"'), parseCent(percent)])
-                            if percent > 0.03:
+                            if percent > 0.05:
                                 if percent < 0.15:
                                     potSet.append([player, parseCent(percent)])
                                 else:
@@ -225,8 +219,6 @@ class GongAoReplayer(SpecificReplayer):
 
             self.shuiqiuBurstTime = 0
                         
-            
-            
         
         if item[3] == '1':  # 技能
 
@@ -249,6 +241,7 @@ class GongAoReplayer(SpecificReplayer):
                             self.shuiqiuDps[item[5]][item[4]] = 0
                         self.shuiqiuDps[item[5]][item[4]] += int(item[14])
                         self.shuiqiuDps[item[5]]['sum'] += int(item[14])
+                        self.stat[item[4]][7] += int(item[14])
      
                 
         elif item[3] == '5': #气劲
@@ -279,6 +272,9 @@ class GongAoReplayer(SpecificReplayer):
                 
             if item[6] in ["19083"] and int(item[10]) == 1: #污浊之水
                 self.wushuiLast[item[5]] = int(item[2])
+                
+            if item[6] in ["8510"]: #好团长点赞
+                self.win = 1
                     
         elif item[3] == '8':
         
@@ -296,7 +292,15 @@ class GongAoReplayer(SpecificReplayer):
                 
             if len(item) >= 8 and item[7] == '"源流之心"' and item[4] == '1':
                 self.shuiqiuDps[item[6]] = {'sum': 0, 'time': int(item[2])}
+                if self.shuiqiuNum == 0:
+                    self.shuiqiuStartTime = int(item[2])
                 self.shuiqiuNum += 1
+                
+            if len(item) >= 8 and item[7] == '"源流之心"' and item[4] == '0':
+                self.shuiqiuNum -= 1
+                if self.shuiqiuNum == 0:
+                    self.shuiqiuSumTime += int(item[2]) - self.shuiqiuStartTime
+                    self.shuiqiuStartTime = 0
             
             pass
             
@@ -322,7 +326,7 @@ class GongAoReplayer(SpecificReplayer):
         #0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
         
         #宫傲数据格式：
-        #(TODO)待英雄实装后更新
+        #7 水球DPS (TODO)待英雄实装后更新
         
         self.stat = {}
         self.hps = {}
@@ -337,11 +341,13 @@ class GongAoReplayer(SpecificReplayer):
         self.shuiqiuDps = {}
         self.shuiqiuNum = 0
         self.shuiqiuBurstTime = 0
+        self.shuiqiuStartTime = 0
+        self.shuiqiuSumTime = 0
         
         for line in self.playerIDList:
             self.hps[line] = 0
             self.stat[line] = [self.namedict[line][0].strip('"'), self.occDetailList[line], 0, 0, -1, "", 0] + \
-                []
+                [0]
             self.wushuiLast[line] = 0
 
     def __init__(self, playerIDList, mapDetail, res, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
