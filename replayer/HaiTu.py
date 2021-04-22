@@ -183,7 +183,7 @@ class HaiTuReplayer(SpecificReplayer):
             if item[4] in ['"…… ……"']:
                 self.phase = 2
                 
-            if item[4] in ['"吾之大业还未……"']:
+            if item[4] in ['"吾之大业还未……"', '"吾夙愿方达，绝……绝不能……死……"']:
                 self.win = 1
                 
         elif item[3] == '3': #重伤记录

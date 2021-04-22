@@ -150,6 +150,10 @@ class GongAoReplayer(SpecificReplayer):
         
         if self.luanliuTime != 0 and int(item[2]) - self.luanliuTime >= 500:
             # 结算水球
+            #print(self.luanliuTime)
+            #print(self.luanliuID)
+            #print(self.huiShuiTime)
+            #print(self.huiShuiID)
             if abs(self.luanliuTime - self.huiShuiTime) < 500: 
                 if len(self.luanliuID) >= 2:
                     victims = ["受害者名单："]
@@ -173,7 +177,7 @@ class GongAoReplayer(SpecificReplayer):
                                          ["水球只命中一个人时，由被命中者背锅。"]])
             self.luanliuTime = 0
             self.luanliuID = []
-            self.huishuiTime = 0
+            self.huiShuiTime = 0
             self.huiShuiID = "0"
             
         if self.shuiqiuBurstTime != 0 and int(item[2]) - self.shuiqiuBurstTime >= 500:

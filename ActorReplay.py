@@ -1280,7 +1280,7 @@ class ActorStatGenerator(StatGeneratorBase):
         #print(self.potList)
         if self.win:
             self.upload = 1
-        if self.mapDetail in ["25人英雄达摩洞"]:
+        if self.mapDetail in ["25人英雄达摩洞", "25人英雄白帝江关"]:
             self.upload = 1
             if self.win and self.uploadTiantiFlag:
                 self.uploadTianti = 1

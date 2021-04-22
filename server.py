@@ -278,6 +278,11 @@ def Tianwang():
                            "胡汤&罗芬", "赵八嫂", "海荼", "姜集苦", "宇文灭", "宫威", "宫傲"]:
                 playerPot[id][line[1]].append([line[2], line[3], line[4], line[5]])
                 
+        for map in playerPot[id]:
+            playerPot[id][map].sort(key=lambda x:x[1])
+            
+        #print(playerPot)
+                
         sql = '''SELECT mapdetail, type, power, content, id FROM CommentInfo WHERE server = "%s" and player = "%s"'''%(server, id)
         cursor.execute(sql)
         result = cursor.fetchall()   
