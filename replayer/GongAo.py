@@ -235,6 +235,19 @@ class GongAoReplayer(SpecificReplayer):
                 if item[7] == "26596":
                     self.shuiqiuBurstTime = int(item[2])
                     
+                if item[7] == "26526":
+                    potID = item[5]
+                    potTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                    self.potList.append([self.namedict[potID][0],
+                                         self.occDetailList[potID],
+                                         1,
+                                         self.bossNamePrint,
+                                         "%s额外邪水之握" % (potTime),
+                                         ["由于在邪水之握时没有出蓝圈/红圈，被额外选为邪水之握的目标。"]])
+                                         
+                #if item[7] == "26527":
+                #    print(item)
+                    
             else:
             
                 if item[4] in self.playerIDList:
@@ -261,7 +274,7 @@ class GongAoReplayer(SpecificReplayer):
                 self.luanliuTime = int(item[2])
                 self.luanliuID.append(item[5])
                 
-                
+            '''
             if item[6] in ["19053"] and int(item[10]) == 1: #邪水之握
                 if int(item[2]) - self.wushuiLast[item[5]] < 500:
                     potTime = parseTime((int(item[2]) - self.startTime) / 1000)
@@ -272,6 +285,7 @@ class GongAoReplayer(SpecificReplayer):
                                          self.bossNamePrint,
                                          "%s额外邪水之握" % (potTime),
                                          ["由于在邪水之握时没有出蓝圈，被额外选为邪水之握的目标。"]])
+            '''
                 
                 
             if item[6] in ["19083"] and int(item[10]) == 1: #污浊之水

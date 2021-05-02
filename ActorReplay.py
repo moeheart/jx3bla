@@ -645,7 +645,7 @@ class ActorStatGenerator(StatGeneratorBase):
                                 deathHitDetail[item[5]] = []
                         else:
                             if item[5] in deathHitDetail:
-                                if len(deathHitDetail[item[5]]) >= 15:
+                                if len(deathHitDetail[item[5]]) >= 20:
                                     del deathHitDetail[item[5]][0]
                                 deathHitDetail[item[5]].append([int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[12]), item[4], 1])
 
@@ -676,9 +676,9 @@ class ActorStatGenerator(StatGeneratorBase):
 
                     if item[13] != "0" and item[14] == "0":  # 检查反弹
                         deathHit[item[4]] = [int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13])]
-                        if item[5] in deathHitDetail:
-                            if len(deathHitDetail[item[5]]) >= 15:
-                                del deathHitDetail[item[5]][0]
+                        if item[4] in deathHitDetail:
+                            if len(deathHitDetail[item[4]]) >= 20:
+                                del deathHitDetail[item[4]][0]
                             deathHitDetail[item[4]].append([int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13]), item[4], -1])
 
                     if item[4] in self.playerIDList and int(item[11]) == 0 and item[5] in namedict and namedict[item[5]][0].strip('"') in self.bossNameDict:
