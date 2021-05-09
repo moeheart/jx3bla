@@ -340,8 +340,9 @@ class YuanfeiReplayer(SpecificReplayer):
                     numVictims = 0
                     for i in range(len(self.shanTuiLog)):
                         line = self.shanTuiLog[i]
-                        numVictims += 1
-                        shanTuiVictims.append(line[1])
+                        if line[1] not in shanTuiVictims:
+                            numVictims += 1
+                            shanTuiVictims.append(line[1])
                     if numVictims > 0:
                         self.potList.append([self.namedict[self.shanTuiID][0],
                                              self.occdict[self.shanTuiID][0],

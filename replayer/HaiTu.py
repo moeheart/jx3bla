@@ -239,6 +239,73 @@ class HaiTuReplayer(SpecificReplayer):
         - item 复盘数据，意义同茗伊复盘。
         '''
         
+        if self.failTime != 0 and int(item[2]) - self.failTime > 300:  # 缓冲并结算锁链失败的复盘
+        
+            if self.failFlag == 1:
+                self.suolianNum += 1
+                self.detail["suolian"].append({"type": 1, "time": parseTime((self.failTime - self.startTime)/1000), "log": []}) #按错QTE
+                for line in self.failReason:
+                    self.detail["suolian"][self.suolianNum]["log"].append([self.namedict[line][0].strip('"'), self.occDetailList[line]])
+                    
+                    potTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                    potID = line
+                    self.potList.append([self.namedict[potID][0],
+                                         self.occDetailList[potID],
+                                         1,
+                                         self.bossNamePrint,
+                                         "%s按错QTE" % (potTime),
+                                         ["在锁链阶段按错QTE导致海荼挣脱"]])
+                    
+                
+            elif self.failFlag == 2:
+                self.suolianNum += 1
+                self.detail["suolian"].append({"type": 2, "time": parseTime((self.failTime - self.startTime)/1000), "log": []}) #QTE超时
+                for line in self.failReason:
+                    self.detail["suolian"][self.suolianNum]["log"].append([self.namedict[line][0].strip('"'), self.occDetailList[line]])
+                    
+                    potTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                    potID = line
+                    self.potList.append([self.namedict[potID][0],
+                                         self.occDetailList[potID],
+                                         1,
+                                         self.bossNamePrint,
+                                         "%sQTE超时" % (potTime),
+                                         ["在锁链阶段QTE超时导致海荼挣脱"]])
+                    
+            elif self.failFlag == 3:
+                self.suolianNum += 1
+                self.detail["suolian"].append({"type": 3, "time": parseTime((self.failTime - self.startTime)/1000), "log": []}) #锁链错位
+                for line in self.failReason:
+                    self.detail["suolian"][self.suolianNum]["log"].append([self.namedict[line][0].strip('"'), self.occDetailList[line]])
+                    
+                    potTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                    potID = line
+                    self.potList.append([self.namedict[potID][0],
+                                         self.occDetailList[potID],
+                                         1,
+                                         self.bossNamePrint,
+                                         "%s锁链错位" % (potTime),
+                                         ["在锁链阶段夹角过小产生错位debuff，导致海荼挣脱"]])
+
+            elif self.failFlag == 4:
+                self.suolianNum += 1
+                self.detail["suolian"].append({"type": 4, "time": parseTime((self.failTime - self.startTime)/1000), "log": []}) #玩家重伤
+                for line in self.failReason:
+                    self.detail["suolian"][self.suolianNum]["log"].append([self.namedict[line][0].strip('"'), self.occDetailList[line]]) 
+                    
+            elif self.failFlag == 5:
+                self.suolianNum += 1
+                self.detail["suolian"].append({"type": 5, "time": parseTime((self.failTime - self.startTime)/1000)}) #锁链超时
+                    
+            else:
+                self.suolianNum += 1
+                self.detail["suolian"].append({"type": 6, "time": parseTime((self.failTime - self.startTime)/1000)}) #其它原因导致挣脱
+            
+            self.suolianActive = 0
+            self.failFlag = 0
+            self.failTime = 0
+            self.failReason = []
+        
         if item[3] == '1':  # 技能
         
             if item[7] in ["26781", "26782"]: #向左拉/向右拉
@@ -251,7 +318,9 @@ class HaiTuReplayer(SpecificReplayer):
                 if correct:
                     if item[5] in self.detail["suolian"][self.suolianNum]["log"]:
                         self.detail["suolian"][self.suolianNum]["log"][item[5]][3] += 1
-                else:
+                elif self.suolianActive:
+                    if self.failFlag > 1:  # 按错QTE由于判定诡异，拥有最高优先级
+                        self.failReason = []
                     self.failFlag = 1
                     self.failTime = int(item[2])
                     self.failReason.append(item[5])
@@ -278,7 +347,8 @@ class HaiTuReplayer(SpecificReplayer):
                         
                 if item[7] == "26819" and item[8] == "1" and self.suolianActive: #BOSS挣脱反噬
                 
-                    #print(item)
+                    if self.failFlag == 0:
+                        self.failTime = int(item[2])
                     
                     if self.failFlag == 0:
                         for line in self.cuoweiStatus:
@@ -288,78 +358,14 @@ class HaiTuReplayer(SpecificReplayer):
                     
                     if self.failFlag == 0:
                         for line in self.qteStat:
-                            if self.qteStat[line]["time"] != 0:
+                            if self.qteStat[line]["time"] != 0 and int(item[2]) - self.qteStat[line]["time"] > 2500 and int(item[2]) - self.qteStat[line]["time"] < 5500:
                                 self.failFlag = 2
                                 self.failReason.append(line)
                                 
                     if self.failFlag == 0:
                         if int(item[2]) - self.suolianLast > 19000:
                             self.failFlag = 5
-                    
-                    if self.failFlag == 1:
-                        self.suolianNum += 1
-                        self.detail["suolian"].append({"type": 1, "time": parseTime((self.failTime - self.startTime)/1000), "log": []}) #按错QTE
-                        for line in self.failReason:
-                            self.detail["suolian"][self.suolianNum]["log"].append([self.namedict[line][0].strip('"'), self.occDetailList[line]])
-                            
-                            potTime = parseTime((int(item[2]) - self.startTime) / 1000)
-                            potID = line
-                            self.potList.append([self.namedict[potID][0],
-                                                 self.occDetailList[potID],
-                                                 1,
-                                                 self.bossNamePrint,
-                                                 "%s按错QTE" % (potTime),
-                                                 ["在锁链阶段按错QTE导致海荼挣脱"]])
-                            
-                        
-                    elif self.failFlag == 2:
-                        self.suolianNum += 1
-                        self.detail["suolian"].append({"type": 2, "time": parseTime((int(item[2]) - self.startTime)/1000), "log": []}) #QTE超时
-                        for line in self.failReason:
-                            self.detail["suolian"][self.suolianNum]["log"].append([self.namedict[line][0].strip('"'), self.occDetailList[line]])
-                            
-                            potTime = parseTime((int(item[2]) - self.startTime) / 1000)
-                            potID = line
-                            self.potList.append([self.namedict[potID][0],
-                                                 self.occDetailList[potID],
-                                                 1,
-                                                 self.bossNamePrint,
-                                                 "%sQTE超时" % (potTime),
-                                                 ["在锁链阶段QTE超时导致海荼挣脱"]])
-                            
-                    elif self.failFlag == 3:
-                        self.suolianNum += 1
-                        self.detail["suolian"].append({"type": 3, "time": parseTime((int(item[2]) - self.startTime)/1000), "log": []}) #锁链错位
-                        for line in self.failReason:
-                            self.detail["suolian"][self.suolianNum]["log"].append([self.namedict[line][0].strip('"'), self.occDetailList[line]])
-                            
-                            potTime = parseTime((int(item[2]) - self.startTime) / 1000)
-                            potID = line
-                            self.potList.append([self.namedict[potID][0],
-                                                 self.occDetailList[potID],
-                                                 1,
-                                                 self.bossNamePrint,
-                                                 "%s锁链错位" % (potTime),
-                                                 ["在锁链阶段夹角过小产生错位debuff，导致海荼挣脱"]])
 
-                    elif self.failFlag == 4:
-                        self.suolianNum += 1
-                        self.detail["suolian"].append({"type": 4, "time": parseTime((int(item[2]) - self.startTime)/1000), "log": []}) #玩家重伤
-                        for line in self.failReason:
-                            self.detail["suolian"][self.suolianNum]["log"].append([self.namedict[line][0].strip('"'), self.occDetailList[line]]) 
-                            
-                    elif self.failFlag == 5:
-                        self.suolianNum += 1
-                        self.detail["suolian"].append({"type": 5, "time": parseTime((int(item[2]) - self.startTime)/1000)}) #锁链超时
-                            
-                    else:
-                        self.suolianNum += 1
-                        self.detail["suolian"].append({"type": 6, "time": parseTime((int(item[2]) - self.startTime)/1000)}) #其它原因导致挣脱
-                    
-                    self.suolianActive = 0
-                    self.failFlag = 0
-                    self.failTime = 0
-                    self.failReason = []
 
             else:
             
@@ -467,6 +473,7 @@ class HaiTuReplayer(SpecificReplayer):
                 self.win = 1
                 if len(self.detail["suolian"]) > 0 and self.detail["suolian"][-1]["type"] != 0:
                     del self.detail["suolian"][-1]
+                    self.suolianNum -= 1
                 
             if item[4] in ['"哼哼哈哈哈，进了水里便是吾等的天下！"']:
                 self.phase = 2.5
@@ -477,7 +484,8 @@ class HaiTuReplayer(SpecificReplayer):
                 
         elif item[3] == '3': #重伤记录
                 
-            if item[4] in self.occdict and int(self.occdict[item[4]][0]) != 0 and len(self.detail["suolian"]) > 0:
+            if item[4] in self.occdict and int(self.occdict[item[4]][0]) != 0 and len(self.detail["suolian"]) > 0 and self.failFlag == 0:
+            
                 if "log" in self.detail["suolian"][self.suolianNum] and item[4] in self.detail["suolian"][self.suolianNum]["log"]:
                     self.failFlag = 4
                     self.failTime = int(item[2])

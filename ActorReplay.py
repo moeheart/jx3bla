@@ -486,12 +486,12 @@ class ActorStatGenerator(StatGeneratorBase):
         deathHit = {}
         deathHitDetail = {}
 
-        deathBuffDict = {"9299": 35000,  # 杯水留影
+        deathBuffDict = {"9299": 30500,  # 杯水留影
                          "16981": 30000,  # 翩然
                          "17128": 5000,  # 阴阳逆乱}
                          "16892": 36000,  # 应援
                          "17301": 16000,  # 不听话的小孩子
-                         "16349": 16349,  # 试炼逃避者
+                         "16349": 3500,  # 试炼逃避者
                          }
         deathBuff = {}
         
@@ -891,6 +891,9 @@ class ActorStatGenerator(StatGeneratorBase):
                                 deathSource = deathBuff[item[4]][line][1]
                             if deathSource == "杯水留影":
                                 severe = 0
+                                if deathBuff[item[4]][line][0] + 29500 > int(item[2]):  # 杯水的精确时间特殊处理
+                                    deathSource = "未知"
+                                    severe = 1
                                 
                     if "百邪癫狂" in deathSource:
                         severe = 0
