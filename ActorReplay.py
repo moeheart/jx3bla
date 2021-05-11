@@ -599,6 +599,13 @@ class ActorStatGenerator(StatGeneratorBase):
             xuelianCount = 0
 
         bossAnalyser.initBattle()
+        
+        self.penalty1 = {}
+        self.penalty2 = {}
+        
+        for line in self.playerIDList:
+            self.penalty1[line] = BuffCounter(0, self.startTime, self.finalTime)  # 通用易伤
+            self.penalty2[line] = BuffCounter(0, self.startTime, self.finalTime)  # 通用减疗
 
         if not self.lastTry:
             self.finalTime -= self.failThreshold * 1000
@@ -637,7 +644,7 @@ class ActorStatGenerator(StatGeneratorBase):
                     if item[13] != "0" and item[5] in deathHitDetail:
                         if len(deathHitDetail[item[5]]) >= 20:
                             del deathHitDetail[item[5]][0]
-                        deathHitDetail[item[5]].append([int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13]), item[4], -1])
+                        deathHitDetail[item[5]].append([int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13]), item[4], -1, int(item[10])])
                         
                     if item[11] != "0":
                         if int(item[11]) > int(item[12]):
@@ -647,7 +654,7 @@ class ActorStatGenerator(StatGeneratorBase):
                             if item[5] in deathHitDetail:
                                 if len(deathHitDetail[item[5]]) >= 20:
                                     del deathHitDetail[item[5]][0]
-                                deathHitDetail[item[5]].append([int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[12]), item[4], 1])
+                                deathHitDetail[item[5]].append([int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[12]), item[4], 1, int(item[10])])
 
                     if anxiaofengActive:
                         hasRumo = self.rumo[item[5]].checkState(int(item[2]))
@@ -679,7 +686,7 @@ class ActorStatGenerator(StatGeneratorBase):
                         if item[4] in deathHitDetail:
                             if len(deathHitDetail[item[4]]) >= 20:
                                 del deathHitDetail[item[4]][0]
-                            deathHitDetail[item[4]].append([int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13]), item[4], -1])
+                            deathHitDetail[item[4]].append([int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13]), item[4], -1, int(item[10])])
 
                     if item[4] in self.playerIDList and int(item[11]) == 0 and item[5] in namedict and namedict[item[5]][0].strip('"') in self.bossNameDict:
                         if item[7] in ["2516"]:
@@ -782,6 +789,17 @@ class ActorStatGenerator(StatGeneratorBase):
                     
                 if item[6] in ["18280", "18281", "18303", "18304"] and item[5] in self.playerIDList and item[10] == '1':
                     xiaoyaoCount[item[5]][item[6]] = 1
+                    
+                if item[6] in ["15775", "17201"]:
+                    self.penalty1[item[5]].setState(int(item[2]), int(item[10]))
+
+                if item[6] in ["15774", "17200"]:  # buff精神匮乏
+                    self.penalty2[item[5]].setState(int(item[2]), int(item[10]))
+                    
+                if item[6] in ["6214"] and int(item[10]) == 0:
+                    if len(deathHitDetail[item[5]]) >= 20:
+                        del deathHitDetail[item[5]][0]
+                    deathHitDetail[item[5]].append([int(item[2]), "禅语消失", 0, item[4], -1, 0])
 
                 if yanyeActive:
                     if item[6] == "16913":  # 厌夜威压buff
@@ -852,7 +870,7 @@ class ActorStatGenerator(StatGeneratorBase):
                                                  1,
                                                  self.bossNamePrint,
                                                  "%s应援按错(%s)" % (lockTime, reason)])
-
+                                                 
                     if item[6] in ["15774", "17200"]:  # buff精神匮乏
                         stack = int(item[10])
                         if stack >= 20 and self.jingshenkuifa[item[5]] == 0:
@@ -917,10 +935,20 @@ class ActorStatGenerator(StatGeneratorBase):
                             name = "未知"
                             if line[3] in namedict:
                                 name = namedict[line[3]][0].strip('"')
+                            resultStr = ""
+                            if line[5] > 0 and line[5] <= 7:
+                                resultStr = ["", "(招架)", "(免疫)", "(偏离)", "(闪避)", "(会心)", "(识破)", "(化解)"][line[5]]
                             if line[4] == -1:
-                                deathSourceDetail.append("-%s, %s:%s(%d)"%(parseTime((int(line[0]) - self.startTime) / 1000), name, line[1], line[2]))
-                            else:
-                                deathSourceDetail.append("+%s, %s:%s(%d)"%(parseTime((int(line[0]) - self.startTime) / 1000), name, line[1], line[2]))
+                                deathSourceDetail.append("-%s, %s:%s%s(%d)"%(parseTime((int(line[0]) - self.startTime) / 1000), name, line[1], resultStr, line[2]))
+                            elif line[4] == 1:
+                                deathSourceDetail.append("+%s, %s:%s%s(%d)"%(parseTime((int(line[0]) - self.startTime) / 1000), name, line[1], resultStr, line[2]))
+                                
+                        state1 = self.penalty1[item[4]].checkState(int(item[2]) - 500)
+                        state2 = self.penalty2[item[4]].checkState(int(item[2]) - 500)
+                        if state1 > 0:
+                            deathSourceDetail.append("重伤时debuff耐力损耗：%d层"%state1)
+                        if state2 > 0:
+                            deathSourceDetail.append("重伤时debuff精神匮乏：%d层"%state2)
 
                         self.bossAnalyser.addPot([namedict[item[4]][0],
                                              occDetailList[item[4]],
