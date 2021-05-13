@@ -1,7 +1,7 @@
 # Created by moeheart at 03/29/2021
 # 胡汤&罗芬的定制复盘方法库。
 # 胡汤&罗芬是白帝江关1号首领，复盘主要集中在以下几个方面：
-# (TODO)
+# 三种承伤的次数，与可能出现问题时的分锅。
 
 from replayer.Base import *
 from replayer.utils import CriticalHealCounter, DpsShiftWindow
@@ -42,6 +42,9 @@ class HuTangLuoFenWindow():
         tb.AppendHeader("装分", "玩家的装分，可能会获取失败。")
         tb.AppendHeader("详情", "装备详细描述，暂未完全实装。")
         tb.AppendHeader("被控", "受到影响无法正常输出的时间，以秒计。")
+        tb.AppendHeader("利爪承伤", "参与利爪承伤（面向）的次数。")
+        tb.AppendHeader("面粉承伤", "参与面粉承伤（小圈）的次数。")
+        tb.AppendHeader("手劲承伤", "参与手劲承伤（点名）的次数。")
         tb.EndOfLine()
         
         for i in range(len(self.effectiveDPSList)):
@@ -65,6 +68,9 @@ class HuTangLuoFenWindow():
             
             tb.AppendContext(self.effectiveDPSList[i][5])
             tb.AppendContext(int(self.effectiveDPSList[i][6]))
+            tb.AppendContext(int(self.effectiveDPSList[i][7]))
+            tb.AppendContext(int(self.effectiveDPSList[i][8]))
+            tb.AppendContext(int(self.effectiveDPSList[i][9]))
             
             tb.EndOfLine()
         
@@ -116,6 +122,9 @@ class HuTangLuoFenReplayer(SpecificReplayer):
                                    line[4],
                                    line[5],
                                    line[6], 
+                                   line[7],
+                                   line[8],
+                                   line[9], 
                                    ])
         bossResult.sort(key = lambda x:-x[2])
         self.effectiveDPSList = bossResult
@@ -145,6 +154,16 @@ class HuTangLuoFenReplayer(SpecificReplayer):
                 if item[11] != '0' and item[10] != '7': #非化解
                     if item[4] in self.playerIDList:
                         self.hps[item[4]] += int(item[12])
+                        
+                if '5' not in item[15]:
+                    if item[7] == "26199":  # 利爪承伤
+                        self.stat[item[5]][7] += 1
+                        
+                    if item[7] == "26350":  # 面粉承伤
+                        self.stat[item[5]][8] += 1
+                        
+                    if item[7] == "26238":  # 手劲承伤
+                        self.stat[item[5]][9] += 1
                     
             else:
             
@@ -160,9 +179,6 @@ class HuTangLuoFenReplayer(SpecificReplayer):
         
             if len(item) <= 4:
                 return
-                
-            if item[4] in ['"喝啊……看！这疤痕，就是俺的忠诚！"']:
-                self.phase = 2
                 
         elif item[3] == '3': #重伤记录
             if item[6] == '"罗芬"':
@@ -192,7 +208,7 @@ class HuTangLuoFenReplayer(SpecificReplayer):
         #0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
         
         #胡汤&罗芬数据格式：
-        #(TODO)待英雄实装后更新
+        #7 利爪承伤, 8 面粉承伤, 9 手劲承伤
         
         self.stat = {}
         self.hps = {}
@@ -201,7 +217,7 @@ class HuTangLuoFenReplayer(SpecificReplayer):
         
         for line in self.playerIDList:
             self.stat[line] = [self.namedict[line][0].strip('"'), self.occDetailList[line], 0, 0, -1, "", 0] + \
-                [0]
+                [0, 0, 0]
             self.hps[line] = 0
 
     def __init__(self, playerIDList, mapDetail, res, occDetailList, startTime, finalTime, battleTime, bossNamePrint):

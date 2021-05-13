@@ -641,7 +641,7 @@ class ActorStatGenerator(StatGeneratorBase):
                     if item[7] == "23687":
                         deathHit[item[5]] = [int(item[2]), "死线", 0]
                         
-                    if item[13] != "0" and item[5] in deathHitDetail:
+                    if item[13] != "0" and item[5] in deathHitDetail and '5' not in item[15]:
                         if len(deathHitDetail[item[5]]) >= 20:
                             del deathHitDetail[item[5]][0]
                         deathHitDetail[item[5]].append([int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13]), item[4], -1, int(item[10])])

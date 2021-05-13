@@ -239,7 +239,7 @@ class HaiTuReplayer(SpecificReplayer):
         - item 复盘数据，意义同茗伊复盘。
         '''
         
-        if self.failTime != 0 and int(item[2]) - self.failTime > 300:  # 缓冲并结算锁链失败的复盘
+        if self.failTime != 0 and int(item[2]) - self.failTime > 300 and self.mapDetail == "25人英雄白帝江关":  # 缓冲并结算锁链失败的复盘
         
             if self.failFlag == 1:
                 self.suolianNum += 1
@@ -413,21 +413,8 @@ class HaiTuReplayer(SpecificReplayer):
                 if int(item[2]) - self.xiashuiTime[item[5]] > 15000:
                     self.xiashuiTime[item[5]] = int(item[2])
                     self.stat[item[5]][10] += 1
-                
-                    '''
-                    if int(item[2]) - self.xiashuiTime[item[5]] > 15000:
-                        potTime = parseTime((int(item[2]) - self.startTime) / 1000)
-                        potID = item[5]
-                        self.potList.append([self.namedict[potID][0],
-                                             self.occDetailList[potID],
-                                             0,
-                                             self.bossNamePrint,
-                                             "%s下水被拉" % (potTime),
-                                             ["在P2下水，需要挣扎，影响输出进度。"]])
-                    self.xiashuiTime[item[5]] = int(item[2])
-                    '''
                     
-            if item[6] == "19218":
+            if item[6] == "19218" and self.mapDetail == "25人英雄白帝江关":
                 if int(item[10]) == 1: #手持锁链buff
                     self.criticalHealCounter[item[5]].active()
                     self.criticalHealCounter[item[5]].setCriticalTime(-1)
