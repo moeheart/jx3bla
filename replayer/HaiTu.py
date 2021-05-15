@@ -305,6 +305,22 @@ class HaiTuReplayer(SpecificReplayer):
             self.failFlag = 0
             self.failTime = 0
             self.failReason = []
+            
+        if self.yanZhongDingTime != 0 and int(item[2]) - self.yanZhongDingTime > 5000:
+            if self.yanZhongDingNum >= 5:
+                potTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                potID = self.yanZhongDingPlayer
+                self.potList.append([self.namedict[potID][0],
+                                     self.occDetailList[potID],
+                                     1,
+                                     self.bossNamePrint,
+                                     "面向害人：%d个" % (self.yanZhongDingNum),
+                                     ["受害者名单："] + self.yanZhongDingVictim])
+        
+            self.yanZhongDingTime = 0
+            self.yanZhongDingNum = 0
+            self.yanZhongDingPlayer = "0"
+            self.yanZhongDingVictim = []
         
         if item[3] == '1':  # 技能
         
@@ -365,7 +381,10 @@ class HaiTuReplayer(SpecificReplayer):
                     if self.failFlag == 0:
                         if int(item[2]) - self.suolianLast > 19000:
                             self.failFlag = 5
-
+                            
+                if item[7] == "26234" and '5' not in item[15]:
+                    self.yanZhongDingNum += 1
+                    self.yanZhongDingVictim.append(self.namedict[item[5]][0].strip('"'))
 
             else:
             
@@ -443,8 +462,10 @@ class HaiTuReplayer(SpecificReplayer):
             if item[6] == "19426": #错位
                 if int(item[10]) == 1:
                     self.cuoweiStatus[item[5]] = int(item[2])
-
-            
+                    
+            if item[6] == "18901" and int(item[10]) == 1:  # 眼中钉
+                self.yanZhongDingTime = int(item[2])
+                self.yanZhongDingPlayer = item[5]
                     
         elif item[3] == '8':
         
@@ -526,6 +547,11 @@ class HaiTuReplayer(SpecificReplayer):
         self.failReason = []
         self.cuoweiStatus = {}
         self.suolianLast = 0  # 最后一次锁链时间
+        
+        self.yanZhongDingTime = 0
+        self.yanZhongDingPlayer = "0"
+        self.yanZhongDingNum = 0
+        self.yanZhongDingVictim = []
         
         for line in self.playerIDList:
             self.stat[line] = [self.namedict[line][0].strip('"'), self.occDetailList[line], 0, 0, -1, "", 0] + \

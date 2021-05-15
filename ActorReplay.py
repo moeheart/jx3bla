@@ -602,6 +602,7 @@ class ActorStatGenerator(StatGeneratorBase):
         
         self.penalty1 = {}
         self.penalty2 = {}
+        self.guHuoTarget = {}
         
         for line in self.playerIDList:
             self.penalty1[line] = BuffCounter(0, self.startTime, self.finalTime)  # 通用易伤
@@ -655,6 +656,11 @@ class ActorStatGenerator(StatGeneratorBase):
                                 if len(deathHitDetail[item[5]]) >= 20:
                                     del deathHitDetail[item[5]][0]
                                 deathHitDetail[item[5]].append([int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[12]), item[4], 1, int(item[10])])
+                        if item[4] in self.guHuoTarget and self.guHuoTarget[item[4]] != "0":
+                            guHuo = self.guHuoTarget[item[4]]
+                            if len(deathHitDetail[guHuo]) >= 20:
+                                del deathHitDetail[guHuo][0]
+                            deathHitDetail[guHuo].append([int(item[2]), skilldict[item[9]][0][""][0].strip('"')+"(蛊惑)", int(int(item[12]) / 2), item[4], 1, int(item[10])])
 
                     if anxiaofengActive:
                         hasRumo = self.rumo[item[5]].checkState(int(item[2]))
@@ -795,6 +801,12 @@ class ActorStatGenerator(StatGeneratorBase):
 
                 if item[6] in ["15774", "17200"]:  # buff精神匮乏
                     self.penalty2[item[5]].setState(int(item[2]), int(item[10]))
+                    
+                if item[6] in ["2316"]:  # 蛊惑众生
+                    if int(item[10]) == 1:
+                        self.guHuoTarget[item[4]] = item[5]
+                    else:
+                        self.guHuoTarget[item[4]] = "0"
                     
                 if item[6] in ["6214"] and int(item[10]) == 0:
                     if len(deathHitDetail[item[5]]) >= 20:
@@ -1435,7 +1447,7 @@ class ActorAnalysis():
                      "4": (56, 175, 255),  # 纯阳
                      "5": (255, 127, 255),  # 七秀
                      "3": (160, 0, 0),  # 天策
-                     "8": (255, 255, 0),  # 藏剑
+                     "8": (220, 220, 0),  # 藏剑
                      "9": (205, 133, 63),  # 丐帮
                      "10": (253, 84, 0),  # 明教
                      "6": (63, 31, 159),  # 五毒

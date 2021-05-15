@@ -73,6 +73,34 @@ class HuTangLuoFenWindow():
             tb.AppendContext(int(self.effectiveDPSList[i][9]))
             
             tb.EndOfLine()
+            
+        frame2 = tk.Frame(window)
+        frame2.pack()
+        
+        tb = TableConstructor(frame2)
+        
+        tb.AppendHeader("承伤失败复盘", "")
+        tb.EndOfLine()
+        
+        for line in self.detail["chengshangFail"]:
+            tb.AppendContext(line["description"])
+            tb.AppendContext(line["time"])
+            for player in line["player"]:
+                name = player[0]
+                color = getColor(player[1])
+                tb.AppendContext(name, color=color)
+            tb.EndOfLine()
+            
+            tb.AppendContext("")
+            tb.AppendContext("推测接锅者")
+            if line["fail"] == []:
+                tb.AppendContext("未知")
+            else:
+                for player in line["fail"]:
+                    name = player[0]
+                    color = getColor(player[1])
+                    tb.AppendContext(name, color=color)
+            tb.EndOfLine()
         
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
@@ -147,6 +175,42 @@ class HuTangLuoFenReplayer(SpecificReplayer):
         - item 复盘数据，意义同茗伊复盘。
         '''
         
+        if self.chengShang[0]["num"] > 0 and int(item[2]) - self.chengShang[0]["time"] > 500:
+            if self.chengShang[0]["num"] <= 8 and self.chengShang[0]["num"] != 1:
+                tmp = {}
+                res = {"description": "利爪承伤失败", "time": parseTime((self.chengShang[0]["time"] - self.startTime)/1000), "player": [], "fail": []}
+                for line in self.chengShang[0]["player"]:
+                    res["player"].append([line[1], line[2]])
+                    tmp[line[0]] = 0
+                for line in self.liZhuaList:
+                    if self.liZhuaList[line] == self.liZhuaOrder and line not in tmp:
+                        res["fail"].append([self.namedict[line][0].strip('"'), self.occDetailList[line]])
+                self.detail["chengshangFail"].append(res)
+            self.chengShang[0] = {"time": 0, "num": 0, "player": []}
+            self.lastLiZhuaTime = int(item[2])
+        
+        if self.chengShang[1]["num"] > 0 and int(item[2]) - self.chengShang[1]["time"] > 4000:
+            if self.mianfenFailFlag == 1:
+                res = {"description": "面粉承伤失败", "time": parseTime((self.chengShang[1]["time"] - self.startTime)/1000), "player": [], "fail": []}
+                for line in self.chengShang[1]["player"]:
+                    res["player"].append([line[1], line[2]])
+                    tmp[line[0]] = 0
+                for line in self.mianFenList:
+                    if self.mianFenList[line] == self.mianFenOrder and line not in tmp:
+                        res["fail"].append([self.namedict[line][0].strip('"'), self.occDetailList[line]])
+                self.detail["chengshangFail"].append(res)
+            self.chengShang[1] = {"time": 0, "num": 0, "player": []}
+            self.mianfenFailFlag = 0
+            self.mianFenOrder = 0
+            
+        if self.chengShang[2]["num"] > 0 and int(item[2]) - self.chengShang[2]["time"] > 200:
+            if self.chengShang[2]["num"] <= 3:
+                res = {"description": "手劲承伤失败", "time": parseTime((self.chengShang[2]["time"] - self.startTime)/1000), "player": [], "fail": []}
+                for line in self.chengShang[2]["player"]:
+                    res["player"].append([line[1], line[2]])
+                self.detail["chengshangFail"].append(res)
+            self.chengShang[2] = {"time": 0, "num": 0, "player": []}
+        
         if item[3] == '1':  # 技能
 
             if self.occdict[item[5]][0] != '0':
@@ -156,14 +220,40 @@ class HuTangLuoFenReplayer(SpecificReplayer):
                         self.hps[item[4]] += int(item[12])
                         
                 if '5' not in item[15]:
-                    if item[7] == "26199":  # 利爪承伤
+                    if item[7] == "26199":  # 利爪承伤，用0代表
                         self.stat[item[5]][7] += 1
+                        if self.chengShang[0]["time"] == 0:
+                            if self.liZhuaOrder == 0:
+                                self.liZhuaOrder = 1
+                            elif int(item[2]) - self.lastLiZhuaTime < 30000:
+                                self.liZhuaOrder = 3 - self.liZhuaOrder
+                            else:
+                                self.liZhuaOrder = 1
+                        self.liZhuaList[item[5]] = self.liZhuaOrder
+                        self.chengShang[0]["time"] = int(item[2])
+                        self.chengShang[0]["num"] += 1
+                        self.chengShang[0]["player"].append([item[5], self.namedict[item[5]][0].strip('"'), self.occDetailList[item[5]]])
                         
-                    if item[7] == "26350":  # 面粉承伤
+                    if item[7] == "26350":  # 面粉承伤，用1代表
                         self.stat[item[5]][8] += 1
+                        if int(item[2]) - self.chengShang[1]["time"] > 500:
+                            self.mianFenOrder += 1
+                        self.mianFenList[item[5]] = self.mianFenOrder
+                        self.chengShang[1]["time"] = int(item[2])
+                        self.chengShang[1]["num"] += 1
+                        self.chengShang[1]["player"].append([item[5], self.namedict[item[5]][0].strip('"'), self.occDetailList[item[5]]])
                         
-                    if item[7] == "26238":  # 手劲承伤
+                    if item[7] == "26238":  # 手劲承伤，用2代表
                         self.stat[item[5]][9] += 1
+                        self.chengShang[2]["time"] = int(item[2])
+                        self.chengShang[2]["num"] += 1
+                        self.chengShang[2]["player"].append([item[5], self.namedict[item[5]][0].strip('"'), self.occDetailList[item[5]]])
+                        
+                    if item[7] == "26563":  # 震荡
+                        if int(item[2]) - self.chengShang[1]["time"] > 500:
+                            self.mianFenOrder += 1
+                        self.chengShang[1]["time"] = int(item[2])
+                        self.mianfenFailFlag = self.mianFenOrder
                     
             else:
             
@@ -214,6 +304,15 @@ class HuTangLuoFenReplayer(SpecificReplayer):
         self.hps = {}
         self.detail["boss"] = "胡汤&罗芬"
         self.win = 0
+        
+        self.mianfenFailFlag = 0
+        self.detail["chengshangFail"] = []
+        self.chengShang = [{"time": 0, "num": 0, "player": []}] * 3
+        self.liZhuaList = {}
+        self.liZhuaOrder = 0
+        self.mianFenList = {}
+        self.mianFenOrder = 0
+        self.lastLiZhuaTime = 0
         
         for line in self.playerIDList:
             self.stat[line] = [self.namedict[line][0].strip('"'), self.occDetailList[line], 0, 0, -1, "", 0] + \

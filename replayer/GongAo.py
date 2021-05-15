@@ -150,11 +150,7 @@ class GongAoReplayer(SpecificReplayer):
         
         if self.luanliuTime != 0 and int(item[2]) - self.luanliuTime >= 500:
             # 结算水球
-            #print(self.luanliuTime)
-            #print(self.luanliuID)
-            #print(self.huiShuiTime)
-            #print(self.huiShuiID)
-            if abs(self.luanliuTime - self.huiShuiTime) < 500: 
+            if abs(self.luanliuTime - self.huiShuiTime) < 500 and (self.mapDetail != "25人英雄白帝江关" or len(self.luanliuID) >= 3): 
                 if len(self.luanliuID) >= 2:
                     victims = ["受害者名单："]
                     for line in self.luanliuID:
@@ -186,6 +182,10 @@ class GongAoReplayer(SpecificReplayer):
                 if int(item[2]) - self.shuiqiuDps[shuiqiuID]["time"] <= 20000:
                     #合法伤害量
                     damageStd = 1900000
+                    if self.mapDetail == "25人英雄白帝江关":
+                        damageStd = 4132500
+                    elif self.mapDetail == "10人普通白帝江关":
+                        damageStd = 307500
                     if self.shuiqiuDps[shuiqiuID]["sum"] != damageStd:
                         #开始分锅
                         damageSet = []
@@ -273,20 +273,6 @@ class GongAoReplayer(SpecificReplayer):
             if item[6] in ["18892"]:
                 self.luanliuTime = int(item[2])
                 self.luanliuID.append(item[5])
-                
-            '''
-            if item[6] in ["19053"] and int(item[10]) == 1: #邪水之握
-                if int(item[2]) - self.wushuiLast[item[5]] < 500:
-                    potTime = parseTime((int(item[2]) - self.startTime) / 1000)
-                    potID = item[5]
-                    self.potList.append([self.namedict[potID][0],
-                                         self.occDetailList[potID],
-                                         1,
-                                         self.bossNamePrint,
-                                         "%s额外邪水之握" % (potTime),
-                                         ["由于在邪水之握时没有出蓝圈，被额外选为邪水之握的目标。"]])
-            '''
-                
                 
             if item[6] in ["19083"] and int(item[10]) == 1: #污浊之水
                 self.wushuiLast[item[5]] = int(item[2])
