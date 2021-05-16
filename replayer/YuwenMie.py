@@ -148,6 +148,32 @@ class YuwenMieReplayer(SpecificReplayer):
                 if item[11] != '0' and item[10] != '7': #非化解
                     if item[4] in self.playerIDList:
                         self.hps[item[4]] += int(item[12])
+                        
+                if item[7] == "26224":  # 寒劫传染
+                    potTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                    potID = item[4]
+                    victimName = self.namedict[item[5]][0].strip('"')
+                    self.potList.append([self.namedict[potID][0],
+                                         self.occDetailList[potID],
+                                         0,
+                                         self.bossNamePrint,
+                                         "%s寒劫传染：%s" % (potTime, victimName),
+                                         ["接锅者中寒劫并靠近没有中buff的队友，导致目标也被传染寒劫。"]])
+                    print(item)
+                    print(self.namedict[item[5]])
+                                         
+                if item[7] == "26225":  # 寒狱传染
+                    potTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                    potID = item[4]
+                    victimName = self.namedict[item[5]][0].strip('"')
+                    self.potList.append([self.namedict[potID][0],
+                                         self.occDetailList[potID],
+                                         0,
+                                         self.bossNamePrint,
+                                         "%s寒狱传染：%s" % (potTime, victimName),
+                                         ["接锅者中寒狱并靠近没有中buff的队友，导致目标也被传染寒狱。"]])
+                    print(item)
+                    print(self.namedict[item[5]])
                     
             else:
             
@@ -158,6 +184,10 @@ class YuwenMieReplayer(SpecificReplayer):
         elif item[3] == '5': #气劲
             if self.occdict[item[5]][0] == '0':
                 return
+                
+            if item[6] in ["18861", "18862"]:
+                print(item)
+                print(self.namedict[item[5]])
                     
         elif item[3] == '8':
         
@@ -166,6 +196,8 @@ class YuwenMieReplayer(SpecificReplayer):
                 
             if item[4] in ['""']:
                 self.phase = 2
+                
+            print(item)
                 
         elif item[3] == '3': #重伤记录
             if item[6] == '"宇文灭"':
@@ -194,13 +226,15 @@ class YuwenMieReplayer(SpecificReplayer):
         #通用格式：
         #0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
         
-        #宫威数据格式：
+        #宇文灭数据格式：
         #(TODO)待英雄实装后更新
         
         self.stat = {}
         self.hps = {}
         self.detail["boss"] = "宇文灭"
         self.win = 0
+        
+        self.phase = 1
         
         for line in self.playerIDList:
             self.stat[line] = [self.namedict[line][0].strip('"'), self.occDetailList[line], 0, 0, -1, "", 0] + \
