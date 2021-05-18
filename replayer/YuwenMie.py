@@ -140,6 +140,8 @@ class YuwenMieReplayer(SpecificReplayer):
                 
                 if getOccType(self.occDetailList[id]) == "healer":
                     line[3] = int(self.hps[id] / self.battleTime)
+                    
+                line[6] = self.stunCounter[id].sumTime() / 1000
 
                 dps = int(line[2] / self.battleTime)
                 bossResult.append([line[0],
@@ -237,6 +239,12 @@ class YuwenMieReplayer(SpecificReplayer):
                     if item[4] in self.playerIDList:
                         self.hps[item[4]] += int(item[12])
                         
+                healRes = self.criticalHealCounter[item[5]].recordHeal(item)
+                if healRes != {}:
+                    for line in healRes:
+                        if line in self.playerIDList:
+                            self.stat[line][12] += healRes[line]
+                        
                 if item[7] == "26224":  # 寒劫传染
                     self.chuanRanQueue.append([int(item[2]), 1, item[4], item[5]])
                                          
@@ -264,9 +272,27 @@ class YuwenMieReplayer(SpecificReplayer):
                 
             if item[6] == "18861":
                 self.hanJieCounter[item[5]].setState(int(item[2]), int(item[10]))
+                if int(item[10]) == 1:
+                    self.criticalHealCounter[item[5]].active()
+                    self.criticalHealCounter[item[5]].setCriticalTime(-1)
+                else:
+                    self.criticalHealCounter[item[5]].unactive()
                 
             if item[6] == "18862":
                 self.hanYuCounter[item[5]].setState(int(item[2]), int(item[10]))
+                if int(item[10]) == 1:
+                    self.criticalHealCounter[item[5]].active()
+                    self.criticalHealCounter[item[5]].setCriticalTime(-1)
+                else:
+                    self.criticalHealCounter[item[5]].unactive()
+                    
+            if item[6] in ["19364", "18863"]:  # 冻结
+                self.stunCounter[item[5]].setState(int(item[2]), int(item[10]))
+                
+            if item[6] == "18863" and self.phase == 1 and int(item[10]) == 1:
+                # 判断是否是不可避免的结冰
+                timeSafe = 0
+                pass
                     
         elif item[3] == '8':
         
@@ -331,6 +357,7 @@ class YuwenMieReplayer(SpecificReplayer):
         self.hps = {}
         self.detail["boss"] = "宇文灭"
         self.win = 0
+        self.stunCounter = {}
         
         self.phase = 1
         self.phaseStart = [0, 0, 0]
@@ -341,12 +368,16 @@ class YuwenMieReplayer(SpecificReplayer):
         self.hanYuCounter = {}
         self.chuanRanQueue = []
         
+        self.criticalHealCounter = {}
+        
         for line in self.playerIDList:
             self.stat[line] = [self.namedict[line][0].strip('"'), self.occDetailList[line], 0, 0, -1, "", 0] + \
                 [0, 0, 0, 0, 0, 0]
             self.hps[line] = 0
             self.hanJieCounter[line] = BuffCounter(18861, self.startTime, self.finalTime)
             self.hanYuCounter[line] = BuffCounter(18862, self.startTime, self.finalTime)
+            self.criticalHealCounter[line] = CriticalHealCounter()
+            self.stunCounter[line] = BuffCounter(0, self.startTime, self.finalTime)
 
     def __init__(self, playerIDList, mapDetail, res, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
         '''
