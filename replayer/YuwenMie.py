@@ -294,7 +294,7 @@ class YuwenMieReplayer(SpecificReplayer):
                 timeSafe = 0
                 pass
                     
-        elif item[3] == '8':
+        elif item[3] == '8'
         
             if len(item) <= 4:
                 return
