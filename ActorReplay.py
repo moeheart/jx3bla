@@ -658,9 +658,10 @@ class ActorStatGenerator(StatGeneratorBase):
                                 deathHitDetail[item[5]].append([int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[12]), item[4], 1, int(item[10])])
                         if item[4] in self.guHuoTarget and self.guHuoTarget[item[4]] != "0":
                             guHuo = self.guHuoTarget[item[4]]
-                            if len(deathHitDetail[guHuo]) >= 20:
-                                del deathHitDetail[guHuo][0]
-                            deathHitDetail[guHuo].append([int(item[2]), skilldict[item[9]][0][""][0].strip('"')+"(蛊惑)", int(int(item[12]) / 2), item[4], 1, int(item[10])])
+                            if guHuo in deathHitDetail:
+                                if len(deathHitDetail[guHuo]) >= 20:
+                                    del deathHitDetail[guHuo][0]
+                                deathHitDetail[guHuo].append([int(item[2]), skilldict[item[9]][0][""][0].strip('"')+"(蛊惑)", int(int(item[12]) / 2), item[4], 1, int(item[10])])
 
                     if anxiaofengActive:
                         hasRumo = self.rumo[item[5]].checkState(int(item[2]))
@@ -796,10 +797,10 @@ class ActorStatGenerator(StatGeneratorBase):
                 if item[6] in ["18280", "18281", "18303", "18304"] and item[5] in self.playerIDList and item[10] == '1':
                     xiaoyaoCount[item[5]][item[6]] = 1
                     
-                if item[6] in ["15775", "17201"]:
+                if item[6] in ["15775", "17201"] and item[5] in self.penalty1:
                     self.penalty1[item[5]].setState(int(item[2]), int(item[10]))
 
-                if item[6] in ["15774", "17200"]:  # buff精神匮乏
+                if item[6] in ["15774", "17200"] and item[5] in self.penalty2:  # buff精神匮乏
                     self.penalty2[item[5]].setState(int(item[2]), int(item[10]))
                     
                 if item[6] in ["2316"]:  # 蛊惑众生

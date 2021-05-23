@@ -89,6 +89,30 @@ class YuwenMieWindow():
             tb.AppendContext(int(self.effectiveDPSList[i][12]), color = color12)
             
             tb.EndOfLine()
+            
+        frame2 = tk.Frame(window)
+        frame2.pack()
+        
+        tb = TableConstructor(frame2)
+        
+        tb.AppendHeader("P2传染次数", "代表P2的寒劫与寒狱从每名玩家传染出去的次数，主要用于寒狱进冰进晚的分锅。")
+        for i in range(len(self.detail["P2fire"])):
+            if i % 5 == 0:
+                tb.EndOfLine()
+            name = self.detail["P2fire"][i][0]
+            color = getColor(self.detail["P2fire"][i][1])
+            num = self.detail["P2fire"][i][2]
+            tb.AppendContext(name, color=color)
+            tb.AppendContext(num)
+            
+        tb.EndOfLine()
+        tb.AppendHeader("最后一次传染", "代表P2最后一次传染的起点与终点，主要用于buff传丢的分锅。")
+        name1 = self.detail["P2last"][0]
+        color1 = getColor(self.detail["P2last"][1])
+        name2 = self.detail["P2last"][2]
+        color2 = getColor(self.detail["P2last"][3])
+        tb.AppendContext(name1, color=color1)
+        tb.AppendContext(name2, color=color2)
         
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
@@ -161,8 +185,9 @@ class YuwenMieReplayer(SpecificReplayer):
         bossResult.sort(key = lambda x:-x[2])
         self.effectiveDPSList = bossResult
         
-        #for line in self.shuiqiuDps:
-        #    print(self.shuiqiuDps[line])
+        for line in self.P2fire:
+            self.detail["P2fire"].append([self.namedict[line][0].strip('"'), self.occDetailList[line], self.P2fire[line]])
+        self.detail["P2fire"].sort(key = lambda x:-x[2])
             
         return self.effectiveDPSList, self.potList, self.detail
         
@@ -251,6 +276,12 @@ class YuwenMieReplayer(SpecificReplayer):
                 if item[7] == "26225":  # 寒狱传染
                     self.chuanRanQueue.append([int(item[2]), 2, item[4], item[5]])
                     
+                if item[7] in ["26224", "26225"] and self.phase == 2:
+                    if item[4] not in self.P2fire:
+                        self.P2fire[item[4]] = 0
+                    self.P2fire[item[4]] += 1
+                    self.detail["P2last"] = [self.namedict[item[4]][0].strip('"'), self.occDetailList[item[4]], self.namedict[item[5]][0].strip('"'), self.occDetailList[item[5]]]
+                    
             else:
             
                 if item[4] in self.playerIDList:
@@ -292,9 +323,24 @@ class YuwenMieReplayer(SpecificReplayer):
             if item[6] == "18863" and self.phase == 1 and int(item[10]) == 1:
                 # 判断是否是不可避免的结冰
                 timeSafe = 0
-                pass
+                xuanBingTime = int(item[2]) - self.startTime
+                if xuanBingTime >= 50000 and xuanBingTime <= 75000:
+                    timeSafe = 1
+                elif xuanBingTime >= 160000 and xuanBingTime <= 185000:
+                    timeSafe = 1
+                elif xuanBingTime >= 250000 and xuanBingTime <= 265000:
+                    timeSafe = 1
+                if timeSafe == 0:
+                    potTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                    potID = item[5]
+                    self.potList.append([self.namedict[potID][0],
+                                         self.occDetailList[potID],
+                                         0,
+                                         self.bossNamePrint,
+                                         "%s意外结冰" % (potTime),
+                                         ["在挡线、寒狱+打断以外的P1阶段结冰"]])
                     
-        elif item[3] == '8'
+        elif item[3] == '8':
         
             if len(item) <= 4:
                 return
@@ -367,6 +413,10 @@ class YuwenMieReplayer(SpecificReplayer):
         self.hanJieCounter = {}
         self.hanYuCounter = {}
         self.chuanRanQueue = []
+        
+        self.P2fire = {}
+        self.detail["P2fire"] = []
+        self.detail["P2last"] = ["未知", "0", "未知", "0"]
         
         self.criticalHealCounter = {}
         
