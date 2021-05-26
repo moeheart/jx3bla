@@ -122,7 +122,16 @@ class ActorStatGenerator(StatGeneratorBase):
                     "毗流驮迦": 5, 
                     "毗留博叉": 5, 
                     "充能核心": 5,
-                    }
+                    "胡汤&罗芬": 1, 
+                    "胡汤": 1,
+                    "罗芬": 1,
+                    "赵八嫂": 2, 
+                    "海荼": 3,
+                    "天怒惊霆戟": 3,
+                    "姜集苦": 4, 
+                    "宇文灭": 5, 
+                    "宫威": 6, 
+                    "宫傲": 7}
 
     def getMaskName(self, name):
         s = name.strip('"')
@@ -809,7 +818,7 @@ class ActorStatGenerator(StatGeneratorBase):
                     else:
                         self.guHuoTarget[item[4]] = "0"
                     
-                if item[6] in ["6214"] and int(item[10]) == 0:
+                if item[6] in ["6214"] and int(item[10]) == 0 and item[5] in deathHitDetail:
                     if len(deathHitDetail[item[5]]) >= 20:
                         del deathHitDetail[item[5]][0]
                     deathHitDetail[item[5]].append([int(item[2]), "禅语消失", 0, item[4], -1, 0])
