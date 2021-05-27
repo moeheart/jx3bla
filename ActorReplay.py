@@ -152,7 +152,7 @@ class ActorStatGenerator(StatGeneratorBase):
         if occdict[key][0] != '0' and key not in data.hitCount:
             data.hitCount[key] = self.makeEmptyHitList()
             data.hitCountP2[key] = self.makeEmptyHitList()
-            data.deathCount[key] = [0, 0, 0, 0, 0, 0, 0]
+            data.deathCount[key] = [0, 0, 0, 0, 0, 0, 0, 0]
             data.innerPlace[key] = [0, 0, 0, 0]
             data.drawer[key] = 0
         return data
