@@ -97,6 +97,24 @@ class MainWindow():
         if not self.hasReplayed and not self.startLive:
             self.liveListener.getAllBattleLog(self.fileLookUp.basepath, self.rawData)
             self.hasReplayed = True
+            
+    def checkAttendence(self):
+        rawList = self.rawData
+        mapDict = {}
+        for key in rawList:
+            mapDict[key] = []
+            raw = rawList[key]
+            name = raw['9'][0]
+            occ = raw['10'][0]
+            for line in raw['12'][0]['4'][0].keys():
+                if line in name and line in occ and occ[line][0] != '0':
+                    finalName = name[line][0].strip('"')
+                    mapDict[key].append(finalName)
+        
+        #print(mapDict)
+        #g = open("result.txt", "w")
+        #g.write(str(mapDict))
+        #g.close()
 
     def replay(self):
         config = Config("config.ini")
@@ -111,6 +129,7 @@ class MainWindow():
             replayer.setRawData(self.rawData)
         replayer.replay(self) # 此处将MainWindow类本身传入
         self.setNotice({"t1": "复盘完成！", "c1": "#000000", "t2": ""})
+        #self.checkAttendence()
 
     def start_replay(self):
         if self.lock.state():

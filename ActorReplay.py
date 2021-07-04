@@ -172,6 +172,8 @@ class ActorStatGenerator(StatGeneratorBase):
         return hashres
         
     def uploadTiantiFunc(self):
+        pass
+        '''
         headers = {
             "User-Agent": "jx3bla"
         }
@@ -187,6 +189,7 @@ class ActorStatGenerator(StatGeneratorBase):
             print("[%s]DPS天梯上传完成！结果链接：https://j3dps.com/chart?bossId=%s"%(self.bossname, J["bossId"]))
         except:
             print("DPS天梯上传出错……")
+        '''
         
     def prepareUploadTianti(self):
         refreshThread = threading.Thread(target = self.uploadTiantiFunc)    
@@ -665,7 +668,7 @@ class ActorStatGenerator(StatGeneratorBase):
                                 if len(deathHitDetail[item[5]]) >= 20:
                                     del deathHitDetail[item[5]][0]
                                 deathHitDetail[item[5]].append([int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[12]), item[4], 1, int(item[10])])
-                        if item[4] in self.guHuoTarget and self.guHuoTarget[item[4]] != "0":
+                        if item[4] in self.guHuoTarget and self.guHuoTarget[item[4]] != "0" and int(int(item[12]) / 2) > 2000:
                             guHuo = self.guHuoTarget[item[4]]
                             if guHuo in deathHitDetail:
                                 if len(deathHitDetail[guHuo]) >= 20:

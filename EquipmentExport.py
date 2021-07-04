@@ -687,7 +687,14 @@ class EquipmentAnalyser():
             
         sketchStr = ','.join(sketch)
         return sketchStr
-                    
+        
+    def getPlug(self, id):
+        plugDict = {"": 0, "24423": 1, "24424": 2, "24425": 3, "24426": 4, "24427": 5, "24428": 6, "24429": 7, "24430": 8,
+                    "24442": 1, "24443": 2, "24444": 3, "24445": 4, "24446": 5, "24447": 6, "24448": 7, "24449": 8}
+        if id not in plugDict:
+            return 0
+        else:
+            return plugDict[id]
     
     def convert(self, s):
         '''
@@ -716,27 +723,21 @@ class EquipmentAnalyser():
                 for g in f:
                     i += 1
                     plugID = g[""][1]
-                    plug = {"": 0, "24423": 1, "24424": 2, "24425": 3, "24426": 4, "24427": 5, "24428": 6, "24429": 7, "24430": 8,
-                                   "24442": 1, "24443": 2, "24444": 3, "24445": 4, "24446": 5, "24447": 6, "24448": 7, "24449": 8}[plugID]
-                    equip["plug%d"%i] = plug
+                    equip["plug%d"%i] = self.getPlug(plugID)
             elif "2" in d[4]:
                 f = d[4]["2"]
                 i = 1
                 for g in f:
                     i += 1
                     plugID = g[""][1]
-                    plug = {"": 0, "24423": 1, "24424": 2, "24425": 3, "24426": 4, "24427": 5, "24428": 6, "24429": 7, "24430": 8,
-                                   "24442": 1, "24443": 2, "24444": 3, "24445": 4, "24446": 5, "24447": 6, "24448": 7, "24449": 8}[plugID]
-                    equip["plug%d"%i] = plug 
+                    equip["plug%d"%i] = self.getPlug(plugID)
             elif "3" in d[4]:
                 f = d[4]["3"]
                 i = 2
                 for g in f:
                     i += 1
                     plugID = g[""][1]
-                    plug = {"": 0, "24423": 1, "24424": 2, "24425": 3, "24426": 4, "24427": 5, "24428": 6, "24429": 7, "24430": 8,
-                                   "24442": 1, "24443": 2, "24444": 3, "24445": 4, "24446": 5, "24447": 6, "24448": 7, "24449": 8}[plugID]
-                    equip["plug%d"%i] = plug
+                    equip["plug%d"%i] = self.getPlug(plugID)
             if "0" in d[4]:
                 equip["plug0"] = d[4]["0"][0][""][1]
             equip["magic"] = d[5]

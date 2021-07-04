@@ -176,7 +176,7 @@ class HuTangLuoFenReplayer(SpecificReplayer):
         '''
         
         if self.chengShang[0]["num"] > 0 and int(item[2]) - self.chengShang[0]["time"] > 500:
-            if self.chengShang[0]["num"] <= 8 and self.chengShang[0]["num"] != 1:
+            if self.chengShang[0]["num"] <= 4 and self.chengShang[0]["num"] != 1:
                 tmp = {}
                 res = {"description": "利爪承伤失败", "time": parseTime((self.chengShang[0]["time"] - self.startTime)/1000), "player": [], "fail": []}
                 for line in self.chengShang[0]["player"]:
