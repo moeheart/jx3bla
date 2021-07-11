@@ -1321,6 +1321,7 @@ class RawDataParser():
         
         luatableAnalyser = LuaTableAnalyser(self.window)
         res = luatableAnalyser.analyse(s)
+        formattedData = FormattedBattleLog().generate_from_jx3dat(res)
 
         if '9' not in res:
             if len(res['']) == 17:
@@ -1329,14 +1330,15 @@ class RawDataParser():
             else:
                 raise Exception("数据不完整，无法生成，请确认是否生成了正确的茗伊战斗复盘记录。")
 
-        return res
+        return res, formattedData
 
     def __init__(self, filelist, path, window = None, raw = {}):
         self.rawdata = raw
+        self.formatData = {}
         self.window = window
         for filename in filelist:
             if filename[0] not in self.rawdata:
-                self.rawdata[filename[0]] = self.parseFile(path, filename[0])
+                self.rawdata[filename[0]], self.formatData[filename[0]] = self.parseFile(path, filename[0])
 
 
 class XiangZhiAnalysis():

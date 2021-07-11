@@ -80,6 +80,24 @@ def DestroyRaw(raw):
     销毁一个raw数据以释放内存。
     '''
     raw['16'] = []
+
+class FormattedBattleLog():
+    '''
+    格式化的战斗记录类，可以从jx3dat或jcl文件生成。
+    '''
+
+    def generate_from_jx3dat(self, raw):
+        '''
+        根据处理过的jx3dat格式的战斗复盘，生成对应的格式化复盘。
+        params:
+        - raw raw格式的复盘
+        returns:
+        - 格式化的复盘，由一个对象维护。
+        '''
+        return {}
+
+    def __init__(self):
+        pass
     
 class LuaTableAnalyser():
     '''
