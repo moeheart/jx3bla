@@ -1562,6 +1562,13 @@ class XiangZhiAnalysis():
             elif mapid == "518":
                 self.mapdetail = "10人普通"
 
+        if self.map == "修罗挑战":
+            mapid = generator[0].rawdata['20'][0]
+            self.hardBOSS = ["修罗僧"]
+            self.hardNPC = ["修罗僧"]
+            self.hitDict = {}
+            self.mapdetail = ""
+
         data = XiangZhiOverallData()
 
         for line in generator:

@@ -484,6 +484,9 @@ class ActorStatGenerator(StatGeneratorBase):
                     
         detail = {"boss": self.bossNamePrint}
 
+        #self.finalTime = self.startTime + 190000
+        #self.battleTime = 190
+
         data = ActorData()
 
         num = 0
@@ -622,6 +625,75 @@ class ActorStatGenerator(StatGeneratorBase):
 
         if not self.lastTry:
             self.finalTime -= self.failThreshold * 1000
+
+        checkTime = 0
+        countDamage = 0
+        countHeal = 0
+        countHealDict = {}
+        countDamageTake = 0
+        countHealEffective = 0
+        countHealEffective2 = 0
+        countHPLoss = 0
+
+        ydID = ["27395", "27398", "27399", "27400"]
+        ydName = {"27395": "般若", "27398": "罗汉", "27399": "达摩", "27400": "戒律"}
+        hpLoss= {}
+        for line in self.playerIDList:
+            hpLoss[line] = 0
+        hpCountTime = 0
+        checkBlock = 0
+
+        checkTime2 = 0
+        jsTime = []
+        jsOrder = 0
+        for line in sk:
+            item = line[""]
+            if item[3] == '1':
+                if occdict[item[5]][0] != '0':
+                    if item[7] in ydID and int(item[2]) - checkTime2 > 10000:
+                        checkTime2 = int(item[2])
+                        jsTime.append(checkTime2)
+        jsTime.append(1e20)
+
+        skillCheckDict = {"27310,1": "寂灭成功格挡",
+                          "27310,-1": "寂灭总计次数",
+                          "26026,3": "分散",
+                          "26026,4": "分散",
+                          "26026,6": "分散",
+                          "26026,7": "分散",
+                          "26026,8": "分散",
+                          "26073,2": "背对",
+                          "26073,4": "背对",
+                          "26114,0": "拉人",
+                          "27118,0": "拉人",
+                          "27023,0": "拉人",
+                          "26071,1": "多罗叶指",
+                          "26088,0": "出30尺",
+                          }
+        skillUpperLimit = {"27310,1": 1000,
+                           "27310,-1": 1000,
+                           "26026,3": 4,
+                           "26026,4": 4,
+                           "26026,6": 4,
+                           "26026,7": 4,
+                           "26026,8": 4,
+                           "26073,2": 4,
+                           "26073,4": 4,
+                           "26114,0": 8,
+                           "27118,0": 8,
+                           "27023,0": 8,
+                           "26071,1": 1000,
+                           "26088,0": 1000,
+                          }
+        jimieLastTime = 1
+        playerSkillLog = {}
+        for line in self.playerIDList:
+            playername = namedict[line][0].strip('"')
+            playerSkillLog[playername] = {}
+            for name in skillCheckDict:
+                playerSkillLog[playername][skillCheckDict[name]] = 0
+
+        xlsSaveFile = open("xlsStat.txt", "w")
         
         for line in sk:
             item = line[""]
@@ -631,9 +703,119 @@ class ActorStatGenerator(StatGeneratorBase):
                 
             self.bossAnalyser.analyseSecondStage(item)
 
+            while checkTime != 0 and int(item[2]) - hpCountTime > 3000:
+                hpCountTime += 3000
+                for line in hpLoss:
+                    if hpLoss[line] != -1 and not checkBlock and getOccType(occDetailList[line]) != "tank":
+                        countHPLoss += hpLoss[line]
+
+            if jsTime[jsOrder] - int(item[2]) < 2000:
+                checkBlock = 1
+                jsOrder += 1
+
             if item[3] == '1':  # 技能
 
                 if occdict[item[5]][0] != '0':
+
+                    playername = namedict[item[5]][0].strip('"')
+                    if playername in playerSkillLog:
+                        skillIDSpecific = "%s,%s"%(item[7], item[8])
+                        skillIDGeneral = "%s,0"%item[7]
+                        if skillIDSpecific in skillCheckDict:
+                            playerSkillLog[playername][skillCheckDict[skillIDSpecific]] += 1
+                        if skillIDGeneral in skillCheckDict:
+                            playerSkillLog[playername][skillCheckDict[skillIDGeneral]] += 1
+                        if skillIDGeneral == "27041,0":
+                            if int(item[2]) - jimieLastTime > 2000:
+                                jimieLastTime = int(item[2])
+                                for line in self.playerIDList:
+                                    playername2 = namedict[line][0].strip('"')
+                                    if hpLoss[line] == -1:
+                                        playerSkillLog[playername2][skillCheckDict["27310,-1"]] += 0
+                                    else:
+                                        playerSkillLog[playername2][skillCheckDict["27310,-1"]] += 4
+
+                    if item[7] in ydID and int(item[2]) - checkTime > 10000:
+                        if checkTime != 0:
+
+                            countHeal3 = 0
+                            for line in countHealDict:
+                                if hpLoss[line] != -1:
+                                    countHeal3 += countHealDict[line]
+
+                            print("受伤：%d"%countHPLoss)
+                            print("治疗：%d"%countHeal)
+                            print("存活玩家治疗：%d" % countHeal3)
+                            print("受到伤害：%d" % countDamageTake)
+                            print("有效治疗：%d" % countHealEffective)
+                            print("有效带贯体治疗：%d" % countHealEffective2)
+                            print("伤害：%d"%countDamage)
+                            print("---体态结果：", ydName[item[7]])
+                            print("---时间：%.2f"%((int(item[2]) - checkTime) / 1000))
+
+                            numPlayer = 0
+                            numT = 0
+                            numH = 0
+                            numD = 0
+                            for line in hpLoss:
+                                if hpLoss[line] != -1:
+                                    numPlayer += 1
+                                    if getOccType(occDetailList[line]) == "tank":
+                                        numT += 1
+                                    elif getOccType(occDetailList[line]) == "healer":
+                                        numH += 1
+                                    else:
+                                        numD += 1
+                            print("---人数：%d(%d/%d/%d)" % (numPlayer, numT, numH, numD))
+
+                            xlsSaveFile.write(str(countHPLoss)+'\t')
+                            xlsSaveFile.write(str(countHeal3) + '\t')
+                            xlsSaveFile.write(str(countDamageTake) + '\t')
+                            xlsSaveFile.write(str(countHealEffective) + '\t')
+                            xlsSaveFile.write(str(countHealEffective2) + '\t')
+                            xlsSaveFile.write(str(countDamage) + '\t')
+                            xlsSaveFile.write('\t')
+                            xlsSaveFile.write("%d(%d/%d/%d)" % (numPlayer, numT, numH, numD) + '\t')
+                            xlsSaveFile.write("%.2f"%((int(item[2]) - checkTime) / 1000))
+                            xlsSaveFile.write('\n')
+
+                        countDamage = 0
+                        countHeal = 0
+                        countHealDict = {}
+                        countDamageTake = 0
+                        countHealEffective = 0
+                        countHealEffective2 = 0
+                        countHPLoss = 0
+                        checkBlock = 0
+                        checkTime = int(item[2])
+                        hpCountTime = checkTime
+
+                    if checkTime != 0 and not checkBlock:
+                        if item[5] in self.playerIDList and getOccType(occDetailList[item[5]]) != "tank":
+                            if int(item[7]) != 23951:
+                                countHeal += int(item[11])
+                                countHealEffective += int(item[12])
+                                if item[5] not in countHealDict:
+                                    countHealDict[item[5]] = 0
+                                countHealDict[item[5]] += int(item[11])
+
+                            countHealEffective2 += int(item[12])
+                            countDamageTake += int(item[14])
+
+
+                    #if item[5] in hpLoss and item[13] != item[14]:
+                    #    hpLoss[item[5]] = -1
+
+                    if item[5] in hpLoss and hpLoss[item[5]] != -1:
+                        hpLoss[item[5]] += int(item[14])
+                        if item[11] != item[12]:
+                            hpLoss[item[5]] = 0
+                        else:
+                            hpLoss[item[5]] -= int(item[12])
+
+                    if int(item[11]) != 0 and int(item[11]) > int(item[12]):
+                        hpLoss[item[5]] = 0
+
                     data = self.checkFirst(item[5], data, occdict)
                     if item[7] in self.actorSkillList and int(item[10]) != 2:
                         if item[7] == "22520":  # 锈铁钩锁
@@ -698,6 +880,10 @@ class ActorStatGenerator(StatGeneratorBase):
                             xuelianStamp = int(item[2])
 
                 else:
+
+                    if checkTime != 0 and not checkBlock:
+                        countDamage += int(item[14])
+
                     calculDPS = 1
 
                     if item[13] != "0" and item[14] == "0":  # 检查反弹
@@ -911,6 +1097,9 @@ class ActorStatGenerator(StatGeneratorBase):
                             self.jingshenkuifa[item[5]] = 0
 
             elif item[3] == '3':  # 重伤记录
+
+                if item[4] in hpLoss:
+                    hpLoss[item[4]] = -1
                 
                 if item[4] not in occdict or occdict[item[4]][0] == '0':
                     continue
@@ -1045,6 +1234,24 @@ class ActorStatGenerator(StatGeneratorBase):
                 self.win = 1
 
             num += 1
+
+        for line in skillCheckDict:
+            num = 0
+            skillName = skillCheckDict[line]
+            for player in playerSkillLog:
+                num += playerSkillLog[player][skillName]
+            if num >= skillUpperLimit[line]:
+                for player in playerSkillLog:
+                    playerSkillLog[player][skillName] = 0
+
+        for line in playerSkillLog:
+            fileName = "xlsCount/%d.txt"%self.startTime
+            f = open(fileName, "w")
+            f.write(str(playerSkillLog))
+            f.close()
+
+        print("===========================")
+        xlsSaveFile.close()
             
         self.lastTimeStamp = int(sk[-1][""][1])
 
