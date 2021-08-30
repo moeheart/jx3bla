@@ -30,6 +30,16 @@ class EquipmentInfo():
         returns:
         - 字典，为对应的装备属性列表.
         '''
+
+        result = {}
+        result["name"] = self.getAttribute(full_id, "Name")
+        for i in range(1, 11):
+            attribName = "Magic%dType"%i
+            attribID = self.getAttribute(full_id, attribName)
+            if attribID == "" or attribID == "0":
+                break
+            print(self.attrib[attribID])
+
         return {}
 
 
@@ -46,10 +56,9 @@ class EquipmentInfo():
             for line in f:
                 if first:
                     header = line.strip('\n').split('\t')
-                    print(header)
                     first = False
                 else:
-                    content = headers = line.strip('\n').split('\t')
+                    content = line.strip('\n').split('\t')
                     new_id = "%d,%s"%(scene, content[0])
                     self.data[new_id] = content
 
@@ -67,8 +76,20 @@ class EquipmentInfo():
         self.loadSingleFile(ARMOR_PATH, 7)
         self.loadSingleFile(WEAPON_PATH, 8)
 
+        ATTRIB_PATH='equip/resources/Attrib.tab'
+        first = True
+        with open(ATTRIB_PATH, 'r') as f:
+            for line in f:
+                if first:
+                    header = line.strip('\n').split('\t')
+                    first = False
+                else:
+                    content = line.strip('\n').split('\t')
+                    self.attrib[content[0]] = {content[2]: content[3]}  # 只记录最简单的形式
+
     def __init__(self):
         self.data = {}
+        self.attrib = {}
         self.headerID = {}
 
 if __name__ == "__main__":
@@ -78,5 +99,6 @@ if __name__ == "__main__":
     print("读取完成")
     res = t.getAttribute("7,50953", "Name")
     print(res)
+    t.getFeature("7,50953")
 
 
