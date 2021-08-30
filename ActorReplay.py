@@ -764,6 +764,8 @@ class ActorStatGenerator(StatGeneratorBase):
                                         numT += 1
                                     elif getOccType(occDetailList[line]) == "healer":
                                         numH += 1
+
+
                                     else:
                                         numD += 1
                             print("---人数：%d(%d/%d/%d)" % (numPlayer, numT, numH, numD))
