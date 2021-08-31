@@ -17,9 +17,10 @@ class EquipmentInfo():
         '''
         if full_id not in self.data:
             return 0
-        if attribute not in self.headerID:
+        header_key = "%s,%s"%(full_id.split(',')[0], attribute)
+        if header_key not in self.headerID:
             return 0
-        return self.data[full_id][self.headerID[attribute]]
+        return self.data[full_id][self.headerID[header_key]]
 
     def getFeature(self, full_id):
         '''
@@ -36,11 +37,31 @@ class EquipmentInfo():
         for i in range(1, 11):
             attribName = "Magic%dType"%i
             attribID = self.getAttribute(full_id, attribName)
-            if attribID == "" or attribID == "0":
+            if attribID in ["", "0", 0, "atInvalid"]:
                 break
-            print(self.attrib[attribID])
+            attribRes = self.attrib[attribID]
+            if attribRes[0] not in result:
+                result[attribRes[0]] = int(attribRes[1])
+            else:
+                result[attribRes[0]] += int(attribRes[1])
 
-        return {}
+        for i in range(1, 11):
+            attribName = "Base%dType"%i
+            attribType = self.getAttribute(full_id, attribName)
+            attribVName = "Base%dMax"%i
+            attribValue = self.getAttribute(full_id, attribVName)
+            if attribValue in ["", "0", 0, "atInvalid"]:
+                break
+            if attribType not in result:
+                result[attribType] = int(attribValue)
+            else:
+                result[attribType] += int(attribValue)
+
+        for i in range(1, 4):
+            name = "DiamondAttributeID%d"%i
+            result[name] = self.getAttribute(full_id, name)
+
+        return result
 
 
     def loadSingleFile(self, path, scene):
@@ -63,15 +84,16 @@ class EquipmentInfo():
                     self.data[new_id] = content
 
         for i in range(len(header)):
-            self.headerID[header[i]] = i
+            header_key = "%d,%s"%(scene, header[i])
+            self.headerID[header_key] = i
 
     def LoadFromStaticData(self):
         '''
         从解包中读取所有装备的属性。
         '''
-        TRINKET_PATH = 'equip/resources/Custom_Trinket(0).tab'
-        ARMOR_PATH = 'equip/resources/Custom_Armor(0).tab'
-        WEAPON_PATH = 'equip/resources/Custom_Weapon(0).tab'
+        TRINKET_PATH = 'equip/resources/Custom_Trinket.tab'
+        ARMOR_PATH = 'equip/resources/Custom_Armor.tab'
+        WEAPON_PATH = 'equip/resources/Custom_Weapon.tab'
         self.loadSingleFile(TRINKET_PATH, 6)
         self.loadSingleFile(ARMOR_PATH, 7)
         self.loadSingleFile(WEAPON_PATH, 8)
@@ -85,7 +107,7 @@ class EquipmentInfo():
                     first = False
                 else:
                     content = line.strip('\n').split('\t')
-                    self.attrib[content[0]] = {content[2]: content[3]}  # 只记录最简单的形式
+                    self.attrib[content[0]] = [content[2], content[3]]  # 只记录最简单的形式
 
     def __init__(self):
         self.data = {}
@@ -97,8 +119,6 @@ if __name__ == "__main__":
     print("准备读取")
     t.LoadFromStaticData()
     print("读取完成")
-    res = t.getAttribute("7,50953", "Name")
-    print(res)
-    t.getFeature("7,50953")
+    print(t.getFeature("7,50953"))
 
 
