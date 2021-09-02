@@ -482,8 +482,10 @@ class ExportEquipmentWindow():
         window.geometry('300x200')
 
         self.window = window
+
+        print(self.playerEquipment)
         
-        text = "玩家装分：%s"%list(self.playerEquipment[0].values())[0][0][''][1]
+        text = ""#"玩家装分：%s"%list(self.playerEquipment[0].values())[0][0][''][1]
         l = tk.Message(window, text=text, font=('宋体', 10), width=380, anchor='nw', justify=tk.LEFT)
         l.pack()
         

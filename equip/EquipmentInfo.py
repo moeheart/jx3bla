@@ -1,6 +1,8 @@
 # Created by moeheart at 08/30/2021
 # 维护装备信息类.
 
+import re
+
 class EquipmentInfo():
     '''
     装备信息类，包括属性的读取与获得。
@@ -34,6 +36,7 @@ class EquipmentInfo():
 
         result = {}
         result["name"] = self.getAttribute(full_id, "Name")
+        result["set"] = self.getAttribute(full_id, "SetID")
         for i in range(1, 11):
             attribName = "Magic%dType"%i
             attribID = self.getAttribute(full_id, attribName)
@@ -98,20 +101,74 @@ class EquipmentInfo():
         self.loadSingleFile(ARMOR_PATH, 7)
         self.loadSingleFile(WEAPON_PATH, 8)
 
-        ATTRIB_PATH='equip/resources/Attrib.tab'
+        ATTRIB_PATH = 'equip/resources/Attrib.tab'
         first = True
         with open(ATTRIB_PATH, 'r') as f:
             for line in f:
                 if first:
-                    header = line.strip('\n').split('\t')
                     first = False
                 else:
                     content = line.strip('\n').split('\t')
                     self.attrib[content[0]] = [content[2], content[3]]  # 只记录最简单的形式
 
+        ENCHANT_PATH = 'equip/resources/Enchant.tab'
+        first = True
+        with open(ENCHANT_PATH, 'r', encoding='utf-8') as f:
+            for line in f:
+                if first:
+                    first = False
+                else:
+                    content = line.strip('\n').split('\t')
+                    if content[7] == "":  # 只记录最简单的形式
+                        self.enchant[content[0]] = [content[4], content[5]]
+                    else:  # 记录五彩石形式
+                        self.enchant[content[0]] = [content[4], content[5], content[9], content[10],
+                                                    content[11], content[12], content[16], content[17],
+                                                    content[18], content[19], content[23], content[24]]
+
+        ITEM_PATH = 'equip/resources/item.txt'
+        first = True
+        with open(ITEM_PATH, 'r', encoding='utf-8') as f:
+            for line in f:
+                if first:
+                    first = False
+                else:
+                    content = line.strip('\n').split('\t')
+                    id = content[0]
+                    text = content[4]
+                    res = re.search("SpiStone ([0-9]+)", text)
+                    if res:
+                        number = res.group(1)
+                        self.itemColor[id] = number
+
+        OTHER_PATH = 'equip/resources/Other.tab'
+        first = True
+        with open(OTHER_PATH, 'r', encoding='utf-8') as f:
+            for line in f:
+                if first:
+                    first = False
+                else:
+                    content = line.strip('\n').split('\t')
+                    if content[3] in self.itemColor:
+                        self.color[content[0]] = self.enchant[self.itemColor[content[3]]]  # 记录五彩石
+
+        SET_PATH = 'equip/resources/Set.tab'
+        first = True
+        with open(SET_PATH, 'r', encoding='utf-8') as f:
+            for line in f:
+                if first:
+                    first = False
+                else:
+                    content = line.strip('\n').split('\t')
+                    self.set[content[0]] = content[4:14]
+
     def __init__(self):
         self.data = {}
         self.attrib = {}
+        self.enchant = {}
+        self.color = {}
+        self.set = {}
+        self.itemColor = {}  # 存储可能的五彩石物品id与对应的enchantID
         self.headerID = {}
 
 if __name__ == "__main__":

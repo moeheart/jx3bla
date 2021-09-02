@@ -4,6 +4,22 @@
 from openpyxl import load_workbook
 from EquipmentType import *
 
+
+def getPlug(id):
+    '''
+    根据五行石id获取五行石等级.
+    params:
+    - id: 五行石id
+    returns:
+    - 五行石等级
+    '''
+    plugDict = {"": 0, "24423": 1, "24424": 2, "24425": 3, "24426": 4, "24427": 5, "24428": 6, "24429": 7, "24430": 8,
+                "24442": 1, "24443": 2, "24444": 3, "24445": 4, "24446": 5, "24447": 6, "24448": 7, "24449": 8}
+    if id not in plugDict:
+        return 0
+    else:
+        return plugDict[id]
+
 class HuajianExportEquipment():
     '''
     花间计算器的导出类。
@@ -559,7 +575,7 @@ class HuajianExportEquipment():
             star = equip["star"]
             ws["I%d"%row] = star
             
-            magicName = self.getMagicName(equip["magic"])
+            magicName = self.getMagicName(equip["magic1"])
             ws["J%d"%row] = magicName
             
             if "plug1" in equip:
@@ -607,8 +623,8 @@ class ExcelExportEquipment():
                 else:
                     result += "0"
                 result += "\t"
-                if "magic" in line:
-                    result += line["magic"]
+                if "magic1" in line:
+                    result += line["magic1"]
                 else:
                     result += ""
                 result += "\t"
@@ -673,7 +689,7 @@ class ImportExcelEquipment():
 
     def __init__(self):
         self.orderTable = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "0", "1"]
-        self.attribOrder = ["id", "star", "magic", "magic2", "plug1", "plug2", "plug3", "plug0"]
+        self.attribOrder = ["id", "star", "magic1", "magic2", "plug1", "plug2", "plug3", "plug0"]
         self.scemeTable = ["8", "7", "7", "6", "6", "6", "7", "6", "7", "7", "7", "8", "8"]
 
 class EquipmentAnalyser():
@@ -777,9 +793,9 @@ class EquipmentAnalyser():
                     i += 1
                     plugID = g[""][1]
                     equip["plug%d"%i] = self.getPlug(plugID)
-            if "0" in d[4]:
+            if "0" in d[4] or "1" in d[4]:
                 equip["plug0"] = d[4]["0"][0][""][1]
-            equip["magic"] = d[5]
+            equip["magic1"] = d[5]
             equip["magic2"] = d[6]
             equips[equip["pos"]] = equip
             
