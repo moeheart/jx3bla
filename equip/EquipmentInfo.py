@@ -76,7 +76,7 @@ class EquipmentInfo():
         '''
         header = []
         first = True
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path, 'r', encoding='gbk') as f:
             for line in f:
                 if first:
                     header = line.strip('\n').split('\t')
