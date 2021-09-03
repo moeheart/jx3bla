@@ -1,7 +1,7 @@
 # Created by moeheart at 08/31/2021
 # 维护属性展示类.
 
-from AttributeCal import AttributeCal
+from equip.AttributeCal import AttributeCal
 
 class AttributeDisplay():
 

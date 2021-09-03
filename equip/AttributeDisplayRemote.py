@@ -1,7 +1,7 @@
 # Created by moeheart at 08/31/2021
 # 维护属性远程展示类，通过与服务器通信获取装备属性，避免反复读取数据。
 
-from AttributeCal import AttributeCal
+from equip.AttributeCal import AttributeCal
 import json
 import urllib.request
 

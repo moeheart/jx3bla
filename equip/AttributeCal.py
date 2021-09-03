@@ -1,8 +1,8 @@
 # Created by moeheart at 08/31/2021
 # 维护属性计算类.
 
-from EquipmentInfo import EquipmentInfo
-from EquipmentExport import ImportExcelEquipment, getPlug
+from equip.EquipmentInfo import EquipmentInfo
+from equip.EquipmentExport import ImportExcelEquipment, getPlug
 
 class AttributeCal():
     '''
