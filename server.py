@@ -14,6 +14,7 @@ import configparser
 import os
 from Constants import *
 from Functions import *
+from equip.AttributeDisplay import AttributeDisplay
 
 from painter import XiangZhiPainter
 
@@ -22,6 +23,7 @@ ip = "139.199.102.41"
 announcement = "全新的DPS统计已出炉，大家可以关注一下，看一下各门派的表现~"
 app = Flask(__name__) 
 app.config['JSON_AS_ASCII'] = False
+app.ad = AttributeDisplay()
 
 def Response_headers(content):    
     resp = Response(content)    
@@ -61,6 +63,19 @@ def setAnnouncement():
     db.close()
     
     return jsonify({'result': 'success'})
+
+
+@app.route('/getAttribute', methods=['POST'])
+def getAttribute():
+    '''
+    远程获取属性，通过传入配装来获取属性.
+    '''
+    jdata = json.loads(request.form.get('jdata'))
+    print(jdata)
+    equipStr = jdata["equipStr"]
+    occ = jdata["occ"]
+    res = ad.Display(equipStr, occ)
+    return jsonify(res)
     
 @app.route('/getUuid', methods=['POST'])
 def getUuid():

@@ -112,7 +112,6 @@ class AttributeCal():
                     setAttrib = {setAttribRes[0]: int(setAttribRes[1])}
                     sumAttrib = self.attribMerge(setAttrib, sumAttrib)
 
-        print(sumAttrib)
         return sumAttrib
 
     def __init__(self):
