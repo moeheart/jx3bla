@@ -29,7 +29,7 @@ class AttributeDisplaRemote():
         return result
 
     def __init__(self):
-        self.ac = AttributeCal()
+        pass
 
 if __name__ == "__main__":
     str = """27106	0	0	0	4			

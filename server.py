@@ -74,7 +74,7 @@ def getAttribute():
     print(jdata)
     equipStr = jdata["equipStr"]
     occ = jdata["occ"]
-    res = ad.Display(equipStr, occ)
+    res = app.ad.Display(equipStr, occ)
     return jsonify(res)
     
 @app.route('/getUuid', methods=['POST'])
