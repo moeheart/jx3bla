@@ -76,7 +76,7 @@ class EquipmentInfo():
         '''
         header = []
         first = True
-        with open(path, 'r') as f:
+        with open(path, 'r', encoding='utf-8') as f:
             for line in f:
                 if first:
                     header = line.strip('\n').split('\t')
@@ -103,7 +103,7 @@ class EquipmentInfo():
 
         ATTRIB_PATH = 'equip/resources/Attrib.tab'
         first = True
-        with open(ATTRIB_PATH, 'r') as f:
+        with open(ATTRIB_PATH, 'r', encoding='utf-8') as f:
             for line in f:
                 if first:
                     first = False
