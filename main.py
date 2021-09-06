@@ -18,7 +18,7 @@ from painter import XiangZhiPainter
 from ConfigTools import Config
 from ActorReplay import ActorStatGenerator, ActorData, ActorAnalysis
 from ReplayBase import StatGeneratorBase
-from Functions import *
+from tools.Functions import *
 from Constants import *
 from BossNameUtils import *
 

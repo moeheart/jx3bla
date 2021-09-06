@@ -1,7 +1,7 @@
 # Created by moeheart at 1/8/2021
 # 定制化复盘的基类库。
 
-from Functions import *
+from tools.Functions import *
 
 import threading
 import tkinter as tk

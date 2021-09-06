@@ -5,7 +5,7 @@
 
 from replayer.Base import *
 from replayer.utils import CriticalHealCounter, DpsShiftWindow
-from Functions import *
+from tools.Functions import *
         
 class GongAoWindow():
     '''

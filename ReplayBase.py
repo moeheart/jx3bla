@@ -1,7 +1,8 @@
 # Created by moeheart at 10/11/2020
 # 复盘相关方法的基类库。
 
-from Functions import *
+from tools.Functions import *
+from tools.Jx3datPrepare import *
 from BossNameUtils import *
 
 class StatGeneratorBase():

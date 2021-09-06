@@ -7,7 +7,7 @@
 
 from replayer.Base import *
 from replayer.utils import PurgeCounter, CriticalHealCounter
-from Functions import *
+from tools.Functions import *
         
 class MiTaoWindow():
     '''

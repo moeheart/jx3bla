@@ -68,11 +68,13 @@
 
 (TODO)2.1 单条数据类构建
 
-(TODO)2.1.1 数据形式
+2.1.1 数据形式
 
-(TODO)2.1.2 jcl生成
+(TODO)2.1.2 luaTable转换
 
-(TODO)2.1.3 jx3dat生成
+(TODO)2.1.3 jx3dat验证
+
+(TODO)2.1.4 jcl验证
 
 (TODO)2.2 整体信息类构建
 

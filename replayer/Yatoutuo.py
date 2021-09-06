@@ -5,7 +5,7 @@
 
 from replayer.Base import *
 from replayer.utils import CriticalHealCounter
-from Functions import *
+from tools.Functions import *
         
 class YatoutuoWindow():
     '''

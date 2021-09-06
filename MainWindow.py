@@ -16,7 +16,7 @@ from ConfigTools import Config, ConfigWindow, LicenseWindow, AnnounceWindow
 from LiveBase import LiveListener, AllStatWindow, LiveActorAnalysis, SingleBossWindow
 from main import OverallReplayer
 from Constants import *
-from Functions import *
+from tools.Functions import *
 from GenerateFiles import *
 
 class SingleBlockLocker():

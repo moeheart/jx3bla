@@ -13,7 +13,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from win10toast import ToastNotifier
-from Functions import *
+from tools.Functions import *
 import pyperclip
 
 from ActorReplay import ActorStatGenerator

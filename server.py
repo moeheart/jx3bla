@@ -13,7 +13,7 @@ import hashlib
 import configparser
 import os
 from Constants import *
-from Functions import *
+from tools.Functions import *
 from equip.AttributeDisplay import AttributeDisplay
 
 from painter import XiangZhiPainter
