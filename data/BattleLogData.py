@@ -1,273 +1,114 @@
 # Created by moeheart at 09/03/2021
-# 复盘日志维护，主要包含复盘的全局数据与单条数据的通用形式，兼容jx3dat与jcl。
+# 复盘日志内容集合，主要包含复盘的全局数据与单条数据的通用形式，兼容jx3dat与jcl。
 
-
-class SingleData():
-    '''
-    单条日志，包含全部形式。
-    具体形式均继承自此类。
-    在子类的文档中会说明具体内容的意义，来源参考：
-    https://github.com/tinymins/MY/wiki/MY-Combat-Log-DS
-    https://github.com/tinymins/MY/wiki/MY-Recount-Data-Structure
-    https://www.jx3box.com/bbs/27776
-    注意：来源均为luaTable转写的dict，下标从1开始.
-    '''
-
-    def setByJcl(self, jclItem):
-        pass
-
-    def setByJx3dat(self, jx3datItem):
-        pass
-
-    def getType(self):
-        return self.dataType
-
-    def __init__(self):
-        self.dataType = "Empty"
-
-class SingleDataBuff(SingleData):
-    '''
-    Buff事件，对应jx3dat-5, jcl-13
-    buff事件包括：
-      time: 毫秒数，对应jx3dat[3], jcl[4]
-      caster: 来源ID，对应jx3dat[5], jcl[6][10]
-      target: 目标ID，对应jx3dat[6], jcl[6][1]
-      id: buffID，对应jx3dat[7], jcl[6][5]
-      level: buff等级，对应jx3dat[8], jcl[6][9]
-      delete: 是否为消亡，对应jx3dat[10], jcl[6][2]
-      stack: buff层数，对应jx3dat[11], jcl[6][6]
-      end: 消亡预计的逻辑帧，对应jx3dat[12], jcl[6][7]
-      cancel: 是否可以点掉，对应jx3dat[13], jcl[6][4]
-    '''
-
-    def setByJcl(self, item):
-        '''
-        从jcl形式的item获取事件信息并记录.
-        params:
-        - item: jcl形式的事件信息.
-        '''
-        self.time = int(item["4"])
-        self.caster = item["6"]["10"]
-        self.target = item["6"]["1"]
-        self.id = item["6"]["5"]
-        self.level = int(item["6"]["9"])
-        self.delete = item["6"]["2"]
-        self.stack = int(item["6"]["6"])
-        self.end = int(item["6"]["7"])
-        self.cancel = item["6"]["4"]
-
-    def setByJx3dat(self, item):
-        '''
-        从jx3dat形式的item获取事件信息并记录.
-        params:
-        - item: jx3dat形式的事件信息.
-        '''
-        self.time = int(item["3"])
-        self.caster = item["5"]
-        self.target = item["6"]
-        self.id = item["7"]
-        self.level = int(item["8"])
-        self.delete = item["10"]
-        self.stack = int(item["11"])
-        self.end = int(item["12"])
-        self.cancel = item["13"]
-
-    def __init__(self):
-        self.dataType = "Buff"
-
-class SingleDataSkill(SingleData):
-    '''
-    技能事件，对应jx3dat-1, jcl-21
-    技能事件包括：
-      time: 毫秒数，对应jx3dat[3], jcl[4]
-      caster: 来源ID，对应jx3dat[5], jcl[6][1]
-      target: 目标ID，对应jx3dat[6], jcl[6][2]
-      scheme: 种类, 对应jx3dat[7], jcl[6][4]
-      id: buffID，对应jx3dat[8], jcl[6][5]
-      level: buff等级，对应jx3dat[9], jcl[6][6]
-      full_id: 完整ID，对应jx3dat[10, jcl[6][4-6]（推导）
-      effect: 结果，对应jx3dat[11], jcl无内容（需要修复jx3dat逻辑）
-      heal: 治疗, 对应jx3dat[12], jcl[6][9][6]
-      healEff: 有效治疗, 对应jx3dat[13], jcl[6][9][14]
-      damage: 伤害, 对应jx3dat[14], jcl[6][9][0-4]（推导）
-      damageEff: 有效伤害, 对应jx3dat[15], jcl[6][9][13]
-      fullResult: 完整结果, 对应jx3dat[16], jcl[6][9]
-    '''
-
-    def setByJcl(self, item):
-        '''
-        从jcl形式的item获取事件信息并记录.
-        params:
-        - item: jcl形式的事件信息.
-        '''
-        self.time = int(item["4"])
-        self.caster = item["6"]["1"]
-        self.target = item["6"]["2"]
-        self.scheme = int(item["6"]["4"])
-        self.id = item["6"]["5"]
-        self.level = int(item["6"]["6"])
-        self.full_id = "%d,%s,%d"%(self.scheme, self.id, self.level)
-        self.effect = 0
-        self.heal = int(item["6"]["9"].get("6", 0))
-        self.healEff = int(item["6"]["9"].get("14", 0))
-        self.damage = int(item["6"]["9"].get("0", 0)) + int(item["6"]["9"].get("1", 0)) + \
-                      int(item["6"]["9"].get("2", 0)) + int(item["6"]["9"].get("3", 0)) + \
-                      int(item["6"]["9"].get("4", 0))
-        self.damageEff = int(item["6"]["9"].get("13", 0))
-        self.fullResult = item["6"]["9"]
-
-    def setByJx3dat(self, item):
-        '''
-        从jx3dat形式的item获取事件信息并记录.
-        params:
-        - item: jx3dat形式的事件信息.
-        '''
-        self.time = int(item["3"])
-        self.caster = item["5"]
-        self.target = item["6"]
-        self.scheme = int(item["7"])
-        self.id = item["8"]
-        self.level = int(item["9"])
-        self.full_id = item["10"]
-        self.effect = int(item["11"])
-        self.heal = int(item["12"])
-        self.healEff = int(item["13"])
-        self.damage = int(item["14"])
-        self.damageEff = int(item["15"])
-        self.fullResult = item["16"]
-
-    def __init__(self):
-        self.dataType = "Skill"
-
-class SingleDataDeath(SingleData):
-    '''
-    重伤事件，对应jx3dat-3, jcl-28
-    重伤事件包括：
-      time: 毫秒数，对应jx3dat[3], jcl[4]
-      id: 重伤者ID，对应jx3dat[5], jcl[6][1]
-      killer: 击杀者ID，对应jx3dat[6], jcl[6][2]
-    '''
-
-    def setByJcl(self, item):
-        '''
-        从jcl形式的item获取事件信息并记录.
-        params:
-        - item: jcl形式的事件信息.
-        '''
-        self.time = int(item["4"])
-        self.id = item["6"]["1"]
-        self.killer = item["6"]["2"]
-
-    def setByJx3dat(self, item):
-        '''
-        从jx3dat形式的item获取事件信息并记录.
-        params:
-        - item: jx3dat形式的事件信息.
-        '''
-        self.time = int(item["3"])
-        self.id = item["5"]
-        self.killer = item["6"]
-
-    def __init__(self):
-        self.dataType = "Death"
-
-class SingleDataShout(SingleData):
-    '''
-    喊话事件，对应jx3dat-8, jcl-14
-    喊话事件包括：
-      time: 毫秒数，对应jx3dat[3], jcl[4]
-      content: 喊话内容, 对应jx3dat[5], jcl[6][1]
-      id: 喊话者ID, 对应jx3dat[6], jcl[6][2]
-      name: 喊话者名字, 对应jx3dat[7], jcl[6][4]
-    '''
-
-    def setByJcl(self, item):
-        '''
-        从jcl形式的item获取事件信息并记录.
-        params:
-        - item: jcl形式的事件信息.
-        '''
-        self.time = int(item["4"])
-        self.content = item["6"]["1"]
-        self.id = item["6"]["2"]
-        self.name = item["6"]["4"]
-
-    def setByJx3dat(self, item):
-        '''
-        从jx3dat形式的item获取事件信息并记录.
-        params:
-        - item: jx3dat形式的事件信息.
-        '''
-        self.time = int(item["3"])
-        self.content = item["5"]
-        self.id = item["6"]
-        self.killer = item["7"]
-
-    def __init__(self):
-        self.dataType = "Shout"
-
-class SingleDataBattle(SingleData):
-    '''
-    战斗状态变化事件，对应jx3dat-10, jcl-5/9
-    战斗状态变化事件包括：
-      time: 毫秒数，对应jx3dat[3], jcl[4]
-      id: ID, 对应jx3dat[6], jcl[6][1]
-      fight: 是否为进战, 对应jx3dat[7], jcl[6][2]
-      hp: 当前气血, 对应jx3dat[10], jcl[6][3]
-      hpMax: 气血上限, 对应jx3dat[11], jcl[6][4]
-      mp: 当前内力, 对应jx3dat[12], jcl[6][5]
-      mpMax: 内力上限, 对应jx3dat[13], jcl[6][6]
-    '''
-
-    def setByJcl(self, item):
-        '''
-        从jcl形式的item获取事件信息并记录.
-        params:
-        - item: jcl形式的事件信息.
-        '''
-        self.time = int(item["4"])
-        self.id = item["6"]["1"]
-        self.fight = item["6"]["2"]
-        self.hp = int(item["6"]["3"])
-        self.hpMax = int(item["6"]["4"])
-        self.mp = int(item["6"]["5"])
-        self.mpMax = int(item["6"]["6"])
-
-    def setByJx3dat(self, item):
-        '''
-        从jx3dat形式的item获取事件信息并记录.
-        params:
-        - item: jx3dat形式的事件信息.
-        '''
-        self.time = int(item["3"])
-        self.id = item["6"]
-        self.fight = item["7"]
-        self.hp = int(item["10"])
-        self.hpMax = int(item["11"])
-        self.mp = int(item["12"])
-        self.mpMax = int(item["13"])
-
-    def __init__(self):
-        self.dataType = "Battle"
+from data.DataContent import *
+from tools.LoadData import *
+from tools.Names import *
 
 class BattleLogData():
     '''
     复盘日志维护类.
     '''
 
-    def getSingleFromJcl(self, item):
-        pass
+    def loadFromJcl(self, filePath):
+        '''
+        由jcl文件读取复盘信息并转化.
+        params:
+        - filePath: jcl文件的路径.
+        '''
+        ltaDict = LuaTableAnalyserToDict()
+        firstBattleInfo = True
 
-    def getSingleFromJx3dat(self, item):
-        pass
+        print("读取文件：%s" % filePath)
+        f = open(filePath, "r")
+        s = f.read()
+        jclRaw = s.strip('\n').split('\n')
+        for line in jclRaw:
+            jclItem = line.split('\t')
+            jclItem[5] = ltaDict.analyse(jclItem[5], delta=1)
+            # 读取单条数据
+            if jclItem[4] == "13":
+                singleData = SingleDataBuff()
+            elif jclItem[4] == "21":
+                singleData = SingleDataSkill()
+            elif jclItem[4] == "28":
+                singleData = SingleDataDeath()
+            elif jclItem[4] == "14":
+                singleData = SingleDataShout()
+            elif jclItem[4] in ["5", "9"]:
+                singleData = SingleDataBattle()
+            else:
+                # 读取全局数据
+                if jclItem[4] == "1" and firstBattleInfo:
+                    self.info.server = jclItem[5]["2"].split(':')[2]  # 分隔符为两个冒号
+                    self.info.battleTime = int(jclItem[5]["2"].split(':')[4])
+                    self.info.sumTime = int(jclItem[5]["3"])
+                    firstBattleInfo = False
+                # TODO: 完整的player信息
+                continue
+            singleData.setByJcl(jclItem)
+            self.log.append(singleData)
+        #读取全局数据
+        self.info.skill = {}
+        self.info.map = filePath.split('-')[6]
+        self.info.boss = filePath.split('-')[7].split('.')[0]
 
-    def getFromJcl(self, raw):
-        pass
 
-    def getFromJx3dat(self, raw):
-        pass
+    def loadFromJx3dat(self, filePath):
+        '''
+        由jx3dat文件读取复盘信息并转化.
+        params:
+        - filePath: jx3dat文件的路径.
+        '''
+        print("读取文件：%s" % filePath)
+        f = open(filePath, "r")
+        s = f.read()
+        ltaDict = LuaTableAnalyserToDict(self.window)
+        result = ltaDict.analyse(s)
 
-    def __init__(self):
+        # 读取单条数据
+        for key in result["16"]:
+            value = result["16"][key]
+            if value["4"] == "5":
+                singleData = SingleDataBuff()
+            elif value["4"] == "1":
+                singleData = SingleDataSkill()
+            elif value["4"] == "3":
+                singleData = SingleDataDeath()
+            elif value["4"] == "8":
+                singleData = SingleDataShout()
+            elif value["4"] == "10":
+                singleData = SingleDataBattle()
+            else:
+                continue
+            singleData.setByJx3dat(value)
+            self.log.append(singleData)
+
+        # 读取全局数据
+        # TODO: 完整的player信息
+        self.info.skill = result["11"]
+        self.info.server = result["19"]
+        self.info.map = getMapFromID(result["20"])
+        self.info.boss = filePath.split('_')[1]
+        self.info.battleTime = int(result["4"])
+        self.info.sumTime = int(result["7"])
+
+    def __init__(self, window=None):
         self.log = []
-        pass
+        self.window = window
+        self.info = OverallData()
 
+if __name__ == "__main__":
+    bld = BattleLogData()
+    bld.loadFromJx3dat("2021-09-06-22-44-32_极境试炼木桩_4.fstt.jx3dat")
+    #print(bld.log)
+    #for line in bld.log:
+    #    print(line.dataType)
+    print(bld.info.map)
+    print(bld.info.boss)
+    bld.loadFromJcl("2021-09-06-22-44-32-帮会领地-极境试炼木桩.jcl")
+    #print(bld.log)
+    #for line in bld.log:
+    #    print(line.dataType)
+    print(bld.info.map)
+    print(bld.info.boss)

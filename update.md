@@ -66,23 +66,33 @@
 
 ###part2 jcl同步
 
-(TODO)2.1 单条数据类构建
+2.1 单条数据类构建
 
 2.1.1 数据形式
 
-(TODO)2.1.2 luaTable转换
+2.1.2 luaTable转换
 
-(TODO)2.1.3 jx3dat验证
+2.1.3 jx3dat连接
 
-(TODO)2.1.4 jcl验证
+2.1.4 jcl连接
 
 (TODO)2.2 整体信息类构建
 
-(TODO)2.3 jcl与jx3dat转换
+2.2.1 数据形式
 
-(TODO)2.4 现有代码调整
+(TODO)2.2.2 jx3dat连接
 
-###part3 奶歌复盘2.0实现
+(TODO)2.2.3 jcl连接
+
+(TODO)2.3 现有代码整体结构
+
+(TODO)2.3.1 重构读取jx3dat，加入标准化格式
+
+(TODO)2.3.2 支持jcl读取，增加设置内容
+
+(TODO)2.3.3 新建奶歌复盘pro类并预留位置
+
+###part3 奶歌复盘pro实现
 
 ###part4 界面展示
 

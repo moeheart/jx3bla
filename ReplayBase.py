@@ -2,7 +2,7 @@
 # 复盘相关方法的基类库。
 
 from tools.Functions import *
-from tools.Jx3datPrepare import *
+from tools.LoadData import *
 from BossNameUtils import *
 
 class StatGeneratorBase():
@@ -27,6 +27,11 @@ class StatGeneratorBase():
         luatableAnalyser = LuaTableAnalyser(self.window)
         res = luatableAnalyser.analyse(s)
         self.rawdata = res
+
+
+        luatableAnalyser2 = LuaTableAnalyserToDict(self.window)
+        res2 = luatableAnalyser2.analyse(s)
+        self.formatData = res2
 
         if '9' not in self.rawdata:
             if len(self.rawdata['']) == 17:
