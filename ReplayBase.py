@@ -15,9 +15,9 @@ class StatGeneratorBase():
         if path == "":
             name = self.filename
         else:
-            name = "%s\\%s" % (path, self.filename)
+            name = "%s/%s" % (path, self.filename)
         print("读取文件：%s" % name)
-        f = open(name, "r")
+        f = open(name, "r", encoding='gbk')
         s = f.read()
         
         if self.window is not None:

@@ -12,7 +12,7 @@ import json
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-from win10toast import ToastNotifier
+#from win10toast import ToastNotifier
 from tools.Functions import *
 import pyperclip
 
@@ -965,9 +965,10 @@ class LiveListener():
         window.setDetail(liveGenerator.potList, liveGenerator.effectiveDPSList, liveGenerator.detail)
         window.start()
         
-        toaster = ToastNotifier()
-        toaster.show_toast("分锅结果已生成", "[%s]的战斗复盘已经解析完毕，请打开结果界面分锅。"%liveGenerator.bossname, icon_path='jx3bla.ico')
-        
+        #toaster = ToastNotifier()
+        #toaster.show_toast("分锅结果已生成", "[%s]的战斗复盘已经解析完毕，请打开结果界面分锅。"%liveGenerator.bossname, icon_path='jx3bla.ico')
+        self.mainwindow.notifier.show("分锅结果已生成", "[%s]的战斗复盘已经解析完毕，请打开结果界面分锅。"%liveGenerator.bossname)
+
         #if liveGenerator.uploadTianti:
         #    liveGenerator.prepareUploadTianti()
 

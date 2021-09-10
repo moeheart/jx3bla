@@ -2,7 +2,7 @@
 # 通过选项自动查找剑三战斗记录文件的功能类，包括寻找文件夹，与自动识别有效的战斗记录。
 
 import os
-import winreg
+#import winreg
 import functools
 from BossNameUtils import *
 

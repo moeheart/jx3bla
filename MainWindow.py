@@ -5,7 +5,8 @@ from PIL import Image
 import re
 import os
 import time
-from win10toast import ToastNotifier
+#from win10toast import ToastNotifier
+from tools.Notifier import Notifier
 import traceback
 import urllib
 import json
@@ -185,9 +186,10 @@ class MainWindow():
                 print("文件读取错误，稍后重试……")
                 traceback.print_exc()
         self.setNotice({"t1": "选项设置完成，开始实时模式……", "c1": "#000000", "t2": "开启成功！", "c2": "#00ff00"})
-        #print("由于图标设置异常，请忽略与jx3bla.ico相关的报错，其对使用不会产生实质性影响。")
-        toaster = ToastNotifier()
-        toaster.show_toast("选项设置完成", "选项验证正确，可以在游戏中开战并分锅啦~", icon_path='jx3bla.ico')
+
+        #toaster = ToastNotifier()
+        #toaster.show_toast("选项设置完成", "选项验证正确，可以在游戏中开战并分锅啦~", icon_path='jx3bla.ico')
+        self.notifier.show("选项设置完成", "选项验证正确，可以在游戏中开战并分锅啦~")
         
         liveListener = LiveListener(self.fileLookUp.basepath, self.config, self.analyser, self)
         self.liveListener = liveListener
@@ -392,6 +394,7 @@ class MainWindow():
         self.hasNoticeXiangzhi = 0
         self.rawData = {}
         self.playerEquipment = {}
+        self.notifier = Notifier()
         
 if __name__ == "__main__":
     mainWindow = MainWindow()
