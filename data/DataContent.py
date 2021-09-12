@@ -249,16 +249,32 @@ class SingleDataBattle(SingleData):
     def __init__(self):
         self.dataType = "Battle"
 
+class NPCdata():
+    '''
+    单条NPC数据。玩家也属于特殊的NPC。
+    '''
+
+    def __init__(self):
+        self.name = "未知"
+        self.occ = "0"
+        self.xf = "0"  # 心法
+        self.equipScore = 0
+        self.equip = {}
+        self.qx = {}
+
 class OverallData():
     '''
     全局数据.
     全局数据包括以下信息，会根据用途更新.
-      player: 角色缓存，dict格式
+      player: 角色信息，dict格式
         [key]: 角色ID，对应jx3dat多处，jcl-4[1].
         name: 角色名字符串，对应jx3dat-9, jcl-4[2].
         occ: 心法代码，对应jx3dat-10, jcl-4[4]，注意需要经过一步转换.
         equip: 装备，对应jx3dat-18, jcl-4[6].
         qx: 奇穴，jx3dat暂无，jcl-4[7].
+      npc: NPC信息，dict格式.
+        [key], NPCID，对应jx3dat多处，jcl-7[1].
+        name: 名字字符串.
       skill: 技能名缓存，对应jx3dat-11, jcl暂无此数据（需要从解包中手动读，暂时不做实现，何必呢）
       server: 服务器，对应jx3dat-19, jcl-1[2][2].
       map: 地图（记录名称而非ID），对应jx3dat-20, jcl-文件名.
@@ -266,6 +282,36 @@ class OverallData():
       battleTime: 战斗开始时间戳，对应jx3dat-4, jcl-1[2][3].
       sumTime: 战斗时长毫秒数，对应jx3dat-7, jcl-1[3].
     '''
+
+    def addPlayer(self, key, name, occ):
+        '''
+        添加一个玩家信息. 如果有装备和奇穴信息，需要手动增补.
+        parmas:
+        - key: 玩家ID。
+        - name: 玩家的名字.
+        - occ: 心法代码.
+        returns:
+        - flag: 如果是第一次添加玩家信息为True, 否则为False
+        '''
+        if key not in self.player:
+            self.player[key] = NPCdata()
+            self.player[key].name = name
+            self.player[key].occ = occ
+            return True
+        return False
+
+    def addNPC(self, key, name):
+        '''
+        添加一个NPC.
+        parmas:
+        - key: NPC的ID。
+        - name: NPC的名字.
+        '''
+        if key not in self.npc:
+            self.player[key] = NPCdata()
+            self.player[key].name = name
+
     def __init__(self):
-        pass
+        self.player = {}
+        self.npc = {}
 

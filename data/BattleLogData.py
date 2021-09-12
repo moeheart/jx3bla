@@ -44,6 +44,16 @@ class BattleLogData():
                     self.info.battleTime = int(jclItem[5]["2"].split(':')[4])
                     self.info.sumTime = int(jclItem[5]["3"])
                     firstBattleInfo = False
+                elif jclItem[4] == "4":
+                    flag = self.info.addPlayer(jclItem[5]["1"], jclItem[5]["2"], jclItem[5]["3"])
+                    if flag:
+                        self.info.player[jclItem[5]["1"]].xf = jclItem[5]["4"]
+                        self.info.player[jclItem[5]["1"]].equipScore = jclItem[5]["5"]
+                        self.info.player[jclItem[5]["1"]].equip = jclItem[5]["6"]
+                        self.info.player[jclItem[5]["1"]].qx = jclItem[5]["7"]
+                elif jclItem[4] == "8":
+                    self.info.addNPC(jclItem[5]["1"], jclItem[5]["2"])
+
                 # TODO: 完整的player信息
                 continue
             singleData.setByJcl(jclItem)
@@ -93,6 +103,19 @@ class BattleLogData():
         self.info.battleTime = int(result["4"])
         self.info.sumTime = int(result["7"])
 
+        print("Info:")
+        print(result["9"])
+        print(result["10"])
+        for line in result["9"]:
+            if result["10"][line] == "0":
+                self.info.addNPC(line, result["9"][line])
+            else:
+                self.info.addPlayer(line, result["9"][line], result["10"][line])
+                if line in result["18"]:
+                    self.info.player[line].xf = result["18"][line]["1"]
+                    self.info.player[line].equipScore = result["18"][line]["2"]
+                    self.info.player[line].equip = result["18"][line]["3"]
+
     def __init__(self, window=None):
         self.log = []
         self.window = window
@@ -106,9 +129,17 @@ if __name__ == "__main__":
     #    print(line.dataType)
     print(bld.info.map)
     print(bld.info.boss)
+    for line in bld.info.player:
+        print(bld.info.player[line].xf)
+        print(bld.info.player[line].name)
+        print(bld.info.player[line].equip)
     bld.loadFromJcl("2021-09-06-22-44-32-帮会领地-极境试炼木桩.jcl")
     #print(bld.log)
     #for line in bld.log:
     #    print(line.dataType)
     print(bld.info.map)
     print(bld.info.boss)
+    for line in bld.info.player:
+        print(bld.info.player[line].xf)
+        print(bld.info.player[line].name)
+        print(bld.info.player[line].equip)
