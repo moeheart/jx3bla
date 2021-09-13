@@ -82,8 +82,8 @@ class SingleDataSkill(SingleData):
       caster: 来源ID，对应jx3dat[5], jcl[6][1]
       target: 目标ID，对应jx3dat[6], jcl[6][2]
       scheme: 种类, 对应jx3dat[7], jcl[6][4]
-      id: buffID，对应jx3dat[8], jcl[6][5]
-      level: buff等级，对应jx3dat[9], jcl[6][6]
+      id: 技能ID，对应jx3dat[8], jcl[6][5]
+      level: 技能等级，对应jx3dat[9], jcl[6][6]
       full_id: 完整ID，对应jx3dat[10, jcl[6][4-6]（推导）
       effect: 结果，对应jx3dat[11], jcl无内容（需要修复jx3dat逻辑）
       heal: 治疗, 对应jx3dat[12], jcl[6][9][6]
@@ -155,7 +155,10 @@ class SingleDataDeath(SingleData):
         '''
         self.time = int(item[3])
         self.id = item[5]["1"]
-        self.killer = item[5]["2"]
+        if "2" in item[5]:
+            self.killer = item[5]["2"]
+        else:
+            self.killer = "0"
 
     def setByJx3dat(self, item):
         '''
@@ -200,7 +203,7 @@ class SingleDataShout(SingleData):
         self.time = int(item["3"])
         self.content = item["5"]
         self.id = item["6"]
-        self.killer = item["7"]
+        self.name = item["7"]
 
     def __init__(self):
         self.dataType = "Shout"
@@ -272,6 +275,8 @@ class OverallData():
         occ: 心法代码，对应jx3dat-10, jcl-4[4]，注意需要经过一步转换.
         equip: 装备，对应jx3dat-18, jcl-4[6].
         qx: 奇穴，jx3dat暂无，jcl-4[7].
+        equipScore: 装分.
+        xf: 心法.
       npc: NPC信息，dict格式.
         [key], NPCID，对应jx3dat多处，jcl-7[1].
         name: 名字字符串.
@@ -295,7 +300,7 @@ class OverallData():
         '''
         if key not in self.player:
             self.player[key] = NPCdata()
-            self.player[key].name = name
+            self.player[key].name = name.strip('"')
             self.player[key].occ = occ
             return True
         return False
@@ -309,7 +314,7 @@ class OverallData():
         '''
         if key not in self.npc:
             self.player[key] = NPCdata()
-            self.player[key].name = name
+            self.player[key].name = name.strip('"')
 
     def __init__(self):
         self.player = {}

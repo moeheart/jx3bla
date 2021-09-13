@@ -38,8 +38,9 @@ class Config():
         '''
         jpost = {'uuid': self.userUuid}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        resp = urllib.request.urlopen('http://139.199.102.41:8009/getUserInfo', data=jparse)
-        res = json.load(resp)
+        #resp = urllib.request.urlopen('http://139.199.102.41:8009/getUserInfo', data=jparse)
+        #res = json.load(resp)
+        res = {"item1": 0, "item2": 0, "item3": 0, "item4": 0, "exp": 0, "score": 0, "lvl": 0, "exist": 1}# TODO: 联机版中fix this
         
         if res['exist'] == 0:
             messagebox.showinfo(title='错误', message='用户唯一标识出错，将重新生成并清除用户数据。如果遇到问题，请联系作者。')
@@ -97,6 +98,10 @@ class Config():
             self.qualifiedRate = float(self.items_actor["qualifiedrate"])
             self.alertRate = float(self.items_actor["alertrate"])
             self.bonusRate = float(self.items_actor["bonusrate"])
+            if "datatype" in self.items_general:
+                self.datatype = self.items_general["datatype"]
+            else:
+                self.datatype = "jx3dat"
             if "uploadtianti" in self.items_actor:
                 self.uploadTianti = int(self.items_actor["uploadtianti"])
             else:
@@ -113,7 +118,6 @@ class Config():
                 self.userId = self.items_user["id"]
             else:
                 self.userId = ""
-                
             if self.userUuid == "":
                 uuid = self.getNewUuid()
                 self.userUuid = uuid
@@ -180,6 +184,7 @@ basepath=%s
 mask=%d
 color=%d
 text=%d
+datatype=%s
 
 [XiangZhiAnalysis]
 active=%d
@@ -199,7 +204,7 @@ plugindetail=%d
 
 [UserAnalysis]
 uuid=%s
-id=%s"""%(self.playername, self.jx3path, self.basepath, self.mask, self.color, self.text, 
+id=%s"""%(self.playername, self.jx3path, self.basepath, self.mask, self.color, self.text, self.datatype,
         self.xiangzhiActive, self.xiangzhiname, self.speed, self.xiangzhiPublic, 
         self.actorActive, self.checkAll, self.failThreshold, self.qualifiedRate, self.alertRate, self.bonusRate, self.uploadTianti, self.plugindetail,
         self.userUuid, self.userId))
@@ -218,6 +223,7 @@ id=%s"""%(self.playername, self.jx3path, self.basepath, self.mask, self.color, s
         self.mask = 0
         self.color = 1
         self.text = 0
+        self.datatype = "jx3dat"
         self.speed = 8780
         self.xiangzhiActive = 1
         self.actorActive = 1
@@ -238,6 +244,7 @@ id=%s"""%(self.playername, self.jx3path, self.basepath, self.mask, self.color, s
             else:
                 print("config.ini不存在，请检查使用方法，或删除重试。")
         else:
+
             try:
                 cf = configparser.ConfigParser()
                 cf.read("config.ini", encoding="utf-8")
@@ -523,6 +530,7 @@ class ConfigWindow():
         self.config.mask = self.var1_4.get()
         self.config.color = self.var1_5.get()
         self.config.text = self.var1_6.get()
+        self.config.datatype = self.var1_7.get()
         self.config.xiangzhiActive = self.var2_1.get()
         self.config.xiangzhiname = self.entry2_2.get()
         self.config.speed = self.entry2_3.get()
@@ -537,7 +545,6 @@ class ConfigWindow():
         self.config.plugindetail = self.var3_8.get()
         self.config.userId = self.userId
         self.config.printSettings()
-        
         self.window.destroy()
         
     def register(self):
@@ -568,6 +575,7 @@ class ConfigWindow():
         self.config.playername = self.entry1_1.get()
         self.config.jx3path = self.entry1_2.get()
         self.config.basepath = ""
+        self.config.datatype = self.var1_7.get()
         fileLookUp = FileLookUp()
         res = fileLookUp.initFromConfig(self.config)
         if res != "":
@@ -579,6 +587,10 @@ class ConfigWindow():
             box.deselect()
         else:
             box.select()
+
+    def init_radio(self, radio, value, valueStd):
+        if value == valueStd:
+            radio.select()
             
     def lvlup(self):
         jpost = {'uuid': self.config.userUuid}
@@ -623,6 +635,14 @@ class ConfigWindow():
         self.cb1_4 = tk.Checkbutton(frame1, text = "名称打码", variable = self.var1_4, onvalue = 1, offvalue = 0)
         self.cb1_5 = tk.Checkbutton(frame1, text = "门派染色", variable = self.var1_5, onvalue = 1, offvalue = 0)
         self.cb1_6 = tk.Checkbutton(frame1, text = "生成txt格式", variable = self.var1_6, onvalue = 1, offvalue = 0)
+        self.label1_7 = tk.Label(frame1, text='数据格式')
+        self.var1_7 = tk.StringVar(window)
+        self.frame1_7 = tk.Frame(frame1)
+        self.rb1_7_1 = tk.Radiobutton(self.frame1_7, text="jcl", variable=self.var1_7, value="jcl")
+        self.rb1_7_1.grid(row=0, column=0)
+        self.rb1_7_2 = tk.Radiobutton(self.frame1_7, text="jx3dat", variable=self.var1_7, value="jx3dat")
+        self.rb1_7_2.grid(row=0, column=1)
+
         self.label1_1.grid(row=0, column=0)
         self.entry1_1.grid(row=0, column=1)
         self.label1_2.grid(row=1, column=0)
@@ -633,6 +653,8 @@ class ConfigWindow():
         self.cb1_4.grid(row=3, column=0)
         self.cb1_5.grid(row=4, column=0)
         self.cb1_6.grid(row=5, column=0)
+        self.label1_7.grid(row=6, column=0)
+        self.frame1_7.grid(row=6, column=1)
         
         self.var2_1 = tk.IntVar(window)
         self.cb2_1 = tk.Checkbutton(frame2, text = "启用奶歌复盘", variable = self.var2_1, onvalue = 1, offvalue = 0)
@@ -747,13 +769,16 @@ class ConfigWindow():
         notebook.add(frame3, text='演员')
         notebook.add(frame4, text='用户')
         notebook.pack(padx=10, pady=5, fill=tk.BOTH, expand=True)
-        
+
+        #对选项初始化
         self.entry1_1.insert(0, config.playername)
         self.entry1_2.insert(0, config.jx3path)
         self.entry1_3.insert(0, config.basepath)
         self.init_checkbox(self.cb1_4, config.mask)
         self.init_checkbox(self.cb1_5, config.color)
         self.init_checkbox(self.cb1_6, config.text)
+        self.init_radio(self.rb1_7_1, config.datatype, "jcl")
+        self.init_radio(self.rb1_7_2, config.datatype, "jx3dat")
         self.init_checkbox(self.cb2_1, config.xiangzhiActive)
         self.entry2_2.insert(0, config.xiangzhiname)
         self.entry2_3.insert(0, config.speed)
@@ -775,6 +800,9 @@ class ConfigWindow():
         ToolTip(self.cb1_4, "是否在生成的图片中将ID打码。\n这一选项同样会影响上传的数据，如果开启，则上传的数据也会打码。")
         ToolTip(self.cb1_5, "是否在生成的图片开启门派染色。")
         ToolTip(self.cb1_6, "是否将生成的图片中的信息以txt格式保存，方便再次传播。")
+        ToolTip(self.label1_7, "复盘数据的格式，由剑三茗伊插件集的对应功能生成。\n对于指定的格式，必须正确设置，才能进行复盘。")
+        ToolTip(self.rb1_7_1, "jcl格式，是茗伊团队工具的结果记录。这种记录结构轻巧，且拥有更全面的数据，但没有技能名等固定的信息。\n开启步骤：\n1. 在茗伊插件集-团队-团队工具中，勾选[xxx]\n2. 点击旁边的小齿轮，勾选[xxx]")
+        ToolTip(self.rb1_7_2, "jx3dat格式，是茗伊战斗统计的结果记录。这种记录无需依赖全局信息，但没有部分数据种类。\n开启步骤：\n1. 在茗伊战斗统计的小齿轮中，勾选[记录所有复盘数据]。\n2. 按Shift点开历史页面，勾选[退出游戏时保存复盘][脱离战斗时保存复盘]，并取消[不保存历史复盘数据]。\n3. 再次按Shift点开历史页面，点击[仅在秘境中启用复盘]2-3次，使其取消。")
         ToolTip(self.cb2_1, "奶歌复盘的总开关。如果关闭，则将跳过整个奶歌复盘。")
         ToolTip(self.label2_2, "奶歌的ID，通常在战斗中有多个奶歌时需要指定。")
         ToolTip(self.label2_3, "奶歌的加速等级，用于计算空闲比例。")
@@ -795,6 +823,8 @@ class ConfigWindow():
         
         self.entry1_1.bind('<Button-1>', self.clear_basepath)
         self.entry1_2.bind('<Button-1>', self.clear_basepath)
+        self.rb1_7_1.bind('<Button-1>', self.clear_basepath)
+        self.rb1_7_2.bind('<Button-1>', self.clear_basepath)
 
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)

@@ -193,3 +193,4 @@ class LuaTableAnalyserToDict():
         if window is not None:
             self.hasWindow = True
             self.window = window
+

@@ -2,7 +2,7 @@
 # 通过选项自动查找剑三战斗记录文件的功能类，包括寻找文件夹，与自动识别有效的战斗记录。
 
 import os
-#import winreg
+import winreg
 import functools
 from BossNameUtils import *
 
@@ -43,10 +43,7 @@ class FileLookUp():
         - playerName 玩家名。
         '''
         l1 = os.listdir(self.jx3path)
-        if "bin" in l1:
-            datapath = "%s\\bin\\zhcn_hd\\interface\\MY#DATA" % self.jx3path
-        else:
-            datapath = "%s\\Game\\JX3\\bin\\zhcn_hd\\interface\\MY#DATA" % self.jx3path
+        datapath = "%s\\Game\\JX3\\bin\\zhcn_hd\\interface\\MY#DATA" % self.jx3path
         resDir = ""
         l = os.listdir(datapath)
         
@@ -60,9 +57,12 @@ class FileLookUp():
                     newresTime = os.path.getmtime(path2)
                     if newresTime > resTime:
                         resTime = newresTime
-                        resDir = "%s\\userdata\\fight_stat" % path2
-
+                        if self.dataType == "jcl":
+                            resDir = "%s\\userdata\\combat_logs" % path2
+                        else:
+                            resDir = "%s\\userdata\\fight_stat" % path2
         self.basepath = resDir
+        print(self.basepath)
         if resDir == "":
             print("查找角色失败，请检查记录者角色名或剑三目录是否正确")
             self.basepath = "查找角色失败，请检查记录者角色名或剑三目录是否正确"
@@ -83,7 +83,7 @@ class FileLookUp():
         else:
             filelist = os.listdir(self.basepath)
             for line in filelist:
-                if line[-6:] == "jx3dat":
+                if line[-6:] == self.dataType or line[-3:] == self.dataType:
                     selectFileList.append(line)
 
         bossDict = BOSS_DICT
@@ -97,7 +97,10 @@ class FileLookUp():
         for i in range(len(selectFileList) - 1, -1, -1):
             if selectFileList[i][-13:] == "config.jx3dat":
                 continue
-            bossname = selectFileList[i].split('_')[-2]
+            if self.dataType == "jx3dat":
+                bossname = getNickToBoss(selectFileList[i].split('_')[1])
+            else:
+                bossname = getNickToBoss(selectFileList[i].split('-')[-1].split('.')[0])
             if bossname in bossDict:
                 if bossDict[bossname] <= nowBoss:
                     bossPos[bossDict[bossname]] = i
@@ -105,14 +108,8 @@ class FileLookUp():
                     nowBoss = bossDict[bossname] - 1
                 elif bossDict[bossname] == nowBoss + 1:
                     bossList[i] = bossDict[bossname]
-            # battletime = int(selectFileList[i].split('_')[2].split('.')[0])
-
-        # for i in range(1, 7):
-        #    if bossPos[i] == -1:
-        #        for j in range(len(selectFileList)):
-        #            if j > bossPos[i-1] and j < bossPos[i+1] and bossList[j] == 999:
-        #                bossList[j] = i
-        #                bossPos[i] = j
+            else:
+                bossPos[0] = i
 
         finalList = []
         finalListAll = []
@@ -124,7 +121,10 @@ class FileLookUp():
 
         for i in range(len(selectFileList)):
             if bossList[i] != 0:
-                bossname = selectFileList[i].split('_')[-2]
+                if self.dataType == "jx3dat":
+                    bossname = selectFileList[i].split('_')[1]
+                else:
+                    bossname = selectFileList[i].split('-')[-1].split('.')[0]
                 if bossname != lastName:
                     lastName = bossname
                     lastNum = 0
@@ -134,13 +134,24 @@ class FileLookUp():
                     lastNum += 1
                 finalListAll.append([selectFileList[i], lastNum, 0])
 
-        finalListAll[-1][2] = 1
         if finalList == []:
-            print("没有合适的战斗记录，请确认目录设置或角色是否正确。")
+            if bossPos[0] == -1:
+                raise Exception("没有合适的战斗记录，请确认路径是否正确.")
+            finalList.append([selectFileList[bossPos[0]], 0, 1])
+            finalListAll.append([selectFileList[bossPos[0]], 0, 1])
+
+        finalListAll[-1][2] = 1
 
         finalFileName = finalList[-1][0]
-        finalBossName = finalFileName.split('_')[-2]
-        finalMap = mapNameList[mapDict[finalBossName]]
+        if self.dataType == "jx3dat":
+            finalBossName = finalFileName.split('_')[1]
+        else:
+            finalBossName = finalFileName.split('-')[-1].split('.')[0]
+
+        if finalBossName in mapDict:
+            finalMap = mapNameList[mapDict[finalBossName]]
+        else:
+            finalMap = "未知"
 
         return finalList, finalListAll, finalMap
         
@@ -150,6 +161,7 @@ class FileLookUp():
         params
         - config 设置类
         '''
+        self.dataType = config.datatype
         if config.basepath != "":
             print("指定基准目录，使用：%s" % config.basepath)
             self.basepath = config.basepath
@@ -166,4 +178,4 @@ class FileLookUp():
         return self.basepath
             
     def __init__(self):
-        pass 
+        self.dataType = "jx3dat"

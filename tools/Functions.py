@@ -193,6 +193,9 @@ def parseCent(num, digit=2):
         
         
 def checkOccDetailBySkill(default, skillID, damage):
+    '''
+    根据特征技能判定双心法门派的具体心法.
+    '''
     #if skillID in ["18207", "18773"] and int(damage) > 10000:
     #    return '3d'
     #elif skillID in ["18207", "18773"] and int(damage) < 3000:

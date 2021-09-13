@@ -17,6 +17,7 @@ from ConfigTools import Config, ConfigWindow, LicenseWindow, AnnounceWindow
 from LiveBase import LiveListener, AllStatWindow, LiveActorAnalysis, SingleBossWindow
 from main import OverallReplayer
 from Constants import *
+from data.DataController import DataController
 from tools.Functions import *
 from GenerateFiles import *
 
@@ -67,11 +68,11 @@ class MainWindow():
             if id not in self.playerIDs:
                 self.playerIDs.append(id)
                 
-    def addRawData(self, filename, rawdata):
+    def addBattleLogData(self, filename, bld):
         '''
         向主窗体类中加入Rawdata，用于在复盘模式与实时模式中共享数据。
         '''
-        self.rawData[filename] = rawdata
+        self.bldDict[filename] = bld
                 
     def NoticeXiangZhi(self):
         '''
@@ -83,22 +84,23 @@ class MainWindow():
         else:
             return
             
-    def setRawData(self, raw):
+    def setBattleLogData(self, bldDict):
         '''
-        将RawData设定为对应的raw。用于复盘模式得到raw数据后向主界面上报。
+        将BattleLogData设定为对应结果。用于复盘模式得到数据后向主界面上报。
         params
-        - raw 对应的raw数据。
+        - bldDict 对应的BattleLogData数据。
         '''
-        self.rawData = raw
+        self.bldDict = bldDict
         
     def liveForReplay(self):
         '''
-        用存储的raw数据复盘进行所有实时模式的复盘。
+        用存储的数据进行所有实时模式的复盘。
         '''
         if not self.hasReplayed and not self.startLive:
-            self.liveListener.getAllBattleLog(self.fileLookUp.basepath, self.rawData)
+            self.liveListener.getAllBattleLog(self.fileLookUp.basepath, self.bldDict)
             self.hasReplayed = True
-            
+
+    '''
     def checkAttendence(self):
         rawList = self.rawData
         mapDict = {}
@@ -116,6 +118,7 @@ class MainWindow():
         #g = open("result.txt", "w")
         #g.write(str(mapDict))
         #g.close()
+    '''
 
     def replay(self):
         config = Config("config.ini")
@@ -123,12 +126,14 @@ class MainWindow():
         fileLookUp.initFromConfig(config)
         self.config = config
         self.fileLookUp = fileLookUp
-        liveListener = LiveListener(self.fileLookUp.basepath, self.config, self.analyser, self)
-        self.liveListener = liveListener
-        replayer = OverallReplayer()
-        if self.rawData != {}:
-            replayer.setRawData(self.rawData)
-        replayer.replay(self) # 此处将MainWindow类本身传入
+        self.dataType = self.config.datatype
+        # 如需在复盘模式后接实时模式，则使用这个逻辑
+        #liveListener = LiveListener(self.fileLookUp.basepath, self.config, self.analyser, self)
+        #self.liveListener = liveListener
+        controller = DataController(self.config)
+        if self.bldDict != {}:
+            controller.setRawData(self.bldDict)
+        controller.replay(self) # 此处将MainWindow类本身传入
         self.setNotice({"t1": "复盘完成！", "c1": "#000000", "t2": ""})
         #self.checkAttendence()
 
@@ -213,6 +218,7 @@ class MainWindow():
             self.startLive = True
             fileLookUp = FileLookUp()
             fileLookUp.initFromConfig(config)
+            self.dataType = self.config.datatype
             self.config = config
             self.fileLookUp = fileLookUp
             
@@ -320,8 +326,9 @@ class MainWindow():
         window.title('剑三警长')
         window.geometry('300x220')
         
-        resp = urllib.request.urlopen('http://139.199.102.41:8009/getAnnouncement')
-        res = json.load(resp)
+        #resp = urllib.request.urlopen('http://139.199.102.41:8009/getAnnouncement')
+        #res = json.load(resp)
+        res = {"announcement": "", "version": "0.0.0", "url": ""}  #TODO: 联机版中fix this
         self.announcement = res["announcement"]
         self.newestEdition = res["version"]
         self.updateurl = res["url"]
@@ -373,10 +380,7 @@ class MainWindow():
             
         l3 = tk.Label(window, text="版本号：%s"%showEdition, height=1)
         l3.place(x = 20, y = 180) 
-        
-        #b5 = tk.Button(window, text='协议', height=1, command=self.show_license)
-        #b5.place(x = 120, y = 180)
-        
+
         self.window = window
 
         window.protocol('WM_DELETE_WINDOW', self.closeWindow)
@@ -389,12 +393,13 @@ class MainWindow():
         self.analyser = LiveActorAnalysis()
         self.startLive = False
         self.hasReplayed = False
-        self.lock = SingleBlockLocker()
-        self.playerIDs = []
-        self.hasNoticeXiangzhi = 0
-        self.rawData = {}
-        self.playerEquipment = {}
-        self.notifier = Notifier()
+        self.lock = SingleBlockLocker()  # 简易的互斥锁，用于防止重复启动
+        self.playerIDs = []  # 存储玩家ID，用于总榜
+        self.hasNoticeXiangzhi = 0  #
+        self.bldDict = {}  # 存储处理后的数据，格式为{'文件名': 数据内容}。
+        self.playerEquipment = {}  # 存储角色装备，用于导出，将在未来删除
+        self.notifier = Notifier()  # 用于win10的通知窗口
+        self.dataType = "jx3dat"  # 数据种类，jx3dat为茗伊战斗统计的结果，jcl为茗伊团队工具的子功能
         
 if __name__ == "__main__":
     mainWindow = MainWindow()

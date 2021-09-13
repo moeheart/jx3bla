@@ -5,6 +5,61 @@ from data.DataContent import *
 from tools.LoadData import *
 from tools.Names import *
 
+class RawDataLoader():
+    '''
+    直接读取数据文件的类。
+    '''
+
+    def parseFile(self, path, filename):
+        '''
+        读取文件。
+        params:
+        - path: 文件路径
+        - filename: 文件名
+        returns:
+        - bld: 战斗复盘数据.
+        '''
+
+        if path == "":
+            name = filename
+        else:
+            name = "%s\\%s" % (path, filename)
+
+        bld = BattleLogData(self.window)
+
+        if self.window is not None:
+            if self.config.datatype == "jx3dat":
+                bossname = getNickToBoss(filename.split('_')[1])
+            else:
+                bossname = getNickToBoss(filename.split('-')[-1].split('.')[0])
+            self.window.setNotice({"t1": "正在读取[%s]..." % bossname, "c1": "#000000"})
+
+        if self.config.datatype == "jcl":
+            bld.loadFromJcl(name)
+        elif self.config.datatype == "jx3dat":
+            bld.loadFromJx3dat(name)
+        else:
+            raise Exception("未知的数据类型")
+        return bld
+
+    def __init__(self, config, filelist, path, window=None, bldDict={}):
+        '''
+        初始化.
+        params:
+        - config: 设置类.
+        - bldDict: 复盘数据存储类，key为文件名，value为BattleLogData形式的数据。
+        - filelist: 需要读取的文件列表。
+        - path: 路径。
+        - window: 主窗体，用于显示进度。
+        - bldDict: 已有的复盘数据，用于缓存从而节省读取时间。
+        '''
+        self.config = config
+        self.bldDict = bldDict
+        self.window = window
+        for filename in filelist:
+            if filename[0] not in self.bldDict:
+                self.bldDict[filename[0]] = self.parseFile(path, filename[0])
+
 class BattleLogData():
     '''
     复盘日志维护类.
@@ -23,7 +78,18 @@ class BattleLogData():
         f = open(filePath, "r")
         s = f.read()
         jclRaw = s.strip('\n').split('\n')
+
+        maxN = len(jclRaw)
+        nowN = 0
+        nowI = 0
         for line in jclRaw:
+            # 维护进度条
+            nowN += 1
+            if nowN > maxN * nowI / 100:
+                nowI += 1
+                if self.window is not None:
+                    self.window.setNotice({"t2": "已完成：%d%%" % nowI, "c2": "#0000ff"})
+
             jclItem = line.split('\t')
             jclItem[5] = ltaDict.analyse(jclItem[5], delta=1)
             # 读取单条数据
@@ -39,18 +105,21 @@ class BattleLogData():
                 singleData = SingleDataBattle()
             else:
                 # 读取全局数据
-                if jclItem[4] == "1" and firstBattleInfo:
-                    self.info.server = jclItem[5]["2"].split(':')[2]  # 分隔符为两个冒号
-                    self.info.battleTime = int(jclItem[5]["2"].split(':')[4])
-                    self.info.sumTime = int(jclItem[5]["3"])
-                    firstBattleInfo = False
+                if jclItem[4] == "1":
+                    if firstBattleInfo:
+                        self.info.server = jclItem[5]["2"].split(':')[2].split('_')[1]  # 分隔符为两个冒号
+                        self.info.battleTime = int(jclItem[5]["2"].split(':')[4])
+                        firstBattleInfo = False
+                    else:
+                        self.info.sumTime = int(jclItem[5]["3"])
                 elif jclItem[4] == "4":
                     flag = self.info.addPlayer(jclItem[5]["1"], jclItem[5]["2"], jclItem[5]["3"])
                     if flag:
                         self.info.player[jclItem[5]["1"]].xf = jclItem[5]["4"]
                         self.info.player[jclItem[5]["1"]].equipScore = jclItem[5]["5"]
                         self.info.player[jclItem[5]["1"]].equip = jclItem[5]["6"]
-                        self.info.player[jclItem[5]["1"]].qx = jclItem[5]["7"]
+                        if "7" in jclItem[5]:
+                            self.info.player[jclItem[5]["1"]].qx = jclItem[5]["7"]
                 elif jclItem[4] == "8":
                     self.info.addNPC(jclItem[5]["1"], jclItem[5]["2"])
 
@@ -103,9 +172,6 @@ class BattleLogData():
         self.info.battleTime = int(result["4"])
         self.info.sumTime = int(result["7"])
 
-        print("Info:")
-        print(result["9"])
-        print(result["10"])
         for line in result["9"]:
             if result["10"][line] == "0":
                 self.info.addNPC(line, result["9"][line])
