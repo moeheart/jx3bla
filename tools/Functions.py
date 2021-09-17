@@ -2,16 +2,35 @@
 # 部分简单python对象操作的方法库。
 
 class BuffCounter():
+    '''
+    通用的buff统计类，记录buff的获取、消亡、层数，并给出覆盖率、存在时间等指标.
+    '''
     startTime = 0
     finalTime = 0
     buffid = 0
     log = []
 
     def setState(self, time, stack):
+        '''
+        设置特定时间点buff的层数.
+        无论是获得还是消亡均可用这个方法。对应的层数的有效时间即是这个时刻到下一个时刻中间的部分。
+        params:
+        - time: 获得buff的时刻.
+        - stack: buff层数，可以为0.
+        '''
         self.log.append([int(time), int(stack)])
 
     def checkState(self, time):
+        '''
+        查询特定时刻buff的层数.
+        params:
+        - time: 要查询的时刻.
+        returns:
+        - res: 层数结果.
+        '''
         res = 0
+        if len(self.log) == 0:
+            return 0
         for i in range(1, len(self.log)):
             if int(time) < self.log[i][0]:
                 res = self.log[i - 1][1]
@@ -20,13 +39,36 @@ class BuffCounter():
             res = self.log[-1][1]
         return res
 
-    def sumTime(self):
+    def buffTimeIntegral(self):
+        '''
+        获取全程buff层数对时间的积分.
+        这个方法可以用于计算覆盖率、平均层数等.
+        returns:
+        - time: 积分结果.
+        '''
         time = 0
         for i in range(len(self.log) - 1):
-            time += self.log[i][1] * (self.log[i + 1][0] - self.log[i][0])
+            time += self.log[i][1] * (self.log[i+1][0] - self.log[i][0])
+        if len(self.log) > 0:
+            time += self.log[-1][1] * (self.finalTime - self.log[-1][0])
         return time
 
+    def sumTime(self):
+        '''
+        获取战斗总时间.
+        returns:
+        - res: 战斗总时间.
+        '''
+        return self.finalTime - self.startTime
+
     def __init__(self, buffid, startTime, finalTime):
+        '''
+        构造函数.
+        params:
+        - buffid: 统计的buffid，暂时没有实际作用，仅供记录用.
+        - startTime: 战斗开始时间.
+        - finalTime: 战斗结束时间.
+        '''
         self.buffid = buffid
         self.startTime = startTime
         self.finalTime = finalTime

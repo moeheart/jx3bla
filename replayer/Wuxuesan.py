@@ -187,7 +187,7 @@ class WuXueSanReplayer(SpecificReplayer):
         for line in self.playerIDList:
             if line in self.dps:
 
-                self.dps[line][2] = self.buffCounter[line].sumTime() / 1000
+                self.dps[line][2] = self.buffCounter[line].buffTimeIntegral() / 1000
                 gmzDps = [0, 0, 0]
                 for i in range(0, 3):
                     if self.dps[line][i+4] < 0:

@@ -165,7 +165,7 @@ class YuwenMieReplayer(SpecificReplayer):
                 if getOccType(self.occDetailList[id]) == "healer":
                     line[3] = int(self.hps[id] / self.battleTime)
                     
-                line[6] = self.stunCounter[id].sumTime() / 1000
+                line[6] = self.stunCounter[id].buffTimeIntegral() / 1000
 
                 dps = int(line[2] / self.battleTime)
                 bossResult.append([line[0],

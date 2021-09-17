@@ -71,6 +71,7 @@ class BattleLogData():
         params:
         - filePath: jcl文件的路径.
         '''
+        self.dataType = "jcl"
         ltaDict = LuaTableAnalyserToDict()
         firstBattleInfo = True
 
@@ -122,6 +123,7 @@ class BattleLogData():
                             self.info.player[jclItem[5]["1"]].qx = jclItem[5]["7"]
                 elif jclItem[4] == "8":
                     self.info.addNPC(jclItem[5]["1"], jclItem[5]["2"])
+                    self.info.npc[jclItem[5]["1"]].templateID = jclItem[5]["3"]
 
                 # TODO: 完整的player信息
                 continue
@@ -139,29 +141,12 @@ class BattleLogData():
         params:
         - filePath: jx3dat文件的路径.
         '''
+        self.dataType = "jx3dat"
         print("读取文件：%s" % filePath)
         f = open(filePath, "r")
         s = f.read()
         ltaDict = LuaTableAnalyserToDict(self.window)
         result = ltaDict.analyse(s)
-
-        # 读取单条数据
-        for key in result["16"]:
-            value = result["16"][key]
-            if value["4"] == "5":
-                singleData = SingleDataBuff()
-            elif value["4"] == "1":
-                singleData = SingleDataSkill()
-            elif value["4"] == "3":
-                singleData = SingleDataDeath()
-            elif value["4"] == "8":
-                singleData = SingleDataShout()
-            elif value["4"] == "10":
-                singleData = SingleDataBattle()
-            else:
-                continue
-            singleData.setByJx3dat(value)
-            self.log.append(singleData)
 
         # 读取全局数据
         # TODO: 完整的player信息
@@ -182,10 +167,34 @@ class BattleLogData():
                     self.info.player[line].equipScore = result["18"][line]["2"]
                     self.info.player[line].equip = result["18"][line]["3"]
 
+        # 读取单条数据
+        for key in result["16"]:
+            value = result["16"][key]
+            if value["4"] == "5":
+                singleData = SingleDataBuff()
+            elif value["4"] == "1":
+                singleData = SingleDataSkill()
+            elif value["4"] == "3":
+                singleData = SingleDataDeath()
+            elif value["4"] == "8":
+                singleData = SingleDataShout()
+            elif value["4"] == "10":
+                singleData = SingleDataBattle()
+                if value["6"] in self.info.npc:
+                    self.info.npc[value["6"]].templateID = value["9"]
+            elif value["4"] == "6":
+                #print(value)
+                continue
+            else:
+                continue
+            singleData.setByJx3dat(value)
+            self.log.append(singleData)
+
     def __init__(self, window=None):
         self.log = []
         self.window = window
         self.info = OverallData()
+        self.dataType = "unknown"
 
 if __name__ == "__main__":
     bld = BattleLogData()

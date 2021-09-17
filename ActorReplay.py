@@ -1303,9 +1303,9 @@ class ActorStatGenerator(StatGeneratorBase):
             for line in self.buffCount:
                 disableTime = 0
                 for id in ["16909", "16807", "16824"]:
-                    res = self.buffCount[line][id].sumTime()
+                    res = self.buffCount[line][id].buffTimeIntegral()
                     disableTime += res
-                wushiTime = self.buffCount[line]["17075"].sumTime()
+                wushiTime = self.buffCount[line]["17075"].buffTimeIntegral()
                 baseTime = self.battleTime - disableTime / 1000
                 if self.dps[line][1] / baseTime > 10000:
                     chizhuResult.append([namedict[line][0],
@@ -1327,7 +1327,7 @@ class ActorStatGenerator(StatGeneratorBase):
         elif baimouActive:
             baimouResult = []
             for line in self.breakBoatCount:
-                disableTime = self.breakBoatCount[line].sumTime()
+                disableTime = self.breakBoatCount[line].buffTimeIntegral()
                 baseTime = self.battleTime - disableTime / 1000
                 effectiveDPS = (self.dps[line][0] + self.dps[line][1]) / baseTime
                 originDPS = (self.dps[line][0] + self.dps[line][1] + self.dps[line][2]) / self.battleTime

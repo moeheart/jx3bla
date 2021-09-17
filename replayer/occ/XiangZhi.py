@@ -8,6 +8,55 @@ from tools.Functions import *
 
 import time
 
+class ShieldCounterNew(BuffCounter):
+    '''
+    盾的统计类.
+    继承buff的统计类，加入获得次数、破盾次数等指标.
+    '''
+
+    def inferFirst(self):
+        '''
+        根据记录尝试推导战斗开始前是否存在盾，若存在则强制修改最开始的情形为有盾.
+        '''
+        if len(self.log) > 1 and self.log[1][1] == 0:
+            self.log[0][1] = 1
+
+    def countCast(self):
+        '''
+        计算盾施放的次数.
+        根据buff做推断，消失间隔小于500ms的视为没有消失.
+        returns:
+        - num 盾施放的次数.
+        '''
+        num = 0
+        lastTime = 0
+        lastStack = 0
+        for line in self.log:
+            if line[1] == 1 and lastStack == 0 and line[0] - lastTime > 500:
+                num += 1
+            lastTime = line[0]
+            lastStack = line[1]
+        return num
+
+    def countBreak(self):
+        '''
+        计算破盾的次数.
+        直接通过施放的次数推导.
+        returns:
+        - num 破盾的次数.
+        '''
+        num = self.countCast()
+        if self.checkState(self.finalTime) == 1:
+            num -= 1
+        return num
+
+    def __init__(self, shieldLog, startTime, finalTime):
+        '''
+        初始化.
+        '''
+        super().__init__(shieldLog, startTime, finalTime)
+
+
 class ShieldCounter():
     '''
     盾的统计类.
@@ -147,6 +196,7 @@ class XiangZhiProReplayer(ReplayerBase):
         self.result["overall"]["boss"] = getNickToBoss(self.bld.info.boss)
         self.result["overall"]["sumTime"] = self.bld.info.sumTime
         self.result["overall"]["sumTimePrint"] = parseTime(self.bld.info.sumTime / 1000)
+        self.result["overall"]["dataType"] = self.bld.dataType
 
         # 需要记录特定治疗量的BOSS
         self.npcName = ""
@@ -167,8 +217,8 @@ class XiangZhiProReplayer(ReplayerBase):
         self.activeBoss = ""
 
         # 记录战斗开始时间与结束时间
-        self.startTime = 0
-        self.finalTime = 0
+        self.startTime = self.bld.log[0].time
+        self.finalTime = self.bld.log[-1].time
 
         # 记录所有治疗的key，首先尝试直接使用心法列表获取.
         self.healerDict = {}
@@ -179,12 +229,14 @@ class XiangZhiProReplayer(ReplayerBase):
         for key in self.bld.info.player:
             occDetailList[key] = self.bld.info.player[key].occ
 
-        # for line in sk:
+        self.shieldCountersNew = {}
+        for key in self.bld.info.player:
+            self.shieldCountersNew[key] = ShieldCounterNew("16911", self.startTime, self.finalTime)
+
         for event in self.bld.log:
-            #item = line[""]
-            if self.startTime == 0:
-                self.startTime = event.time
-            self.finalTime = event.time
+            # if self.startTime == 0:
+            #     self.startTime = event.time
+            # self.finalTime = event.time
 
             if self.interrupt != 0:
                 continue
@@ -198,7 +250,7 @@ class XiangZhiProReplayer(ReplayerBase):
                                                                   "2231", "101", "142", "138", "16852", "18864"]:  # 其它治疗的特征技能
                     self.healerDict[event.caster] = 0
 
-                # 记录主动贴盾
+                # 记录主动贴盾，主要是为了防止复盘记录中的数据丢失。
                 if event.id == "14231":
                     jianLiaoStack = 0
                     if event.target in jianLiaoLog:
@@ -207,6 +259,7 @@ class XiangZhiProReplayer(ReplayerBase):
                         if event.target not in shieldLogDict:
                             shieldLogDict[event.target] = []
                         shieldLogDict[event.target].append([event.time, 1])
+                        self.shieldCountersNew[event.target].setState(event.time, 1)
 
                 if event.caster in occDetailList and occDetailList[event.caster] in ['1', '2', '3', '4', '5', '6', '7', '10',
                                                                            '21', '22']:
@@ -222,6 +275,7 @@ class XiangZhiProReplayer(ReplayerBase):
                     if event.target not in shieldLogDict:
                         shieldLogDict[event.target] = []
                     shieldLogDict[event.target].append([event.time, event.stack])
+                    self.shieldCountersNew[event.target].setState(event.time, event.stack)
                 if event.id in ["15774", "17200"]:  # buff精神匮乏
                     if event.target not in jianLiaoLog:
                         jianLiaoLog[event.target] = BuffCounter("17200", self.startTime, self.finalTime)
@@ -237,6 +291,9 @@ class XiangZhiProReplayer(ReplayerBase):
             self.result["overall"]["sumTime"] -= (self.finalTime - self.interrupt)
             self.result["overall"]["sumTimePrint"] = parseTime(self.result["overall"]["sumTime"] / 1000)
             self.finalTime = self.interrupt
+
+        for key in self.bld.info.player:
+            self.shieldCountersNew[key].inferFirst()
 
         # 自动推导奶歌角色名与ID，在连接场景中会被指定，这一步可跳过
         if self.myname == "":
@@ -264,7 +321,7 @@ class XiangZhiProReplayer(ReplayerBase):
 
         # 为0覆盖率的玩家记录数据
         for key in self.bld.info.player:
-            if  key not in self.shieldCounters:
+            if key not in self.shieldCounters:
                 self.shieldCounters[key] = ShieldCounter([], self.startTime, self.finalTime)
                 self.shieldCounters[key].analysisShieldData()
 
@@ -276,6 +333,9 @@ class XiangZhiProReplayer(ReplayerBase):
 
         # 获取玩家装备和奇穴，即使获取失败也存档
         # TODO
+        self.result["equip"]["available"] = 0
+        if self.bld.info.player[self.mykey].equip is None:
+            pass
 
         print(self.result["overall"])
 
@@ -331,47 +391,51 @@ class XiangZhiProReplayer(ReplayerBase):
                 break
 
             if event.dataType == "Skill":
-                # 统计自身治疗
-                if event.caster == self.mykey and event.heal != 0:
-                    if event.effect != 7:  # 非化解
+
+                # 统计化解(暂时只能统计jx3dat的，因为jcl里压根没有)
+                if event.effect == 7:
+                    numAbsorb += event.healEff
+                else:
+                    # 所有治疗技能都不计算化解.
+                    # 统计自身治疗
+                    if event.caster == self.mykey and event.heal != 0:
                         numHeal += event.heal
                         numEffHeal += event.healEff
-                    else:
-                        numAbsorb += event.healEff
 
-                # 统计团队治疗
-                if event.healEff > 0 and event.effect != 7 and event.caster in self.healerDict:
-                    if event.caster not in healStat:
-                        healStat[event.caster] = 0
-                    healStat[event.caster] += event.healEff
+                    # 统计团队治疗
+                    if event.heal + event.healEff > 0 and event.effect != 7 and event.caster in self.healerDict:
+                        if event.caster not in healStat:
+                            healStat[event.caster] = [0, 0]
+                        healStat[event.caster][0] += event.healEff
+                        healStat[event.caster][1] += event.heal
 
-                # 统计自身技能使用情况. TODO: 扩展为每个技能分别处理
-                if event.caster == self.mykey and event.scheme == 1:
-                    skillLog.append([event.time, event.id])
+                    # 统计自身技能使用情况. TODO: 扩展为每个技能分别处理
+                    if event.caster == self.mykey and event.scheme == 1:
+                        skillLog.append([event.time, event.id])
 
-                # 统计对NPC的治疗情况.
-                if event.healEff > 0 and event.target == self.npcKey:
-                    if event.caster not in npcHealStat:
-                        npcHealStat[event.caster] = 0
-                    npcHealStat[event.caster] += event.healEff
-
-                # 统计以承疗者计算的关键治疗
-                if event.healEff > 0 and self.npcKey != 0:
-                    if event.target in self.criticalHealCounter and self.criticalHealCounter[event.target].checkState(event.time):
-                        if event.caster not in npcHealStat:
-                            npcHealStat[event.caster] = event.healEff
-                        else:
-                            npcHealStat[event.caster] += event.healEff
-
-                # 统计以治疗者计算的关键治疗
-                if self.activeBoss in ["宓桃", "哑头陀"]:
-                    if event.healEff > 0 and self.npcKey != 0 and hpsActive:
+                    # 统计对NPC的治疗情况.
+                    if event.healEff > 0 and event.target == self.npcKey:
                         if event.caster not in npcHealStat:
                             npcHealStat[event.caster] = 0
                         npcHealStat[event.caster] += event.healEff
 
-                if event.id == "14169":  # 一指回鸾
-                    numPurge += 1
+                    # 统计以承疗者计算的关键治疗
+                    if event.healEff > 0 and self.npcKey != 0:
+                        if event.target in self.criticalHealCounter and self.criticalHealCounter[event.target].checkState(event.time):
+                            if event.caster not in npcHealStat:
+                                npcHealStat[event.caster] = event.healEff
+                            else:
+                                npcHealStat[event.caster] += event.healEff
+
+                    # 统计以治疗者计算的关键治疗
+                    if self.activeBoss in ["宓桃", "哑头陀"]:
+                        if event.healEff > 0 and self.npcKey != 0 and hpsActive:
+                            if event.caster not in npcHealStat:
+                                npcHealStat[event.caster] = 0
+                            npcHealStat[event.caster] += event.healEff
+
+                    if event.id == "14169":  # 一指回鸾
+                        numPurge += 1
 
                 # 统计伤害技能
                 if event.damageEff > 0 and event.id not in ["24710", "24730", "25426", "25445"]:  # 技能黑名单
@@ -383,7 +447,9 @@ class XiangZhiProReplayer(ReplayerBase):
                         elif event.id == "25232" and event.caster == self.mykey:  # 桑柔伤害
                             battleStat[event.caster][2] += event.damageEff
                         else:
-                            hasShield = self.shieldCounters[event.caster].checkTime(event.time)
+                            # hasShield = self.shieldCounters[event.caster].checkTime(event.time)
+                            # battleStat[event.caster][hasShield] += event.damageEff
+                            hasShield = self.shieldCountersNew[event.caster].checkState(event.time)
                             battleStat[event.caster][hasShield] += event.damageEff
 
             elif event.dataType == "Buff":
@@ -396,6 +462,9 @@ class XiangZhiProReplayer(ReplayerBase):
                 pass
 
             elif event.dataType == "Death":
+                pass
+
+            elif event.dataType == "Battle":
                 pass
 
             num += 1
@@ -426,68 +495,29 @@ class XiangZhiProReplayer(ReplayerBase):
             numdam2 = 0
         numdam = numdam1 + numdam2
 
-        # 计算DPS列表
-        if self.mykey not in damageDict:
-            damageDict[self.mykey] = 0
-        damageDict[self.mykey] += numdam
+        # # 计算DPS列表
+        # if self.mykey not in damageDict:
+        #     damageDict[self.mykey] = 0
+        # damageDict[self.mykey] += numdam
 
-        damageList = dictToPairs(damageDict)
-        damageList.sort(key=lambda x: -x[1])
-
-        for i in range(len(damageList)):
-            damageList[i].append(self.bld.info.player[damageList[i][0]].name)
-            damageList[i].append(occDetailList[damageList[i][0]])
-
-        sumDamage = 0
-        numid = 0
-        for line in damageList:
-            line[1] /= self.result["overall"]["sumTime"] * 1000
-            sumDamage += line[1]
-            numid += 1
-            if line[0] == self.mykey and myDamageRank == 0:
-                myDamageRank = numid
-                myDamage = line[1]
-                sumDamage -= line[1]
-
-        # 计算HPS列表
-        healList = dictToPairs(healStat)
-        healList.sort(key=lambda x: -x[1])
-
-        sumHeal = 0
-        numid = 0
-        topHeal = 0
-        for line in healList:
-            if numid == 0:
-                topHeal = line[1]
-            sumHeal += line[1]
-            numid += 1
-            if line[0] == self.mykey and myHealRank == 0:
-                myHealRank = numid
-            if line[1] > topHeal * 0.2:
-                numHealer += 1
-
-        if myHealRank > numHealer:
-            numHealer = myHealRank
-
-        healRate = numEffHeal / (sumHeal + 1e-10)
+        # for i in range(len(damageList)):
+        #     damageList[i].append(self.bld.info.player[damageList[i][0]].name)
+        #     damageList[i].append(occDetailList[damageList[i][0]])
 
         # 计算DPS的盾指标
-        for key in self.shieldCounters:
-            sumShield += self.shieldCounters[key].shieldCount
-            if key not in damageDict or damageDict[key] / self.result["overall"]["sumTime"] * 1000 < 10000:
-                continue
-            if occDetailList[key] in ["1t", "2h", "3t", "5h", "10t", "6h", "21t", "22h"]:
-                continue
-            if key == self.mykey:
-                continue
-
-            rate = self.shieldCounters[key].shieldDuration[1] / \
-                   (self.shieldCounters[key].shieldDuration[0] + self.shieldCounters[key].shieldDuration[1] + 1e-10)
-            rateDict[key] = rate
-            durationDict[key] = self.shieldCounters[key].shieldDuration[1]
-            breakDict[key] = self.shieldCounters[key].breakCount
-
-        equalDPS = myDamage / (sumDamage + 1e-10) * (len(durationDict) - 1)
+        # for key in self.shieldCounters:
+        #     sumShield += self.shieldCounters[key].shieldCount
+        #     if key not in damageDict or damageDict[key] / self.result["overall"]["sumTime"] * 1000 < 10000:
+        #         continue
+        #     if occDetailList[key] in ["1t", "2h", "3t", "5h", "10t", "6h", "21t", "22h"]:
+        #         continue
+        #     if key == self.mykey:
+        #         continue
+        #     rate = self.shieldCounters[key].shieldDuration[1] / \
+        #            (self.shieldCounters[key].shieldDuration[0] + self.shieldCounters[key].shieldDuration[1] + 1e-10)
+        #     rateDict[key] = rate
+        #     durationDict[key] = self.shieldCounters[key].shieldDuration[1]
+        #     breakDict[key] = self.shieldCounters[key].breakCount
 
         # 关键治疗量统计
         if self.activeBoss in ["宓桃", "哑头陀"]:
@@ -507,7 +537,85 @@ class XiangZhiProReplayer(ReplayerBase):
         print("[测试]治疗量：", numHeal)
         print("[测试]有效治疗量：", numEffHeal)
         print("[测试]化解：", numAbsorb)
+        for line in rateDict:
+            print(line, rateDict[line], breakDict[line])
+        print(sumShield)
 
+        # 计算团队治疗区(Part 3)
+        self.result["healer"] = {"table": [], "numHealer": 0}
+        healList = dictToPairs(healStat)
+        healList.sort(key=lambda x: -x[1][0])
+
+        sumHeal = 0
+        numid = 0
+        topHeal = 0
+        for line in healList:
+            if numid == 0:
+                topHeal = line[1][0]
+            sumHeal += line[1][0]
+            numid += 1
+            if line[0] == self.mykey and myHealRank == 0:
+                myHealRank = numid
+            # 当前逻辑为治疗量大于第一的20%才被记为治疗，否则为老板
+            if line[1][0] > topHeal * 0.2:
+                numHealer += 1
+        if myHealRank > numHealer:
+            numHealer = myHealRank
+        self.result["healer"]["numHealer"] = numHealer
+        for line in healList:
+            res = {"name": self.bld.info.player[line[0]].name,
+                   "occ": self.bld.info.player[line[0]].occ,
+                   "healEff": int(line[1][0] / self.bld.info.sumTime * 1000),
+                   "heal": int(line[1][1] / self.bld.info.sumTime * 1000)}
+            self.result["healer"]["table"].append(res)
+
+        # 计算DPS列表(Part 7)
+        self.result["dps"] = {"table": [], "numDPS": 0}
+
+        damageList = dictToPairs(damageDict)
+        damageList.sort(key=lambda x: -x[1])
+
+        # sumDamage = 0
+        # numid = 0
+        # for line in damageList:
+        #     line[1] /= self.result["overall"]["sumTime"] * 1000
+        #     sumDamage += line[1]
+        #     numid += 1
+        #     if line[0] == self.mykey and myDamageRank == 0:
+        #         myDamageRank = numid
+        #         myDamage = line[1]
+        #         sumDamage -= line[1]
+
+        # 计算DPS的盾指标2
+        for key in self.shieldCountersNew:
+            sumShield += self.shieldCountersNew[key].countCast()
+            # 过滤老板，T奶，自己
+            if key not in damageDict or damageDict[key] / self.result["overall"]["sumTime"] * 1000 < 10000:
+                continue
+            if occDetailList[key] in ["1t", "2h", "3t", "5h", "10t", "6h", "21t", "22h"]:
+                continue
+            if key == self.mykey:
+                continue
+            time1 = self.shieldCountersNew[key].buffTimeIntegral()
+            timeAll = self.shieldCountersNew[key].sumTime()
+            rateDict[key] = time1 / timeAll
+            breakDict[key] = self.shieldCountersNew[key].countBreak()
+
+        #equalDPS = myDamage / (sumDamage + 1e-10) * (len(durationDict) - 1)
+
+        for line in damageList:
+            if line[0] not in rateDict:
+                continue
+            self.result["dps"]["numDPS"] += 1
+            res = {"name": self.bld.info.player[line[0]].name,
+                   "occ": self.bld.info.player[line[0]].occ,
+                   "damage": int(line[1] / self.bld.info.sumTime * 1000),
+                   "shieldRate": rateDict[line[0]],
+                   "shieldBreak": breakDict[line[0]]}
+            self.result["dps"]["table"].append(res)
+
+        print(self.result["healer"])
+        print(self.result["dps"])
 
     def recordRater(self):
         '''
@@ -546,6 +654,7 @@ class XiangZhiProReplayer(ReplayerBase):
 
         self.result = {}
         self.result["attribute"] = {"haste": 8780}  # TODO: 在属性计算完成后修改
+
 
         #if self.numTry == 0:
         #    self.bossNamePrint = self.bossname

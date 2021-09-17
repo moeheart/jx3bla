@@ -225,7 +225,7 @@ class YuelinyuelangReplayer(SpecificReplayer):
         for line in self.playerIDList:
             if line in self.dps:
 
-                self.dps[line][2] = self.buffCounter[line].sumTime() / 1000
+                self.dps[line][2] = self.buffCounter[line].buffTimeIntegral() / 1000
                 
                 if getOccType(self.occDetailList[line]) == "healer":
                     self.dps[line][1] = int(self.hps[line] / self.battleTime)

@@ -280,6 +280,7 @@ class OverallData():
       npc: NPC信息，dict格式.
         [key], NPCID，对应jx3dat多处，jcl-7[1].
         name: 名字字符串.
+        templateID: 模板ID.
       skill: 技能名缓存，对应jx3dat-11, jcl暂无此数据（需要从解包中手动读，暂时不做实现，何必呢）
       server: 服务器，对应jx3dat-19, jcl-1[2][2].
       map: 地图（记录名称而非ID），对应jx3dat-20, jcl-文件名.
@@ -313,8 +314,9 @@ class OverallData():
         - name: NPC的名字.
         '''
         if key not in self.npc:
-            self.player[key] = NPCdata()
-            self.player[key].name = name.strip('"')
+            self.npc[key] = NPCdata()
+            self.npc[key].name = name.strip('"')
+            self.npc[key].templateID = "0"
 
     def __init__(self):
         self.player = {}
