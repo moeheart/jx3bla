@@ -64,7 +64,6 @@ def setAnnouncement():
     
     return jsonify({'result': 'success'})
 
-
 @app.route('/getAttribute', methods=['POST'])
 def getAttribute():
     '''

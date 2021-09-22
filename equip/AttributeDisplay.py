@@ -26,7 +26,7 @@ class AttributeDisplay():
 
         c1 = ''
         c2 = ''
-        c3 = 'atCriticalStrike'
+        c3 = 'atAllTypeCriticalStrike'
         ct1 = ''
         ct2 = ''
         ct3 = 'atCriticalDamagePowerBase'
@@ -81,6 +81,7 @@ if __name__ == "__main__":
 51029	0	0	0	4	4		
 50981	0	0	0	4	4		
 26782	0	0	0	4	4	4	25692"""
+    str = "27221\t6\t11265\t0\t6\t\t\t\n54315\t6\t11189\t11274\t6\t6\t\t\n54150\t6\t11213\t11275\t6\t6\t\t\n31097\t6\t11248\t0\t6\t\t\t\n30999\t6\t11257\t0\t\t\t\t\n30981\t6\t11257\t0\t\t\t\t\n54098\t6\t11191\t11271\t6\t6\t\t\n31005\t4\t11250\t0\t6\t\t\t\n54303\t6\t11209\t0\t6\t6\t\t\n54124\t6\t11236\t11272\t6\t6\t\t\n54072\t6\t11232\t11273\t6\t6\t\t\n27278\t4\t11199\t0\t6\t6\t6\t15192"
     ad = AttributeDisplay()
     res = ad.Display(str, '22h')
     for line in res:

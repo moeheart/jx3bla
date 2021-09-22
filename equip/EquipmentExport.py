@@ -4,7 +4,6 @@
 from openpyxl import load_workbook
 from EquipmentType import *
 
-
 def getPlug(id):
     '''
     根据五行石id获取五行石等级.
@@ -654,7 +653,7 @@ class ExcelExportEquipment():
                     result += ""
             result += "\n"
             
-        return result[:-1]
+        return result[:-1].strip('\n')
     
     def __init__(self):
         equips = {}
@@ -750,10 +749,43 @@ class EquipmentAnalyser():
             return 0
         else:
             return plugDict[id]
+
+    def convert2(self, s, score=0):
+        '''
+        使用新版本的数据（json形式的luatable）进行转换.
+        params:
+        - s 茗伊复盘数据, jcl或jx3dat均可
+        - score 装分
+        '''
+        equips = {}
+
+        equips["score"] = score
+        equips["description"] = ""
+
+        for c in s:
+            d = s[c]
+            equip = {}
+            equip["pos"] = d["1"]
+            equip["id_cat"] = d["2"]
+            equip["id"] = d["3"]
+            equip["star"] = int(d["4"])
+            for i in range(1, 4):
+                plugPos = str(i)
+                if plugPos in d["5"]:
+                    f = d["5"][plugPos]
+                    plugID = f["2"]
+                    equip["plug%d" % i] = self.getPlug(plugID)
+            if "0" in d["5"]:
+                equip["plug0"] = d["5"]["0"]["2"]
+            equip["magic1"] = d["6"]
+            equip["magic2"] = d["7"]
+            equips[equip["pos"]] = equip
+        equips["sketch"] = self.getSketch(equips)
+        return equips
     
     def convert(self, s):
         '''
-        进行转换。
+        进行转换。使用老格式，会在未来移除。
         params
         - s 茗伊复盘数据（处在[18]）
         '''

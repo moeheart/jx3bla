@@ -1,14 +1,179 @@
 # Created by moeheart at 10/11/2020
 # 部分简单python对象操作的方法库。
 
+def calculFramesAfterHaste(haste, origin):
+    '''
+    计算加速过后的帧数.
+    params:
+    - haste: 加速数值
+    - origin: 原始的帧数
+    returns:
+    - res: 加速过后的帧数
+    '''
+    #tmp = int(haste / 188.309 * 10.24)   # 100赛季数值
+    tmp = int(haste / 438.5625 * 10.24)   # 110赛季数值
+    res = int(origin * 1024 / (tmp + 1024))
+    return res
+
+def getLength(length, haste):
+    '''
+    计算固定帧数在计算加速后的毫秒数.
+    params:
+    - length: 帧数
+    - haste: 加速数值
+    returns:
+    - res: 毫秒数
+    '''
+    flames = calculFramesAfterHaste(haste, length)
+    return flames * 0.0625 * 1000
+
+class SkillCounter():
+    '''
+    通用的技能统计类，记录技能的施放位置，并给出技能平均延时、数量等数据.
+    '''
+
+    def recordSkill(self, time, lastTime=0, delta=-1):
+        '''
+        记录技能施放的事件.
+        params:
+        - time: 技能施放的时间点.
+        - lastTime: 上一个技能施放的时间点. 如果未提供则自动推断. 技能的施放以开始读条的时间为准。
+        - delta: 所记录技能的读条时间.
+        returns:
+        - res: 推测的减去读条时间的技能位置.
+        '''
+        if delta == -1:
+            delta = self.delta
+        if lastTime == 0:
+            if len(self.log) != 0:
+                lastTime = self.log[-1][1]
+            else:
+                lastTime = self.startTime
+        self.log.append([time, lastTime, delta])
+        return time - delta
+
+    def getDelta(self):
+        '''
+        根据技能id判断技能是否是读条技能，计算出其偏移量.
+        '''
+        if self.skillid in ["14137", "14300"]:  # 宫，变宫
+            self.delta = getLength(24, self.haste)
+        if self.skillid in ["14140", "14301"]:  # 徵，变徵
+            self.delta = getLength(8, self.haste)
+
+    def getAverageDelay(self):
+        '''
+        获取技能平均延时.
+        returns:
+        - res: 平均延时毫秒数.
+        '''
+        # 在处理时，首先过滤同一技能命中多人的情况，只保留第一次.
+        logClear = []
+        skillTime = 0
+        for line in self.log:
+            if line[0] - skillTime > 100:
+                logClear.append(line)
+                skillTime = line[0]
+        num = 0
+        sumDelay = 0
+        for line in logClear:
+            if line[0] - line[1] - line[2] > 3000:  # 不计算>3秒的延迟
+                continue
+            num += 1
+            sumDelay += line[0] - line[1] - line[2]
+        #print(self.log)
+        #print(logClear)
+        return sumDelay / (num + 1e-10)
+
+    def getNum(self):
+        '''
+        获取技能施放数量.
+        '''
+        return len(self.log)
+
+    def __init__(self, skillid, startTime, finalTime, haste, delta=-1):
+        '''
+        构造函数.
+        params:
+        - skillid: 统计的技能id.
+        - startTime: 战斗开始时间.
+        - finalTime: 战斗结束时间.
+        - haste: 加速.
+        - delta: 指定的技能读条时间.
+        '''
+        self.skillid = skillid
+        self.startTime = startTime
+        self.finalTime = finalTime
+        self.log = []
+        self.haste = haste
+        if delta == -1:
+            self.delta = 0
+            self.getDelta()
+        else:
+            self.delta = delta
+
+class SkillHealCounter(SkillCounter):
+    '''
+    治疗技能的统计类，在基类的基础上支持统计治疗量、有效治疗量等数据.
+    '''
+
+    def getHeal(self):
+        '''
+        获取这个技能的总治疗量.
+        '''
+        sum = 0
+        for line in self.log:
+            sum += line[3]
+        return sum
+
+    def getHealEff(self):
+        '''
+        获取这个技能的总有效治疗量.
+        '''
+        sum = 0
+        for line in self.log:
+            sum += line[4]
+        return sum
+
+    def recordSkill(self, time, heal, healEff, lastTime=0, delta=-1):
+        '''
+        记录技能施放的事件.
+        params:
+        - time: 技能施放的时间点.
+        - heal: 治疗量.
+        - healEff: 有效治疗量.
+        - lastTime: 上一个技能施放的时间点. 如果未提供则自动推断. 技能的施放以开始读条的时间为准。
+        - delta: 所记录技能的读条时间.
+        returns:
+        - res: 推测的减去读条时间的技能位置.
+        '''
+        if delta == -1:
+            delta = self.delta
+        if lastTime == 0:
+            if len(self.log) != 0:
+                lastTime = self.log[-1][1]
+            else:
+                lastTime = self.startTime
+        self.log.append([time, lastTime, delta, heal, healEff])
+        return time - delta
+
+
+    def __init__(self, skillid, startTime, finalTime, haste, delta=-1):
+        '''
+        构造函数.
+        params:
+        - skillid: 统计的技能id.
+        - startTime: 战斗开始时间.
+        - finalTime: 战斗结束时间.
+        - haste: 加速.
+        - delta: 指定的技能读条时间.
+        '''
+        super().__init__(skillid, startTime, finalTime, haste, delta=-1)
+
 class BuffCounter():
     '''
     通用的buff统计类，记录buff的获取、消亡、层数，并给出覆盖率、存在时间等指标.
     '''
-    startTime = 0
-    finalTime = 0
-    buffid = 0
-    log = []
 
     def setState(self, time, stack):
         '''
@@ -204,14 +369,6 @@ def dictToPairs(dict):
         pairs.append([key, dict[key]])
     return pairs
 
-
-def calculSpeed(speed, origin):
-    #tmp = int(speed / 188.309 * 10.24)   # 100赛季数值
-    tmp = int(speed / 438.5625 * 10.24)   # 110赛季数值
-    y = int(origin * 1024 / (tmp + 1024))
-    return y
-
-
 def parseTime(time):
     if time < 60:
         return "%ds" % time
@@ -221,6 +378,11 @@ def parseTime(time):
         else:
             return "%dm%ds" % (time / 60, time % 60)
 
+def roundCent(num, digit=4):
+    '''
+    保留特定的小数位数，并仍保持浮点数形式.
+    '''
+    return int(num * (10 ** digit)) / (10 ** digit)
 
 def parseCent(num, digit=2):
     n = int(num * 10000)

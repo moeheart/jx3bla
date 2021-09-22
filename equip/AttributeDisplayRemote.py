@@ -5,7 +5,7 @@ from equip.AttributeCal import AttributeCal
 import json
 import urllib.request
 
-class AttributeDisplaRemote():
+class AttributeDisplayRemote():
 
     def Display(self, str, occ):
         '''
@@ -44,7 +44,7 @@ if __name__ == "__main__":
 51029	0	0	0	4	4		
 50981	0	0	0	4	4		
 26782	0	0	0	4	4	4	25692"""
-    ad = AttributeDisplaRemote()
+    ad = AttributeDisplayRemote()
     res = ad.Display(str, '22h')
     for line in res:
         print(line, res[line])
