@@ -38,7 +38,7 @@ class BattleHistory():
                "description": description}
         self.log["environment"].append(res)
 
-    def setSpecialSkill(self, skillid, skillname, iconid, start, duration, num, healeff, effrate, delay, description):
+    def setSpecialSkill(self, skillid, skillname, iconid, start, duration, description):
         '''
         添加特殊技能.
         params:
@@ -47,10 +47,6 @@ class BattleHistory():
         - iconid: 图标ID，用于显示.
         - start: 技能开始时刻，以毫秒计.
         - duration: 技能持续时间.
-        - num: 技能次数.
-        - healeff: 治疗量.
-        - effrate: 有效比例.
-        - delay: 平均延时.
         - description: 描述.
         '''
         res = {"skillid": skillid,

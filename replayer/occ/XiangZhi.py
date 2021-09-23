@@ -444,6 +444,24 @@ class XiangZhiProReplayer(ReplayerBase):
                          "14354": "羽",
                          "14138": "商",
                          "14139": "角"}
+        specialNameDict = {"14081": "孤影化双",
+                           "14075": "云生结海",
+                           "14069": "高山流水",
+                           "14076": "青霄飞羽",
+                           "21324": "青霄飞羽·落",
+                           "15039": "移形换影",
+                           "15040": "移形换影",
+                           "15041": "移形换影",
+                           "15042": "移形换影",
+                           "15043": "移形换影",
+                           "15044": "移形换影",
+                           "18838": "高山流水·切换",
+                           "18839": "高山流水·切换",
+                           "18841": "梅花三弄·切换",
+                           "18842": "梅花三弄·切换",
+                           "18845": "阳春白雪·切换",
+                           "18846": "阳春白雪·切换",
+                           }
         skillIconDict = {"0": "未知",
                          "14231": "7059",
                          "14137": "7171",
@@ -454,7 +472,25 @@ class XiangZhiProReplayer(ReplayerBase):
                          "14141": "7175",
                          "14354": "7175",
                          "14138": "7172",
-                         "14139": "7173"}
+                         "14139": "7173",
+                         "14081": "7168",
+                         "14075": "7048",
+                         "14069": "7080",
+                         "14076": "7078",
+                         "21324": "7128",
+                         "15039": "7066",
+                         "15040": "7066",
+                         "15041": "7066",
+                         "15042": "7066",
+                         "15043": "7066",
+                         "15044": "7066",
+                         "18838": "7080",
+                         "18839": "7080",
+                         "18841": "7059",
+                         "18842": "7059",
+                         "18845": "7077",
+                         "18846": "7077",
+                         }
         xiangZhiUnimportant = ["15181", "15082", "25232",  # 影子宫，桑柔
                                "4877", "15054", "15057",  # 水特效作用，盾奇穴效果
                                "25683", "24787",  # 破招
@@ -473,7 +509,7 @@ class XiangZhiProReplayer(ReplayerBase):
         xiangZhiSpecial = ["20763", "20764", "21321",  # 相依
                            "15039", # 传影子
                            "14150", # 云生结海
-                           "14075",  # 云生结海主动
+                           "14075", # 云生结海主动
                            "18838", # 梅花切高山
                            "18841", # 高山切梅花
                            "14069", # 高山
@@ -581,6 +617,17 @@ class XiangZhiProReplayer(ReplayerBase):
                             bhHealEff += event.healEff
                             lastSkillTime = jueSkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime) + getLength(24, self.haste)
                             bhTimeEnd = lastSkillTime
+                        # 处理特殊技能
+                        elif event.id in specialNameDict:  # 特殊技能
+                            desc = ""
+                            if event.id in ["18838", "18839"]:
+                                desc = "切换曲风到高山流水"
+                            if event.id in ["18841", "18842"]:
+                                desc = "切换曲风到梅花三弄"
+                            if event.id in ["18845", "18846"]:
+                                desc = "切换曲风到阳春白雪"
+                            bh.setSpecialSkill(event.id, specialNameDict[event.id], skillIconDict[event.id],
+                                               event.time, 0, desc)
                         else:
                             pass
                             # 对于其它的技能暂时不做记录
@@ -836,6 +883,9 @@ class XiangZhiProReplayer(ReplayerBase):
         print(self.result["skill"])
         #print(self.result["replay"])
         for line in self.result["replay"]["normal"]:
+            print(line)
+        print("===")
+        for line in self.result["replay"]["special"]:
             print(line)
 
     def recordRater(self):
