@@ -5,7 +5,7 @@ from data.BattleLogData import BattleLogData, RawDataLoader
 import traceback
 from FileLookUp import FileLookUp
 from BossNameUtils import getNickToBoss
-from replayer.occ.XiangZhi import XiangZhiProReplayer
+from replayer.occ.XiangZhi import XiangZhiProWindow, XiangZhiProReplayer
 
 class DataController():
     '''
@@ -46,6 +46,9 @@ class DataController():
                 fileNameInfo = [fileName, 0, 1]
                 xiangzhiRep = XiangZhiProReplayer(config, fileNameInfo, fileLookUp.basepath, bldDict, window)
                 xiangzhiRep.replay()
+
+                xiangzhiWindow = XiangZhiProWindow(xiangzhiRep.result)
+                xiangzhiWindow.start()
 
             window.setBattleLogData(bldDict)
 

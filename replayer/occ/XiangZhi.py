@@ -11,6 +11,8 @@ from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
 
 import time
 import json
+import threading
+import tkinter as tk
 
 XIANGZHI_QIXUE = {
     '14237':'雪海',
@@ -171,6 +173,58 @@ class SkillLogCounter():
         self.startTime = startTime
         self.finalTime = finalTime
         self.speed = speed
+
+class XiangZhiProWindow():
+    '''
+    奶歌复盘pro界面显示类.
+    通过tkinter将复盘数据显示在图形界面中.
+    '''
+
+    def final(self):
+        '''
+        关闭窗口。
+        '''
+        self.windowAlive = False
+        self.window.destroy()
+
+    def loadWindow(self):
+        '''
+        使用tkinter绘制详细复盘窗口。
+        '''
+        window = tk.Toplevel()
+        # window = tk.Tk()
+        window.title('奶歌复盘pro')
+        window.geometry('1200x800')
+
+        frame1 = tk.Frame(window)
+        frame1.pack()
+
+        self.window = window
+        window.protocol('WM_DELETE_WINDOW', self.final)
+
+    def start(self):
+        '''
+        创建并展示窗口.
+        '''
+        self.windowAlive = True
+        self.windowThread = threading.Thread(target=self.loadWindow)
+        self.windowThread.start()
+
+    def alive(self):
+        '''
+        返回窗口是否仍生存.
+        returns:
+        - res: 布尔类型，窗口是否仍生存.
+        '''
+        return self.windowAlive
+
+    def __init__(self, result):
+        '''
+        初始化.
+        params:
+        - result: 奶歌复盘的结果.
+        '''
+        self.result = result
 
 class XiangZhiProReplayer(ReplayerBase):
     '''
@@ -539,6 +593,8 @@ class XiangZhiProReplayer(ReplayerBase):
                             healStat[event.caster] = [0, 0]
                         healStat[event.caster][0] += event.healEff
                         healStat[event.caster][1] += event.heal
+                        if self.bld.info.player[event.caster].name == "恰芒果的泡泡":
+                            print(event.time, event.id, event.target, event.healEff, event.heal)
 
                     # 统计自身技能使用情况. TODO: 扩展为每个技能分别处理
                     if event.caster == self.mykey and event.scheme == 1 and event.id not in xiangZhiUnimportant: # 影子宫、桑柔等需要过滤的技能
