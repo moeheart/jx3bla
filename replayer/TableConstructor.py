@@ -66,11 +66,11 @@ class TableConstructor():
         self.nowx += 1
         self.nowy = 0
     
-    def AppendContext(self, text, color=None, width=None):
+    def AppendContext(self, text, color=None, width=None, justify=None):
         '''
         添加表格内容。
         '''
-        label = tk.Label(self.frame, text=text, width=width, fg=color)
+        label = tk.Label(self.frame, text=text, width=width, fg=color, justify=justify)
         label.grid(row=self.nowx, column=self.nowy)
         self.nowy += 1
     

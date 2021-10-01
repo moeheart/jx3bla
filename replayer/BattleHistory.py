@@ -84,6 +84,30 @@ class BattleHistory():
                "description": description}
         self.log["normal"].append(res)
 
+    def getNormalEfficiency(self):
+        '''
+        计算常规技能的战斗效率.
+        returns:
+        - res: 战斗效率.
+        '''
+        spare = 0
+        busy = 0
+        lastTime = self.startTime
+        for record in self.log["normal"]:
+            if record["start"] > lastTime:
+                spare += record["start"] - lastTime
+                busy += record["duration"]
+                lastTime = record["start"] + record["duration"]
+            elif record["start"] + record["duration"] > lastTime:
+                spare -= lastTime - record["start"]
+                busy += record["start"] + record["duration"] - lastTime
+                lastTime = record["start"] + record["duration"]
+            else:
+                spare -= record["duration"]
+                busy += record["duration"]
+        spare += self.finalTime - lastTime
+        return busy / (spare + busy + 1e-10)
+
     def __init__(self, startTime, finalTime):
         '''
         构造函数.

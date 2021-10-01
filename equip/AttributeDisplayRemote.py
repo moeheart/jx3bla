@@ -23,7 +23,12 @@ class AttributeDisplayRemote():
         jpost = {'jdata': Jdata}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
 
-        resp = urllib.request.urlopen('http://139.199.102.41:8009/getAttribute', data=jparse)
+        for i in range(0, 5):
+            resp = urllib.request.urlopen('http://139.199.102.41:8009/getAttribute', data=jparse)
+            if resp is None:
+                print("连接失败，重试中...")
+            else:
+                break
         result = json.load(resp)
 
         return result
