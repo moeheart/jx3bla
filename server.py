@@ -672,7 +672,7 @@ def uploadActorData():
 @app.route('/uploadReplayPro', methods=['POST'])
 def uploadReplayPro():
     jdata = json.loads(request.form.get('jdata'))
-    print(jdata)
+    #print(jdata)
 
     server = jdata["server"]
     id = jdata["id"]
@@ -712,7 +712,7 @@ def uploadReplayPro():
     cursor.execute(sql)
     result = cursor.fetchall()
     if result:
-        if parseEdition(result[0][12]) >= editionFull:
+        if result[0][12] >= editionFull:
             print("Find Duplicated")
             db.close()
             return jsonify({'result': 'dupid', 'num': num, 'numOver': numOver})
