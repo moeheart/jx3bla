@@ -1356,33 +1356,13 @@ class XiangZhiProReplayer(ReplayerBase):
         nameList.sort()
         battleMinute = time.strftime("%Y-%m-%d %H:%M", time.localtime(self.result["overall"]["battleTime"]))
         hashStr = battleMinute + self.result["overall"]["map"] + "".join(nameList)
-        print(hashStr)
         hashres = hashlib.md5(hashStr.encode(encoding="utf-8")).hexdigest()
-        print(hashres)
         return hashres
 
     def prepareUpload(self):
         '''
         准备上传复盘结果，并向服务器上传.
         '''
-
-        sql = """CREATE TABLE ReplayProStat (
-                 server VARCHAR(32),
-                 id VARCHAR(32),
-                 score INT,
-                 battledate VARCHAR(32),
-                 mapdetail VARCHAR(32),
-                 boss VARCHAR(32),
-                 hash VARCHAR(32) primary key,
-                 shortID INT,
-                 statistics VARCHAR(200000),
-                 public INT,
-                 edition VARCHAR(32),
-                 editionfull INT,
-                 userid VARCHAR(32),
-                 battletime INT, 
-                 submittime INT, 
-                 ) DEFAULT CHARSET utf8mb4"""
 
         upload = {}
         upload["server"] = self.result["overall"]["server"]
@@ -1408,7 +1388,7 @@ class XiangZhiProReplayer(ReplayerBase):
         # print(jparse)
         resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadReplayPro', data=jparse)
         res = json.load(resp)
-        return result, res
+        return res
 
     def replay(self):
         '''

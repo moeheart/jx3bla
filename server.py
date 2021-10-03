@@ -712,7 +712,7 @@ def uploadReplayPro():
     cursor.execute(sql)
     result = cursor.fetchall()
     if result:
-        if parseEdition(result[0][5]) >= parseEdition(edition):
+        if parseEdition(result[0][12]) >= editionFull:
             print("Find Duplicated")
             db.close()
             return jsonify({'result': 'dupid', 'num': num, 'numOver': numOver})
