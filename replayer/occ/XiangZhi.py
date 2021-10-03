@@ -1405,8 +1405,8 @@ class XiangZhiProReplayer(ReplayerBase):
         Jdata = json.dumps(upload)
         jpost = {'jdata': Jdata}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        print(jparse)
-        resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadXiangZhiPro', data=jparse)
+        # print(jparse)
+        resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadReplayPro', data=jparse)
         res = json.load(resp)
         return result, res
 

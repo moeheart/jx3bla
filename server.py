@@ -731,12 +731,32 @@ def uploadReplayPro():
     sql = """UPDATE ReplayProInfo SET datavalueint=%d WHERE dataname = "num";""" % shortID
     cursor.execute(sql)
 
-    sql = """INSERT INTO ReplayProStat VALUES ("%s", "%s", "%s", %d, "%s", "%s", "%s", "%s", %d, "%s", %d, "%s", %d, "%s", "%s", %d, %d")""" % (
+    sql = """INSERT INTO ReplayProStat VALUES ("%s", "%s", "%s", %d, "%s", "%s", "%s", "%s", %d, "%s", %d, "%s", %d, "%s", "%s", %d, %d)""" % (
         server, id, occ, score, battleDate, mapDetail, boss, hash, shortID, statistics, public, edition, editionFull, replayedition, userID, battleTime,
         submitTime)
     cursor.execute(sql)
     db.commit()
     db.close()
+
+    sql = """CREATE TABLE ReplayProStat (
+             server VARCHAR(32),
+             id VARCHAR(32),
+             occ VARCHAR(32),
+             score INT,
+             battledate VARCHAR(32),
+             mapdetail VARCHAR(32),
+             boss VARCHAR(32),
+             hash VARCHAR(32) primary key,
+             shortID INT,
+             statistics TEXT,
+             public INT,
+             edition VARCHAR(32),
+             editionfull INT,
+             replayedition VARCHAR(32),
+             userid VARCHAR(32),
+             battletime INT, 
+             submittime INT
+             ) DEFAULT CHARSET utf8mb4"""
 
     return jsonify({'result': 'success', 'num': num, 'numOver': numOver})
     
