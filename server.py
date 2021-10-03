@@ -743,6 +743,7 @@ def uploadReplayPro():
 @app.route('/showReplayPro.html', methods=['GET'])
 def showReplayPro():
     id = request.args.get('id')
+    db = pymysql.connect(ip, app.dbname, app.dbpwd, "jx3bla", port=3306, charset='utf8')
     sql = """SELECT statistics FROM ReplayProStat WHERE shortID = %s OR hash = "%s"""%(id, id)
     cursor.execute(sql)
     result = cursor.fetchall()
@@ -750,6 +751,7 @@ def showReplayPro():
         text = "结果未找到."
     else:
         text = result[0][0]
+    db.close()
     return jsonify({'text': text})
     
 @app.route('/uploadXiangZhiData', methods=['POST'])
