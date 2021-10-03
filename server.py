@@ -743,7 +743,7 @@ def uploadReplayPro():
 @app.route('/showReplayPro.html', methods=['GET'])
 def showReplayPro():
     id = request.args.get('id')
-    sql = """SELECT statistics FROM ReplayProStat WHERE shortID = %s OR hash = "%s%"""%(id, id)
+    sql = """SELECT statistics FROM ReplayProStat WHERE shortID = %s OR hash = "%s"""%(id, id)
     cursor.execute(sql)
     result = cursor.fetchall()
     if len(result) == 0:
