@@ -17,6 +17,8 @@ import tkinter as tk
 from tkinter import messagebox
 from PIL import Image
 from PIL import ImageTk
+import urllib.request
+import hashlib
 
 XIANGZHI_QIXUE = {
     '14237':'雪海',
@@ -610,7 +612,7 @@ class XiangZhiProReplayer(ReplayerBase):
         self.result["overall"]["server"] = self.bld.info.server
         self.result["overall"]["battleTime"] = self.bld.info.battleTime
         self.result["overall"]["battleTimePrint"] = time.strftime("%Y-%m-%d %H:%M", time.localtime(self.result["overall"]["battleTime"]))
-        self.result["overall"]["generateTime"] = time.time()
+        self.result["overall"]["generateTime"] = int(time.time())
         self.result["overall"]["generateTimePrint"] = time.strftime("%Y-%m-%d %H:%M", time.localtime(self.result["overall"]["generateTime"]))
         self.result["overall"]["map"] = self.bld.info.map
         self.result["overall"]["boss"] = getNickToBoss(self.bld.info.boss)
@@ -1340,8 +1342,73 @@ class XiangZhiProReplayer(ReplayerBase):
         '''
         实现打分. 由于此处是单BOSS，因此打分直接由类内进行，不再整体打分。
         '''
+        self.result["score"] = {"sum": 0}
         pass
 
+    def getHash(self):
+        '''
+        获取战斗结果的哈希值.
+        '''
+        hashStr = ""
+        nameList = []
+        for key in self.bld.info.player:
+            nameList.append(self.bld.info.player[key].name)
+        nameList.sort()
+        battleMinute = time.strftime("%Y-%m-%d %H:%M", time.localtime(self.result["overall"]["battleTime"]))
+        hashStr = battleMinute + self.result["overall"]["map"] + "".join(nameList)
+        print(hashStr)
+        hashres = hashlib.md5(hashStr.encode(encoding="utf-8")).hexdigest()
+        print(hashres)
+        return hashres
+
+    def prepareUpload(self):
+        '''
+        准备上传复盘结果，并向服务器上传.
+        '''
+
+        sql = """CREATE TABLE ReplayProStat (
+                 server VARCHAR(32),
+                 id VARCHAR(32),
+                 score INT,
+                 battledate VARCHAR(32),
+                 mapdetail VARCHAR(32),
+                 boss VARCHAR(32),
+                 hash VARCHAR(32) primary key,
+                 shortID INT,
+                 statistics VARCHAR(200000),
+                 public INT,
+                 edition VARCHAR(32),
+                 editionfull INT,
+                 userid VARCHAR(32),
+                 battletime INT, 
+                 submittime INT, 
+                 ) DEFAULT CHARSET utf8mb4"""
+
+        upload = {}
+        upload["server"] = self.result["overall"]["server"]
+        upload["id"] = self.result["overall"]["playerID"]
+        upload["occ"] = "xiangzhi"
+        upload["score"] = self.result["score"]["sum"]
+        upload["battledate"] = time.strftime("%Y-%m-%d", time.localtime(self.result["overall"]["battleTime"]))
+        upload["mapdetail"] = self.result["overall"]["map"]
+        upload["boss"] = self.result["overall"]["boss"]
+        upload["statistics"] = self.result
+        upload["public"] = self.xiangzhiPublic
+        upload["edition"] = EDITION
+        upload["editionfull"] = parseEdition(EDITION)
+        upload["replayedition"] = self.result["overall"]["edition"]
+        upload["userid"] = self.config.items_user["uuid"]
+        upload["battletime"] = self.result["overall"]["battleTime"]
+        upload["submittime"] = int(time.time())
+        upload["hash"] = self.getHash()
+
+        Jdata = json.dumps(upload)
+        jpost = {'jdata': Jdata}
+        jparse = urllib.parse.urlencode(jpost).encode('utf-8')
+        print(jparse)
+        resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadXiangZhiPro', data=jparse)
+        res = json.load(resp)
+        return result, res
 
     def replay(self):
         '''
@@ -1350,6 +1417,7 @@ class XiangZhiProReplayer(ReplayerBase):
         self.FirstStageAnalysis()
         self.SecondStageAnalysis()
         self.recordRater()
+        self.prepareUpload()
 
     def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", battleDate=""):
         '''
@@ -1368,6 +1436,8 @@ class XiangZhiProReplayer(ReplayerBase):
         self.myname = myname
         self.failThreshold = config.failThreshold
         self.mask = config.mask
+        self.xiangzhiPublic = config.xiangzhiPublic
+        self.config = config
         self.filePath = path + '\\' + fileNameInfo[0]
         self.bld = bldDict[fileNameInfo[0]]
 

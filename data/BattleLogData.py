@@ -151,7 +151,7 @@ class BattleLogData():
         # 读取全局数据
         # TODO: 完整的player信息
         self.info.skill = result["11"]
-        self.info.server = result["19"]
+        self.info.server = result["19"].strip('"')
         self.info.map = getMapFromID(result["20"])
         self.info.boss = filePath.split('_')[1]
         self.info.battleTime = int(result["4"])

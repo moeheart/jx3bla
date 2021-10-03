@@ -36,6 +36,40 @@ cursor.execute(sql)
 
 #在XiangZhiStat最后增加五个字段：editionfull INT, userid VARCHAR(32), battletime INT, submittime INT, instanceid VARCHAR(32)
 
+sql = """CREATE TABLE ReplayProStat (
+         server VARCHAR(32),
+         id VARCHAR(32),
+         occ VARCHAR(32),
+         score INT,
+         battledate VARCHAR(32),
+         mapdetail VARCHAR(32),
+         boss VARCHAR(32),
+         hash VARCHAR(32) primary key,
+         shortID INT,
+         statistics TEXT,
+         public INT,
+         edition VARCHAR(32),
+         editionfull INT,
+         replayedition VARCHAR(32),
+         userid VARCHAR(32),
+         battletime INT, 
+         submittime INT
+         ) DEFAULT CHARSET utf8mb4"""
+cursor.execute(sql)
+
+# ReplayProStat表，支持更广泛形式的复盘数据
+
+sql = """CREATE TABLE ReplayProInfo(
+         dataname VARCHAR(32),
+         datavalue VARCHAR(32),
+         datavalueint INT
+         ) DEFAULT CHARSET utf8mb4"""
+cursor.execute(sql)
+sql = """INSERT INTO ReplayProInfo VALUES ("num", "", 0)"""
+cursor.execute(sql)
+
+# ReplayProInfo整体信息
+
 sql = """CREATE TABLE ActorStat (
          server VARCHAR(32),
          boss VARCHAR(32), 
