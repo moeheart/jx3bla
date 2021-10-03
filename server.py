@@ -738,27 +738,19 @@ def uploadReplayPro():
     db.commit()
     db.close()
 
-    sql = """CREATE TABLE ReplayProStat (
-             server VARCHAR(32),
-             id VARCHAR(32),
-             occ VARCHAR(32),
-             score INT,
-             battledate VARCHAR(32),
-             mapdetail VARCHAR(32),
-             boss VARCHAR(32),
-             hash VARCHAR(32) primary key,
-             shortID INT,
-             statistics TEXT,
-             public INT,
-             edition VARCHAR(32),
-             editionfull INT,
-             replayedition VARCHAR(32),
-             userid VARCHAR(32),
-             battletime INT, 
-             submittime INT
-             ) DEFAULT CHARSET utf8mb4"""
-
     return jsonify({'result': 'success', 'num': num, 'numOver': numOver})
+
+@app.route('/showReplayPro.html', methods=['GET'])
+def showReplayPro():
+    id = request.args.get('id')
+    sql = """SELECT statistics FROM ReplayProStat WHERE shortID = %s OR hash = "%s%"""%(id, id)
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    if len(result) == 0:
+        text = "结果未找到."
+    else:
+        text = result[0][0]
+    return jsonify({'text': text})
     
 @app.route('/uploadXiangZhiData', methods=['POST'])
 def uploadXiangZhiData():
