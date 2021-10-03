@@ -856,6 +856,7 @@ class XiangZhiProReplayer(ReplayerBase):
         bhHealEff = 0
         bhDelay = 0
         bhDelayNum = 0
+        bhBusy = 0
         skillNameDict = {"0": "未知",
                          "14231": "梅花三弄",
                          "14137": "宫",
@@ -995,7 +996,7 @@ class XiangZhiProReplayer(ReplayerBase):
                                 bh.setNormalSkill(bhSkill, skillNameDict[bhSkill], skillIconDict[bhSkill],
                                                   bhTimeStart, bhTimeEnd - bhTimeStart, bhNum, bhHeal,
                                                   roundCent(bhHealEff / (bhHeal + 1e-10)),
-                                                  int(bhDelay / (bhDelayNum + 1e-10)), "")
+                                                  int(bhDelay / (bhDelayNum + 1e-10)), bhBusy, "")
                             bhSkill = "0"
                             bhTimeStart = 0
                             bhNum = 0
@@ -1003,6 +1004,7 @@ class XiangZhiProReplayer(ReplayerBase):
                             bhHealEff = 0
                             bhDelay = 0
                             bhDelayNum = 0
+                            bhBusy = 0
                         if bhSkill == "0" and event.id in skillNameDict:
                             bhSkill = event.id
                             bhTimeStart = event.time  # 并非最终结果，对于读条技能可能会修正
@@ -1013,6 +1015,7 @@ class XiangZhiProReplayer(ReplayerBase):
                             bhDelay += event.time - lastSkillTime
                             lastSkillTime = mhsnSkill.recordSkill(event.time, lastSkillTime) + getLength(24, self.haste)
                             bhTimeEnd = lastSkillTime
+                            bhBusy += getLength(24, self.haste)
                         elif event.id in ["14137", "14300"]:  # 宫
                             if bhNum == 0:
                                 bhTimeStart -= getLength(24, self.haste)
@@ -1023,6 +1026,7 @@ class XiangZhiProReplayer(ReplayerBase):
                             bhHealEff += event.healEff
                             lastSkillTime = gongSkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime)
                             bhTimeEnd = lastSkillTime
+                            bhBusy += getLength(24, self.haste)
                         elif event.id in ["14362", "18865"]:  # 徵实际效果
                             if bhNum == 0:
                                 bhTimeStart -= getLength(8, self.haste)
@@ -1030,6 +1034,7 @@ class XiangZhiProReplayer(ReplayerBase):
                                 bhNum += 1
                                 bhDelayNum += 1
                                 bhDelay += event.time - lastSkillTime - getLength(8, self.haste)
+                                bhBusy += getLength(8, self.haste)
                             bhHeal += event.heal
                             bhHealEff += event.healEff
                             lastSkillTime = zhiSkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime)
@@ -1042,6 +1047,7 @@ class XiangZhiProReplayer(ReplayerBase):
                             bhHealEff += event.healEff
                             lastSkillTime = yuSkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime) + getLength(24, self.haste)
                             bhTimeEnd = lastSkillTime
+                            bhBusy += getLength(24, self.haste)
                         elif event.id in ["21321"]:  # 相依
                             # TODO 实现特殊技能处理
                             xySkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime)
@@ -1053,6 +1059,7 @@ class XiangZhiProReplayer(ReplayerBase):
                             bhHealEff += event.healEff
                             lastSkillTime = shangSkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime) + getLength(24, self.haste)
                             bhTimeEnd = lastSkillTime
+                            bhBusy += getLength(24, self.haste)
                         elif event.id in ["14139"]:  # 角
                             bhNum += 1
                             bhDelayNum += 1
@@ -1061,11 +1068,13 @@ class XiangZhiProReplayer(ReplayerBase):
                             bhHealEff += event.healEff
                             lastSkillTime = jueSkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime) + getLength(24, self.haste)
                             bhTimeEnd = lastSkillTime
+                            bhBusy += getLength(24, self.haste)
                         elif event.id in ["9002", "9003"]:  # 扶摇、蹑云
                             bhNum += 1
                             bhDelayNum += 1
                             bhDelay += event.time - lastSkillTime
                             bhTimeEnd = lastSkillTime
+                            bhBusy += getLength(24, self.haste)
                         # 处理特殊技能
                         elif event.id in specialNameDict:  # 特殊技能
                             desc = ""
@@ -1151,7 +1160,7 @@ class XiangZhiProReplayer(ReplayerBase):
             bh.setNormalSkill(bhSkill, skillNameDict[bhSkill], skillIconDict[bhSkill],
                               bhTimeStart, bhTimeEnd - bhTimeStart, bhNum, bhHeal,
                               roundCent(bhHealEff / (bhHeal + 1e-10)),
-                              int(bhDelay / (bhDelayNum + 1e-10)), "")
+                              int(bhDelay / (bhDelayNum + 1e-10)), bhBusy, "")
 
         # 计算战斗效率等统计数据，TODO 扩写
         skillCounter = SkillLogCounter(skillLog, self.startTime, self.finalTime, self.haste)
