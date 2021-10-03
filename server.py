@@ -744,6 +744,7 @@ def uploadReplayPro():
 def showReplayPro():
     id = request.args.get('id')
     db = pymysql.connect(ip, app.dbname, app.dbpwd, "jx3bla", port=3306, charset='utf8')
+    cursor = db.cursor()
     sql = """SELECT statistics FROM ReplayProStat WHERE shortID = %s OR hash = "%s"""%(id, id)
     cursor.execute(sql)
     result = cursor.fetchall()
