@@ -289,6 +289,15 @@ class OverallData():
       sumTime: 战斗时长毫秒数，对应jx3dat-7, jcl-1[3].
     '''
 
+    def getSkillName(self, full_id):
+        '''
+        根据技能ID获取技能名.
+        '''
+        if full_id in self.skill:
+            return self.skill[full_id][0].strip('"')
+        else:
+            return id_full
+
     def addPlayer(self, key, name, occ):
         '''
         添加一个玩家信息. 如果有装备和奇穴信息，需要手动增补.

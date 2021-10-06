@@ -121,6 +121,14 @@ class Config():
             if self.userUuid == "":
                 uuid = self.getNewUuid()
                 self.userUuid = uuid
+            if "speedforce" in self.items_xiangzhi:
+                self.xiangzhiSpeedForce = int(self.items_xiangzhi["speedforce"])
+            else:
+                self.xiangzhiSpeedForce = 0
+            if "caltank" in self.items_xiangzhi:
+                self.xiangzhiCalTank = int(self.items_xiangzhi["caltank"])
+            else:
+                self.xiangzhiCalTank = 0
                 
             self.getUserInfo()
                 
@@ -154,7 +162,9 @@ text=0
 active=1
 xiangzhiname=
 speed=8780
-public=0
+public=1
+speedforce=0
+caltank=0
 
 [ActorAnalysis]
 active=1
@@ -191,6 +201,8 @@ active=%d
 xiangzhiname=%s
 speed=%s
 public=%d
+speedforce=%d
+caltank=%d
 
 [ActorAnalysis]
 active=%d
@@ -205,7 +217,7 @@ plugindetail=%d
 [UserAnalysis]
 uuid=%s
 id=%s"""%(self.playername, self.jx3path, self.basepath, self.mask, self.color, self.text, self.datatype,
-        self.xiangzhiActive, self.xiangzhiname, self.speed, self.xiangzhiPublic, 
+        self.xiangzhiActive, self.xiangzhiname, self.speed, self.xiangzhiPublic, self.xiangzhiSpeedForce, self.xiangzhiCalTank,
         self.actorActive, self.checkAll, self.failThreshold, self.qualifiedRate, self.alertRate, self.bonusRate, self.uploadTianti, self.plugindetail,
         self.userUuid, self.userId))
         
@@ -225,6 +237,8 @@ id=%s"""%(self.playername, self.jx3path, self.basepath, self.mask, self.color, s
         self.text = 0
         self.datatype = "jx3dat"
         self.speed = 8780
+        self.xiangzhiSpeedForce = 0
+        self.xiangzhiCalTank = 0
         self.xiangzhiActive = 1
         self.actorActive = 1
         self.checkAll = 1
@@ -532,9 +546,11 @@ class ConfigWindow():
         self.config.text = self.var1_6.get()
         self.config.datatype = self.var1_7.get()
         self.config.xiangzhiActive = self.var2_1.get()
-        self.config.xiangzhiname = self.entry2_2.get()
+        #self.config.xiangzhiname = self.entry2_2.get()
         self.config.speed = self.entry2_3.get()
         self.config.xiangzhiPublic = self.var2_4.get()
+        self.config.xiangzhiSpeedForce = self.var2_6.get()
+        self.config.xiangzhiCalTank = self.var2_7.get()
         self.config.actorActive = self.var3_1.get()
         self.config.checkAll = self.var3_2.get()
         self.config.failThreshold = self.entry3_3.get()
@@ -658,20 +674,26 @@ class ConfigWindow():
         
         self.var2_1 = tk.IntVar(window)
         self.cb2_1 = tk.Checkbutton(frame2, text = "启用奶歌复盘", variable = self.var2_1, onvalue = 1, offvalue = 0)
-        self.label2_2 = tk.Label(frame2, text='奶歌ID')
-        self.entry2_2 = tk.Entry(frame2, show=None)
+        #self.label2_2 = tk.Label(frame2, text='奶歌ID')
+        #self.entry2_2 = tk.Entry(frame2, show=None)
         self.label2_3 = tk.Label(frame2, text='加速')
         self.entry2_3 = tk.Entry(frame2, show=None)
         self.var2_4 = tk.IntVar(window)
-        self.cb2_4 = tk.Checkbutton(frame2, text = "分享结果", variable = self.var2_4, onvalue = 1, offvalue = 0)
+        self.var2_6 = tk.IntVar(window)
+        self.var2_7 = tk.IntVar(window)
+        self.cb2_4 = tk.Checkbutton(frame2, text="分享结果", variable = self.var2_4, onvalue=1, offvalue=0)
         self.cb2_1.grid(row=0, column=0)
-        self.label2_2.grid(row=1, column=0)
-        self.entry2_2.grid(row=1, column=1)
-        self.label2_3.grid(row=2, column=0)
-        self.entry2_3.grid(row=2, column=1)
-        self.cb2_4.grid(row=3, column=0)
+        #self.label2_2.grid(row=1, column=0)
+        #self.entry2_2.grid(row=1, column=1)
+        self.label2_3.grid(row=1, column=0)
+        self.entry2_3.grid(row=1, column=1)
+        self.cb2_4.grid(row=2, column=0)
         self.button2_5 = tk.Button(frame2, text='查看奶歌复盘天梯', height=1, command=self.show_xiangzhiTianti)
         self.button2_5.grid(row=4, column=0)
+        self.cb2_6 = tk.Checkbutton(frame2, text="强制指定", variable=self.var2_6, onvalue=1, offvalue=0)
+        self.cb2_7 = tk.Checkbutton(frame2, text="统计T的覆盖率", variable=self.var2_7, onvalue=1, offvalue=0)
+        self.cb2_6.grid(row=1, column=2)
+        self.cb2_7.grid(row=3, column=0)
         
         self.var3_1 = tk.IntVar(window)
         self.cb3_1 = tk.Checkbutton(frame3, text = "启用演员复盘", variable = self.var3_1, onvalue = 1, offvalue = 0)
@@ -780,9 +802,11 @@ class ConfigWindow():
         self.init_radio(self.rb1_7_1, config.datatype, "jcl")
         self.init_radio(self.rb1_7_2, config.datatype, "jx3dat")
         self.init_checkbox(self.cb2_1, config.xiangzhiActive)
-        self.entry2_2.insert(0, config.xiangzhiname)
+        #self.entry2_2.insert(0, config.xiangzhiname)
         self.entry2_3.insert(0, config.speed)
         self.init_checkbox(self.cb2_4, config.xiangzhiPublic)
+        self.init_checkbox(self.cb2_6, config.xiangzhiSpeedForce)
+        self.init_checkbox(self.cb2_7, config.xiangzhiCalTank)
         self.init_checkbox(self.cb3_1, config.actorActive)
         self.init_checkbox(self.cb3_2, config.checkAll)
         self.entry3_3.insert(0, config.failThreshold)
@@ -804,9 +828,11 @@ class ConfigWindow():
         ToolTip(self.rb1_7_1, "jcl格式，是茗伊团队工具的结果记录。这种记录结构轻巧，且拥有更全面的数据，但没有技能名等固定的信息。\n开启步骤：\n1. 在茗伊插件集-团队-团队工具中，勾选[xxx]\n2. 点击旁边的小齿轮，勾选[xxx]")
         ToolTip(self.rb1_7_2, "jx3dat格式，是茗伊战斗统计的结果记录。这种记录无需依赖全局信息，但没有部分数据种类。\n开启步骤：\n1. 在茗伊战斗统计的小齿轮中，勾选[记录所有复盘数据]。\n2. 按Shift点开历史页面，勾选[退出游戏时保存复盘][脱离战斗时保存复盘]，并取消[不保存历史复盘数据]。\n3. 再次按Shift点开历史页面，点击[仅在秘境中启用复盘]2-3次，使其取消。")
         ToolTip(self.cb2_1, "奶歌复盘的总开关。如果关闭，则将跳过整个奶歌复盘。")
-        ToolTip(self.label2_2, "奶歌的ID，通常在战斗中有多个奶歌时需要指定。")
-        ToolTip(self.label2_3, "奶歌的加速等级，用于计算空闲比例。")
+        #ToolTip(self.label2_2, "奶歌的ID，通常在战斗中有多个奶歌时需要指定。")
+        ToolTip(self.label2_3, "奶歌的加速等级。用于在复盘中的装备信息获取失败的情况下手动指定奶歌的加速。")
         ToolTip(self.cb2_4, "是否将复盘数据设置为公开。\n在之后的版本中，可以通过网站浏览所有公开的数据。")
+        ToolTip(self.cb2_6, "是否强制指定加速为设置的值。\n这是用来处理配装信息不准的情况，例如小药、家园酒的增益。")
+        ToolTip(self.cb2_7, "是否统计T心法的覆盖率。\n多数情况下，统计T心法的覆盖率会使数据略微变差。")
         ToolTip(self.cb3_1, "演员复盘的总开关。如果关闭，则将跳过整个演员复盘。")
         ToolTip(self.cb3_2, "如果开启，在复盘模式下会尝试复盘所有的数据；\n反之，则复盘每个BOSS的最后一次战斗。")
         ToolTip(self.label3_3, "设置拉脱保护时间，在拉脱的数据中，最后若干秒的犯错记录将不再统计。")

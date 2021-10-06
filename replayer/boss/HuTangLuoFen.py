@@ -3,7 +3,7 @@
 # 胡汤&罗芬是白帝江关1号首领，复盘主要集中在以下几个方面：
 # 三种承伤的次数，与可能出现问题时的分锅。
 
-from replayer.Base import *
+from replayer.boss.Base import *
 from replayer.utils import CriticalHealCounter, DpsShiftWindow
 from tools.Functions import *
         

@@ -3,7 +3,7 @@
 # 宫傲是白帝江关7号首领，复盘主要集中在以下几个方面：
 # (TODO)
 
-from replayer.Base import *
+from replayer.boss.Base import *
 from replayer.utils import CriticalHealCounter, DpsShiftWindow
 from tools.Functions import *
         

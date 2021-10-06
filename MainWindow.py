@@ -15,7 +15,6 @@ import webbrowser
 from FileLookUp import FileLookUp
 from ConfigTools import Config, ConfigWindow, LicenseWindow, AnnounceWindow
 from LiveBase import LiveListener, AllStatWindow, LiveActorAnalysis, SingleBossWindow
-from main import OverallReplayer
 from Constants import *
 from data.DataController import DataController
 from tools.Functions import *
@@ -36,7 +35,6 @@ class SingleBlockLocker():
     
     def __init__(self):
         self.s = 0
-
 
 class MainWindow():
 
@@ -145,57 +143,6 @@ class MainWindow():
         refreshThread.start()
         
     def check_live(self):
-        numSwitch = 2
-        nowStatus = "true"
-        if True: # 调试入口
-            file = open("%s/config.jx3dat"%self.fileLookUp.basepath, "r")
-            s = file.read()
-            file.close()
-            s = re.sub(r'^(.*)bRecEverything=.{4,5}(.*)bSaveEverything1?=.{4,5}(.*)bREOnlyDungeon=.{4,5},(.*)$', "\\1bRecEverything=false\\2bSaveEverything=false\\3bREOnlyDungeon=true,\\4", s)
-            file = open("%s/config.jx3dat"%self.fileLookUp.basepath, "w")
-            file.write(s)
-            file.close()
-        while(True): # 调试入口
-            #break
-            time.sleep(1)
-            try:
-                file = open("%s/config.jx3dat"%self.fileLookUp.basepath, "r")
-                s = file.read()
-                res = re.search(r'bRecEverything=(.{4,5}).*bSaveHistoryOnExFi=(.{4,5}).*nMaxHistory=([0-9]+),nMinFightTime=([0-9\-]+),bSaveEverything1?=(.{4,5}).*bREOnlyDungeon=(.{4,5}),', s)
-                file.close()
-                if res:
-                    if res.group(1) == "false":
-                        self.setNotice({"t1": "请勾选[记录所有复盘数据]。", "c1": "#000000", "t2": "点击[公告]以获取教程。", "c2": "#ff0000"})
-                    elif res.group(5) == "false":
-                        self.setNotice({"t1": "请取消[不保存历史复盘数据]。", "c1": "#000000", "t2": "点击[公告]以获取教程。", "c2": "#ff0000"})
-                    elif res.group(2) == "false":
-                        self.setNotice({"t1": "请勾选[脱离战斗时保存数据]。", "c1": "#000000", "t2": "点击[公告]以获取教程。", "c2": "#ff0000"})
-                    elif int(res.group(3)) < 50 and self.config.plugindetail:
-                        self.setNotice({"t1": "请将[最大历史记录设置]设为50以上。", "c1": "#000000", "t2": "可以在[设置]中设定跳过本步。", "c2": "#ff0000"})
-                    elif int(res.group(4)) > 10 and self.config.plugindetail:
-                        self.setNotice({"t1": "请将[过滤短时战斗]设为10秒以下。", "c1": "#000000", "t2": "可以在[设置]中设定跳过本步。", "c2": "#ff0000"})
-                    else:
-                        if res.group(6) == "true" and nowStatus == "false":
-                            nowStatus = "true"
-                            numSwitch -= 1
-                        elif res.group(6) == "false" and nowStatus == "true":
-                            nowStatus = "false"
-                            numSwitch -= 1
-                        if numSwitch > 0:
-                            self.setNotice({"t1": "请改变[仅在秘境中启用复盘]，剩余：%d"%numSwitch, "c1": "#000000", "t2": "点击[公告]以获取教程。", "c2": "#ff0000"})
-                        else:
-                            break
-                else:
-                    self.setNotice({"t1": "设置文件结构不正确，请尝试更新茗伊插件集。", "c1": "#000000", "t2": "通常这是因为角色路径没有选取正确。", "c2": "#ff0000"})
-            except:
-                print("文件读取错误，稍后重试……")
-                traceback.print_exc()
-        self.setNotice({"t1": "选项设置完成，开始实时模式……", "c1": "#000000", "t2": "开启成功！", "c2": "#00ff00"})
-
-        #toaster = ToastNotifier()
-        #toaster.show_toast("选项设置完成", "选项验证正确，可以在游戏中开战并分锅啦~", icon_path='jx3bla.ico')
-        self.notifier.show("选项设置完成", "选项验证正确，可以在游戏中开战并分锅啦~")
-        
         liveListener = LiveListener(self.fileLookUp.basepath, self.config, self.analyser, self)
         self.liveListener = liveListener
         liveListener.startListen()

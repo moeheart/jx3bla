@@ -17,21 +17,15 @@ from tools.Functions import *
 import pyperclip
 
 from ActorReplay import ActorStatGenerator
-from replayer.Base import SpecificBossWindow
-from replayer.Yuhui import YuHuiWindow
-from replayer.Mitao import MiTaoWindow
-from replayer.Wuxuesan import WuXueSanWindow
-from replayer.Yuanfei import YuanFeiWindow
-from replayer.Yatoutuo import YatoutuoWindow
-from replayer.Yuelinyuelang import YuelinyuelangWindow
+from replayer.boss.Base import SpecificBossWindow
 
-from replayer.HuTangLuoFen import HuTangLuoFenWindow
-from replayer.ZhaoBasao import ZhaoBasaoWindow
-from replayer.HaiTu import HaiTuWindow
-from replayer.JiangJiku import JiangJikuWindow
-from replayer.YuwenMie import YuwenMieWindow
-from replayer.GongWei import GongWeiWindow
-from replayer.GongAo import GongAoWindow
+from replayer.boss.HuTangLuoFen import HuTangLuoFenWindow
+from replayer.boss.ZhaoBasao import ZhaoBasaoWindow
+from replayer.boss.HaiTu import HaiTuWindow
+from replayer.boss.JiangJiku import JiangJikuWindow
+from replayer.boss.YuwenMie import YuwenMieWindow
+from replayer.boss.GongWei import GongWeiWindow
+from replayer.boss.GongAo import GongAoWindow
 
 class ToolTip(object):
     '''
@@ -494,19 +488,7 @@ class SingleBossWindow():
         self.detail = detail
         self.hasDetail = 1
         if "boss" in detail:
-            if detail["boss"] == "余晖":
-                self.specificBossWindow = YuHuiWindow(effectiveDPSList, detail)
-            elif detail["boss"] == "宓桃":
-                self.specificBossWindow = MiTaoWindow(effectiveDPSList, detail)
-            elif detail["boss"] == "武雪散":
-                self.specificBossWindow = WuXueSanWindow(effectiveDPSList, detail)
-            elif detail["boss"] == "猿飞":
-                self.specificBossWindow = YuanFeiWindow(effectiveDPSList, detail)
-            elif detail["boss"] == "哑头陀":
-                self.specificBossWindow = YatoutuoWindow(effectiveDPSList, detail)
-            elif detail["boss"] == "岳琳&岳琅":
-                self.specificBossWindow = YuelinyuelangWindow(effectiveDPSList, detail)
-            elif detail["boss"] == "胡汤&罗芬":
+            if detail["boss"] == "胡汤&罗芬":
                 self.specificBossWindow = HuTangLuoFenWindow(effectiveDPSList, detail)
             elif detail["boss"] == "赵八嫂":
                 self.specificBossWindow = ZhaoBasaoWindow(effectiveDPSList, detail)

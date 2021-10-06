@@ -3,7 +3,7 @@
 # 使用tkinter的方法，在给定的frame中生成表格形式的内容。未来还会实现排序功能。
 
 import tkinter as tk
-from replayer.Base import *
+#from replayer.boss.Base import *
 
 class ToolTip(object):
     def build(self, widget):

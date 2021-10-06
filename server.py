@@ -719,7 +719,7 @@ def uploadReplayPro():
         else:
             print("Update edition")
 
-    sql = '''DELETE FROM ActorStat WHERE hash = "%s"''' % hash
+    sql = '''DELETE FROM ReplayProInfo WHERE hash = "%s"''' % hash
     cursor.execute(sql)
 
     # 更新数量

@@ -5,6 +5,7 @@ from data.BattleLogData import BattleLogData, RawDataLoader
 import traceback
 from FileLookUp import FileLookUp
 from BossNameUtils import getNickToBoss
+from replayer.ActorReplayPro import ActorProReplayer
 from replayer.occ.XiangZhi import XiangZhiProWindow, XiangZhiProReplayer
 
 class DataController():
@@ -32,6 +33,8 @@ class DataController():
                 bldDict = RawDataLoader(config, allFilelist, fileLookUp.basepath, window).bldDict
             else:
                 bldDict = RawDataLoader(config, filelist, fileLookUp.basepath, window).bldDict
+
+            # TODO 在线展示链接重构
             '''
             if config.xiangzhiActive:
                 b = XiangZhiAnalysis(filelist, map, fileLookUp.basepath, config, raw)
@@ -41,14 +44,18 @@ class DataController():
                 if b.info["uploaded"]:
                     print("可以通过以下链接来查看与分享：http://139.199.102.41:8009/XiangZhiData/png?key=%s" % b.info["hash"])
             '''
-            print("实现奶歌复盘pro中...")
             for fileName in bldDict:
                 fileNameInfo = [fileName, 0, 1]
-                xiangzhiRep = XiangZhiProReplayer(config, fileNameInfo, fileLookUp.basepath, bldDict, window)
-                xiangzhiRep.replay()
 
-                xiangzhiWindow = XiangZhiProWindow(xiangzhiRep.result)
-                xiangzhiWindow.start()
+                # 演员复盘部分
+                actorRep = ActorProReplayer(config, fileNameInfo, fileLookUp.basepath, bldDict, window)
+                actorRep.replay()
+
+                # 奶歌复盘部分
+                # xiangzhiRep = XiangZhiProReplayer(config, fileNameInfo, fileLookUp.basepath, bldDict, window)
+                # xiangzhiRep.replay()
+                # xiangzhiWindow = XiangZhiProWindow(xiangzhiRep.result)
+                # xiangzhiWindow.start()
 
             window.setBattleLogData(bldDict)
 

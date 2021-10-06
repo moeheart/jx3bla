@@ -15,21 +15,15 @@ from tools.Functions import *
 from Constants import *
 from EquipmentExport import EquipmentAnalyser
 
-from replayer.Base import SpecificReplayer
-from replayer.Yuhui import YuhuiReplayer
-from replayer.Mitao import MitaoReplayer
-from replayer.Wuxuesan import WuXueSanReplayer
-from replayer.Yuanfei import YuanfeiReplayer
-from replayer.Yatoutuo import YatoutuoReplayer
-from replayer.Yuelinyuelang import YuelinyuelangReplayer
+from replayer.boss.Base import SpecificReplayer
 
-from replayer.HuTangLuoFen import HuTangLuoFenReplayer
-from replayer.ZhaoBasao import ZhaoBasaoReplayer
-from replayer.HaiTu import HaiTuReplayer
-from replayer.JiangJiku import JiangJikuReplayer
-from replayer.YuwenMie import YuwenMieReplayer
-from replayer.GongWei import GongWeiReplayer
-from replayer.GongAo import GongAoReplayer
+from replayer.boss.HuTangLuoFen import HuTangLuoFenReplayer
+from replayer.boss.ZhaoBasao import ZhaoBasaoReplayer
+from replayer.boss.HaiTu import HaiTuReplayer
+from replayer.boss.JiangJiku import JiangJikuReplayer
+from replayer.boss.YuwenMie import YuwenMieReplayer
+from replayer.boss.GongWei import GongWeiReplayer
+from replayer.boss.GongAo import GongAoReplayer
 
 class ActorStatGenerator(StatGeneratorBase):
     yanyeID = {}

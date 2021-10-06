@@ -65,10 +65,40 @@ def getBossDictFromMap(map):
     return bossDict, bossDictR
     
 def getNickToBoss(nick):
+    #TODO 修复与更新
     if nick in NICK_TO_BOSS:
         return NICK_TO_BOSS[nick]
     else:
         return nick
+
+    def getMap(self):
+        mapid = self.rawdata['20'][0]
+        if mapid == "428":
+            self.mapDetail = "25人英雄敖龙岛"
+        elif mapid == "427":
+            self.mapDetail = "25人普通敖龙岛"
+        elif mapid == "426":
+            self.mapDetail = "10人普通敖龙岛"
+        elif mapid == "454":
+            self.mapDetail = "25人英雄范阳夜变"
+        elif mapid == "453":
+            self.mapDetail = "25人普通范阳夜变"
+        elif mapid == "452":
+            self.mapDetail = "10人普通范阳夜变"
+        elif mapid == "484":
+            self.mapDetail = "25人英雄达摩洞"
+        elif mapid == "483":
+            self.mapDetail = "25人普通达摩洞"
+        elif mapid == "482":
+            self.mapDetail = "10人普通达摩洞"
+        elif mapid == "520":
+            self.mapDetail = "25人英雄白帝江关"
+        elif mapid == "519":
+            self.mapDetail = "25人普通白帝江关"
+        elif mapid == "518":
+            self.mapDetail = "10人普通白帝江关"
+        else:
+            self.mapDetail = "未知"
 
 
 

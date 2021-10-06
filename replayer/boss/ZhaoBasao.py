@@ -1,15 +1,15 @@
 # Created by moeheart at 03/29/2021
-# 宫威的定制复盘方法库。
-# 宫威是白帝江关6号首领，复盘主要集中在以下几个方面：
+# 赵八嫂的定制复盘方法库。
+# 赵八嫂是白帝江关2号首领，复盘主要集中在以下几个方面：
 # (TODO)
 
-from replayer.Base import *
+from replayer.boss.Base import *
 from replayer.utils import CriticalHealCounter, DpsShiftWindow
 from tools.Functions import *
-
-class GongWeiWindow():
+        
+class ZhaoBasaoWindow():
     '''
-    宫威的专有复盘窗口类。
+    赵八嫂的专有复盘窗口类。
     ''' 
     
     def final(self):
@@ -25,7 +25,7 @@ class GongWeiWindow():
         '''
         window = tk.Toplevel()
         #window = tk.Tk()
-        window.title('宫威详细复盘')
+        window.title('赵八嫂详细复盘')
         window.geometry('1200x800')
         
         frame1 = tk.Frame(window)
@@ -84,14 +84,13 @@ class GongWeiWindow():
         self.effectiveDPSList = effectiveDPSList
         self.detail = detail
 
-class GongWeiReplayer(SpecificReplayer):
+class ZhaoBasaoReplayer(SpecificReplayer):
 
     def countFinal(self, nowTime):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
         pass
-        #self.phase = 0
 
     def getResult(self):
         '''
@@ -120,9 +119,6 @@ class GongWeiReplayer(SpecificReplayer):
                                    ])
         bossResult.sort(key = lambda x:-x[2])
         self.effectiveDPSList = bossResult
-        
-        #for line in self.shuiqiuDps:
-        #    print(self.shuiqiuDps[line])
             
         return self.effectiveDPSList, self.potList, self.detail
         
@@ -165,12 +161,10 @@ class GongWeiReplayer(SpecificReplayer):
             if len(item) <= 4:
                 return
                 
-            if item[4] in ['"喝啊……看！这疤痕，就是俺的忠诚！"']:
-                self.phase = 2
+            if item[4] in ['"有点本事，不动真格的，还镇不住你们小子了！"']:
+                self.win = 1
                 
         elif item[3] == '3': #重伤记录
-            if item[6] == '"宫威"':
-                self.win = 1
                 
             pass
             
@@ -190,23 +184,23 @@ class GongWeiReplayer(SpecificReplayer):
         '''
         在战斗开始时的初始化流程，当第二阶段复盘开始时运行。
         '''
-        self.activeBoss = "宫威"
+        self.activeBoss = "赵八嫂"
         
         #通用格式：
         #0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
         
-        #宫威数据格式：
+        #赵八嫂数据格式：
         #(TODO)待英雄实装后更新
         
         self.stat = {}
         self.hps = {}
-        self.detail["boss"] = "宫威"
+        self.detail["boss"] = "赵八嫂"
         self.win = 0
         
         for line in self.playerIDList:
-            self.hps[line] = 0
             self.stat[line] = [self.namedict[line][0].strip('"'), self.occDetailList[line], 0, 0, -1, "", 0] + \
                 [0]
+            self.hps[line] = 0
 
     def __init__(self, playerIDList, mapDetail, res, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
         '''

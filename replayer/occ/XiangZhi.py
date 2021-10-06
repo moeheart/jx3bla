@@ -214,15 +214,6 @@ class XiangZhiProWindow():
         frame1.place(x=10, y=10)
         frame1sub = tk.Frame(frame1)
         frame1sub.place(x=0, y=0)
-        # text = "复盘版本：%s\n"%self.result["overall"]["edition"]
-        # text = text + "玩家ID：%s\n"%self.result["overall"]["playerID"]
-        # text = text + "服务器：%s\n"%self.result["overall"]["server"]
-        # text = text + "战斗时间：%s\n"%self.result["overall"]["battleTimePrint"]
-        # text = text + "生成时间：%s\n"%self.result["overall"]["generateTimePrint"]
-        # text = text + "地图：%s\n"%self.result["overall"]["map"]
-        # text = text + "首领：%s\n"%self.result["overall"]["boss"]
-        # text = text + "战斗时长：%s\n" % self.result["overall"]["sumTimePrint"]
-        # text = text + "数据种类：%s\n" % self.result["overall"]["dataType"]
         tb = TableConstructor(frame1sub)
         tb.AppendContext("复盘版本：", justify="right")
         tb.AppendContext(self.result["overall"]["edition"])
@@ -262,15 +253,6 @@ class XiangZhiProWindow():
             text = "装备信息获取失败。\n在进入战斗后打开团队装分面板即可获取。\n如果是第一视角也可以自动获取。"
             tk.Label(frame2, text=text, justify="left").place(x=0, y=0)
         else:
-            # text = "装备分数：%d\n"%self.result["equip"]["score"]
-            # text = text + "额外：%s\n" % self.result["equip"]["sketch"]
-            # text = text + "根骨：%d\n" % self.result["equip"]["spirit"]
-            # text = text + "治疗量：%d(%d)\n" % (self.result["equip"]["heal"], self.result["equip"]["healBase"])
-            # text = text + "会心：%s(%d)\n" % (self.result["equip"]["critPercent"], self.result["equip"]["crit"])
-            # text = text + "会心效果：%s(%d)\n" % (self.result["equip"]["critpowPercent"], self.result["equip"]["critpow"])
-            # text = text + "加速：%s(%d)\n" % (self.result["equip"]["hastePercent"], self.result["equip"]["haste"])
-            # tk.Label(frame2, text=text, justify="left").place(x=0, y=0)
-
             tb = TableConstructor(frame2sub)
             tb.AppendContext("装备分数：", justify="right")
             tb.AppendContext("%d"%self.result["equip"]["score"])
@@ -331,16 +313,6 @@ class XiangZhiProWindow():
                 text = text + self.result["qixue"][str(i)] + ','
             text = text[:-1]
             tk.Label(frame4, text=text, justify="left").place(x=0, y=0)
-
-        '''
-        {'meihua': {'num': 93, 'delay': 236, 'cover': 0.4327}, 'gong': {'num': 0, 'delay': 0, 'HPS': 0, 'effRate': 0.0},
-         'zhi': {'num': 407, 'delay': 382, 'HPS': 5931, 'effRate': 0.5682},
-         'yu': {'num': 8, 'delay': 312, 'HPS': 0, 'effRate': 0.0},
-         'shang': {'num': 0, 'delay': 0, 'HPS': 0, 'cover': 0.0},
-         'jue': {'num': 37, 'delay': 728, 'HPS': 51, 'cover': 0.0164},
-         'xiangyi': {'num': 47, 'HPS': 1892, 'effRate': 0.3929},
-         'general': {'SangrouDPS': 41461, 'ZhuangzhouDPS': 93147}}
-        '''
 
         # Part 5: 技能
         # TODO 加入图片转存
@@ -619,6 +591,7 @@ class XiangZhiProReplayer(ReplayerBase):
         self.result["overall"]["sumTime"] = self.bld.info.sumTime
         self.result["overall"]["sumTimePrint"] = parseTime(self.bld.info.sumTime / 1000)
         self.result["overall"]["dataType"] = self.bld.dataType
+        self.result["overall"]["calTank"] = self.config.xiangzhiCalTank
 
         # 需要记录特定治疗量的BOSS
         self.npcName = ""
@@ -656,9 +629,6 @@ class XiangZhiProReplayer(ReplayerBase):
             self.shieldCountersNew[key] = ShieldCounterNew("16911", self.startTime, self.finalTime)
 
         for event in self.bld.log:
-            # if self.startTime == 0:
-            #     self.startTime = event.time
-            # self.finalTime = event.time
 
             if self.interrupt != 0:
                 continue
@@ -769,7 +739,8 @@ class XiangZhiProReplayer(ReplayerBase):
             self.result["equip"]["critpow"] = res["会效等级"]
             self.result["equip"]["hastePercent"] = res["加速"]
             self.result["equip"]["haste"] = res["加速等级"]
-            self.haste = self.result["equip"]["haste"]
+            if not self.config.xiangzhiSpeedForce:
+                self.haste = self.result["equip"]["haste"]
 
         self.result["qixue"] = {"available": 0}
         if self.bld.info.player[self.mykey].qx != {}:
@@ -780,6 +751,8 @@ class XiangZhiProReplayer(ReplayerBase):
         print(self.result["overall"])
         print(self.result["equip"])
         print(self.result["qixue"])
+
+        self.result["overall"]["hasteReal"] = self.haste
 
         return 0
 
@@ -807,7 +780,6 @@ class XiangZhiProReplayer(ReplayerBase):
             hpsSumTime = 0
             numSmall = 0
 
-        # TODO 简化，删除无用的统计信息
         numHeal = 0
         numEffHeal = 0
         numAbsorb = 0
@@ -815,19 +787,12 @@ class XiangZhiProReplayer(ReplayerBase):
         numPurge = 0 # 驱散次数
         battleStat = {}  # 伤害占比统计，[无盾伤害，有盾伤害，桑柔伤害]
         damageDict = {}  # 伤害统计
-        # myDamageRank = 0  # 个人伤害排名
-        # myDamage = 0  # 个人伤害
         healStat = {}  # 治疗统计
-        # healList = {}  # list形式的治疗统计
         myHealRank = 0  # 个人治疗量排名
         numHealer = 0  # 治疗数量
-        # healRate = 0  # 治疗占比
         rateDict = {}  # 盾覆盖率
-        # durationDict = {}  # 盾持续时间
         breakDict = {}  # 破盾次数
         sumShield = 0  # 盾数量
-        # equalDPS = 0  # 强度，相当于几个DPS
-        # overallRate = 0  # 盾的整体覆盖率
 
         # 技能统计
         mhsnSkill = SkillCounter("14231", self.startTime, self.finalTime, self.haste)  # 梅花三弄
@@ -1175,8 +1140,6 @@ class XiangZhiProReplayer(ReplayerBase):
         # 计算等效伤害
         numdam1 = 0
         for key in battleStat:
-            # if int(occdict[key][0]) == 0:
-            #     continue
             line = battleStat[key]
             # damageDict[key] = line[0] + line[1] / 1.117 # 100赛季数值
             # numdam1 += line[1] / 1.117 * 0.117# + line[2]
@@ -1192,13 +1155,6 @@ class XiangZhiProReplayer(ReplayerBase):
         if self.activeBoss in ["宓桃", "哑头陀"]:
             for line in npcHealStat:
                 npcHealStat[line] /= (hpsSumTime + 1e-10)
-
-        # print("[测试]治疗量：", numHeal)
-        # print("[测试]有效治疗量：", numEffHeal)
-        # print("[测试]化解：", numAbsorb)
-        # for line in rateDict:
-        #     print(line, rateDict[line], breakDict[line])
-        # print(sumShield)
 
         # 计算团队治疗区(Part 3)
         self.result["healer"] = {"table": [], "numHealer": 0}
@@ -1240,7 +1196,9 @@ class XiangZhiProReplayer(ReplayerBase):
             # 过滤老板，T奶，自己
             if key not in damageDict or damageDict[key] / self.result["overall"]["sumTime"] * 1000 < 10000:
                 continue
-            if occDetailList[key] in ["1t", "2h", "3t", "5h", "10t", "6h", "21t", "22h"]:
+            if getOccType(occDetailList[key]) == "healer":
+                continue
+            if getOccType(occDetailList[key]) == "tank" and not self.config.xiangzhiCalTank:
                 continue
             if key == self.mykey:
                 continue
@@ -1408,7 +1366,7 @@ class XiangZhiProReplayer(ReplayerBase):
         self.recordRater()
         self.prepareUpload()
 
-    def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", battleDate=""):
+    def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname=""):
         '''
         初始化.
         params:
@@ -1418,7 +1376,6 @@ class XiangZhiProReplayer(ReplayerBase):
         - bldDict: 战斗数据缓存.
         - window: 主窗口，用于显示进度条.
         '''
-        #self.battleDate = battleDate
         #self.win = 0
         super().__init__(config, fileNameInfo, path, bldDict, window)
 
@@ -1427,12 +1384,11 @@ class XiangZhiProReplayer(ReplayerBase):
         self.mask = config.mask
         self.xiangzhiPublic = config.xiangzhiPublic
         self.config = config
-        self.filePath = path + '\\' + fileNameInfo[0]
+        #self.filePath = path + '\\' + fileNameInfo[0]
         self.bld = bldDict[fileNameInfo[0]]
 
         self.result = {}
-        self.haste = 8780  # TODO: 在属性计算完成后修改
-
+        self.haste = config.speed
 
         #if self.numTry == 0:
         #    self.bossNamePrint = self.bossname
