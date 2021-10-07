@@ -234,11 +234,11 @@
 
 5.2.1 First转为新格式
 
-(TODO)5.2.2 Second.skill转为新格式
+5.2.2 Second.skill转为新格式
 
-(TODO)5.2.3 Second.buff
+5.2.3 Second.buff
 
-(TODO)5.2.4 Second.后处理转为新格式
+5.2.4 Second.后处理转为新格式
 
 (TODO)5.2.5 验证
 
@@ -254,9 +254,11 @@
 
 (TODO)5.6 演员复盘BOSS与接口实现
 
-(TODO)5.7 代码精简
+(TODO)5.7 演员复盘其余BOSS转换
 
-(TODO)5.7.1 移除XiangZhi和Actor中无意义的类成员变量，特别是可以从config中获取的部分。
+(TODO)5.8 代码精简
+
+(TODO)5.8.1 移除XiangZhi和Actor中无意义的类成员变量，特别是可以从config中获取的部分。
 
 ##part6 遗留bug修复与功能点
 

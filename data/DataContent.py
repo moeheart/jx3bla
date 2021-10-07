@@ -294,7 +294,7 @@ class OverallData():
         根据技能ID获取技能名.
         '''
         if full_id in self.skill:
-            return self.skill[full_id][0].strip('"')
+            return self.skill[full_id]["1"].strip('"')
         else:
             return id_full
 

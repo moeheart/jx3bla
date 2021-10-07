@@ -13,11 +13,12 @@ from PIL import Image, ImageFont, ImageDraw
 #from ReplayBase import StatGeneratorBase
 from tools.Functions import *
 from Constants import *
-from EquipmentExport import EquipmentAnalyser
+from BossNameUtils import *
+from equip.EquipmentExport import EquipmentAnalyser
 
 from replayer.ReplayerBase import ReplayerBase
 
-from replayer.boss.Base import SpecificReplayer
+from replayer.boss.Base import SpecificReplayerPro
 
 from replayer.boss.HuTangLuoFen import HuTangLuoFenReplayer
 from replayer.boss.ZhaoBasao import ZhaoBasaoReplayer
@@ -76,14 +77,13 @@ class ActorProReplayer(ReplayerBase):
 
     def hashGroup(self):
         nameList = []
-        for line in self.namedict:
-            if line in self.occdict and self.occdict[line][0].strip('"') != "0":
-                nameList.append(self.namedict[line][0].strip('"'))
+        for line in self.bld.info.player:
+            nameList.append(self.bld.info.player[line].name)
         nameList.sort()
         
-        hourAndMinute = time.strftime("-%H-%M", time.localtime(self.lastTimeStamp))
+        hourAndMinute = time.strftime("-%H-%M", time.localtime(self.finalTime))
         
-        hashStr = self.battleDate + hourAndMinute + self.bossname + self.rawdata['20'][0].strip('"') + "".join(nameList)
+        hashStr = self.battleDate + hourAndMinute + self.bossname + self.mapDetail + "".join(nameList)
         
         hashres = hashlib.md5(hashStr.encode(encoding="utf-8")).hexdigest()
         return hashres
@@ -95,11 +95,11 @@ class ActorProReplayer(ReplayerBase):
         if "beta" in EDITION:
             return
         result = {}
-        server = self.rawdata["19"][0].strip('"')
+        server = self.bld.info.server
         result["server"] = server
         result["boss"] = self.bossname
         result["battledate"] = self.battleDate
-        result["mapdetail"] = self.rawdata['20'][0].strip('"')
+        result["mapdetail"] = self.bld.info.map
         result["edition"] = EDITION
         result["hash"] = self.hashGroup()
         result["win"] = self.win
@@ -243,8 +243,9 @@ class ActorProReplayer(ReplayerBase):
             
         equipmentAnalyser = EquipmentAnalyser()
         for id in self.bld.info.player:
-            if id in self.window.playerEquipment:
-                equips = equipmentAnalyser.convert(self.window.playerEquipment[id])
+            if id in self.window.playerEquipment and self.window.playerEquipment[id] != {}:
+                #print(self.window.playerEquipment[id])
+                equips = equipmentAnalyser.convert2(self.window.playerEquipment[id])
                 self.equipmentDict[id] = equips
             
         self.occDetailList = occDetailList
@@ -354,7 +355,7 @@ class ActorProReplayer(ReplayerBase):
 
                     # 过量伤害
                     if event.damage > event.damageEff:
-                        deathHit[event.target] = [int(item[2]), skilldict[item[9]][0][""][0].strip('"'), int(item[13])]
+                        deathHit[event.target] = [event.time, self.bld.info.getSkillName(event.full_id), event.damage]
 
                     # 记录受到的伤害
                     if event.damage != 0 and event.target in deathHitDetail and '5' not in event.fullResult:
@@ -392,9 +393,11 @@ class ActorProReplayer(ReplayerBase):
 
                     # 开怪统计，判断对本体的伤害
                     if event.caster in self.bld.info.player and event.heal == 0 and self.bld.info.npc[event.target].name in self.bossNameDict:
-                        if item[7] in ["2516"]:
+                        if event.id in ["2516"]:
                             pass
                         elif self.firstHitList[event.caster] == 0:
+                            #print(event.full_id)
+                            #print(self.bld.info.skill[event.full_id])
                             self.firstHitList[event.caster] = [event.time, self.bld.info.getSkillName(event.full_id), "", 0]
                         elif self.firstHitList[event.caster][1][0] == '#' and self.firstHitList[event.caster][2] == "":
                             if self.bld.info.getSkillName(event.full_id)[0] != "#":
@@ -408,119 +411,124 @@ class ActorProReplayer(ReplayerBase):
                         self.dps[event.caster][0] += event.damageEff
                             
             elif event.dataType == "Buff":
-
-                if occdict[item[5]][0] == '0':
+                # if occdict[item[5]][0] == '0':
+                #     continue
+                if event.target not in self.bld.info.player:
                     continue
-                data = self.checkFirst(item[5], data, occdict)
-                if item[6] in self.actorBuffList and int(item[10]) == 1:
-                    if item[5] not in data.hitCount:
-                        data.hitCount[item[5]] = self.makeEmptyHitList()
-                    data.hitCount[item[5]]["b" + item[6]] += 1
 
-                if item[6] in deathBuffDict:
-                    if item[5] not in deathBuff:
-                        deathBuff[item[5]] = {}
-                    deathBuff[item[5]][item[6]] = [int(item[2]), skilldict[item[8]][0][""][0].strip('"'), deathBuffDict[item[6]]]
+                # data = self.checkFirst(item[5], data, occdict)
+                # if item[6] in self.actorBuffList and int(item[10]) == 1:
+                #     if item[5] not in data.hitCount:
+                #         data.hitCount[item[5]] = self.makeEmptyHitList()
+                #     data.hitCount[item[5]]["b" + item[6]] += 1
+
+                if event.id in deathBuffDict:
+                    if event.target not in deathBuff:
+                        deathBuff[event.target] = {}
+                    deathBuff[event.target][event.id] = [event.time, self.bld.info.getSkillName(event.full_id), deathBuffDict[event.id]]
 
                 # 统计小药
-                if item[6] in ["18280", "18281", "18303", "18304"] and item[5] in self.playerIDList and item[10] == '1':
-                    xiaoyaoCount[item[5]][item[6]] = 1
+                if event.id in ["18280", "18281", "18303", "18304"] and event.stack == 1:
+                    xiaoyaoCount[event.target][event.id] = 1
                     
-                if item[6] in ["15775", "17201"] and item[5] in self.penalty1:  # buff耐力损耗
-                    self.penalty1[item[5]].setState(int(item[2]), int(item[10]))
+                if event.id in ["15775", "17201"] and event.target in self.penalty1:  # buff耐力损耗
+                    self.penalty1[event.target].setState(event.time, event.stack)
 
-                if item[6] in ["15774", "17200"] and item[5] in self.penalty2:  # buff精神匮乏
-                    self.penalty2[item[5]].setState(int(item[2]), int(item[10]))
+                if event.id in ["15774", "17200"] and event.target in self.penalty2:  # buff精神匮乏
+                    self.penalty2[event.target].setState(event.time, event.stack)
                     
-                if item[6] in ["2316"]:  # 蛊惑众生
-                    if int(item[10]) == 1:
-                        self.guHuoTarget[item[4]] = item[5]
+                if event.id in ["2316"]:  # 蛊惑众生
+                    if event.stack == 1:
+                        self.guHuoTarget[event.caster] = event.target
                     else:
-                        self.guHuoTarget[item[4]] = "0"
+                        self.guHuoTarget[event.caster] = "0"
                     
-                if item[6] in ["6214"] and int(item[10]) == 0 and item[5] in deathHitDetail:  # 断禅语
-                    if len(deathHitDetail[item[5]]) >= 20:
-                        del deathHitDetail[item[5]][0]
-                    deathHitDetail[item[5]].append([int(item[2]), "禅语消失", 0, item[4], -1, 0])
+                if event.id in ["6214"] and event.stack == 0 and event.target in deathHitDetail:  # 断禅语
+                    if len(deathHitDetail[event.target]) >= 20:
+                        del deathHitDetail[event.target][0]
+                    deathHitDetail[event.target].append([event.time, "禅语消失", 0, event.caster, -1, 0])
 
-            elif item[3] == '3':  # 重伤记录
-
-                if item[4] in hpLoss:
-                    hpLoss[item[4]] = -1
+            elif event.dataType == "Death":  # 重伤记录
                 
-                if item[4] not in occdict or occdict[item[4]][0] == '0':
+                # if item[4] not in occdict or occdict[item[4]][0] == '0':
+                #     continue
+
+                if event.id not in self.bld.info.player:
                     continue
 
-                data = self.checkFirst(item[4], data, occdict)
-                if item[4] in occdict and int(occdict[item[4]][0]) != 0:
-                    severe = 1
-                    if self.bossname in self.bossNameDict:
-                        data.deathCount[item[4]][self.bossNameDict[self.bossname]] += 1
+                # data = self.checkFirst(item[4], data, occdict)
+                # if item[4] in occdict and int(occdict[item[4]][0]) != 0:
+                severe = 1
+                # if self.bossname in self.bossNameDict:
+                #     data.deathCount[item[4]][self.bossNameDict[self.bossname]] += 1
 
-                    self.deathName[namedict[item[4]][0].strip('"')] = 1
+                self.deathName[self.bld.info.player[event.id].name] = 1
 
-                    deathTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                deathTime = parseTime((event.time - self.startTime) / 1000)
 
-                    deathSource = "未知"
-                    if item[4] in deathHit and abs(deathHit[item[4]][0] - int(item[2])) < 1000:
-                        deathSource = "%s(%d)" % (deathHit[item[4]][1], deathHit[item[4]][2])
-                    elif item[4] in deathBuff:
-                        for line in deathBuff[item[4]]:
-                            if deathBuff[item[4]][line][0] + deathBuff[item[4]][line][2] > int(item[2]):
-                                deathSource = deathBuff[item[4]][line][1]
-                            if deathSource == "杯水留影":
-                                severe = 0
-                                if deathBuff[item[4]][line][0] + 29500 > int(item[2]):  # 杯水的精确时间特殊处理
-                                    deathSource = "未知"
-                                    severe = 1
+                deathSource = "未知"
+                if event.id in deathHit and abs(deathHit[event.id][0] - event.time) < 1000:
+                    deathSource = "%s(%d)" % (deathHit[event.id][1], deathHit[event.id][2])
+                elif event.id in deathBuff:
+                    for line in deathBuff[event.id]:
+                        if deathBuff[event.id][line][0] + deathBuff[event.id][line][2] > event.time:
+                            deathSource = deathBuff[event.id][line][1]
+                        if deathSource == "杯水留影":
+                            severe = 0
+                            if deathBuff[event.id][line][0] + 29500 > event.time:  # 杯水的精确时间特殊处理
+                                deathSource = "未知"
+                                severe = 1
 
-                    if "邪水之握" in deathSource:
-                        severe = 0
-                    if "能量爆裂" in deathSource:
-                        severe = 0
-                        
-                    if item[4] in deathHitDetail:
-                        deathSourceDetail = ["血量变化记录："]
-                        for line in deathHitDetail[item[4]]:
-                            name = "未知"
-                            if line[3] in namedict:
-                                name = namedict[line[3]][0].strip('"')
-                            resultStr = ""
-                            if line[5] > 0 and line[5] <= 7:
-                                resultStr = ["", "(招架)", "(免疫)", "(偏离)", "(闪避)", "(会心)", "(识破)", "(化解)"][line[5]]
-                            if line[4] == -1:
-                                deathSourceDetail.append("-%s, %s:%s%s(%d)"%(parseTime((int(line[0]) - self.startTime) / 1000), name, line[1], resultStr, line[2]))
-                            elif line[4] == 1:
-                                deathSourceDetail.append("+%s, %s:%s%s(%d)"%(parseTime((int(line[0]) - self.startTime) / 1000), name, line[1], resultStr, line[2]))
-                                
-                        state1 = self.penalty1[item[4]].checkState(int(item[2]) - 500)
-                        state2 = self.penalty2[item[4]].checkState(int(item[2]) - 500)
-                        if state1 > 0:
-                            deathSourceDetail.append("重伤时debuff耐力损耗：%d层"%state1)
-                        if state2 > 0:
-                            deathSourceDetail.append("重伤时debuff精神匮乏：%d层"%state2)
+                if "邪水之握" in deathSource:
+                    severe = 0
+                if "能量爆裂" in deathSource:
+                    severe = 0
 
-                        self.bossAnalyser.addPot([namedict[item[4]][0],
-                                             occDetailList[item[4]],
-                                             severe,
-                                             self.bossNamePrint,
-                                             "%s重伤，来源：%s" % (deathTime, deathSource),
-                                             deathSourceDetail])
+                if event.id in deathHitDetail:
+                    deathSourceDetail = ["血量变化记录："]
+                    for line in deathHitDetail[event.id]:
+                        name = "未知"
+                        if line[3] in self.bld.info.player:
+                            name = self.bld.info.player[line[3]].name
+                        elif line[3] in self.bld.info.npc:
+                            name = self.bld.info.npc[line[3]].name
+                        # if line[3] in namedict:
+                        #     name = namedict[line[3]][0].strip('"')
+                        resultStr = ""
+                        if line[5] > 0 and line[5] <= 7:
+                            resultStr = ["", "(招架)", "(免疫)", "(偏离)", "(闪避)", "(会心)", "(识破)", "(化解)"][line[5]]
+                        if line[4] == -1:
+                            deathSourceDetail.append("-%s, %s:%s%s(%d)"%(parseTime((int(line[0]) - self.startTime) / 1000), name, line[1], resultStr, line[2]))
+                        elif line[4] == 1:
+                            deathSourceDetail.append("+%s, %s:%s%s(%d)"%(parseTime((int(line[0]) - self.startTime) / 1000), name, line[1], resultStr, line[2]))
 
-                        # 对有重伤统计的BOSS进行记录
-                        if self.bossAnalyser.activeBoss in []:
-                            self.bossAnalyser.recordDeath(item, deathSource)
+                    state1 = self.penalty1[event.id].checkState(int(item[2]) - 500)
+                    state2 = self.penalty2[event.id].checkState(int(item[2]) - 500)
+                    if state1 > 0:
+                        deathSourceDetail.append("重伤时debuff耐力损耗：%d层"%state1)
+                    if state2 > 0:
+                        deathSourceDetail.append("重伤时debuff精神匮乏：%d层"%state2)
 
-            elif item[3] == '8':  # 喊话
-                if len(item) < 5:
-                    continue
+                    self.bossAnalyser.addPot([self.bld.info.player[event.id].name,
+                                         occDetailList[event.id],
+                                         severe,
+                                         self.bossNamePrint,
+                                         "%s重伤，来源：%s" % (deathTime, deathSource),
+                                         deathSourceDetail])
+
+                    # 对有重伤统计的BOSS进行记录
+                    if self.bossAnalyser.activeBoss in []:
+                        self.bossAnalyser.recordDeath(item, deathSource)
+
+            elif event.dataType == "Shout":  # 喊话
+                pass
                     
-            elif item[3] == "10": # 战斗状态变化
+            elif event.dataType == "Battle":  # 战斗状态变化
                 pass
 
             num += 1
             
-        self.lastTimeStamp = int(sk[-1][""][1])
+        # self.lastTimeStamp = int(sk[-1][""][1])
         self.battleTime += 1e-10  # 防止0战斗时间导致错误
 
         effectiveDPSList = []
@@ -674,11 +682,11 @@ class ActorProReplayer(ReplayerBase):
         if "boss" not in detail:
             detail["boss"] = self.bossname
 
-        self.data = data
+        # self.data = data
         self.effectiveDPSList = effectiveDPSList
         self.detail = detail
         
-        self.server = self.rawdata["19"][0].strip('"')
+        self.server = self.bld.info.server
         
         ids = {}
         for line in self.playerIDList:
@@ -697,10 +705,10 @@ class ActorProReplayer(ReplayerBase):
         #for line in self.playerIDList:
         #    print(namedict[line])
         
-        #print(self.potList)
-        #for line in effectiveDPSList:
-        #    print(line)
-        #print(detail)
+        print(self.potList)
+        for line in effectiveDPSList:
+           print(line)
+        print(detail)
         
     def getRawData(self):
         return self.rawdata
@@ -711,7 +719,8 @@ class ActorProReplayer(ReplayerBase):
         '''
         self.FirstStageAnalysis()
         self.SecondStageAnalysis()
-        self.prepareUpload()
+        if self.upload:
+            self.prepareUpload()
 
     def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None):
         '''
@@ -728,22 +737,25 @@ class ActorProReplayer(ReplayerBase):
         self.config = config
         self.failThreshold = config.failThreshold  # BOSS失败时倒推的秒数
         self.win = 0
-        # self.battleDate = battleDate
         self.mask = config.mask
         # self.filePath = path + '\\' + filename[0]
-        # if self.numTry == 0:
-        #     self.bossNamePrint = self.bossname
-        # else:
-        #     self.bossNamePrint = "%s.%d" % (self.bossname, self.numTry)
         # self.no1Hit = {}
         self.bld = bldDict[fileNameInfo[0]]
+        self.bossname = getNickToBoss(self.bld.info.boss)
+        self.mapDetail = self.bld.info.map
+        self.battleDate = time.strftime("%Y-%m-%d", time.localtime(self.bld.info.battleTime))
+        self.numTry = 0  # TODO 修改为战斗次数
+        if self.numTry == 0:
+            self.bossNamePrint = self.bossname
+        else:
+            self.bossNamePrint = "%s.%d" % (self.bossname, self.numTry)
 
         self.qualifiedRate = config.qualifiedRate
         self.alertRate = config.alertRate
         self.bonusRate = config.bonusRate
 
         # self.getMap()
-        self.lastTimeStamp = 0
+        # self.lastTimeStamp = 0
 
         # 复盘结果信息
         self.potList = []
