@@ -1,16 +1,16 @@
-# Created by moeheart at 03/29/2021
-# 宫威的定制复盘方法库. 已重置为新的数据形式.
-# 宫威是白帝江关6号首领.
+# Created by moeheart at 10/08/2021
+# 通用BOSS的复盘库。
+# 主要是为未特化的BOSS提供复盘方法以及界面展示。
 
 from replayer.boss.Base import SpecificReplayerPro, SpecificBossWindow, TableConstructor, ToolTip
 from replayer.utils import CriticalHealCounter, DpsShiftWindow
 from tools.Functions import *
 
 import tkinter as tk
-
-class GongWeiWindow(SpecificBossWindow):
+        
+class GeneralWindow(SpecificBossWindow):
     '''
-    宫威的专有复盘窗口类。
+    通用复盘窗口类。
     '''
 
     def loadWindow(self):
@@ -19,7 +19,7 @@ class GongWeiWindow(SpecificBossWindow):
         '''
         window = tk.Toplevel()
         #window = tk.Tk()
-        window.title('宫威详细复盘')
+        window.title('通用BOSS复盘')
         window.geometry('1200x800')
         
         frame1 = tk.Frame(window)
@@ -69,7 +69,7 @@ class GongWeiWindow(SpecificBossWindow):
     def __init__(self, effectiveDPSList, detail):
         super().__init__(effectiveDPSList, detail)
 
-class GongWeiReplayer(SpecificReplayerPro):
+class GeneralReplayer(SpecificReplayerPro):
 
     def countFinal(self, nowTime):
         '''
@@ -90,54 +90,64 @@ class GongWeiReplayer(SpecificReplayerPro):
                 if id in self.equipmentDict:
                     line[4] = self.equipmentDict[id]["score"]
                     line[5] = self.equipmentDict[id]["sketch"]
-
+                
                 if getOccType(self.occDetailList[id]) == "healer":
                     line[3] = int(self.hps[id] / self.battleTime * 1000)
 
                 dps = int(line[2] / self.battleTime * 1000)
                 bossResult.append([line[0],
                                    line[1],
-                                   dps,
+                                   dps, 
                                    line[3],
                                    line[4],
                                    line[5],
                                    line[6],
                                    ])
-        bossResult.sort(key=lambda x: -x[2])
+        bossResult.sort(key = lambda x:-x[2])
         self.effectiveDPSList = bossResult
-            
+
         return self.effectiveDPSList, self.potList, self.detail
+        
+    def recordDeath(self, item, deathSource):
+        '''
+        在有玩家重伤时的额外代码。
+        params
+        - item 复盘数据，意义同茗伊复盘。
+        - deathSource 重伤来源。
+        '''
+        pass
 
     def analyseSecondStage(self, event):
         '''
         处理单条复盘数据时的流程，在第二阶段复盘时，会以时间顺序不断调用此方法。
         params
-        - event 复盘数据，意义同茗伊复盘。
+        - item 复盘数据，意义同茗伊复盘。
         '''
 
         if event.dataType == "Skill":
             if event.target in self.bld.info.player:
-                if event.heal > 0 and event.effect != 7:  # 非化解
+                if event.heal > 0 and event.effect != 7: #非化解
                     self.hps[event.caster] += event.healEff
-
+                    
             else:
                 if event.caster in self.bld.info.player:
                     self.stat[event.caster][2] += event.damageEff
-
-
+     
+                
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
                 return
-
+                    
         elif event.dataType == "Shout":
-            if event.content in ['"喝啊……看！这疤痕，就是俺的忠诚！"']:
-                self.phase = 2
+            return
                 
-        elif event.dataType == "Death":  # 重伤记录
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name == "宫威":
-                self.win = 1
+        elif event.dataType == "Death": #重伤记录
+            pass
+
+        # elif event.dataType == "Buff": #进入、离开场景
+        #     pass
             
-        elif event.dataType == "Battle":  # 战斗状态变化
+        elif event.dataType == "Battle": #战斗状态变化
             pass
                     
     def analyseFirstStage(self, item):
@@ -153,16 +163,16 @@ class GongWeiReplayer(SpecificReplayerPro):
         '''
         在战斗开始时的初始化流程，当第二阶段复盘开始时运行。
         '''
-        self.activeBoss = "宫威"
+        self.activeBoss = "通用"
         
         #通用格式：
         #0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
         
         self.stat = {}
         self.hps = {}
-        self.detail["boss"] = "宫威"
-        self.win = 0
-        self.phase = 1
+        self.detail["boss"] = self.bossNamePrint
+        self.win = 1  # 通用BOSS中总是设为已通过
+
         
         for line in self.bld.info.player:
             self.hps[line] = 0

@@ -50,6 +50,8 @@ class DataController():
                 # 演员复盘部分
                 actorRep = ActorProReplayer(config, fileNameInfo, fileLookUp.basepath, bldDict, window)
                 actorRep.replay()
+                actorWindow = actorRep.generateWindow()
+                actorWindow.start()
 
                 # 奶歌复盘部分
                 # xiangzhiRep = XiangZhiProReplayer(config, fileNameInfo, fileLookUp.basepath, bldDict, window)

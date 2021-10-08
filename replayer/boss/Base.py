@@ -9,8 +9,33 @@ from replayer.TableConstructor import TableConstructor, ToolTip
 
 class SpecificBossWindow():
 
-    def __init__(self):
-        pass
+    def final(self):
+        '''
+        关闭窗口.
+        '''
+        self.windowAlive = False
+        self.window.destroy()
+
+    def start(self):
+        '''
+        显示窗口.
+        '''
+        self.windowAlive = True
+        self.windowThread = threading.Thread(target=self.loadWindow)
+        self.windowThread.start()
+
+    def alive(self):
+        '''
+        判断窗口是否存活.
+        '''
+        return self.windowAlive
+
+    def __init__(self, effectiveDPSList, detail):
+        '''
+        初始化.
+        '''
+        self.effectiveDPSList = effectiveDPSList
+        self.detail = detail
 
 
 class SpecificReplayerPro():
@@ -126,16 +151,14 @@ class SpecificReplayer():
         '''
         self.potList.append(pot)
 
-    def __init__(self, playerIDList, mapDetail, res, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
+    def __init__(self, playerIDList, mapDetail, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
         '''
         对类本身进行初始化。
         '''
         self.activeBoss = "None"
         self.playerIDList = playerIDList
         self.mapDetail = mapDetail
-        self.namedict = res['9'][0]
-        self.occdict = res['10'][0]
-        self.skilldict = res['11'][0]
+        self.bld = bld
         self.occDetailList = occDetailList
         self.startTime = startTime
         self.finalTime = finalTime

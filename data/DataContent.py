@@ -50,6 +50,7 @@ class SingleDataBuff(SingleData):
         self.target = item[5]["1"]
         self.id = item[5]["5"]
         self.level = int(item[5]["9"])
+        self.full_id = "2,%s,%d" % (self.id, self.level)
         self.delete = item[5]["2"]
         self.stack = int(item[5]["6"])
         self.end = int(item[5]["7"])
@@ -66,6 +67,7 @@ class SingleDataBuff(SingleData):
         self.target = item["6"]
         self.id = item["7"]
         self.level = int(item["8"])
+        self.full_id = item["9"]
         self.delete = item["10"]
         self.stack = int(item["11"])
         self.end = int(item["12"])

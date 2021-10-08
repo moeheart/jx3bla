@@ -18,14 +18,15 @@ from equip.EquipmentExport import EquipmentAnalyser
 
 from replayer.ReplayerBase import ReplayerBase
 
-from replayer.boss.Base import SpecificReplayerPro
+from replayer.boss.Base import SpecificReplayerPro, SpecificBossWindow
 
+from replayer.boss.General import GeneralReplayer, GeneralWindow
 from replayer.boss.HuTangLuoFen import HuTangLuoFenReplayer
 from replayer.boss.ZhaoBasao import ZhaoBasaoReplayer
 from replayer.boss.HaiTu import HaiTuReplayer
 from replayer.boss.JiangJiku import JiangJikuReplayer
 from replayer.boss.YuwenMie import YuwenMieReplayer
-from replayer.boss.GongWei import GongWeiReplayer
+from replayer.boss.GongWei import GongWeiReplayer, GongWeiWindow
 from replayer.boss.GongAo import GongAoReplayer
 
 class ActorProReplayer(ReplayerBase):
@@ -34,7 +35,7 @@ class ActorProReplayer(ReplayerBase):
     upload = 0
     bossAnalyseName = "未知"
 
-    playerIDList = {}
+    #playerIDList = {}
     firstHitList = {}
 
     actorSkillList = [
@@ -153,14 +154,6 @@ class ActorProReplayer(ReplayerBase):
         '''
         第一阶段复盘.
         '''
-        #res = self.rawdata
-
-        # namedict = res['9'][0]
-        # occdict = res['10'][0]
-        # sk = res['16'][0][""]
-        
-        # for line in res['18'][0]:
-        #    self.window.playerEquipment[line] = res['18'][0][line]
 
         # 向窗口类中存储装备信息，作为不同boss之间的缓存
         for id in self.bld.info.player:
@@ -245,7 +238,7 @@ class ActorProReplayer(ReplayerBase):
         for id in self.bld.info.player:
             if id in self.window.playerEquipment and self.window.playerEquipment[id] != {}:
                 #print(self.window.playerEquipment[id])
-                equips = equipmentAnalyser.convert2(self.window.playerEquipment[id])
+                equips = equipmentAnalyser.convert2(self.window.playerEquipment[id], self.bld.info.player[id].equipScore)
                 self.equipmentDict[id] = equips
             
         self.occDetailList = occDetailList
@@ -313,8 +306,12 @@ class ActorProReplayer(ReplayerBase):
         # else:
         #     bossAnalyser = SpecificReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
 
-        bossAnalyser = SpecificReplayerPro(self.bld, occDetailList, self.startTime,
-                                        self.finalTime, self.battleTime, self.bossNamePrint)
+        if self.bossAnalyseName == "宫威":
+            bossAnalyser = GongWeiReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint)
+        else:
+            bossAnalyser = GeneralReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint)
             
         self.bossAnalyser = bossAnalyser
         
@@ -328,7 +325,7 @@ class ActorProReplayer(ReplayerBase):
         self.penalty2 = {}
         self.guHuoTarget = {}
         
-        for line in self.playerIDList:
+        for line in self.bld.info.player:
             self.penalty1[line] = BuffCounter(0, self.startTime, self.finalTime)  # 通用易伤
             self.penalty2[line] = BuffCounter(0, self.startTime, self.finalTime)  # 通用减疗
 
@@ -405,7 +402,7 @@ class ActorProReplayer(ReplayerBase):
                                 self.firstHitList[event.caster][3] = event.time
                     
                     # if calculDPS:
-                    if event.caster in self.playerIDList:
+                    if event.caster in self.bld.info.player:
                         if event.caster not in self.dps:
                             self.dps[event.caster] = [0]
                         self.dps[event.caster][0] += event.damageEff
@@ -502,8 +499,8 @@ class ActorProReplayer(ReplayerBase):
                         elif line[4] == 1:
                             deathSourceDetail.append("+%s, %s:%s%s(%d)"%(parseTime((int(line[0]) - self.startTime) / 1000), name, line[1], resultStr, line[2]))
 
-                    state1 = self.penalty1[event.id].checkState(int(item[2]) - 500)
-                    state2 = self.penalty2[event.id].checkState(int(item[2]) - 500)
+                    state1 = self.penalty1[event.id].checkState(event.time - 500)
+                    state2 = self.penalty2[event.id].checkState(event.time - 500)
                     if state1 > 0:
                         deathSourceDetail.append("重伤时debuff耐力损耗：%d层"%state1)
                     if state2 > 0:
@@ -533,27 +530,27 @@ class ActorProReplayer(ReplayerBase):
 
         effectiveDPSList = []
         
-        calculDPS = 1
+        # calculDPS = 1
         recordGORate = 0
 
-        if self.bossAnalyser.activeBoss in ["胡汤&罗芬", "赵八嫂", "海荼", "姜集苦", "宇文灭", "宫威", "宫傲"]:
-            effectiveDPSList, potList, detail = self.bossAnalyser.getResult()
-            self.potList = potList
-            calculDPS = 0
-            self.win = self.bossAnalyser.win
-            recordGORate = 1
+        #if self.bossAnalyser.activeBoss in ["胡汤&罗芬", "赵八嫂", "海荼", "姜集苦", "宇文灭", "宫威", "宫傲"]:
+        effectiveDPSList, potList, detail = self.bossAnalyser.getResult()
+        self.potList = potList
+        # calculDPS = 0
+        self.win = self.bossAnalyser.win
+        recordGORate = 1
                                        
-        if calculDPS:
-            bossResult = []
-            for line in self.playerIDList:
-                if line in self.dps:
-                    dps = self.dps[line][0] / self.battleTime
-                    bossResult.append([namedict[line][0],
-                                       occDetailList[line],
-                                       dps
-                                       ])
-            bossResult.sort(key = lambda x:-x[2])
-            effectiveDPSList = bossResult
+        # if calculDPS:
+        #     bossResult = []
+        #     for line in self.bld.info.player:
+        #         if line in self.dps:
+        #             dps = int(self.dps[line][0] / self.battleTime * 1000)
+        #             bossResult.append([self.bld.info.player[line].name,
+        #                                occDetailList[line],
+        #                                dps
+        #                                ])
+        #     bossResult.sort(key = lambda x:-x[2])
+        #     effectiveDPSList = bossResult
 
         sumDPS = 0
         numDPS = 0
@@ -566,7 +563,7 @@ class ActorProReplayer(ReplayerBase):
         # 在DPS过于离谱的BOSS跳过DPS统计
         skipDPS = 0
         
-        if self.playerIDList != {}:
+        if True: # self.playerIDList != {}:
             result = {"mapdetail": self.mapDetail, "boss": self.bossname}
             Jdata = json.dumps(result)
             jpost = {'jdata': Jdata}
@@ -653,7 +650,7 @@ class ActorProReplayer(ReplayerBase):
                     hitName = self.firstHitList[earliestHit][1]
                 else:
                     hitName = self.firstHitList[earliestHit][2] + "(推测)"
-                self.potList = [[namedict[earliestHit][0],
+                self.potList = [[self.bld.info.player[earliestHit].name,
                                  occDetailList[earliestHit],
                                  0,
                                  self.bossNamePrint,
@@ -668,7 +665,7 @@ class ActorProReplayer(ReplayerBase):
         if checkXiaoYao >= 3:
             for line in xiaoyaoCount:
                 if sum(list(xiaoyaoCount[line].values())) < 4 and occDetailList[line] not in ["1t", "3t", "10t", "21t", "2h", "5h", "6h", "22h"]:
-                    self.potList = [[namedict[line][0],
+                    self.potList = [[self.bld.info.player[line].name,
                                      occDetailList[line],
                                      0,
                                      self.bossNamePrint,
@@ -689,19 +686,15 @@ class ActorProReplayer(ReplayerBase):
         self.server = self.bld.info.server
         
         ids = {}
-        for line in self.playerIDList:
-            ids[namedict[line][0].strip('"')] = 0
+        for line in self.bld.info.player:
+            ids[self.bld.info.player[line].name] = 0
         self.ids = ids
-
-        #print(self.potList)
 
         if self.win:
             self.upload = 1
         if self.mapDetail in ["25人英雄达摩洞", "25人英雄白帝江关"]:
             self.upload = 1
-                
-        #print("win=", self.win)
-                
+
         #for line in self.playerIDList:
         #    print(namedict[line])
         
@@ -709,9 +702,36 @@ class ActorProReplayer(ReplayerBase):
         for line in effectiveDPSList:
            print(line)
         print(detail)
-        
-    def getRawData(self):
-        return self.rawdata
+
+    def generateWindow(self):
+        '''
+        生成复盘对应的窗口.
+        returns:
+        - res: 复盘窗口类，继承自SpecificBossWindow
+        '''
+
+        # if self.bossAnalyseName == "胡汤&罗芬":
+        #     bossAnalyser = HuTangLuoFenReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
+        # elif self.bossAnalyseName == "赵八嫂":
+        #     bossAnalyser = ZhaoBasaoReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
+        # elif self.bossAnalyseName == "海荼":
+        #     bossAnalyser = HaiTuReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
+        # elif self.bossAnalyseName == "姜集苦":
+        #     bossAnalyser = JiangJikuReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
+        # elif self.bossAnalyseName == "宇文灭":
+        #     bossAnalyser = YuwenMieReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
+        # elif self.bossAnalyseName == "宫威":
+        #     bossAnalyser = GongWeiReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
+        # elif self.bossAnalyseName == "宫傲":
+        #     bossAnalyser = GongAoReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
+        # else:
+        #     bossAnalyser = SpecificReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
+
+        if self.bossAnalyseName == "宫威":
+            bossWindow = GongWeiWindow(self.effectiveDPSList, self.detail)
+        else:
+            bossWindow = GeneralWindow(self.effectiveDPSList, self.detail)
+        return bossWindow
 
     def replay(self):
         '''
