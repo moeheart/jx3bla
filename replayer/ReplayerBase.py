@@ -28,7 +28,7 @@ class ReplayerBase():
         self.window = window
         self.fileNameInfo = fileNameInfo[0]
         if fileNameInfo[0] not in bldDict:
-            self.parseFile(path)
+            # self.parseFile(path)
             self.bldDict = RawDataLoader(config, [fileNameInfo], path, window).bldDict
             bldDict[fileNameInfo[0]] = self.bldDict[fileNameInfo[0]]
         else:

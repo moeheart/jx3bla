@@ -72,15 +72,15 @@ class MainWindow():
         '''
         self.bldDict[filename] = bld
                 
-    def NoticeXiangZhi(self):
-        '''
-        在关底BOSS打完后提醒进行奶歌复盘。由BOSS复盘窗口调用。
-        '''
-        ans = messagebox.askyesno(title='提示', message='副本的关底BOSS已复盘完毕，要进行奶歌复盘吗？')
-        if ans:
-            self.start_replay()
-        else:
-            return
+    # def NoticeXiangZhi(self):
+    #     '''
+    #     在关底BOSS打完后提醒进行奶歌复盘。由BOSS复盘窗口调用。
+    #     '''
+    #     ans = messagebox.askyesno(title='提示', message='副本的关底BOSS已复盘完毕，要进行奶歌复盘吗？')
+    #     if ans:
+    #         self.start_replay()
+    #     else:
+    #         return
             
     def setBattleLogData(self, bldDict):
         '''
@@ -126,12 +126,41 @@ class MainWindow():
         self.fileLookUp = fileLookUp
         self.dataType = self.config.datatype
         # 如需在复盘模式后接实时模式，则使用这个逻辑
-        #liveListener = LiveListener(self.fileLookUp.basepath, self.config, self.analyser, self)
-        #self.liveListener = liveListener
-        controller = DataController(self.config)
-        if self.bldDict != {}:
-            controller.setRawData(self.bldDict)
-        controller.replay(self) # 此处将MainWindow类本身传入
+        if self.liveListener is None:
+            liveListener = LiveListener(self.fileLookUp.basepath, self.config, self.analyser, self)
+            self.liveListener = liveListener
+
+        filelist, allFilelist, map = fileLookUp.getLocalFile()
+        replayFileList = []
+
+        if config.checkAll:
+            # bldDict = RawDataLoader(config, allFilelist, fileLookUp.basepath, window, self.bldDict).bldDict
+            replayFileList = allFilelist
+        else:
+            # bldDict = RawDataLoader(config, filelist, fileLookUp.basepath, window).bldDict
+            replayFileList = filelist
+
+
+        # controller = DataController(self.config)
+        # if self.bldDict != {}:
+        #     controller.setRawData(self.bldDict)
+        # controller.getMultiData(self, replayFileList)
+
+        # # 根据设置决定使用哪一种复盘逻辑
+        # filelist, allFilelist, map = fileLookUp.getLocalFile()
+        # print("开始分析。分析耗时可能较长，请耐心等待……")
+        # if config.checkAll:
+        #     bldDict = RawDataLoader(config, allFilelist, fileLookUp.basepath, window, self.bldDict).bldDict
+        # else:
+        #     bldDict = RawDataLoader(config, filelist, fileLookUp.basepath, window).bldDict
+
+        replayFileNameList = [x[0] for x in replayFileList]
+        print("[Test] Mainwindow")
+        print(replayFileNameList)
+        print(replayFileList)
+        self.liveListener.getAllBattleLog(fileLookUp.basepath, replayFileNameList)
+
+        # controller.replay(self) # 此处将MainWindow类本身传入
         self.setNotice({"t1": "复盘完成！", "c1": "#000000", "t2": ""})
         #self.checkAttendence()
 
@@ -139,22 +168,24 @@ class MainWindow():
         if self.lock.state():
             return
         self.setNotice({"t1": "复盘中，请稍候……（时间较久，请耐心等待）", "c1": "#000000"})
-        refreshThread = threading.Thread(target = self.replay)    
+        refreshThread = threading.Thread(target=self.replay)
         refreshThread.start()
         
     def check_live(self):
-        liveListener = LiveListener(self.fileLookUp.basepath, self.config, self.analyser, self)
-        self.liveListener = liveListener
-        liveListener.startListen()
+        if self.liveListener is None:
+            liveListener = LiveListener(self.fileLookUp.basepath, self.config, self.analyser, self)
+            self.liveListener = liveListener
+        self.liveListener.startListen()
         
     def check_live_quick(self):
         if self.lock.state():
             return
-        liveListener = LiveListener(self.fileLookUp.basepath, self.config, self.analyser, self)
-        self.liveListener = liveListener
+        if self.liveListener is None:
+            liveListener = LiveListener(self.fileLookUp.basepath, self.config, self.analyser, self)
+            self.liveListener = liveListener
         messagebox.showinfo(title='警告', message='快速实时模式主要用于调试，如果不了解原理，有极大概率无法正常运行。')
         
-        liveListener.startListen()
+        self.liveListener.startListen()
         self.setNotice({"t1": "快速实时模式已开启，请关注终端界面……", "c1": "#000000", "t2": "快速模式仅用于调试，新手勿入QAQ", "c2": "#ff0000"})
         
     def start_live(self):
@@ -165,18 +196,23 @@ class MainWindow():
             self.startLive = True
             fileLookUp = FileLookUp()
             fileLookUp.initFromConfig(config)
-            self.dataType = self.config.datatype
             self.config = config
+            self.dataType = self.config.datatype
             self.fileLookUp = fileLookUp
-            
-            l = os.listdir(fileLookUp.basepath)
-            if "config.jx3dat" not in l:# and False: # 调试入口
-                self.setNotice({"t1": "实时模式需要设置路径为实时路径。", "c1": "#000000", "t2": "通常应当选取fight_stat为基准目录", "c2": "#ff0000"})
-                self.startLive = False
+
+            if self.dataType == "jcl" and "combat_logs" not in fileLookUp.basepath:
+                self.setNotice(
+                    {"t1": "实时模式已开启。", "c1": "#000000", "t2": "jcl路径可能有误，请确认。", "c2": "#ff0000"})
+
+            elif self.dataType == "jx3dat" and "fight_stat" not in fileLookUp.basepath:
+                self.setNotice(
+                    {"t1": "实时模式已开启。", "c1": "#000000", "t2": "jx3dat路径可能有误，请确认。", "c2": "#ff0000"})
             else:
-                self.setNotice({"t1": "请在游戏中设置复盘选项，才能开启实时模式。", "c1": "#000000"})
-                self.listenThread = threading.Thread(target = self.check_live)
-                self.listenThread.start()
+                self.setNotice(
+                    {"t1": "实时模式已开启。", "c1": "#000000", "t2": "", "c2": "#000000"})
+
+            self.listenThread = threading.Thread(target=self.check_live)
+            self.listenThread.start()
                 
     def log_once(self, lastFile):
         if self.lock.state():
@@ -209,7 +245,7 @@ class MainWindow():
         if lastFile != "":
             newestFile = lastFile
             print("Newest File: %s"%lastFile)
-            self.listenThread = threading.Thread(target = self.log_once, args = (lastFile,)) 
+            self.listenThread = threading.Thread(target=self.log_once, args = (lastFile,))
             self.listenThread.setDaemon(True);
             self.listenThread.start()
             
@@ -347,6 +383,7 @@ class MainWindow():
         self.playerEquipment = {}  # 存储角色装备，用于导出，将在未来删除
         self.notifier = Notifier()  # 用于win10的通知窗口
         self.dataType = "jx3dat"  # 数据种类，jx3dat为茗伊战斗统计的结果，jcl为茗伊团队工具的子功能
+        self.liveListener = None  # 实时模式数据存储，初始时默认为空
         
 if __name__ == "__main__":
     mainWindow = MainWindow()

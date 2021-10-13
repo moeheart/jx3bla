@@ -13,6 +13,46 @@ class DataController():
     数据维护类，控制数据的与读取传递。
     '''
 
+    def getMultiData(self, window, fileList):
+        '''
+        获取多个文件中的数据. 用于复盘模式中一次性读入的场景.
+        params:
+        - window: 主程序窗口对象.
+        - fileList: 新增的文件名.
+        '''
+        try:
+            config = self.config
+            fileLookUp = FileLookUp()
+            fileLookUp.initFromConfig(config)
+            if self.cached:
+                bldDict = RawDataLoader(config, fileList, fileLookUp.basepath, window, self.bldDict).bldDict
+            else:
+                bldDict = RawDataLoader(config, fileList, fileLookUp.basepath, window).bldDict
+            window.setBattleLogData(bldDict)
+
+        except Exception as e:
+            traceback.print_exc()
+
+    def getSingleData(self, window, fileName):
+        '''
+        获取单个文件中的数据. 用于实时模式中一条一条读取的场景.
+        params:
+        - window: 主程序窗口对象.
+        - fileName: 新增的文件名.
+        '''
+        try:
+            config = self.config
+            fileLookUp = FileLookUp()
+            fileLookUp.initFromConfig(config)
+            if self.cached:
+                bldDict = RawDataLoader(config, [[fileName, 0, 1]], fileLookUp.basepath, window, self.bldDict).bldDict
+            else:
+                bldDict = RawDataLoader(config, [[fileName, 0, 1]], fileLookUp.basepath, window).bldDict
+            window.setBattleLogData(bldDict)
+
+        except Exception as e:
+            traceback.print_exc()
+
     def replay(self, window):
         '''
         在现有的条件下识别需要复盘的文件，并执行复盘流程。

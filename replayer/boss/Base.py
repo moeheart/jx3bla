@@ -9,6 +9,59 @@ from replayer.TableConstructor import TableConstructor, ToolTip
 
 class SpecificBossWindow():
 
+    def loadWindow(self):
+        '''
+        默认的BOSS复盘窗口.
+        '''
+        window = tk.Toplevel()
+        # window = tk.Tk()
+        window.title('通用BOSS详细复盘')
+        window.geometry('1200x800')
+
+        frame1 = tk.Frame(window)
+        frame1.pack()
+
+        # 通用格式：
+        # 0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
+
+        tb = TableConstructor(frame1)
+
+        tb.AppendHeader("玩家名", "", width=13)
+        tb.AppendHeader("有效DPS", "全程DPS。与游戏中不同的是，重伤时间也会被计算在内。")
+        tb.AppendHeader("团队-心法DPS", "综合考虑当前团队情况与对应心法的全局表现，计算的百分比。平均水平为100%。")
+        tb.AppendHeader("装分", "玩家的装分，可能会获取失败。")
+        tb.AppendHeader("详情", "装备详细描述，暂未完全实装。")
+        tb.AppendHeader("被控", "受到影响无法正常输出的时间，以秒计。")
+        tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
+        tb.EndOfLine()
+
+        for i in range(len(self.effectiveDPSList)):
+            name = self.effectiveDPSList[i][0]
+            color = getColor(self.effectiveDPSList[i][1])
+            tb.AppendContext(name, color=color, width=13)
+            tb.AppendContext(int(self.effectiveDPSList[i][2]))
+
+            if getOccType(self.effectiveDPSList[i][1]) != "healer":
+                text3 = str(self.effectiveDPSList[i][3]) + '%'
+                color3 = "#000000"
+            else:
+                text3 = self.effectiveDPSList[i][3]
+                color3 = "#00ff00"
+            tb.AppendContext(text3, color=color3)
+
+            text4 = "-"
+            if self.effectiveDPSList[i][4] != -1:
+                text4 = int(self.effectiveDPSList[i][4])
+            tb.AppendContext(text4)
+
+            tb.AppendContext(self.effectiveDPSList[i][5])
+            tb.AppendContext(int(self.effectiveDPSList[i][6]))
+            tb.AppendContext("")
+            tb.EndOfLine()
+
+        self.window = window
+        window.protocol('WM_DELETE_WINDOW', self.final)
+
     def final(self):
         '''
         关闭窗口.

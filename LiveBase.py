@@ -16,7 +16,9 @@ from tkinter import messagebox
 from tools.Functions import *
 import pyperclip
 
-from ActorReplay import ActorStatGenerator
+from data.DataController import DataController
+from ActorReplay import ActorStatGenerator  # TODO 移除
+from replayer.ActorReplayPro import ActorProReplayer
 from replayer.boss.Base import SpecificBossWindow
 
 from replayer.boss.HuTangLuoFen import HuTangLuoFenWindow
@@ -192,8 +194,8 @@ class CommentWindow():
         ToolTip(label2, "选取评价能量，会影响分数变化的多少。")
         
         ToolTip(radio21, "使用低能量，分数变化为2，无消耗。")
-        ToolTip(radio21, "使用中能量，分数变化为8，消耗中级能量卡或8点积分。")
-        ToolTip(radio21, "使用高能量，分数变化为20，消耗高级能量卡或20点积分。")
+        ToolTip(radio22, "使用中能量，分数变化为8，消耗中级能量卡或8点积分。")
+        ToolTip(radio23, "使用高能量，分数变化为20，消耗高级能量卡或20点积分。")
         
         potDesLabel = tk.Label(window, text="犯错记录")
         potDesLabel.grid(row=3, column=0)
@@ -434,9 +436,9 @@ class SingleBossWindow():
         self.analyser.changeResult(self.potListScore, self.bossNum)
         self.window.destroy()
         if "boss" in self.detail and self.detail["boss"] in ["岳琳&岳琅"] and "win" in self.detail and self.detail["win"] == 1:
-            if self.mainwindow.hasNoticeXiangzhi == 0:
-                self.mainwindow.hasNoticeXiangzhi = 1
-                self.mainwindow.NoticeXiangZhi()
+            if self.mainWindow.hasNoticeXiangzhi == 0:
+                self.mainWindow.hasNoticeXiangzhi = 1
+                self.mainWindow.NoticeXiangZhi()
                 
     def constructReplayByNum(self, num):
         '''
@@ -503,8 +505,7 @@ class SingleBossWindow():
             elif detail["boss"] == "宫傲":
                 self.specificBossWindow = GongAoWindow(effectiveDPSList, detail)
             else:
-                self.specificBossWindow = SpecificBossWindow()
-                self.hasDetail = 0
+                self.specificBossWindow = SpecificBossWindow(effectiveDPSList, detail)
         
     def showDetail(self):
         '''
@@ -624,20 +625,20 @@ class SingleBossWindow():
     def alive(self):
         return self.windowAlive
 
-    def __init__(self, analyser, bossNum, mainwindow):
+    def __init__(self, analyser, bossNum, mainWindow):
         self.analyser = analyser
         self.bossNum = bossNum
-        self.mainwindow = mainwindow
+        self.mainWindow = mainWindow
         self.effectiveDPSList = []
         self.detail = {}
         self.windowAlive = False
         self.potExtendRunning = False
 
-class LiveActorStatGenerator(ActorStatGenerator):
-    
-    def __init__(self, filename, config, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}, uploadTiantiFlag=0, window=None):
-        super().__init__(filename, config, path, rawdata=rawdata, failThreshold=failThreshold, 
-            battleDate=battleDate, mask=mask, dpsThreshold=dpsThreshold, uploadTiantiFlag=uploadTiantiFlag, window=window)
+# class LiveActorStatGenerator(ActorStatGenerator):
+#
+#     def __init__(self, filename, config, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}, uploadTiantiFlag=0, window=None):
+#         super().__init__(filename, config, path, rawdata=rawdata, failThreshold=failThreshold,
+#             battleDate=battleDate, mask=mask, dpsThreshold=dpsThreshold, uploadTiantiFlag=uploadTiantiFlag, window=window)
             
 class PotContainer():
     '''
@@ -839,9 +840,6 @@ class LiveActorAnalysis():
         
     def changeResult(self, potListScore, bossNum):
         self.potContainer.addBoss(bossNum, potListScore, change=0)
-        #if len(potListScore) != 0:
-        #    del self.potListScore[-len(potListScore):]
-        #    self.potListScore.extend(potListScore)
 
     def addResult(self, potListScore, bossNum, effectiveDPSList, detail):
         #self.potListScore.extend(potListScore)
@@ -864,25 +862,7 @@ class LiveListener():
     复盘监听类，在实时模式中控制开始复盘的时机。
     '''
 
-    def getAllBattleLog(self, basepath, rawData):
-        '''
-        复盘模式中对所有战斗记录进行复盘。
-        params
-        - basepath 监控的路径
-        - rawData 字典类型，key为文件名，value为对应的raw数据。
-        '''
-        for fileName in rawData:
-            liveGenerator = self.getOneBattleLog(basepath, fileName, rawData[fileName])
-            potListScore = []
-            for i in range(len(liveGenerator.potList)):
-                if len(liveGenerator.potList[i]) <= 6:
-                    potListScore.append(liveGenerator.potList[i] + [0])
-                else:
-                    potListScore.append(liveGenerator.potList[i])
-            
-            self.analyser.addResult(potListScore, self.bossNum, liveGenerator.effectiveDPSList, liveGenerator.detail)
-
-    def getOneBattleLog(self, basepath, fileName, raw={}):
+    def getOneBattleLog(self, basepath, fileName):
         '''
         在对一条战斗记录进行复盘。
         params
@@ -892,38 +872,74 @@ class LiveListener():
         return
         - liveGenerator 实时复盘对象，用于后续处理流程。
         '''
-        battleDate = '-'.join(fileName.split('-')[0:3])
-        liveGenerator = LiveActorStatGenerator([fileName, 0, 1], self.config, basepath, rawdata=raw, failThreshold=self.config.failThreshold, 
-                battleDate=battleDate, mask=self.config.mask, dpsThreshold=self.dpsThreshold, uploadTiantiFlag=self.config.uploadTianti, window=self.mainwindow)
+        # battleDate = '-'.join(fileName.split('-')[0:3])
+        # liveGenerator = LiveActorStatGenerator([fileName, 0, 1], self.config, basepath, rawdata=raw, failThreshold=self.config.failThreshold,
+        #         battleDate=battleDate, mask=self.config.mask, dpsThreshold=self.dpsThreshold, uploadTiantiFlag=self.config.uploadTianti, window=self.mainwindow)
+
+        controller = DataController(self.config)
+        if self.mainWindow.bldDict != {}:
+            controller.setRawData(self.mainWindow.bldDict)
+        controller.getSingleData(self.mainWindow, fileName)  # 此处将MainWindow类本身传入
         
         try:
-            analysisExitCode = liveGenerator.firstStageAnalysis()
+            fileNameInfo = [fileName, 0, 1]
+            # print(self.mainWindow.bldDict)
+            # print(fileNameInfo)
+            # print(basepath)
+            actorRep = ActorProReplayer(self.config, fileNameInfo, basepath, self.mainWindow.bldDict, self.mainWindow)
+
+            analysisExitCode = actorRep.FirstStageAnalysis()
             if analysisExitCode == 1:
-                messagebox.showinfo(title='提示', message='实时模式下数据格式错误，请再次检查设置。如不能解决问题，尝试重启程序。\n在此状态下，大部分功能将不能正常使用。')
-                raise Exception("实时模式下数据格式错误，请再次检查设置。如不能解决问题，尝试重启程序。")
+                messagebox.showinfo(title='提示', message='数据格式错误，请再次检查设置。如不能解决问题，尝试重启程序。\n在此状态下，大部分功能将不能正常使用。')
+                raise Exception("数据格式错误，请再次检查设置。如不能解决问题，尝试重启程序。")
                 
-            liveGenerator.secondStageAnalysis()
+            actorRep.SecondStageAnalysis()
             
-            self.analyser.setServer(liveGenerator.server)
-            self.analyser.setMapDetail(liveGenerator.mapDetail)
-            self.analyser.setBeginTime(liveGenerator.beginTime)
+            self.analyser.setServer(actorRep.bld.info.server)
+            self.analyser.setMapDetail(actorRep.bld.info.map)
+            self.analyser.setBeginTime(actorRep.bld.info.battleTime)
             
-            if liveGenerator.upload:
-                liveGenerator.prepareUpload()
-            if liveGenerator.uploadTianti:
-                liveGenerator.prepareUploadTianti()
-            if liveGenerator.win:
-                self.mainwindow.addRawData(fileName, liveGenerator.getRawData())
-            else:
-                DestroyRaw(liveGenerator.getRawData())
+            # if actorRep.upload:
+            #     actorRep.prepareUpload()
+            # if liveGenerator.win:  # TODO 移除失败的复盘
+            #     self.mainwindow.addRawData(fileName, liveGenerator.getRawData())
+            # else:
+            #     DestroyRaw(liveGenerator.getRawData())
         except Exception as e:
             traceback.print_exc()
-            self.mainwindow.setNotice({"t1": "[%s]分析失败！"%liveGenerator.bossname, "c1": "#000000", "t2": "请保留数据，并反馈给作者~", "c2": "#ff0000"})
-            return liveGenerator
+            self.mainWindow.setNotice({"t1": "[%s]分析失败！"%actorRep.bld.info.boss, "c1": "#000000", "t2": "请保留数据，并反馈给作者~", "c2": "#ff0000"})
+            return actorRep
             
         self.bossNum += 1
-        self.mainwindow.setTianwangInfo(liveGenerator.ids, liveGenerator.server)
-        return liveGenerator
+        self.mainWindow.setTianwangInfo(actorRep.ids, actorRep.server)
+        return actorRep
+
+    def getAllBattleLog(self, basepath, fileList):
+        '''
+        复盘模式中对所有战斗记录进行复盘。
+        params
+        - basepath 监控的路径
+        - fileList 需要复盘的文件名列表.
+        '''
+        # for fileName in rawData:
+        #     liveGenerator = self.getOneBattleLog(basepath, fileName, rawData[fileName])
+        #     potListScore = []
+        #     for i in range(len(liveGenerator.potList)):
+        #         if len(liveGenerator.potList[i]) <= 6:
+        #             potListScore.append(liveGenerator.potList[i] + [0])
+        #         else:
+        #             potListScore.append(liveGenerator.potList[i])
+        #
+        #     self.analyser.addResult(potListScore, self.bossNum, liveGenerator.effectiveDPSList, liveGenerator.detail)
+        for file in fileList:
+            actorRep = self.getOneBattleLog(basepath, file)
+            potListScore = []
+            for i in range(len(actorRep.potList)):
+                if len(actorRep.potList[i]) <= 6:
+                    potListScore.append(actorRep.potList[i] + [0])
+                else:
+                    potListScore.append(actorRep.potList[i])
+            self.analyser.addResult(potListScore, self.bossNum, actorRep.effectiveDPSList, actorRep.detail)
 
     def getNewBattleLog(self, basepath, lastFile):
         '''
@@ -932,27 +948,22 @@ class LiveListener():
         - basepath: 监控的路径
         - lastFile: 新增的文件，通常是刚刚完成的战斗复盘
         '''
-        liveGenerator = self.getOneBattleLog(basepath, lastFile)
+        actorRep = self.getOneBattleLog(basepath, lastFile)
         
         if self.window is not None and self.window.alive():
             self.window.final()
         
-        if self.mainwindow is not None:
-            self.mainwindow.setNotice({"t1": "[%s]分析完成！"%liveGenerator.bossname, "c1": "#000000"})
+        if self.mainWindow is not None:
+            self.mainWindow.setNotice({"t1": "[%s]分析完成！"%actorRep.bossname, "c1": "#000000"})
         
-        window = SingleBossWindow(self.analyser, self.bossNum, self.mainwindow)
+        window = SingleBossWindow(self.analyser, self.bossNum, self.mainWindow)
 
         self.window = window
-        window.addPotList(liveGenerator.potList)
-        window.setDetail(liveGenerator.potList, liveGenerator.effectiveDPSList, liveGenerator.detail)
+        window.addPotList(actorRep.potList)
+        window.setDetail(actorRep.potList, actorRep.effectiveDPSList, actorRep.detail)
         window.start()
-        
-        #toaster = ToastNotifier()
-        #toaster.show_toast("分锅结果已生成", "[%s]的战斗复盘已经解析完毕，请打开结果界面分锅。"%liveGenerator.bossname, icon_path='jx3bla.ico')
-        self.mainwindow.notifier.show("分锅结果已生成", "[%s]的战斗复盘已经解析完毕，请打开结果界面分锅。"%liveGenerator.bossname)
 
-        #if liveGenerator.uploadTianti:
-        #    liveGenerator.prepareUploadTianti()
+        self.mainWindow.notifier.show("分锅结果已生成", "[%s]的战斗复盘已经解析完毕，请打开结果界面分锅。"%actorRep.bossname)
 
     def listenPath(self, basepath):
         '''
@@ -961,7 +972,10 @@ class LiveListener():
         - basepath: 监控的路径
         '''
         filelist = os.listdir(basepath)
-        dataList = [x for x in filelist if x[-12:] == '.fstt.jx3dat']
+        if self.config.datatype == "jx3dat":
+            dataList = [x for x in filelist if x[-12:] == '.fstt.jx3dat']
+        else:
+            dataList = [x for x in filelist if x[-4:] == '.jcl']
         if dataList != []:
             newestFile = dataList[-1]
         else:
@@ -969,18 +983,19 @@ class LiveListener():
         while(True):
             time.sleep(3)
             filelist = os.listdir(basepath)
-            dataList = [x for x in filelist if x[-12:] == '.fstt.jx3dat']
+            if self.config.datatype == "jx3dat":
+                dataList = [x for x in filelist if x[-12:] == '.fstt.jx3dat']
+            else:
+                dataList = [x for x in filelist if x[-4:] == '.jcl']
             if dataList != []:
                 lastFile = dataList[-1]
             else:
                 lastFile = ""
-            if lastFile != newestFile:# or True:  #调试入口
+            if lastFile != newestFile:
                 newestFile = lastFile
                 print("检测到新的复盘记录: %s"%lastFile)
                 time.sleep(0.5)
                 self.getNewBattleLog(basepath, lastFile)
-            #while(True):
-            #    time.sleep(5)
 
     def startListen(self):
         '''
@@ -990,7 +1005,7 @@ class LiveListener():
         self.listenThread.setDaemon(True);
         self.listenThread.start()
     
-    def __init__(self, basepath, config, analyser, mainwindow):
+    def __init__(self, basepath, config, analyser, mainWindow):
         '''
         构造方法。
         params
@@ -1002,7 +1017,7 @@ class LiveListener():
                              "alertRate": config.alertRate,
                              "bonusRate": config.bonusRate}
         self.analyser = analyser
-        self.mainwindow = mainwindow
+        self.mainWindow = mainWindow
         
         self.bossNum = 0
         self.window = None

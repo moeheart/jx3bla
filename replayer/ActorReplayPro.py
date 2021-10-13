@@ -507,11 +507,12 @@ class ActorProReplayer(ReplayerBase):
                         deathSourceDetail.append("重伤时debuff精神匮乏：%d层"%state2)
 
                     self.bossAnalyser.addPot([self.bld.info.player[event.id].name,
-                                         occDetailList[event.id],
-                                         severe,
-                                         self.bossNamePrint,
-                                         "%s重伤，来源：%s" % (deathTime, deathSource),
-                                         deathSourceDetail])
+                                              occDetailList[event.id],
+                                              severe,
+                                              self.bossNamePrint,
+                                              "%s重伤，来源：%s" % (deathTime, deathSource),
+                                              deathSourceDetail,
+                                              0])
 
                     # 对有重伤统计的BOSS进行记录
                     if self.bossAnalyser.activeBoss in []:
@@ -606,14 +607,16 @@ class ActorProReplayer(ReplayerBase):
                                                  1,
                                                  self.bossNamePrint,
                                                  "团队-心法DPS未到及格线(%s%%/%s%%)" % (parseCent(GORate, 0), parseCent(self.qualifiedRate, 0)),
-                                                 DPSDetail])
+                                                 DPSDetail,
+                                                 0])
                     elif GORate < self.alertRate and not skipDPS:
                         self.bossAnalyser.addPot([line[0],
                                              line[1],
                                              0,
                                              self.bossNamePrint,
                                              "团队-心法DPS低于预警线(%s%%/%s%%)" % (parseCent(GORate, 0), parseCent(self.alertRate, 0)),
-                                             DPSDetail])
+                                             DPSDetail,
+                                             0])
                                              
                     elif GORate > self.bonusRate and not skipDPS:
                         self.bossAnalyser.addPot([line[0],
@@ -621,7 +624,8 @@ class ActorProReplayer(ReplayerBase):
                                              3,
                                              self.bossNamePrint,
                                              "团队-心法DPS达到补贴线(%s%%/%s%%)" % (parseCent(GORate, 0), parseCent(self.bonusRate, 0)),
-                                             DPSDetail])
+                                             DPSDetail,
+                                             0])
                                              
                     if recordGORate and getOccType(line[1]) != "healer":
                         effectiveDPSList[i][3] = int(GORate * 100)
@@ -654,7 +658,9 @@ class ActorProReplayer(ReplayerBase):
                                  occDetailList[earliestHit],
                                  0,
                                  self.bossNamePrint,
-                                 "提前开怪：%s" % hitName]] + self.potList
+                                 "提前开怪：%s" % hitName,
+                                 [],
+                                 0]] + self.potList
 
         # 战斗补药统计
         checkXiaoYao = 0
@@ -669,7 +675,9 @@ class ActorProReplayer(ReplayerBase):
                                      occDetailList[line],
                                      0,
                                      self.bossNamePrint,
-                                     "小药数量错误：%d" % sum(list(xiaoyaoCount[line].values()))]] + self.potList
+                                     "小药数量错误：%d" % sum(list(xiaoyaoCount[line].values())),
+                                     [],
+                                     0]] + self.potList
                                      
         for line in self.potList:
             if len(line) == 5:

@@ -298,7 +298,7 @@ class OverallData():
         if full_id in self.skill:
             return self.skill[full_id]["1"].strip('"')
         else:
-            return id_full
+            return full_id
 
     def addPlayer(self, key, name, occ):
         '''

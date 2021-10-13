@@ -126,11 +126,11 @@ class GeneralReplayer(SpecificReplayerPro):
 
         if event.dataType == "Skill":
             if event.target in self.bld.info.player:
-                if event.heal > 0 and event.effect != 7: #非化解
+                if event.heal > 0 and event.effect != 7 and event.caster in self.hps: #非化解
                     self.hps[event.caster] += event.healEff
                     
             else:
-                if event.caster in self.bld.info.player:
+                if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
      
                 
