@@ -2,7 +2,8 @@
 # 通用BOSS的复盘库。
 # 主要是为未特化的BOSS提供复盘方法以及界面展示。
 
-from replayer.boss.Base import SpecificReplayerPro, SpecificBossWindow, TableConstructor, ToolTip
+from replayer.boss.Base import SpecificReplayerPro, SpecificBossWindow, ToolTip
+from replayer.TableConstructorMeta import TableConstructorMeta
 from replayer.utils import CriticalHealCounter, DpsShiftWindow
 from tools.Functions import *
 
@@ -28,7 +29,7 @@ class GeneralWindow(SpecificBossWindow):
         #通用格式：
         #0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
         
-        tb = TableConstructor(frame1)
+        tb = TableConstructorMeta(frame1)
         
         tb.AppendHeader("玩家名", "", width=13)
         tb.AppendHeader("有效DPS", "全程DPS。与游戏中不同的是，重伤时间也会被计算在内。")
@@ -60,14 +61,28 @@ class GeneralWindow(SpecificBossWindow):
             
             tb.AppendContext(self.effectiveDPSList[i][5])
             tb.AppendContext(int(self.effectiveDPSList[i][6]))
-            tb.AppendContext("")
+
+            # 心法复盘
+            if self.effectiveDPSList[i][0] in self.occResult:
+                tb.GenerateXinFaReplayButton(self.occResult[self.effectiveDPSList[i][0]], self.effectiveDPSList[i][0])
+            else:
+                tb.AppendContext("")
             tb.EndOfLine()
-        
+
+        frame2 = tk.Frame(window)
+        frame2.pack()
+        buttonPrev = tk.Button(frame2, text='<<', width=2, height=1, command=self.openPrev)
+        submitButton = tk.Button(frame2, text='战斗事件记录', command=self.openPot)
+        buttonNext = tk.Button(frame2, text='>>', width=2, height=1, command=self.openNext)
+        buttonPrev.grid(row=0, column=0)
+        submitButton.grid(row=0, column=1)
+        buttonNext.grid(row=0, column=2)
+
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
 
-    def __init__(self, effectiveDPSList, detail):
-        super().__init__(effectiveDPSList, detail)
+    def __init__(self, effectiveDPSList, detail, occResult):
+        super().__init__(effectiveDPSList, detail, occResult)
 
 class GeneralReplayer(SpecificReplayerPro):
 

@@ -19,7 +19,7 @@ import pyperclip
 from data.DataController import DataController
 from ActorReplay import ActorStatGenerator  # TODO 移除
 from replayer.ActorReplayPro import ActorProReplayer
-from replayer.boss.Base import SpecificBossWindow
+from replayer.boss.General import GeneralWindow
 
 from replayer.boss.HuTangLuoFen import HuTangLuoFenWindow
 from replayer.boss.ZhaoBasao import ZhaoBasaoWindow
@@ -304,7 +304,7 @@ class PotExtendWindow():
     
     def start(self):
         self.windowAlive = True
-        self.windowThread = threading.Thread(target = self.loadWindow)    
+        self.windowThread = threading.Thread(target=self.loadWindow)
         self.windowThread.start()
         
     def alive(self):
@@ -397,9 +397,9 @@ class SingleBossWindow():
             scoreStr = "%d"%self.scoreList[tmp]
             scoreColor = "#ff0000"
         self.scoreLabels[tmp].config(text=scoreStr, fg=scoreColor)
-        
+
         #self.analyser.potListScore[-self.numPot + tmp][-1] = self.scoreList[tmp]
-        
+
         self.analyser.setSinglePotScore(self.bossNum, tmp, self.scoreList[tmp])
         
         self.analyser.getPlayerPotList()
@@ -425,20 +425,34 @@ class SingleBossWindow():
         '''
         收集分锅结果并关闭窗口。
         '''
-        self.windowAlive = False
+
+        print("[Test]SingleBoss")
+        print(self.potWindowActivated)
+        print(self.potList)
+        print(self.scoreList)
         
-        if self.potExtendRunning == True:
+        if self.potExtendRunning:
             self.potExtendWindow.final()
-        
-        self.potListScore = []
-        for i in range(len(self.potList)):
-            self.potListScore.append(self.potList[i] + [self.scoreList[i]])
-        self.analyser.changeResult(self.potListScore, self.bossNum)
-        self.window.destroy()
-        if "boss" in self.detail and self.detail["boss"] in ["岳琳&岳琅"] and "win" in self.detail and self.detail["win"] == 1:
-            if self.mainWindow.hasNoticeXiangzhi == 0:
-                self.mainWindow.hasNoticeXiangzhi = 1
-                self.mainWindow.NoticeXiangZhi()
+
+        if self.potWindowActivated:
+            for i in range(len(self.potList)):
+                self.potList[i][6] = self.scoreList[i]
+            self.analyser.changeResult(self.potList, self.bossNum)
+
+        print("[Test]After modified")
+        print(self.potWindowActivated)
+        print(self.potList)
+        print(self.scoreList)
+
+        if self.windowAlive:
+            self.window.destroy()
+            self.windowAlive = False
+
+        # 提醒奶歌复盘的代码，现在已废弃
+        # if "boss" in self.detail and self.detail["boss"] in ["岳琳&岳琅"] and "win" in self.detail and self.detail["win"] == 1:
+        #     if self.mainWindow.hasNoticeXiangzhi == 0:
+        #         self.mainWindow.hasNoticeXiangzhi = 1
+        #         self.mainWindow.NoticeXiangZhi()
                 
     def constructReplayByNum(self, num):
         '''
@@ -452,9 +466,10 @@ class SingleBossWindow():
             return
         self.bossNum = int(num)
         self.addPotList(self.analyser.potContainer.getBoss(num))
-        a, b, c = self.analyser.potContainer.getDetail(num)
-        self.setDetail(a, b, c)
-        self.start()
+        a, b, c, d = self.analyser.potContainer.getDetail(num)
+        self.setDetail(a, b, c, d)
+        # self.start()
+        self.specificBossWindow.start()
         
     def finalPrev(self):
         '''
@@ -463,6 +478,8 @@ class SingleBossWindow():
         prevNum = self.bossNum - 1
         if self.analyser.checkBossExists(prevNum):
             self.final()
+            self.specificBossWindow.final()
+            self.potWindowActivated = False
             self.constructReplayByNum(prevNum)
         else:
             messagebox.showinfo(title='嘶', message='前序BOSS未找到。')
@@ -474,47 +491,53 @@ class SingleBossWindow():
         nextNum = self.bossNum + 1
         if self.analyser.checkBossExists(nextNum):
             self.final()
+            self.specificBossWindow.final()
+            self.potWindowActivated = False
             self.constructReplayByNum(nextNum)
         else:
             messagebox.showinfo(title='嘶', message='后继BOSS未找到。')
             
-    def setDetail(self, potList, effectiveDPSList, detail):
+    def setDetail(self, potList, effectiveDPSList, detail, occResult):
         '''
         初始化详细复盘的数据。
         - params
         potList 分锅记录。
         effectiveDPSList DPS详细统计，包括每名玩家在特定算法下的DPS。
         detail 详细复盘记录。
+        occResult 心法复盘记录。
         '''
         self.effectiveDPSList = effectiveDPSList
         self.detail = detail
         self.hasDetail = 1
         if "boss" in detail:
-            if detail["boss"] == "胡汤&罗芬":
-                self.specificBossWindow = HuTangLuoFenWindow(effectiveDPSList, detail)
-            elif detail["boss"] == "赵八嫂":
-                self.specificBossWindow = ZhaoBasaoWindow(effectiveDPSList, detail)
-            elif detail["boss"] == "海荼":
-                self.specificBossWindow = HaiTuWindow(effectiveDPSList, detail)
-            elif detail["boss"] == "姜集苦":
-                self.specificBossWindow = JiangJikuWindow(effectiveDPSList, detail)
-            elif detail["boss"] == "宇文灭":
-                self.specificBossWindow = YuwenMieWindow(effectiveDPSList, detail)
-            elif detail["boss"] == "宫威":
-                self.specificBossWindow = GongWeiWindow(effectiveDPSList, detail)
-            elif detail["boss"] == "宫傲":
-                self.specificBossWindow = GongAoWindow(effectiveDPSList, detail)
+            # if detail["boss"] == "胡汤&罗芬":
+            #     self.specificBossWindow = HuTangLuoFenWindow(effectiveDPSList, detail)
+            # elif detail["boss"] == "赵八嫂":
+            #     self.specificBossWindow = ZhaoBasaoWindow(effectiveDPSList, detail)
+            # elif detail["boss"] == "海荼":
+            #     self.specificBossWindow = HaiTuWindow(effectiveDPSList, detail)
+            # elif detail["boss"] == "姜集苦":
+            #     self.specificBossWindow = JiangJikuWindow(effectiveDPSList, detail)
+            # elif detail["boss"] == "宇文灭":
+            #     self.specificBossWindow = YuwenMieWindow(effectiveDPSList, detail)
+            # elif detail["boss"] == "宫威":
+            #     self.specificBossWindow = GongWeiWindow(effectiveDPSList, detail)
+            # elif detail["boss"] == "宫傲":
+            #     self.specificBossWindow = GongAoWindow(effectiveDPSList, detail)
+            if detail["boss"] == "宫威":
+                self.specificBossWindow = GongWeiWindow(effectiveDPSList, detail, occResult)
             else:
-                self.specificBossWindow = SpecificBossWindow(effectiveDPSList, detail)
+                self.specificBossWindow = GeneralWindow(effectiveDPSList, detail, occResult)
+            self.specificBossWindow.setPotWindow(self)
         
-    def showDetail(self):
-        '''
-        显示战斗统计详情。
-        '''
-        if self.hasDetail:
-            self.specificBossWindow.start()
-        else:
-            messagebox.showinfo(title='嘶', message='制作中，敬请期待！')
+    # def showDetail(self):
+    #     '''
+    #     显示战斗统计详情。
+    #     '''
+    #     if self.hasDetail:
+    #         self.specificBossWindow.start()
+    #     else:
+    #         messagebox.showinfo(title='嘶', message='制作中，敬请期待！')
 
     def loadWindow(self):
         '''
@@ -524,12 +547,13 @@ class SingleBossWindow():
         #window = tk.Tk()
         window.title('战斗复盘')
         window.geometry('650x700')
-        
+
         numPot = len(self.potList)
         self.numPot = numPot
+        self.potWindowActivated = True
         
         canvas=tk.Canvas(window,width=600,height=500,scrollregion=(0,0,580,numPot*30)) #创建canvas
-        canvas.place(x = 25, y = 25) #放置canvas的位置
+        canvas.place(x=25, y=25) #放置canvas的位置
         frame=tk.Frame(canvas) #把frame放在canvas里
         frame.place(width=580, height=500) #frame的长宽，和canvas差不多的
         vbar=tk.Scrollbar(canvas,orient=tk.VERTICAL) #竖直滚动条
@@ -542,19 +566,17 @@ class SingleBossWindow():
         self.scoreList = []
         self.toolTips = []
         self.nameList = []
-        
-        self.potListScore = []
 
         for i in range(len(self.potList)):
-            if len(self.potList[i]) <= 6:
-                self.potListScore.append(self.potList[i] + [0])
-                self.scoreList.append(0)
-            else:
-                self.potListScore.append(self.potList[i])
-                self.scoreList.append(self.potList[i][-1])
+            # if len(self.potList[i]) <= 6:
+            #     self.potListScore.append(self.potList[i] + [0])
+            #     self.scoreList.append(0)
+            # else:
+            assert len(self.potList[i]) == 7
+            self.scoreList.append(self.potList[i][6])
                 
         if not self.analyser.checkBossExists(self.bossNum):
-            self.analyser.addResult(self.potListScore, self.bossNum, self.effectiveDPSList, self.detail)
+            self.analyser.addResult(self.potList, self.bossNum, self.effectiveDPSList, self.detail)
         
         self.analyser.getPlayerPotList()
         
@@ -573,7 +595,7 @@ class SingleBossWindow():
             if len(line) > 5:
                 potDetail = '\n'.join(line[5])
                 if potDetail != "":
-                    toolTip = ToolTip(potLabel, potDetail)
+                    ToolTip(potLabel, potDetail)
             
             scoreLabel = tk.Label(frame, text="", width=5, height=1, font=("Arial", 12, "bold"))
             scoreLabel.grid(row=i, column=2)
@@ -596,27 +618,34 @@ class SingleBossWindow():
             self.getPot(i, 0)
             
         buttonFinal = tk.Button(window, text='分锅完成', width=10, height=1, command=self.final)
-        buttonFinal.place(x = 250, y = 540)
+        buttonFinal.place(x=250, y=540)
         
-        buttonPrev = tk.Button(window, text='<<', width=2, height=1, command=self.finalPrev)
-        buttonPrev.place(x = 220, y = 540)
+        # buttonPrev = tk.Button(window, text='<<', width=2, height=1, command=self.finalPrev)
+        # buttonPrev.place(x = 220, y = 540)
+        #
+        # buttonNext = tk.Button(window, text='>>', width=2, height=1, command=self.finalNext)
+        # buttonNext.place(x = 340, y = 540)
         
-        buttonNext = tk.Button(window, text='>>', width=2, height=1, command=self.finalNext)
-        buttonNext.place(x = 340, y = 540)
+        buttonDetail = tk.Button(window, text='手动设置', width=10, height=1, command=self.StartPotExtend)
+        buttonDetail.place(x=200, y=580)
         
-        buttonDetail = tk.Button(window, text='加锅界面', width=10, height=1, command=self.StartPotExtend)
-        buttonDetail.place(x = 200, y = 570)
-        
-        buttonDetail = tk.Button(window, text='数据统计', width=10, height=1, command=self.showDetail)
-        buttonDetail.place(x = 300, y = 570)
+        # buttonDetail = tk.Button(window, text='数据统计', width=10, height=1, command=self.showDetail)
+        # buttonDetail.place(x = 300, y = 570)
         
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
         #window.mainloop()
 
+    def openDetailWindow(self):
+        '''
+        开启详细复盘界面。这是由于在7.0版本更新后，先显示复盘界面，再显示分锅界面。
+        '''
+        self.potWindowActivated = False
+        self.specificBossWindow.start()
+
     def start(self):
         self.windowAlive = True
-        self.windowThread = threading.Thread(target = self.loadWindow)    
+        self.windowThread = threading.Thread(target=self.loadWindow)
         self.windowThread.start()
         
     def addPotList(self, potList):
@@ -633,6 +662,7 @@ class SingleBossWindow():
         self.detail = {}
         self.windowAlive = False
         self.potExtendRunning = False
+        self.potWindowActivated = False
 
 # class LiveActorStatGenerator(ActorStatGenerator):
 #
@@ -694,7 +724,7 @@ class PotContainer():
         - 战斗复盘中的特定BOSS细节
         '''
         bossidStr = str(bossid)
-        return self.pot[bossidStr], self.effectiveDPSList[bossidStr], self.detail[bossidStr]
+        return self.pot[bossidStr], self.effectiveDPSList[bossidStr], self.detail[bossidStr], self.occResult[bossidStr]
     
     def getBoss(self, bossid):
         '''
@@ -714,7 +744,7 @@ class PotContainer():
         bossidStr = str(bossid)
         return self.detail[bossidStr]["boss"]
     
-    def addBoss(self, bossid, potListScore, effectiveDPSList=[], detail={}, change=1):
+    def addBoss(self, bossid, potListScore, effectiveDPSList=[], detail={}, occResult={}, change=1):
         '''
         当一个BOSS结束时，把分锅记录加入总记录中。
         或是当修改锅时，按对应的bossid取代原有的分锅记录。
@@ -729,11 +759,13 @@ class PotContainer():
         if change:
             self.effectiveDPSList[bossidStr] = effectiveDPSList
             self.detail[bossidStr] = detail
+            self.occResult[bossidStr] = occResult
     
     def __init__(self):
         self.pot = {}
         self.effectiveDPSList = {}
         self.detail = {}
+        self.occResult = {}
 
 class LiveActorAnalysis():
     '''
@@ -841,9 +873,9 @@ class LiveActorAnalysis():
     def changeResult(self, potListScore, bossNum):
         self.potContainer.addBoss(bossNum, potListScore, change=0)
 
-    def addResult(self, potListScore, bossNum, effectiveDPSList, detail):
+    def addResult(self, potListScore, bossNum, effectiveDPSList, detail, occResult):
         #self.potListScore.extend(potListScore)
-        self.potContainer.addBoss(bossNum, potListScore, effectiveDPSList, detail)
+        self.potContainer.addBoss(bossNum, potListScore, effectiveDPSList, detail, occResult)
         
     def checkBossExists(self, bossNum):
         bossNumStr = str(bossNum)
@@ -894,13 +926,14 @@ class LiveListener():
                 raise Exception("数据格式错误，请再次检查设置。如不能解决问题，尝试重启程序。")
                 
             actorRep.SecondStageAnalysis()
+            actorRep.ThirdStageAnalysis()
             
             self.analyser.setServer(actorRep.bld.info.server)
             self.analyser.setMapDetail(actorRep.bld.info.map)
             self.analyser.setBeginTime(actorRep.bld.info.battleTime)
             
-            # if actorRep.upload:
-            #     actorRep.prepareUpload()
+            if actorRep.upload:
+                actorRep.prepareUpload()
             # if liveGenerator.win:  # TODO 移除失败的复盘
             #     self.mainwindow.addRawData(fileName, liveGenerator.getRawData())
             # else:
@@ -939,7 +972,7 @@ class LiveListener():
                     potListScore.append(actorRep.potList[i] + [0])
                 else:
                     potListScore.append(actorRep.potList[i])
-            self.analyser.addResult(potListScore, self.bossNum, actorRep.effectiveDPSList, actorRep.detail)
+            self.analyser.addResult(potListScore, self.bossNum, actorRep.effectiveDPSList, actorRep.detail, actorRep.occResult)
 
     def getNewBattleLog(self, basepath, lastFile):
         '''
@@ -960,8 +993,8 @@ class LiveListener():
 
         self.window = window
         window.addPotList(actorRep.potList)
-        window.setDetail(actorRep.potList, actorRep.effectiveDPSList, actorRep.detail)
-        window.start()
+        window.setDetail(actorRep.potList, actorRep.effectiveDPSList, actorRep.detail, actorRep.occResult)
+        window.openDetailWindow()
 
         self.mainWindow.notifier.show("分锅结果已生成", "[%s]的战斗复盘已经解析完毕，请打开结果界面分锅。"%actorRep.bossname)
 
@@ -1163,7 +1196,7 @@ class AllStatWindow():
         #window.mainloop()
 
     def start(self):
-        self.windowThread = threading.Thread(target = self.loadWindow)    
+        self.windowThread = threading.Thread(target=self.loadWindow)
         self.windowThread.start()
         
     def addPotList(self):

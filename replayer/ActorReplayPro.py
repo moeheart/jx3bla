@@ -29,6 +29,8 @@ from replayer.boss.YuwenMie import YuwenMieReplayer
 from replayer.boss.GongWei import GongWeiReplayer, GongWeiWindow
 from replayer.boss.GongAo import GongAoReplayer
 
+from replayer.occ.XiangZhi import XiangZhiProReplayer
+
 class ActorProReplayer(ReplayerBase):
 
     occDetailList = {}
@@ -153,6 +155,7 @@ class ActorProReplayer(ReplayerBase):
     def FirstStageAnalysis(self):
         '''
         第一阶段复盘.
+        主要记录BOSS信息，NPC出现等状况.
         '''
 
         # 向窗口类中存储装备信息，作为不同boss之间的缓存
@@ -249,13 +252,8 @@ class ActorProReplayer(ReplayerBase):
     def SecondStageAnalysis(self):
         '''
         第二阶段复盘.
+        复盘的主体，绝大部分操作都在此完成。
         '''
-        #res = self.rawdata
-
-        #namedict = res['9'][0]
-        #occdict = res['10'][0]
-        #skilldict = res['11'][0]
-        #sk = res['16'][0][""]
 
         self.beginTime = self.bld.info.battleTime
 
@@ -741,12 +739,27 @@ class ActorProReplayer(ReplayerBase):
             bossWindow = GeneralWindow(self.effectiveDPSList, self.detail)
         return bossWindow
 
+
+    def ThirdStageAnalysis(self):
+        '''
+        第三阶段复盘.
+        主要是心法复盘的实现.
+        '''
+        self.occResult = {}
+        for id in self.bld.info.player:
+            if self.config.xiangzhiActive and self.occDetailList[id] == "22h":  # 奶歌
+                name = self.bld.info.player[id].name
+                xiangzhiRep = XiangZhiProReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name)
+                xiangzhiRep.replay()
+                self.occResult[name] = {"occ": "22h", "result": xiangzhiRep.result}
+
     def replay(self):
         '''
         开始演员复盘pro分析.
         '''
         self.FirstStageAnalysis()
         self.SecondStageAnalysis()
+        self.ThirdStageAnalysis()
         if self.upload:
             self.prepareUpload()
 
@@ -768,6 +781,9 @@ class ActorProReplayer(ReplayerBase):
         self.mask = config.mask
         # self.filePath = path + '\\' + filename[0]
         # self.no1Hit = {}
+        self.bldDict = bldDict
+        self.fileNameInfo = fileNameInfo
+        self.path = path
         self.bld = bldDict[fileNameInfo[0]]
         self.bossname = getNickToBoss(self.bld.info.boss)
         self.mapDetail = self.bld.info.map
