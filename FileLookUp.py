@@ -6,10 +6,13 @@ import winreg
 import functools
 from BossNameUtils import *
 
+import threading
+import tkinter as tk
+
 class FileLookUp():
     jx3path = ""
     basepath = "."
-    mode = ""
+    # mode = ""
     specifiedFiles = []
 
     # Add by KEQX
@@ -179,3 +182,90 @@ class FileLookUp():
             
     def __init__(self):
         self.dataType = "jx3dat"
+
+class FileSelector():
+    '''
+    文件选取类，由用户手动选取文件.
+    维护一个选取文件的窗口，以及选取文件本身的逻辑。
+    '''
+
+
+    def GetOptions(self):
+        '''
+        获取选择清单.
+        '''
+        filelist = os.listdir(self.basepath)
+        optionList = []
+        for line in filelist:
+            if (line[-6:] == self.dataType or line[-3:] == self.dataType) and line != "config.jx3dat":
+                optionList.append(line)
+
+        print(optionList)
+        return optionList
+
+    def final(self):
+        '''
+        选择完成时执行的命令.
+        '''
+        self.selectionList = []
+        for i in range(len(self.vars)):
+            var = self.vars[i]
+            if var.get() == 1:
+                self.selectionList.append([self.optionList[i], 0, 1])
+        self.window.destroy()
+        if self.selectionList != []:
+            self.replayThread = threading.Thread(target=self.mainWindow.replay, args=(self.selectionList,))
+            self.replayThread.start()
+
+
+    def loadWindow(self):
+        '''
+        展示选择界面.
+        '''
+
+        self.optionList = self.GetOptions()
+        numFile = len(self.optionList)
+        self.vars = []
+        self.buttons = []
+
+        window = tk.Toplevel()
+        window.title('选择复盘记录')
+        window.geometry('500x700')
+
+        canvas = tk.Canvas(window, width=600, height=500, scrollregion=(0, 0, 580, numFile * 30))  # 创建canvas
+        canvas.place(x=25, y=25)  # 放置canvas的位置
+        frame = tk.Frame(canvas)  # 把frame放在canvas里
+        frame.place(width=580, height=500)  # frame的长宽，和canvas差不多的
+        vbar = tk.Scrollbar(canvas, orient=tk.VERTICAL)  # 竖直滚动条
+        vbar.place(x=580, width=20, height=500)
+        vbar.configure(command=canvas.yview)
+        canvas.config(yscrollcommand=vbar.set)  # 设置
+        canvas.create_window((265, numFile * 15), window=frame)  # create_window
+
+        for i in range(numFile):
+            fileName = self.optionList[i]
+            var = tk.IntVar(window)
+            button = tk.Checkbutton(frame, text=fileName, variable=var, onvalue=1, offvalue=0)
+            self.vars.append(var)
+            self.buttons.append(button)
+            button.grid(row=i, column=0)
+
+        buttonFinal = tk.Button(window, text='选择完成', width=10, height=1, command=self.final)
+        buttonFinal.place(x=220, y=570)
+
+        self.window = window
+        # window.protocol('WM_DELETE_WINDOW', self.final)
+
+    def start(self):
+        self.windowThread = threading.Thread(target=self.loadWindow)
+        self.windowThread.start()
+
+    def __init__(self, config, mainWindow):
+        '''
+        初始化. 需要根据config来确定基础路径及文件格式.
+        '''
+        self.fileLookUp = FileLookUp()
+        self.basepath = self.fileLookUp.initFromConfig(config)
+        self.dataType = self.fileLookUp.dataType
+        self.mainWindow = mainWindow
+

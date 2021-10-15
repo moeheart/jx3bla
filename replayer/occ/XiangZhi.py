@@ -10,6 +10,7 @@ from tools.Functions import *
 from equip.AttributeDisplayRemote import AttributeDisplayRemote
 from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
 
+import os
 import time
 import json
 import threading
@@ -438,12 +439,14 @@ class XiangZhiProWindow():
         # 加载图片列表
         canvas6.imDict = {}
         canvas6.im = {}
-        imID = ["7059", "7168", "7172", "7173", "7174", "7175", "7176",
-                "7052", "7066", "7080", "7078", "7128", "7077", "7048",
-                "1485", "1490"]
-        for line in imID:
-            canvas6.imDict[line] = Image.open("icons/%s.png"%line).resize((20, 20), Image.ANTIALIAS)
-            canvas6.im[line] = ImageTk.PhotoImage(canvas6.imDict[line])
+        # imID = ["7059", "7168", "7172", "7173", "7174", "7175", "7176",
+        #         "7052", "7066", "7080", "7078", "7128", "7077", "7048",
+        #         "1485", "1490"]
+        imFile = os.listdir('icons')
+        for line in imFile:
+            imID = line.split('.')[0]
+            canvas6.imDict[imID] = Image.open("icons/%s.png" % imID).resize((20, 20), Image.ANTIALIAS)
+            canvas6.im[imID] = ImageTk.PhotoImage(canvas6.imDict[imID])
 
         #canvas6 = tk.Canvas(frame6sub, width=battleTimePixels, height=125)
         # 绘制主时间轴及时间
@@ -471,6 +474,21 @@ class XiangZhiProWindow():
             posStart = int((record["start"] - startTime) / 100)
             posEnd = int((record["start"] + record["duration"] - startTime) / 100)
             canvas6.create_image(posStart+10, 80, image=canvas6.im[record["iconid"]])
+
+        # 绘制环境轴
+        for record in self.result["replay"]["environment"]:
+            posStart = int((record["start"] - startTime) / 100)
+            posEnd = int((record["start"] + record["duration"] - startTime) / 100)
+            canvas6.create_image(posStart+10, 20, image=canvas6.im[record["iconid"]])
+            # 绘制表示持续的条
+            if posStart + 20 < posEnd:
+                canvas6.create_rectangle(posStart+20, 10, posEnd, 30, fill="#ff7777")
+            # 绘制名称
+            if posStart + 30 < posEnd:
+                text = record["skillname"]
+                if record["num"] > 1:
+                    text += "*%d"%record["num"]
+                canvas6.create_text(posStart+20, 20, text=text, anchor=tk.W)
 
         tk.Label(frame6sub, text="test").place(x=20, y=20)
 
@@ -686,9 +704,6 @@ class XiangZhiProReplayer(ReplayerBase):
 
         for key in self.bld.info.player:
             self.shieldCountersNew[key].inferFirst()
-
-        #TODO 移除
-        #self.myname = "今夏草木长"
 
         # 自动推导奶歌角色名与ID，在连接场景中会被指定，这一步可跳过
         if self.myname == "":
@@ -954,7 +969,8 @@ class XiangZhiProReplayer(ReplayerBase):
                     if event.caster == self.mykey and event.scheme == 1 and event.id not in xiangZhiUnimportant: # 影子宫、桑柔等需要过滤的技能
                         skillLog.append([event.time, event.id])
                         # 若技能没有连续，则在战斗回放中记录技能
-                        if (event.id not in skillNameDict or skillNameDict[event.id] != skillNameDict[bhSkill]) and event.id not in xiangZhiSpecial:
+                        if ((event.id not in skillNameDict or skillNameDict[event.id] != skillNameDict[bhSkill]) and event.id not in xiangZhiSpecial)\
+                            or event.time - lastSkillTime > 3000:
                             # 记录本次技能
                             # print(event.id, bhSkill)
                             if bhSkill != "0":
@@ -1126,6 +1142,10 @@ class XiangZhiProReplayer(ReplayerBase):
                               bhTimeStart, bhTimeEnd - bhTimeStart, bhNum, bhHeal,
                               roundCent(bhHealEff / (bhHeal + 1e-10)),
                               int(bhDelay / (bhDelayNum + 1e-10)), bhBusy, "")
+
+        # 同步BOSS的技能信息
+        if self.bossBh is not None:
+            bh.log["environment"] = self.bossBh.log["environment"]
 
         # 计算战斗效率等统计数据，TODO 扩写
         skillCounter = SkillLogCounter(skillLog, self.startTime, self.finalTime, self.haste)
@@ -1366,7 +1386,7 @@ class XiangZhiProReplayer(ReplayerBase):
         self.recordRater()
         self.prepareUpload()
 
-    def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname=""):
+    def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", bossBh=None):
         '''
         初始化.
         params:
@@ -1380,6 +1400,7 @@ class XiangZhiProReplayer(ReplayerBase):
         super().__init__(config, fileNameInfo, path, bldDict, window)
 
         self.myname = myname
+        self.bossBh = bossBh
         self.failThreshold = config.failThreshold
         self.mask = config.mask
         self.xiangzhiPublic = config.xiangzhiPublic

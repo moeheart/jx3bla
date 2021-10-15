@@ -315,6 +315,11 @@ class OverallData():
             self.player[key].name = name.strip('"')
             self.player[key].occ = occ
             return True
+        else:
+            if self.player[key].name == "" or self.player[key].occ == "":
+                self.player[key].name = name.strip('"')
+                self.player[key].occ = occ
+                return True
         return False
 
     def addNPC(self, key, name):

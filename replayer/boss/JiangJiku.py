@@ -3,28 +3,23 @@
 # 姜集苦是白帝江关4号首领，复盘主要集中在以下几个方面：
 # (TODO)
 
-from replayer.boss.Base import *
+from replayer.boss.Base import SpecificReplayerPro, SpecificBossWindow, ToolTip
+from replayer.TableConstructorMeta import TableConstructorMeta
 from replayer.utils import CriticalHealCounter, DpsShiftWindow
 from tools.Functions import *
+
+import tkinter as tk
         
-class JiangJikuWindow():
+class JiangJikuWindow(SpecificBossWindow):
     '''
     姜集苦的专有复盘窗口类。
     ''' 
-    
-    def final(self):
-        '''
-        关闭窗口。
-        '''
-        self.windowAlive = False
-        self.window.destroy()
 
     def loadWindow(self):
         '''
         使用tkinter绘制详细复盘窗口。
         '''
         window = tk.Toplevel()
-        #window = tk.Tk()
         window.title('姜集苦详细复盘')
         window.geometry('1200x800')
         
@@ -34,7 +29,7 @@ class JiangJikuWindow():
         #通用格式：
         #0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
         
-        tb = TableConstructor(frame1)
+        tb = TableConstructorMeta(frame1)
         
         tb.AppendHeader("玩家名", "", width=13)
         tb.AppendHeader("有效DPS", "全程DPS。与游戏中不同的是，重伤时间也会被计算在内。")
@@ -46,6 +41,7 @@ class JiangJikuWindow():
         tb.AppendHeader("P2DPS", "70%%血量之后阶段的DPS。这部分DPS同样包括易伤阶段。\nP2时长：%s"%parseTime(self.detail["P2Time"]))
         tb.AppendHeader("易伤DPS", "易伤阶段的DPS，指走圈结束的20秒易伤时间中产生的DPS。\n时长：%s"%parseTime(self.detail["P3Time"]))
         tb.AppendHeader("关键治疗", "对走圈阶段时站桩T的治疗。减伤会被等效。")
+        tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         tb.EndOfLine()
         
         for i in range(len(self.effectiveDPSList)):
@@ -76,27 +72,31 @@ class JiangJikuWindow():
             color10 = "#000000"
             if self.effectiveDPSList[i][10] > 0 and getOccType(self.effectiveDPSList[i][1]) == "healer":
                 color10 = "#00ff00"
-            tb.AppendContext(int(self.effectiveDPSList[i][10]), color = color10)
+            tb.AppendContext(int(self.effectiveDPSList[i][10]), color=color10)
             
+            # 心法复盘
+            if self.effectiveDPSList[i][0] in self.occResult:
+                tb.GenerateXinFaReplayButton(self.occResult[self.effectiveDPSList[i][0]], self.effectiveDPSList[i][0])
+            else:
+                tb.AppendContext("")
             tb.EndOfLine()
-        
+
+        frame2 = tk.Frame(window)
+        frame2.pack()
+        buttonPrev = tk.Button(frame2, text='<<', width=2, height=1, command=self.openPrev)
+        submitButton = tk.Button(frame2, text='战斗事件记录', command=self.openPot)
+        buttonNext = tk.Button(frame2, text='>>', width=2, height=1, command=self.openNext)
+        buttonPrev.grid(row=0, column=0)
+        submitButton.grid(row=0, column=1)
+        buttonNext.grid(row=0, column=2)
+
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
-        #window.mainloop()
 
-    def start(self):
-        self.windowAlive = True
-        self.windowThread = threading.Thread(target = self.loadWindow)    
-        self.windowThread.start()
-        
-    def alive(self):
-        return self.windowAlive
+    def __init__(self, effectiveDPSList, detail, occResult):
+        super().__init__(effectiveDPSList, detail, occResult)
 
-    def __init__(self, effectiveDPSList, detail):
-        self.effectiveDPSList = effectiveDPSList
-        self.detail = detail
-
-class JiangJikuReplayer(SpecificReplayer):
+class JiangJikuReplayer(SpecificReplayerPro):
 
     def countFinal(self, nowTime):
         '''
@@ -123,7 +123,7 @@ class JiangJikuReplayer(SpecificReplayer):
         self.detail["P3Time"] = self.phaseTime[3]
 
         bossResult = []
-        for id in self.playerIDList:
+        for id in self.bld.info.player:
             if id in self.stat:
                 line = self.stat[id]
                 if id in self.equipmentDict:
@@ -131,9 +131,9 @@ class JiangJikuReplayer(SpecificReplayer):
                     line[5] = self.equipmentDict[id]["sketch"]
                 
                 if getOccType(self.occDetailList[id]) == "healer":
-                    line[3] = int(self.hps[id] / self.battleTime)
+                    line[3] = int(self.hps[id] / self.battleTime * 1000)
 
-                dps = int(line[2] / self.battleTime)
+                dps = int(line[2] / self.battleTime * 1000)
                 bossResult.append([line[0],
                                    line[1],
                                    dps, 
@@ -146,7 +146,7 @@ class JiangJikuReplayer(SpecificReplayer):
                                    int(line[9] / self.phaseTime[3]),
                                    line[10]
                                    ])
-        bossResult.sort(key = lambda x:-x[2])
+        bossResult.sort(key=lambda x: -x[2])
         self.effectiveDPSList = bossResult
             
         return self.effectiveDPSList, self.potList, self.detail
@@ -160,81 +160,72 @@ class JiangJikuReplayer(SpecificReplayer):
         '''
         pass
 
-    def analyseSecondStage(self, item):
+    def analyseSecondStage(self, event):
         '''
         处理单条复盘数据时的流程，在第二阶段复盘时，会以时间顺序不断调用此方法。
         params
-        - item 复盘数据，意义同茗伊复盘。
+        - event 复盘数据，意义同茗伊复盘。
         '''
         
-        if self.yiShang and int(item[2]) > self.phaseEnd[3]:
+        if self.yiShang and event.time > self.phaseEnd[3]:
             self.yiShang = 0
         
-        if item[3] == '1':  # 技能
+        if event.dataType == "Skill":
 
-            if self.occdict[item[5]][0] != '0':
-            
-                if item[11] != '0' and item[10] != '7': #非化解
-                    if item[4] in self.playerIDList:
-                        self.hps[item[4]] += int(item[12])
+            if event.target in self.bld.info.player:
+                if event.heal > 0 and event.effect != 7 and event.caster in self.hps:  # 非化解
+                    self.hps[event.caster] += event.healEff
                         
-                healRes = self.criticalHealCounter[item[5]].recordHeal(item)
+                healRes = self.criticalHealCounter[event.target].recordHeal(event)
                 if healRes != {}:
                     if self.zouQuan:
                         for line in healRes:
-                            if line in self.playerIDList:
+                            if line in self.bld.info.player:
                                 self.stat[line][10] += healRes[line]
 
             else:
-            
-                if item[4] in self.playerIDList:
-                    self.stat[item[4]][2] += int(item[14])
-                    
+                if event.caster in self.bld.info.player and event.caster in self.stat:
+                    self.stat[event.caster][2] += event.damageEff
                     if self.phase == 1:
-                        self.stat[item[4]][7] += int(item[14])
+                        self.stat[event.caster][7] += event.damageEff
                     elif self.phase == 2:
-                        self.stat[item[4]][8] += int(item[14])
+                        self.stat[event.caster][8] += event.damageEff
                     if self.yiShang:
-                        self.stat[item[4]][9] += int(item[14])
-                
-        elif item[3] == '5': #气劲
-            if self.occdict[item[5]][0] == '0':
+                        self.stat[event.caster][9] += event.damageEff
+
+        elif event.dataType == "Buff":
+            if event.target not in self.bld.info.player:
                 return
                 
-            if item[6] == "19367":  # 速符
-                if int(item[10]) == 1:
-                    self.criticalHealCounter[item[5]].active()
-                    self.criticalHealCounter[item[5]].setCriticalTime(-1)
-                elif int(item[10]) == 0:
-                    self.criticalHealCounter[item[5]].unactive()
+            if event.id == "19367":  # 速符
+                if event.stack == 1:
+                    self.criticalHealCounter[event.target].active()
+                    self.criticalHealCounter[event.target].setCriticalTime(-1)
+                elif event.stack == 0:
+                    self.criticalHealCounter[event.target].unactive()
                     
-        elif item[3] == '8':
-        
-            if len(item) <= 4:
-                return
+        elif event.dataType == "Shout":
                 
-            if item[4] in ['"就让你们见识下这金符的威力！"']:
+            if event.content in ['"就让你们见识下这金符的威力！"']:
                 self.phase = 2
-                self.phaseEnd[1] = int(item[2])
-                self.phaseStart[2] = int(item[2])
+                self.phaseEnd[1] = event.time
+                self.phaseStart[2] = event.time
                 
-            if item[4] in ['"唔...岂有此理！"']:
+            if event.content in ['"唔...岂有此理！"']:
                 self.yiShang = 1
-                self.phaseStart[3] = int(item[2])
-                self.phaseEnd[3] = int(item[2]) + 20000
+                self.phaseStart[3] = event.time
+                self.phaseEnd[3] = event.time + 20000
                 self.zouQuan = 0
                 
-            if item[4] in ['"黑云密布，电火奔星。天令一下，速震速轰！"']:
+            if event.content in ['"黑云密布，电火奔星。天令一下，速震速轰！"']:
                 if self.phase == 2:
                     self.zouQuan = 1
-                
-        elif item[3] == '3': #重伤记录
-            if item[6] == '"姜集苦"':
+
+        elif event.dataType == "Death":  # 重伤记录
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name == "姜集苦":
                 self.win = 1
-                
-            pass
-            
-        elif item[3] == "10": #战斗状态变化
+
+        elif event.dataType == "Battle":  # 战斗状态变化
             pass
                     
     def analyseFirstStage(self, item):
@@ -271,16 +262,15 @@ class JiangJikuReplayer(SpecificReplayer):
         self.phaseStart = [0, 0, 0, 0]
         self.phaseEnd = [0, 0, 0, 0]
         
-        for line in self.playerIDList:
-            self.stat[line] = [self.namedict[line][0].strip('"'), self.occDetailList[line], 0, 0, -1, "", 0] + \
+        for line in self.bld.info.player:
+            self.stat[line] = [self.bld.info.player[line].name, self.occDetailList[line], 0, 0, -1, "", 0] + \
                 [0, 0, 0, 0]
             self.hps[line] = 0
             self.criticalHealCounter[line] = CriticalHealCounter()
 
-
-    def __init__(self, playerIDList, mapDetail, res, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
+    def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
         '''
         对类本身进行初始化。
         '''
-        super().__init__(playerIDList, mapDetail, res, occDetailList, startTime, finalTime, battleTime, bossNamePrint)
+        super().__init__(bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint)
 

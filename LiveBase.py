@@ -524,7 +524,11 @@ class SingleBossWindow():
             #     self.specificBossWindow = GongWeiWindow(effectiveDPSList, detail)
             # elif detail["boss"] == "宫傲":
             #     self.specificBossWindow = GongAoWindow(effectiveDPSList, detail)
-            if detail["boss"] == "宫威":
+            if detail["boss"] == "赵八嫂":
+                self.specificBossWindow = ZhaoBasaoWindow(effectiveDPSList, detail, occResult)
+            elif detail["boss"] == "姜集苦":
+                self.specificBossWindow = JiangJikuWindow(effectiveDPSList, detail, occResult)
+            elif detail["boss"] == "宫威":
                 self.specificBossWindow = GongWeiWindow(effectiveDPSList, detail, occResult)
             else:
                 self.specificBossWindow = GeneralWindow(effectiveDPSList, detail, occResult)
@@ -1013,7 +1017,7 @@ class LiveListener():
             newestFile = dataList[-1]
         else:
             newestFile = ""
-        while(True):
+        while(self.listenFlag):
             time.sleep(3)
             filelist = os.listdir(basepath)
             if self.config.datatype == "jx3dat":
@@ -1030,10 +1034,17 @@ class LiveListener():
                 time.sleep(0.5)
                 self.getNewBattleLog(basepath, lastFile)
 
+    def stopListen(self):
+        '''
+        中止监听。
+        '''
+        self.listenFlag = False
+
     def startListen(self):
         '''
         产生监听线程，开始监控对应的路径。
         '''
+        self.listenFlag = True
         self.listenThread = threading.Thread(target = self.listenPath, args = (self.basepath,)) 
         self.listenThread.setDaemon(True);
         self.listenThread.start()

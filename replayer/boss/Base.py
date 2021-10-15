@@ -181,6 +181,7 @@ class SpecificReplayerPro():
         self.detail = {}
         self.potList = []
         self.effectiveDPSList = []
+        self.hasBh = False
 
 class SpecificReplayer():
     # TODO 移除

@@ -15,7 +15,7 @@ class BattleHistory():
         self.log["finalTime"] = self.finalTime
         return self.log
 
-    def setEnvironment(self, skillid, skillname, iconid, start, duration, num, healeff, effrate, delay, description):
+    def setEnvironment(self, skillid, skillname, iconid, start, duration, num, description):
         '''
         添加场地.
         params:
@@ -25,9 +25,6 @@ class BattleHistory():
         - start: 技能开始时刻，以毫秒计.
         - duration: 技能持续时间.
         - num: 技能次数.
-        - healeff: 治疗量.
-        - effrate: 有效比例.
-        - delay: 平均延时.
         - description: 描述.
         '''
         res = {"skillid": skillid,
@@ -35,6 +32,7 @@ class BattleHistory():
                "iconid": iconid,
                "start": start,
                "duration": duration,
+               "num": num,
                "description": description}
         self.log["environment"].append(res)
 

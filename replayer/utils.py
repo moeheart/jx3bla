@@ -133,22 +133,22 @@ class CriticalHealCounter():
         if time > self.expireTime or time == -1:
             self.expireTime = time
     
-    def recordHeal(self, item):
+    def recordHeal(self, event):
         '''
-        记录对应的item中的治疗量。
-        这里的item必须经过检验，确定是技能类别。
+        记录对应的event中的治疗量。
+        这里的event必须经过检验，确定是技能类别。
         '''
-        if int(item[2]) > self.expireTime and self.expireTime != -1:
+        if event.time > self.expireTime and self.expireTime != -1:
             self.unactive()
         
         if not self.activeNum:
             return {}
             
         result = {}
-        heal = int(item[12])
-        damage = int(item[14])
+        heal = event.healEff
+        damage = event.damageEff
         if heal > 0:
-            result[item[4]] = heal
+            result[event.caster] = heal
         
         if damage > 0:
             deductRate = 0
@@ -166,18 +166,18 @@ class CriticalHealCounter():
                         
         return result
         
-    def checkDeduct(self, item):
+    def checkDeduct(self, event):
         '''
-        记录对应的item中，减伤的获得或消失。
-        这里的item必须经过检验，确定是气劲类别，并且是玩家。
+        记录对应的event中，减伤的获得或消失。
+        这里的event必须经过检验，确定是气劲类别，并且是玩家。
         '''
-        if item[6] in self.deductDict:
-            if int(item[10]) > 0:
+        if event.id in self.deductDict:
+            if event.stack > 0:
                 #添加减伤
-                self.deductStatus[item[6]] = item[4]
+                self.deductStatus[event.id] = event.caster
             else:
                 #移除减伤
-                self.deductStatus[item[6]] = "0"
+                self.deductStatus[event.id] = "0"
         
     def unactive(self):
         '''

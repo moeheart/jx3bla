@@ -12,7 +12,7 @@ import urllib
 import json
 import webbrowser
 
-from FileLookUp import FileLookUp
+from FileLookUp import FileLookUp, FileSelector
 from ConfigTools import Config, ConfigWindow, LicenseWindow, AnnounceWindow
 from LiveBase import LiveListener, AllStatWindow, LiveActorAnalysis, SingleBossWindow
 from Constants import *
@@ -118,7 +118,8 @@ class MainWindow():
         #g.close()
     '''
 
-    def replay(self):
+    def replay(self, selectionFileList=[]):
+        replayFileList = []
         config = Config("config.ini")
         fileLookUp = FileLookUp()
         fileLookUp.initFromConfig(config)
@@ -130,16 +131,16 @@ class MainWindow():
             liveListener = LiveListener(self.fileLookUp.basepath, self.config, self.analyser, self)
             self.liveListener = liveListener
 
-        filelist, allFilelist, map = fileLookUp.getLocalFile()
-        replayFileList = []
-
-        if config.checkAll:
-            # bldDict = RawDataLoader(config, allFilelist, fileLookUp.basepath, window, self.bldDict).bldDict
-            replayFileList = allFilelist
+        if selectionFileList != []:
+            replayFileList = selectionFileList
         else:
-            # bldDict = RawDataLoader(config, filelist, fileLookUp.basepath, window).bldDict
-            replayFileList = filelist
-
+            filelist, allFilelist, map = fileLookUp.getLocalFile()
+            if config.checkAll:
+                # bldDict = RawDataLoader(config, allFilelist, fileLookUp.basepath, window, self.bldDict).bldDict
+                replayFileList = allFilelist
+            else:
+                # bldDict = RawDataLoader(config, filelist, fileLookUp.basepath, window).bldDict
+                replayFileList = filelist
 
         # controller = DataController(self.config)
         # if self.bldDict != {}:
@@ -155,14 +156,19 @@ class MainWindow():
         #     bldDict = RawDataLoader(config, filelist, fileLookUp.basepath, window).bldDict
 
         replayFileNameList = [x[0] for x in replayFileList]
-        print("[Test] Mainwindow")
-        print(replayFileNameList)
-        print(replayFileList)
         self.liveListener.getAllBattleLog(fileLookUp.basepath, replayFileNameList)
 
         # controller.replay(self) # 此处将MainWindow类本身传入
         self.setNotice({"t1": "复盘完成！", "c1": "#000000", "t2": ""})
         #self.checkAttendence()
+
+    def replay_select(self):
+        '''
+        手选文件的复盘模式.
+        '''
+        config = Config("config.ini")
+        self.fileSelector = FileSelector(config, self)
+        self.fileSelector.start()
 
     def start_replay(self):
         if self.lock.state():
@@ -191,6 +197,7 @@ class MainWindow():
     def start_live(self):
         if self.lock.state():
             return
+
         if not self.startLive:
             config = Config("config.ini")
             self.startLive = True
@@ -213,6 +220,14 @@ class MainWindow():
 
             self.listenThread = threading.Thread(target=self.check_live)
             self.listenThread.start()
+            self.liveVar.set("中止")
+
+        else:
+            self.startLive = False
+            self.liveListener.stopListen()
+            self.setNotice(
+                {"t1": "实时模式已中止。", "c1": "#000000", "t2": "不过真的需要中止的话为什么不关了呢", "c2": "#ff0000"})
+            self.liveVar.set("实时模式")
                 
     def log_once(self, lastFile):
         if self.lock.state():
@@ -309,9 +324,9 @@ class MainWindow():
         window.title('剑三警长')
         window.geometry('300x220')
         
-        #resp = urllib.request.urlopen('http://139.199.102.41:8009/getAnnouncement')
-        #res = json.load(resp)
-        res = {"announcement": "", "version": "0.0.0", "url": ""}  #TODO: 联机版中fix this
+        resp = urllib.request.urlopen('http://139.199.102.41:8009/getAnnouncement')
+        res = json.load(resp)
+        #res = {"announcement": "", "version": "0.0.0", "url": ""}  # 非联机版本跳过加载步骤
         self.announcement = res["announcement"]
         self.newestEdition = res["version"]
         self.updateurl = res["url"]
@@ -320,12 +335,15 @@ class MainWindow():
         self.var1 = tk.StringVar()
         self.var2 = tk.StringVar()
 
+        self.liveVar = tk.StringVar()
+        self.liveVar.set("实时模式")
+
         l = tk.Label(window, text='剑三警长', font=('Arial', 24), width=30, height=2)
         l.pack()
 
         b1 = tk.Button(window, text='复盘模式', bg='#ccffcc', width=12, height=1, command=self.start_replay)
         b1.pack()
-        b2 = tk.Button(window, text='实时模式', bg='#ffcccc', width=12, height=1, command=self.start_live)
+        b2 = tk.Button(window, textvariable=self.liveVar, bg='#ffcccc', width=12, height=1, command=self.start_live)
         b2.pack()
 
         text1 = tk.Label(window, textvariable=self.var1, width=40, height=1)
@@ -352,7 +370,10 @@ class MainWindow():
         b6.place(x = 20, y = 20)
         
         b7 = tk.Button(window, text='+', bg='#ffcccc', width=1, height=1, command=self.live_once)
-        b7.place(x = 200, y = 108)
+        b7.place(x=200, y=108)
+
+        b8 = tk.Button(window, text='+', bg='#ccffcc', width=1, height=1, command=self.replay_select)
+        b8.place(x=200, y=78)
         
         showEdition = EDITION
         if parseEdition(EDITION) < parseEdition(self.newestEdition):

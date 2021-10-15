@@ -22,7 +22,7 @@ from replayer.boss.Base import SpecificReplayerPro, SpecificBossWindow
 
 from replayer.boss.General import GeneralReplayer, GeneralWindow
 from replayer.boss.HuTangLuoFen import HuTangLuoFenReplayer
-from replayer.boss.ZhaoBasao import ZhaoBasaoReplayer
+from replayer.boss.ZhaoBasao import ZhaoBasaoReplayer, ZhaoBasaoWindow
 from replayer.boss.HaiTu import HaiTuReplayer
 from replayer.boss.JiangJiku import JiangJikuReplayer
 from replayer.boss.YuwenMie import YuwenMieReplayer
@@ -304,7 +304,13 @@ class ActorProReplayer(ReplayerBase):
         # else:
         #     bossAnalyser = SpecificReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
 
-        if self.bossAnalyseName == "宫威":
+        if self.bossAnalyseName == "赵八嫂":
+            bossAnalyser = ZhaoBasaoReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "姜集苦":
+            bossAnalyser = JiangJikuReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "宫威":
             bossAnalyser = GongWeiReplayer(self.bld, occDetailList, self.startTime,
                                            self.finalTime, self.battleTime, self.bossNamePrint)
         else:
@@ -701,13 +707,15 @@ class ActorProReplayer(ReplayerBase):
         if self.mapDetail in ["25人英雄达摩洞", "25人英雄白帝江关"]:
             self.upload = 1
 
-        #for line in self.playerIDList:
-        #    print(namedict[line])
+        if self.bossAnalyser.hasBh:
+            self.bh = self.bossAnalyser.bh
+        else:
+            self.bh = None
         
-        print(self.potList)
-        for line in effectiveDPSList:
-           print(line)
-        print(detail)
+        # print(self.potList)
+        # for line in effectiveDPSList:
+        #    print(line)
+        # print(detail)
 
     def generateWindow(self):
         '''
@@ -733,7 +741,11 @@ class ActorProReplayer(ReplayerBase):
         # else:
         #     bossAnalyser = SpecificReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
 
-        if self.bossAnalyseName == "宫威":
+        if self.bossAnalyseName == "赵八嫂":
+            bossWindow = ZhaoBaSaoWindow(self.effectiveDPSList, self.detail)
+        elif self.bossAnalyseName == "姜集苦":
+            bossWindow = JiangJikuWindow(self.effectiveDPSList, self.detail)
+        elif self.bossAnalyseName == "宫威":
             bossWindow = GongWeiWindow(self.effectiveDPSList, self.detail)
         else:
             bossWindow = GeneralWindow(self.effectiveDPSList, self.detail)
@@ -749,7 +761,7 @@ class ActorProReplayer(ReplayerBase):
         for id in self.bld.info.player:
             if self.config.xiangzhiActive and self.occDetailList[id] == "22h":  # 奶歌
                 name = self.bld.info.player[id].name
-                xiangzhiRep = XiangZhiProReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name)
+                xiangzhiRep = XiangZhiProReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh)
                 xiangzhiRep.replay()
                 self.occResult[name] = {"occ": "22h", "result": xiangzhiRep.result}
 
@@ -779,8 +791,6 @@ class ActorProReplayer(ReplayerBase):
         self.failThreshold = config.failThreshold  # BOSS失败时倒推的秒数
         self.win = 0
         self.mask = config.mask
-        # self.filePath = path + '\\' + filename[0]
-        # self.no1Hit = {}
         self.bldDict = bldDict
         self.fileNameInfo = fileNameInfo
         self.path = path
@@ -843,4 +853,3 @@ class ActorAnalysis():
                              "alertRate": config.alertRate,
                              "bonusRate": config.bonusRate}
         self.loadData(filelist, path, raw)
-        

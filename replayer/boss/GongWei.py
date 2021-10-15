@@ -3,6 +3,7 @@
 # 宫威是白帝江关6号首领.
 
 from replayer.boss.Base import SpecificReplayerPro, SpecificBossWindow, ToolTip
+from replayer.BattleHistory import BattleHistory
 from replayer.TableConstructorMeta import TableConstructorMeta
 from replayer.utils import CriticalHealCounter, DpsShiftWindow
 from tools.Functions import *
@@ -19,7 +20,6 @@ class GongWeiWindow(SpecificBossWindow):
         使用tkinter绘制详细复盘窗口。
         '''
         window = tk.Toplevel()
-        #window = tk.Tk()
         window.title('宫威详细复盘')
         window.geometry('1200x800')
         
@@ -81,22 +81,36 @@ class GongWeiWindow(SpecificBossWindow):
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
 
-    def __init__(self, effectiveDPSList, detail):
-        super().__init__(effectiveDPSList, detail)
+    def __init__(self, effectiveDPSList, detail, occResult):
+        super().__init__(effectiveDPSList, detail, occResult)
 
 class GongWeiReplayer(SpecificReplayerPro):
 
-    def countFinal(self, nowTime):
+    def countFinal(self):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
-        pass
-        #self.phase = 0
+        for line in self.bhlc:
+            self.bh.setEnvironment("26438", "捭阖连锤", "3450", line[0], line[1]-line[0], 1, "")
+
+        if self.kjbss[0][0] != 0 and self.kjbss[0][1] != 0:
+            self.bh.setEnvironment("26626", "狂劲搬山摔", "4544", self.kjbss[0][0], self.kjbss[0][1] - self.kjbss[0][0], 1, "")
+
+        if self.kjldzd[0][0] != 0 and self.kjldzd[0][1] != 0:
+            self.bh.setEnvironment("26347", "狂劲裂地重蹬", "4006", self.kjldzd[0][0], self.kjldzd[0][1] - self.kjldzd[0][0], 1, "")
+
+        if self.kjbss[1][0] != 0 and self.kjbss[1][1] != 0:
+            self.bh.setEnvironment("26626", "狂劲搬山摔", "4544", self.kjbss[1][0], self.kjbss[1][1] - self.kjbss[1][0], 1, "")
+
+        if self.kjldzd[1][0] != 0 and self.kjldzd[1][1] != 0:
+            self.bh.setEnvironment("26347", "狂劲裂地重蹬", "4006", self.kjldzd[1][0], self.kjldzd[1][1] - self.kjldzd[1][0], 1, "")
 
     def getResult(self):
         '''
         生成复盘结果的流程。需要维护effectiveDPSList, potList与detail。
         '''
+
+        self.countFinal()
 
         bossResult = []
         for id in self.bld.info.player:
@@ -135,14 +149,45 @@ class GongWeiReplayer(SpecificReplayerPro):
                 if event.heal > 0 and event.effect != 7 and event.caster in self.hps:  # 非化解
                     self.hps[event.caster] += event.healEff
 
+                if event.id == "26438":  # 捭阖连锤·终
+                    if event.time - self.bhlc[-1][0] > 50000:
+                        self.bhlc.append([event.time - 22000, event.time])
+
             else:
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
 
-
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
                 return
+
+            if event.id == "19424":  # 怯懦
+                if event.stack == 1:
+                    if self.kjbss[0][0] == 0:
+                        self.kjbss[0][0] = event.time
+                    elif event.time - self.kjbss[0][0] > 100000:  # 间隔至少100秒
+                        self.kjbss[1][0] = event.time
+                else:
+                    if self.kjbss[0][1] == 0:
+                        self.kjbss[0][1] = event.time
+                    elif event.time - self.kjbss[0][1] < 100000 and self.kjbss[1][0] == 0:  # 间隔至少100秒
+                        self.kjbss[0][1] = event.time
+                    else:
+                        self.kjbss[1][1] = event.time
+
+            if event.id == "18912":  # 动弹不得
+                if event.stack == 1:
+                    if self.kjldzd[0][0] == 0:
+                        self.kjldzd[0][0] = event.time
+                    elif event.time - self.kjldzd[0][0] > 100000 and self.kjldzd[1][0] == 0:  # 间隔至少100秒
+                        self.kjldzd[1][0] = event.time
+                else:
+                    if self.kjldzd[0][1] == 0:
+                        self.kjldzd[0][1] = event.time
+                    elif event.time - self.kjldzd[0][1] < 100000:  # 间隔至少100秒
+                        self.kjldzd[0][1] = event.time
+                    else:
+                        self.kjldzd[1][1] = event.time
 
         elif event.dataType == "Shout":
             if event.content in ['"喝啊……看！这疤痕，就是俺的忠诚！"']:
@@ -170,14 +215,24 @@ class GongWeiReplayer(SpecificReplayerPro):
         '''
         self.activeBoss = "宫威"
         
-        #通用格式：
-        #0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
+        # 通用格式：
+        # 0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
+
+        # 宫威数据格式：
+        # 待实现
         
         self.stat = {}
         self.hps = {}
         self.detail["boss"] = "宫威"
         self.win = 0
         self.phase = 1
+
+        # 记录BOSS技能轴
+        self.bh = BattleHistory(self.startTime, self.finalTime)
+        self.hasBh = True
+        self.kjbss = [[0, 0], [0, 0]]
+        self.kjldzd = [[0, 0], [0, 0]]
+        self.bhlc = [[0, 0]]
         
         for line in self.bld.info.player:
             self.hps[line] = 0
