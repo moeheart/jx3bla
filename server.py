@@ -719,7 +719,7 @@ def uploadReplayPro():
         else:
             print("Update edition")
 
-    sql = '''DELETE FROM ReplayProInfo WHERE hash = "%s"''' % hash
+    sql = '''DELETE FROM ReplayProStat WHERE hash = "%s"''' % hash
     cursor.execute(sql)
 
     # 更新数量
@@ -817,7 +817,7 @@ def uploadXiangZhiData():
         else:
             print("Update edition")
     
-    sql = '''DELETE FROM ActorStat WHERE hash = "%s"'''%hash
+    sql = '''DELETE FROM XiangZhiStat WHERE hash = "%s"'''%hash
     cursor.execute(sql)
         
     sql = """INSERT INTO XiangZhiStat VALUES ("%s", "%s", %d, "%s", "%s", "%s", "%s", "%s", %d, %d, "%s", %d, %d, "")"""%(
