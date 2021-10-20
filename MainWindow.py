@@ -160,6 +160,8 @@ class MainWindow():
 
         # controller.replay(self) # 此处将MainWindow类本身传入
         self.setNotice({"t1": "复盘完成！", "c1": "#000000", "t2": ""})
+        self.show_history()
+
         #self.checkAttendence()
 
     def replay_select(self):

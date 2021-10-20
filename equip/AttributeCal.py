@@ -84,11 +84,13 @@ class AttributeCal():
                     continue
                 if magicID in ["11272"]:  # 鞋子大附魔
                     magicAttrib = {'atTherapyPowerBase': 241}
-                else:
+                elif magicID in self.equipmentInfo:
                     magicAttribInfo = self.equipmentInfo.enchant[magicID]
                     if magicAttribInfo[0] in ["atExecuteScript"]:
                         continue
                     magicAttrib = {magicAttribInfo[0]: int(magicAttribInfo[1])}
+                else:
+                    magicAttrib = {}
                 singleAttrib = self.attribMerge(singleAttrib, magicAttrib)
             sumAttrib = self.attribMerge(singleAttrib, sumAttrib)
 

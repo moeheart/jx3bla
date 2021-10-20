@@ -4,7 +4,7 @@
 import os
 import winreg
 import functools
-from BossNameUtils import *
+from tools.Names import *
 
 import threading
 import tkinter as tk
@@ -168,7 +168,7 @@ class FileLookUp():
         if config.basepath != "":
             print("指定基准目录，使用：%s" % config.basepath)
             self.basepath = config.basepath
-            return ""
+            return self.basepath
         elif config.playername == "":
             self.basepath = '.'  # 这一句有点废话的意思，但为了让别人看得清晰还是写上吧
             print("没有指定记录者角色名，将查找当前目录下的文件……")
@@ -232,15 +232,15 @@ class FileSelector():
         window.title('选择复盘记录')
         window.geometry('500x700')
 
-        canvas = tk.Canvas(window, width=600, height=500, scrollregion=(0, 0, 580, numFile * 30))  # 创建canvas
+        canvas = tk.Canvas(window, width=400, height=500, scrollregion=(0, 0, 380, numFile * 30))  # 创建canvas
         canvas.place(x=25, y=25)  # 放置canvas的位置
         frame = tk.Frame(canvas)  # 把frame放在canvas里
-        frame.place(width=580, height=500)  # frame的长宽，和canvas差不多的
+        frame.place(width=380, height=500)  # frame的长宽，和canvas差不多的
         vbar = tk.Scrollbar(canvas, orient=tk.VERTICAL)  # 竖直滚动条
-        vbar.place(x=580, width=20, height=500)
+        vbar.place(x=380, width=20, height=500)
         vbar.configure(command=canvas.yview)
         canvas.config(yscrollcommand=vbar.set)  # 设置
-        canvas.create_window((265, numFile * 15), window=frame)  # create_window
+        canvas.create_window((165, numFile * 15), window=frame)  # create_window
 
         for i in range(numFile):
             fileName = self.optionList[i]
@@ -268,4 +268,6 @@ class FileSelector():
         self.basepath = self.fileLookUp.initFromConfig(config)
         self.dataType = self.fileLookUp.dataType
         self.mainWindow = mainWindow
+        print("[Debug]")
+        print(self.basepath)
 

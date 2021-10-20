@@ -4,7 +4,7 @@
 from data.BattleLogData import BattleLogData, RawDataLoader
 import traceback
 from FileLookUp import FileLookUp
-from BossNameUtils import getNickToBoss
+from tools.Names import getNickToBoss
 from replayer.ActorReplayPro import ActorProReplayer
 from replayer.occ.XiangZhi import XiangZhiProWindow, XiangZhiProReplayer
 
@@ -53,56 +53,56 @@ class DataController():
         except Exception as e:
             traceback.print_exc()
 
-    def replay(self, window):
-        '''
-        在现有的条件下识别需要复盘的文件，并执行复盘流程。
-        params:
-        - window: 主程序窗口对象。
-        '''
-        try:
-            config = self.config
-            fileLookUp = FileLookUp()
-            fileLookUp.initFromConfig(config)
-            filelist, allFilelist, map = fileLookUp.getLocalFile()
-            print("开始分析。分析耗时可能较长，请耐心等待……")
-
-            # 加载与补充加载，保证raw中包含了所有可能用到的数据。
-            if self.cached:
-                bldDict = RawDataLoader(config, filelist, fileLookUp.basepath, window, self.bldDict).bldDict
-            elif config.checkAll:
-                bldDict = RawDataLoader(config, allFilelist, fileLookUp.basepath, window).bldDict
-            else:
-                bldDict = RawDataLoader(config, filelist, fileLookUp.basepath, window).bldDict
-
-            # TODO 在线展示链接重构
-            '''
-            if config.xiangzhiActive:
-                b = XiangZhiAnalysis(filelist, map, fileLookUp.basepath, config, raw)
-                b.analysis()
-                b.paint("result.png")
-                print("奶歌战斗复盘分析完成！结果保存在result.png中")
-                if b.info["uploaded"]:
-                    print("可以通过以下链接来查看与分享：http://139.199.102.41:8009/XiangZhiData/png?key=%s" % b.info["hash"])
-            '''
-            for fileName in bldDict:
-                fileNameInfo = [fileName, 0, 1]
-
-                # 演员复盘部分
-                actorRep = ActorProReplayer(config, fileNameInfo, fileLookUp.basepath, bldDict, window)
-                actorRep.replay()
-                actorWindow = actorRep.generateWindow()
-                actorWindow.start()
-
-                # 奶歌复盘部分
-                # xiangzhiRep = XiangZhiProReplayer(config, fileNameInfo, fileLookUp.basepath, bldDict, window)
-                # xiangzhiRep.replay()
-                # xiangzhiWindow = XiangZhiProWindow(xiangzhiRep.result)
-                # xiangzhiWindow.start()
-
-            window.setBattleLogData(bldDict)
-
-        except Exception as e:
-            traceback.print_exc()
+    # def replay(self, window):
+    #     '''
+    #     在现有的条件下识别需要复盘的文件，并执行复盘流程。
+    #     params:
+    #     - window: 主程序窗口对象。
+    #     '''
+    #     try:
+    #         config = self.config
+    #         fileLookUp = FileLookUp()
+    #         fileLookUp.initFromConfig(config)
+    #         filelist, allFilelist, map = fileLookUp.getLocalFile()
+    #         print("开始分析。分析耗时可能较长，请耐心等待……")
+    #
+    #         # 加载与补充加载，保证raw中包含了所有可能用到的数据。
+    #         if self.cached:
+    #             bldDict = RawDataLoader(config, filelist, fileLookUp.basepath, window, self.bldDict).bldDict
+    #         elif config.checkAll:
+    #             bldDict = RawDataLoader(config, allFilelist, fileLookUp.basepath, window).bldDict
+    #         else:
+    #             bldDict = RawDataLoader(config, filelist, fileLookUp.basepath, window).bldDict
+    #
+    #         # TODO 在线展示链接重构
+    #         '''
+    #         if config.xiangzhiActive:
+    #             b = XiangZhiAnalysis(filelist, map, fileLookUp.basepath, config, raw)
+    #             b.analysis()
+    #             b.paint("result.png")
+    #             print("奶歌战斗复盘分析完成！结果保存在result.png中")
+    #             if b.info["uploaded"]:
+    #                 print("可以通过以下链接来查看与分享：http://139.199.102.41:8009/XiangZhiData/png?key=%s" % b.info["hash"])
+    #         '''
+    #         for fileName in bldDict:
+    #             fileNameInfo = [fileName, 0, 1]
+    #
+    #             # 演员复盘部分
+    #             actorRep = ActorProReplayer(config, fileNameInfo, fileLookUp.basepath, bldDict, window)
+    #             actorRep.replay()
+    #             actorWindow = actorRep.generateWindow()
+    #             actorWindow.start()
+    #
+    #             # 奶歌复盘部分
+    #             # xiangzhiRep = XiangZhiProReplayer(config, fileNameInfo, fileLookUp.basepath, bldDict, window)
+    #             # xiangzhiRep.replay()
+    #             # xiangzhiWindow = XiangZhiProWindow(xiangzhiRep.result)
+    #             # xiangzhiWindow.start()
+    #
+    #         window.setBattleLogData(bldDict)
+    #
+    #     except Exception as e:
+    #         traceback.print_exc()
 
     def setRawData(self, bldDict):
         '''

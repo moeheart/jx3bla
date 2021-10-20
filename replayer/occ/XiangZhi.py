@@ -4,7 +4,7 @@
 from replayer.ReplayerBase import ReplayerBase
 from replayer.BattleHistory import BattleHistory
 from replayer.TableConstructor import TableConstructor, ToolTip
-from BossNameUtils import *
+from tools.Names import *
 from Constants import *
 from tools.Functions import *
 from equip.AttributeDisplayRemote import AttributeDisplayRemote
@@ -475,6 +475,12 @@ class XiangZhiProWindow():
             posEnd = int((record["start"] + record["duration"] - startTime) / 100)
             canvas6.create_image(posStart+10, 80, image=canvas6.im[record["iconid"]])
 
+        # 绘制点名轴
+        for record in self.result["replay"]["call"]:
+            posStart = int((record["start"] - startTime) / 100)
+            posEnd = int((record["start"] + record["duration"] - startTime) / 100)
+            canvas6.create_image(posStart+10, 80, image=canvas6.im[record["iconid"]])
+
         # 绘制环境轴
         for record in self.result["replay"]["environment"]:
             posStart = int((record["start"] - startTime) / 100)
@@ -630,8 +636,16 @@ class XiangZhiProReplayer(ReplayerBase):
         self.activeBoss = ""
 
         # 记录战斗开始时间与结束时间
-        self.startTime = self.bld.log[0].time
-        self.finalTime = self.bld.log[-1].time
+        if self.startTime == 0:
+            self.startTime = self.bld.log[0].time
+        if self.finalTime == 0:
+            self.finalTime = self.bld.log[-1].time
+
+        # 如果时间被大幅度修剪过，则修正战斗时间
+        if abs(self.finalTime - self.startTime - self.result["overall"]["sumTime"]) > 6000:
+            actualTime = self.finalTime - self.startTime
+            self.result["overall"]["sumTime"] = actualTime
+            self.result["overall"]["sumTimePrint"] = parseTime(actualTime / 1000)
 
         # 记录所有治疗的key，首先尝试直接使用心法列表获取.
         self.healerDict = {}
@@ -646,7 +660,32 @@ class XiangZhiProReplayer(ReplayerBase):
         for key in self.bld.info.player:
             self.shieldCountersNew[key] = ShieldCounterNew("16911", self.startTime, self.finalTime)
 
+        # 自动推导奶歌角色名与ID，在连接场景中会被指定，这一步可跳过
+        if self.myname == "":
+            # if len(XiangZhiList) >= 2:
+            #     nameList = []
+            #     for line in XiangZhiList:
+            #         nameList.append(namedict[line][0])
+            #     s = str(nameList)
+            #     raise Exception('奶歌的数量不止一个，请手动指示ID。可能的ID为：%s' % s)
+            # elif len(XiangZhiList) == 0:
+            #     raise Exception('没有找到奶歌，请确认数据是否正确')
+            # else:
+            #     self.mykey = XiangZhiList[0]
+            #     self.myname = self.bld.info.player[self.mykey].name
+            #     print("自动推断奶歌角色名为：%s"%self.myname)
+            raise Exception("奶歌名暂时不可自动推导，需要通过前序分析来手动指定")
+        else:
+            for key in self.bld.info.player:
+                if self.bld.info.player[key].name == self.myname:
+                    self.mykey = key
+
         for event in self.bld.log:
+
+            if event.time < self.startTime:
+                continue
+            if event.time > self.finalTime:
+                continue
 
             if self.interrupt != 0:
                 continue
@@ -657,11 +696,11 @@ class XiangZhiProReplayer(ReplayerBase):
                     XiangZhiList.append(event.caster)
                     self.healerDict[event.caster] = 0
                 if event.caster not in self.healerDict and event.id in ["565", "554", "555", "2232", "6662", "2233", "6675",
-                                                                  "2231", "101", "142", "138", "16852", "18864"]:  # 其它治疗的特征技能
+                                                                  "2231", "101", "142", "138", "16852", "18864", "27621", "27623", "28083"]:  # 其它治疗的特征技能
                     self.healerDict[event.caster] = 0
 
                 # 记录主动贴盾，主要是为了防止复盘记录中的数据丢失。
-                if event.id == "14231":
+                if event.id == "14231" and event.caster == self.mykey:
                     jianLiaoStack = 0
                     if event.target in jianLiaoLog:
                         jianLiaoStack = jianLiaoLog[event.target].checkState(event.time)
@@ -672,7 +711,7 @@ class XiangZhiProReplayer(ReplayerBase):
                         self.shieldCountersNew[event.target].setState(event.time, 1)
 
                 if event.caster in occDetailList and occDetailList[event.caster] in ['1', '2', '3', '4', '5', '6', '7', '10',
-                                                                           '21', '22']:
+                                                                           '21', '22', '212']:
                     occDetailList[event.caster] = checkOccDetailBySkill(occDetailList[event.caster], event.id, event.damageEff)
 
                 if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == '"宓桃"':
@@ -681,7 +720,7 @@ class XiangZhiProReplayer(ReplayerBase):
                     self.activeBoss = "哑头陀"
 
             elif event.dataType == "Buff":
-                if event.id in ["9334", "16911"]:  # buff梅花三弄
+                if event.id in ["9334", "16911"] and event.caster == self.mykey:  # buff梅花三弄
                     if event.target not in shieldLogDict:
                         shieldLogDict[event.target] = []
                     shieldLogDict[event.target].append([event.time, event.stack])
@@ -704,25 +743,6 @@ class XiangZhiProReplayer(ReplayerBase):
 
         for key in self.bld.info.player:
             self.shieldCountersNew[key].inferFirst()
-
-        # 自动推导奶歌角色名与ID，在连接场景中会被指定，这一步可跳过
-        if self.myname == "":
-            if len(XiangZhiList) >= 2:
-                nameList = []
-                for line in XiangZhiList:
-                    nameList.append(namedict[line][0])
-                s = str(nameList)
-                raise Exception('奶歌的数量不止一个，请手动指示ID。可能的ID为：%s' % s)
-            elif len(XiangZhiList) == 0:
-                raise Exception('没有找到奶歌，请确认数据是否正确')
-            else:
-                self.mykey = XiangZhiList[0]
-                self.myname = self.bld.info.player[self.mykey].name
-                print("自动推断奶歌角色名为：%s"%self.myname)
-        else:
-            for key in self.bld.info.player:
-                if self.bld.info.player[key].name == self.myname:
-                    self.mykey = key
 
         self.result["overall"]["playerID"] = self.myname
 
@@ -839,10 +859,11 @@ class XiangZhiProReplayer(ReplayerBase):
         bhBusy = 0
         skillNameDict = {"0": "未知",
                          "14231": "梅花三弄",
-                         "14137": "宫",
-                         "14300": "宫",
-                         "14140": "徵",
-                         "14362": "徵",
+                         "18864": "宫",
+                         "14360": "宫",
+                         "16852": "宫",
+                         # "14140": "徵",
+                         # "14362": "徵",
                          "14301": "徵",
                          "18865": "徵",
                          "14141": "羽",
@@ -873,10 +894,11 @@ class XiangZhiProReplayer(ReplayerBase):
                            }
         skillIconDict = {"0": "未知",
                          "14231": "7059",
-                         "14137": "7173",
-                         "14300": "7173",
-                         "14140": "7174",
-                         "14362": "7174",
+                         "18864": "7173",
+                         "14360": "7173",
+                         "16852": "7173",
+                         # "14140": "7174",
+                         # "14362": "7174",
                          "14301": "7174",
                          "18865": "7174",
                          "14141": "7175",
@@ -914,8 +936,6 @@ class XiangZhiProReplayer(ReplayerBase):
                                "3071", "18274", "14646",  # 治疗套装，寒清，书离
                                "23951", # 贯体通用
                                "15168", "14357", "15169", "15170", "14358", # 羽
-                               "14399", # 角判定
-                               "14395", # 商判定
                                "14536", "14537", # 盾填充, 盾移除
                                "15138", "15081", "15153", # 影子判定
                                "25237", # 古道
@@ -927,7 +947,19 @@ class XiangZhiProReplayer(ReplayerBase):
                                "6800", # 风？
                                "14084", #杯水
                                "14162", # 收孤影
-                              ]
+                               "15055", # 盾高血量
+                               "13332", # 锋凌横绝阵
+                               "25231", # 桑柔判定
+                               # "16852", # 群体宫
+                               "14137", "14300", # 宫的壳技能
+                               "14140", "14362", # 徵的壳技能
+                               "14407", "14408", "14409", "14410", "14411", "14412", "14413", "14414", "14415",  # 寸光阴的智障判定
+                               "14395", "14396", "14397", "14398", "14399", "14400", "14401", "14402",  # 估计是寸光阴添加HOT
+                               "15090", "14344", # 阳春白雪主动技能（无尽藏！）
+                               "14243",  # 掷杯判定
+                               "22211",  # 治疗衣服大附魔
+                               "15091",  # 阳春添加状态切换buff
+                               ]
         xiangZhiSpecial = ["20763", "20764", "21321",  # 相依
                            "15039", # 传影子
                            "14150", # 云生结海
@@ -941,8 +973,10 @@ class XiangZhiProReplayer(ReplayerBase):
                            ]
 
         for event in self.bld.log:
+            if event.time < self.startTime:
+                continue
             if event.time > self.finalTime:
-                break
+                continue
 
             if event.dataType == "Skill":
                 # 统计化解(暂时只能统计jx3dat的，因为jcl里压根没有)
@@ -966,13 +1000,19 @@ class XiangZhiProReplayer(ReplayerBase):
                     # if event.caster == self.mykey and event.scheme == 1 and event.id in xiangZhiUnimportant and event.heal != 0:
                     #     print(event.id, event.time)
 
+                    # if event.scheme == 1 and event.heal != 0 and event.caster == self.mykey:
+                    #     # 打印所有有治疗量的技能，以进行整理
+                    #     print("[Heal]", event.id, event.heal)
+
                     if event.caster == self.mykey and event.scheme == 1 and event.id not in xiangZhiUnimportant: # 影子宫、桑柔等需要过滤的技能
                         skillLog.append([event.time, event.id])
+
                         # 若技能没有连续，则在战斗回放中记录技能
                         if ((event.id not in skillNameDict or skillNameDict[event.id] != skillNameDict[bhSkill]) and event.id not in xiangZhiSpecial)\
                             or event.time - lastSkillTime > 3000:
                             # 记录本次技能
-                            # print(event.id, bhSkill)
+                            print(event.id, bhSkill)
+                            # 此处的逻辑完全可以去掉，保留这个逻辑就是为了监控哪些是值得挖掘的隐藏技能
                             if bhSkill != "0":
                                 bh.setNormalSkill(bhSkill, skillNameDict[bhSkill], skillIconDict[bhSkill],
                                                   bhTimeStart, bhTimeEnd - bhTimeStart, bhNum, bhHeal,
@@ -997,28 +1037,30 @@ class XiangZhiProReplayer(ReplayerBase):
                             lastSkillTime = mhsnSkill.recordSkill(event.time, lastSkillTime) + getLength(24, self.haste)
                             bhTimeEnd = lastSkillTime
                             bhBusy += getLength(24, self.haste)
-                        elif event.id in ["14137", "14300"]:  # 宫
+                        elif event.id in ["18864", "14360", "16852"]:  # 宫实际效果
+                            print("[Debug]", event.id, event.healEff, event.time)
                             if bhNum == 0:
                                 bhTimeStart -= getLength(24, self.haste)
-                            bhNum += 1
-                            bhDelayNum += 1
-                            bhDelay += event.time - lastSkillTime - getLength(24, self.haste)
+                            if event.time - lastSkillTime > getLength(24, self.haste) + 100 or bhNum == 0:
+                                bhNum += 1
+                                bhDelayNum += 1
+                                bhDelay += event.time - lastSkillTime - getLength(24, self.haste)
+                                bhBusy += getLength(24, self.haste)
                             bhHeal += event.heal
                             bhHealEff += event.healEff
-                            lastSkillTime = gongSkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime)
+                            lastSkillTime = gongSkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime) + getLength(24, self.haste)
                             bhTimeEnd = lastSkillTime
-                            bhBusy += getLength(24, self.haste)
                         elif event.id in ["14362", "18865"]:  # 徵实际效果
                             if bhNum == 0:
                                 bhTimeStart -= getLength(8, self.haste)
-                            if event.time - lastSkillTime > getLength(8, self.haste) + 100:
+                            if event.time - lastSkillTime > getLength(8, self.haste) + 100 or bhNum == 0:
                                 bhNum += 1
                                 bhDelayNum += 1
                                 bhDelay += event.time - lastSkillTime - getLength(8, self.haste)
                                 bhBusy += getLength(8, self.haste)
                             bhHeal += event.heal
                             bhHealEff += event.healEff
-                            lastSkillTime = zhiSkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime)
+                            lastSkillTime = zhiSkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime) + getLength(8, self.haste)
                             bhTimeEnd = lastSkillTime
                         elif event.id in ["14354", "14355"]:  # 羽
                             bhNum += 1
@@ -1120,9 +1162,9 @@ class XiangZhiProReplayer(ReplayerBase):
                     if event.target not in self.criticalHealCounter:
                         self.criticalHealCounter[event.target] = BuffCounter("buffID", self.startTime, self.finalTime)
                     self.criticalHealCounter[event.target].setState(event.time, event.stack)
-                if event.id in ["9459", "9460", "9461", "9462"]:  # 商
+                if event.id in ["9459", "9460", "9461", "9462"] and event.caster == self.mykey:  # 商
                     shangBuffDict[event.target].setState(event.time, event.stack)
-                if event.id in ["9463", "9464", "9465", "9466"]:  # 角
+                if event.id in ["9463", "9464", "9465", "9466"] and event.caster == self.mykey:  # 角
                     jueBuffDict[event.target].setState(event.time, event.stack)
 
             elif event.dataType == "Shout":
@@ -1146,6 +1188,7 @@ class XiangZhiProReplayer(ReplayerBase):
         # 同步BOSS的技能信息
         if self.bossBh is not None:
             bh.log["environment"] = self.bossBh.log["environment"]
+            bh.log["call"] = self.bossBh.log["call"]
 
         # 计算战斗效率等统计数据，TODO 扩写
         skillCounter = SkillLogCounter(skillLog, self.startTime, self.finalTime, self.haste)
@@ -1200,8 +1243,8 @@ class XiangZhiProReplayer(ReplayerBase):
         for line in healList:
             res = {"name": self.bld.info.player[line[0]].name,
                    "occ": self.bld.info.player[line[0]].occ,
-                   "healEff": int(line[1][0] / self.bld.info.sumTime * 1000),
-                   "heal": int(line[1][1] / self.bld.info.sumTime * 1000)}
+                   "healEff": int(line[1][0] / self.result["overall"]["sumTime"] * 1000),
+                   "heal": int(line[1][1] / self.result["overall"]["sumTime"] * 1000)}
             self.result["healer"]["table"].append(res)
 
         # 计算DPS列表(Part 7)
@@ -1233,7 +1276,7 @@ class XiangZhiProReplayer(ReplayerBase):
             self.result["dps"]["numDPS"] += 1
             res = {"name": self.bld.info.player[line[0]].name,
                    "occ": self.bld.info.player[line[0]].occ,
-                   "damage": int(line[1] / self.bld.info.sumTime * 1000),
+                   "damage": int(line[1] / self.result["overall"]["sumTime"] * 1000),
                    "shieldRate": roundCent(rateDict[line[0]]),
                    "shieldBreak": breakDict[line[0]]}
             self.result["dps"]["table"].append(res)
@@ -1386,7 +1429,7 @@ class XiangZhiProReplayer(ReplayerBase):
         self.recordRater()
         self.prepareUpload()
 
-    def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", bossBh=None):
+    def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", bossBh=None, startTime=0, finalTime=0):
         '''
         初始化.
         params:
@@ -1395,6 +1438,10 @@ class XiangZhiProReplayer(ReplayerBase):
         - path: 路径.
         - bldDict: 战斗数据缓存.
         - window: 主窗口，用于显示进度条.
+        - myname: 需要复盘的奶歌名.
+        - bossBh: BOSS施放的技能列表类，用于生成时间轴.
+        - startTime: 演员复盘推断得到的战斗开始时间.
+        - finalTime: 演员复盘推断得到的战斗结束时间.
         '''
         #self.win = 0
         super().__init__(config, fileNameInfo, path, bldDict, window)
@@ -1407,6 +1454,8 @@ class XiangZhiProReplayer(ReplayerBase):
         self.config = config
         #self.filePath = path + '\\' + fileNameInfo[0]
         self.bld = bldDict[fileNameInfo[0]]
+        self.startTime = startTime
+        self.finalTime = finalTime
 
         self.result = {}
         self.haste = config.speed

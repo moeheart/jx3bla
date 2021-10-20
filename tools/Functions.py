@@ -298,7 +298,7 @@ def getOccType(occ):
     '''
     if occ in ['1t', '3t', '10t', '21t']:
         return "tank"
-    elif occ in ['2h', '5h', '6h', '22h']:
+    elif occ in ['2h', '5h', '6h', '22h', '212h']:
         return "healer"
     else:
         return "dps"
@@ -340,6 +340,7 @@ def getColor(occ):
                  "24": (195, 171, 227),#蓬莱
                  "25": (161, 9, 34),#凌雪
                  "211": (166, 83, 251),#衍天
+                 "212": (0, 0, 0),#药宗
                 }
     res = (0, 0, 0)
     if occ in colorDict:
@@ -442,6 +443,10 @@ def checkOccDetailBySkill(default, skillID, damage):
         return '22d'
     elif skillID in ["14231", "14140", "14301"]:
         return '22h'
+    elif skillID in ["27551", "27554", "28081"]:
+        return '212d'
+    elif skillID in ["27621", "27623", "28083"]:
+        return '212h'
     else:
         return default
         

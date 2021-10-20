@@ -3,7 +3,7 @@
 
 from tools.Functions import *
 from tools.LoadData import *
-from BossNameUtils import *
+from tools.Names import *
 
 class StatGeneratorBase():
     filename = ""

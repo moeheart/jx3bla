@@ -147,7 +147,6 @@ class GeneralReplayer(SpecificReplayerPro):
             else:
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
-     
                 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:

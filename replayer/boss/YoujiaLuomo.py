@@ -1,19 +1,16 @@
-# Created by moeheart at 03/29/2021
-# 赵八嫂的定制复盘方法库. 已重置为新的数据形式.
-# 赵八嫂是白帝江关2号首领.
-# (TODO)
+# Created by moeheart at 10/17/2021
+# 雷域大泽4号-尤珈罗摩的复盘库。
 
 from replayer.boss.Base import SpecificReplayerPro, SpecificBossWindow, ToolTip
-from replayer.BattleHistory import BattleHistory
 from replayer.TableConstructorMeta import TableConstructorMeta
 from replayer.utils import CriticalHealCounter, DpsShiftWindow
 from tools.Functions import *
 
 import tkinter as tk
         
-class ZhaoBasaoWindow(SpecificBossWindow):
+class YoujiaLuomoWindow(SpecificBossWindow):
     '''
-    赵八嫂的专有复盘窗口类。
+    尤珈罗摩复盘窗口类。
     '''
 
     def loadWindow(self):
@@ -21,7 +18,8 @@ class ZhaoBasaoWindow(SpecificBossWindow):
         使用tkinter绘制详细复盘窗口。
         '''
         window = tk.Toplevel()
-        window.title('赵八嫂详细复盘')
+        #window = tk.Tk()
+        window.title('尤珈罗摩复盘')
         window.geometry('1200x800')
         
         frame1 = tk.Frame(window)
@@ -62,7 +60,7 @@ class ZhaoBasaoWindow(SpecificBossWindow):
             
             tb.AppendContext(self.effectiveDPSList[i][5])
             tb.AppendContext(int(self.effectiveDPSList[i][6]))
-            
+
             # 心法复盘
             if self.effectiveDPSList[i][0] in self.occResult:
                 tb.GenerateXinFaReplayButton(self.occResult[self.effectiveDPSList[i][0]], self.effectiveDPSList[i][0])
@@ -82,27 +80,22 @@ class ZhaoBasaoWindow(SpecificBossWindow):
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
 
-    def __init__(self, effectiveDPSList, detail, occResult={}):
+    def __init__(self, effectiveDPSList, detail, occResult):
         super().__init__(effectiveDPSList, detail, occResult)
 
-class ZhaoBasaoReplayer(SpecificReplayerPro):
+class YoujiaLuomoReplayer(SpecificReplayerPro):
 
-    def countFinal(self):
+    def countFinal(self, nowTime):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
-        for line in self.js:
-            self.bh.setEnvironment("26254", "箭矢", "11343", line[0], line[1]-line[0], 1, "")
-        print("[Call]")
-        print(self.bh.log["call"])
-        print(self.bh.log["environment"])
+        pass
+        #self.phase = 0
 
     def getResult(self):
         '''
         生成复盘结果的流程。需要维护effectiveDPSList, potList与detail。
         '''
-
-        self.countFinal()
 
         bossResult = []
         for id in self.bld.info.player:
@@ -122,16 +115,16 @@ class ZhaoBasaoReplayer(SpecificReplayerPro):
                                    line[3],
                                    line[4],
                                    line[5],
-                                   line[6], 
+                                   line[6],
                                    ])
-        bossResult.sort(key=lambda x: -x[2])
+        bossResult.sort(key = lambda x:-x[2])
         self.effectiveDPSList = bossResult
-            
+
         return self.effectiveDPSList, self.potList, self.detail
         
     def recordDeath(self, item, deathSource):
         '''
-        在有玩家重伤时记录狂热值的额外代码。
+        在有玩家重伤时的额外代码。
         params
         - item 复盘数据，意义同茗伊复盘。
         - deathSource 重伤来源。
@@ -142,37 +135,33 @@ class ZhaoBasaoReplayer(SpecificReplayerPro):
         '''
         处理单条复盘数据时的流程，在第二阶段复盘时，会以时间顺序不断调用此方法。
         params
-        - event 复盘数据，意义同茗伊复盘。
+        - item 复盘数据，意义同茗伊复盘。
         '''
-        
+
         if event.dataType == "Skill":
             if event.target in self.bld.info.player:
-                if event.heal > 0 and event.effect != 7 and event.caster in self.hps:  # 非化解
+                if event.heal > 0 and event.effect != 7 and event.caster in self.hps: #非化解
                     self.hps[event.caster] += event.healEff
-
-                if event.id == "26254":  # 箭矢
-                    if event.time - self.js[-1][0] > 30000:
-                        self.js.append([event.time, event.time + 3000])
-
+                    
             else:
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
-
+     
+                
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
                 return
-
-            if event.id == "18910" and event.stack == 1:  # 凝视
-                self.bh.setCall("18910", "凝视", "13167", event.time, 0, event.target, "被凝视点名，需要找弩消除")
-
+                    
         elif event.dataType == "Shout":
-            if event.content in ['"有点本事，不动真格的，还镇不住你们小子了！"']:
-                self.win = 1
-
-        elif event.dataType == "Death":  # 重伤记录
+            return
+                
+        elif event.dataType == "Death": #重伤记录
             pass
 
-        elif event.dataType == "Battle":  # 战斗状态变化
+        # elif event.dataType == "Buff": #进入、离开场景
+        #     pass
+            
+        elif event.dataType == "Battle": #战斗状态变化
             pass
                     
     def analyseFirstStage(self, item):
@@ -188,27 +177,21 @@ class ZhaoBasaoReplayer(SpecificReplayerPro):
         '''
         在战斗开始时的初始化流程，当第二阶段复盘开始时运行。
         '''
-        self.activeBoss = "赵八嫂"
+        self.activeBoss = "尤珈罗摩"
         
-        # 通用格式：
-        # 0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
-        
-        # 赵八嫂数据格式：
-        # (TODO)待英雄实装后更新
+        #通用格式：
+        #0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
         
         self.stat = {}
         self.hps = {}
-        self.detail["boss"] = "赵八嫂"
-        self.win = 0
+        self.detail["boss"] = self.bossNamePrint
+        self.win = 1  # 通用BOSS中总是设为已通过
 
-        self.bh = BattleHistory(self.startTime, self.finalTime)
-        self.hasBh = True
-        self.js = [[0, 0]]
         
         for line in self.bld.info.player:
+            self.hps[line] = 0
             self.stat[line] = [self.bld.info.player[line].name, self.occDetailList[line], 0, 0, -1, "", 0] + \
                 []
-            self.hps[line] = 0
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
         '''

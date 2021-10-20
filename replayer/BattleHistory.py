@@ -7,13 +7,23 @@ class BattleHistory():
     技能回放以json的形式存储.
     '''
 
-    def getJsonReplay(self):
+    def getJsonReplay(self, key=""):
         '''
         获取json格式的数据.
+        params:
+        - key: 玩家ID，用于在点名数据中区分玩家所属的记录.
         '''
-        self.log["startTime"] = self.startTime
-        self.log["finalTime"] = self.finalTime
-        return self.log
+        res = {}
+        res["startTime"] = self.startTime
+        res["finalTime"] = self.finalTime
+        res["environment"] = self.log["environment"]
+        res["normal"] = self.log["normal"]
+        res["special"] = self.log["special"]
+        if key in self.log["call"]:
+            res["call"] = self.log["call"][key]
+        else:
+            res["call"] = []
+        return res
 
     def setEnvironment(self, skillid, skillname, iconid, start, duration, num, description):
         '''
@@ -35,6 +45,29 @@ class BattleHistory():
                "num": num,
                "description": description}
         self.log["environment"].append(res)
+
+    def setCall(self, skillid, skillname, iconid, start, duration, player, description):
+        '''
+        添加点名.
+        params:
+        - skillid: 技能ID.
+        - skillname: 技能名，用于显示.
+        - iconid: 图标ID，用于显示.
+        - start: 技能开始时刻，以毫秒计.
+        - duration: 技能持续时间.
+        - player: 被点名的玩家id.
+        - description: 描述.
+        '''
+        res = {"skillid": skillid,
+               "skillname": skillname,
+               "iconid": iconid,
+               "start": start,
+               "duration": duration,
+               "player": player,
+               "description": description}
+        if player not in self.log["call"]:
+            self.log["call"][player] = []
+        self.log["call"][player].append(res)
 
     def setSpecialSkill(self, skillid, skillname, iconid, start, duration, description):
         '''
@@ -115,6 +148,6 @@ class BattleHistory():
         - startTime: 战斗开始时间.
         - finalTime: 战斗结束时间.
         '''
-        self.log = {"environment": [], "normal": [], "special": []}
+        self.log = {"environment": [], "normal": [], "special": [], "call": {}}
         self.startTime = startTime
         self.finalTime = finalTime

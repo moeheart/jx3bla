@@ -1,5 +1,6 @@
 # Created by moeheart at 10/24/2020
 # 由BOSS名称的各种变化形式到BOSS的对应方法，以及其它相关功能。
+# 本文件废弃，其功能转移到tools.Names中.
     
 BOSS_RAW = {"铁黎": [1, 1, []], 
             "陈徽": [1, 2, []],
@@ -26,9 +27,15 @@ BOSS_RAW = {"铁黎": [1, 1, []],
             "宫威": [4, 6, []],
             "宫傲": [4, 7, []],
             "修罗僧": [5, 7, []],
+            "巨型尖吻凤": [6, 1, []],
+            "桑乔": [6, 2, []],
+            "悉达罗摩": [6, 3, ["蛊兽"]],
+            "尤珈罗摩": [6, 4, ["赐恩血瘤", "血蛊巢心"]],
+            "月泉淮": [6, 5, []],
+            "乌蒙贵": [6, 6, ["黑条巨蛾"]],
             }
             
-MAP_NAME_LIST = ["未知地图", "敖龙岛", "范阳夜变", "达摩洞", "白帝江关", "修罗挑战"]
+MAP_NAME_LIST = ["未知地图", "敖龙岛", "范阳夜变", "达摩洞", "白帝江关", "修罗挑战", "雷域大泽"]
             
 BOSS_DICT = {}
 MAP_DICT = {}
@@ -56,6 +63,9 @@ def getBossDictFromMap(map):
     elif map == "白帝江关":
         bossDict = {"胡汤&罗芬": 1, "赵八嫂": 2, "海荼": 3, "姜集苦": 4, "宇文灭": 5, "宫威": 6, "宫傲": 7}
         bossDictR = ["", "胡汤&罗芬", "赵八嫂", "海荼", "姜集苦", "宇文灭", "宫威", "宫傲"]
+    elif map == "雷域大泽":
+        bossDict = {"巨型尖吻凤": 1, "桑乔": 2, "悉达罗摩": 3, "尤珈罗摩": 4, "月泉淮": 5, "乌蒙贵": 6}
+        bossDictR = ["", "巨型尖吻凤", "桑乔", "悉达罗摩", "尤珈罗摩", "月泉淮", "乌蒙贵"]
     elif map == "修罗挑战":
         bossDict = {"修罗僧": 1}
         bossDictR = ["", "修罗僧"]
@@ -65,40 +75,47 @@ def getBossDictFromMap(map):
     return bossDict, bossDictR
     
 def getNickToBoss(nick):
+
     #TODO 修复与更新
     if nick in NICK_TO_BOSS:
         return NICK_TO_BOSS[nick]
     else:
         return nick
 
-    def getMap(self):
-        mapid = self.rawdata['20'][0]
-        if mapid == "428":
-            self.mapDetail = "25人英雄敖龙岛"
-        elif mapid == "427":
-            self.mapDetail = "25人普通敖龙岛"
-        elif mapid == "426":
-            self.mapDetail = "10人普通敖龙岛"
-        elif mapid == "454":
-            self.mapDetail = "25人英雄范阳夜变"
-        elif mapid == "453":
-            self.mapDetail = "25人普通范阳夜变"
-        elif mapid == "452":
-            self.mapDetail = "10人普通范阳夜变"
-        elif mapid == "484":
-            self.mapDetail = "25人英雄达摩洞"
-        elif mapid == "483":
-            self.mapDetail = "25人普通达摩洞"
-        elif mapid == "482":
-            self.mapDetail = "10人普通达摩洞"
-        elif mapid == "520":
-            self.mapDetail = "25人英雄白帝江关"
-        elif mapid == "519":
-            self.mapDetail = "25人普通白帝江关"
-        elif mapid == "518":
-            self.mapDetail = "10人普通白帝江关"
-        else:
-            self.mapDetail = "未知"
+def getMap(self):
+    mapid = self.rawdata['20'][0]
+    if mapid == "428":
+        self.mapDetail = "25人英雄敖龙岛"
+    elif mapid == "427":
+        self.mapDetail = "25人普通敖龙岛"
+    elif mapid == "426":
+        self.mapDetail = "10人普通敖龙岛"
+    elif mapid == "454":
+        self.mapDetail = "25人英雄范阳夜变"
+    elif mapid == "453":
+        self.mapDetail = "25人普通范阳夜变"
+    elif mapid == "452":
+        self.mapDetail = "10人普通范阳夜变"
+    elif mapid == "484":
+        self.mapDetail = "25人英雄达摩洞"
+    elif mapid == "483":
+        self.mapDetail = "25人普通达摩洞"
+    elif mapid == "482":
+        self.mapDetail = "10人普通达摩洞"
+    elif mapid == "520":
+        self.mapDetail = "25人英雄白帝江关"
+    elif mapid == "519":
+        self.mapDetail = "25人普通白帝江关"
+    elif mapid == "518":
+        self.mapDetail = "10人普通白帝江关"
+    elif mapid == "520":
+        self.mapDetail = "25人英雄白帝江关"
+    elif mapid == "519":
+        self.mapDetail = "25人普通白帝江关"
+    elif mapid == "518":
+        self.mapDetail = "10人普通白帝江关"
+    else:
+        self.mapDetail = "未知"
 
 
 

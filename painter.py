@@ -1,3 +1,5 @@
+# 文件暂时废弃，因为不再设立奶歌整体复盘。
+
 from PIL import Image, ImageFont, ImageDraw
 import numpy as np
 import time

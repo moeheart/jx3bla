@@ -29,6 +29,8 @@ from replayer.boss.YuwenMie import YuwenMieWindow
 from replayer.boss.GongWei import GongWeiWindow
 from replayer.boss.GongAo import GongAoWindow
 
+from replayer.boss.JuxingJianwenfeng import JuxingJianwenfengWindow
+
 class ToolTip(object):
     '''
     浮动标签类，用于实现简单的浮动标签。
@@ -326,33 +328,33 @@ class SingleBossWindow():
     单个BOSS复盘结果类。维护复盘结果的窗体，与简单的信息收集逻辑。
     '''
         
-    def getColor(self, occ):
-        if occ[-1] in ['d', 't', 'h', 'p', 'm']:
-            occ = occ[:-1]
-        colorDict = {"0": (0, 0, 0), 
-                     "1": (210, 180, 0),#少林
-                     "2": (127, 31, 223),#万花
-                     "4": (56, 175, 255),#纯阳
-                     "5": (255, 127, 255),#七秀
-                     "3": (160, 0, 0),#天策
-                     "8": (220, 220, 0),#藏剑
-                     "9": (205, 133, 63),#丐帮
-                     "10": (253, 84, 0),#明教
-                     "6": (63, 31, 159),#五毒
-                     "7": (0, 133, 144),#唐门
-                     "21": (180, 60, 0),#苍云
-                     "22": (100, 250, 180),#长歌
-                     "23": (71, 73, 166),#霸刀
-                     "24": (195, 171, 227),#蓬莱
-                     "25": (161, 9, 34),#凌雪
-                     "211": (166, 83, 251),#衍天
-                    }
-        res = (0, 0, 0)
-        if occ in colorDict:
-            res = colorDict[occ]
-        return "#%s%s%s"%(str(hex(res[0]))[-2:].replace('x', '0'), 
-                          str(hex(res[1]))[-2:].replace('x', '0'),
-                          str(hex(res[2]))[-2:].replace('x', '0'))
+    # def getColor(self, occ):
+    #     if occ[-1] in ['d', 't', 'h', 'p', 'm']:
+    #         occ = occ[:-1]
+    #     colorDict = {"0": (0, 0, 0),
+    #                  "1": (210, 180, 0),#少林
+    #                  "2": (127, 31, 223),#万花
+    #                  "4": (56, 175, 255),#纯阳
+    #                  "5": (255, 127, 255),#七秀
+    #                  "3": (160, 0, 0),#天策
+    #                  "8": (220, 220, 0),#藏剑
+    #                  "9": (205, 133, 63),#丐帮
+    #                  "10": (253, 84, 0),#明教
+    #                  "6": (63, 31, 159),#五毒
+    #                  "7": (0, 133, 144),#唐门
+    #                  "21": (180, 60, 0),#苍云
+    #                  "22": (100, 250, 180),#长歌
+    #                  "23": (71, 73, 166),#霸刀
+    #                  "24": (195, 171, 227),#蓬莱
+    #                  "25": (161, 9, 34),#凌雪
+    #                  "211": (166, 83, 251),#衍天
+    #                 }
+    #     res = (0, 0, 0)
+    #     if occ in colorDict:
+    #         res = colorDict[occ]
+    #     return "#%s%s%s"%(str(hex(res[0]))[-2:].replace('x', '0'),
+    #                       str(hex(res[1]))[-2:].replace('x', '0'),
+    #                       str(hex(res[2]))[-2:].replace('x', '0'))
         
     def getPotColor(self, level):
         if level == 0:
@@ -530,6 +532,8 @@ class SingleBossWindow():
                 self.specificBossWindow = JiangJikuWindow(effectiveDPSList, detail, occResult)
             elif detail["boss"] == "宫威":
                 self.specificBossWindow = GongWeiWindow(effectiveDPSList, detail, occResult)
+            elif detail["boss"] == "巨型尖吻凤":
+                self.specificBossWindow = JuxingJianwenfengWindow(effectiveDPSList, detail, occResult)
             else:
                 self.specificBossWindow = GeneralWindow(effectiveDPSList, detail, occResult)
             self.specificBossWindow.setPotWindow(self)
@@ -588,7 +592,7 @@ class SingleBossWindow():
             line = self.potList[i]
             name = line[0].strip('"')
             occ = line[1]
-            color = self.getColor(occ)
+            color = getColor(occ)
             nameLabel = tk.Label(frame, text=name, width = 13, height=1, fg=color)
             nameLabel.grid(row=i, column=0)
             pot = line[4]
@@ -1067,34 +1071,6 @@ class LiveListener():
         self.window = None
 
 class AllStatWindow():
-    
-    def getColor(self, occ):
-        if occ[-1] in ['d', 't', 'h', 'p', 'm']:
-            occ = occ[:-1]
-        colorDict = {"0": (0, 0, 0), 
-                     "1": (210, 180, 0),#少林
-                     "2": (127, 31, 223),#万花
-                     "4": (56, 175, 255),#纯阳
-                     "5": (255, 127, 255),#七秀
-                     "3": (160, 0, 0),#天策
-                     "8": (255, 255, 0),#藏剑
-                     "9": (205, 133, 63),#丐帮
-                     "10": (253, 84, 0),#明教
-                     "6": (63, 31, 159),#五毒
-                     "7": (0, 133, 144),#唐门
-                     "21": (180, 60, 0),#苍云
-                     "22": (100, 250, 180),#长歌
-                     "23": (71, 73, 166),#霸刀
-                     "24": (195, 171, 227),#蓬莱
-                     "25": (161, 9, 34),#凌雪
-                     "211": (166, 83, 251),#衍天
-                    }
-        res = (0, 0, 0)
-        if occ in colorDict:
-            res = colorDict[occ]
-        return "#%s%s%s"%(str(hex(res[0]))[-2:].replace('x', '0'), 
-                          str(hex(res[1]))[-2:].replace('x', '0'),
-                          str(hex(res[2]))[-2:].replace('x', '0'))
         
     def getPotColor(self, level):
         if level == 0:
@@ -1172,7 +1148,7 @@ class AllStatWindow():
 
             name = player[0].strip('"')
             occ = line["occ"]
-            color = self.getColor(occ)
+            color = getColor(occ)
             nameLabel = tk.Label(frame2, text=name, width = 13, fg=color)
             nameLabel.grid(row=i, column=0)
             

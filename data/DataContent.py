@@ -107,7 +107,7 @@ class SingleDataSkill(SingleData):
         self.scheme = int(item[5]["4"])
         self.id = item[5]["5"]
         self.level = int(item[5]["6"])
-        self.full_id = "%d,%s,%d"%(self.scheme, self.id, self.level)
+        self.full_id = '"%d,%s,%d"'%(self.scheme, self.id, self.level)
         self.effect = 0
         self.heal = int(item[5]["9"].get("6", 0))
         self.healEff = int(item[5]["9"].get("14", 0))
@@ -298,7 +298,7 @@ class OverallData():
         if full_id in self.skill:
             return self.skill[full_id]["1"].strip('"')
         else:
-            return full_id
+            return full_id.strip('"')
 
     def addPlayer(self, key, name, occ):
         '''

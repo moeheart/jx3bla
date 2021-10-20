@@ -29,9 +29,9 @@ class RawDataLoader():
 
         if self.window is not None:
             if self.config.datatype == "jx3dat":
-                bossname = getNickToBoss(filename.split('_')[1])
+                bossname = getNickToBoss(filename.split('/')[-1].split('_')[1])
             else:
-                bossname = getNickToBoss(filename.split('-')[-1].split('.')[0])
+                bossname = getNickToBoss(filename.split('/')[-1].split('-')[-1].split('.')[0])
             self.window.setNotice({"t1": "正在读取[%s]..." % bossname, "c1": "#000000"})
 
         if self.config.datatype == "jcl":
@@ -83,6 +83,10 @@ class BattleLogData():
         maxN = len(jclRaw)
         nowN = 0
         nowI = 0
+
+        playerNameDict = {}
+        summonDict = {}
+
         for line in jclRaw:
             # 维护进度条
             nowN += 1
@@ -98,6 +102,9 @@ class BattleLogData():
                 singleData = SingleDataBuff()
             elif jclItem[4] == "21":
                 singleData = SingleDataSkill()
+                # 召唤物修正
+                if jclItem[5]["1"] in summonDict:
+                    jclItem[5]["1"] = summonDict[jclItem[5]["1"]]
             elif jclItem[4] == "28":
                 singleData = SingleDataDeath()
             elif jclItem[4] == "14":
@@ -121,14 +128,24 @@ class BattleLogData():
                         self.info.player[jclItem[5]["1"]].equip = jclItem[5]["6"]
                         if "7" in jclItem[5]:
                             self.info.player[jclItem[5]["1"]].qx = jclItem[5]["7"]
+                    playerNameDict[self.info.player[jclItem[5]["1"]].name] = jclItem[5]["1"]
                 elif jclItem[4] == "8":
                     self.info.addNPC(jclItem[5]["1"], jclItem[5]["2"])
                     self.info.npc[jclItem[5]["1"]].templateID = jclItem[5]["3"]
+                    # 判断召唤物
+                    if '的' in jclItem[5]["2"]:
+                        possiblePlayerName = '的'.join(jclItem[5]["2"].strip('"').split('的')[:-1])
+                        if possiblePlayerName in playerNameDict:
+                            summonDict[jclItem[5]["1"]] = playerNameDict[possiblePlayerName]
 
                 # TODO: 完整的player信息
                 continue
             singleData.setByJcl(jclItem)
             self.log.append(singleData)
+
+        # print(playerNameDict)
+        # print(summonDict)
+
         #读取全局数据
         self.info.skill = {}
         self.info.map = filePath.split('-')[6]

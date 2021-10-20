@@ -165,6 +165,19 @@ class SpecificReplayerPro():
         '''
         self.potList.append(pot)
 
+    def trimTime(self):
+        '''
+        根据战斗记录的结果修剪时间。
+        '''
+        if self.trimmedStartTime != 0:
+            self.startTime = self.trimmedStartTime
+        if self.trimmedFinalTime != 0:
+            self.finalTime = self.trimmedFinalTime
+        if self.trimmedStartTime != 0 or self.trimmedFinalTime != 0:
+            # 如果进行了时间修剪，就调整battletime的逻辑，否则battletime就使用复盘数据中附带的结果
+            self.battleTime = self.finalTime - self.startTime
+        return self.startTime, self.finalTime, self.battleTime
+
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
         '''
         对类本身进行初始化。
@@ -177,6 +190,9 @@ class SpecificReplayerPro():
         self.finalTime = finalTime
         self.battleTime = battleTime
         self.bossNamePrint = bossNamePrint
+
+        self.trimmedStartTime = 0
+        self.trimmedFinalTime = 0
 
         self.detail = {}
         self.potList = []
