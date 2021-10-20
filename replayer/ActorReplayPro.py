@@ -316,8 +316,10 @@ class ActorProReplayer(ReplayerBase):
         #     bossAnalyser = GongAoReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
         # else:
         #     bossAnalyser = SpecificReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
-
-        if self.bossAnalyseName == "赵八嫂":
+        if self.bossAnalyseName == "胡汤&罗芬":
+            bossAnalyser = HuTangLuoFenReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "赵八嫂":
             bossAnalyser = ZhaoBasaoReplayer(self.bld, occDetailList, self.startTime,
                                            self.finalTime, self.battleTime, self.bossNamePrint)
         elif self.bossAnalyseName == "姜集苦":

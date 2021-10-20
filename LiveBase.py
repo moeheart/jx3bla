@@ -526,7 +526,9 @@ class SingleBossWindow():
             #     self.specificBossWindow = GongWeiWindow(effectiveDPSList, detail)
             # elif detail["boss"] == "宫傲":
             #     self.specificBossWindow = GongAoWindow(effectiveDPSList, detail)
-            if detail["boss"] == "赵八嫂":
+            if detail["boss"] == "胡汤&罗芬":
+                self.specificBossWindow = HuTangLuoFenWindow(effectiveDPSList, detail, occResult)
+            elif detail["boss"] == "赵八嫂":
                 self.specificBossWindow = ZhaoBasaoWindow(effectiveDPSList, detail, occResult)
             elif detail["boss"] == "姜集苦":
                 self.specificBossWindow = JiangJikuWindow(effectiveDPSList, detail, occResult)

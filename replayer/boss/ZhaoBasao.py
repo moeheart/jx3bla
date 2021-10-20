@@ -1,7 +1,6 @@
 # Created by moeheart at 03/29/2021
 # 赵八嫂的定制复盘方法库. 已重置为新的数据形式.
 # 赵八嫂是白帝江关2号首领.
-# (TODO)
 
 from replayer.boss.Base import SpecificReplayerPro, SpecificBossWindow, ToolTip
 from replayer.BattleHistory import BattleHistory
@@ -93,9 +92,6 @@ class ZhaoBasaoReplayer(SpecificReplayerPro):
         '''
         for line in self.js:
             self.bh.setEnvironment("26254", "箭矢", "11343", line[0], line[1]-line[0], 1, "")
-        print("[Call]")
-        print(self.bh.log["call"])
-        print(self.bh.log["environment"])
 
     def getResult(self):
         '''

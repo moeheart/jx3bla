@@ -480,6 +480,13 @@ class XiangZhiProWindow():
             posStart = int((record["start"] - startTime) / 100)
             posEnd = int((record["start"] + record["duration"] - startTime) / 100)
             canvas6.create_image(posStart+10, 80, image=canvas6.im[record["iconid"]])
+            # 绘制表示持续的条
+            if posStart + 20 < posEnd:
+                canvas6.create_rectangle(posStart+20, 70, posEnd, 90, fill="#ff7777")
+            # 绘制名称
+            if posStart + 30 < posEnd:
+                text = record["skillname"]
+                canvas6.create_text(posStart+20, 80, text=text, anchor=tk.W)
 
         # 绘制环境轴
         for record in self.result["replay"]["environment"]:
@@ -514,7 +521,7 @@ class XiangZhiProWindow():
 
         tb = TableConstructor(frame7sub)
         tb.AppendHeader("玩家名", "", width=13)
-        tb.AppendHeader("DPS", "全程的DPS，注意包含重伤时间。")
+        tb.AppendHeader("DPS", "全程去除庄周梦增益后的DPS，注意包含重伤时间。")
         tb.AppendHeader("覆盖率", "梅花三弄的覆盖率。")
         tb.AppendHeader("破盾次数", "破盾次数，包含盾受到伤害消失、未刷新自然消失、及穿透消失。")
         tb.EndOfLine()
@@ -863,8 +870,8 @@ class XiangZhiProReplayer(ReplayerBase):
                          "14360": "宫",
                          "16852": "宫",
                          # "14140": "徵",
-                         # "14362": "徵",
-                         "14301": "徵",
+                         "14362": "徵",
+                         # "14301": "徵",
                          "18865": "徵",
                          "14141": "羽",
                          "14354": "羽",
@@ -873,7 +880,8 @@ class XiangZhiProReplayer(ReplayerBase):
                          "14138": "商",
                          "14139": "角",
                          "9002": "扶摇直上",
-                         "9003": "蹑云逐月"}
+                         "9003": "蹑云逐月",
+                         "14169": "一指回鸾", }
         specialNameDict = {"14081": "孤影化双",
                            "14075": "云生结海",
                            "14069": "高山流水",
@@ -898,8 +906,8 @@ class XiangZhiProReplayer(ReplayerBase):
                          "14360": "7173",
                          "16852": "7173",
                          # "14140": "7174",
-                         # "14362": "7174",
-                         "14301": "7174",
+                         "14362": "7174",
+                         # "14301": "7174",
                          "18865": "7174",
                          "14141": "7175",
                          "14354": "7175",
@@ -926,6 +934,7 @@ class XiangZhiProReplayer(ReplayerBase):
                          "18846": "7077",
                          "9002": "1485",
                          "9003": "1490",
+                         "14169": "7045",
                          }
         xiangZhiUnimportant = ["15181", "15082", "25232",  # 影子宫，桑柔
                                "14082", # 疏影横斜
@@ -952,17 +961,18 @@ class XiangZhiProReplayer(ReplayerBase):
                                "25231", # 桑柔判定
                                # "16852", # 群体宫
                                "14137", "14300", # 宫的壳技能
-                               "14140", "14362", # 徵的壳技能
+                               "14140", "14301", # 徵的壳技能
                                "14407", "14408", "14409", "14410", "14411", "14412", "14413", "14414", "14415",  # 寸光阴的智障判定
                                "14395", "14396", "14397", "14398", "14399", "14400", "14401", "14402",  # 估计是寸光阴添加HOT
-                               "15090", "14344", # 阳春白雪主动技能（无尽藏！）
+                               "15090", "14344",  # 阳春白雪主动技能（无尽藏！）
                                "14243",  # 掷杯判定
                                "22211",  # 治疗衣服大附魔
                                "15091",  # 阳春添加状态切换buff
+                               "9007",  # 后跳 (TODO) 统计各种后跳
                                ]
         xiangZhiSpecial = ["20763", "20764", "21321",  # 相依
                            "15039", # 传影子
-                           "14150", # 云生结海
+                           "14150", "14153", # 云生结海
                            "14075", # 云生结海主动
                            "18838", # 梅花切高山
                            "18841", # 高山切梅花
@@ -1000,9 +1010,10 @@ class XiangZhiProReplayer(ReplayerBase):
                     # if event.caster == self.mykey and event.scheme == 1 and event.id in xiangZhiUnimportant and event.heal != 0:
                     #     print(event.id, event.time)
 
-                    # if event.scheme == 1 and event.heal != 0 and event.caster == self.mykey:
-                    #     # 打印所有有治疗量的技能，以进行整理
-                    #     print("[Heal]", event.id, event.heal)
+                    if event.scheme == 1 and event.heal != 0 and event.caster == self.mykey:
+                        # 打印所有有治疗量的技能，以进行整理
+                        # print("[Heal]", event.id, event.heal)
+                        pass
 
                     if event.caster == self.mykey and event.scheme == 1 and event.id not in xiangZhiUnimportant: # 影子宫、桑柔等需要过滤的技能
                         skillLog.append([event.time, event.id])
@@ -1011,7 +1022,7 @@ class XiangZhiProReplayer(ReplayerBase):
                         if ((event.id not in skillNameDict or skillNameDict[event.id] != skillNameDict[bhSkill]) and event.id not in xiangZhiSpecial)\
                             or event.time - lastSkillTime > 3000:
                             # 记录本次技能
-                            print(event.id, bhSkill)
+                            print("[ReplaceSkill]", event.id, bhSkill)
                             # 此处的逻辑完全可以去掉，保留这个逻辑就是为了监控哪些是值得挖掘的隐藏技能
                             if bhSkill != "0":
                                 bh.setNormalSkill(bhSkill, skillNameDict[bhSkill], skillIconDict[bhSkill],
@@ -1093,6 +1104,12 @@ class XiangZhiProReplayer(ReplayerBase):
                             bhTimeEnd = lastSkillTime
                             bhBusy += getLength(24, self.haste)
                         elif event.id in ["9002", "9003"]:  # 扶摇、蹑云
+                            bhNum += 1
+                            bhDelayNum += 1
+                            bhDelay += event.time - lastSkillTime
+                            bhTimeEnd = lastSkillTime
+                            bhBusy += getLength(24, self.haste)
+                        elif event.id in ["14169"]:  # 一指回鸾
                             bhNum += 1
                             bhDelayNum += 1
                             bhDelay += event.time - lastSkillTime
@@ -1356,7 +1373,7 @@ class XiangZhiProReplayer(ReplayerBase):
         self.result["skill"]["general"]["efficiency"] = bh.getNormalEfficiency()
 
         # 计算战斗回放
-        self.result["replay"] = bh.getJsonReplay()
+        self.result["replay"] = bh.getJsonReplay(self.mykey)
 
         print(self.result["healer"])
         print(self.result["dps"])
