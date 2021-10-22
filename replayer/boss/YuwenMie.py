@@ -148,11 +148,11 @@ class YuwenMieReplayer(SpecificReplayerPro):
                     line[5] = self.equipmentDict[id]["sketch"]
                 
                 if getOccType(self.occDetailList[id]) == "healer":
-                    line[3] = int(self.hps[id] / self.battleTime)
+                    line[3] = int(self.hps[id] / self.battleTime * 1000)
                     
                 line[6] = self.stunCounter[id].buffTimeIntegral() / 1000
 
-                dps = int(line[2] / self.battleTime)
+                dps = int(line[2] / self.battleTime * 1000)
                 bossResult.append([line[0],
                                    line[1],
                                    dps, 
@@ -171,7 +171,7 @@ class YuwenMieReplayer(SpecificReplayerPro):
         self.effectiveDPSList = bossResult
         
         for line in self.P2fire:
-            self.detail["P2fire"].append([self.namedict[line][0].strip('"'), self.occDetailList[line], self.P2fire[line]])
+            self.detail["P2fire"].append([self.bld.info.player[line].name, self.occDetailList[line], self.P2fire[line]])
         self.detail["P2fire"].sort(key = lambda x:-x[2])
             
         return self.effectiveDPSList, self.potList, self.detail
@@ -202,20 +202,20 @@ class YuwenMieReplayer(SpecificReplayerPro):
                     if self.phase == 1:
                         potTime = parseTime((chuanRanTime - self.startTime) / 1000)
                         potID = source
-                        victimName = self.namedict[target][0].strip('"')
-                        self.potList.append([self.namedict[potID][0],
+                        victimName = self.bld.info.player[target].name
+                        self.potList.append([self.bld.info.player[potID].name,
                                              self.occDetailList[potID],
                                              0,
                                              self.bossNamePrint,
                                              "%s寒劫传染：%s" % (potTime, victimName),
                                              ["接锅者中寒劫并靠近没有中buff的队友，导致目标也被传染寒劫。"]])
-                
+
                 elif self.hanJieCounter[target].checkState(chuanRanTime-500) == 1 and self.hanYuCounter[target].checkState(chuanRanTime+1000) == 1:  # 寒劫变寒狱
                     if self.phase == 1:
                         potTime = parseTime((chuanRanTime - self.startTime) / 1000)
                         potID = source
-                        victimName = self.namedict[target][0].strip('"')
-                        self.potList.append([self.namedict[potID][0],
+                        victimName = self.bld.info.player[target].name
+                        self.potList.append([self.bld.info.player[potID].name,
                                              self.occDetailList[potID],
                                              0,
                                              self.bossNamePrint,
@@ -225,70 +225,70 @@ class YuwenMieReplayer(SpecificReplayerPro):
                                              self.occDetailList[target],
                                              0,
                                              self.bossNamePrint,
-                                             "%s寒劫升级：%s" % (potTime, self.namedict[potID][0].strip('"')),
+                                             "%s寒劫升级：%s" % (potTime, self.bld.info.player[potID].name),
                                              ["接锅者中寒劫并靠近中寒劫的队友，导致两人的寒劫被升级为寒狱。"]])
             elif chuanRanType == 2:
                 if self.hanYuCounter[target].checkState(chuanRanTime-500) == 0 and self.hanYuCounter[target].checkState(chuanRanTime+1000) == 1:  # 传染寒狱
                     if self.phase == 1:
                         potTime = parseTime((chuanRanTime - self.startTime) / 1000)
                         potID = source
-                        victimName = self.namedict[target][0].strip('"')
-                        self.potList.append([self.namedict[potID][0],
+                        victimName = self.bld.info.player[target].name
+                        self.potList.append([self.bld.info.player[potID].name,
                                              self.occDetailList[potID],
                                              0,
                                              self.bossNamePrint,
                                              "%s寒狱传染：%s" % (potTime, victimName),
                                              ["接锅者中寒狱并靠近没有中buff的队友，导致目标也被传染寒狱。"]])
             del self.chuanRanQueue[0]
-        
+
         if item[3] == '1':  # 技能
 
             if self.occdict[item[5]][0] != '0':
-            
+
                 if item[11] != '0' and item[10] != '7': #非化解
                     if item[4] in self.playerIDList:
                         self.hps[item[4]] += int(item[12])
-                        
+
                 healRes = self.criticalHealCounter[item[5]].recordHeal(item)
                 if healRes != {}:
                     for line in healRes:
                         if line in self.playerIDList:
                             self.stat[line][12] += healRes[line]
-                        
+
                 if item[7] == "26224":  # 寒劫传染
                     self.chuanRanQueue.append([int(item[2]), 1, item[4], item[5]])
-                                         
+
                 if item[7] == "26225":  # 寒狱传染
                     self.chuanRanQueue.append([int(item[2]), 2, item[4], item[5]])
-                    
+
                 if item[7] in ["26224", "26225"] and self.phase == 2:
                     if item[4] not in self.P2fire:
                         self.P2fire[item[4]] = 0
                     self.P2fire[item[4]] += 1
-                    self.detail["P2last"] = [self.namedict[item[4]][0].strip('"'), self.occDetailList[item[4]], self.namedict[item[5]][0].strip('"'), self.occDetailList[item[5]]]
-                    
+                    self.detail["P2last"] = [self.bld.info.player[item[4]][0].strip('"'), self.occDetailList[item[4]], self.bld.info.player[item[5]].name, self.occDetailList[item[5]]]
+
             else:
-            
+
                 if item[4] in self.playerIDList:
                     self.stat[item[4]][2] += int(item[14])
                     if self.phase == 1:
                         self.stat[item[4]][7] += int(item[14])
                     elif self.phase == 2:
                         self.stat[item[4]][11] += int(item[14])
-                    
+
                     if item[5] in self.xuanBingDamage:
                         if item[4] not in self.xuanBingDamage[item[5]]:
                             self.xuanBingDamage[item[5]][item[4]] = 0
                         self.xuanBingDamage[item[5]][item[4]] += int(item[14])
-     
-                
+
+
         elif item[3] == '5': #气劲
 
             # 记录自身寒劫，寒狱，玄冰夺命掌
 
             if self.occdict[item[5]][0] == '0':
                 return
-                
+
             if item[6] == "18861":
                 self.hanJieCounter[item[5]].setState(int(item[2]), int(item[10]))
                 if int(item[10]) == 1:
@@ -296,7 +296,7 @@ class YuwenMieReplayer(SpecificReplayerPro):
                     self.criticalHealCounter[item[5]].setCriticalTime(-1)
                 else:
                     self.criticalHealCounter[item[5]].unactive()
-                
+
             if item[6] == "18862":
                 self.hanYuCounter[item[5]].setState(int(item[2]), int(item[10]))
                 if int(item[10]) == 1:
@@ -304,10 +304,10 @@ class YuwenMieReplayer(SpecificReplayerPro):
                     self.criticalHealCounter[item[5]].setCriticalTime(-1)
                 else:
                     self.criticalHealCounter[item[5]].unactive()
-                    
+
             if item[6] in ["19364", "18863"]:  # 冻结
                 self.stunCounter[item[5]].setState(int(item[2]), int(item[10]))
-                
+
             if item[6] == "18863" and self.phase == 1 and int(item[10]) == 1:
                 # 判断是否是不可避免的结冰
                 timeSafe = 0
@@ -321,7 +321,7 @@ class YuwenMieReplayer(SpecificReplayerPro):
                 if timeSafe == 0:
                     potTime = parseTime((int(item[2]) - self.startTime) / 1000)
                     potID = item[5]
-                    self.potList.append([self.namedict[potID][0],
+                    self.potList.append([self.bld.info.player[potID].name,
                                          self.occDetailList[potID],
                                          0,
                                          self.bossNamePrint,
@@ -413,7 +413,7 @@ class YuwenMieReplayer(SpecificReplayerPro):
         self.bjbp = [[0, 0]]
         
         for line in self.playerIDList:
-            self.stat[line] = [self.namedict[line][0].strip('"'), self.occDetailList[line], 0, 0, -1, "", 0] + \
+            self.stat[line] = [self.bld.info.player[line].name, self.occDetailList[line], 0, 0, -1, "", 0] + \
                 [0, 0, 0, 0, 0, 0]
             self.hps[line] = 0
             self.hanJieCounter[line] = BuffCounter(18861, self.startTime, self.finalTime)

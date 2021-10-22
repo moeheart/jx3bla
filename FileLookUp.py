@@ -200,7 +200,8 @@ class FileSelector():
             if (line[-6:] == self.dataType or line[-3:] == self.dataType) and line != "config.jx3dat":
                 optionList.append(line)
 
-        print(optionList)
+        if len(optionList) > 30:
+            optionList = optionList[-30:]
         return optionList
 
     def final(self):
