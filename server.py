@@ -604,12 +604,18 @@ def uploadActorData():
     if mapName == "25人英雄达摩洞":
         scoreAdd = 2
         mapDetail = '484'
-    elif mapDetail == '25人普通白帝江关':
+    elif mapName == '25人普通白帝江关':
         scoreAdd = 1
         mapDetail = '519'
-    elif mapDetail == '25人英雄白帝江关':
+    elif mapName == '25人英雄白帝江关':
         scoreAdd = 4
         mapDetail = '520'
+    elif mapName == '25人普通雷域大泽':
+        scoreAdd = 1
+        mapDetail = '560'
+    elif mapName == '25人英雄雷域大泽':
+        scoreAdd = 4
+        mapDetail = '561'
     else:
         scoreSuccess = 0
         response['scoreStatus'] = 'illegal'
