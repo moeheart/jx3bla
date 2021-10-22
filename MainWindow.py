@@ -159,7 +159,7 @@ class MainWindow():
         self.liveListener.getAllBattleLog(fileLookUp.basepath, replayFileNameList)
 
         # controller.replay(self) # 此处将MainWindow类本身传入
-        self.setNotice({"t1": "复盘完成！", "c1": "#000000", "t2": ""})
+        self.setNotice({"t1": "复盘完成！", "c1": "#000000"})
         self.show_history()
 
         #self.checkAttendence()
