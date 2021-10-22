@@ -1,7 +1,7 @@
 # Created by moeheart at 03/29/2021
-# 姜集苦的定制复盘方法库。
+# 姜集苦的定制复盘方法库，已重置为新的数据形式.
 # 姜集苦是白帝江关4号首领，复盘主要集中在以下几个方面：
-# (TODO)
+# 每个阶段的DPS.
 
 from replayer.boss.Base import SpecificReplayerPro, SpecificBossWindow, ToolTip
 from replayer.BattleHistory import BattleHistory

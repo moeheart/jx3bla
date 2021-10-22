@@ -30,6 +30,11 @@ from replayer.boss.GongWei import GongWeiWindow
 from replayer.boss.GongAo import GongAoWindow
 
 from replayer.boss.JuxingJianwenfeng import JuxingJianwenfengWindow
+from replayer.boss.SangQiao import SangQiaoWindow
+from replayer.boss.XidaLuomo import XidaLuomoWindow
+from replayer.boss.YoujiaLuomo import YoujiaLuomoWindow
+from replayer.boss.YuequanHuai import YuequanHuaiWindow
+from replayer.boss.WuMenggui import WuMengguiWindow
 
 class ToolTip(object):
     '''
@@ -534,10 +539,24 @@ class SingleBossWindow():
                 self.specificBossWindow = HaiTuWindow(effectiveDPSList, detail, occResult)
             elif detail["boss"] == "姜集苦":
                 self.specificBossWindow = JiangJikuWindow(effectiveDPSList, detail, occResult)
+            elif detail["boss"] == "宇文灭":
+                self.specificBossWindow = YuwenMieWindow(effectiveDPSList, detail, occResult)
             elif detail["boss"] == "宫威":
                 self.specificBossWindow = GongWeiWindow(effectiveDPSList, detail, occResult)
+            elif detail["boss"] == "宫傲":
+                self.specificBossWindow = GongAoWindow(effectiveDPSList, detail, occResult)
             elif detail["boss"] == "巨型尖吻凤":
                 self.specificBossWindow = JuxingJianwenfengWindow(effectiveDPSList, detail, occResult)
+            elif detail["boss"] == "桑乔":
+                self.specificBossWindow = SangQiaoWindow(effectiveDPSList, detail, occResult)
+            elif detail["boss"] == "悉达罗摩":
+                self.specificBossWindow = XidaLuomoWindow(effectiveDPSList, detail, occResult)
+            elif detail["boss"] == "尤珈罗摩":
+                self.specificBossWindow = YoujiaLuomoWindow(effectiveDPSList, detail, occResult)
+            elif detail["boss"] == "月泉淮":
+                self.specificBossWindow = YuequanHuaiWindow(effectiveDPSList, detail, occResult)
+            elif detail["boss"] == "乌蒙贵":
+                self.specificBossWindow = WuMengguiWindow(effectiveDPSList, detail, occResult)
             else:
                 self.specificBossWindow = GeneralWindow(effectiveDPSList, detail, occResult)
             self.specificBossWindow.setPotWindow(self)

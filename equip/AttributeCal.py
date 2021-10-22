@@ -98,7 +98,7 @@ class AttributeCal():
         colorID = equips["0"]["plug0"]
         colorAttrib = self.equipmentInfo.color[colorID]
         for i in range(3):  # 按属性个数排序
-            if colorAttrib[i*4+2] == "":
+            if colorAttrib[i*4+2] == "" or colorAttrib[i*4+1] == "":
                 continue
             if sumPlug >= int(colorAttrib[i*4+2]) and sumPlugLvl >= int(colorAttrib[i*4+3]):
                 colorSingleAttrib = {colorAttrib[i*4]: int(colorAttrib[i*4+1])}

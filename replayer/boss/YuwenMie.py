@@ -1,30 +1,24 @@
 # Created by moeheart at 03/29/2021
-# 宇文灭的定制复盘方法库。
+# 宇文灭的定制复盘方法库. 已重置为新的数据形式.
 # 宇文灭是白帝江关5号首领，复盘主要集中在以下几个方面：
-# (TODO)
+# 分阶段的DPS，传染分锅
 
-from replayer.boss.Base import *
+from replayer.boss.Base import SpecificReplayerPro, SpecificBossWindow, ToolTip
+from replayer.BattleHistory import BattleHistory
+from replayer.TableConstructorMeta import TableConstructorMeta
 from replayer.utils import CriticalHealCounter, DpsShiftWindow
 from tools.Functions import *
         
-class YuwenMieWindow():
+class YuwenMieWindow(SpecificBossWindow):
     '''
     宇文灭的专有复盘窗口类。
-    ''' 
-    
-    def final(self):
-        '''
-        关闭窗口。
-        '''
-        self.windowAlive = False
-        self.window.destroy()
+    '''
 
     def loadWindow(self):
         '''
         使用tkinter绘制详细复盘窗口。
         '''
         window = tk.Toplevel()
-        #window = tk.Tk()
         window.title('宇文灭详细复盘')
         window.geometry('1200x800')
         
@@ -118,21 +112,12 @@ class YuwenMieWindow():
         window.protocol('WM_DELETE_WINDOW', self.final)
         #window.mainloop()
 
-    def start(self):
-        self.windowAlive = True
-        self.windowThread = threading.Thread(target = self.loadWindow)    
-        self.windowThread.start()
-        
-    def alive(self):
-        return self.windowAlive
+    def __init__(self, effectiveDPSList, detail, occResult={}):
+        super().__init__(effectiveDPSList, detail, occResult)
 
-    def __init__(self, effectiveDPSList, detail):
-        self.effectiveDPSList = effectiveDPSList
-        self.detail = detail
+class YuwenMieReplayer(SpecificReplayerPro):
 
-class YuwenMieReplayer(SpecificReplayer):
-
-    def countFinal(self, nowTime):
+    def countFinal(self):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
@@ -298,6 +283,9 @@ class YuwenMieReplayer(SpecificReplayer):
      
                 
         elif item[3] == '5': #气劲
+
+            # 记录自身寒劫，寒狱，玄冰夺命掌
+
             if self.occdict[item[5]][0] == '0':
                 return
                 
@@ -419,6 +407,10 @@ class YuwenMieReplayer(SpecificReplayer):
         self.detail["P2last"] = ["未知", "0", "未知", "0"]
         
         self.criticalHealCounter = {}
+
+        self.bh = BattleHistory(self.startTime, self.finalTime)
+        self.hasBh = True
+        self.bjbp = [[0, 0]]
         
         for line in self.playerIDList:
             self.stat[line] = [self.namedict[line][0].strip('"'), self.occDetailList[line], 0, 0, -1, "", 0] + \
@@ -429,9 +421,9 @@ class YuwenMieReplayer(SpecificReplayer):
             self.criticalHealCounter[line] = CriticalHealCounter()
             self.stunCounter[line] = BuffCounter(0, self.startTime, self.finalTime)
 
-    def __init__(self, playerIDList, mapDetail, res, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
+    def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
         '''
         对类本身进行初始化。
         '''
-        super().__init__(playerIDList, mapDetail, res, occDetailList, startTime, finalTime, battleTime, bossNamePrint)
+        super().__init__(bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint)
 

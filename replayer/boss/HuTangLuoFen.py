@@ -188,7 +188,7 @@ class HuTangLuoFenReplayer(SpecificReplayerPro):
                     tmp[line[0]] = 0
                 for line in self.liZhuaList:
                     if self.liZhuaList[line] == self.liZhuaOrder and line not in tmp:
-                        res["fail"].append([self.namedict[line][0].strip('"'), self.occDetailList[line]])
+                        res["fail"].append([self.bld.info.player[line].name, self.occDetailList[line]])
                 self.detail["chengshangFail"].append(res)
             self.chengShang[0] = {"time": 0, "num": 0, "player": []}
             self.lastLiZhuaTime = event.time
@@ -201,7 +201,7 @@ class HuTangLuoFenReplayer(SpecificReplayerPro):
                     tmp[line[0]] = 0
                 for line in self.mianFenList:
                     if self.mianFenList[line] == self.mianFenOrder and line not in tmp:
-                        res["fail"].append([self.namedict[line][0].strip('"'), self.occDetailList[line]])
+                        res["fail"].append([self.bld.info.player[line].name, self.occDetailList[line]])
                 self.detail["chengshangFail"].append(res)
             self.chengShang[1] = {"time": 0, "num": 0, "player": []}
             self.mianfenFailFlag = 0

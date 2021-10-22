@@ -30,6 +30,11 @@ from replayer.boss.GongWei import GongWeiReplayer
 from replayer.boss.GongAo import GongAoReplayer
 
 from replayer.boss.JuxingJianwenfeng import JuxingJianwenfengReplayer
+from replayer.boss.SangQiao import SangQiaoReplayer
+from replayer.boss.XidaLuomo import XidaLuomoReplayer
+from replayer.boss.YoujiaLuomo import YoujiaLuomoReplayer
+from replayer.boss.YuequanHuai import YuequanHuaiReplayer
+from replayer.boss.WuMenggui import WuMengguiReplayer
 
 from replayer.occ.XiangZhi import XiangZhiProReplayer
 
@@ -328,11 +333,32 @@ class ActorProReplayer(ReplayerBase):
         elif self.bossAnalyseName == "姜集苦":
             bossAnalyser = JiangJikuReplayer(self.bld, occDetailList, self.startTime,
                                            self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "宇文灭":
+            bossAnalyser = YuwenMieReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint)
         elif self.bossAnalyseName == "宫威":
             bossAnalyser = GongWeiReplayer(self.bld, occDetailList, self.startTime,
                                            self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "宫傲":
+            bossAnalyser = GongAoReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint)
         elif self.bossAnalyseName == "巨型尖吻凤":
             bossAnalyser = JuxingJianwenfengReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "桑乔":
+            bossAnalyser = SangQiaoReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "悉达罗摩":
+            bossAnalyser = XidaLuomoReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "尤珈罗摩":
+            bossAnalyser = YoujiaLuomoReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "月泉淮":
+            bossAnalyser = YuequanHuaiReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "乌蒙贵":
+            bossAnalyser = WuMengguiReplayer(self.bld, occDetailList, self.startTime,
                                            self.finalTime, self.battleTime, self.bossNamePrint)
         else:
             bossAnalyser = GeneralReplayer(self.bld, occDetailList, self.startTime,
