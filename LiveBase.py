@@ -530,6 +530,8 @@ class SingleBossWindow():
                 self.specificBossWindow = HuTangLuoFenWindow(effectiveDPSList, detail, occResult)
             elif detail["boss"] == "赵八嫂":
                 self.specificBossWindow = ZhaoBasaoWindow(effectiveDPSList, detail, occResult)
+            elif detail["boss"] == "海荼":
+                self.specificBossWindow = HaiTuWindow(effectiveDPSList, detail, occResult)
             elif detail["boss"] == "姜集苦":
                 self.specificBossWindow = JiangJikuWindow(effectiveDPSList, detail, occResult)
             elif detail["boss"] == "宫威":

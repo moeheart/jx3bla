@@ -562,7 +562,8 @@ def uploadActorData():
     server = jdata["server"]
     boss = jdata["boss"]
     battleDate = jdata["battledate"]
-    mapDetail = jdata["mapdetail"]
+    mapName = jdata["mapdetail"]
+    #mapDetail = jdata["mapdetail"]
     edition = jdata["edition"]
     hash = jdata["hash"]
     statistics = jdata["statistics"]
@@ -600,12 +601,15 @@ def uploadActorData():
     
     dupID = 0
     
-    if mapDetail == '484':
+    if mapName == "25人英雄达摩洞":
         scoreAdd = 2
-    elif mapDetail == '519':
+        mapDetail = '484'
+    elif mapDetail == '25人普通白帝江关':
         scoreAdd = 1
-    elif mapDetail == '520':
+        mapDetail = '519'
+    elif mapDetail == '25人英雄白帝江关':
         scoreAdd = 4
+        mapDetail = '520'
     else:
         scoreSuccess = 0
         response['scoreStatus'] = 'illegal'

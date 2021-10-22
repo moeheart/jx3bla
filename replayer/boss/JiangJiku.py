@@ -4,6 +4,7 @@
 # (TODO)
 
 from replayer.boss.Base import SpecificReplayerPro, SpecificBossWindow, ToolTip
+from replayer.BattleHistory import BattleHistory
 from replayer.TableConstructorMeta import TableConstructorMeta
 from replayer.utils import CriticalHealCounter, DpsShiftWindow
 from tools.Functions import *
@@ -98,16 +99,21 @@ class JiangJikuWindow(SpecificBossWindow):
 
 class JiangJikuReplayer(SpecificReplayerPro):
 
-    def countFinal(self, nowTime):
+    def countFinal(self):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
-        pass
+        for line in self.sqhf:
+            self.bh.setEnvironment("26611", "三清化符", "11432", line[0], line[1]-line[0], 1, "")
+        for line in self.qsqhf:
+            self.bh.setEnvironment("26743", "炁·三清化符", "11432", line[0], line[1]-line[0], 1, "")
 
     def getResult(self):
         '''
         生成复盘结果的流程。需要维护effectiveDPSList, potList与detail。
         '''
+
+        self.countFinal()
         
         self.phaseStart[1] = self.startTime
         self.phaseEnd[2] = self.finalTime
@@ -183,6 +189,14 @@ class JiangJikuReplayer(SpecificReplayerPro):
                             if line in self.bld.info.player:
                                 self.stat[line][10] += healRes[line]
 
+                if event.id == "26611":  # 三清化符
+                    if event.time - self.sqhf[-1][1] > 3000:
+                        self.sqhf.append([event.time - 5000, event.time])
+
+                if event.id == "26743":  # 炁·三清化符
+                    if event.time - self.qsqhf[-1][1] > 3000:
+                        self.qsqhf.append([event.time - 5000, event.time])
+
             else:
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
@@ -210,16 +224,30 @@ class JiangJikuReplayer(SpecificReplayerPro):
                 self.phase = 2
                 self.phaseEnd[1] = event.time
                 self.phaseStart[2] = event.time
+                self.bh.setEnvironment("26842", "金符凝炁", "325", event.time, 5000, 1, "")
                 
             if event.content in ['"唔...岂有此理！"']:
                 self.yiShang = 1
                 self.phaseStart[3] = event.time
                 self.phaseEnd[3] = event.time + 20000
                 self.zouQuan = 0
+
+            # print(event.content, event.time)
                 
             if event.content in ['"黑云密布，电火奔星。天令一下，速震速轰！"']:
                 if self.phase == 2:
                     self.zouQuan = 1
+                    self.bh.setEnvironment("26840", "炁·混雷天诀", "8315", event.time, 62000, 1, "")
+
+            if event.content in ['"太上火铃，炎帝之精。随吾三炁，焚灭邪精，急急如律令！"']:
+                if self.phase == 1:
+                    self.bh.setEnvironment("26612", "缠地烈火咒", "8317", event.time, 12000, 1, "")
+                elif self.phase == 2:
+                    self.bh.setEnvironment("26744", "炁·缠地烈火咒", "8317", event.time, 17000, 1, "")
+
+            if event.content in ['"你们这些缠人的妖孽，见我道术！"']:
+                if self.phase == 2:
+                    self.bh.setEnvironment("26746", "炁·退邪剑气", "12457", event.time, 6000, 1, "")
 
         elif event.dataType == "Death":  # 重伤记录
             if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name == "姜集苦":
@@ -261,6 +289,11 @@ class JiangJikuReplayer(SpecificReplayerPro):
         
         self.phaseStart = [0, 0, 0, 0]
         self.phaseEnd = [0, 0, 0, 0]
+
+        self.bh = BattleHistory(self.startTime, self.finalTime)
+        self.hasBh = True
+        self.sqhf = [[0, 0]]
+        self.qsqhf = [[0, 0]]
         
         for line in self.bld.info.player:
             self.stat[line] = [self.bld.info.player[line].name, self.occDetailList[line], 0, 0, -1, "", 0] + \

@@ -1,30 +1,26 @@
 # Created by moeheart at 03/29/2021
-# 海荼的定制复盘方法库。
+# 海荼的定制复盘方法库. 已重置为新的数据形式.
 # 海荼是白帝江关3号首领，复盘主要集中在以下几个方面：
-# (TODO)
+# P1P2独立DPS，下水拉枪顺序。
 
-from replayer.boss.Base import *
+from replayer.boss.Base import SpecificReplayerPro, SpecificBossWindow, ToolTip
+from replayer.BattleHistory import BattleHistory
+from replayer.TableConstructorMeta import TableConstructorMeta
 from replayer.utils import CriticalHealCounter, DpsShiftWindow
 from tools.Functions import *
+
+import tkinter as tk
         
-class HaiTuWindow():
+class HaiTuWindow(SpecificBossWindow):
     '''
     海荼的专有复盘窗口类。
-    ''' 
-    
-    def final(self):
-        '''
-        关闭窗口。
-        '''
-        self.windowAlive = False
-        self.window.destroy()
+    '''
 
     def loadWindow(self):
         '''
         使用tkinter绘制详细复盘窗口。
         '''
         window = tk.Toplevel()
-        #window = tk.Tk()
         window.title('海荼详细复盘')
         window.geometry('1200x800')
         
@@ -41,7 +37,7 @@ class HaiTuWindow():
         # 0 水枪ID，次数
         # 1 时间，QTE按错/挣脱
         
-        tb = TableConstructor(frame1)
+        tb = TableConstructorMeta(frame1)
         
         tb.AppendHeader("玩家名", "", width=13)
         tb.AppendHeader("有效DPS", "全程DPS。与游戏中不同的是，重伤时间也会被计算在内。")
@@ -56,6 +52,7 @@ class HaiTuWindow():
         tb.AppendHeader("P3单体", "对P3的四把枪与BOSS的DPS。P3的时间从第一次有效伤害开始计算。\nP3时长：%s"%parseTime(self.detail["P3Time"]))
         tb.AppendHeader("P3水鬼", "对P3水鬼的DPS。")
         tb.AppendHeader("P3关键治疗", "对P3手持锁链玩家的治疗。减伤会被等效。")
+        tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         tb.EndOfLine()
         
         for i in range(len(self.effectiveDPSList)):
@@ -83,7 +80,7 @@ class HaiTuWindow():
             color7 = "#000000"
             if self.effectiveDPSList[i][7] < 0:
                 color7 = "#ff0000"
-            tb.AppendContext(int(self.effectiveDPSList[i][7]), color = color7)
+            tb.AppendContext(int(self.effectiveDPSList[i][7]), color=color7)
             
             tb.AppendContext(int(self.effectiveDPSList[i][8]))
             tb.AppendContext(int(self.effectiveDPSList[i][9]))
@@ -91,7 +88,7 @@ class HaiTuWindow():
             color10 = "#000000"
             if self.effectiveDPSList[i][10] > 0:
                 color10 = "#ff0000"
-            tb.AppendContext(int(self.effectiveDPSList[i][10]), color = color10)
+            tb.AppendContext(int(self.effectiveDPSList[i][10]), color=color10)
             
             tb.AppendContext(int(self.effectiveDPSList[i][11]))
             tb.AppendContext(int(self.effectiveDPSList[i][12]))
@@ -99,14 +96,19 @@ class HaiTuWindow():
             color13 = "#000000"
             if self.effectiveDPSList[i][13] > 0 and getOccType(self.effectiveDPSList[i][1]) == "healer":
                 color13 = "#00ff00"
-            tb.AppendContext(int(self.effectiveDPSList[i][13]), color = color13)
+            tb.AppendContext(int(self.effectiveDPSList[i][13]), color=color13)
             
+            # 心法复盘
+            if self.effectiveDPSList[i][0] in self.occResult:
+                tb.GenerateXinFaReplayButton(self.occResult[self.effectiveDPSList[i][0]], self.effectiveDPSList[i][0])
+            else:
+                tb.AppendContext("")
             tb.EndOfLine()
             
         frame2 = tk.Frame(window)
         frame2.pack()
         
-        tb = TableConstructor(frame2)
+        tb = TableConstructorMeta(frame2)
         
         tb.AppendHeader("锁链复盘", "")
         tb.EndOfLine()
@@ -145,35 +147,41 @@ class HaiTuWindow():
                     tb.AppendContext("未知原因挣脱")
                 tb.AppendContext(line["time"])
             tb.EndOfLine()
+
+        frame3 = tk.Frame(window)
+        frame3.pack()
+        buttonPrev = tk.Button(frame3, text='<<', width=2, height=1, command=self.openPrev)
+        submitButton = tk.Button(frame3, text='战斗事件记录', command=self.openPot)
+        buttonNext = tk.Button(frame3, text='>>', width=2, height=1, command=self.openNext)
+        buttonPrev.grid(row=0, column=0)
+        submitButton.grid(row=0, column=1)
+        buttonNext.grid(row=0, column=2)
         
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
-        #window.mainloop()
 
-    def start(self):
-        self.windowAlive = True
-        self.windowThread = threading.Thread(target = self.loadWindow)    
-        self.windowThread.start()
-        
-    def alive(self):
-        return self.windowAlive
+    def __init__(self, effectiveDPSList, detail, occResult={}):
+        super().__init__(effectiveDPSList, detail, occResult)
 
-    def __init__(self, effectiveDPSList, detail):
-        self.effectiveDPSList = effectiveDPSList
-        self.detail = detail
+class HaiTuReplayer(SpecificReplayerPro):
 
-class HaiTuReplayer(SpecificReplayer):
-
-    def countFinal(self, nowTime):
+    def countFinal(self):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
-        pass
+        for line in self.jq:
+            self.bh.setEnvironment("26439", "汲取", "11920", line[0], line[1]-line[0], 1, "")
+        for line in self.yong:
+            self.bh.setEnvironment("26536", "闪戟画浪式·涌", "3448", line[0], line[1]-line[0], 1, "")
+        for line in self.gp:
+            self.bh.setEnvironment("26369", "闪戟画浪式·鬼破", "3435", line[0], line[1]-line[0], 1, "")
 
     def getResult(self):
         '''
         生成复盘结果的流程。需要维护effectiveDPSList, potList与detail。
         '''
+
+        self.countFinal()
         
         self.phaseStart[1] = self.startTime
         self.phaseEnd[3] = self.finalTime
@@ -187,7 +195,7 @@ class HaiTuReplayer(SpecificReplayer):
         self.detail["P3Time"] = self.phaseTime[3]
 
         bossResult = []
-        for id in self.playerIDList:
+        for id in self.bld.info.player:
             if id in self.stat:
                 line = self.stat[id]
 
@@ -196,11 +204,11 @@ class HaiTuReplayer(SpecificReplayer):
                     line[5] = self.equipmentDict[id]["sketch"]
                 
                 if getOccType(self.occDetailList[id]) == "healer":
-                    line[3] = int(self.hps[id] / self.battleTime)
+                    line[3] = int(self.hps[id] / self.battleTime * 1000)
                     
                 line[6] = self.buffCounter[id].buffTimeIntegral() / 1000
 
-                dps = int(line[2] / self.battleTime)
+                dps = int(line[2] / self.battleTime * 1000)
                 bossResult.append([line[0],
                                    line[1],
                                    dps, 
@@ -232,24 +240,24 @@ class HaiTuReplayer(SpecificReplayer):
         '''
         pass
 
-    def analyseSecondStage(self, item):
+    def analyseSecondStage(self, event):
         '''
         处理单条复盘数据时的流程，在第二阶段复盘时，会以时间顺序不断调用此方法。
         params
-        - item 复盘数据，意义同茗伊复盘。
+        - event 复盘数据，意义同茗伊复盘。
         '''
         
-        if self.failTime != 0 and int(item[2]) - self.failTime > 300 and self.mapDetail == "25人英雄白帝江关":  # 缓冲并结算锁链失败的复盘
+        if self.failTime != 0 and event.time - self.failTime > 300 and self.bld.info.map == "25人英雄白帝江关":  # 缓冲并结算锁链失败的复盘
         
             if self.failFlag == 1:
                 self.suolianNum += 1
                 self.detail["suolian"].append({"type": 1, "time": parseTime((self.failTime - self.startTime)/1000), "log": []}) #按错QTE
                 for line in self.failReason:
-                    self.detail["suolian"][self.suolianNum]["log"].append([self.namedict[line][0].strip('"'), self.occDetailList[line]])
+                    self.detail["suolian"][self.suolianNum]["log"].append([self.bld.info.player[line].name, self.occDetailList[line]])
                     
-                    potTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                    potTime = parseTime((event.time - self.startTime) / 1000)
                     potID = line
-                    self.potList.append([self.namedict[potID][0],
+                    self.potList.append([self.bld.info.player[potID].name,
                                          self.occDetailList[potID],
                                          1,
                                          self.bossNamePrint,
@@ -261,11 +269,11 @@ class HaiTuReplayer(SpecificReplayer):
                 self.suolianNum += 1
                 self.detail["suolian"].append({"type": 2, "time": parseTime((self.failTime - self.startTime)/1000), "log": []}) #QTE超时
                 for line in self.failReason:
-                    self.detail["suolian"][self.suolianNum]["log"].append([self.namedict[line][0].strip('"'), self.occDetailList[line]])
+                    self.detail["suolian"][self.suolianNum]["log"].append([self.bld.info.player[line].name, self.occDetailList[line]])
                     
-                    potTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                    potTime = parseTime((event.time - self.startTime) / 1000)
                     potID = line
-                    self.potList.append([self.namedict[potID][0],
+                    self.potList.append([self.bld.info.player[potID].name,
                                          self.occDetailList[potID],
                                          1,
                                          self.bossNamePrint,
@@ -276,11 +284,11 @@ class HaiTuReplayer(SpecificReplayer):
                 self.suolianNum += 1
                 self.detail["suolian"].append({"type": 3, "time": parseTime((self.failTime - self.startTime)/1000), "log": []}) #锁链错位
                 for line in self.failReason:
-                    self.detail["suolian"][self.suolianNum]["log"].append([self.namedict[line][0].strip('"'), self.occDetailList[line]])
+                    self.detail["suolian"][self.suolianNum]["log"].append([self.bld.info.player[line].name, self.occDetailList[line]])
                     
-                    potTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                    potTime = parseTime((event.time - self.startTime) / 1000)
                     potID = line
-                    self.potList.append([self.namedict[potID][0],
+                    self.potList.append([self.bld.info.player[potID].name,
                                          self.occDetailList[potID],
                                          1,
                                          self.bossNamePrint,
@@ -291,7 +299,7 @@ class HaiTuReplayer(SpecificReplayer):
                 self.suolianNum += 1
                 self.detail["suolian"].append({"type": 4, "time": parseTime((self.failTime - self.startTime)/1000), "log": []}) #玩家重伤
                 for line in self.failReason:
-                    self.detail["suolian"][self.suolianNum]["log"].append([self.namedict[line][0].strip('"'), self.occDetailList[line]]) 
+                    self.detail["suolian"][self.suolianNum]["log"].append([self.bld.info.player[line].name, self.occDetailList[line]])
                     
             elif self.failFlag == 5:
                 self.suolianNum += 1
@@ -306,11 +314,11 @@ class HaiTuReplayer(SpecificReplayer):
             self.failTime = 0
             self.failReason = []
             
-        if self.yanZhongDingTime != 0 and int(item[2]) - self.yanZhongDingTime > 5000:
+        if self.yanZhongDingTime != 0 and event.time - self.yanZhongDingTime > 5000:
             if self.yanZhongDingNum >= 5:
-                potTime = parseTime((int(item[2]) - self.startTime) / 1000)
+                potTime = parseTime((event.time - self.startTime) / 1000)
                 potID = self.yanZhongDingPlayer
-                self.potList.append([self.namedict[potID][0],
+                self.potList.append([self.bld.info.player[potID].name,
                                      self.occDetailList[potID],
                                      1,
                                      self.bossNamePrint,
@@ -322,182 +330,174 @@ class HaiTuReplayer(SpecificReplayer):
             self.yanZhongDingPlayer = "0"
             self.yanZhongDingVictim = []
         
-        if item[3] == '1':  # 技能
-        
-            if item[7] in ["26781", "26782"]: #向左拉/向右拉
-                
+        if event.dataType == "Skill":
+            if event.id in ["26781", "26782"]: #向左拉/向右拉
                 correct = 1
-                if self.qteStat[item[5]]["time"] != 0:
-                    if int(item[7]) - self.qteStat[item[5]]["dir"] != 26780:
+                if self.qteStat[event.target]["time"] != 0:
+                    if int(event.id) - self.qteStat[event.target]["dir"] != 26780:
                         correct = 0
-                        
                 if correct:
-                    if item[5] in self.detail["suolian"][self.suolianNum]["log"]:
-                        self.detail["suolian"][self.suolianNum]["log"][item[5]][3] += 1
+                    if event.target in self.detail["suolian"][self.suolianNum]["log"]:
+                        self.detail["suolian"][self.suolianNum]["log"][event.target][3] += 1
                 elif self.suolianActive:
                     if self.failFlag > 1:  # 按错QTE由于判定诡异，拥有最高优先级
                         self.failReason = []
                     self.failFlag = 1
-                    self.failTime = int(item[2])
-                    self.failReason.append(item[5])
+                    self.failTime = event.time
+                    self.failReason.append(event.target)
                     
-                self.qteStat[item[5]]["time"] = 0
-                self.qteStat[item[5]]["dir"] = 0
-                
+                self.qteStat[event.target]["time"] = 0
+                self.qteStat[event.target]["dir"] = 0
 
-            if self.occdict[item[5]][0] != '0':
-            
-                if item[11] != '0' and item[10] != '7': #非化解
-                    if item[4] in self.playerIDList:
-                        self.hps[item[4]] += int(item[12])
+            if event.target in self.bld.info.player:
+                if event.heal > 0 and event.effect != 7 and event.caster in self.hps:  # 非化解
+                    self.hps[event.caster] += event.healEff
                         
-                healRes = self.criticalHealCounter[item[5]].recordHeal(item)
+                healRes = self.criticalHealCounter[event.target].recordHeal(event)
                 if healRes != {}:
                     for line in healRes:
-                        if line in self.playerIDList:
+                        if line in self.bld.info.player:
                             self.stat[line][13] += healRes[line]
                         
-                if item[7] == "26439" and self.mapDetail == "25人英雄白帝江关":
-                    if item[5] in self.stat:
-                        self.stat[item[5]][7] -= 3 * int(item[14])
+                if event.id == "26439":  # 汲取
+                    if self.bld.info.map == "25人英雄白帝江关":
+                        if event.target in self.stat:
+                            self.stat[event.target][7] -= 3 * event.damageEff
+                    if event.time - self.jq[-1][1] > 2000:
+                        self.jq.append([event.time - 10000, event.time])
                         
-                if item[7] == "26819" and item[8] == "1" and self.suolianActive: #BOSS挣脱反噬
-                
+                if event.id == "26819" and event.level == 1 and self.suolianActive:  # BOSS挣脱反噬
                     if self.failFlag == 0:
-                        self.failTime = int(item[2])
-                    
+                        self.failTime = event.time
                     if self.failFlag == 0:
                         for line in self.cuoweiStatus:
-                            if (int(item[2]) - self.cuoweiStatus[line]) < 4000:
+                            if (event.time - self.cuoweiStatus[line]) < 4000:
                                 self.failFlag = 3
                                 self.failReason.append(line)
-                    
                     if self.failFlag == 0:
                         for line in self.qteStat:
-                            if self.qteStat[line]["time"] != 0 and int(item[2]) - self.qteStat[line]["time"] > 2500 and int(item[2]) - self.qteStat[line]["time"] < 5500:
+                            if self.qteStat[line]["time"] != 0 and event.time - self.qteStat[line]["time"] > 2500 and event.time - self.qteStat[line]["time"] < 5500:
                                 self.failFlag = 2
                                 self.failReason.append(line)
-                                
                     if self.failFlag == 0:
-                        if int(item[2]) - self.suolianLast > 19000:
+                        if event.time - self.suolianLast > 19000:
                             self.failFlag = 5
-                            
-                if item[7] == "26234" and '5' not in item[15]:
+                if event.id == "26234" and '5' not in event.fullResult:
                     self.yanZhongDingNum += 1
-                    self.yanZhongDingVictim.append(self.namedict[item[5]][0].strip('"'))
+                    self.yanZhongDingVictim.append(self.bld.info.player[event.target].name)
 
             else:
-            
-                if item[4] in self.playerIDList:
-                    self.stat[item[4]][2] += int(item[14])
+                if event.caster in self.bld.info.player:
+                    self.stat[event.caster][2] += event.damageEff
                     
-                    if item[5] in self.namedict and self.namedict[item[5]][0] == '"天怒惊霆戟"':
+                    if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == "天怒惊霆戟":
                         if self.phase == 2.5:
                             self.phase = 3
-                            self.phaseStart[3] = int(item[2])
+                            self.phaseStart[3] = event.time
                         if self.phase == 3:
-                            self.stat[item[4]][11] += int(item[14])
+                            self.stat[event.caster][11] += event.damageEff
                         elif self.phase == 1:
-                            self.stat[item[4]][7] += int(item[14])
+                            self.stat[event.caster][7] += event.damageEff
                     
-                    if item[5] in self.namedict and self.namedict[item[5]][0] == '"海荼"':
+                    if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == "海荼":
                         if self.phase == 2:
-                            self.stat[item[4]][8] += int(item[14])
+                            self.stat[event.caster][8] += event.damageEff
                         elif self.phase == 3:
-                            self.stat[item[4]][11] += int(item[14])
+                            self.stat[event.caster][11] += event.damageEff
                     
-                    if item[5] in self.namedict and self.namedict[item[5]][0] == '"水鬼"':
+                    if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == "水鬼":
                         if self.phase == 2:
-                            self.stat[item[4]][9] += int(item[14])
+                            self.stat[event.caster][9] += event.damageEff
                         elif self.phase == 3:
-                            self.stat[item[4]][12] += int(item[14])
-                
-            #if item[7] == "26656":
-            #    self.phase = 2.5
-            #    self.phaseEnd[2] = int(item[2])
-     
-                
-        elif item[3] == '5': #气劲
-            if self.occdict[item[5]][0] == '0':
+                            self.stat[event.caster][12] += event.damageEff
+
+        elif event.dataType == "Buff":
+            if event.target not in self.bld.info.player:
                 return
                 
-            if item[6] in ["18901"]:
-                layer = int(item[10])
+            if event.id in ["18901"]:
+                layer = event.stack
                 if layer > 1:
                     layer = 1
-                self.buffCounter[item[5]].setState(int(item[2]), layer)
+                self.buffCounter[event.target].setState(event.time, layer)
             
-            if item[6] == "18946" and int(item[10]) >= 1 and self.phase == 2:
+            if event.id == "18946" and event.stack >= 1 and self.phase == 2:
             
-                if int(item[2]) - self.xiashuiTime[item[5]] > 15000:
-                    self.xiashuiTime[item[5]] = int(item[2])
-                    self.stat[item[5]][10] += 1
+                if event.time - self.xiashuiTime[event.target] > 15000:
+                    self.xiashuiTime[event.target] = event.time
+                    self.stat[event.target][10] += 1
                     
-            if item[6] == "19218" and self.mapDetail == "25人英雄白帝江关":
-                if int(item[10]) == 1: #手持锁链buff
-                    self.criticalHealCounter[item[5]].active()
-                    self.criticalHealCounter[item[5]].setCriticalTime(-1)
+            if event.id == "19218" and self.bld.info.map == "25人英雄白帝江关":
+                if event.stack == 1: #手持锁链buff
+                    self.criticalHealCounter[event.target].active()
+                    self.criticalHealCounter[event.target].setCriticalTime(-1)
                     
                     if self.suolianActive == 0:
                         self.suolianActive = 1
                         self.suolianNum += 1
                         self.detail["suolian"].append({"type": 0, "log": {}})
                     
-                    self.detail["suolian"][self.suolianNum]["log"][item[5]] = [self.namedict[item[5]][0].strip('"'), self.occDetailList[item[5]], 
-                        parseTime((int(item[2]) - self.startTime)/1000), 0]
-                    self.suolianLast = int(item[2])
+                    self.detail["suolian"][self.suolianNum]["log"][event.target] = [self.bld.info.player[event.target].name, self.occDetailList[event.target],
+                        parseTime((event.time - self.startTime)/1000), 0]
+                    self.suolianLast = event.time
 
                 
-                elif int(item[10]) == 0: #buff消失
-                    self.criticalHealCounter[item[5]].unactive()
+                elif event.stack == 0: #buff消失
+                    self.criticalHealCounter[event.target].unactive()
                     
-            if item[6] == "19343": #QTE开始标记
+            if event.id == "19343": #QTE开始标记
 
-                if int(item[10]) == 1:
-                    self.qteStat[item[5]]["time"] = int(item[2])
-                    self.qteStat[item[5]]["dir"] = int(item[7])
+                if event.stack == 1:
+                    self.qteStat[event.target]["time"] = event.time
+                    self.qteStat[event.target]["dir"] = event.level
                 else:
                     pass
                 
-            if item[6] == "19426": #错位
-                if int(item[10]) == 1:
-                    self.cuoweiStatus[item[5]] = int(item[2])
+            if event.id == "19426": #错位
+                if event.stack == 1:
+                    self.cuoweiStatus[event.target] = event.time
                     
-            if item[6] == "18901" and int(item[10]) == 1:  # 眼中钉
-                self.yanZhongDingTime = int(item[2])
-                self.yanZhongDingPlayer = item[5]
-                    
-        elif item[3] == '8':
-        
-            if len(item) <= 4:
-                return
+            if event.id == "18901" and event.stack == 1:  # 眼中钉
+                self.yanZhongDingTime = event.time
+                self.yanZhongDingPlayer = event.target
+
+            if event.id == "18957" and event.stack == 1:  # 鱼腩
+                self.bh.setCall("18957", "鱼腩", "3435", event.time, 16000, event.target, "转阶段时被点名的目标")
+
+        elif event.dataType == "Shout":
                 
-            if item[4] in ['"…… ……"', '"吾，海鬼之首海荼，来会会尔等。一起上吧！"']:
+            if event.content in ['"…… ……"', '"吾，海鬼之首海荼，来会会尔等。一起上吧！"']:
                 self.phase = 2
-                self.phaseEnd[1] = int(item[2])
-                self.phaseStart[2] = int(item[2])
+                self.phaseEnd[1] = event.time
+                self.phaseStart[2] = event.time
                 
-            if item[4] in ['"吾之大业还未……"', '"吾夙愿方达，绝……绝不能……死……"']:
+            if event.content in ['"吾之大业还未……"', '"吾夙愿方达，绝……绝不能……死……"']:
                 self.win = 1
                 if len(self.detail["suolian"]) > 0 and self.detail["suolian"][-1]["type"] != 0:
                     del self.detail["suolian"][-1]
                     self.suolianNum -= 1
                 
-            if item[4] in ['"哼哼哈哈哈，进了水里便是吾等的天下！"']:
+            if event.content in ['"哼哼哈哈哈，进了水里便是吾等的天下！"']:
                 self.phase = 2.5
-                self.phaseEnd[2] = int(item[2])
+                self.phaseEnd[2] = event.time
+                self.gp.append([event.time, event.time + 16000])
                 
-            if item[4] in ['"哼……用这种玩意儿，就想擒住我？"']:
+            if event.content in ['"哼……用这种玩意儿，就想擒住我？"']:
                 pass
+
+            if event.content in ['"江河湖海，皆为吾之助力！"']:
+                if self.bld.info.map == "10人普通白帝江关":
+                    self.yong.append([event.time, event.time + 5000])
+                else:
+                    self.yong.append([event.time, event.time + 19000])
                 
-        elif item[3] == '3': #重伤记录
+        elif event.dataType == "Death":  # 重伤记录
                 
-            if item[4] in self.occdict and int(self.occdict[item[4]][0]) != 0 and len(self.detail["suolian"]) > 0 and self.failFlag == 0:
-            
-                if "log" in self.detail["suolian"][self.suolianNum] and item[4] in self.detail["suolian"][self.suolianNum]["log"]:
+            if event.id in self.bld.info.player and len(self.detail["suolian"]) > 0 and self.failFlag == 0:
+                if "log" in self.detail["suolian"][self.suolianNum] and event.id in self.detail["suolian"][self.suolianNum]["log"]:
                     self.failFlag = 4
-                    self.failTime = int(item[2])
-                    self.failReason.append(item[4])
+                    self.failTime = event.time
+                    self.failReason.append(event.id)
             
                     
     def analyseFirstStage(self, item):
@@ -552,9 +552,15 @@ class HaiTuReplayer(SpecificReplayer):
         self.yanZhongDingPlayer = "0"
         self.yanZhongDingNum = 0
         self.yanZhongDingVictim = []
+
+        self.bh = BattleHistory(self.startTime, self.finalTime)
+        self.hasBh = True
+        self.jq = [[0, 0]]
+        self.yong = [[0, 0]]
+        self.gp = [[0, 0]]
         
-        for line in self.playerIDList:
-            self.stat[line] = [self.namedict[line][0].strip('"'), self.occDetailList[line], 0, 0, -1, "", 0] + \
+        for line in self.bld.info.player:
+            self.stat[line] = [self.bld.info.player[line].name, self.occDetailList[line], 0, 0, -1, "", 0] + \
                 [0, 0, 0, 0, 0, 0, 0]
             self.hps[line] = 0
             self.xiashuiTime[line] = 0
@@ -563,9 +569,9 @@ class HaiTuReplayer(SpecificReplayer):
             self.qteStat[line] = {"time": 0, "dir": 0}
             self.cuoweiStatus[line] = 0
 
-    def __init__(self, playerIDList, mapDetail, res, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
+    def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
         '''
         对类本身进行初始化。
         '''
-        super().__init__(playerIDList, mapDetail, res, occDetailList, startTime, finalTime, battleTime, bossNamePrint)
+        super().__init__(bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint)
 

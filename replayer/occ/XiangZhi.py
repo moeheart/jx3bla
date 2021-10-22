@@ -1022,7 +1022,7 @@ class XiangZhiProReplayer(ReplayerBase):
                         if ((event.id not in skillNameDict or skillNameDict[event.id] != skillNameDict[bhSkill]) and event.id not in xiangZhiSpecial)\
                             or event.time - lastSkillTime > 3000:
                             # 记录本次技能
-                            print("[ReplaceSkill]", event.id, bhSkill)
+                            # print("[ReplaceSkill]", event.id, bhSkill)
                             # 此处的逻辑完全可以去掉，保留这个逻辑就是为了监控哪些是值得挖掘的隐藏技能
                             if bhSkill != "0":
                                 bh.setNormalSkill(bhSkill, skillNameDict[bhSkill], skillIconDict[bhSkill],
@@ -1049,29 +1049,31 @@ class XiangZhiProReplayer(ReplayerBase):
                             bhTimeEnd = lastSkillTime
                             bhBusy += getLength(24, self.haste)
                         elif event.id in ["18864", "14360", "16852"]:  # 宫实际效果
-                            print("[Debug]", event.id, event.healEff, event.time)
+                            # print("[Debug]", event.id, event.healEff, event.time)
                             if bhNum == 0:
                                 bhTimeStart -= getLength(24, self.haste)
-                            if event.time - lastSkillTime > getLength(24, self.haste) + 100 or bhNum == 0:
+                            if event.time - lastSkillTime > 100 or bhNum == 0:
                                 bhNum += 1
                                 bhDelayNum += 1
-                                bhDelay += event.time - lastSkillTime - getLength(24, self.haste)
+                                bhDelay += max(event.time - lastSkillTime - getLength(24, self.haste), 0)
                                 bhBusy += getLength(24, self.haste)
                             bhHeal += event.heal
                             bhHealEff += event.healEff
-                            lastSkillTime = gongSkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime) + getLength(24, self.haste)
+                            gongSkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime)
+                            lastSkillTime = event.time
                             bhTimeEnd = lastSkillTime
                         elif event.id in ["14362", "18865"]:  # 徵实际效果
                             if bhNum == 0:
                                 bhTimeStart -= getLength(8, self.haste)
-                            if event.time - lastSkillTime > getLength(8, self.haste) + 100 or bhNum == 0:
+                            if event.time - lastSkillTime > 100 or bhNum == 0:
                                 bhNum += 1
                                 bhDelayNum += 1
-                                bhDelay += event.time - lastSkillTime - getLength(8, self.haste)
+                                bhDelay += max(event.time - lastSkillTime - getLength(8, self.haste), 0)
                                 bhBusy += getLength(8, self.haste)
                             bhHeal += event.heal
                             bhHealEff += event.healEff
-                            lastSkillTime = zhiSkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime) + getLength(8, self.haste)
+                            zhiSkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime)
+                            lastSkillTime = event.time
                             bhTimeEnd = lastSkillTime
                         elif event.id in ["14354", "14355"]:  # 羽
                             bhNum += 1
@@ -1107,12 +1109,14 @@ class XiangZhiProReplayer(ReplayerBase):
                             bhNum += 1
                             bhDelayNum += 1
                             bhDelay += event.time - lastSkillTime
+                            lastSkillTime = event.time + getLength(24, self.haste)
                             bhTimeEnd = lastSkillTime
                             bhBusy += getLength(24, self.haste)
                         elif event.id in ["14169"]:  # 一指回鸾
                             bhNum += 1
                             bhDelayNum += 1
                             bhDelay += event.time - lastSkillTime
+                            lastSkillTime = event.time + getLength(24, self.haste)
                             bhTimeEnd = lastSkillTime
                             bhBusy += getLength(24, self.haste)
                         # 处理特殊技能

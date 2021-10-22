@@ -80,7 +80,7 @@ class SkillCounter():
             if line[0] - line[1] - line[2] > 3000:  # 不计算>3秒的延迟
                 continue
             num += 1
-            sumDelay += line[0] - line[1] - line[2]
+            sumDelay += max(line[0] - line[1] - line[2], 0)
         #print(self.log)
         #print(logClear)
         return sumDelay / (num + 1e-10)

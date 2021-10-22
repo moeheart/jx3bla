@@ -322,6 +322,9 @@ class ActorProReplayer(ReplayerBase):
         elif self.bossAnalyseName == "赵八嫂":
             bossAnalyser = ZhaoBasaoReplayer(self.bld, occDetailList, self.startTime,
                                            self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "海荼":
+            bossAnalyser = HaiTuReplayer(self.bld, occDetailList, self.startTime,
+                                         self.finalTime, self.battleTime, self.bossNamePrint)
         elif self.bossAnalyseName == "姜集苦":
             bossAnalyser = JiangJikuReplayer(self.bld, occDetailList, self.startTime,
                                            self.finalTime, self.battleTime, self.bossNamePrint)
