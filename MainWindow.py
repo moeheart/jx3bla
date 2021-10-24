@@ -18,7 +18,7 @@ from LiveBase import LiveListener, AllStatWindow, LiveActorAnalysis, SingleBossW
 from Constants import *
 from data.DataController import DataController
 from tools.Functions import *
-from GenerateFiles import *
+# from GenerateFiles import *
 
 class SingleBlockLocker():
     '''
@@ -332,7 +332,7 @@ class MainWindow():
         self.announcement = res["announcement"]
         self.newestEdition = res["version"]
         self.updateurl = res["url"]
-        checkAndWriteFiles()
+        # checkAndWriteFiles()
 
         self.var1 = tk.StringVar()
         self.var2 = tk.StringVar()
