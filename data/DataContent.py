@@ -254,6 +254,41 @@ class SingleDataBattle(SingleData):
     def __init__(self):
         self.dataType = "Battle"
 
+class SingleDataScene(SingleData):
+    '''
+    进入或离开场景事件，对应jx3dat-6, jcl-2/3/6/7
+    战斗状态变化事件包括：
+      time: 毫秒数，对应jx3dat[3], jcl[4]
+      id: ID, 对应jx3dat[7], jcl[6][1]
+      enter: 是否为进入场景，1为是，0为否，对应jx3dat[5], jcl[5]
+    '''
+
+    def setByJcl(self, item):
+        '''
+        从jcl形式的item获取事件信息并记录.
+        params:
+        - item: jcl形式的事件信息.
+        '''
+        self.time = int(item[3])
+        self.id = item[5]["1"]
+        if item[4] in ["2", "6"]:
+            self.enter = 1
+        else:
+            self.enter = 0
+
+    def setByJx3dat(self, item):
+        '''
+        从jx3dat形式的item获取事件信息并记录.
+        params:
+        - item: jx3dat形式的事件信息.
+        '''
+        self.time = int(item["3"])
+        self.id = item["7"]
+        self.enter = int(item["5"])
+
+    def __init__(self):
+        self.dataType = "Scene"
+
 class NPCdata():
     '''
     单条NPC数据。玩家也属于特殊的NPC。

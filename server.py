@@ -251,8 +251,8 @@ def Tianwang():
     
     allInfo = {}
     
-    stdMap = ["25人普通达摩洞", "25人英雄达摩洞", "25人普通白帝江关", "25人英雄白帝江关"]
-    mapToBoss = {"25人普通达摩洞": 6, "25人英雄达摩洞": 6, "25人普通白帝江关": 7, "25人英雄白帝江关": 7}
+    stdMap = ["25人普通达摩洞", "25人英雄达摩洞", "25人普通白帝江关", "25人英雄白帝江关", "25人普通雷域大泽", "25人英雄雷域大泽"]
+    mapToBoss = {"25人普通达摩洞": 6, "25人英雄达摩洞": 6, "25人普通白帝江关": 7, "25人英雄白帝江关": 7, , "25人普通雷域大泽": 6, "25人英雄雷域大泽": 6}
     creditThreshold = [[0, 100], [6, 0.5], [12, 0.4], [18, 0.3], [24, 0.2], [30, 0.1]]
 
     ids_split = ids.split(' ')
@@ -278,9 +278,11 @@ def Tianwang():
             playerDps[id]["occ"] = line[0]
 
             if line[2] in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅", 
-                           "胡汤&罗芬", "赵八嫂", "海荼", "姜集苦", "宇文灭", "宫威", "宫傲"]:
+                           "胡汤&罗芬", "赵八嫂", "海荼", "姜集苦", "宇文灭", "宫威", "宫傲",
+                           "巨型尖吻凤", "桑乔", "悉达罗摩", "尤珈罗摩", "月泉淮", "乌蒙贵"]:
                 bossNum = {"余晖": 0, "宓桃": 1, "武雪散": 2, "猿飞": 3, "哑头陀": 4, "岳琳&岳琅": 5, 
-                           "胡汤&罗芬": 0, "赵八嫂": 1, "海荼": 2, "姜集苦": 3, "宇文灭": 4, "宫威": 5, "宫傲": 6}[line[2]]
+                           "胡汤&罗芬": 0, "赵八嫂": 1, "海荼": 2, "姜集苦": 3, "宇文灭": 4, "宫威": 5, "宫傲": 6,
+                           "巨型尖吻凤": 0, "桑乔": 1, "悉达罗摩": 2, "尤珈罗摩": 3, "月泉淮": 4, "乌蒙贵": 5}[line[2]]
                 playerDps[id][line[1]][bossNum] = line[3]
                 playerNum[id][line[1]] += line[4]
                 
@@ -289,7 +291,8 @@ def Tianwang():
         result = cursor.fetchall()   
         for line in result:
             if line[2] in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅",
-                           "胡汤&罗芬", "赵八嫂", "海荼", "姜集苦", "宇文灭", "宫威", "宫傲"]:
+                           "胡汤&罗芬", "赵八嫂", "海荼", "姜集苦", "宇文灭", "宫威", "宫傲",
+                           "巨型尖吻凤", "桑乔", "悉达罗摩", "尤珈罗摩", "月泉淮", "乌蒙贵"]:
                 playerPot[id][line[1]].append([line[2], line[3], line[4], line[5]])
                 
         for map in playerPot[id]:
@@ -725,7 +728,8 @@ def uploadReplayPro():
         if result[0][12] >= editionFull:
             print("Find Duplicated")
             db.close()
-            return jsonify({'result': 'dupid', 'num': num, 'numOver': numOver})
+            shortID = result[0][8]
+            return jsonify({'result': 'dupid', 'num': num, 'numOver': numOver, 'shortID': shortID})
         else:
             print("Update edition")
 
@@ -748,7 +752,7 @@ def uploadReplayPro():
     db.commit()
     db.close()
 
-    return jsonify({'result': 'success', 'num': num, 'numOver': numOver})
+    return jsonify({'result': 'success', 'num': num, 'numOver': numOver, 'shortID': shortID})
 
 @app.route('/showReplayPro.html', methods=['GET'])
 def showReplayPro():

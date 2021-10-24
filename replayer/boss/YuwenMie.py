@@ -8,6 +8,8 @@ from replayer.BattleHistory import BattleHistory
 from replayer.TableConstructorMeta import TableConstructorMeta
 from replayer.utils import CriticalHealCounter, DpsShiftWindow
 from tools.Functions import *
+
+import tkinter as tk
         
 class YuwenMieWindow(SpecificBossWindow):
     '''
@@ -31,7 +33,7 @@ class YuwenMieWindow(SpecificBossWindow):
         #宇文灭数据格式：
         #7 P1DPS 8 玄冰1 9 玄冰2 10 群攻玄冰 11 P2DPS 12 关键治疗量
         
-        tb = TableConstructor(frame1)
+        tb = TableConstructorMeta(frame1)
         
         tb.AppendHeader("玩家名", "", width=13)
         tb.AppendHeader("有效DPS", "全程DPS。与游戏中不同的是，重伤时间也会被计算在内。")
@@ -46,6 +48,7 @@ class YuwenMieWindow(SpecificBossWindow):
         tb.AppendHeader("群攻玄冰", "对非玄冰夺命掌·夺魄生成的玄冰的DPS，分母为整个P1的时间。")
         tb.AppendHeader("P2DPS", "P2的DPS，包括对宇文灭及九阴玄冰的输出。\nP2时长：%s"%parseTime(self.detail["P2Time"]))
         tb.AppendHeader("关键治疗", "对寒劫与寒狱目标的治疗量。减伤会被等效。")
+        tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         
         tb.EndOfLine()
         
@@ -82,12 +85,17 @@ class YuwenMieWindow(SpecificBossWindow):
                 color12 = "#00ff00"
             tb.AppendContext(int(self.effectiveDPSList[i][12]), color = color12)
             
+            # 心法复盘
+            if self.effectiveDPSList[i][0] in self.occResult:
+                tb.GenerateXinFaReplayButton(self.occResult[self.effectiveDPSList[i][0]], self.effectiveDPSList[i][0])
+            else:
+                tb.AppendContext("")
             tb.EndOfLine()
             
         frame2 = tk.Frame(window)
         frame2.pack()
         
-        tb = TableConstructor(frame2)
+        tb = TableConstructorMeta(frame2)
         
         tb.AppendHeader("P2传染次数", "代表P2的寒劫与寒狱从每名玩家传染出去的次数，主要用于寒狱进冰进晚的分锅。")
         for i in range(len(self.detail["P2fire"])):
@@ -107,10 +115,18 @@ class YuwenMieWindow(SpecificBossWindow):
         color2 = getColor(self.detail["P2last"][3])
         tb.AppendContext(name1, color=color1)
         tb.AppendContext(name2, color=color2)
+
+        frame3 = tk.Frame(window)
+        frame3.pack()
+        buttonPrev = tk.Button(frame3, text='<<', width=2, height=1, command=self.openPrev)
+        submitButton = tk.Button(frame3, text='战斗事件记录', command=self.openPot)
+        buttonNext = tk.Button(frame3, text='>>', width=2, height=1, command=self.openNext)
+        buttonPrev.grid(row=0, column=0)
+        submitButton.grid(row=0, column=1)
+        buttonNext.grid(row=0, column=2)
         
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
-        #window.mainloop()
 
     def __init__(self, effectiveDPSList, detail, occResult={}):
         super().__init__(effectiveDPSList, detail, occResult)
@@ -121,12 +137,17 @@ class YuwenMieReplayer(SpecificReplayerPro):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
-        pass
+        for line in self.bjbp:
+            self.bh.setEnvironment("26803", "冰晶爆破", "3448", line[0], line[1]-line[0], 1, "")
+        for line in self.xbgn:
+            self.bh.setEnvironment("26229", "玄冰功·凝", "3448", line[0], line[1]-line[0], 1, "")
 
     def getResult(self):
         '''
         生成复盘结果的流程。需要维护effectiveDPSList, potList与detail。
         '''
+
+        self.countFinal()
         
         self.phaseStart[1] = self.startTime
         if self.phaseEnd[2] == 0:
@@ -140,7 +161,7 @@ class YuwenMieReplayer(SpecificReplayerPro):
         self.detail["P2Time"] = self.phaseTime[2]
 
         bossResult = []
-        for id in self.playerIDList:
+        for id in self.bld.info.player:
             if id in self.stat:
                 line = self.stat[id]
                 if id in self.equipmentDict:
@@ -185,14 +206,14 @@ class YuwenMieReplayer(SpecificReplayerPro):
         '''
         pass
 
-    def analyseSecondStage(self, item):
+    def analyseSecondStage(self, event):
         '''
         处理单条复盘数据时的流程，在第二阶段复盘时，会以时间顺序不断调用此方法。
         params
-        - item 复盘数据，意义同茗伊复盘。
+        - event 复盘数据，意义同茗伊复盘。
         '''
         
-        if self.chuanRanQueue != [] and int(item[2]) - self.chuanRanQueue[0][0] >= 1000:
+        if self.chuanRanQueue != [] and event.time - self.chuanRanQueue[0][0] >= 1000:
             chuanRanTime = self.chuanRanQueue[0][0]
             chuanRanType = self.chuanRanQueue[0][1]
             source = self.chuanRanQueue[0][2]
@@ -241,77 +262,84 @@ class YuwenMieReplayer(SpecificReplayerPro):
                                              ["接锅者中寒狱并靠近没有中buff的队友，导致目标也被传染寒狱。"]])
             del self.chuanRanQueue[0]
 
-        if item[3] == '1':  # 技能
+        if event.dataType == "Skill":
+            if event.target in self.bld.info.player:
+                if event.heal > 0 and event.effect != 7 and event.caster in self.hps:  # 非化解
+                    self.hps[event.caster] += event.healEff
 
-            if self.occdict[item[5]][0] != '0':
-
-                if item[11] != '0' and item[10] != '7': #非化解
-                    if item[4] in self.playerIDList:
-                        self.hps[item[4]] += int(item[12])
-
-                healRes = self.criticalHealCounter[item[5]].recordHeal(item)
+                healRes = self.criticalHealCounter[event.target].recordHeal(event)
                 if healRes != {}:
                     for line in healRes:
-                        if line in self.playerIDList:
+                        if line in self.bld.info.player:
                             self.stat[line][12] += healRes[line]
 
-                if item[7] == "26224":  # 寒劫传染
-                    self.chuanRanQueue.append([int(item[2]), 1, item[4], item[5]])
+                if event.id == "26224":  # 寒劫传染
+                    self.chuanRanQueue.append([event.time, 1, event.caster, event.target])
 
-                if item[7] == "26225":  # 寒狱传染
-                    self.chuanRanQueue.append([int(item[2]), 2, item[4], item[5]])
+                if event.id == "26225":  # 寒狱传染
+                    self.chuanRanQueue.append([event.time, 2, event.caster, event.target])
 
-                if item[7] in ["26224", "26225"] and self.phase == 2:
-                    if item[4] not in self.P2fire:
-                        self.P2fire[item[4]] = 0
-                    self.P2fire[item[4]] += 1
-                    self.detail["P2last"] = [self.bld.info.player[item[4]][0].strip('"'), self.occDetailList[item[4]], self.bld.info.player[item[5]].name, self.occDetailList[item[5]]]
+                if event.id in ["26224", "26225"] and self.phase == 2:
+                    if event.caster not in self.P2fire:
+                        self.P2fire[event.caster] = 0
+                    self.P2fire[event.caster] += 1
+                    self.detail["P2last"] = [self.bld.info.player[event.caster].name, self.occDetailList[event.caster],
+                                             self.bld.info.player[event.target].name, self.occDetailList[event.target]]
+
+                if event.id == "26803":  # 冰晶爆破
+                    if event.time - self.bjbp[-1][1] > 3000:
+                        self.bjbp.append([event.time - 5000, event.time])
+
+                if event.id == "26229":  # 玄冰功·凝
+                    if event.time - self.xbgn[-1][1] > 3000:
+                        self.xbgn.append([event.time - 5000, event.time])
 
             else:
 
-                if item[4] in self.playerIDList:
-                    self.stat[item[4]][2] += int(item[14])
+                if event.caster in self.bld.info.player:
+                    self.stat[event.caster][2] += event.damageEff
                     if self.phase == 1:
-                        self.stat[item[4]][7] += int(item[14])
+                        self.stat[event.caster][7] += event.damageEff
                     elif self.phase == 2:
-                        self.stat[item[4]][11] += int(item[14])
+                        self.stat[event.caster][11] += event.damageEff
 
-                    if item[5] in self.xuanBingDamage:
-                        if item[4] not in self.xuanBingDamage[item[5]]:
-                            self.xuanBingDamage[item[5]][item[4]] = 0
-                        self.xuanBingDamage[item[5]][item[4]] += int(item[14])
+                    if event.target in self.xuanBingDamage:
+                        if event.caster not in self.xuanBingDamage[event.target]:
+                            self.xuanBingDamage[event.target][event.caster] = 0
+                        self.xuanBingDamage[event.target][event.caster] += event.damageEff
 
-
-        elif item[3] == '5': #气劲
-
-            # 记录自身寒劫，寒狱，玄冰夺命掌
-
-            if self.occdict[item[5]][0] == '0':
+        elif event.dataType == "Buff":
+            if event.target not in self.bld.info.player:
                 return
-
-            if item[6] == "18861":
-                self.hanJieCounter[item[5]].setState(int(item[2]), int(item[10]))
-                if int(item[10]) == 1:
-                    self.criticalHealCounter[item[5]].active()
-                    self.criticalHealCounter[item[5]].setCriticalTime(-1)
+            # 记录自身寒劫，寒狱，玄冰夺命掌
+            if event.id == "18861":
+                self.hanJieCounter[event.target].setState(event.time, event.stack)
+                if event.stack == 1:
+                    self.criticalHealCounter[event.target].active()
+                    self.criticalHealCounter[event.target].setCriticalTime(-1)
+                    self.bh.setCall("18861", "九阴玄冰劲·寒劫", "4552", event.time, 0, event.target, "寒劫点名或被传染")
                 else:
-                    self.criticalHealCounter[item[5]].unactive()
+                    self.criticalHealCounter[event.target].unactive()
 
-            if item[6] == "18862":
-                self.hanYuCounter[item[5]].setState(int(item[2]), int(item[10]))
-                if int(item[10]) == 1:
-                    self.criticalHealCounter[item[5]].active()
-                    self.criticalHealCounter[item[5]].setCriticalTime(-1)
+            if event.id == "18862":
+                self.hanYuCounter[event.target].setState(event.time, event.stack)
+                if event.stack == 1:
+                    self.criticalHealCounter[event.target].active()
+                    self.criticalHealCounter[event.target].setCriticalTime(-1)
+                    self.bh.setCall("18862", "九阴玄冰劲·寒狱", "4534", event.time, 0, event.target, "寒狱点名或被传染")
                 else:
-                    self.criticalHealCounter[item[5]].unactive()
+                    self.criticalHealCounter[event.target].unactive()
 
-            if item[6] in ["19364", "18863"]:  # 冻结
-                self.stunCounter[item[5]].setState(int(item[2]), int(item[10]))
+            if event.id in ["19364", "18863"]:  # 冻结
+                self.stunCounter[event.target].setState(event.time, event.stack)
 
-            if item[6] == "18863" and self.phase == 1 and int(item[10]) == 1:
+            if event.id == "19042" and event.stack == 1:  # 夺命掌的目标
+                self.bh.setCall("19042", "夺命掌的目标", "3448", event.time, 0, event.target, "夺命掌的目标")
+
+            if event.id == "18863" and self.phase == 1 and event.stack == 1:
                 # 判断是否是不可避免的结冰
                 timeSafe = 0
-                xuanBingTime = int(item[2]) - self.startTime
+                xuanBingTime = event.time - self.startTime
                 if xuanBingTime >= 50000 and xuanBingTime <= 75000:
                     timeSafe = 1
                 elif xuanBingTime >= 160000 and xuanBingTime <= 185000:
@@ -319,8 +347,8 @@ class YuwenMieReplayer(SpecificReplayerPro):
                 elif xuanBingTime >= 250000 and xuanBingTime <= 265000:
                     timeSafe = 1
                 if timeSafe == 0:
-                    potTime = parseTime((int(item[2]) - self.startTime) / 1000)
-                    potID = item[5]
+                    potTime = parseTime((event.time - self.startTime) / 1000)
+                    potID = event.target
                     self.potList.append([self.bld.info.player[potID].name,
                                          self.occDetailList[potID],
                                          0,
@@ -328,42 +356,39 @@ class YuwenMieReplayer(SpecificReplayerPro):
                                          "%s意外结冰" % (potTime),
                                          ["在挡线、寒狱+打断以外的P1阶段结冰"]])
                     
-        elif item[3] == '8':
-        
-            if len(item) <= 4:
-                return
+        elif event.dataType == "Shout":
                 
-            if item[4] in ['"今日便拼个你死我活！"']:
+            if event.content in ['"今日便拼个你死我活！"']:
                 self.phase = 2
-                self.phaseEnd[1] = int(item[2])
-                self.phaseStart[2] = int(item[2])
+                self.phaseEnd[1] = event.time
+                self.phaseStart[2] = event.time
+                self.bh.setEnvironment("26842", "九阴破灭枪罡", "2028", event.time, 5000, 1, "")
                 
-        elif item[3] == '3': #重伤记录
-            if item[6] == '"宇文灭"':
+        elif event.dataType == "Death":  # 重伤记录
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name == "宇文灭":
                 self.win = 1
-                self.phaseEnd[2] = int(item[2])
-                
+                self.phaseEnd[2] = event.time
             pass
             
-        elif item[3] == '6':  # 进入、离开场景
-            if len(item) >= 8 and item[7] == '"九阴玄冰"' and item[4] == '1':
-                self.xuanBingDamage[item[6]] = {'sum': 0, 'time': int(item[2])}
-                
-            if len(item) >= 8 and item[7] == '"九阴玄冰"' and item[4] == '0':
-                xuanBingType = 0
-                xuanBingTime = self.xuanBingDamage[item[6]]['time'] - self.startTime 
-                if xuanBingTime >= 50000 and xuanBingTime <= 75000:
-                    xuanBingType = 8
-                elif xuanBingTime >= 160000 and xuanBingTime <= 185000:
-                    xuanBingType = 9
-                elif self.phase == 1:
-                    xuanBingType = 10
-                if xuanBingType != 0:
-                    for line in self.xuanBingDamage[item[6]]:
-                        if line != 'sum' and line != 'time':
-                            self.stat[line][xuanBingType] += self.xuanBingDamage[item[6]][line]
+        elif event.dataType == "Scene":  # 进入、离开场景
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name == "九阴玄冰":
+                if evnet.enter:
+                    self.xuanBingDamage[event.id] = {'sum': 0, 'time': event.time}
+                else:
+                    xuanBingType = 0
+                    xuanBingTime = self.xuanBingDamage[event.id]['time'] - self.startTime
+                    if xuanBingTime >= 50000 and xuanBingTime <= 75000:
+                        xuanBingType = 8
+                    elif xuanBingTime >= 160000 and xuanBingTime <= 185000:
+                        xuanBingType = 9
+                    elif self.phase == 1:
+                        xuanBingType = 10
+                    if xuanBingType != 0:
+                        for line in self.xuanBingDamage[event.id]:
+                            if line != 'sum' and line != 'time':
+                                self.stat[line][xuanBingType] += self.xuanBingDamage[event.id][line]
             
-        elif item[3] == "10": #战斗状态变化
+        elif event.dataType == "Battle": #战斗状态变化
             pass
                     
     def analyseFirstStage(self, item):
@@ -411,8 +436,9 @@ class YuwenMieReplayer(SpecificReplayerPro):
         self.bh = BattleHistory(self.startTime, self.finalTime)
         self.hasBh = True
         self.bjbp = [[0, 0]]
+        self.xbgn = [[0, 0]]
         
-        for line in self.playerIDList:
+        for line in self.bld.info.player:
             self.stat[line] = [self.bld.info.player[line].name, self.occDetailList[line], 0, 0, -1, "", 0] + \
                 [0, 0, 0, 0, 0, 0]
             self.hps[line] = 0

@@ -627,7 +627,9 @@ class ActorProReplayer(ReplayerBase):
             jparse = urllib.parse.urlencode(jpost).encode('utf-8')
             resp = urllib.request.urlopen('http://139.199.102.41:8009/getDpsStat', data=jparse)
             res = json.load(resp)
-            if res['result'] == 'success':
+            if result is None:
+                print("连接服务器失败！")
+            elif res['result'] == 'success':
                 resultDict = json.loads(res['statistics'].replace("'", '"'))
                 sumStandardDPS = 0
                 

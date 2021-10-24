@@ -111,6 +111,8 @@ class BattleLogData():
                 singleData = SingleDataShout()
             elif jclItem[4] in ["5", "9"]:
                 singleData = SingleDataBattle()
+            elif jclItem[4] in ["2", "3", "6", "7"]:
+                singleData = SingleDataScene()
             else:
                 # 读取全局数据
                 if jclItem[4] == "1":
@@ -200,8 +202,7 @@ class BattleLogData():
                 if value["6"] in self.info.npc:
                     self.info.npc[value["6"]].templateID = value["9"]
             elif value["4"] == "6":
-                #print(value)
-                continue
+                singleData = SingleDataScene()
             else:
                 continue
             singleData.setByJx3dat(value)

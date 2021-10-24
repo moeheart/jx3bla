@@ -20,6 +20,7 @@ from PIL import Image
 from PIL import ImageTk
 import urllib.request
 import hashlib
+import webbrowser
 
 XIANGZHI_QIXUE = {
     '14237':'雪海',
@@ -200,6 +201,13 @@ class XiangZhiProWindow():
         导出装备信息到剪贴板.
         '''
         messagebox.showinfo(title='嘶', message='实现中。')
+
+    def OpenInWeb(self):
+        '''
+        打开网页版的复盘界面.
+        '''
+        url = "http://139.199.102.41:8009/showReplayPro.html?id=%d"%self.shortID
+        webbrowser.open(url)
 
     def loadWindow(self):
         '''
@@ -565,8 +573,13 @@ class XiangZhiProWindow():
         frame9sub = tk.Frame(frame9)
         frame9sub.place(x=0, y=0)
 
-        tk.Label(frame9, text="科技群群号：418483739").place(x=20, y=20)
-        tk.Label(frame9, text="生成方式也可以在群中获取！").place(x=20, y=60)
+        tk.Label(frame9, text="科技&五奶群：418483739").place(x=20, y=20)
+        tk.Label(frame9, text="相知PVE群：538939220").place(x=20, y=40)
+        tk.Label(frame9, text="复盘编号：%s"%self.shortID).place(x=20, y=70)
+
+        b2 = tk.Button(frame9, text='在网页中打开', height=1, command=self.OpenInWeb)
+        b2.place(x=40, y=90)
+
         tk.Label(frame9, text="广告位招租").place(x=20, y=120)
 
         self.window = window
@@ -1439,6 +1452,7 @@ class XiangZhiProReplayer(ReplayerBase):
         # print(jparse)
         resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadReplayPro', data=jparse)
         res = json.load(resp)
+        self.shortID = res["shortID"]
         return res
 
     def replay(self):

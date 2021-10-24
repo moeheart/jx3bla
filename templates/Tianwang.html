@@ -12,6 +12,8 @@
 			<a href="javascript:setMap('25人英雄达摩洞')"> 25人英雄达摩洞 </a>
 			<a href="javascript:setMap('25人普通白帝江关')"> 25人普通白帝江关 </a>
 			<a href="javascript:setMap('25人英雄白帝江关')"> 25人英雄白帝江关 </a>
+			<a href="javascript:setMap('25人普通雷域大泽')"> 25人普通雷域大泽 </a>
+			<a href="javascript:setMap('25人英雄雷域大泽')"> 25人英雄雷域大泽 </a>
 		</div>
 		
 		<table id="table">
@@ -33,7 +35,7 @@
 		res3 = res3.replace(/\)/g, "]");
 		JallInfo = JSON.parse(res3);
 		
-		stdMaps = ["25人普通达摩洞", "25人英雄达摩洞", "25人普通白帝江关", "25人英雄白帝江关"];
+		stdMaps = ["25人普通达摩洞", "25人英雄达摩洞", "25人普通白帝江关", "25人英雄白帝江关", "25人普通雷域大泽", "25人英雄雷域大泽"];
 		showTable = {}
 		for (var i in stdMaps) {
 			var map = stdMaps[i];
@@ -62,8 +64,11 @@
 			if (map == "25人普通达摩洞" || map == "25人英雄达摩洞") {
 				bossName = ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅"];
 			}
-			else {
+			else if (map == "25人普通白帝江关" || map == "25人英雄白帝江关") {
 				bossName = ["胡汤&罗芬", "赵八嫂", "海荼", "姜集苦", "宇文灭", "宫威", "宫傲"];
+			}
+			else {
+				bossName = ["巨型尖吻凤", "桑乔", "悉达罗摩", "尤珈罗摩", "月泉淮", "乌蒙贵"];
 			}
 			
 			var bossNum = bossName.length;
