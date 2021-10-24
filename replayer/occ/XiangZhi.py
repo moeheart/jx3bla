@@ -21,6 +21,7 @@ from PIL import ImageTk
 import urllib.request
 import hashlib
 import webbrowser
+import pyperclip
 
 XIANGZHI_QIXUE = {
     '14237':'雪海',
@@ -200,13 +201,15 @@ class XiangZhiProWindow():
         '''
         导出装备信息到剪贴板.
         '''
-        messagebox.showinfo(title='嘶', message='实现中。')
+        copyText = self.result["equip"]["raw"]
+        pyperclip.copy(copyText)
+        messagebox.showinfo(title='提示', message='复制成功！')
 
     def OpenInWeb(self):
         '''
         打开网页版的复盘界面.
         '''
-        url = "http://139.199.102.41:8009/showReplayPro.html?id=%d"%self.shortID
+        url = "http://139.199.102.41:8009/showReplayPro.html?id=%d"%self.result["overall"]["shortID"]
         webbrowser.open(url)
 
     def loadWindow(self):
@@ -426,8 +429,6 @@ class XiangZhiProWindow():
         label.place(x=20, y=25)
 
         # Part 6: 回放
-        #battleTimePixels = 800
-        #print(battleTimePixels)
 
         frame6 = tk.Frame(window, width=730, height=150, highlightthickness=1, highlightbackground="#64fab4")
         frame6.place(x=10, y=460)
@@ -575,12 +576,12 @@ class XiangZhiProWindow():
 
         tk.Label(frame9, text="科技&五奶群：418483739").place(x=20, y=20)
         tk.Label(frame9, text="相知PVE群：538939220").place(x=20, y=40)
-        tk.Label(frame9, text="复盘编号：%s"%self.shortID).place(x=20, y=70)
+        tk.Label(frame9, text="复盘编号：%s"%self.result["overall"]["shortID"]).place(x=20, y=70)
 
         b2 = tk.Button(frame9, text='在网页中打开', height=1, command=self.OpenInWeb)
         b2.place(x=40, y=90)
 
-        tk.Label(frame9, text="广告位招租").place(x=20, y=120)
+        tk.Label(frame9, text="广告位招租").place(x=40, y=140)
 
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
@@ -796,6 +797,7 @@ class XiangZhiProReplayer(ReplayerBase):
             self.result["equip"]["haste"] = res["加速等级"]
             if not self.config.xiangzhiSpeedForce:
                 self.haste = self.result["equip"]["haste"]
+            self.result["equip"]["raw"] = strEquip
 
         self.result["qixue"] = {"available": 0}
         if self.bld.info.player[self.mykey].qx != {}:
@@ -803,9 +805,9 @@ class XiangZhiProReplayer(ReplayerBase):
             for key in self.bld.info.player[self.mykey].qx:
                 self.result["qixue"][key] = getXiangZhiQixue(self.bld.info.player[self.mykey].qx[key]["2"])
 
-        print(self.result["overall"])
-        print(self.result["equip"])
-        print(self.result["qixue"])
+        # print(self.result["overall"])
+        # print(self.result["equip"])
+        # print(self.result["qixue"])
 
         self.result["overall"]["hasteReal"] = self.haste
 
@@ -867,6 +869,7 @@ class XiangZhiProReplayer(ReplayerBase):
         lastSkillTime = self.startTime
 
         # 战斗回放初始化
+        fengleiActiveTime = self.startTime
         bh = BattleHistory(self.startTime, self.finalTime)
         bhSkill = "0"
         bhTimeStart = 0
@@ -965,9 +968,9 @@ class XiangZhiProReplayer(ReplayerBase):
                                "26894", # 平吟新效果
                                "3584", "2448",  # 蛊惑
                                "604", # 春泥
-                               "4697", # 明尊阵
+                               "4697", "13237", # 队友阵眼
                                "6800", # 风？
-                               "14084", #杯水
+                               "14084", # 杯水
                                "14162", # 收孤影
                                "15055", # 盾高血量
                                "13332", # 锋凌横绝阵
@@ -1062,7 +1065,6 @@ class XiangZhiProReplayer(ReplayerBase):
                             bhTimeEnd = lastSkillTime
                             bhBusy += getLength(24, self.haste)
                         elif event.id in ["18864", "14360", "16852"]:  # 宫实际效果
-                            # print("[Debug]", event.id, event.healEff, event.time)
                             if bhNum == 0:
                                 bhTimeStart -= getLength(24, self.haste)
                             if event.time - lastSkillTime > 100 or bhNum == 0:
@@ -1200,6 +1202,14 @@ class XiangZhiProReplayer(ReplayerBase):
                     shangBuffDict[event.target].setState(event.time, event.stack)
                 if event.id in ["9463", "9464", "9465", "9466"] and event.caster == self.mykey:  # 角
                     jueBuffDict[event.target].setState(event.time, event.stack)
+                if event.id == "10521":  # 风雷标志debuff:
+                    if event.stack == 1:
+                        fengleiActiveTime = max(event.time, lastSkillTime)
+                    else:
+                        bh.setNormalSkill("15502", "风雷引", "8625",
+                                          fengleiActiveTime, event.time - fengleiActiveTime, 1, 0,
+                                          0,
+                                          0, 1, "风雷读条，在此不做细节区分，只记录读条时间")
 
             elif event.dataType == "Shout":
                 pass
@@ -1392,10 +1402,9 @@ class XiangZhiProReplayer(ReplayerBase):
         # 计算战斗回放
         self.result["replay"] = bh.getJsonReplay(self.mykey)
 
-        print(self.result["healer"])
-        print(self.result["dps"])
-        print(self.result["skill"])
-        #print(self.result["replay"])
+        # print(self.result["healer"])
+        # print(self.result["dps"])
+        # print(self.result["skill"])
         for line in self.result["replay"]["normal"]:
             print(line)
         print("===")
@@ -1452,7 +1461,7 @@ class XiangZhiProReplayer(ReplayerBase):
         # print(jparse)
         resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadReplayPro', data=jparse)
         res = json.load(resp)
-        self.shortID = res["shortID"]
+        self.result["overall"]["shortID"] = res["shortID"]
         return res
 
     def replay(self):
@@ -1500,5 +1509,5 @@ class XiangZhiProReplayer(ReplayerBase):
         #else:
         #    self.bossNamePrint = "%s.%d" % (self.bossname, self.numTry)
 
-        print("奶歌复盘pro类创建成功...")
+        #print("奶歌复盘pro类创建成功...")
 

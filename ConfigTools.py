@@ -102,6 +102,10 @@ class Config():
                 self.datatype = self.items_general["datatype"]
             else:
                 self.datatype = "jx3dat"
+            if "edition" in self.items_general:
+                self.edition = self.items_general["edition"]
+            else:
+                self.edition = EDITION
             # if "uploadtianti" in self.items_actor:
             #     self.uploadTianti = int(self.items_actor["uploadtianti"])
             # else:
@@ -157,6 +161,8 @@ basepath=
 mask=0
 color=1
 text=0
+datatype=jx3dat
+edition=%s
 
 [XiangZhiAnalysis]
 active=1
@@ -176,7 +182,7 @@ bonusrate=1.20
 
 [UserAnalysis]
 uuid=
-id=""")
+id="""%EDITION)
         g.close()
         pass
         
@@ -193,6 +199,7 @@ mask=%d
 color=%d
 text=%d
 datatype=%s
+edition=%s
 
 [XiangZhiAnalysis]
 active=%d
@@ -212,7 +219,7 @@ bonusrate=%s
 
 [UserAnalysis]
 uuid=%s
-id=%s"""%(self.playername, self.jx3path, self.basepath, self.mask, self.color, self.text, self.datatype,
+id=%s"""%(self.playername, self.jx3path, self.basepath, self.mask, self.color, self.text, self.datatype, EDITION,
         self.xiangzhiActive, self.xiangzhiname, self.speed, self.xiangzhiPublic, self.xiangzhiSpeedForce, self.xiangzhiCalTank,
         self.actorActive, self.checkAll, self.failThreshold, self.qualifiedRate, self.alertRate, self.bonusRate,
         self.userUuid, self.userId))

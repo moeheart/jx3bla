@@ -14,7 +14,7 @@ class Notifier():
         - content: 内容。
         '''
         if self.mode == "toast":
-            self.toaster.show_toast(title, content, icon_path='jx3bla.ico')
+            self.toaster.show_toast(title, content, icon_path='icons/jx3bla.ico')
         else:
             print(title, content)
 

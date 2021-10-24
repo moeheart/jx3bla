@@ -347,7 +347,6 @@ class GongAoReplayer(SpecificReplayerPro):
                     self.criticalHealCounter[event.target].unactive()
                     
         elif event.dataType == "Shout":
-            print(event.content)
             if event.content in ['"水！我要水！！！"']:
                 self.EndOfPhase(event.time)
                 self.phase = 2
@@ -381,8 +380,6 @@ class GongAoReplayer(SpecificReplayerPro):
             pass
             
         elif event.dataType == "Scene":  # 进入、离开场景
-            # if event.id in self.bld.info.npc:
-            #     print(self.bld.info.npc[event.id].name, event.enter, event.time)
             if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["宫傲宝箱", "叶鸦", "公孙二娘"]:
                 self.win = 1
             if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name == "源流之心":
