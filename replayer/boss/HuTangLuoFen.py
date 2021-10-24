@@ -223,7 +223,7 @@ class HuTangLuoFenReplayer(SpecificReplayerPro):
                     self.hps[event.caster] += event.healEff
 
                 if event.id == "26236":  # 寒光旋
-                    if event.time - self.hgx[-1][0] > 5000:
+                    if event.time - self.hgx[-1][1] > 5000:
                         self.hgx.append([event.time - 5000, event.time])
                         
                 if '5' not in event.fullResult:

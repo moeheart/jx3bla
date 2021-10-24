@@ -622,6 +622,7 @@ def uploadActorData():
     else:
         scoreSuccess = 0
         response['scoreStatus'] = 'illegal'
+        mapDetail = '0'
         
     if win == 0:
         scoreSuccess = 0

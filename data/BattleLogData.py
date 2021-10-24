@@ -150,8 +150,8 @@ class BattleLogData():
 
         #读取全局数据
         self.info.skill = {}
-        self.info.map = filePath.split('-')[6]
-        self.info.boss = filePath.split('-')[7].split('.')[0]
+        self.info.map = filePath.split('/')[-1].split('\\')[-1].split('-')[6]
+        self.info.boss = filePath.split('/')[-1].split('\\')[-1].split('-')[7].split('.')[0]
 
 
     def loadFromJx3dat(self, filePath):
