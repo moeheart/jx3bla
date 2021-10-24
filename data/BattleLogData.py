@@ -29,9 +29,9 @@ class RawDataLoader():
 
         if self.window is not None:
             if self.config.datatype == "jx3dat":
-                bossname = getNickToBoss(filename.split('/')[-1].split('_')[1])
+                bossname = getNickToBoss(filename.split('/')[-1].split('\\')[-1].split('_')[1])
             else:
-                bossname = getNickToBoss(filename.split('/')[-1].split('-')[-1].split('.')[0])
+                bossname = getNickToBoss(filename.split('/')[-1].split('\\')[-1].split('-')[-1].split('.')[0])
             self.window.setNotice({"t1": "正在读取[%s]..." % bossname, "c1": "#000000"})
 
         if self.config.datatype == "jcl":

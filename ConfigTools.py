@@ -38,9 +38,9 @@ class Config():
         '''
         jpost = {'uuid': self.userUuid}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        #resp = urllib.request.urlopen('http://139.199.102.41:8009/getUserInfo', data=jparse)
-        #res = json.load(resp)
-        res = {"item1": 0, "item2": 0, "item3": 0, "item4": 0, "exp": 0, "score": 0, "lvl": 0, "exist": 1}# TODO: 联机版中fix this
+        resp = urllib.request.urlopen('http://139.199.102.41:8009/getUserInfo', data=jparse)
+        res = json.load(resp)
+        # res = {"item1": 0, "item2": 0, "item3": 0, "item4": 0, "exp": 0, "score": 0, "lvl": 0, "exist": 1}# TODO: 联机版中fix this
         
         if res['exist'] == 0:
             messagebox.showinfo(title='错误', message='用户唯一标识出错，将重新生成并清除用户数据。如果遇到问题，请联系作者。')

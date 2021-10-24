@@ -454,8 +454,9 @@ class XiangZhiProWindow():
         imFile = os.listdir('icons')
         for line in imFile:
             imID = line.split('.')[0]
-            canvas6.imDict[imID] = Image.open("icons/%s.png" % imID).resize((20, 20), Image.ANTIALIAS)
-            canvas6.im[imID] = ImageTk.PhotoImage(canvas6.imDict[imID])
+            if line.split('.')[1] == "png":
+                canvas6.imDict[imID] = Image.open("icons/%s.png" % imID).resize((20, 20), Image.ANTIALIAS)
+                canvas6.im[imID] = ImageTk.PhotoImage(canvas6.imDict[imID])
 
         #canvas6 = tk.Canvas(frame6sub, width=battleTimePixels, height=125)
         # 绘制主时间轴及时间

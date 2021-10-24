@@ -372,7 +372,7 @@ class YuwenMieReplayer(SpecificReplayerPro):
             
         elif event.dataType == "Scene":  # 进入、离开场景
             if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name == "九阴玄冰":
-                if evnet.enter:
+                if event.enter:
                     self.xuanBingDamage[event.id] = {'sum': 0, 'time': event.time}
                 else:
                     xuanBingType = 0
