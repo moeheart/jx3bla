@@ -19,10 +19,10 @@ class TableConstructorMeta(TableConstructor):
         添加心法复盘按钮。
         '''
         if xfResult["occ"] == "22h":
-            self.frame.occReplay[name] = XiangZhiProWindow(xfResult["result"])
+            self.frame.occReplay[name] = XiangZhiProWindow(self.config, xfResult["result"])
             button = tk.Button(self.frame, text='相知', height=1, command=self.frame.occReplay[name].start, bg=getColor("22"))
             button.grid(row=self.nowx, column=self.nowy)
             self.nowy += 1
 
-    def __init__(self, frame):
-        super().__init__(frame)
+    def __init__(self, config, frame):
+        super().__init__(config, frame)

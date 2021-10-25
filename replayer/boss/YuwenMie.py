@@ -33,13 +33,14 @@ class YuwenMieWindow(SpecificBossWindow):
         #宇文灭数据格式：
         #7 P1DPS 8 玄冰1 9 玄冰2 10 群攻玄冰 11 P2DPS 12 关键治疗量
         
-        tb = TableConstructorMeta(frame1)
+        tb = TableConstructorMeta(self.config, frame1)
         
         tb.AppendHeader("玩家名", "", width=13)
         tb.AppendHeader("有效DPS", "全程DPS。与游戏中不同的是，重伤时间也会被计算在内。")
         tb.AppendHeader("团队-心法DPS", "综合考虑当前团队情况与对应心法的全局表现，计算的百分比。平均水平为100%。")
         tb.AppendHeader("装分", "玩家的装分，可能会获取失败。")
         tb.AppendHeader("详情", "装备详细描述，暂未完全实装。")
+        tb.AppendHeader("强化", "装备强化列表，表示[精炼满级装备数量]/[插8]-[插7]-[插6]/[五彩石等级]/[紫色附魔]-[蓝色附魔]/[大附魔：手腰脚头衣裤]")
         tb.AppendHeader("被控", "受到影响无法正常输出的时间，以秒计。")
         
         tb.AppendHeader("P1DPS", "P1的DPS，包括对宇文灭及九阴玄冰的输出。\nP1时长：%s"%parseTime(self.detail["P1Time"]))
@@ -53,7 +54,7 @@ class YuwenMieWindow(SpecificBossWindow):
         tb.EndOfLine()
         
         for i in range(len(self.effectiveDPSList)):
-            name = self.effectiveDPSList[i][0]
+            name = self.getMaskName(self.effectiveDPSList[i][0])
             color = getColor(self.effectiveDPSList[i][1])
             tb.AppendContext(name, color=color, width=13)
             tb.AppendContext(int(self.effectiveDPSList[i][2]))
@@ -71,7 +72,8 @@ class YuwenMieWindow(SpecificBossWindow):
                 text4 = int(self.effectiveDPSList[i][4])
             tb.AppendContext(text4)
             
-            tb.AppendContext(self.effectiveDPSList[i][5])
+            tb.AppendContext(self.effectiveDPSList[i][5].split('|')[0])
+            tb.AppendContext(self.effectiveDPSList[i][5].split('|')[1])
             tb.AppendContext(int(self.effectiveDPSList[i][6]))
             
             tb.AppendContext(int(self.effectiveDPSList[i][7]))
@@ -95,13 +97,13 @@ class YuwenMieWindow(SpecificBossWindow):
         frame2 = tk.Frame(window)
         frame2.pack()
         
-        tb = TableConstructorMeta(frame2)
+        tb = TableConstructorMeta(self.config, frame2)
         
         tb.AppendHeader("P2传染次数", "代表P2的寒劫与寒狱从每名玩家传染出去的次数，主要用于寒狱进冰进晚的分锅。")
         for i in range(len(self.detail["P2fire"])):
             if i % 5 == 0:
                 tb.EndOfLine()
-            name = self.detail["P2fire"][i][0]
+            name = self.getMaskName(self.detail["P2fire"][i][0])
             color = getColor(self.detail["P2fire"][i][1])
             num = self.detail["P2fire"][i][2]
             tb.AppendContext(name, color=color)
@@ -128,8 +130,8 @@ class YuwenMieWindow(SpecificBossWindow):
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
 
-    def __init__(self, effectiveDPSList, detail, occResult={}):
-        super().__init__(effectiveDPSList, detail, occResult)
+    def __init__(self, config, effectiveDPSList, detail, occResult):
+        super().__init__(config, effectiveDPSList, detail, occResult)
 
 class YuwenMieReplayer(SpecificReplayerPro):
 
@@ -166,7 +168,9 @@ class YuwenMieReplayer(SpecificReplayerPro):
                 line = self.stat[id]
                 if id in self.equipmentDict:
                     line[4] = self.equipmentDict[id]["score"]
-                    line[5] = self.equipmentDict[id]["sketch"]
+                    line[5] = "%s|%s"%(self.equipmentDict[id]["sketch"], self.equipmentDict[id]["forge"])
+                else:
+                    line[5] = "|"
                 
                 if getOccType(self.occDetailList[id]) == "healer":
                     line[3] = int(self.hps[id] / self.battleTime * 1000)

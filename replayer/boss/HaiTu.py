@@ -37,13 +37,14 @@ class HaiTuWindow(SpecificBossWindow):
         # 0 水枪ID，次数
         # 1 时间，QTE按错/挣脱
         
-        tb = TableConstructorMeta(frame1)
+        tb = TableConstructorMeta(self.config, frame1)
         
         tb.AppendHeader("玩家名", "", width=13)
         tb.AppendHeader("有效DPS", "全程DPS。与游戏中不同的是，重伤时间也会被计算在内。")
         tb.AppendHeader("团队-心法DPS", "综合考虑当前团队情况与对应心法的全局表现，计算的百分比。平均水平为100%。")
         tb.AppendHeader("装分", "玩家的装分，可能会获取失败。")
         tb.AppendHeader("详情", "装备详细描述，暂未完全实装。")
+        tb.AppendHeader("强化", "装备强化列表，表示[精炼满级装备数量]/[插8]-[插7]-[插6]/[五彩石等级]/[紫色附魔]-[蓝色附魔]/[大附魔：手腰脚头衣裤]")
         tb.AppendHeader("被控", "受到影响无法正常输出的时间，以秒计。\n海荼复盘中只包含眼中钉点名。")
         tb.AppendHeader("P1等效", "P1的等效DPS，指P1的伤害减去BOSS因汲取而回复的数值。\nP1时长：%s"%parseTime(self.detail["P1Time"]))
         tb.AppendHeader("P2单体", "对P2海荼的DPS。\nP2时长：%s"%parseTime(self.detail["P2Time"]))
@@ -56,7 +57,7 @@ class HaiTuWindow(SpecificBossWindow):
         tb.EndOfLine()
         
         for i in range(len(self.effectiveDPSList)):
-            name = self.effectiveDPSList[i][0]
+            name = self.getMaskName(self.effectiveDPSList[i][0])
             color = getColor(self.effectiveDPSList[i][1])
             tb.AppendContext(name, color=color, width=13)
             tb.AppendContext(int(self.effectiveDPSList[i][2]))
@@ -74,7 +75,8 @@ class HaiTuWindow(SpecificBossWindow):
                 text4 = int(self.effectiveDPSList[i][4])
             tb.AppendContext(text4)
             
-            tb.AppendContext(self.effectiveDPSList[i][5])
+            tb.AppendContext(self.effectiveDPSList[i][5].split('|')[0])
+            tb.AppendContext(self.effectiveDPSList[i][5].split('|')[1])
             tb.AppendContext(int(self.effectiveDPSList[i][6]))
             
             color7 = "#000000"
@@ -108,7 +110,7 @@ class HaiTuWindow(SpecificBossWindow):
         frame2 = tk.Frame(window)
         frame2.pack()
         
-        tb = TableConstructorMeta(frame2)
+        tb = TableConstructorMeta(self.config, frame2)
         
         tb.AppendHeader("锁链复盘", "")
         tb.EndOfLine()
@@ -117,7 +119,7 @@ class HaiTuWindow(SpecificBossWindow):
             if line["type"] == 0:
                 for key in line["log"]:
                     res = line["log"][key]
-                    name = res[0]
+                    name = self.getMaskName(res[0])
                     occ = res[1]
                     start = res[2]
                     count = res[3]
@@ -136,7 +138,7 @@ class HaiTuWindow(SpecificBossWindow):
                     tb.AppendContext("玩家重伤")
                 tb.AppendContext(line["time"])
                 for reason in line["log"]:
-                    name = reason[0]
+                    name = self.getMaskName(reason[0])
                     occ = reason[1]
                     color = getColor(occ)
                     tb.AppendContext(name, color=color)
@@ -160,8 +162,8 @@ class HaiTuWindow(SpecificBossWindow):
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
 
-    def __init__(self, effectiveDPSList, detail, occResult={}):
-        super().__init__(effectiveDPSList, detail, occResult)
+    def __init__(self, config, effectiveDPSList, detail, occResult):
+        super().__init__(config, effectiveDPSList, detail, occResult)
 
 class HaiTuReplayer(SpecificReplayerPro):
 
@@ -201,7 +203,9 @@ class HaiTuReplayer(SpecificReplayerPro):
 
                 if id in self.equipmentDict:
                     line[4] = self.equipmentDict[id]["score"]
-                    line[5] = self.equipmentDict[id]["sketch"]
+                    line[5] = "%s|%s"%(self.equipmentDict[id]["sketch"], self.equipmentDict[id]["forge"])
+                else:
+                    line[5] = "|"
                 
                 if getOccType(self.occDetailList[id]) == "healer":
                     line[3] = int(self.hps[id] / self.battleTime * 1000)

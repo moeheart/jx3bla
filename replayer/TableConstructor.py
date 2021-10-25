@@ -83,8 +83,9 @@ class TableConstructor():
         if hint != "":
             ToolTip(label, hint)
     
-    def __init__(self, frame):
+    def __init__(self, config, frame):
         self.frame = frame
+        self.config = config
         self.nowx = 0
         self.nowy = 0
         self.width = 0

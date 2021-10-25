@@ -190,6 +190,20 @@ class XiangZhiProWindow():
     通过tkinter将复盘数据显示在图形界面中.
     '''
 
+    def getMaskName(self, name):
+        '''
+        获取名称打码的结果。事实上只需要对统计列表中的玩家打码.
+        params:
+        - name: 打码之前的玩家名.
+        '''
+        s = name.strip('"')
+        if s == "":
+            return s
+        elif self.mask == 0:
+            return s
+        else:
+            return s[0] + '*' * (len(s) - 1)
+
     def final(self):
         '''
         关闭窗口。
@@ -221,12 +235,15 @@ class XiangZhiProWindow():
         window.title('奶歌复盘pro')
         window.geometry('750x900')
 
+        if "mask" in self.result["overall"]:
+            self.mask = self.result["overall"]["mask"]  # 使用数据中的mask选项顶掉框架中现场读取的判定
+
         # Part 1: 全局
         frame1 = tk.Frame(window, width=200, height=230, highlightthickness=1, highlightbackground="#64fab4")
         frame1.place(x=10, y=10)
         frame1sub = tk.Frame(frame1)
         frame1sub.place(x=0, y=0)
-        tb = TableConstructor(frame1sub)
+        tb = TableConstructor(self.config, frame1sub)
         tb.AppendContext("复盘版本：", justify="right")
         tb.AppendContext(self.result["overall"]["edition"])
         tb.EndOfLine()
@@ -265,7 +282,7 @@ class XiangZhiProWindow():
             text = "装备信息获取失败。\n在进入战斗后打开团队装分面板即可获取。\n如果是第一视角也可以自动获取。"
             tk.Label(frame2, text=text, justify="left").place(x=0, y=0)
         else:
-            tb = TableConstructor(frame2sub)
+            tb = TableConstructor(self.config, frame2sub)
             tb.AppendContext("装备分数：", justify="right")
             tb.AppendContext("%d"%self.result["equip"]["score"])
             tb.EndOfLine()
@@ -297,13 +314,13 @@ class XiangZhiProWindow():
         frame3sub = tk.Frame(frame3)
         frame3sub.place(x=0, y=0)
 
-        tb = TableConstructor(frame3sub)
+        tb = TableConstructor(self.config, frame3sub)
         tb.AppendHeader("玩家名", "", width=13)
         tb.AppendHeader("有效HPS", "最常用语境下的每秒治疗量，注意包含重伤时间。")
         tb.AppendHeader("虚条HPS", "指虚条的最右端，包含溢出治疗量，也即计算所有绿字。")
         tb.EndOfLine()
         for record in self.result["healer"]["table"]:
-            name = record["name"]
+            name = self.getMaskName(record["name"])
             color = getColor(record["occ"])
             tb.AppendContext(name, color=color, width=13)
             tb.AppendContext(record["healEff"])
@@ -340,8 +357,10 @@ class XiangZhiProWindow():
         text = "数量：%d\n"%self.result["skill"]["meihua"]["num"]
         text = text + "覆盖率：%s%%\n" % parseCent(self.result["skill"]["meihua"]["cover"])
         text = text + "延迟：%dms\n" % self.result["skill"]["meihua"]["delay"]
+        text = text + "犹香HPS：%d\n" % self.result["skill"]["meihua"].get("youxiangHPS", 0)
+        text = text + "平吟HPS：%d\n" % self.result["skill"]["meihua"].get("pingyinHPS", 0)
         label = tk.Label(frame5_1, text=text, justify="left")
-        label.place(x=60, y=25)
+        label.place(x=60, y=10)
 
         frame5_2 = tk.Frame(frame5, width=180, height=95)
         frame5_2.place(x=180, y=0)
@@ -352,9 +371,10 @@ class XiangZhiProWindow():
         text = "数量：%d\n"%self.result["skill"]["zhi"]["num"]
         text = text + "延迟：%dms\n" % self.result["skill"]["zhi"]["delay"]
         text = text + "HPS：%d\n" % self.result["skill"]["zhi"]["HPS"]
+        text = text + "古道HPS：%d\n" % self.result["skill"]["zhi"].get("gudaoHPS", 0)
         text = text + "有效比例：%s%%\n" % parseCent(self.result["skill"]["zhi"]["effRate"])
         label = tk.Label(frame5_2, text=text, justify="left")
-        label.place(x=60, y=20)
+        label.place(x=60, y=10)
 
         frame5_3 = tk.Frame(frame5, width=180, height=95)
         frame5_3.place(x=360, y=0)
@@ -529,14 +549,14 @@ class XiangZhiProWindow():
         canvas.config(yscrollcommand=vbar.set) #设置
         canvas.create_window((135,numDPS*12), window=frame7sub)  #create_window
 
-        tb = TableConstructor(frame7sub)
+        tb = TableConstructor(self.config, frame7sub)
         tb.AppendHeader("玩家名", "", width=13)
         tb.AppendHeader("DPS", "全程去除庄周梦增益后的DPS，注意包含重伤时间。")
         tb.AppendHeader("覆盖率", "梅花三弄的覆盖率。")
         tb.AppendHeader("破盾次数", "破盾次数，包含盾受到伤害消失、未刷新自然消失、及穿透消失。")
         tb.EndOfLine()
         for record in self.result["dps"]["table"]:
-            name = record["name"]
+            name = self.getMaskName(record["name"])
             color = getColor(record["occ"])
             tb.AppendContext(name, color=color, width=13)
             tb.AppendContext(record["damage"])
@@ -550,7 +570,7 @@ class XiangZhiProWindow():
         frame8sub = tk.Frame(frame8)
         frame8sub.place(x=30, y=30)
         # TODO 实现
-        tb = TableConstructor(frame8sub)
+        tb = TableConstructor(self.config, frame8sub)
         tb.AppendHeader("数值分：", "对治疗数值的打分，包括治疗量、各个技能数量。")
         tb.AppendContext("0", width=9)
         tb.AppendContext("F")
@@ -603,12 +623,14 @@ class XiangZhiProWindow():
         '''
         return self.windowAlive
 
-    def __init__(self, result):
+    def __init__(self, config, result):
         '''
         初始化.
         params:
         - result: 奶歌复盘的结果.
         '''
+        self.config = config
+        self.mask = config.mask
         self.result = result
 
 class XiangZhiProReplayer(ReplayerBase):
@@ -638,6 +660,7 @@ class XiangZhiProReplayer(ReplayerBase):
         self.result["overall"]["sumTimePrint"] = parseTime(self.bld.info.sumTime / 1000)
         self.result["overall"]["dataType"] = self.bld.dataType
         self.result["overall"]["calTank"] = self.config.xiangzhiCalTank
+        self.result["overall"]["mask"] = self.config.mask
 
         # 需要记录特定治疗量的BOSS
         self.npcName = ""
@@ -869,8 +892,13 @@ class XiangZhiProReplayer(ReplayerBase):
             jueBuffDict[line] = BuffCounter("9463", self.startTime, self.finalTime) # 角，9460=殊曲，9461=洞天
         lastSkillTime = self.startTime
 
-        # 战斗回放初始化
+        # 杂项
         fengleiActiveTime = self.startTime
+        youxiangHeal = 0
+        pingyinHeal = 0
+        gudaoHeal = 0
+
+        # 战斗回放初始化
         bh = BattleHistory(self.startTime, self.finalTime)
         bhSkill = "0"
         bhTimeStart = 0
@@ -1027,7 +1055,7 @@ class XiangZhiProReplayer(ReplayerBase):
                     # if event.caster == self.mykey and event.scheme == 1 and event.id in xiangZhiUnimportant and event.heal != 0:
                     #     print(event.id, event.time)
 
-                    if event.scheme == 1 and event.heal != 0 and event.caster == self.mykey:
+                    if event.scheme == 1 and event.heal != 0 and event.caster == self.mykey and event.id not in skillNameDict:
                         # 打印所有有治疗量的技能，以进行整理
                         # print("[Heal]", event.id, event.heal)
                         pass
@@ -1150,6 +1178,15 @@ class XiangZhiProReplayer(ReplayerBase):
                             pass
                             # 对于其它的技能暂时不做记录
                             # lastSkillTime = event.time
+
+                    if event.caster == self.mykey and event.scheme == 1:
+                        # 统计不计入时间轴的治疗量
+                        if event.id == "15057":  # 犹香
+                            youxiangHeal += event.healEff
+                        if event.id == "26894":  # 平吟
+                            pingyinHeal += event.healEff
+                        if event.id == "23951" and event.level == 75:  # 古道
+                            gudaoHeal += event.healEff
 
                     if event.caster == self.mykey and event.scheme == 2:
                         if event.id in ["9459", "9460", "9461", "9462"]:  # 商
@@ -1341,6 +1378,8 @@ class XiangZhiProReplayer(ReplayerBase):
         self.result["skill"]["meihua"]["num"] = mhsnSkill.getNum()
         self.result["skill"]["meihua"]["delay"] = int(mhsnSkill.getAverageDelay())
         self.result["skill"]["meihua"]["cover"] = roundCent(overallRate)
+        self.result["skill"]["meihua"]["youxiangHPS"] = int(youxiangHeal / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"]["meihua"]["pingyinHPS"] = int(pingyinHeal / self.result["overall"]["sumTime"] * 1000)
         # 宫
         self.result["skill"]["gong"] = {}
         self.result["skill"]["gong"]["num"] = gongSkill.getNum()
@@ -1355,6 +1394,7 @@ class XiangZhiProReplayer(ReplayerBase):
         effHeal = zhiSkill.getHealEff()
         self.result["skill"]["zhi"]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
         self.result["skill"]["zhi"]["effRate"] = roundCent(effHeal / (zhiSkill.getHeal() + 1e-10))
+        self.result["skill"]["zhi"]["gudaoHPS"] = int(gudaoHeal / self.result["overall"]["sumTime"] * 1000)
         # 羽
         self.result["skill"]["yu"] = {}
         self.result["skill"]["yu"]["num"] = yuSkill.getNum()
@@ -1406,11 +1446,11 @@ class XiangZhiProReplayer(ReplayerBase):
         # print(self.result["healer"])
         # print(self.result["dps"])
         # print(self.result["skill"])
-        for line in self.result["replay"]["normal"]:
-            print(line)
-        print("===")
-        for line in self.result["replay"]["special"]:
-            print(line)
+        # for line in self.result["replay"]["normal"]:
+        #     print(line)
+        # print("===")
+        # for line in self.result["replay"]["special"]:
+        #     print(line)
 
     def recordRater(self):
         '''

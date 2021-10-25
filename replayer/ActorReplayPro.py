@@ -64,13 +64,6 @@ class ActorProReplayer(ReplayerBase):
                     "宫威": 6, 
                     "宫傲": 7}
 
-    def getMaskName(self, name):
-        s = name.strip('"')
-        if self.mask == 0:
-            return s
-        else:
-            return s[0] + '*' * (len(s) - 1)
-
     # def makeEmptyHitList(self):
     #     res = {}
     #     for i in self.actorSkillList:
@@ -128,10 +121,11 @@ class ActorProReplayer(ReplayerBase):
         allInfo["effectiveDPSList"] = self.effectiveDPSList
         allInfo["potList"] = self.potList
         allInfo["battleTime"] = self.battleTime
-        for i in range(len(allInfo["effectiveDPSList"])):
-            allInfo["effectiveDPSList"][i][0] = self.getMaskName(allInfo["effectiveDPSList"][i][0])
-        for i in range(len(allInfo["potList"])):
-            allInfo["potList"][i][0] = self.getMaskName(allInfo["potList"][i][0])
+        # for i in range(len(allInfo["effectiveDPSList"])):
+        #     allInfo["effectiveDPSList"][i][0] = allInfo["effectiveDPSList"][i][0]
+        # for i in range(len(allInfo["potList"])):
+        #     allInfo["potList"][i][0] = allInfo["potList"][i][0]
+        allInfo["mask"] = self.config.mask
 
         result["statistics"] = allInfo
 
@@ -195,6 +189,8 @@ class ActorProReplayer(ReplayerBase):
         # 使用数据本身提供的战斗时间
         self.battleTime = self.bld.info.sumTime  # self.finalTime - self.startTime
 
+        timeReseted = 0
+
         for event in self.bld.log:
             
             # if len(item) > 5 and item[5] not in occdict:
@@ -231,11 +227,31 @@ class ActorProReplayer(ReplayerBase):
 
                 if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == '巨型尖吻凤':
                     self.bossAnalyseName = "巨型尖吻凤"
+                    if not timeReseted:
+                        self.startTime = event.time
+                        timeReseted = 1
+
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == '桑乔':
+                    self.bossAnalyseName = "桑乔"
+
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == '悉达罗摩':
+                    self.bossAnalyseName = "悉达罗摩"
+
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == '赐恩血瘤':
+                    self.bossAnalyseName = "尤珈罗摩"
+
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == '月泉淮':
+                    self.bossAnalyseName = "月泉淮"
+
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == '乌蒙贵':
+                    self.bossAnalyseName = "乌蒙贵"
 
                 # 通过技能确定具体心法
                 if event.caster in occDetailList and occDetailList[event.caster] in ['1', '2', '3', '4', '5', '6', '7', '10',
                                                                            '21', '22', '212']:
                     occDetailList[event.caster] = checkOccDetailBySkill(occDetailList[event.caster], event.id, event.damageEff)
+
+
                     
             elif event.dataType == "Buff":
                 # 通过buff确定具体心法
@@ -758,8 +774,10 @@ class ActorProReplayer(ReplayerBase):
 
         if self.win:
             self.upload = 1
-        if self.mapDetail in ["25人英雄达摩洞", "25人英雄白帝江关"]:
+        if self.mapDetail in ["25人英雄雷域大泽"]:
             self.upload = 1
+
+        # print("[Win]", self.win)
 
         if self.bossAnalyser.hasBh:
             self.bh = self.bossAnalyser.bh
@@ -874,37 +892,37 @@ class ActorProReplayer(ReplayerBase):
 
 
 #TODO 重构，想办法移除
-class ActorAnalysis():
-
-    def analysis(self):
-        self.potList = []
-        for line in self.generator:
-            self.potList += line.potList
-
-    def loadData(self, fileList, path, raw):
-        for filename in fileList:
-            res = ActorStatGenerator(filename, path, rawdata=raw[filename[0]], failThreshold=self.failThreshold, 
-                battleDate=self.battledate, mask=self.mask, dpsThreshold=self.dpsThreshold, uploadTiantiFlag=self.uploadTiantiFlag)
-                
-            analysisExitCode = res.firstStageAnalysis()
-            if analysisExitCode == 1:
-                continue
-            res.secondStageAnalysis()
-            if res.upload:
-                res.prepareUpload()
-            self.generator.append(res)
-
-    def __init__(self, filelist, map, path, config, raw):
-        self.myname = config.xiangzhiname
-        self.mask = config.mask
-        self.color = config.color
-        self.text = config.text
-        self.speed = config.speed
-        self.failThreshold = config.failThreshold
-        self.uploadTiantiFlag = config.uploadTianti
-        self.map = map
-        self.battledate = '-'.join(filelist[0][0].split('-')[0:3])
-        self.dpsThreshold = {"qualifiedRate": config.qualifiedRate,
-                             "alertRate": config.alertRate,
-                             "bonusRate": config.bonusRate}
-        self.loadData(filelist, path, raw)
+# class ActorAnalysis():
+#
+#     def analysis(self):
+#         self.potList = []
+#         for line in self.generator:
+#             self.potList += line.potList
+#
+#     def loadData(self, fileList, path, raw):
+#         for filename in fileList:
+#             res = ActorStatGenerator(filename, path, rawdata=raw[filename[0]], failThreshold=self.failThreshold,
+#                 battleDate=self.battledate, mask=self.mask, dpsThreshold=self.dpsThreshold, uploadTiantiFlag=self.uploadTiantiFlag)
+#
+#             analysisExitCode = res.firstStageAnalysis()
+#             if analysisExitCode == 1:
+#                 continue
+#             res.secondStageAnalysis()
+#             if res.upload:
+#                 res.prepareUpload()
+#             self.generator.append(res)
+#
+#     def __init__(self, filelist, map, path, config, raw):
+#         self.myname = config.xiangzhiname
+#         self.mask = config.mask
+#         self.color = config.color
+#         self.text = config.text
+#         self.speed = config.speed
+#         self.failThreshold = config.failThreshold
+#         self.uploadTiantiFlag = config.uploadTianti
+#         self.map = map
+#         self.battledate = '-'.join(filelist[0][0].split('-')[0:3])
+#         self.dpsThreshold = {"qualifiedRate": config.qualifiedRate,
+#                              "alertRate": config.alertRate,
+#                              "bonusRate": config.bonusRate}
+#         self.loadData(filelist, path, raw)

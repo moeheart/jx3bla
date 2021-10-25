@@ -28,19 +28,20 @@ class JuxingJianwenfengWindow(SpecificBossWindow):
         #通用格式：
         #0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
         
-        tb = TableConstructorMeta(frame1)
+        tb = TableConstructorMeta(self.config, frame1)
         
         tb.AppendHeader("玩家名", "", width=13)
         tb.AppendHeader("有效DPS", "全程DPS。与游戏中不同的是，重伤时间也会被计算在内。")
         tb.AppendHeader("团队-心法DPS", "综合考虑当前团队情况与对应心法的全局表现，计算的百分比。平均水平为100%。")
         tb.AppendHeader("装分", "玩家的装分，可能会获取失败。")
         tb.AppendHeader("详情", "装备详细描述，暂未完全实装。")
+        tb.AppendHeader("强化", "装备强化列表，表示[精炼满级装备数量]/[插8]-[插7]-[插6]/[五彩石等级]/[紫色附魔]-[蓝色附魔]/[大附魔：手腰脚头衣裤]")
         tb.AppendHeader("被控", "受到影响无法正常输出的时间，以秒计。")
         tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         tb.EndOfLine()
         
         for i in range(len(self.effectiveDPSList)):
-            name = self.effectiveDPSList[i][0]
+            name = self.getMaskName(self.effectiveDPSList[i][0])
             color = getColor(self.effectiveDPSList[i][1])
             tb.AppendContext(name, color=color, width=13)
             tb.AppendContext(int(self.effectiveDPSList[i][2]))
@@ -58,7 +59,8 @@ class JuxingJianwenfengWindow(SpecificBossWindow):
                 text4 = int(self.effectiveDPSList[i][4])
             tb.AppendContext(text4)
             
-            tb.AppendContext(self.effectiveDPSList[i][5])
+            tb.AppendContext(self.effectiveDPSList[i][5].split('|')[0])
+            tb.AppendContext(self.effectiveDPSList[i][5].split('|')[1])
             tb.AppendContext(int(self.effectiveDPSList[i][6]))
 
             # 心法复盘
@@ -80,8 +82,8 @@ class JuxingJianwenfengWindow(SpecificBossWindow):
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
 
-    def __init__(self, effectiveDPSList, detail, occResult):
-        super().__init__(effectiveDPSList, detail, occResult)
+    def __init__(self, config, effectiveDPSList, detail, occResult):
+        super().__init__(config, effectiveDPSList, detail, occResult)
 
 class JuxingJianwenfengReplayer(SpecificReplayerPro):
 
@@ -103,7 +105,9 @@ class JuxingJianwenfengReplayer(SpecificReplayerPro):
                 line = self.stat[id]
                 if id in self.equipmentDict:
                     line[4] = self.equipmentDict[id]["score"]
-                    line[5] = self.equipmentDict[id]["sketch"]
+                    line[5] = "%s|%s"%(self.equipmentDict[id]["sketch"], self.equipmentDict[id]["forge"])
+                else:
+                    line[5] = "|"
                 
                 if getOccType(self.occDetailList[id]) == "healer":
                     line[3] = int(self.hps[id] / self.battleTime * 1000)
@@ -183,8 +187,6 @@ class JuxingJianwenfengReplayer(SpecificReplayerPro):
         self.stat = {}
         self.hps = {}
         self.detail["boss"] = self.bossNamePrint
-        self.win = 1  # 通用BOSS中总是设为已通过
-
         
         for line in self.bld.info.player:
             self.hps[line] = 0

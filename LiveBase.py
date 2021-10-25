@@ -17,7 +17,6 @@ from tools.Functions import *
 import pyperclip
 
 from data.DataController import DataController
-from ActorReplay import ActorStatGenerator  # TODO 移除
 from replayer.ActorReplayPro import ActorProReplayer
 from replayer.boss.General import GeneralWindow
 
@@ -532,33 +531,33 @@ class SingleBossWindow():
             # elif detail["boss"] == "宫傲":
             #     self.specificBossWindow = GongAoWindow(effectiveDPSList, detail)
             if detail["boss"] == "胡汤&罗芬":
-                self.specificBossWindow = HuTangLuoFenWindow(effectiveDPSList, detail, occResult)
+                self.specificBossWindow = HuTangLuoFenWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             elif detail["boss"] == "赵八嫂":
-                self.specificBossWindow = ZhaoBasaoWindow(effectiveDPSList, detail, occResult)
+                self.specificBossWindow = ZhaoBasaoWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             elif detail["boss"] == "海荼":
-                self.specificBossWindow = HaiTuWindow(effectiveDPSList, detail, occResult)
+                self.specificBossWindow = HaiTuWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             elif detail["boss"] == "姜集苦":
-                self.specificBossWindow = JiangJikuWindow(effectiveDPSList, detail, occResult)
+                self.specificBossWindow = JiangJikuWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             elif detail["boss"] == "宇文灭":
-                self.specificBossWindow = YuwenMieWindow(effectiveDPSList, detail, occResult)
+                self.specificBossWindow = YuwenMieWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             elif detail["boss"] == "宫威":
-                self.specificBossWindow = GongWeiWindow(effectiveDPSList, detail, occResult)
+                self.specificBossWindow = GongWeiWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             elif detail["boss"] == "宫傲":
-                self.specificBossWindow = GongAoWindow(effectiveDPSList, detail, occResult)
+                self.specificBossWindow = GongAoWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             elif detail["boss"] == "巨型尖吻凤":
-                self.specificBossWindow = JuxingJianwenfengWindow(effectiveDPSList, detail, occResult)
+                self.specificBossWindow = JuxingJianwenfengWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             elif detail["boss"] == "桑乔":
-                self.specificBossWindow = SangQiaoWindow(effectiveDPSList, detail, occResult)
+                self.specificBossWindow = SangQiaoWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             elif detail["boss"] == "悉达罗摩":
-                self.specificBossWindow = XidaLuomoWindow(effectiveDPSList, detail, occResult)
+                self.specificBossWindow = XidaLuomoWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             elif detail["boss"] == "尤珈罗摩":
-                self.specificBossWindow = YoujiaLuomoWindow(effectiveDPSList, detail, occResult)
+                self.specificBossWindow = YoujiaLuomoWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             elif detail["boss"] == "月泉淮":
-                self.specificBossWindow = YuequanHuaiWindow(effectiveDPSList, detail, occResult)
+                self.specificBossWindow = YuequanHuaiWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             elif detail["boss"] == "乌蒙贵":
-                self.specificBossWindow = WuMengguiWindow(effectiveDPSList, detail, occResult)
+                self.specificBossWindow = WuMengguiWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             else:
-                self.specificBossWindow = GeneralWindow(effectiveDPSList, detail, occResult)
+                self.specificBossWindow = GeneralWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             self.specificBossWindow.setPotWindow(self)
         
     # def showDetail(self):

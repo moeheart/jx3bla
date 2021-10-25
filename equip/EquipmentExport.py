@@ -2,7 +2,7 @@
 # 配装导出库，用于与计算器对接，实现一站式操作。
 
 from openpyxl import load_workbook
-from EquipmentType import *
+from equip.EquipmentType import *
 
 def getPlug(id):
     '''
@@ -695,6 +695,65 @@ class EquipmentAnalyser():
     '''
     装备分析类，将茗伊复盘中的数据转为json形式。
     '''
+
+    def getForge(self, equips):
+        '''
+        根据全身装备，得到装备的打造信息（精炼、镶嵌、五彩石、小附魔、大附魔）
+        '''
+        refine = 0
+        plug = [0] * 9
+        magic1 = [0] * 13
+        magic2 = [0] * 13
+        plugColor = 0
+
+        for key in equips:
+            if key not in ["score", "description", "sketch"]:
+                equip = equips[key]
+                id_full = "%s,%s"%(equip["id_cat"], equip["id"])
+
+                # 获取精炼部分
+                if id_full in EQUIPMENT_TYPE:
+                    t = EQUIPMENT_TYPE[id_full]
+                else:
+                    t = ""
+                refine_max = 6  # 暂时使用简易的装备类别来统计，后续可以更换记录方式。
+                if t in ["精简", "特效腰坠", "特效武器"]:
+                    refine_max = 3
+                if t in ["大橙武"]:
+                    refine_max = 8
+                if equip["star"] >= refine_max:
+                    refine += 1
+
+                # 获取镶嵌部分
+                for i in [1,2,3]:
+                    p = "plug%d"%i
+                    if p in equip:
+                        plug[equip[p]] += 1
+                    else:
+                        plug[0] += 1
+
+                # 获取五彩石
+                if "plug0" in equip:
+                    colorID = equip["plug0"]
+                    plugColor = 0
+
+                id = int(key)
+                # 获取小附魔
+                if equip["magic1"] not in [0, "0", ""]:
+                    magic1[id] = 1
+                    # TODO 判断伏魔是蓝色还是紫色
+
+                if equip["magic2"] not in [0, "0", ""]:
+                    magic2[id] = 1
+
+        magic1Sum = 0
+        for i in [2,4,6,7,10,11,12,0]:
+            magic1Sum += magic1[i]
+
+        magic2Str = "%d%d%d%d%d%d"%(magic2[12], magic2[8], magic2[11], magic2[4], magic2[3], magic2[10])
+
+        result = "%d/%d-%d-%d/%d/%d-%d/%s"%(refine, plug[8], plug[7], plug[6], plugColor, magic1Sum, 0, magic2Str)
+        return result
     
     def getSketch(self, equips):
         '''
@@ -781,59 +840,60 @@ class EquipmentAnalyser():
             equip["magic2"] = d["7"]
             equips[equip["pos"]] = equip
         equips["sketch"] = self.getSketch(equips)
+        equips["forge"] = self.getForge(equips)
         return equips
     
-    def convert(self, s):
-        '''
-        进行转换。使用老格式，会在未来移除。
-        params
-        - s 茗伊复盘数据（处在[18]）
-        '''
-        a = s[0]['']
-        b = a[2]['']
-
-        equips = {}
-        
-        equips["score"] = int(a[1])
-        equips["description"] = ""
-
-        for c in b:
-            d = c['']
-            equip = {}
-            equip["pos"] = d[0]
-            equip["id_cat"] = d[1]
-            equip["id"] = d[2]
-            equip["star"] = int(d[3])
-            if "" in d[4]:
-                f = d[4][""]
-                i = 0
-                for g in f:
-                    i += 1
-                    plugID = g[""][1]
-                    equip["plug%d"%i] = self.getPlug(plugID)
-            elif "2" in d[4]:
-                f = d[4]["2"]
-                i = 1
-                for g in f:
-                    i += 1
-                    plugID = g[""][1]
-                    equip["plug%d"%i] = self.getPlug(plugID)
-            elif "3" in d[4]:
-                f = d[4]["3"]
-                i = 2
-                for g in f:
-                    i += 1
-                    plugID = g[""][1]
-                    equip["plug%d"%i] = self.getPlug(plugID)
-            if "0" in d[4] or "1" in d[4]:
-                equip["plug0"] = d[4]["0"][0][""][1]
-            equip["magic1"] = d[5]
-            equip["magic2"] = d[6]
-            equips[equip["pos"]] = equip
-            
-        equips["sketch"] = self.getSketch(equips)
-             
-        return equips
+    # def convert(self, s):
+    #     '''
+    #     进行转换。使用老格式，会在未来移除。
+    #     params
+    #     - s 茗伊复盘数据（处在[18]）
+    #     '''
+    #     a = s[0]['']
+    #     b = a[2]['']
+    #
+    #     equips = {}
+    #
+    #     equips["score"] = int(a[1])
+    #     equips["description"] = ""
+    #
+    #     for c in b:
+    #         d = c['']
+    #         equip = {}
+    #         equip["pos"] = d[0]
+    #         equip["id_cat"] = d[1]
+    #         equip["id"] = d[2]
+    #         equip["star"] = int(d[3])
+    #         if "" in d[4]:
+    #             f = d[4][""]
+    #             i = 0
+    #             for g in f:
+    #                 i += 1
+    #                 plugID = g[""][1]
+    #                 equip["plug%d"%i] = self.getPlug(plugID)
+    #         elif "2" in d[4]:
+    #             f = d[4]["2"]
+    #             i = 1
+    #             for g in f:
+    #                 i += 1
+    #                 plugID = g[""][1]
+    #                 equip["plug%d"%i] = self.getPlug(plugID)
+    #         elif "3" in d[4]:
+    #             f = d[4]["3"]
+    #             i = 2
+    #             for g in f:
+    #                 i += 1
+    #                 plugID = g[""][1]
+    #                 equip["plug%d"%i] = self.getPlug(plugID)
+    #         if "0" in d[4] or "1" in d[4]:
+    #             equip["plug0"] = d[4]["0"][0][""][1]
+    #         equip["magic1"] = d[5]
+    #         equip["magic2"] = d[6]
+    #         equips[equip["pos"]] = equip
+    #
+    #     equips["sketch"] = self.getSketch(equips)
+    #
+    #     return equips
     
     def __init__(self):
         pass

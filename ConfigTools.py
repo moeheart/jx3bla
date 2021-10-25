@@ -19,8 +19,9 @@ import webbrowser
 
 from LiveBase import ToolTip
 from FileLookUp import FileLookUp
-from EquipmentExport import HuajianExportEquipment, ExcelExportEquipment, EquipmentAnalyser
+from equip.EquipmentExport import HuajianExportEquipment, ExcelExportEquipment, EquipmentAnalyser
 from Constants import *
+from replayer.occ.XiangZhi import XiangZhiProWindow
 
 class Config():
     '''
@@ -540,6 +541,24 @@ class ConfigWindow():
     def show_xiangzhiTianti(self):
         webbrowser.open("http://139.199.102.41:8009/XiangZhiTable.html")
 
+    def show_replay(self):
+        '''
+        尝试远程读取数据并显示.
+        '''
+        pass
+        id = self.entry2_8.get()
+        resp = urllib.request.urlopen('http://139.199.102.41:8009/getReplayPro?id=%s'%id)
+        res = json.load(resp)
+        if res["text"] == "结果未找到.":
+            messagebox.showinfo(title='嘶', message='找不到该ID对应的数据！')
+        elif res["text"] == "数据未公开.":
+            messagebox.showinfo(title='嘶', message='该ID对应的数据没有公开。')
+        else:
+            result = json.load(res["text"])
+            print(result)
+            window = XiangZhiProWindow(self.config, result)
+            window.start()
+
     def final(self):
         self.config.playername = self.entry1_1.get()
         self.config.jx3path = self.entry1_2.get()
@@ -697,6 +716,10 @@ class ConfigWindow():
         self.cb2_7 = tk.Checkbutton(frame2, text="统计T的覆盖率", variable=self.var2_7, onvalue=1, offvalue=0)
         self.cb2_6.grid(row=1, column=2)
         self.cb2_7.grid(row=3, column=0)
+        self.button2_8 = tk.Button(frame2, text='根据ID查看复盘', height=1, command=self.show_replay)
+        self.entry2_8 = tk.Entry(frame2, show=None)
+        self.button2_8.grid(row=5, column=0)
+        self.entry2_8.grid(row=5, column=1)
         
         self.var3_1 = tk.IntVar(window)
         self.cb3_1 = tk.Checkbutton(frame3, text = "启用演员复盘", variable = self.var3_1, onvalue = 1, offvalue = 0)
