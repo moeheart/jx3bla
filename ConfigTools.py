@@ -554,8 +554,9 @@ class ConfigWindow():
         elif res["text"] == "数据未公开.":
             messagebox.showinfo(title='嘶', message='该ID对应的数据没有公开。')
         else:
-            result = json.load(res["text"])
-            print(result)
+            t = res["text"]
+            t = t.replace("'", '"').replace("\t", "\\t").replace("\n", "\\n")
+            result = json.loads(t)
             window = XiangZhiProWindow(self.config, result)
             window.start()
 

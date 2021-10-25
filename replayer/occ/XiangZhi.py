@@ -597,10 +597,10 @@ class XiangZhiProWindow():
 
         tk.Label(frame9, text="科技&五奶群：418483739").place(x=20, y=20)
         tk.Label(frame9, text="相知PVE群：538939220").place(x=20, y=40)
-        tk.Label(frame9, text="复盘编号：%s"%self.result["overall"]["shortID"]).place(x=20, y=70)
-
-        b2 = tk.Button(frame9, text='在网页中打开', height=1, command=self.OpenInWeb)
-        b2.place(x=40, y=90)
+        if "shortID" in self.result["overall"]:
+            tk.Label(frame9, text="复盘编号：%s"%self.result["overall"]["shortID"]).place(x=20, y=70)
+            b2 = tk.Button(frame9, text='在网页中打开', height=1, command=self.OpenInWeb)
+            b2.place(x=40, y=90)
 
         tk.Label(frame9, text="广告位招租").place(x=40, y=140)
 
