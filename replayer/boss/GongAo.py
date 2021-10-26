@@ -157,9 +157,9 @@ class GongAoReplayer(SpecificReplayerPro):
                                    line[6], 
                                    int(line[7] / self.shuiqiuSumTime * 1000),
                                    int(line[8] / self.detail["P1Time"]),
-                                   int(line[9] / self.detail["P2Time"]),
-                                   int(line[10] / self.detail["P4Time"]),
-                                   int(line[11] / self.detail["P5Time"]),
+                                   int(line[9] / (self.detail["P2Time"] + 1e-10)),
+                                   int(line[10] / (self.detail["P4Time"] + 1e-10)),
+                                   int(line[11] / (self.detail["P5Time"] + 1e-10)),
                                    line[12]
                                    ])
         bossResult.sort(key = lambda x:-x[2])

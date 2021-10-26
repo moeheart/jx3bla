@@ -106,7 +106,7 @@ class AttributeCal():
 
         #计算套装
         for line in setCount:
-            if line not in self.equipmentInfo:
+            if line not in self.equipmentInfo.set:
                 continue
             setInfo = self.equipmentInfo.set[line]
             for i in range(10):
