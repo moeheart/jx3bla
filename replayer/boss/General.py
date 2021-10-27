@@ -189,7 +189,7 @@ class GeneralReplayer(SpecificReplayerPro):
         self.stat = {}
         self.hps = {}
         self.detail["boss"] = self.bossNamePrint
-        self.win = 1  # 通用BOSS中总是设为已通过
+        self.win = 0
 
         
         for line in self.bld.info.player:

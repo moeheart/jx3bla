@@ -44,9 +44,6 @@ class ActorProReplayer(ReplayerBase):
     upload = 0
     bossAnalyseName = "未知"
 
-    #playerIDList = {}
-    firstHitList = {}
-
     actorSkillList = [
                       ]
 
@@ -62,7 +59,14 @@ class ActorProReplayer(ReplayerBase):
                     "姜集苦": 4, 
                     "宇文灭": 5, 
                     "宫威": 6, 
-                    "宫傲": 7}
+                    "宫傲": 7,
+                    "巨型尖吻凤": 1,
+                    "桑乔": 2,
+                    "悉达罗摩": 3,
+                    "赐恩血瘤": 4,
+                    "血蛊巢心": 4,
+                    "月泉淮": 5,
+                    "乌蒙贵": 6}
 
     # def makeEmptyHitList(self):
     #     res = {}
@@ -705,6 +709,8 @@ class ActorProReplayer(ReplayerBase):
                         effectiveDPSList[i][3] = int(GORate * 100)
                             
         # 开怪统计
+        # print(self.firstHitList)
+
         if self.firstHitList != {}:
             earliestHit = 0
             earliestTankHit = 0

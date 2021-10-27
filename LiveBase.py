@@ -431,10 +431,10 @@ class SingleBossWindow():
         收集分锅结果并关闭窗口。
         '''
 
-        print("[Test]SingleBoss")
-        print(self.potWindowActivated)
-        print(self.potList)
-        print(self.scoreList)
+        # print("[Test]SingleBoss")
+        # print(self.potWindowActivated)
+        # print(self.potList)
+        # print(self.scoreList)
         
         if self.potExtendRunning:
             self.potExtendWindow.final()
@@ -444,10 +444,10 @@ class SingleBossWindow():
                 self.potList[i][6] = self.scoreList[i]
             self.analyser.changeResult(self.potList, self.bossNum)
 
-        print("[Test]After modified")
-        print(self.potWindowActivated)
-        print(self.potList)
-        print(self.scoreList)
+        # print("[Test]After modified")
+        # print(self.potWindowActivated)
+        # print(self.potList)
+        # print(self.scoreList)
 
         if self.windowAlive:
             self.window.destroy()
@@ -513,6 +513,7 @@ class SingleBossWindow():
         '''
         self.effectiveDPSList = effectiveDPSList
         self.detail = detail
+        self.occResult = occResult
         self.hasDetail = 1
         if "boss" in detail:
             # if detail["boss"] == "胡汤&罗芬":
@@ -605,7 +606,7 @@ class SingleBossWindow():
             self.scoreList.append(self.potList[i][6])
                 
         if not self.analyser.checkBossExists(self.bossNum):
-            self.analyser.addResult(self.potList, self.bossNum, self.effectiveDPSList, self.detail)
+            self.analyser.addResult(self.potList, self.bossNum, self.effectiveDPSList, self.detail, self.occResult)
         
         self.analyser.getPlayerPotList()
         
