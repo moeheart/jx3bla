@@ -12,7 +12,6 @@ import json
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-#from win10toast import ToastNotifier
 from tools.Functions import *
 import pyperclip
 
@@ -821,27 +820,6 @@ class LiveActorAnalysis():
         - playerListSort 排好序的ID与门派列表
         '''
         return self.potContainer.getPlayerOcc()
-        '''
-        player = {}
-        playerocc = {}
-        self.potListScore = self.potContainer.getAll()
-        for line in self.potListScore:
-            if line[0] not in player:
-                occ = line[1]
-                if occ[-1] in ['d', 't', 'h', 'p', 'm']:
-                    occ = occ[:-1]
-                player[line[0].strip('"')] = int(occ)
-                playerocc[line[0].strip('"')] = line[1]
-        playerList = []
-        for line in player:
-            playerList.append([line.strip('"'), player[line], playerocc[line]])
-        playerList.sort(key = lambda x:x[1])
-        
-        playerListSort = []
-        for line in playerList:
-            playerListSort.append([line[0], line[2]])
-        return playerListSort
-        '''
 
     def getPlayerPotList(self):
         playerPot = {}

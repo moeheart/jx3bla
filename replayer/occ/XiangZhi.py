@@ -1502,7 +1502,11 @@ class XiangZhiProReplayer(ReplayerBase):
         # print(jparse)
         resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadReplayPro', data=jparse)
         res = json.load(resp)
-        self.result["overall"]["shortID"] = res["shortID"]
+        print(res)
+        if res["result"] != "fail":
+            self.result["overall"]["shortID"] = res["shortID"]
+        else:
+            self.result["overall"]["shortID"] = "数据保存出错"
         return res
 
     def replay(self):

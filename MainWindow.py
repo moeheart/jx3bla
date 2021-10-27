@@ -5,7 +5,6 @@ from PIL import Image
 import re
 import os
 import time
-#from win10toast import ToastNotifier
 from tools.Notifier import Notifier
 import traceback
 import urllib
@@ -142,19 +141,6 @@ class MainWindow():
                 # bldDict = RawDataLoader(config, filelist, fileLookUp.basepath, window).bldDict
                 replayFileList = filelist
 
-        # controller = DataController(self.config)
-        # if self.bldDict != {}:
-        #     controller.setRawData(self.bldDict)
-        # controller.getMultiData(self, replayFileList)
-
-        # # 根据设置决定使用哪一种复盘逻辑
-        # filelist, allFilelist, map = fileLookUp.getLocalFile()
-        # print("开始分析。分析耗时可能较长，请耐心等待……")
-        # if config.checkAll:
-        #     bldDict = RawDataLoader(config, allFilelist, fileLookUp.basepath, window, self.bldDict).bldDict
-        # else:
-        #     bldDict = RawDataLoader(config, filelist, fileLookUp.basepath, window).bldDict
-
         replayFileNameList = [x[0] for x in replayFileList]
         self.liveListener.getAllBattleLog(fileLookUp.basepath, replayFileNameList)
 
@@ -272,7 +258,6 @@ class MainWindow():
         if self.playerIDs == []:
             url = "http://139.199.102.41:8009/TianwangSearch.html"
             webbrowser.open(url)
-            #messagebox.showinfo(title='提示', message='需要有实时战斗记录才能使用天网系统。在目前的版本中，建议取消最短战斗时间限制，使用七苦一乐宝箱作为检测工具。')
         else:
             ids = "+".join(self.playerIDs)
             url = "http://139.199.102.41:8009/Tianwang.html?server=%s&ids=%s"%(self.server, ids)

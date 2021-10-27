@@ -172,7 +172,7 @@ class BattleLogData():
         self.info.skill = result["11"]
         self.info.server = result["19"].strip('"')
         self.info.map = getMapFromID(result["20"])
-        self.info.boss = filePath.split('_')[1]
+        self.info.boss = filePath.split('/')[-1].split('\\')[-1].split('_')[1]
         self.info.battleTime = int(result["4"])
         self.info.sumTime = int(result["7"])
 

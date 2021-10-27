@@ -708,52 +708,58 @@ def uploadReplayPro():
     db = pymysql.connect(ip, app.dbname, app.dbpwd, "jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
 
-    sql = '''SELECT score from ReplayProStat WHERE mapdetail = "%s" and boss = "%s" and occ = "%s"''' % (mapDetail, boss, occ)
-    cursor.execute(sql)
-    result = cursor.fetchall()
-    num = 0
-    numOver = 0
-    for line in result:
-        if line[0] == 0:
-            continue
-        num += 1
-        if score > line[0]:
-            numOver += 1
+    try:
+        sql = '''SELECT score from ReplayProStat WHERE mapdetail = "%s" and boss = "%s" and occ = "%s"''' % (mapDetail, boss, occ)
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        num = 0
+        numOver = 0
+        for line in result:
+            if line[0] == 0:
+                continue
+            num += 1
+            if score > line[0]:
+                numOver += 1
 
-    print(num, numOver)
+        print(num, numOver)
 
-    sql = '''SELECT * from ReplayProStat WHERE hash = "%s"''' % hash
-    cursor.execute(sql)
-    result = cursor.fetchall()
-    if result:
-        if result[0][12] >= editionFull:
-            print("Find Duplicated")
-            db.close()
-            shortID = result[0][8]
-            return jsonify({'result': 'dupid', 'num': num, 'numOver': numOver, 'shortID': shortID})
-        else:
-            print("Update edition")
+        sql = '''SELECT * from ReplayProStat WHERE hash = "%s"''' % hash
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        if result:
+            if result[0][12] >= editionFull:
+                print("Find Duplicated")
+                db.close()
+                shortID = result[0][8]
+                return jsonify({'result': 'dupid', 'num': num, 'numOver': numOver, 'shortID': shortID})
+            else:
+                print("Update edition")
 
-    sql = '''DELETE FROM ReplayProStat WHERE hash = "%s"''' % hash
-    cursor.execute(sql)
+        sql = '''DELETE FROM ReplayProStat WHERE hash = "%s"''' % hash
+        cursor.execute(sql)
 
-    # 更新数量
-    sql = '''SELECT * from ReplayProInfo WHERE dataname = "num"'''
-    cursor.execute(sql)
-    result = cursor.fetchall()
-    num = result[0][2]
-    shortID = num + 1
-    sql = """UPDATE ReplayProInfo SET datavalueint=%d WHERE dataname = "num";""" % shortID
-    cursor.execute(sql)
+        # 更新数量
+        sql = '''SELECT * from ReplayProInfo WHERE dataname = "num"'''
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        num = result[0][2]
+        shortID = num + 1
+        sql = """UPDATE ReplayProInfo SET datavalueint=%d WHERE dataname = "num";""" % shortID
+        cursor.execute(sql)
 
-    statistics["overall"]["shortID"] = shortID
+        statistics["overall"]["shortID"] = shortID
 
-    sql = """INSERT INTO ReplayProStat VALUES ("%s", "%s", "%s", %d, "%s", "%s", "%s", "%s", %d, "%s", %d, "%s", %d, "%s", "%s", %d, %d)""" % (
-        server, id, occ, score, battleDate, mapDetail, boss, hash, shortID, statistics, public, edition, editionFull, replayedition, userID, battleTime,
-        submitTime)
-    cursor.execute(sql)
-    db.commit()
-    db.close()
+        sql = """INSERT INTO ReplayProStat VALUES ("%s", "%s", "%s", %d, "%s", "%s", "%s", "%s", %d, "%s", %d, "%s", %d, "%s", "%s", %d, %d)""" % (
+            server, id, occ, score, battleDate, mapDetail, boss, hash, shortID, statistics, public, edition, editionFull, replayedition, userID, battleTime,
+            submitTime)
+        cursor.execute(sql)
+        db.commit()
+        db.close()
+
+    except Exception as e:
+        traceback.print_exc()
+        db.close()
+        return jsonify({'result': 'fail', 'num': 0, 'numOver': 0, 'shortID': 0})
 
     return jsonify({'result': 'success', 'num': num, 'numOver': numOver, 'shortID': shortID})
 
