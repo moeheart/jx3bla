@@ -101,7 +101,7 @@ if __name__ == "__main__":
 
     # 输出python文件
 
-    g = open("equip/EquipmentType.py", "w")
+    g = open("equip/EquipmentType.py", "w", encoding='utf-8')
     text = """# [Auto-Generated File]
 EQUIPMENT_TYPE = %s"""%str(resultDict)
     g.write(text)
