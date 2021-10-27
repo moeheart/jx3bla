@@ -12,6 +12,7 @@ import urllib.request
 import hashlib
 import configparser
 import os
+import traceback
 from Constants import *
 from tools.Functions import *
 from equip.AttributeDisplay import AttributeDisplay
