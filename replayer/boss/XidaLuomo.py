@@ -235,7 +235,7 @@ class XidaLuomoReplayer(SpecificReplayerPro):
                     if event.time - self.edbf[-1][1] > 2000:
                         self.edbf.append([event.time - 5000, event.time])
 
-                if event.id == "29715":  # 幽冥毒雾
+                if event.id in ["27859", "29715"]:  # 幽冥毒雾
                     if event.time - self.ymdw[-1][1] > 5000:
                         self.ymdw.append([event.time - 1000, event.time])
                     elif event.time - self.ymdw[-1][1] > 100:
@@ -296,8 +296,8 @@ class XidaLuomoReplayer(SpecificReplayerPro):
                 return
 
         elif event.dataType == "Shout":
-            return
-            print("[Shout]", event.content)
+            if event.content in ['"来吧，进餐时间到了！"']:
+                self.win = 1
 
         elif event.dataType == "Death":  # 重伤记录
             pass
@@ -310,11 +310,16 @@ class XidaLuomoReplayer(SpecificReplayerPro):
                 self.win = 1
             # if event.id in self.bld.info.npc:
             #     print(event.time, self.bld.info.npc[event.id].name)
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].templateID in ["106108", "107022", "107185"] and event.enter:
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].templateID in ["106108", "107022", "107185", "107065", "106141"] and event.enter:
                 # 种子出现事件
                 if event.time - self.sgzh[-1][0] > 10000:
                     self.sgzh.append([event.time, event.time + 10000])  # 10秒蚀骨之花
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].templateID in ["107202", "107111", "107115"] and event.enter:
+
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name == "灵虫" and event.enter:
+                # print("[Lingchong]", self.bld.info.npc[event.id].templateID, event.time)
+                pass
+
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].templateID in ["107202", "107111", "107115", "107065", "106141"] and event.enter:
                 # 灵虫出现事件
                 # print("[Lingchong]", event.time, event.id, self.bld.info.npc[event.id].templateID)
 
@@ -337,13 +342,13 @@ class XidaLuomoReplayer(SpecificReplayerPro):
                         self.lingchongCastStart.append([0, 0, 0, 0])
 
                 # 记录灵虫ID
-                lingchongType = {"107202": 0, "107115": 1, "107111": 2}[self.bld.info.npc[event.id].templateID]
                 if self.bld.info.map != "25人英雄雷域大泽":
                     self.detail["lingchong"][-1][self.lingchongNum] = {"time": parseTime((event.time - self.startTime) / 1000), "log": [], "success": 0, "vanish": ""}
                     self.lingchongID[self.lingchongNum] = event.id
                     self.lingchongIdDict[event.id] = self.lingchongNum
                     self.lingchongNum += 1
                 else:
+                    lingchongType = {"107202": 0, "107115": 1, "107111": 2}[self.bld.info.npc[event.id].templateID]
                     if self.detail["lingchong"][-1][lingchongType] == {}:
                         self.detail["lingchong"][-1][lingchongType] = {"time": parseTime((event.time - self.startTime) / 1000), "log": [], "success": 0, "vanish": ""}
                         self.lingchongID[lingchongType] = event.id
@@ -352,7 +357,7 @@ class XidaLuomoReplayer(SpecificReplayerPro):
                         self.detail["lingchong"][-1][3] = {"time": parseTime((event.time - self.startTime) / 1000), "log": [], "success": 0, "vanish": ""}
                         self.lingchongID[3] = event.id
                         self.lingchongIdDict[event.id] = 3
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].templateID in ["107202", "107111", "107115"] and not event.enter:
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].templateID in ["107202", "107111", "107115", "107065", "106141"] and not event.enter:
                 # 灵虫消失事件
                 if event.id in self.lingchongIdDict:
                     id = self.lingchongIdDict[event.id]
