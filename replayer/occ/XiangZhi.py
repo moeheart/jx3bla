@@ -1373,7 +1373,7 @@ class XiangZhiProReplayer(ReplayerBase):
                 continue
             time1 = self.shieldCountersNew[key].buffTimeIntegral()
             timeAll = liveCount
-            rateDict[key] = time1 / timeAll
+            rateDict[key] = time1 / (timeAll + 1e-10)
             breakDict[key] = self.shieldCountersNew[key].countBreak()
 
         for line in damageList:

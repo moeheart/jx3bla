@@ -99,11 +99,56 @@ if __name__ == "__main__":
             if attr != "":
                 resultDict[id] = attr
 
-    # 输出python文件
+    # 读取附魔等级
+    enchantDict = {}
 
+    with open('equip/resources/Enchant.tab')as f:
+        f_csv = csv.reader(f, delimiter='\t')
+        lvl = 0
+        for row in f_csv:
+            if "铸" in row[1]:  # 紫色铸造
+                enchantDict[row[0]] = 2
+            elif "甲" in row[1]:  # 蓝色铸造
+                enchantDict[row[0]] = 1
+            elif "绣" in row[1]:  # 紫色缝纫
+                enchantDict[row[0]] = 2
+            elif "染" in row[1]:  # 蓝色缝纫
+                enchantDict[row[0]] = 1
+            elif "鬼晶" in row[1]:  # 吃鸡附魔
+                enchantDict[row[0]] = 2
+            elif "龙血磨石" in row[1]:
+                enchantDict[row[0]] = 2
+            elif "残卷" in row[1]:  # 裤子大附魔
+                enchantDict[row[0]] = 11
+            elif "玉简" in row[1]:  # 裤子大附魔
+                enchantDict[row[0]] = 12
+
+    # 读取五彩石等级
+    colorDict = {}
+
+    with open('equip/resources/Other.tab')as f:
+        f_csv = csv.reader(f, delimiter='\t')
+        lvl = 0
+        for row in f_csv:
+            if "壹" in row[1]:
+                colorDict[row[0]] = 1
+            elif "贰" in row[1]:
+                colorDict[row[0]] = 2
+            elif "叁" in row[1]:
+                colorDict[row[0]] = 3
+            elif "肆" in row[1]:
+                colorDict[row[0]] = 4
+            elif "伍" in row[1]:
+                colorDict[row[0]] = 5
+            elif "陆" in row[1]:
+                colorDict[row[0]] = 6
+
+    # 输出python文件
     g = open("equip/EquipmentType.py", "w", encoding='utf-8')
     text = """# [Auto-Generated File]
-EQUIPMENT_TYPE = %s"""%str(resultDict)
+EQUIPMENT_TYPE = %s
+ENCHANT_TYPE = %s
+COLOR_TYPE = %s"""%(str(resultDict), str(enchantDict), str(colorDict))
     g.write(text)
     g.close()
 

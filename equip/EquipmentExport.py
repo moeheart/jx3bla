@@ -735,24 +735,35 @@ class EquipmentAnalyser():
                 # 获取五彩石
                 if "plug0" in equip:
                     colorID = equip["plug0"]
-                    plugColor = 0
+                    if colorID in COLOR_TYPE:
+                        plugColor = COLOR_TYPE[colorID]
+                    else:
+                        plugColor = 0
 
                 id = int(key)
                 # 获取小附魔
                 if equip["magic1"] not in [0, "0", ""]:
-                    magic1[id] = 1
-                    # TODO 判断伏魔是蓝色还是紫色
+                    if equip["magic1"] in ENCHANT_TYPE and ENCHANT_TYPE[equip["magic1"]] == 2:
+                        magic1[id] = 2
+                    else:
+                        magic1[id] = 1
 
                 if equip["magic2"] not in [0, "0", ""]:
                     magic2[id] = 1
+                    if equip["magic2"] in ENCHANT_TYPE and ENCHANT_TYPE[equip["magic2"]] == 12:
+                        magic2[id] = 2
 
-        magic1Sum = 0
+        magic1Sum2 = 0
+        magic1Sum1 = 0
         for i in [2,4,6,7,10,11,12,0]:
-            magic1Sum += magic1[i]
+            if magic1[i] == 2:
+                magic1Sum2 += 1
+            elif magic1[i] == 1:
+                magic1Sum1 += 1
 
         magic2Str = "%d%d%d%d%d%d"%(magic2[12], magic2[8], magic2[11], magic2[4], magic2[3], magic2[10])
 
-        result = "%d/%d-%d-%d/%d/%d-%d/%s"%(refine, plug[8], plug[7], plug[6], plugColor, magic1Sum, 0, magic2Str)
+        result = "%d/%d-%d-%d/%d/%d-%d/%s"%(refine, plug[8], plug[7], plug[6], plugColor, magic1Sum2, magic1Sum1, magic2Str)
         return result
     
     def getSketch(self, equips):

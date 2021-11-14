@@ -1,6 +1,8 @@
 # Created by moeheart at 09/03/2021
 # 复盘日志内容集合，主要包含复盘的全局数据与单条数据的通用形式，兼容jx3dat与jcl。
 
+from replayer.Name import *
+
 class SingleData():
     '''
     单条日志，包含全部形式。
@@ -301,6 +303,36 @@ class SingleDataScene(SingleData):
     def __init__(self):
         self.dataType = "Scene"
 
+class SingleDataCast(SingleData):
+    '''
+    施放技能事件，对应jx3dat-NaN, jcl-19
+    施放技能事件：
+      time: 毫秒数，对应jcl[4]
+      caster: 施放者ID，对应jcl[6][1]
+      id: 技能ID, 对应jcl[6][2]
+      level: 技能等级，对应jcl[6][3]
+    '''
+
+    def setByJcl(self, item):
+        '''
+        从jcl形式的item获取事件信息并记录.
+        params:
+        - item: jcl形式的事件信息.
+        '''
+        self.time = int(item[3])
+        self.caster = item[5]["1"]
+        self.id = item[5]["2"]
+        self.level = item[5]["3"]
+
+    def setByJx3dat(self, item):
+        '''
+        jx3dat暂无此记录.
+        '''
+        pass
+
+    def __init__(self):
+        self.dataType = "Cast"
+
 class NPCdata():
     '''
     单条NPC数据。玩家也属于特殊的NPC。
@@ -342,10 +374,16 @@ class OverallData():
         '''
         根据技能ID获取技能名.
         '''
+        full_id = full_id.strip('"')
+        lvl0_id = ','.join(full_id.split(',')[0:2])+',0'
         if full_id in self.skill:
             return self.skill[full_id]["1"].strip('"')
+        elif full_id in SKILL_NAME:
+            return SKILL_NAME[full_id]
+        elif lvl0_id in SKILL_NAME:
+            return SKILL_NAME[lvl0_id]
         else:
-            return full_id.strip('"')
+            return full_id
 
     def addPlayer(self, key, name, occ):
         '''

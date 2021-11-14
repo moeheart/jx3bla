@@ -473,7 +473,7 @@ class ActorProReplayer(ReplayerBase):
                             #print(self.bld.info.skill[event.full_id])
                             self.firstHitList[event.caster] = [event.time, self.bld.info.getSkillName(event.full_id), "", 0]
                         elif self.firstHitList[event.caster][1][0] == '#' and self.firstHitList[event.caster][2] == "":
-                            if self.bld.info.getSkillName(event.full_id)[0] != "#":
+                            if self.bld.info.getSkillName(event.full_id)[0] not in ["#", "1", "2"]:
                                 self.firstHitList[event.caster][2] = self.bld.info.getSkillName(event.full_id)
                                 self.firstHitList[event.caster][3] = event.time
                     
@@ -718,7 +718,7 @@ class ActorProReplayer(ReplayerBase):
             for name in self.firstHitList:
                 if self.firstHitList[name] == 0:
                     continue
-                if self.firstHitList[name][1][0] == "#" and self.firstHitList[name][2] == "":
+                if self.firstHitList[name][1][0] in ["#", "1", "2"] and self.firstHitList[name][2] == "":
                     continue
                 if earliestHit == 0 or self.firstHitList[name][0] < self.firstHitList[earliestHit][0]:
                     earliestHit = name

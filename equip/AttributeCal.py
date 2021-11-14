@@ -83,7 +83,7 @@ class AttributeCal():
                 magicID = equips[line]["magic%d"%i]
                 if magicID in ['', ' ', '0']:
                     continue
-                if magicID in ["11272"]:  # 鞋子大附魔
+                if magicID in ["11272"]:  # 治疗鞋大附魔
                     magicAttrib = {'atTherapyPowerBase': 241}
                 elif magicID in self.equipmentInfo.enchant:
                     magicAttribInfo = self.equipmentInfo.enchant[magicID]
