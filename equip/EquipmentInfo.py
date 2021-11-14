@@ -103,7 +103,7 @@ class EquipmentInfo():
 
         ATTRIB_PATH = 'equip/resources/Attrib.tab'
         first = True
-        with open(ATTRIB_PATH, 'r', encoding='utf-8') as f:
+        with open(ATTRIB_PATH, 'r', encoding='gbk') as f:
             for line in f:
                 if first:
                     first = False
@@ -113,7 +113,7 @@ class EquipmentInfo():
 
         ENCHANT_PATH = 'equip/resources/Enchant.tab'
         first = True
-        with open(ENCHANT_PATH, 'r', encoding='utf-8') as f:
+        with open(ENCHANT_PATH, 'r', encoding='gbk') as f:
             for line in f:
                 if first:
                     first = False
@@ -128,7 +128,7 @@ class EquipmentInfo():
 
         ITEM_PATH = 'equip/resources/item.txt'
         first = True
-        with open(ITEM_PATH, 'r', encoding='utf-8') as f:
+        with open(ITEM_PATH, 'r', encoding='gbk') as f:
             for line in f:
                 if first:
                     first = False
@@ -143,7 +143,7 @@ class EquipmentInfo():
 
         OTHER_PATH = 'equip/resources/Other.tab'
         first = True
-        with open(OTHER_PATH, 'r', encoding='utf-8') as f:
+        with open(OTHER_PATH, 'r', encoding='gbk') as f:
             for line in f:
                 if first:
                     first = False
@@ -154,7 +154,7 @@ class EquipmentInfo():
 
         SET_PATH = 'equip/resources/Set.tab'
         first = True
-        with open(SET_PATH, 'r', encoding='utf-8') as f:
+        with open(SET_PATH, 'r', encoding='gbk') as f:
             for line in f:
                 if first:
                     first = False
