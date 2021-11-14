@@ -249,7 +249,7 @@ class FileSelector():
             button = tk.Checkbutton(frame, text=fileName, variable=var, onvalue=1, offvalue=0)
             self.vars.append(var)
             self.buttons.append(button)
-            button.grid(row=i, column=0)
+            button.grid(row=numFile-i, column=0, sticky='w')
 
         buttonFinal = tk.Button(window, text='选择完成', width=10, height=1, command=self.final)
         buttonFinal.place(x=220, y=570)
@@ -269,6 +269,4 @@ class FileSelector():
         self.basepath = self.fileLookUp.initFromConfig(config)
         self.dataType = self.fileLookUp.dataType
         self.mainWindow = mainWindow
-        print("[Debug]")
-        print(self.basepath)
 

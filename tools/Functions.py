@@ -340,7 +340,7 @@ def getColor(occ):
                  "24": (195, 171, 227),#蓬莱
                  "25": (161, 9, 34),#凌雪
                  "211": (166, 83, 251),#衍天
-                 "212": (0, 0, 0),#药宗
+                 "212": (0, 172, 153),#药宗
                 }
     res = (0, 0, 0)
     if occ in colorDict:
@@ -441,7 +441,7 @@ def checkOccDetailBySkill(default, skillID, damage):
         return '21t'
     elif skillID in ["14067", "14298", "14302"]:
         return '22d'
-    elif skillID in ["14231", "14140", "14301"]:
+    elif skillID in ["14231", "14140", "14301", "14137", "14300"]:
         return '22h'
     elif skillID in ["27551", "27554", "28081"]:
         return '212d'

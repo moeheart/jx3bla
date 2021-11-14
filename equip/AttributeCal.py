@@ -69,7 +69,8 @@ class AttributeCal():
                 if plugLvl != 0:
                     sumPlug += 1
                     sumPlugLvl += plugLvl
-                plugRate = [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.2, 1.55][plugLvl]
+                # plugRate = [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.2, 1.55][plugLvl]
+                plugRate = [0, 0.19, 0.39, 0.585, 0.78, 0.975, 1.17, 1.75, 2.6][plugLvl]
                 plugID = feature['DiamondAttributeID%d'%i]
                 if plugID == 0 or plugLvl == 0:
                     continue

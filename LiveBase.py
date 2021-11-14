@@ -67,13 +67,13 @@ class ToolTip(object):
             if line[0] == "-":
                 fg = "#ff0000"
             elif line[0] == "+":
-                fg = "#00ff00"
+                fg = "#007700"
             else:
                 fg = "#000000"
             label = tk.Label(tf, text=line, fg=fg, justify=tk.LEFT,
                           background="#ffffe0", anchor='nw', 
                           font=("Aaril", "10", "normal"))
-            label.pack(anchor = tk.NW)
+            label.pack(anchor=tk.NW)
  
     def hidetip(self):
         tw = self.tipwindow

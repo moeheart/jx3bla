@@ -31,6 +31,7 @@ class Config():
     items_general = {}
     items_xiangzhi = {}
     items_actor = {}
+    items_lingsu = {}
     items_user = {}
     
     def getUserInfo(self):
@@ -41,7 +42,7 @@ class Config():
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
         resp = urllib.request.urlopen('http://139.199.102.41:8009/getUserInfo', data=jparse)
         res = json.load(resp)
-        # res = {"item1": 0, "item2": 0, "item3": 0, "item4": 0, "exp": 0, "score": 0, "lvl": 0, "exist": 1}# TODO: 联机版中fix this
+        # res = {"item1": 0, "item2": 0, "item3": 0, "item4": 0, "exp": 0, "score": 0, "lvl": 0, "exist": 1}
         
         if res['exist'] == 0:
             messagebox.showinfo(title='错误', message='用户唯一标识出错，将重新生成并清除用户数据。如果遇到问题，请联系作者。')
@@ -87,15 +88,15 @@ class Config():
             self.basepath = self.items_general["basepath"]
             self.jx3path = self.items_general["jx3path"]
             self.xiangzhiname = self.items_xiangzhi["xiangzhiname"]
+            self.xiangzhiActive = int(self.items_xiangzhi["active"])
+            self.speed = int(self.items_xiangzhi["speed"])
+            self.xiangzhiPublic = int(self.items_xiangzhi["public"])
             self.mask = int(self.items_general["mask"])
             self.color = int(self.items_general["color"])
-            self.speed = int(self.items_xiangzhi["speed"])
             self.text = int(self.items_general["text"])
-            self.xiangzhiActive = int(self.items_xiangzhi["active"])
             self.actorActive = int(self.items_actor["active"])
             self.checkAll = int(self.items_actor["checkall"])
             self.failThreshold = int(self.items_actor["failthreshold"])
-            self.xiangzhiPublic = int(self.items_xiangzhi["public"])
             self.qualifiedRate = float(self.items_actor["qualifiedrate"])
             self.alertRate = float(self.items_actor["alertrate"])
             self.bonusRate = float(self.items_actor["bonusrate"])
@@ -107,14 +108,6 @@ class Config():
                 self.edition = self.items_general["edition"]
             else:
                 self.edition = EDITION
-            # if "uploadtianti" in self.items_actor:
-            #     self.uploadTianti = int(self.items_actor["uploadtianti"])
-            # else:
-            #     self.uploadTianti = 1
-            # if "plugindetail" in self.items_actor:
-            #     self.plugindetail = int(self.items_actor["plugindetail"])
-            # else:
-            #     self.plugindetail = 1
             if "uuid" in self.items_user:
                 self.userUuid = self.items_user["uuid"]
             else:
@@ -134,7 +127,24 @@ class Config():
                 self.xiangzhiCalTank = int(self.items_xiangzhi["caltank"])
             else:
                 self.xiangzhiCalTank = 0
-                
+
+            if "active" in self.items_lingsu:
+                self.lingsuActive = int(self.items_lingsu["active"])
+            else:
+                self.lingsuActive = 1
+            if "speed" in self.items_lingsu:
+                self.lingsuSpeed = int(self.items_lingsu["speed"])
+            else:
+                self.lingsuSpeed = 8780
+            if "public" in self.items_lingsu:
+                self.lingsuPublic = int(self.items_lingsu["public"])
+            else:
+                self.lingsuPublic = 1
+            if "speedforce" in self.items_lingsu:
+                self.lingsuSpeedForce = int(self.items_lingsu["speedforce"])
+            else:
+                self.lingsuSpeedForce = 0
+
             self.getUserInfo()
                 
             assert self.mask in [0, 1]
@@ -145,8 +155,6 @@ class Config():
             assert self.checkAll in [0, 1]
             assert self.qualifiedRate <= self.alertRate
             assert self.alertRate <= self.bonusRate
-            # assert self.uploadTianti in [0, 1]
-            # assert self.plugindetail in [0, 1]
         except:
             raise Exception("配置文件格式不正确，请确认。如无法定位问题，请删除config.ini，在生成的配置文件的基础上进行修改。")
 
@@ -183,7 +191,13 @@ bonusrate=1.20
 
 [UserAnalysis]
 uuid=
-id="""%EDITION)
+id=
+
+[LingSuAnalysis]
+active=1
+speed=8780
+public=1
+speedforce=0"""%EDITION)
         g.close()
         pass
         
@@ -220,11 +234,17 @@ bonusrate=%s
 
 [UserAnalysis]
 uuid=%s
-id=%s"""%(self.playername, self.jx3path, self.basepath, self.mask, self.color, self.text, self.datatype, EDITION,
+id=%s
+
+[LingSuAnalysis]
+active=%d
+speed=%s
+public=%d
+speedforce=%d"""%(self.playername, self.jx3path, self.basepath, self.mask, self.color, self.text, self.datatype, EDITION,
         self.xiangzhiActive, self.xiangzhiname, self.speed, self.xiangzhiPublic, self.xiangzhiSpeedForce, self.xiangzhiCalTank,
         self.actorActive, self.checkAll, self.failThreshold, self.qualifiedRate, self.alertRate, self.bonusRate,
-        self.userUuid, self.userId))
-        
+        self.userUuid, self.userId,
+        self.lingsuActive, self.lingsuSpeed, self.lingsuPublic, self.lingsuSpeedForce))
         g.close()
         pass
 
@@ -273,6 +293,10 @@ id=%s"""%(self.playername, self.jx3path, self.basepath, self.mask, self.color, s
                     self.items_user = dict(cf.items("UserAnalysis"))
                 else:
                     self.items_user = {"uuid": "", "id": ""}
+                if cf.has_option("LingSuAnalysis", "active"):
+                    self.items_lingsu = dict(cf.items("LingSuAnalysis"))
+                else:
+                    self.items_lingsu = {}
                 self.checkItems()
             except:
                 cf = configparser.ConfigParser()
@@ -284,6 +308,10 @@ id=%s"""%(self.playername, self.jx3path, self.basepath, self.mask, self.color, s
                     self.items_user = dict(cf.items("UserAnalysis"))
                 else:
                     self.items_user = {"uuid": "", "id": ""}
+                if cf.has_option("LingSuAnalysis", "active"):
+                    self.items_lingsu = dict(cf.items("LingSuAnalysis"))
+                else:
+                    self.items_lingsu = {}
                 self.checkItems()
                 
 class LicenseWindow():
@@ -580,9 +608,11 @@ class ConfigWindow():
         self.config.qualifiedRate = self.entry3_4.get()
         self.config.alertRate = self.entry3_5.get()
         self.config.bonusRate = self.entry3_6.get()
-        # self.config.uploadTianti = self.var3_7.get()
-        # self.config.plugindetail = self.var3_8.get()
         self.config.userId = self.userId
+        self.config.lingsuActive = self.var5_1.get()
+        self.config.lingsuSpeed = self.entry5_2.get()
+        self.config.lingsuPublic = self.var5_3.get()
+        self.config.lingsuSpeedForce = self.var5_4.get()
         self.config.printSettings()
         self.window.destroy()
         
@@ -660,6 +690,7 @@ class ConfigWindow():
         frame2 = tk.Frame(notebook)
         frame3 = tk.Frame(notebook)
         frame4 = tk.Frame(notebook)
+        frame5 = tk.Frame(notebook)
         
         self.label1_1 = tk.Label(frame1, text='玩家ID')
         self.entry1_1 = tk.Entry(frame1, show=None)
@@ -812,9 +843,24 @@ class ConfigWindow():
             self.button4_4_5.grid(row=3, column=2)
         self.label4_5_1.grid(row=4, column=0)
         self.frame4_5.grid(row=4, column=1)
+
+        self.var5_1 = tk.IntVar(window)
+        self.cb5_1 = tk.Checkbutton(frame5, text = "启用灵素复盘", variable = self.var5_1, onvalue=1, offvalue=0)
+        self.label5_2 = tk.Label(frame5, text='加速')
+        self.entry5_2 = tk.Entry(frame5, show=None)
+        self.var5_3 = tk.IntVar(window)
+        self.cb5_3 = tk.Checkbutton(frame5, text="分享结果", variable = self.var5_3, onvalue=1, offvalue=0)
+        self.cb5_1.grid(row=0, column=0)
+        self.cb5_3.grid(row=2, column=0)
+        self.var5_4 = tk.IntVar(window)
+        self.cb5_4 = tk.Checkbutton(frame5, text="强制指定", variable=self.var5_4, onvalue=1, offvalue=0)
+        self.label5_2.grid(row=1, column=0)
+        self.entry5_2.grid(row=1, column=1)
+        self.cb5_4.grid(row=1, column=2)
         
         notebook.add(frame1, text='全局')
         notebook.add(frame2, text='奶歌')
+        notebook.add(frame5, text='灵素')
         notebook.add(frame3, text='演员')
         notebook.add(frame4, text='用户')
         notebook.pack(padx=10, pady=5, fill=tk.BOTH, expand=True)
@@ -843,7 +889,11 @@ class ConfigWindow():
         # self.init_checkbox(self.cb3_7, config.uploadTianti)
         # self.init_checkbox(self.cb3_8, config.plugindetail)
         self.userId = config.userId
-        self.entry4_2.insert(0, config.userId) 
+        self.entry4_2.insert(0, config.userId)
+        self.init_checkbox(self.cb5_1, config.lingsuActive)
+        self.entry5_2.insert(0, config.lingsuSpeed)
+        self.init_checkbox(self.cb5_3, config.lingsuPublic)
+        self.init_checkbox(self.cb5_4, config.lingsuSpeedForce)
         
         ToolTip(self.label1_1, "在当前电脑上线的角色的ID，同时也是记录者。\n通常情况下，只需要指定此项。\n如果指定了基准路径，则无需指定此项。")
         ToolTip(self.label1_2, "剑三路径，一般是名为JX3的文件夹，其下应当有Games文件夹或bin文件夹。\n在自动获取路径失败时，需要指定此项，这通常是由于剑三客户端本身或者安装的方式异于常人。\n指定此项时，必须指定角色名。\n如果指定了基准路径，则无需指定此项。")
@@ -855,8 +905,7 @@ class ConfigWindow():
         ToolTip(self.rb1_7_1, "jcl格式，是茗伊团队工具的结果记录。这种记录结构轻巧，且拥有更全面的数据，但没有技能名等固定的信息。\n开启步骤：\n1. 在茗伊插件集-团队-团队工具中，勾选[xxx]\n2. 点击旁边的小齿轮，勾选[xxx]")
         ToolTip(self.rb1_7_2, "jx3dat格式，是茗伊战斗统计的结果记录。这种记录无需依赖全局信息，但没有部分数据种类。\n开启步骤：\n1. 在茗伊战斗统计的小齿轮中，勾选[记录所有复盘数据]。\n2. 按Shift点开历史页面，勾选[退出游戏时保存复盘][脱离战斗时保存复盘]，并取消[不保存历史复盘数据]。\n3. 再次按Shift点开历史页面，点击[仅在秘境中启用复盘]2-3次，使其取消。")
         ToolTip(self.cb2_1, "奶歌复盘的总开关。如果关闭，则将跳过整个奶歌复盘。")
-        #ToolTip(self.label2_2, "奶歌的ID，通常在战斗中有多个奶歌时需要指定。")
-        ToolTip(self.label2_3, "奶歌的加速等级。用于在复盘中的装备信息获取失败的情况下手动指定奶歌的加速。")
+        ToolTip(self.label2_3, "奶歌的加速等级。用于在复盘中的装备信息获取失败的情况下手动指定加速。")
         ToolTip(self.cb2_4, "是否将复盘数据设置为公开。\n在之后的版本中，可以通过网站浏览所有公开的数据。")
         ToolTip(self.cb2_6, "是否强制指定加速为设置的值。\n这是用来处理配装信息不准的情况，例如小药、家园酒的增益。")
         ToolTip(self.cb2_7, "是否统计T心法的覆盖率。\n多数情况下，统计T心法的覆盖率会使数据略微变差。")
@@ -873,6 +922,10 @@ class ConfigWindow():
         ToolTip(self.label4_3, "玩家的积分。积分可用于中级、高级评价的消耗，或是在活动中兑换实物奖品。")
         ToolTip(self.label4_4, "玩家的经验值。当经验值满足升级条件时即可升级，升级后会获得一些道具奖励，并且解锁部分额外功能。")
         ToolTip(self.label4_5_1, "玩家的道具数量。")
+        ToolTip(self.cb5_1, "灵素复盘的总开关。如果关闭，则将跳过整个灵素复盘。")
+        ToolTip(self.label5_2, "灵素的加速等级。用于在复盘中的装备信息获取失败的情况下手动指定加速。")
+        ToolTip(self.cb5_3, "是否将复盘数据设置为公开。\n在之后的版本中，可以通过网站浏览所有公开的数据。")
+        ToolTip(self.cb5_4, "是否强制指定加速为设置的值。\n这是用来处理配装信息不准的情况，例如小药、家园酒的增益。")
         
         self.entry1_1.bind('<Button-1>', self.clear_basepath)
         self.entry1_2.bind('<Button-1>', self.clear_basepath)

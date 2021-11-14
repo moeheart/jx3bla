@@ -50,7 +50,7 @@ XIANGZHI_QIXUE = {
     '22030':'无尽藏',
     '14464':'蔚风',
     '18382':'风入松',
-    '14286':'洞天',
+    '14286':'流霜',
     '14285':'殊曲',
     '14248':'寒酒',
     '14253':'犹香',
@@ -75,6 +75,11 @@ XIANGZHI_QIXUE = {
     '25235':'不器',
     '25236':'古道',
     '25229':'游太清',
+    '28131':'祭子期',
+    '29069':'游羽',
+    '28248':'潋滟',
+    '29003':'敛意',
+    '28210':'江永',
 }
 
 def getXiangZhiQixue(id):
@@ -265,6 +270,9 @@ class XiangZhiProWindow():
         tb.AppendContext("首领：", justify="right")
         tb.AppendContext(self.result["overall"]["boss"], color="#ff0000")
         tb.EndOfLine()
+        tb.AppendContext("人数：", justify="right")
+        tb.AppendContext("%.2f"%self.result["overall"].get("numPlayer", 0))
+        tb.EndOfLine()
         tb.AppendContext("战斗时长：", justify="right")
         tb.AppendContext(self.result["overall"]["sumTimePrint"])
         tb.EndOfLine()
@@ -286,8 +294,11 @@ class XiangZhiProWindow():
             tb.AppendContext("装备分数：", justify="right")
             tb.AppendContext("%d"%self.result["equip"]["score"])
             tb.EndOfLine()
-            tb.AppendContext("额外：", justify="right")
+            tb.AppendContext("详情：", justify="right")
             tb.AppendContext(self.result["equip"]["sketch"])
+            tb.EndOfLine()
+            tb.AppendContext("强化：", justify="right")
+            tb.AppendContext(self.result["equip"].get("forge", ""))
             tb.EndOfLine()
             tb.AppendContext("根骨：", justify="right")
             tb.AppendContext("%d"%self.result["equip"]["spirit"])
@@ -645,7 +656,7 @@ class XiangZhiProReplayer(ReplayerBase):
         主要处理全局信息，玩家列表等.
         '''
 
-        # 除玩家名外，所有的全局信息都可以在第一阶段直接获得
+        # 大部分全局信息都可以在第一阶段直接获得
         self.result["overall"] = {}
         self.result["overall"]["edition"] = "奶歌复盘pro v%s"%EDITION
         self.result["overall"]["playerID"] = "未知"
@@ -810,6 +821,7 @@ class XiangZhiProReplayer(ReplayerBase):
             res = adr.Display(strEquip, "22h")
             self.result["equip"]["score"] = int(self.bld.info.player[self.mykey].equipScore)
             self.result["equip"]["sketch"] = jsonEquip["sketch"]
+            self.result["equip"]["forge"] = jsonEquip["forge"]
             self.result["equip"]["spirit"] = res["根骨"]
             self.result["equip"]["heal"] = res["治疗"]
             self.result["equip"]["healBase"] = res["基础治疗"]
@@ -873,7 +885,9 @@ class XiangZhiProReplayer(ReplayerBase):
         numHealer = 0  # 治疗数量
         rateDict = {}  # 盾覆盖率
         breakDict = {}  # 破盾次数
+        battleTimeDict = {}  # 进战时间
         sumShield = 0  # 盾数量
+        sumPlayer = 0  # 玩家数量
 
         # 技能统计
         mhsnSkill = SkillCounter("14231", self.startTime, self.finalTime, self.haste)  # 梅花三弄
@@ -887,9 +901,11 @@ class XiangZhiProReplayer(ReplayerBase):
         xySkill = SkillHealCounter("21321", self.startTime, self.finalTime, self.haste)  # 相依
         shangBuffDict = {}
         jueBuffDict = {}
+        battleDict = {}
         for line in self.bld.info.player:
-            shangBuffDict[line] = BuffCounter("9459", self.startTime, self.finalTime) # 商，9460=殊曲，9461=洞天
-            jueBuffDict[line] = BuffCounter("9463", self.startTime, self.finalTime) # 角，9460=殊曲，9461=洞天
+            shangBuffDict[line] = BuffCounter("9459", self.startTime, self.finalTime)  # 商，9460=殊曲，9461=洞天
+            jueBuffDict[line] = BuffCounter("9463", self.startTime, self.finalTime)  # 角，9460=殊曲，9461=洞天
+            battleDict[line] = BuffCounter("0", self.startTime, self.finalTime)  # 战斗状态统计
         lastSkillTime = self.startTime
 
         # 杂项
@@ -1256,7 +1272,8 @@ class XiangZhiProReplayer(ReplayerBase):
                 pass
 
             elif event.dataType == "Battle":
-                pass
+                if event.id in self.bld.info.player:
+                    battleDict[event.id].setState(event.time, event.fight)
 
             num += 1
 
@@ -1338,6 +1355,13 @@ class XiangZhiProReplayer(ReplayerBase):
         # 计算DPS的盾指标
         for key in self.shieldCountersNew:
             sumShield += self.shieldCountersNew[key].countCast()
+            liveCount = battleDict[key].buffTimeIntegral()  # 存活时间比例
+            # print(self.bld.info.player[key].name, liveCount, battleDict[key].sumTime())
+            # print(battleDict[key].log)
+            if battleDict[key].sumTime() - liveCount < 8000:  # 脱战缓冲时间
+                liveCount = battleDict[key].sumTime()
+            battleTimeDict[key] = liveCount
+            sumPlayer += liveCount / battleDict[key].sumTime()
             # 过滤老板，T奶，自己
             if key not in damageDict or damageDict[key] / self.result["overall"]["sumTime"] * 1000 < 10000:
                 continue
@@ -1348,7 +1372,7 @@ class XiangZhiProReplayer(ReplayerBase):
             if key == self.mykey:
                 continue
             time1 = self.shieldCountersNew[key].buffTimeIntegral()
-            timeAll = self.shieldCountersNew[key].sumTime()
+            timeAll = liveCount
             rateDict[key] = time1 / timeAll
             breakDict[key] = self.shieldCountersNew[key].countBreak()
 
@@ -1367,11 +1391,13 @@ class XiangZhiProReplayer(ReplayerBase):
         numRate = 0
         sumRate = 0
         for key in rateDict:
-            numRate += 1
-            sumRate += rateDict[key]
+            numRate += battleTimeDict[key]
+            sumRate += rateDict[key] * battleTimeDict[key]
         overallRate = sumRate / (numRate + 1e-10)
 
         # 计算技能统计
+        self.result["overall"]["numPlayer"] = int(sumPlayer * 100) / 100
+
         self.result["skill"] = {}
         # 梅花三弄
         self.result["skill"]["meihua"] = {}
@@ -1412,8 +1438,8 @@ class XiangZhiProReplayer(ReplayerBase):
         sum = 0
         for key in shangBuffDict:
             singleDict = shangBuffDict[key]
-            num += 1
-            sum += singleDict.buffTimeIntegral() / singleDict.sumTime()
+            num += battleTimeDict[key]
+            sum += singleDict.buffTimeIntegral()
         self.result["skill"]["shang"]["cover"] = roundCent(sum / (num + 1e-10))
         # 角
         self.result["skill"]["jue"] = {}
@@ -1425,8 +1451,8 @@ class XiangZhiProReplayer(ReplayerBase):
         sum = 0
         for key in jueBuffDict:
             singleDict = jueBuffDict[key]
-            num += 1
-            sum += singleDict.buffTimeIntegral() / singleDict.sumTime()
+            num += battleTimeDict[key]
+            sum += singleDict.buffTimeIntegral()
         self.result["skill"]["jue"]["cover"] = roundCent(sum / (num + 1e-10))
         # 相依
         self.result["skill"]["xiangyi"] = {}

@@ -155,6 +155,9 @@ class SangQiaoReplayer(SpecificReplayerPro):
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
                 return
+
+            if event.id == "20163":
+                print("[Sangqiao]", event.id, event.level, event.stack, event.time, event.target, self.bld.info.player[event.target].name)
                     
         elif event.dataType == "Shout":
             return

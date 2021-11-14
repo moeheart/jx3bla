@@ -191,8 +191,12 @@ class SingleDataShout(SingleData):
         params:
         - item: jcl形式的事件信息.
         '''
+        # print("[JclDebug]", item)
         self.time = int(item[3])
-        self.content = item[5]["1"]
+        if "1" in item[5]:
+            self.content = item[5]["1"]
+        else:
+            self.content = ""
         self.id = item[5]["2"]
         self.name = item[5]["4"]
 
@@ -232,6 +236,10 @@ class SingleDataBattle(SingleData):
         self.time = int(item[3])
         self.id = item[5]["1"]
         self.fight = item[5]["2"]
+        if self.fight == "true":
+            self.fight = 1
+        elif self.fight == "false":
+            self.fight = 0
         self.hp = int(item[5]["3"])
         self.hpMax = int(item[5]["4"])
         self.mp = int(item[5]["5"])
@@ -246,6 +254,10 @@ class SingleDataBattle(SingleData):
         self.time = int(item["3"])
         self.id = item["6"]
         self.fight = item["7"]
+        if self.fight == "true":
+            self.fight = 1
+        elif self.fight == "false":
+            self.fight = 0
         self.hp = int(item["10"])
         self.hpMax = int(item["11"])
         self.mp = int(item["12"])
