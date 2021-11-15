@@ -187,6 +187,7 @@ class JuxingJianwenfengReplayer(SpecificReplayerPro):
         self.stat = {}
         self.hps = {}
         self.detail["boss"] = self.bossNamePrint
+        self.win = 0
         
         for line in self.bld.info.player:
             self.hps[line] = 0

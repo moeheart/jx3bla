@@ -200,8 +200,8 @@ class FileSelector():
             if (line[-6:] == self.dataType or line[-3:] == self.dataType) and line != "config.jx3dat":
                 optionList.append(line)
 
-        if len(optionList) > 30:
-            optionList = optionList[-30:]
+        if len(optionList) > 50:
+            optionList = optionList[-50:]
         return optionList
 
     def final(self):
@@ -233,7 +233,7 @@ class FileSelector():
         window.title('选择复盘记录')
         window.geometry('500x700')
 
-        canvas = tk.Canvas(window, width=400, height=500, scrollregion=(0, 0, 380, numFile * 30))  # 创建canvas
+        canvas = tk.Canvas(window, width=400, height=500, scrollregion=(0, 0, 380, numFile * 50))  # 创建canvas
         canvas.place(x=25, y=25)  # 放置canvas的位置
         frame = tk.Frame(canvas)  # 把frame放在canvas里
         frame.place(width=380, height=500)  # frame的长宽，和canvas差不多的

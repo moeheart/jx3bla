@@ -117,27 +117,43 @@ class XidaLuomoWindow(SpecificBossWindow):
             first = 1
             j += 1
             for i in range(len(wave)):
-                if first:
+                record = wave[i]
+                if first == 1:
                     tb.AppendContext("第%d组" % j)
+                    first = 2
+                elif first == 2:
+                    tb.AppendContext(record["time"])
                     first = 0
                 else:
                     tb.AppendContext("")
-                record = wave[i]
-                tb.AppendContext(record["time"])
                 label = ["白云", "小剑", "斧头", "钩子"][i]
                 tb.AppendContext(label)
+                num = 0
                 for line in record["log"]:
                     name = line[0]
                     color = getColor(line[1])
                     tb.AppendContext(name, color=color)
-                    tb.AppendContext(line[2])
-                    tb.AppendContext(line[3])
-                    tb.AppendContext(line[4])
-                tb.AppendContext(record["vanish"])
+                    color3 = "#000000"
+                    p = int(line[3][:-1])
+                    if p < 40:
+                        color3 = "#ff0000"
+                    tb.AppendContext(line[2], color=color3)
+                    tb.AppendContext(line[3], color=color3)
+                    tb.AppendContext(line[4], color=color3)
+                    tb.AppendContext("|")
+                    num += 1
+                if num < 3:
+                    for k in range(3-num):
+                        tb.AppendContext("")
+                        tb.AppendContext("")
+                        tb.AppendContext("")
+                        tb.AppendContext("")
+                        tb.AppendContext("|")
                 if record["success"] == 0:
-                    tb.AppendContext("消失")
+                    tb.AppendContext("消灭")
                 else:
-                    tb.AppendContext("生命反哺运功成功")
+                    tb.AppendContext("回血", color="#ff0000")
+                tb.AppendContext(record["vanish"])
                 tb.EndOfLine()
 
         frame3 = tk.Frame(window)
