@@ -109,7 +109,7 @@ class XidaLuomoWindow(SpecificBossWindow):
         frame2 = tk.Frame(window)
         frame2.pack()
         tb = TableConstructorMeta(self.config, frame2)
-        tb.AppendHeader("灵虫打断复盘", "打断复盘测试中，结果仅供参考。标记需要使用南宫伯/浅歌的DBM，如果不是的话标记可能不对应。")
+        tb.AppendHeader("灵虫打断复盘", "打断复盘测试中，结果仅供参考。\n标记需要使用南宫伯/浅歌的DBM，如果不是的话标记可能不对应。\n每个区域分别代表：打断者ID，打断时间，打断时灵虫读条百分比，打断技能。")
         tb.EndOfLine()
 
         j = 0
