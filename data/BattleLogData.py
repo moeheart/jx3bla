@@ -4,6 +4,7 @@
 from data.DataContent import *
 from tools.LoadData import *
 from tools.Names import *
+from tools.Functions import *
 
 class RawDataLoader():
     '''
@@ -40,6 +41,11 @@ class RawDataLoader():
             bld.loadFromJx3dat(name)
         else:
             raise Exception("未知的数据类型")
+
+        if self.window.lastBld is not None:
+            bld.merge(self.window.lastBld)  # 融合上次的记录
+            self.window.lastBld = None
+
         return bld
 
     def __init__(self, config, filelist, path, window=None, bldDict={}):
@@ -122,6 +128,7 @@ class BattleLogData():
                         self.info.server = jclItem[5]["2"].split(':')[2].split('_')[1]  # 分隔符为两个冒号
                         self.info.battleTime = int(jclItem[5]["2"].split(':')[4])
                         firstBattleInfo = False
+                        self.info.sumTime = 0
                     else:
                         self.info.sumTime = int(jclItem[5]["3"])
                 elif jclItem[4] == "4":
@@ -209,6 +216,31 @@ class BattleLogData():
                 continue
             singleData.setByJx3dat(value)
             self.log.append(singleData)
+
+    def merge(self, bld2):
+        '''
+        将另一条战斗复盘记录合并到自身的前方.
+        params:
+        - bld2: 需要融合的战斗记录
+        returns:
+        - 融合结果, 0代表成功
+        '''
+        if self.dataType != bld2.dataType:
+            return 1
+        if self.info.server != bld2.info.server:
+            return 1
+        if self.info.map != bld2.info.map:
+            return 1
+        if self.info.boss != bld2.info.boss:
+            return 1
+
+        self.info.battleTime = bld2.info.battleTime
+        self.info.sumTime += bld2.info.sumTime
+        self.info.skill = concatDict(self.info.skill, bld2.info.skill)
+        self.info.player = concatDict(self.info.player, bld2.info.player)
+        self.info.npc = concatDict(self.info.npc, bld2.info.npc)
+        self.log = bld2.log + self.log
+        return 0
 
     def __init__(self, window=None):
         self.log = []

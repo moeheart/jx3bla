@@ -144,9 +144,9 @@ class MainWindow():
         replayFileNameList = [x[0] for x in replayFileList]
         self.liveListener.getAllBattleLog(fileLookUp.basepath, replayFileNameList)
 
-        # controller.replay(self) # 此处将MainWindow类本身传入
-        self.setNotice({"t1": "复盘完成！", "c1": "#000000"})
-        self.show_history()
+        if not self.analyser.checkEmpty():
+            self.setNotice({"t1": "复盘完成！", "c1": "#000000"})
+            self.show_history()
 
         #self.checkAttendence()
 
@@ -392,6 +392,7 @@ class MainWindow():
         self.notifier = Notifier()  # 用于win10的通知窗口
         self.dataType = "jx3dat"  # 数据种类，jx3dat为茗伊战斗统计的结果，jcl为茗伊团队工具的子功能
         self.liveListener = None  # 实时模式数据存储，初始时默认为空
+        self.lastBld = None  # 中断的战斗记录，默认为空
         
 if __name__ == "__main__":
     mainWindow = MainWindow()

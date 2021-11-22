@@ -193,6 +193,8 @@ class ActorProReplayer(ReplayerBase):
         self.finalTime = self.bld.log[-1].time
         # 使用数据本身提供的战斗时间
         self.battleTime = self.bld.info.sumTime  # self.finalTime - self.startTime
+        if self.battleTime == 0:
+            self.battleTime = self.finalTime - self.startTime
 
         timeReseted = 0
 
@@ -255,7 +257,6 @@ class ActorProReplayer(ReplayerBase):
                 if event.caster in occDetailList and occDetailList[event.caster] in ['1', '2', '3', '4', '5', '6', '7', '10',
                                                                            '21', '22', '212']:
                     occDetailList[event.caster] = checkOccDetailBySkill(occDetailList[event.caster], event.id, event.damageEff)
-
 
                     
             elif event.dataType == "Buff":
@@ -582,13 +583,14 @@ class ActorProReplayer(ReplayerBase):
                     if state2 > 0:
                         deathSourceDetail.append("重伤时debuff精神匮乏：%d层"%state2)
 
-                    self.bossAnalyser.addPot([self.bld.info.player[event.id].name,
-                                              occDetailList[event.id],
-                                              severe,
-                                              self.bossNamePrint,
-                                              "%s重伤，来源：%s" % (deathTime, deathSource),
-                                              deathSourceDetail,
-                                              0])
+                    if self.bossAnalyseName != "月泉淮" or deathSource != "未知":  # 排除月泉淮的自绝统计
+                        self.bossAnalyser.addPot([self.bld.info.player[event.id].name,
+                                                  occDetailList[event.id],
+                                                  severe,
+                                                  self.bossNamePrint,
+                                                  "%s重伤，来源：%s" % (deathTime, deathSource),
+                                                  deathSourceDetail,
+                                                  0])
 
                     # 对有重伤统计的BOSS进行记录
                     if self.bossAnalyser.activeBoss in []:
@@ -606,29 +608,12 @@ class ActorProReplayer(ReplayerBase):
         self.startTime, self.finalTime, self.battleTime = self.bossAnalyser.trimTime()
         self.battleTime += 1e-10  # 防止0战斗时间导致错误
 
-        effectiveDPSList = []
-        
-        # calculDPS = 1
         recordGORate = 0
 
-        #if self.bossAnalyser.activeBoss in ["胡汤&罗芬", "赵八嫂", "海荼", "姜集苦", "宇文灭", "宫威", "宫傲"]:
         effectiveDPSList, potList, detail = self.bossAnalyser.getResult()
         self.potList = potList
-        # calculDPS = 0
         self.win = self.bossAnalyser.win
         recordGORate = 1
-                                       
-        # if calculDPS:
-        #     bossResult = []
-        #     for line in self.bld.info.player:
-        #         if line in self.dps:
-        #             dps = int(self.dps[line][0] / self.battleTime * 1000)
-        #             bossResult.append([self.bld.info.player[line].name,
-        #                                occDetailList[line],
-        #                                dps
-        #                                ])
-        #     bossResult.sort(key = lambda x:-x[2])
-        #     effectiveDPSList = bossResult
 
         sumDPS = 0
         numDPS = 0
@@ -668,8 +653,6 @@ class ActorProReplayer(ReplayerBase):
                     occ = str(line[1])
                     if occ not in resultDict:
                         resultDict[occ] = ["xx", "xx", 50000]
-                    #if occ[-1] in ["d", "h", "t", "p", "m"]:
-                    #    occ = occ[:-1]
                     GORate = line[2] / (sumDPS + 1e-10) * sumStandardDPS / (resultDict[occ][2] + 1e-10)
                     
                     occDPS = resultDict[occ][2]
@@ -766,6 +749,10 @@ class ActorProReplayer(ReplayerBase):
                 
         detail["win"] = self.win
         if "boss" not in detail:
+            detail["boss"] = ""
+        if self.bossAnalyseName not in ["", "未知"]:
+            detail["boss"] = self.bossAnalyseName
+        elif detail["boss"] == "":
             detail["boss"] = self.bossname
 
         # self.data = data
@@ -790,47 +777,15 @@ class ActorProReplayer(ReplayerBase):
             self.bh = self.bossAnalyser.bh
         else:
             self.bh = None
-        
-        # print(self.potList)
-        # for line in effectiveDPSList:
-        #    print(line)
-        # print(detail)
 
-    # def generateWindow(self):
-    #     '''
-    #     生成复盘对应的窗口.
-    #     returns:
-    #     - res: 复盘窗口类，继承自SpecificBossWindow
-    #     '''
-    #
-    #     # if self.bossAnalyseName == "胡汤&罗芬":
-    #     #     bossAnalyser = HuTangLuoFenReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
-    #     # elif self.bossAnalyseName == "赵八嫂":
-    #     #     bossAnalyser = ZhaoBasaoReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
-    #     # elif self.bossAnalyseName == "海荼":
-    #     #     bossAnalyser = HaiTuReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
-    #     # elif self.bossAnalyseName == "姜集苦":
-    #     #     bossAnalyser = JiangJikuReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
-    #     # elif self.bossAnalyseName == "宇文灭":
-    #     #     bossAnalyser = YuwenMieReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
-    #     # elif self.bossAnalyseName == "宫威":
-    #     #     bossAnalyser = GongWeiReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
-    #     # elif self.bossAnalyseName == "宫傲":
-    #     #     bossAnalyser = GongAoReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
-    #     # else:
-    #     #     bossAnalyser = SpecificReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
-    #
-    #     if self.bossAnalyseName == "赵八嫂":
-    #         bossWindow = ZhaoBaSaoWindow(self.effectiveDPSList, self.detail)
-    #     elif self.bossAnalyseName == "姜集苦":
-    #         bossWindow = JiangJikuWindow(self.effectiveDPSList, self.detail)
-    #     elif self.bossAnalyseName == "宫威":
-    #         bossWindow = GongWeiWindow(self.effectiveDPSList, self.detail)
-    #     elif self.bossAnalyseName == "巨型尖吻凤":
-    #         bossWindow = JuxingJianwenfengWindow(self.effectiveDPSList, self.detail)
-    #     else:
-    #         bossWindow = GeneralWindow(self.effectiveDPSList, self.detail)
-    #     return bossWindow
+        # BOSS名称回流
+        if self.bossAnalyseName not in ["", "未知"] and self.bld.info.boss != self.bossAnalyseName:
+            self.bld.info.boss = self.bossAnalyseName
+
+        # 月泉淮中间分片
+        if self.detail["boss"] == "月泉淮":
+            if self.bossAnalyser.yqhInterrupt:
+                self.available = False  # 进行分片
 
     def ThirdStageAnalysis(self):
         '''
@@ -901,6 +856,7 @@ class ActorProReplayer(ReplayerBase):
         self.detail = {"boss": "未知"}
         self.effectiveDPSList = []
         self.equipmentDict = {}
+        self.available = True  # 暂时用来判定月泉淮中间分片
 
 
 #TODO 重构，想办法移除

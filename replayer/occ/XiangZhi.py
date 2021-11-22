@@ -1030,6 +1030,7 @@ class XiangZhiProReplayer(ReplayerBase):
                                "22211",  # 治疗衣服大附魔
                                "15091",  # 阳春添加状态切换buff
                                "9007",  # 后跳 (TODO) 统计各种后跳
+                               "26731",  # 不器
                                ]
         xiangZhiSpecial = ["20763", "20764", "21321",  # 相依
                            "15039", # 传影子

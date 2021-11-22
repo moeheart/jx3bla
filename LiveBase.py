@@ -152,7 +152,7 @@ class CommentWindow():
         
     def start(self):
         self.windowAlive = True
-        self.windowThread = threading.Thread(target = self.loadWindow)    
+        self.windowThread = threading.Thread(target=self.loadWindow)
         self.windowThread.start()
         
     def loadWindow(self):
@@ -331,34 +331,6 @@ class SingleBossWindow():
     单个BOSS复盘结果类。维护复盘结果的窗体，与简单的信息收集逻辑。
     '''
         
-    # def getColor(self, occ):
-    #     if occ[-1] in ['d', 't', 'h', 'p', 'm']:
-    #         occ = occ[:-1]
-    #     colorDict = {"0": (0, 0, 0),
-    #                  "1": (210, 180, 0),#少林
-    #                  "2": (127, 31, 223),#万花
-    #                  "4": (56, 175, 255),#纯阳
-    #                  "5": (255, 127, 255),#七秀
-    #                  "3": (160, 0, 0),#天策
-    #                  "8": (220, 220, 0),#藏剑
-    #                  "9": (205, 133, 63),#丐帮
-    #                  "10": (253, 84, 0),#明教
-    #                  "6": (63, 31, 159),#五毒
-    #                  "7": (0, 133, 144),#唐门
-    #                  "21": (180, 60, 0),#苍云
-    #                  "22": (100, 250, 180),#长歌
-    #                  "23": (71, 73, 166),#霸刀
-    #                  "24": (195, 171, 227),#蓬莱
-    #                  "25": (161, 9, 34),#凌雪
-    #                  "211": (166, 83, 251),#衍天
-    #                 }
-    #     res = (0, 0, 0)
-    #     if occ in colorDict:
-    #         res = colorDict[occ]
-    #     return "#%s%s%s"%(str(hex(res[0]))[-2:].replace('x', '0'),
-    #                       str(hex(res[1]))[-2:].replace('x', '0'),
-    #                       str(hex(res[2]))[-2:].replace('x', '0'))
-        
     def getPotColor(self, level):
         if level == 0:
             return "#777777"
@@ -452,12 +424,6 @@ class SingleBossWindow():
         if self.windowAlive:
             self.window.destroy()
             self.windowAlive = False
-
-        # 提醒奶歌复盘的代码，现在已废弃
-        # if "boss" in self.detail and self.detail["boss"] in ["岳琳&岳琅"] and "win" in self.detail and self.detail["win"] == 1:
-        #     if self.mainWindow.hasNoticeXiangzhi == 0:
-        #         self.mainWindow.hasNoticeXiangzhi = 1
-        #         self.mainWindow.NoticeXiangZhi()
                 
     def constructReplayByNum(self, num):
         '''
@@ -516,20 +482,6 @@ class SingleBossWindow():
         self.occResult = occResult
         self.hasDetail = 1
         if "boss" in detail:
-            # if detail["boss"] == "胡汤&罗芬":
-            #     self.specificBossWindow = HuTangLuoFenWindow(effectiveDPSList, detail)
-            # elif detail["boss"] == "赵八嫂":
-            #     self.specificBossWindow = ZhaoBasaoWindow(effectiveDPSList, detail)
-            # elif detail["boss"] == "海荼":
-            #     self.specificBossWindow = HaiTuWindow(effectiveDPSList, detail)
-            # elif detail["boss"] == "姜集苦":
-            #     self.specificBossWindow = JiangJikuWindow(effectiveDPSList, detail)
-            # elif detail["boss"] == "宇文灭":
-            #     self.specificBossWindow = YuwenMieWindow(effectiveDPSList, detail)
-            # elif detail["boss"] == "宫威":
-            #     self.specificBossWindow = GongWeiWindow(effectiveDPSList, detail)
-            # elif detail["boss"] == "宫傲":
-            #     self.specificBossWindow = GongAoWindow(effectiveDPSList, detail)
             if detail["boss"] == "胡汤&罗芬":
                 self.specificBossWindow = HuTangLuoFenWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             elif detail["boss"] == "赵八嫂":
@@ -598,10 +550,6 @@ class SingleBossWindow():
         self.nameList = []
 
         for i in range(len(self.potList)):
-            # if len(self.potList[i]) <= 6:
-            #     self.potListScore.append(self.potList[i] + [0])
-            #     self.scoreList.append(0)
-            # else:
             assert len(self.potList[i]) == 7
             self.scoreList.append(self.potList[i][6])
                 
@@ -693,12 +641,6 @@ class SingleBossWindow():
         self.windowAlive = False
         self.potExtendRunning = False
         self.potWindowActivated = False
-
-# class LiveActorStatGenerator(ActorStatGenerator):
-#
-#     def __init__(self, filename, config, path="", rawdata={}, myname="", failThreshold=0, battleDate="", mask=0, dpsThreshold={}, uploadTiantiFlag=0, window=None):
-#         super().__init__(filename, config, path, rawdata=rawdata, failThreshold=failThreshold,
-#             battleDate=battleDate, mask=mask, dpsThreshold=dpsThreshold, uploadTiantiFlag=uploadTiantiFlag, window=window)
             
 class PotContainer():
     '''
@@ -892,6 +834,9 @@ class LiveActorAnalysis():
         
     def getLastBossNum(self):
         return list(self.potContainer.pot.keys())[-1]
+
+    def checkEmpty(self):
+        return list(self.potContainer.pot.keys()) == []
     
     def __init__(self):
         #self.potListScore = []
@@ -913,10 +858,6 @@ class LiveListener():
         return
         - liveGenerator 实时复盘对象，用于后续处理流程。
         '''
-        # battleDate = '-'.join(fileName.split('-')[0:3])
-        # liveGenerator = LiveActorStatGenerator([fileName, 0, 1], self.config, basepath, rawdata=raw, failThreshold=self.config.failThreshold,
-        #         battleDate=battleDate, mask=self.config.mask, dpsThreshold=self.dpsThreshold, uploadTiantiFlag=self.config.uploadTianti, window=self.mainwindow)
-
         controller = DataController(self.config)
         if self.mainWindow.bldDict != {}:
             controller.setRawData(self.mainWindow.bldDict)
@@ -935,6 +876,10 @@ class LiveListener():
                 raise Exception("数据格式错误，请再次检查设置。如不能解决问题，尝试重启程序。")
                 
             actorRep.SecondStageAnalysis()
+            if not actorRep.available:
+                # 分片，记录
+                self.mainWindow.lastBld = actorRep.bld
+                return actorRep
             actorRep.ThirdStageAnalysis()
             
             self.analyser.setServer(actorRep.bld.info.server)
@@ -963,18 +908,12 @@ class LiveListener():
         - basepath 监控的路径
         - fileList 需要复盘的文件名列表.
         '''
-        # for fileName in rawData:
-        #     liveGenerator = self.getOneBattleLog(basepath, fileName, rawData[fileName])
-        #     potListScore = []
-        #     for i in range(len(liveGenerator.potList)):
-        #         if len(liveGenerator.potList[i]) <= 6:
-        #             potListScore.append(liveGenerator.potList[i] + [0])
-        #         else:
-        #             potListScore.append(liveGenerator.potList[i])
-        #
-        #     self.analyser.addResult(potListScore, self.bossNum, liveGenerator.effectiveDPSList, liveGenerator.detail)
+
         for file in fileList:
             actorRep = self.getOneBattleLog(basepath, file)
+            if not actorRep.available:
+                continue
+            #print("[Detail]", actorRep.detail)
             potListScore = []
             for i in range(len(actorRep.potList)):
                 if len(actorRep.potList[i]) <= 6:
@@ -991,7 +930,10 @@ class LiveListener():
         - lastFile: 新增的文件，通常是刚刚完成的战斗复盘
         '''
         actorRep = self.getOneBattleLog(basepath, lastFile)
-        
+        if not actorRep.available:
+            self.mainWindow.setNotice({"t1": "[%s]分析中断，等待完整记录..." % actorRep.bossname, "c1": "#000000"})
+            return
+
         if self.window is not None and self.window.alive():
             self.window.final()
         

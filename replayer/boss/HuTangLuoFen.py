@@ -199,6 +199,7 @@ class HuTangLuoFenReplayer(SpecificReplayerPro):
         
         if self.chengShang[1]["num"] > 0 and event.time - self.chengShang[1]["time"] > 4000:
             if self.mianfenFailFlag == 1:
+                tmp = {}
                 res = {"description": "面粉承伤失败", "time": parseTime((self.chengShang[1]["time"] - self.startTime)/1000), "player": [], "fail": []}
                 for line in self.chengShang[1]["player"]:
                     res["player"].append([line[1], line[2]])
