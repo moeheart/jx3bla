@@ -62,7 +62,10 @@ class YuequanHuaiWindow(SpecificBossWindow):
             text4 = "-"
             if self.effectiveDPSList[i][4] != -1:
                 text4 = int(self.effectiveDPSList[i][4])
-            tb.AppendContext(text4)
+            color4 = "#000000"
+            if "大橙武" in self.effectiveDPSList[i][5]:
+                color4 = "#ffcc00"
+            tb.AppendContext(text4, color=color4)
             
             tb.AppendContext(self.effectiveDPSList[i][5].split('|')[0])
             tb.AppendContext(self.effectiveDPSList[i][5].split('|')[1])

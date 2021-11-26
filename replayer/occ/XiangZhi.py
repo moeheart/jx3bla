@@ -292,7 +292,10 @@ class XiangZhiProWindow():
         else:
             tb = TableConstructor(self.config, frame2sub)
             tb.AppendContext("装备分数：", justify="right")
-            tb.AppendContext("%d"%self.result["equip"]["score"])
+            color4 = "#000000"
+            if "大橙武" in self.result["equip"]["sketch"]:
+                color4 = "#ffcc00"
+            tb.AppendContext("%d"%self.result["equip"]["score"], color=color4)
             tb.EndOfLine()
             tb.AppendContext("详情：", justify="right")
             tb.AppendContext(self.result["equip"]["sketch"])
