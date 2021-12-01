@@ -233,20 +233,23 @@ class FileSelector():
         window.title('选择复盘记录')
         window.geometry('500x700')
 
-        canvas = tk.Canvas(window, width=400, height=500, scrollregion=(0, 0, 380, numFile * 50))  # 创建canvas
+        canvas = tk.Canvas(window, width=450, height=500, scrollregion=(0, 0, 430, numFile * 50))  # 创建canvas
         canvas.place(x=25, y=25)  # 放置canvas的位置
         frame = tk.Frame(canvas)  # 把frame放在canvas里
-        frame.place(width=380, height=500)  # frame的长宽，和canvas差不多的
+        frame.place(width=430, height=500)  # frame的长宽，和canvas差不多的
         vbar = tk.Scrollbar(canvas, orient=tk.VERTICAL)  # 竖直滚动条
-        vbar.place(x=380, width=20, height=500)
+        vbar.place(x=430, width=20, height=500)
         vbar.configure(command=canvas.yview)
         canvas.config(yscrollcommand=vbar.set)  # 设置
-        canvas.create_window((165, numFile * 15), window=frame)  # create_window
+        canvas.create_window((190, numFile * 15), window=frame)  # create_window
 
         for i in range(numFile):
             fileName = self.optionList[i]
             var = tk.IntVar(window)
-            button = tk.Checkbutton(frame, text=fileName, variable=var, onvalue=1, offvalue=0)
+            showName = fileName
+            if len(showName) > 40:
+                showName = showName[:40]
+            button = tk.Checkbutton(frame, text=showName, variable=var, onvalue=1, offvalue=0)
             self.vars.append(var)
             self.buttons.append(button)
             button.grid(row=numFile-i, column=0, sticky='w')

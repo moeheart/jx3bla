@@ -458,9 +458,10 @@ class XiangZhiProWindow():
         frame5_8.place(x=540, y=100)
         text = "桑柔DPS：%d\n"%self.result["skill"]["general"]["SangrouDPS"]
         text = text + "庄周梦DPS：%d\n" % self.result["skill"]["general"]["ZhuangzhouDPS"]
+        text = text + "玉简DPS：%d\n" % self.result["skill"]["general"].get("YujianDPS", 0)
         text = text + "战斗效率：%s%%\n" % parseCent(self.result["skill"]["general"]["efficiency"])
         label = tk.Label(frame5_8, text=text, justify="left")
-        label.place(x=20, y=25)
+        label.place(x=20, y=20)
 
         # Part 6: 回放
 
@@ -881,7 +882,7 @@ class XiangZhiProReplayer(ReplayerBase):
         numAbsorb = 0
         npcHealStat = {}
         numPurge = 0 # 驱散次数
-        battleStat = {}  # 伤害占比统计，[无盾伤害，有盾伤害，桑柔伤害]
+        battleStat = {}  # 伤害占比统计，[无盾伤害，有盾伤害，桑柔伤害，玉简伤害]
         damageDict = {}  # 伤害统计
         healStat = {}  # 治疗统计
         myHealRank = 0  # 个人治疗量排名
@@ -905,10 +906,12 @@ class XiangZhiProReplayer(ReplayerBase):
         shangBuffDict = {}
         jueBuffDict = {}
         battleDict = {}
+        firstHitDict = {}
         for line in self.bld.info.player:
             shangBuffDict[line] = BuffCounter("9459", self.startTime, self.finalTime)  # 商，9460=殊曲，9461=洞天
             jueBuffDict[line] = BuffCounter("9463", self.startTime, self.finalTime)  # 角，9460=殊曲，9461=洞天
             battleDict[line] = BuffCounter("0", self.startTime, self.finalTime)  # 战斗状态统计
+            firstHitDict[line] = 0
         lastSkillTime = self.startTime
 
         # 杂项
@@ -1242,14 +1245,19 @@ class XiangZhiProReplayer(ReplayerBase):
                 if event.damageEff > 0 and event.id not in ["24710", "24730", "25426", "25445"]:  # 技能黑名单
                     if event.caster in self.shieldCountersNew:
                         if event.caster not in battleStat:
-                            battleStat[event.caster] = [0, 0, 0]  # 无盾伤害，有盾伤害，桑柔伤害
-                        if int(event.id) >= 21827 and int(event.id) <= 21831:  # 桑柔
-                            battleStat[event.caster][2] += event.damageEff
+                            battleStat[event.caster] = [0, 0, 0, 0]  # 无盾伤害，有盾伤害，桑柔伤害，玉简伤害
+                        if int(event.id) >= 21827 and int(event.id) <= 21831:  # 玉简
+                            battleStat[event.caster][3] += event.damageEff
                         elif event.id == "25232" and event.caster == self.mykey:  # 桑柔伤害
                             battleStat[event.caster][2] += event.damageEff
                         else:
                             hasShield = self.shieldCountersNew[event.caster].checkState(event.time)
                             battleStat[event.caster][hasShield] += event.damageEff
+
+                # 根据战斗信息推测进战状态
+                if event.caster in self.bld.info.player and firstHitDict[event.caster] == 0 and (event.damageEff > 0 or event.healEff > 0):
+                    firstHitDict[event.caster] = 1
+                    battleDict[event.caster].setState(event.time, 1)
 
             elif event.dataType == "Buff":
                 if event.id == "需要处理的buff！现在还没有":
@@ -1268,6 +1276,12 @@ class XiangZhiProReplayer(ReplayerBase):
                                           fengleiActiveTime, event.time - fengleiActiveTime, 1, 0,
                                           0,
                                           0, 1, "风雷读条，在此不做细节区分，只记录读条时间")
+                if event.id in ["6360"] and event.level in [66, 76, 86] and event.stack == 1:  # 特效腰坠:
+                    bh.setSpecialSkill(event.id, "特效腰坠", "3414",
+                                       event.time, 0, "开启特效腰坠")
+                if event.id in ["10193"] and event.stack == 1:  # cw特效:
+                    bh.setSpecialSkill(event.id, "cw特效", "14416",
+                                       event.time, 0, "触发cw特效")
 
             elif event.dataType == "Shout":
                 pass
@@ -1305,17 +1319,19 @@ class XiangZhiProReplayer(ReplayerBase):
 
         # 计算等效伤害
         numdam1 = 0
+        numdam3 = 0
         for key in battleStat:
             line = battleStat[key]
             # damageDict[key] = line[0] + line[1] / 1.117 # 100赛季数值
             # numdam1 += line[1] / 1.117 * 0.117# + line[2]
             damageDict[key] = line[0] + line[1] / 1.0554  # 110赛季数值
             numdam1 += line[1] / 1.0554 * 0.0554
+            numdam3 += line[3]
         if self.mykey in battleStat:
             numdam2 = battleStat[self.mykey][2]
         else:
             numdam2 = 0
-        numdam = numdam1 + numdam2
+        # numdam = numdam1 + numdam2
 
         # 关键治疗量统计
         if self.activeBoss in ["宓桃", "哑头陀"]:
@@ -1468,6 +1484,7 @@ class XiangZhiProReplayer(ReplayerBase):
         self.result["skill"]["general"] = {}
         self.result["skill"]["general"]["SangrouDPS"] = int(numdam2 / self.result["overall"]["sumTime"] * 1000)
         self.result["skill"]["general"]["ZhuangzhouDPS"] = int(numdam1 / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"]["general"]["YujianDPS"] = int(numdam3 / self.result["overall"]["sumTime"] * 1000)
         self.result["skill"]["general"]["efficiency"] = bh.getNormalEfficiency()
 
         # 计算战斗回放

@@ -6,35 +6,9 @@ from replayer.BattleHistory import BattleHistory
 from replayer.TableConstructorMeta import TableConstructorMeta
 from replayer.utils import CriticalHealCounter, DpsShiftWindow
 from tools.Functions import *
+from Constants import *
 
 import tkinter as tk
-
-INTERRUPT_DICT = {
-    "240": "抢珠式",
-    "370": "八卦洞玄",
-    "310": "剑飞惊天",
-    "14975": "万剑归宗",  # 伤害技能
-    "183": "厥阴指",
-    "482": "崩",
-    "547": "剑心通明",
-    "2716": "剑破虚空",  # 仅主目标，2988是子目标，不附带打断
-    "1577": "玉虹贯日",
-    "1909": "平湖断月",  # ？
-    "18584": "灵蛊",
-    "2461": "蟾啸",  # 打断子技能，之前的蟾啸迷心
-    "3092": "梅花针",
-    "3961": "寒月耀",
-    "5259": "棒打狗头",
-    "13396": "盾飞",  # 打断子技能
-    "14095": "清音长啸",
-    #"16598": "雷走风切",
-    "17364": "雷走风切",  # 非大刀雷走实际打断，推测
-    "16632": "雷走风切",  # 大刀雷走实际打断
-    "20065": "翔极碧落",
-    "22640": "血覆黄泉",  # 打断子技能
-    "25011": "神皆寂",
-    "28377": "惊鸿掠水",  # 打断子技能
-}
         
 class XidaLuomoWindow(SpecificBossWindow):
     '''
@@ -393,7 +367,8 @@ class XidaLuomoReplayer(SpecificReplayerPro):
                 # print(self.lingchongCastStart, num)
                 self.lingchongCasting[id] = 1
                 self.lingchongCastStart[id][num] = event.time
-                self.lingchongCastNum[id] += 1
+                if self.lingchongCastNum[id] <= 2:
+                    self.lingchongCastNum[id] += 1
                     
     def analyseFirstStage(self, item):
         '''

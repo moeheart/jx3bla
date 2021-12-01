@@ -37,6 +37,11 @@ class YoujiaLuomoWindow(SpecificBossWindow):
         tb.AppendHeader("详情", "装备详细描述，暂未完全实装。")
         tb.AppendHeader("强化", "装备强化列表，表示[精炼满级装备数量]/[插8]-[插7]-[插6]/[五彩石等级]/[紫色附魔]-[蓝色附魔]/[大附魔：手腰脚头衣裤]")
         tb.AppendHeader("被控", "受到影响无法正常输出的时间，以秒计。")
+        tb.AppendHeader("血瘤DPS", "对四个血瘤的DPS，这相当于P1的本体DPS。\nP1持续时间：%s，包含母蛊激活的垃圾时间。" % parseTime(self.detail["P1Time"]))
+        tb.AppendHeader("鬼虫DPS", "对鬼虫的DPS，分母以P1总时间计算。")
+        tb.AppendHeader("勇虫DPS", "对勇虫的DPS，分母以P1总时间计算。")
+        tb.AppendHeader("毒尸DPS", "对毒尸的DPS，分母以P1总时间计算。")
+        tb.AppendHeader("P2DPS", "对血蛊巢心的DPS。\nP2持续时间：%s" % parseTime(self.detail["P2Time"]))
         tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         tb.EndOfLine()
         
@@ -66,6 +71,12 @@ class YoujiaLuomoWindow(SpecificBossWindow):
             tb.AppendContext(self.effectiveDPSList[i][5].split('|')[1])
             tb.AppendContext(int(self.effectiveDPSList[i][6]))
 
+            tb.AppendContext(int(self.effectiveDPSList[i][7]))
+            tb.AppendContext(int(self.effectiveDPSList[i][8]))
+            tb.AppendContext(int(self.effectiveDPSList[i][9]))
+            tb.AppendContext(int(self.effectiveDPSList[i][10]))
+            tb.AppendContext(int(self.effectiveDPSList[i][11]))
+
             # 心法复盘
             if self.effectiveDPSList[i][0] in self.occResult:
                 tb.GenerateXinFaReplayButton(self.occResult[self.effectiveDPSList[i][0]], self.effectiveDPSList[i][0])
@@ -90,17 +101,22 @@ class YoujiaLuomoWindow(SpecificBossWindow):
 
 class YoujiaLuomoReplayer(SpecificReplayerPro):
 
-    def countFinal(self, nowTime):
+    def countFinal(self):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
-        pass
-        #self.phase = 0
+        if self.phase != 0:
+            self.phaseTime[self.phase] = self.finalTime - self.phaseStart
+
+        self.detail["P1Time"] = int(self.phaseTime[1] / 1000)
+        self.detail["P2Time"] = int(self.phaseTime[2] / 1000)
 
     def getResult(self):
         '''
         生成复盘结果的流程。需要维护effectiveDPSList, potList与detail。
         '''
+
+        self.countFinal()
 
         bossResult = []
         for id in self.bld.info.player:
@@ -123,8 +139,13 @@ class YoujiaLuomoReplayer(SpecificReplayerPro):
                                    line[4],
                                    line[5],
                                    line[6],
+                                   line[7] / (self.detail["P1Time"] + 1e-10),
+                                   line[8] / (self.detail["P1Time"] + 1e-10),
+                                   line[9] / (self.detail["P1Time"] + 1e-10),
+                                   line[10] / (self.detail["P1Time"] + 1e-10),
+                                   line[11] / (self.detail["P2Time"] + 1e-10),
                                    ])
-        bossResult.sort(key = lambda x:-x[2])
+        bossResult.sort(key=lambda x:-x[2])
         self.effectiveDPSList = bossResult
 
         return self.effectiveDPSList, self.potList, self.detail
@@ -153,14 +174,29 @@ class YoujiaLuomoReplayer(SpecificReplayerPro):
             else:
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
-     
-                
+                    if event.target in self.bld.info.npc:
+                        if self.bld.info.npc[event.target].name == "赐恩血瘤":
+                            self.stat[event.caster][7] += event.damageEff
+                        elif self.bld.info.npc[event.target].name == "摄魂鬼虫":
+                            self.stat[event.caster][8] += event.damageEff
+                        elif self.bld.info.npc[event.target].name == "秽血勇虫":
+                            self.stat[event.caster][9] += event.damageEff
+                        elif self.bld.info.npc[event.target].name == "毒尸":
+                            self.stat[event.caster][10] += event.damageEff
+                        elif self.bld.info.npc[event.target].name == "血蛊巢心":
+                            if event.damageEff > 0 and self.phase != 2:
+                                self.phaseTime[1] = event.time - self.startTime
+                                self.phase = 2
+                                self.phaseStart = event.time
+                            self.stat[event.caster][11] += event.damageEff
+
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
                 return
 
         elif event.dataType == "Shout":
-            return
+            pass
+
 
         elif event.dataType == "Death":  # 重伤记录
             if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name == "血蛊巢心":
@@ -184,19 +220,24 @@ class YoujiaLuomoReplayer(SpecificReplayerPro):
         '''
         self.activeBoss = "尤珈罗摩"
         
-        #通用格式：
-        #0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
+        # 通用格式：
+        # 0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
+
+        # 尤珈罗摩数据格式：
+        # 7 血瘤DPS, 8 鬼虫DPS, 9 勇虫DPS, 10 毒尸DPS, 11 P2DPS
         
         self.stat = {}
         self.hps = {}
         self.detail["boss"] = self.bossNamePrint
         self.win = 0
-
+        self.phase = 1
+        self.phaseStart = self.startTime
+        self.phaseTime = [0, 0, 0]
         
         for line in self.bld.info.player:
             self.hps[line] = 0
             self.stat[line] = [self.bld.info.player[line].name, self.occDetailList[line], 0, 0, -1, "", 0] + \
-                []
+                [0, 0, 0, 0, 0]
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
         '''

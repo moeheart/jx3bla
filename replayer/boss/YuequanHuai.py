@@ -6,6 +6,7 @@ from replayer.BattleHistory import BattleHistory
 from replayer.TableConstructorMeta import TableConstructorMeta
 from replayer.utils import CriticalHealCounter, DpsShiftWindow
 from tools.Functions import *
+from Constants import *
 
 import tkinter as tk
         
@@ -40,7 +41,8 @@ class YuequanHuaiWindow(SpecificBossWindow):
         tb.AppendHeader("被控", "受到影响无法正常输出的时间，以秒计。")
         tb.AppendHeader("幻象DPS", "对幻象（也即大团主要的输出目标）的DPS。")
         tb.AppendHeader("内力球DPS", "对蓄积的内力的DPS，分母以全流程计算。")
-        tb.AppendHeader("天锁DPS", "对天锁的DPS，分母以全流程计算。")
+        tb.AppendHeader("奇数天锁", "对第奇数个天锁的DPS，也即没有幻象时的天锁。")
+        tb.AppendHeader("偶数天锁", "对第偶数个天锁的DPS，也即有幻影时的天锁。")
         tb.AppendHeader("关键治疗", "对天锁目标的有效治疗量，减伤会被等效计算。")
         tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         tb.EndOfLine()
@@ -73,7 +75,8 @@ class YuequanHuaiWindow(SpecificBossWindow):
 
             tb.AppendContext(int(self.effectiveDPSList[i][7]))
             tb.AppendContext(int(self.effectiveDPSList[i][8]))
-            tb.AppendContext(int(self.effectiveDPSList[i][9]))
+            tb.AppendContext(int(self.effectiveDPSList[i][11]))
+            tb.AppendContext(int(self.effectiveDPSList[i][12]))
             color10 = "#000000"
             if self.effectiveDPSList[i][10] > 0 and getOccType(self.effectiveDPSList[i][1]) == "healer":
                 color10 = "#00ff00"
@@ -88,9 +91,41 @@ class YuequanHuaiWindow(SpecificBossWindow):
 
         frame2 = tk.Frame(window)
         frame2.pack()
-        buttonPrev = tk.Button(frame2, text='<<', width=2, height=1, command=self.openPrev)
-        submitButton = tk.Button(frame2, text='战斗事件记录', command=self.openPot)
-        buttonNext = tk.Button(frame2, text='>>', width=2, height=1, command=self.openNext)
+        tb = TableConstructorMeta(self.config, frame2)
+        tb.AppendHeader("泉映千山打断复盘", "打断复盘测试中，结果仅供参考。")
+        tb.EndOfLine()
+
+        j = 0
+        for wave in self.detail["qyqs"]:
+            j += 1
+            tb.AppendContext("第%d组" % j)
+            tb.AppendContext("|")
+            for line in wave:
+                name = line[0]
+                if name != "":
+                    color = getColor(line[1])
+                    tb.AppendContext(name, color=color)
+                    color3 = "#000000"
+                    p = int(line[3][:-1])
+                    # if p < 40:
+                    #     color3 = "#ff0000"
+                    tb.AppendContext(line[2], color=color3)
+                    tb.AppendContext(line[3], color=color3)
+                    tb.AppendContext(line[4], color=color3)
+                    tb.AppendContext("|")
+                else:
+                    tb.AppendContext("")
+                    tb.AppendContext("")
+                    tb.AppendContext("")
+                    tb.AppendContext("")
+                    tb.AppendContext("|")
+            tb.EndOfLine()
+
+        frame3 = tk.Frame(window)
+        frame3.pack()
+        buttonPrev = tk.Button(frame3, text='<<', width=2, height=1, command=self.openPrev)
+        submitButton = tk.Button(frame3, text='战斗事件记录', command=self.openPot)
+        buttonNext = tk.Button(frame3, text='>>', width=2, height=1, command=self.openNext)
         buttonPrev.grid(row=0, column=0)
         submitButton.grid(row=0, column=1)
         buttonNext.grid(row=0, column=2)
@@ -146,7 +181,9 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                                    int(line[7] / self.battleTime * 1000),
                                    int(line[8] / self.battleTime * 1000),
                                    int(line[9] / self.battleTime * 1000),
-                                   line[10]
+                                   line[10],
+                                   int(line[11] / self.battleTime * 1000),
+                                   int(line[12] / self.battleTime * 1000),
                                    ])
         bossResult.sort(key = lambda x:-x[2])
         self.effectiveDPSList = bossResult
@@ -181,12 +218,20 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                             self.stat[line][10] += healRes[line]
 
                 if event.id in ["28292"]:  # 曲云蝶鸾
-                    self.potList.append([self.bld.info.player[event.target].name,
-                                         self.occDetailList[event.target],
-                                         1,
-                                         self.bossNamePrint,
-                                         "%s曲云蝶鸾" % (parseTime((event.time - self.startTime) / 1000)),
-                                         []])
+                    if event.time - self.lastJiaotu[event.target] < 10000:
+                        self.potList.append([self.bld.info.player[event.target].name,
+                                             self.occDetailList[event.target],
+                                             1,
+                                             self.bossNamePrint,
+                                             "%s曲云蝶鸾焦土" % (parseTime((event.time - self.startTime) / 1000)),
+                                             []])
+                    else:
+                        self.potList.append([self.bld.info.player[event.target].name,
+                                             self.occDetailList[event.target],
+                                             0,
+                                             self.bossNamePrint,
+                                             "%s曲云蝶鸾天锁" % (parseTime((event.time - self.startTime) / 1000)),
+                                             []])
 
                 if event.id in ["28284"]:  # 内力炸裂
                     self.xjdnl[-1][1] = event.time
@@ -204,6 +249,22 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                             self.stat[event.caster][8] += event.damageEff
                         elif self.bld.info.npc[event.target].name == "天锁":
                             self.stat[event.caster][9] += event.damageEff
+                            if self.yqhAppear:
+                                self.stat[event.caster][12] += event.damageEff
+                            else:
+                                self.stat[event.caster][11] += event.damageEff
+
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == "月泉淮" and event.id in INTERRUPT_DICT:
+                    if self.qyqsLvl != 0 and event.time > self.qyqsStart and event.time < self.qyqsFinal:
+                        t = (event.time - self.qyqsStart) / (self.qyqsFinal - self.qyqsStart)
+                        castPercent = parseCent(t, 0) + '%'
+                        self.detail["qyqs"][-1][self.qyqsLvl-1] = [self.bld.info.player[event.caster].name,
+                                                                   self.occDetailList[event.caster],
+                                                                   parseTime((event.time - self.startTime) / 1000),
+                                                                   castPercent,
+                                                                   INTERRUPT_DICT[event.id]]
+                        self.qyqsLvl = 0
+
                 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -251,6 +312,29 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
 
         elif event.dataType == "Battle":  # 战斗状态变化
             pass
+
+        elif event.dataType == "Scene":  # 进入、离开场景
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["月泉淮"]:
+                if event.enter:
+                    self.yqhAppear = 1
+                else:
+                    self.yqhAppear = 0
+
+        elif event.dataType == "Cast":  # 施放技能事件，jcl专属
+            if event.caster in self.bld.info.npc and self.bld.info.npc[event.caster].name == "月泉淮":
+                if event.id in ["28277", "28278", "28279", "28280", "28282"]:
+                    if event.id in ["28277"]:
+                        # 开启新的打断记录
+                        self.detail["qyqs"].append([])
+                        for i in range(5):
+                            self.detail["qyqs"][-1].append((["",
+                                                             "0",
+                                                             "0",
+                                                             0,
+                                                             0]))
+                    self.qyqsLvl = {"28277": 1, "28278": 2, "28279": 3, "28280": 4, "28282": 5}[event.id]
+                    self.qyqsStart = event.time
+                    self.qyqsFinal = event.time + [0, 3000, 2500, 2000, 1500, 1000][self.qyqsLvl]
                     
     def analyseFirstStage(self, item):
         '''
@@ -270,12 +354,16 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
         #通用格式：
         #0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
 
-        #7 幻象DPS, 8 内力球DPS, 9 天锁DPS, 10 关键治疗量
+        #7 幻象DPS, 8 内力球DPS, 9 天锁DPS, 10 关键治疗量, 11 奇数天锁, 12 偶数天锁
+
+        # 打断复盘
+        # 第X=[1,2,...]组-第Y=[1,2,3,4,5]次打断: [玩家名，心法，时间，读条进度，技能]
         
         self.stat = {}
         self.hps = {}
         self.detail["boss"] = self.bossNamePrint
         self.win = 0
+        self.detail["qyqs"] = []
 
         self.bh = BattleHistory(self.startTime, self.finalTime)
         self.hasBh = True
@@ -287,13 +375,14 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
         self.buffCounter = {}
         self.criticalHealCounter = {}
         self.lastJiaotu = {}
+        self.yqhAppear = 0
 
-        self.yqhInterrupt = 0
+        self.yqhInterrupt = 0  # 分片判定，不是“打断”
         
         for line in self.bld.info.player:
             self.hps[line] = 0
             self.stat[line] = [self.bld.info.player[line].name, self.occDetailList[line], 0, 0, -1, "", 0] + \
-                [0, 0, 0, 0]
+                [0, 0, 0, 0, 0, 0]
             self.buffCounter[line] = BuffCounter(0, self.startTime, self.finalTime)
             self.criticalHealCounter[line] = CriticalHealCounter()
             self.lastJiaotu[line] = 0

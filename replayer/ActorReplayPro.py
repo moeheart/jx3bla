@@ -267,9 +267,13 @@ class ActorProReplayer(ReplayerBase):
             elif event.dataType == "Shout":
                 if self.bossAnalyseName == "赵八嫂" and event.content in ['"就拿你们的血来磨磨刀！"']:
                     self.startTime = event.time
-                    
+
             elif event.dataType == "Battle":
                 pass
+
+            elif event.dataType == "Death":  # 重伤记录
+                if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name == "血蛊巢心":
+                    self.finalTime = event.time + 5000  # 防止脱战失败导致数据延长
 
         # 如果进行了时间修剪，就调整battletime的逻辑，否则battletime就使用复盘数据中附带的结果
         if abs(self.finalTime - self.startTime - self.battleTime) > 6000:
@@ -327,22 +331,6 @@ class ActorProReplayer(ReplayerBase):
         self.dps = {}
         self.deathName = {}
 
-        # if self.bossAnalyseName == "胡汤&罗芬":
-        #     bossAnalyser = HuTangLuoFenReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
-        # elif self.bossAnalyseName == "赵八嫂":
-        #     bossAnalyser = ZhaoBasaoReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
-        # elif self.bossAnalyseName == "海荼":
-        #     bossAnalyser = HaiTuReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
-        # elif self.bossAnalyseName == "姜集苦":
-        #     bossAnalyser = JiangJikuReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
-        # elif self.bossAnalyseName == "宇文灭":
-        #     bossAnalyser = YuwenMieReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
-        # elif self.bossAnalyseName == "宫威":
-        #     bossAnalyser = GongWeiReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
-        # elif self.bossAnalyseName == "宫傲":
-        #     bossAnalyser = GongAoReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
-        # else:
-        #     bossAnalyser = SpecificReplayer(self.playerIDList, self.mapDetail, res, occDetailList, self.startTime, self.finalTime, self.battleTime, self.bossNamePrint)
         if self.bossAnalyseName == "胡汤&罗芬":
             bossAnalyser = HuTangLuoFenReplayer(self.bld, occDetailList, self.startTime,
                                            self.finalTime, self.battleTime, self.bossNamePrint)
