@@ -380,6 +380,7 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
         self.criticalHealCounter = {}
         self.lastJiaotu = {}
         self.yqhAppear = 0
+        self.qyqsLvl = 0
 
         self.yqhInterrupt = 0  # 分片判定，不是“打断”
         
