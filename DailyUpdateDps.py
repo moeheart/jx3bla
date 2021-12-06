@@ -17,7 +17,7 @@ def RefreshDps():
     db = pymysql.connect(ip,dbname,dbpwd,"jx3bla",port=3306,charset='utf8')
     cursor = db.cursor()
     
-    edition = "5.1.0"
+    edition = "6.0.0"
 
     sql = """DROP TABLE IF EXISTS HighestDps"""
     cursor.execute(sql)
@@ -52,8 +52,8 @@ def RefreshDps():
     cursor.execute(sql)
     result = cursor.fetchall()
 
-    dpsAll = {"483": {}, "484": {}, "519": {}, "520": {}}
-    potAll = {"483": {}, "484": {}, "519": {}, "520": {}}
+    dpsAll = {"483": {}, "484": {}, "519": {}, "520": {}, "560": {}, "561": {}}
+    potAll = {"483": {}, "484": {}, "519": {}, "520": {}, "560": {}, "561": {}}
 
     for rec in result:
         server = rec[0]
