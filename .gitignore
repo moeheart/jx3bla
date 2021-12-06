@@ -1,6 +1,7 @@
 *.zip
 *.rar
 *.7z
+*.cfg
 *.ini
 *.txt
 !equip/resources/*.txt

@@ -170,6 +170,8 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                 if getOccType(self.occDetailList[id]) == "healer":
                     line[3] = int(self.hps[id] / self.battleTime * 1000)
 
+                line[6] = self.stunCounter[id].buffTimeIntegral() / 1000
+
                 dps = int(line[2] / self.battleTime * 1000)
                 bossResult.append([line[0],
                                    line[1],
@@ -277,6 +279,7 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                 elif event.stack == 0: #buff消失
                     self.criticalHealCounter[event.target].unactive()
                     self.yqts[-1][1] = event.time
+                self.stunCounter[event.target].setState(event.time, event.stack)
 
             if event.id in ["20544"] and event.stack == 1:  # 中焦土
                 if event.time - self.lastJiaotu[event.target] > 2000:
@@ -364,6 +367,7 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
         self.detail["boss"] = self.bossNamePrint
         self.win = 0
         self.detail["qyqs"] = []
+        self.stunCounter = {}
 
         self.bh = BattleHistory(self.startTime, self.finalTime)
         self.hasBh = True
@@ -386,6 +390,7 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
             self.buffCounter[line] = BuffCounter(0, self.startTime, self.finalTime)
             self.criticalHealCounter[line] = CriticalHealCounter()
             self.lastJiaotu[line] = 0
+            self.stunCounter[line] = BuffCounter(0, self.startTime, self.finalTime)
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
         '''

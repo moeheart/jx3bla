@@ -2,6 +2,7 @@
 # 雷域大泽4号-尤珈罗摩的复盘库。
 
 from replayer.boss.Base import SpecificReplayerPro, SpecificBossWindow, ToolTip
+from replayer.BattleHistory import BattleHistory
 from replayer.TableConstructorMeta import TableConstructorMeta
 from replayer.utils import CriticalHealCounter, DpsShiftWindow
 from tools.Functions import *
@@ -111,6 +112,9 @@ class YoujiaLuomoReplayer(SpecificReplayerPro):
         self.detail["P1Time"] = int(self.phaseTime[1] / 1000)
         self.detail["P2Time"] = int(self.phaseTime[2] / 1000)
 
+        for line in self.dgxl:
+            self.bh.setEnvironment("27747", "毒蛊血露", "4504", line[0], line[1]-line[0], 1, "")
+
     def getResult(self):
         '''
         生成复盘结果的流程。需要维护effectiveDPSList, potList与detail。
@@ -130,6 +134,8 @@ class YoujiaLuomoReplayer(SpecificReplayerPro):
                 
                 if getOccType(self.occDetailList[id]) == "healer":
                     line[3] = int(self.hps[id] / self.battleTime * 1000)
+
+                line[6] = self.stunCounter[id].buffTimeIntegral() / 1000
 
                 dps = int(line[2] / self.battleTime * 1000)
                 bossResult.append([line[0],
@@ -188,15 +194,21 @@ class YoujiaLuomoReplayer(SpecificReplayerPro):
                                 self.phaseTime[1] = event.time - self.startTime
                                 self.phase = 2
                                 self.phaseStart = event.time
+                                self.bh.setEnvironment("0", "血蛊巢心激活", "3398", event.time - 15000, 15000, 1, "")
                             self.stat[event.caster][11] += event.damageEff
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
                 return
 
+            if event.id == "20289" and event.stack == 1:  # 凝视
+                self.bh.setCall("20289", "毒痰目标", "330", event.time, 0, event.target, "点名排蓝圈")
+
+            if event.id in ["20775", "20180"]:  # 鬼虫点名
+                self.stunCounter[event.target].setState(event.time, event.stack)
+
         elif event.dataType == "Shout":
             pass
-
 
         elif event.dataType == "Death":  # 重伤记录
             if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name == "血蛊巢心":
@@ -204,6 +216,14 @@ class YoujiaLuomoReplayer(SpecificReplayerPro):
 
         elif event.dataType == "Battle":  # 战斗状态变化
             pass
+
+        elif event.dataType == "Scene":  # 进入、离开场景
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].templateID == "106070":
+                if event.enter:
+                    if event.time - self.dgxl[-1][0] > 2000:
+                        self.dgxl.append([event.time, self.finalTime])
+                else:
+                    self.dgxl[-1][1] = event.time
                     
     def analyseFirstStage(self, item):
         '''
@@ -230,14 +250,21 @@ class YoujiaLuomoReplayer(SpecificReplayerPro):
         self.hps = {}
         self.detail["boss"] = self.bossNamePrint
         self.win = 0
+        self.stunCounter = {}
+
         self.phase = 1
         self.phaseStart = self.startTime
         self.phaseTime = [0, 0, 0]
+
+        self.bh = BattleHistory(self.startTime, self.finalTime)
+        self.hasBh = True
+        self.dgxl = [[0, 0]]  # 毒蛊血露
         
         for line in self.bld.info.player:
             self.hps[line] = 0
             self.stat[line] = [self.bld.info.player[line].name, self.occDetailList[line], 0, 0, -1, "", 0] + \
                 [0, 0, 0, 0, 0]
+            self.stunCounter[line] = BuffCounter(0, self.startTime, self.finalTime)
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
         '''
