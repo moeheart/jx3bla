@@ -134,6 +134,69 @@ class ShieldCounterNew(BuffCounter):
             num -= 1
         return num
 
+    def getHeatTable(self, interval=500):
+        '''
+        获取单个玩家的覆盖率热力表.
+        params:
+        - interval: 间隔
+        returns:
+        - 结果对象
+        '''
+        time = 0
+        nowi = 0
+        result = {"interval": interval, "timeline": []}
+        for nowTime in range(self.startTime, self.finalTime, interval):
+            single = 0
+            while nowi < len(self.log) and self.log[nowi][0] < nowTime:
+                nowi += 1
+            if len(self.log) > 0 and nowi > 0:
+                single = self.log[nowi-1][1]
+            result["timeline"].append(single)
+        return result
+
+    def __init__(self, shieldLog, startTime, finalTime):
+        '''
+        初始化.
+        '''
+        super().__init__(shieldLog, startTime, finalTime)
+
+class HotCounter(BuffCounter):
+    '''
+    HOT的统计类.
+    继承buff的统计类，考虑HOT的持续时间等指标。
+    '''
+
+    def getHeatTable(self, interval=500):
+        '''
+        获取单个玩家的覆盖率热力表.
+        params:
+        - interval: 间隔
+        returns:
+        - 结果对象
+        '''
+        nowi = 0
+        result = {"interval": interval, "timeline": []}
+        for nowTime in range(self.startTime, self.finalTime, interval):
+            single = 0
+            while nowi < len(self.log) and self.log[nowi][0] < nowTime:
+                nowi += 1
+            if len(self.log) > 0 and nowi > 0 and self.log[nowi-1][1] > 0:
+                single = (self.log[nowi-1][2] + self.log[nowi-1][0] - nowTime) / self.log[nowi-1][2]
+            # single = int(single * 100)
+            result["timeline"].append(single)
+        return result
+
+    def setState(self, time, stack, duration):
+        '''
+        设置特定时间点buff的层数.
+        无论是获得还是消亡均可用这个方法。对应的层数的有效时间即是这个时刻到下一个时刻中间的部分。
+        params:
+        - time: 获得buff的时刻.
+        - stack: buff层数，可以为0.
+        - duration: 预计的持续时间.
+        '''
+        self.log.append([int(time), int(stack), int(duration)])
+
     def __init__(self, shieldLog, startTime, finalTime):
         '''
         初始化.
@@ -188,6 +251,78 @@ class SkillLogCounter():
         self.startTime = startTime
         self.finalTime = finalTime
         self.speed = speed
+
+def countCluster(teamLog, teamLastTime, event):
+    '''
+    根据HOT的获取事件提取组队聚类信息.
+    params:
+    - teamLog: 玩家两两配对的事件.
+    - teamLastTime: 玩家上次获取HOT的时间.
+    - event: HOT事件.
+    '''
+    if event.target in teamLastTime:
+        teamLastTime[event.target] = event.time
+    else:
+        return teamLog, teamLastTime
+    # print("[teamLastTime]", event.time, teamLastTime)
+    for player in teamLastTime:
+        if event.time - teamLastTime[player] < 100:
+            if player not in teamLog[event.target]:
+                teamLog[event.target][player] = 0
+            teamLog[event.target][player] += 1
+            if event.target != player:
+                if event.target not in teamLog[player]:
+                    teamLog[player][event.target] = 0
+                teamLog[player][event.target] += 1
+    return teamLog, teamLastTime
+
+def finalCluster(teamLog):
+    '''
+    根据组队聚类信息计算聚类结果.
+    params:
+    - teamLog: 玩家两两配对的事件.
+    returns:
+    - teamCluster: 聚类结果.
+    - numCluster: 聚类结果中每个类别的数量.
+    '''
+    teamCluster = {}
+    for player in teamLog:
+        teamCluster[player] = 0
+    nTeam = 0
+    numCluster = [0]
+
+    # 从前五名开始按一定阈值聚类
+    for player in teamLog:
+        if teamCluster[player] != 0:
+            continue
+        singleRes = []
+        for playerT in teamLog[player]:
+            singleRes.append([playerT, teamLog[player][playerT]])
+        singleRes.sort(key=lambda x: -x[1])
+        j = 5
+        while len(singleRes) <= j or (j >= 1 and singleRes[j-1][1] / (singleRes[j][1] + 1e-10) >= 3):
+            j -= 1
+        # print(singleRes)
+        # print(j)
+        if j >= 1:
+            nTeam += 1
+            numCluster.append(0)
+            for i in range(0, j+1):
+                teamCluster[singleRes[i][0]] = nTeam
+                numCluster[nTeam] += 1
+
+    # 为剩余角色聚类
+    hasRemain = 0
+    for player in teamCluster:
+        if teamCluster[player] == 0:
+            if not hasRemain:
+                hasRemain = 1
+                nTeam += 1
+                numCluster.append(0)
+            teamCluster[player] = nTeam
+            numCluster[nTeam] += 1
+
+    return teamCluster, numCluster
 
 class XiangZhiProWindow():
     '''
@@ -483,9 +618,6 @@ class XiangZhiProWindow():
         # 加载图片列表
         canvas6.imDict = {}
         canvas6.im = {}
-        # imID = ["7059", "7168", "7172", "7173", "7174", "7175", "7176",
-        #         "7052", "7066", "7080", "7078", "7128", "7077", "7048",
-        #         "1485", "1490"]
         imFile = os.listdir('icons')
         for line in imFile:
             imID = line.split('.')[0]
@@ -495,43 +627,68 @@ class XiangZhiProWindow():
 
         #canvas6 = tk.Canvas(frame6sub, width=battleTimePixels, height=125)
         # 绘制主时间轴及时间
-        canvas6.create_rectangle(0, 30, battleTimePixels, 50, fill='white')
+        canvas6.create_rectangle(0, 30, battleTimePixels, 70, fill='white')
+        if "heatType" in self.result["replay"]:
+            if self.result["replay"]["heatType"] == "meihua":
+                nowTimePixel = 0
+                for line in self.result["replay"]["heat"]["timeline"]:
+                    color = getColorHex((int(255 - (255 - 100) * line / 100),
+                                         int(255 - (255 - 250) * line / 100),
+                                         int(255 - (255 - 180) * line / 100)))
+                    canvas6.create_rectangle(nowTimePixel, 31, nowTimePixel + 5, 70, fill=color, width=0)
+                    nowTimePixel += 5
+                canvas6.create_image(10, 40, image=canvas6.im["7059"])
+            elif self.result["replay"]["heatType"] == "hot":
+                yPos = [31, 39, 47, 55, 63, 70]
+                for j in range(5):
+                    nowTimePixel = 0
+                    for line in self.result["replay"]["heat"]["timeline"][j]:
+                        if line == 0:
+                            color = "#ff7777"
+                        else:
+                            color = getColorHex((int(255 - (255 - 100) * line / 100),
+                                                 int(255 - (255 - 250) * line / 100),
+                                                 int(255 - (255 - 180) * line / 100)))
+                        canvas6.create_rectangle(nowTimePixel, yPos[j], nowTimePixel + 5, yPos[j+1], fill=color, width=0)
+                        nowTimePixel += 5
+                canvas6.create_image(10, 40, image=canvas6.im["7172"])
+                canvas6.create_image(30, 40, image=canvas6.im["7176"])
         nowt = 0
         while nowt < battleTime:
             nowt += 10000
             text = parseTime(nowt / 1000)
             pos = int(nowt / 100)
-            canvas6.create_text(pos, 40, text=text)
+            canvas6.create_text(pos, 50, text=text)
         # 绘制常规技能轴
         for record in self.result["replay"]["normal"]:
             posStart = int((record["start"] - startTime) / 100)
             posEnd = int((record["start"] + record["duration"] - startTime) / 100)
-            canvas6.create_image(posStart+10, 60, image=canvas6.im[record["iconid"]])
+            canvas6.create_image(posStart+10, 80, image=canvas6.im[record["iconid"]])
             # 绘制表示持续的条
             if posStart + 20 < posEnd:
-                canvas6.create_rectangle(posStart+20, 50, posEnd, 70, fill="#64fab4")
+                canvas6.create_rectangle(posStart+20, 70, posEnd, 90, fill="#64fab4")
             # 绘制重复次数
             if posStart + 30 < posEnd and record["num"] > 1:
-                canvas6.create_text(posStart+30, 60, text="*%d"%record["num"])
+                canvas6.create_text(posStart+30, 80, text="*%d"%record["num"])
 
         # 绘制特殊技能轴
         for record in self.result["replay"]["special"]:
             posStart = int((record["start"] - startTime) / 100)
             posEnd = int((record["start"] + record["duration"] - startTime) / 100)
-            canvas6.create_image(posStart+10, 80, image=canvas6.im[record["iconid"]])
+            canvas6.create_image(posStart+10, 100, image=canvas6.im[record["iconid"]])
 
         # 绘制点名轴
         for record in self.result["replay"]["call"]:
             posStart = int((record["start"] - startTime) / 100)
             posEnd = int((record["start"] + record["duration"] - startTime) / 100)
-            canvas6.create_image(posStart+10, 80, image=canvas6.im[record["iconid"]])
+            canvas6.create_image(posStart+10, 100, image=canvas6.im[record["iconid"]])
             # 绘制表示持续的条
             if posStart + 20 < posEnd:
-                canvas6.create_rectangle(posStart+20, 70, posEnd, 90, fill="#ff7777")
+                canvas6.create_rectangle(posStart+20, 90, posEnd, 110, fill="#ff7777")
             # 绘制名称
             if posStart + 30 < posEnd:
                 text = record["skillname"]
-                canvas6.create_text(posStart+20, 80, text=text, anchor=tk.W)
+                canvas6.create_text(posStart+20, 100, text=text, anchor=tk.W)
 
         # 绘制环境轴
         for record in self.result["replay"]["environment"]:
@@ -746,7 +903,6 @@ class XiangZhiProReplayer(ReplayerBase):
                 continue
             if event.time > self.finalTime:
                 continue
-
             if self.interrupt != 0:
                 continue
 
@@ -892,6 +1048,8 @@ class XiangZhiProReplayer(ReplayerBase):
         battleTimeDict = {}  # 进战时间
         sumShield = 0  # 盾数量
         sumPlayer = 0  # 玩家数量
+        teamLog = {}  # 小队聚类数量统计
+        teamLastTime = {}  # 小队聚类时间
 
         # 技能统计
         mhsnSkill = SkillCounter("14231", self.startTime, self.finalTime, self.haste)  # 梅花三弄
@@ -908,10 +1066,12 @@ class XiangZhiProReplayer(ReplayerBase):
         battleDict = {}
         firstHitDict = {}
         for line in self.bld.info.player:
-            shangBuffDict[line] = BuffCounter("9459", self.startTime, self.finalTime)  # 商，9460=殊曲，9461=洞天
-            jueBuffDict[line] = BuffCounter("9463", self.startTime, self.finalTime)  # 角，9460=殊曲，9461=洞天
+            shangBuffDict[line] = HotCounter("9459", self.startTime, self.finalTime)  # 商，9460=殊曲，9461=洞天
+            jueBuffDict[line] = HotCounter("9463", self.startTime, self.finalTime)  # 角，9460=殊曲，9461=洞天
             battleDict[line] = BuffCounter("0", self.startTime, self.finalTime)  # 战斗状态统计
             firstHitDict[line] = 0
+            teamLog[line] = {}
+            teamLastTime[line] = 0
         lastSkillTime = self.startTime
 
         # 杂项
@@ -1036,7 +1196,11 @@ class XiangZhiProReplayer(ReplayerBase):
                                "22211",  # 治疗衣服大附魔
                                "15091",  # 阳春添加状态切换buff
                                "9007",  # 后跳 (TODO) 统计各种后跳
+                               "9004", "9005", "9006",  # 左右小轻功
                                "26731",  # 不器
+                               "26965",  # 枕流
+                               "14150",  # 云生结海平摊
+                               "29532", "29541",  # 飘黄
                                ]
         xiangZhiSpecial = ["20763", "20764", "21321",  # 相依
                            "15039", # 传影子
@@ -1257,7 +1421,8 @@ class XiangZhiProReplayer(ReplayerBase):
                 # 根据战斗信息推测进战状态
                 if event.caster in self.bld.info.player and firstHitDict[event.caster] == 0 and (event.damageEff > 0 or event.healEff > 0):
                     firstHitDict[event.caster] = 1
-                    battleDict[event.caster].setState(event.time, 1)
+                    if event.scheme == 1:
+                        battleDict[event.caster].setState(event.time, 1)
 
             elif event.dataType == "Buff":
                 if event.id == "需要处理的buff！现在还没有":
@@ -1265,9 +1430,11 @@ class XiangZhiProReplayer(ReplayerBase):
                         self.criticalHealCounter[event.target] = BuffCounter("buffID", self.startTime, self.finalTime)
                     self.criticalHealCounter[event.target].setState(event.time, event.stack)
                 if event.id in ["9459", "9460", "9461", "9462"] and event.caster == self.mykey:  # 商
-                    shangBuffDict[event.target].setState(event.time, event.stack)
+                    shangBuffDict[event.target].setState(event.time, event.stack, int((event.end - event.frame) * 62.5))
+                    teamLog, teamLastTime = countCluster(teamLog, teamLastTime, event)
                 if event.id in ["9463", "9464", "9465", "9466"] and event.caster == self.mykey:  # 角
-                    jueBuffDict[event.target].setState(event.time, event.stack)
+                    jueBuffDict[event.target].setState(event.time, event.stack, int((event.end - event.frame) * 62.5))
+                    teamLog, teamLastTime = countCluster(teamLog, teamLastTime, event)
                 if event.id == "10521":  # 风雷标志debuff:
                     if event.stack == 1:
                         fengleiActiveTime = max(event.time, lastSkillTime)
@@ -1316,6 +1483,9 @@ class XiangZhiProReplayer(ReplayerBase):
 
         if hpsActive:
             hpsSumTime += (self.finalTime - int(hpsTime)) / 1000
+
+        # 计算组队聚类信息
+        teamCluster, numCluster = finalCluster(teamLog)
 
         # 计算等效伤害
         numdam1 = 0
@@ -1373,6 +1543,7 @@ class XiangZhiProReplayer(ReplayerBase):
         damageList.sort(key=lambda x: -x[1])
 
         # 计算DPS的盾指标
+        overallShieldHeat = {"interval": 500, "timeline": []}
         for key in self.shieldCountersNew:
             sumShield += self.shieldCountersNew[key].countCast()
             liveCount = battleDict[key].buffTimeIntegral()  # 存活时间比例
@@ -1395,6 +1566,14 @@ class XiangZhiProReplayer(ReplayerBase):
             timeAll = liveCount
             rateDict[key] = time1 / (timeAll + 1e-10)
             breakDict[key] = self.shieldCountersNew[key].countBreak()
+
+            shieldHeat = self.shieldCountersNew[key].getHeatTable(500)
+            if overallShieldHeat["timeline"] == []:
+                for i in shieldHeat["timeline"]:
+                    overallShieldHeat["timeline"].append(i * 4)  # 按25人构造热力图
+            else:
+                for i in range(len(shieldHeat["timeline"])):
+                    overallShieldHeat["timeline"][i] += shieldHeat["timeline"][i] * 4
 
         for line in damageList:
             if line[0] not in rateDict:
@@ -1448,6 +1627,8 @@ class XiangZhiProReplayer(ReplayerBase):
         effHeal = yuSkill.getHealEff()
         self.result["skill"]["yu"]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
         self.result["skill"]["yu"]["effRate"] = roundCent(effHeal / (yuSkill.getHeal() + 1e-10))
+        # 队伍HOT统计初始化
+        hotHeat = [[], [], [], [], []]
         # 商，注意Buff与Skill统计不同
         self.result["skill"]["shang"] = {}
         self.result["skill"]["shang"]["num"] = shangBuff.getNum()
@@ -1460,6 +1641,14 @@ class XiangZhiProReplayer(ReplayerBase):
             singleDict = shangBuffDict[key]
             num += battleTimeDict[key]
             sum += singleDict.buffTimeIntegral()
+            singleHeat = singleDict.getHeatTable()
+            if teamCluster[key] <= 5:
+                if len(hotHeat[teamCluster[key] - 1]) == 0:
+                    for line in singleHeat["timeline"]:
+                        hotHeat[teamCluster[key] - 1].append(line)
+                else:
+                    for i in range(len(singleHeat["timeline"])):
+                        hotHeat[teamCluster[key] - 1][i] += singleHeat["timeline"][i]
         self.result["skill"]["shang"]["cover"] = roundCent(sum / (num + 1e-10))
         # 角
         self.result["skill"]["jue"] = {}
@@ -1473,7 +1662,24 @@ class XiangZhiProReplayer(ReplayerBase):
             singleDict = jueBuffDict[key]
             num += battleTimeDict[key]
             sum += singleDict.buffTimeIntegral()
+            singleHeat = singleDict.getHeatTable()
+            if teamCluster[key] <= 5:
+                if len(hotHeat[teamCluster[key] - 1]) == 0:
+                    for line in singleHeat["timeline"]:
+                        hotHeat[teamCluster[key] - 1].append(line)
+                else:
+                    for i in range(len(singleHeat["timeline"])):
+                        hotHeat[teamCluster[key] - 1][i] += singleHeat["timeline"][i]
         self.result["skill"]["jue"]["cover"] = roundCent(sum / (num + 1e-10))
+        # 计算HOT统计
+        for i in range(len(hotHeat)):
+            if i+1 >= len(numCluster) or numCluster[i+1] == 0:
+                continue
+            for j in range(len(hotHeat[i])):
+                hotHeat[i][j] = int(hotHeat[i][j] / numCluster[i+1] * 50)
+        # print("[teamCluster]", teamCluster)
+        # print("[HotHeat]", hotHeat)
+        # print("[HotHeat0]", hotHeat[0])
         # 相依
         self.result["skill"]["xiangyi"] = {}
         self.result["skill"]["xiangyi"]["num"] = xySkill.getNum()
@@ -1489,6 +1695,12 @@ class XiangZhiProReplayer(ReplayerBase):
 
         # 计算战斗回放
         self.result["replay"] = bh.getJsonReplay(self.mykey)
+        if self.result["skill"]["shang"]["cover"] > 0.1:  # HOT覆盖率大于10%，判定为血鸽
+            self.result["replay"]["heatType"] = "hot"
+            self.result["replay"]["heat"] = {"interval": 500, "timeline": hotHeat}
+        else:  # 默认为盾鸽
+            self.result["replay"]["heatType"] = "meihua"
+            self.result["replay"]["heat"] = overallShieldHeat
 
         # print(self.result["healer"])
         # print(self.result["dps"])
@@ -1504,6 +1716,39 @@ class XiangZhiProReplayer(ReplayerBase):
         实现打分. 由于此处是单BOSS，因此打分直接由类内进行，不再整体打分。
         '''
         self.result["score"] = {"sum": 0}
+
+        # 数值分A
+        # 治疗量A1
+        stdTable = {"25人普通雷域大泽": {"巨型尖吻凤": [[0, 0], [1000, 10]],
+                                  "桑乔": [[0, 0], [1000, 10]],
+                                  "悉达罗摩": [[0, 0], [1000, 10]],
+                                  "尤珈罗摩": [[0, 0], [1000, 10]],
+                                  "月泉淮": [[0, 0], [1000, 10]],
+                                  "乌蒙贵": [[0, 0], [1000, 10]],
+                                }
+                    }
+
+
+
+        # tb.AppendHeader("数值分：", "对治疗数值的打分，包括治疗量、各个技能数量。")
+        # tb.AppendContext("0", width=9)
+        # tb.AppendContext("F")
+        # tb.EndOfLine()
+        # tb.AppendHeader("统计分：", "对统计结果的打分，包括梅花三弄和HOT的覆盖率。")
+        # tb.AppendContext("0", width=9)
+        # tb.AppendContext("F")
+        # tb.EndOfLine()
+        # tb.AppendHeader("操作分：", "对操作表现的打分，包括战斗效率，各个技能延迟。")
+        # tb.AppendContext("0", width=9)
+        # tb.AppendContext("F")
+        # tb.EndOfLine()
+        # tb.AppendHeader("总评：", "综合计算这几项的结果。")
+        # tb.AppendContext("0", width=9)
+        # tb.AppendContext("F")
+        # tb.EndOfLine()
+        # tk.Label(frame8, text="分数统计在收集一定量的数据后生效。").place(x=10, y=150)
+
+
         pass
 
     def getHash(self):

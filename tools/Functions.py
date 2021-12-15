@@ -349,6 +349,14 @@ def getColor(occ):
                       str(hex(res[1]))[-2:].replace('x', '0'),
                       str(hex(res[2]))[-2:].replace('x', '0'))
 
+def getColorHex(color):
+    '''
+    根据数组形式的颜色获取16进制颜色代码.
+    '''
+    return "#%s%s%s"%(str(hex(color[0]))[-2:].replace('x', '0'),
+                      str(hex(color[1]))[-2:].replace('x', '0'),
+                      str(hex(color[2]))[-2:].replace('x', '0'))
+
 def getPotColor(level):
     '''
     在分锅记录中，根据锅的等级获取颜色。

@@ -31,6 +31,7 @@ class SingleDataBuff(SingleData):
     Buff事件，对应jx3dat-5, jcl-13
     buff事件包括：
       time: 毫秒数，对应jx3dat[3], jcl[4]
+      frame: 逻辑帧，对应jx3dat[x], jcl[2]
       caster: 来源ID，对应jx3dat[5], jcl[6][10]
       target: 目标ID，对应jx3dat[6], jcl[6][1]
       id: buffID，对应jx3dat[7], jcl[6][5]
@@ -48,6 +49,7 @@ class SingleDataBuff(SingleData):
         - item: jcl形式的事件信息.
         '''
         self.time = int(item[3])
+        self.frame = int(item[1])
         self.caster = item[5]["10"]
         self.target = item[5]["1"]
         self.id = item[5]["5"]
@@ -65,6 +67,7 @@ class SingleDataBuff(SingleData):
         - item: jx3dat形式的事件信息.
         '''
         self.time = int(item["3"])
+        self.frame = int(item["1"])
         self.caster = item["5"]
         self.target = item["6"]
         self.id = item["7"]

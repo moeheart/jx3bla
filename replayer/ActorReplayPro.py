@@ -267,6 +267,10 @@ class ActorProReplayer(ReplayerBase):
             elif event.dataType == "Shout":
                 if self.bossAnalyseName == "赵八嫂" and event.content in ['"就拿你们的血来磨磨刀！"']:
                     self.startTime = event.time
+                if self.bossAnalyseName == "悉达罗摩" and event.content in ['"来吧，进餐时间到了！"']:
+                    self.finalTime = event.time + 5000
+                if self.bossAnalyseName == "月泉淮" and event.content in ['"就到这里吧……我玩够了。"']:
+                    self.finalTime = event.time + 5000
 
             elif event.dataType == "Battle":
                 pass
