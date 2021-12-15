@@ -1711,12 +1711,40 @@ class XiangZhiProReplayer(ReplayerBase):
         # for line in self.result["replay"]["special"]:
         #     print(line)
 
+    def scaleScore(self, x, scale):
+        N = len(scale)
+        assert N >= 2
+        score = 0
+        if scale[0][0] > scale[1][0]:
+            x = -x
+            for i in range(N):
+                scale[i][0] = -scale[i][0]
+        for i in range(0, N - 1):
+            assert scale[i][0] < scale[i + 1][0]
+
+        if x < scale[0][0]:
+            score = scale[0][1]
+        else:
+            for i in range(0, N - 1):
+                if x >= scale[i][0] and x < scale[i + 1][0]:
+                    score = scale[i][1] + (x - scale[i][0]) / (scale[i + 1][0] - scale[i][0] + 1e-10) * (scale[i + 1][1] - scale[i][1])
+                    break
+            else:
+                score = scale[N - 1][1]
+        return score
+
     def recordRater(self):
         '''
         实现打分. 由于此处是单BOSS，因此打分直接由类内进行，不再整体打分。
         '''
-        self.result["score"] = {"sum": 0}
+        self.result["score"] = {"available": 0, "sum": 0}
 
+        map = self.result["overall"]["map"]
+        boss = self.result["overall"]["boss"]
+        if map not in ["25人普通雷域大泽", "25人英雄雷域大泽"]:
+            return
+        if boss not in ["巨型尖吻凤", "桑乔", "悉达罗摩", "尤珈罗摩", "月泉淮", "乌蒙贵"]:
+            return
         # 数值分A
         # 治疗量A1
         stdTable = {"25人普通雷域大泽": {"巨型尖吻凤": [[0, 0], [1000, 10]],
@@ -1726,8 +1754,43 @@ class XiangZhiProReplayer(ReplayerBase):
                                   "月泉淮": [[0, 0], [1000, 10]],
                                   "乌蒙贵": [[0, 0], [1000, 10]],
                                 }
-                    }
+                   }
+        std = stdTable[map][boss]
+        heal = 0
+        for record in self.result["healer"]["table"]:
+            name = record["name"]
+            if name == self.result["overall"]["playerID"]:
+                heal = tb.AppendContext(record["healEff"])
+                break
+        scoreA1 = self.scaleScore(heal, std)
+        self.result["score"]["scoreA1"] = scoreA1
 
+        # 盾数量A2
+
+        # 徵数量A3
+
+        # 宫数量A4
+
+        # A类总计
+
+        # 统计分B
+        # 盾覆盖率B1
+
+        # HOT覆盖率B2
+
+        # B类总计
+
+        # 操作分C
+        # 战斗效率C1
+
+        # 盾延迟C2
+
+        # 徵延迟C3
+
+        # 宫延迟C4
+        # C类总计
+
+        # 总分
 
 
         # tb.AppendHeader("数值分：", "对治疗数值的打分，包括治疗量、各个技能数量。")
