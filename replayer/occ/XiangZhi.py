@@ -330,6 +330,33 @@ class XiangZhiProWindow():
     通过tkinter将复盘数据显示在图形界面中.
     '''
 
+    def getLvl(self, score):
+        '''
+        根据清华绩点算法获取等级.
+        params:
+        - score: 分数
+        returns:
+        - rate: 等级
+        - color: 对应的颜色
+        - describe: 对应的评语
+        '''
+        self.rateScale = [[100, "#ffff00", "A+", "不畏浮云遮望眼，只缘身在最高层。"],
+                          [95, "#ff7777", "A", "独有凤凰池上客，阳春一曲和皆难。"],
+                          [90, "#ff7777", "A-", "欲把一麾江海去，乐游原上望昭陵。"],
+                          [85, "#ff7700", "B+", "敢将十指夸针巧，不把双眉斗画长。"],
+                          [80, "#ff7700", "B", "云想衣裳花想容，春风拂槛露华浓。"],
+                          [77, "#ff7700", "B-", "疏影横斜水清浅，暗香浮动月黄昏。"],
+                          [73, "#0077ff", "C+", "青山隐隐水迢迢，秋尽江南草未凋。"],
+                          [70, "#0077ff", "C", "花径不曾缘客扫，蓬门今始为君开。"],
+                          [67, "#0077ff", "C-", "上穷碧落下黄泉，两处茫茫皆不见。"],
+                          [63, "#77ff00", "D+", "人世几回伤往事，山形依旧枕寒流。"],
+                          [60, "#77ff00", "D", "总为浮云能蔽日，长安不见使人愁。"],
+                          [0, "#ff0000", "F", "仰天大笑出门去，我辈岂是蓬蒿人。"]]
+
+        for line in self.rateScale:
+            if score >= line[0]:
+                return line[2], line[1], line[3]
+
     def getMaskName(self, name):
         '''
         获取名称打码的结果。事实上只需要对统计列表中的玩家打码.
@@ -572,9 +599,10 @@ class XiangZhiProWindow():
         text = "数量：%d\n"%self.result["skill"]["gong"]["num"]
         text = text + "延迟：%dms\n" % self.result["skill"]["gong"]["delay"]
         text = text + "HPS：%d\n" % self.result["skill"]["gong"]["HPS"]
+        text = text + "枕流HPS：%d\n" % self.result["skill"]["meihua"].get("zhenliuHPS", 0)
         text = text + "有效比例：%s%%\n" % parseCent(self.result["skill"]["gong"]["effRate"])
         label = tk.Label(frame5_6, text=text, justify="left")
-        label.place(x=60, y=20)
+        label.place(x=60, y=10)
 
         frame5_7 = tk.Frame(frame5, width=180, height=95)
         frame5_7.place(x=360, y=100)
@@ -591,12 +619,13 @@ class XiangZhiProWindow():
 
         frame5_8 = tk.Frame(frame5, width=180, height=95)
         frame5_8.place(x=540, y=100)
-        text = "桑柔DPS：%d\n"%self.result["skill"]["general"]["SangrouDPS"]
+        text = "APS：%d\n" % self.result["skill"]["general"].get("APS", 0)
+        text = text + "桑柔DPS：%d\n" % self.result["skill"]["general"]["SangrouDPS"]
         text = text + "庄周梦DPS：%d\n" % self.result["skill"]["general"]["ZhuangzhouDPS"]
         text = text + "玉简DPS：%d\n" % self.result["skill"]["general"].get("YujianDPS", 0)
         text = text + "战斗效率：%s%%\n" % parseCent(self.result["skill"]["general"]["efficiency"])
         label = tk.Label(frame5_8, text=text, justify="left")
-        label.place(x=20, y=20)
+        label.place(x=20, y=10)
 
         # Part 6: 回放
 
@@ -741,25 +770,55 @@ class XiangZhiProWindow():
         frame8.place(x=320, y=620)
         frame8sub = tk.Frame(frame8)
         frame8sub.place(x=30, y=30)
-        # TODO 实现
-        tb = TableConstructor(self.config, frame8sub)
-        tb.AppendHeader("数值分：", "对治疗数值的打分，包括治疗量、各个技能数量。")
-        tb.AppendContext("0", width=9)
-        tb.AppendContext("F")
-        tb.EndOfLine()
-        tb.AppendHeader("统计分：", "对统计结果的打分，包括梅花三弄和HOT的覆盖率。")
-        tb.AppendContext("0", width=9)
-        tb.AppendContext("F")
-        tb.EndOfLine()
-        tb.AppendHeader("操作分：", "对操作表现的打分，包括战斗效率，各个技能延迟。")
-        tb.AppendContext("0", width=9)
-        tb.AppendContext("F")
-        tb.EndOfLine()
-        tb.AppendHeader("总评：", "综合计算这几项的结果。")
-        tb.AppendContext("0", width=9)
-        tb.AppendContext("F")
-        tb.EndOfLine()
-        tk.Label(frame8, text="分数统计在收集一定量的数据后生效。").place(x=10, y=150)
+
+        if self.result["score"]["available"] == 0:
+            tb = TableConstructor(self.config, frame8sub)
+            tb.AppendHeader("数值分：", "对治疗数值的打分，包括治疗量、各个技能数量。")
+            tb.AppendContext("0", width=9)
+            tb.AppendContext("F")
+            tb.EndOfLine()
+            tb.AppendHeader("统计分：", "对统计结果的打分，包括梅花三弄和HOT的覆盖率。")
+            tb.AppendContext("0", width=9)
+            tb.AppendContext("F")
+            tb.EndOfLine()
+            tb.AppendHeader("操作分：", "对操作表现的打分，包括战斗效率，各个技能延迟。")
+            tb.AppendContext("0", width=9)
+            tb.AppendContext("F")
+            tb.EndOfLine()
+            tb.AppendHeader("总评：", "综合计算这几项的结果。")
+            tb.AppendContext("0", width=9)
+            tb.AppendContext("F")
+            tb.EndOfLine()
+            tk.Label(frame8, text="复盘生成时的版本尚不支持打分。").place(x=10, y=150)
+        else:
+            tb = TableConstructor(self.config, frame8sub)
+            tb.AppendHeader("数值分：", "对治疗数值的打分，包括治疗量、各个技能数量。")
+            descA = "治疗量评分：%.1f\n盾数量评分：%.1f\n徵数量评分：%.1f\n宫数量评分：%.1f" % (self.result["score"]["scoreA1"], self.result["score"]["scoreA2"],
+                                                               self.result["score"]["scoreA3"], self.result["score"]["scoreA4"])
+            tb.AppendHeader(self.result["score"]["scoreA"], descA, width=9)
+            lvlA, colorA, _ = self.getLvl(self.result["score"]["scoreA"])
+            tb.AppendContext(lvlA, color=colorA)
+            tb.EndOfLine()
+            tb.AppendHeader("统计分：", "对统计结果的打分，包括梅花三弄和HOT的覆盖率。")
+            descB = "盾覆盖率评分：%.1f\nHOT覆盖率评分：%.1f" % (self.result["score"]["scoreB1"], self.result["score"]["scoreB2"])
+            tb.AppendHeader(self.result["score"]["scoreB"], descB, width=9)
+            lvlB, colorB, _ = self.getLvl(self.result["score"]["scoreB"])
+            tb.AppendContext(lvlB, color=colorB)
+            tb.EndOfLine()
+            tb.AppendHeader("操作分：", "对操作表现的打分，包括战斗效率，各个技能延迟。")
+            descC = "战斗效率评分：%.1f\n盾延迟评分：%.1f\n徵延迟评分：%.1f\n宫延迟评分：%.1f" % (self.result["score"]["scoreC1"], self.result["score"]["scoreC2"],
+                                                               self.result["score"]["scoreC3"], self.result["score"]["scoreC4"])
+            tb.AppendHeader(self.result["score"]["scoreC"], descC, width=9)
+            lvlC, colorC, _ = self.getLvl(self.result["score"]["scoreC"])
+            tb.AppendContext(lvlC, color=colorC)
+            tb.EndOfLine()
+
+            tb.AppendHeader("总评：", "综合计算这几项的结果。")
+            tb.AppendContext(self.result["score"]["sum"], width=9)
+            lvl, color, desc = self.getLvl(self.result["score"]["sum"])
+            tb.AppendContext(lvl, color=color)
+            tb.EndOfLine()
+            tk.Label(frame8, text=desc, fg=color).place(x=10, y=150)
 
         # Part 9: 广告
         frame9 = tk.Frame(window, width=200, height=200, highlightthickness=1, highlightbackground="#64fab4")
@@ -838,7 +897,8 @@ class XiangZhiProReplayer(ReplayerBase):
         self.npcName = ""
         self.npcKey = 0
         for key in self.bld.info.npc:
-            if self.bld.info.npc[key].name in ['"宓桃"', '"毗留博叉"'] or self.bld.info.npc[key].name == self.npcName:
+            if self.bld.info.npc[key].name in ['"宓桃"',
+                                  '"毗留博叉"'] or self.bld.info.npc[key].name == self.npcName:
                 self.npcKey = key
                 break
 
@@ -1079,6 +1139,7 @@ class XiangZhiProReplayer(ReplayerBase):
         youxiangHeal = 0
         pingyinHeal = 0
         gudaoHeal = 0
+        zhenliuHeal = 0
 
         # 战斗回放初始化
         bh = BattleHistory(self.startTime, self.finalTime)
@@ -1374,6 +1435,8 @@ class XiangZhiProReplayer(ReplayerBase):
                             pingyinHeal += event.healEff
                         if event.id == "23951" and event.level == 75:  # 古道
                             gudaoHeal += event.healEff
+                        if event.id == "26965":  # 枕流
+                            zhenliuHeal += event.healEff
 
                     if event.caster == self.mykey and event.scheme == 2:
                         if event.id in ["9459", "9460", "9461", "9462"]:  # 商
@@ -1612,6 +1675,7 @@ class XiangZhiProReplayer(ReplayerBase):
         effHeal = gongSkill.getHealEff()
         self.result["skill"]["gong"]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
         self.result["skill"]["gong"]["effRate"] = effHeal / (gongSkill.getHeal() + 1e-10)
+        self.result["skill"]["gong"]["zhenliuHPS"] = int(zhenliuHeal / self.result["overall"]["sumTime"] * 1000)
         # 徵
         self.result["skill"]["zhi"] = {}
         self.result["skill"]["zhi"]["num"] = zhiSkill.getNum()
@@ -1713,7 +1777,9 @@ class XiangZhiProReplayer(ReplayerBase):
 
     def scaleScore(self, x, scale):
         N = len(scale)
-        assert N >= 2
+        assert N >= 1
+        if N == 1:
+            return scale[0][1]
         score = 0
         if scale[0][0] > scale[1][0]:
             x = -x
@@ -1737,6 +1803,7 @@ class XiangZhiProReplayer(ReplayerBase):
         '''
         实现打分. 由于此处是单BOSS，因此打分直接由类内进行，不再整体打分。
         '''
+
         self.result["score"] = {"available": 0, "sum": 0}
 
         map = self.result["overall"]["map"]
@@ -1745,74 +1812,222 @@ class XiangZhiProReplayer(ReplayerBase):
             return
         if boss not in ["巨型尖吻凤", "桑乔", "悉达罗摩", "尤珈罗摩", "月泉淮", "乌蒙贵"]:
             return
+
+        self.result["score"]["available"] = 1
         # 数值分A
         # 治疗量A1
-        stdTable = {"25人普通雷域大泽": {"巨型尖吻凤": [[0, 0], [1000, 10]],
-                                  "桑乔": [[0, 0], [1000, 10]],
-                                  "悉达罗摩": [[0, 0], [1000, 10]],
-                                  "尤珈罗摩": [[0, 0], [1000, 10]],
-                                  "月泉淮": [[0, 0], [1000, 10]],
-                                  "乌蒙贵": [[0, 0], [1000, 10]],
-                                }
-                   }
+        stdTable = {'25人普通雷域大泽': {'巨型尖吻凤': [[0, 0], [2072, 3], [4129, 6], [5294, 10]],
+                                  '桑乔': [[0, 0], [1520, 3], [3150, 6], [4302, 10]],
+                                  '悉达罗摩': [[0, 0], [4712, 3], [8983, 6], [11416, 10]],
+                                  '尤珈罗摩': [[0, 0], [43743, 3], [57848, 6], [72406, 10]],
+                                  '月泉淮': [[0, 0], [5180, 3], [14029, 6], [21187, 10]],
+                                  '乌蒙贵': [[0, 0], [5490, 3], [14115, 6], [17161, 10]]},
+                    '25人英雄雷域大泽': {'巨型尖吻凤': [[0, 0], [2259, 3], [4488, 6], [5358, 10]],
+                                  '桑乔': [[0, 0], [1984, 3], [3562, 6], [4563, 10]],
+                                  '悉达罗摩': [[0, 0], [4433, 3], [7054, 6], [8911, 10]],
+                                  '尤珈罗摩': [[0, 0], [67502, 3], [75771, 6], [87567, 10]],
+                                  '月泉淮': [[0, 0], [8170, 3], [14506, 6], [16076, 10]],
+                                  '乌蒙贵': [[0, 0], [3476, 3], [8271, 6], [11394, 10]]}}
         std = stdTable[map][boss]
         heal = 0
         for record in self.result["healer"]["table"]:
             name = record["name"]
             if name == self.result["overall"]["playerID"]:
-                heal = tb.AppendContext(record["healEff"])
+                heal = record["healEff"]
                 break
         scoreA1 = self.scaleScore(heal, std)
         self.result["score"]["scoreA1"] = scoreA1
-
         # 盾数量A2
-
+        stdTable = {'25人普通雷域大泽': {'巨型尖吻凤': [[0, 0], [44, 3], [54, 6], [71, 10]],
+                                  '桑乔': [[0, 0], [56, 3], [64, 6], [74, 10]],
+                                  '悉达罗摩': [[0, 0], [84, 3], [109, 6], [138, 10]],
+                                  '尤珈罗摩': [[0, 0]],
+                                  '月泉淮': [[0, 0], [45, 3], [92, 6], [141, 10]],
+                                  '乌蒙贵': [[0, 0], [47, 3], [81, 6], [113, 10]]},
+                    '25人英雄雷域大泽': {'巨型尖吻凤': [[0, 0], [72, 3], [80, 6], [104, 10]],
+                                  '桑乔': [[0, 0], [62, 3], [72, 6], [88, 10]],
+                                  '悉达罗摩': [[0, 0], [105, 3], [145, 6], [199, 10]],
+                                  '尤珈罗摩': [[0, 0]],
+                                  '月泉淮': [[0, 0], [46, 3], [115, 6], [168, 10]],
+                                  '乌蒙贵': [[0, 0], [100, 3], [121, 6], [139, 10]]}}
+        std = stdTable[map][boss]
+        numShield = self.result["skill"]["meihua"]["num"]
+        scoreA2 = self.scaleScore(numShield, std)
+        self.result["score"]["scoreA2"] = scoreA2
         # 徵数量A3
-
+        stdTable = {'25人普通雷域大泽': {'巨型尖吻凤': [[0, 0], [10, 3], [152, 6], [212, 10]],
+                                  '桑乔': [[0, 0], [80, 3], [307, 6], [464, 10]],
+                                  '悉达罗摩': [[0, 0], [173, 3], [349, 6], [472, 10]],
+                                  '尤珈罗摩': [[0, 0]],
+                                  '月泉淮': [[0, 0], [65, 3], [560, 6], [889, 10]],
+                                  '乌蒙贵': [[0, 0], [93, 3], [490, 6], [771, 10]]},
+                    '25人英雄雷域大泽': {'巨型尖吻凤': [[0, 0], [44, 3], [252, 6], [400, 10]],
+                                  '桑乔': [[0, 0], [258, 3], [667, 6], [987, 10]],
+                                  '悉达罗摩': [[0, 0], [104, 3], [498, 6], [708, 10]],
+                                  '尤珈罗摩': [[0, 0]],
+                                  '月泉淮': [[0, 0], [234, 3], [863, 6], [1171, 10]],
+                                  '乌蒙贵': [[0, 0], [288, 3], [1040, 6], [1465, 10]]}}
+        std = stdTable[map][boss]
+        numZhi = self.result["skill"]["zhi"]["num"]
+        scoreA3 = self.scaleScore(numZhi, std)
+        self.result["score"]["scoreA3"] = scoreA3
         # 宫数量A4
-
+        stdTable = {'25人普通雷域大泽': {'巨型尖吻凤': [[0, 0]],
+                                  '桑乔': [[0, 0]],
+                                  '悉达罗摩': [[0, 0]],
+                                  '尤珈罗摩': [[0, 0], [150, 3], [345, 6], [570, 10]],
+                                  '月泉淮': [[0, 0]],
+                                  '乌蒙贵': [[0, 0]]},
+                    '25人英雄雷域大泽': {'巨型尖吻凤': [[0, 0]],
+                                  '桑乔': [[0, 0]],
+                                  '悉达罗摩': [[0, 0]],
+                                  '尤珈罗摩': [[0, 0], [221, 3], [658, 6], [1084, 10]],
+                                  '月泉淮': [[0, 0]],
+                                  '乌蒙贵': [[0, 0]]}}
+        std = stdTable[map][boss]
+        numGong = self.result["skill"]["gong"]["num"]
+        scoreA4 = self.scaleScore(numGong, std)
+        self.result["score"]["scoreA4"] = scoreA4
         # A类总计
+
+        scoreAT1 = scoreA1 * 10
+        scoreAT2 = (scoreA2 + scoreA3) * 5
+        scoreAT3 = (scoreA1 * 2 + scoreA2 + scoreA3) * 3
+        scoreAT4 = (scoreA1 + scoreA4) * 6
+        scoreA = max(scoreAT1, scoreAT2, scoreAT3, scoreAT4)
+        scoreA = min(scoreA, 100)
+        scoreA = roundCent(scoreA, 1)
+        self.result["score"]["scoreA"] = scoreA
 
         # 统计分B
         # 盾覆盖率B1
-
+        stdTable = {'25人普通雷域大泽': {'巨型尖吻凤': [[0, 0], [0.42, 3], [0.45, 6], [0.6, 10]],
+                                  '桑乔': [[0, 0], [0.7, 3], [0.71, 6], [0.83, 10]],
+                                  '悉达罗摩': [[0, 0], [0.35, 3], [0.45, 6], [0.53, 10]],
+                                  '尤珈罗摩': [[0, 0]],
+                                  '月泉淮': [[0, 0], [0.1, 3], [0.36, 6], [0.59, 10]],
+                                  '乌蒙贵': [[0, 0], [0.27, 3], [0.36, 6], [0.49, 10]]},
+                    '25人英雄雷域大泽': {'巨型尖吻凤': [[0, 0], [0.47, 3], [0.56, 6], [0.71, 10]],
+                                  '桑乔': [[0, 0], [0.74, 3], [0.77, 6], [0.88, 10]],
+                                  '悉达罗摩': [[0, 0], [0.49, 3], [0.54, 6], [0.65, 10]],
+                                  '尤珈罗摩': [[0, 0]],
+                                  '月泉淮': [[0, 0], [0.19, 3], [0.32, 6], [0.45, 10]],
+                                  '乌蒙贵': [[0, 0], [0.44, 3], [0.5, 6], [0.6, 10]]}}
+        std = stdTable[map][boss]
+        coverShield = self.result["skill"]["meihua"]["cover"]
+        scoreB1 = self.scaleScore(coverShield, std)
+        self.result["score"]["scoreB1"] = scoreB1
         # HOT覆盖率B2
-
+        stdTable = {'25人普通雷域大泽': {'巨型尖吻凤': [[0, 0]],
+                                  '桑乔': [[0, 0]],
+                                  '悉达罗摩': [[0, 0]],
+                                  '尤珈罗摩': [[0, 0], [0.31, 3], [0.42, 6], [0.53, 10]],
+                                  '月泉淮': [[0, 0]],
+                                  '乌蒙贵': [[0, 0]]},
+                    '25人英雄雷域大泽': {'巨型尖吻凤': [[0, 0]],
+                                  '桑乔': [[0, 0]],
+                                  '悉达罗摩': [[0, 0]],
+                                  '尤珈罗摩': [[0, 0], [0.58, 3], [0.63, 6], [0.7, 10]],
+                                  '月泉淮': [[0, 0]],
+                                  '乌蒙贵': [[0, 0]]}}
+        std = stdTable[map][boss]
+        coverHot = (self.result["skill"]["shang"]["cover"] + self.result["skill"]["jue"]["cover"]) / 2
+        scoreB2 = self.scaleScore(coverHot, std)
+        self.result["score"]["scoreB2"] = scoreB2
         # B类总计
+        scoreBT1 = scoreB1 * 10
+        scoreBT2 = scoreB2 * 10
+        scoreB = max(scoreBT1, scoreBT2)
+        scoreB = min(scoreB, 100)
+        scoreB = roundCent(scoreB, 1)
+        self.result["score"]["scoreB"] = scoreB
 
         # 操作分C
         # 战斗效率C1
-
+        stdTable = {'25人普通雷域大泽': {'巨型尖吻凤': [[0, 0], [0.52, 3], [0.58, 6], [0.73, 10]],
+                                  '桑乔': [[0, 0], [0.46, 3], [0.57, 6], [0.71, 10]],
+                                  '悉达罗摩': [[0, 0], [0.59, 3], [0.64, 6], [0.68, 10]],
+                                  '尤珈罗摩': [[0, 0], [0.53, 3], [0.62, 6], [0.72, 10]],
+                                  '月泉淮': [[0, 0], [0.56, 3], [0.63, 6], [0.75, 10]],
+                                  '乌蒙贵': [[0, 0], [0.47, 3], [0.55, 6], [0.66, 10]]},
+                    '25人英雄雷域大泽': {'巨型尖吻凤': [[0, 0], [0.57, 3], [0.63, 6], [0.76, 10]],
+                                  '桑乔': [[0, 0], [0.4, 3], [0.5, 6], [0.61, 10]],
+                                  '悉达罗摩': [[0, 0], [0.55, 3], [0.63, 6], [0.72, 10]],
+                                  '尤珈罗摩': [[0, 0], [0.68, 3], [0.72, 6], [0.79, 10]],
+                                  '月泉淮': [[0, 0], [0.54, 3], [0.58, 6], [0.71, 10]],
+                                  '乌蒙贵': [[0, 0], [0.39, 3], [0.5, 6], [0.65, 10]]}}
+        std = stdTable[map][boss]
+        efficiency = self.result["skill"]["general"]["efficiency"]
+        scoreC1 = self.scaleScore(efficiency, std)
+        self.result["score"]["scoreC1"] = scoreC1
         # 盾延迟C2
-
+        stdTable = {'25人普通雷域大泽': {'巨型尖吻凤': [[500, 0], [368, 3], [261, 6], [174, 10]],
+                                  '桑乔': [[500, 0], [462, 3], [346, 6], [236, 10]],
+                                  '悉达罗摩': [[500, 0], [424, 3], [329, 6], [235, 10]],
+                                  '尤珈罗摩': [[500, 0]],
+                                  '月泉淮': [[500, 0], [352, 3], [226, 6], [215, 10]],
+                                  '乌蒙贵': [[700, 0], [499, 3], [347, 6], [227, 10]]},
+                     '25人英雄雷域大泽': {'巨型尖吻凤': [[500, 0], [343, 3], [302, 6], [201, 10]],
+                                  '桑乔': [[500, 0], [376, 3], [319, 6], [270, 10]],
+                                  '悉达罗摩': [[500, 0], [353, 3], [307, 6], [246, 10]],
+                                  '尤珈罗摩': [[500, 0]],
+                                  '月泉淮': [[500, 0], [356, 3], [285, 6], [168, 10]],
+                                  '乌蒙贵': [[500, 0], [445, 3], [374, 6], [301, 10]]}}
+        std = stdTable[map][boss]
+        delayShield = self.result["skill"]["meihua"]["delay"]
+        scoreC2 = self.scaleScore(delayShield, std)
+        self.result["score"]["scoreC2"] = scoreC2
         # 徵延迟C3
-
+        stdTable = {'25人普通雷域大泽': {'巨型尖吻凤': [[300, 0], [123, 3], [110, 6], [27, 10]],
+                                  '桑乔': [[300, 0], [177, 3], [132, 6], [11, 10]],
+                                  '悉达罗摩': [[300, 0], [118, 3], [109, 6], [55, 10]],
+                                  '尤珈罗摩': [[300, 0], [95, 3], [73, 6], [30, 10]],
+                                  '月泉淮': [[300, 0], [108, 3], [96, 6], [24, 10]],
+                                  '乌蒙贵': [[300, 0], [152, 3], [132, 6], [76, 10]]},
+                    '25人英雄雷域大泽': {'巨型尖吻凤': [[300, 0], [155, 3], [112, 6], [37, 10]],
+                                  '桑乔': [[300, 0], [135, 3], [102, 6], [65, 10]],
+                                  '悉达罗摩': [[300, 0], [128, 3], [98, 6], [55, 10]],
+                                  '尤珈罗摩': [[300, 0]],
+                                  '月泉淮': [[300, 0], [109, 3], [75, 6], [39, 10]],
+                                  '乌蒙贵': [[300, 0], [135, 3], [127, 6], [61, 10]]}}
+        std = stdTable[map][boss]
+        delayZhi = self.result["skill"]["zhi"]["delay"]
+        scoreC3 = self.scaleScore(delayZhi, std)
+        self.result["score"]["scoreC3"] = scoreC3
         # 宫延迟C4
+        stdTable = {'25人普通雷域大泽': {'巨型尖吻凤': [[1, 0]],
+                                  '桑乔': [[1, 0]],
+                                  '悉达罗摩': [[1, 0]],
+                                  '尤珈罗摩': [[500, 0], [344, 3], [279, 6], [217, 10]],
+                                  '月泉淮': [[1, 0]],
+                                  '乌蒙贵': [[1, 0]]},
+                                  '25人英雄雷域大泽': {'巨型尖吻凤': [[1, 0]],
+                                  '桑乔': [[1, 0]],
+                                  '悉达罗摩': [[1, 0]],
+                                  '尤珈罗摩': [[500, 0], [284, 3], [247, 6], [202, 10]],
+                                  '月泉淮': [[1, 0]],
+                                  '乌蒙贵': [[1, 0]]}}
+        std = stdTable[map][boss]
+        delayGong = self.result["skill"]["gong"]["delay"]
+        scoreC4 = self.scaleScore(delayGong, std)
+        self.result["score"]["scoreC4"] = scoreC4
         # C类总计
+        scoreCT1 = scoreC1 * 10
+        scoreCT2 = (scoreC2 + scoreC3) * 5
+        scoreCT3 = (scoreC1 * 2 + scoreC2 + scoreC3) * 3
+        scoreCT4 = (scoreC1 + scoreC4) * 6
+        scoreC = max(scoreCT1, scoreCT2, scoreCT3, scoreCT4)
+        scoreC = min(scoreC, 100)
+        scoreC = roundCent(scoreC, 1)
+        self.result["score"]["scoreC"] = scoreC
 
         # 总分
-
-
-        # tb.AppendHeader("数值分：", "对治疗数值的打分，包括治疗量、各个技能数量。")
-        # tb.AppendContext("0", width=9)
-        # tb.AppendContext("F")
-        # tb.EndOfLine()
-        # tb.AppendHeader("统计分：", "对统计结果的打分，包括梅花三弄和HOT的覆盖率。")
-        # tb.AppendContext("0", width=9)
-        # tb.AppendContext("F")
-        # tb.EndOfLine()
-        # tb.AppendHeader("操作分：", "对操作表现的打分，包括战斗效率，各个技能延迟。")
-        # tb.AppendContext("0", width=9)
-        # tb.AppendContext("F")
-        # tb.EndOfLine()
-        # tb.AppendHeader("总评：", "综合计算这几项的结果。")
-        # tb.AppendContext("0", width=9)
-        # tb.AppendContext("F")
-        # tb.EndOfLine()
-        # tk.Label(frame8, text="分数统计在收集一定量的数据后生效。").place(x=10, y=150)
-
-
-        pass
+        scoreT1 = scoreA * 0.1 + (scoreA + scoreB + scoreC) * 0.3
+        scoreT2 = scoreB * 0.1 + (scoreA + scoreB + scoreC) * 0.3
+        scoreT3 = scoreC * 0.1 + (scoreA + scoreB + scoreC) * 0.3
+        score = max(scoreT1, scoreT2, scoreT3)
+        score = roundCent(score, 1)
+        self.result["score"]["sum"] = score
 
     def getHash(self):
         '''

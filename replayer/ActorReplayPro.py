@@ -169,9 +169,9 @@ class ActorProReplayer(ReplayerBase):
             self.window.playerEquipment[id] = self.bld.info.player[id].equip
 
         # TODO 为格式错误准备报错信息
-        #if len(sk) == 0:
-            #raise Exception('复盘信息格式错误，请确认设置是否正确。如果不清楚细节，请先使用实时模式。')
-        #    return 1 #格式错误
+        if len(self.bld.log) == 0:
+            raise Exception('复盘信息格式错误，请确认设置是否正确。如果不清楚细节，请先使用实时模式。')
+            return 1  # 格式错误
 
         # self.namedict = namedict
         # self.occdict = occdict
