@@ -89,10 +89,10 @@ if (resObj.qixue.available) {
     for (var i = 0; i < 12; i++) {
         result4 += resObj.qixue[i];
         if (i != 11) {
-            result11 += ",";
+            result4 += ",";
         }
         if (i == 6) {
-            result11 += "<br>";
+            result4 += "<br>";
         }
     }
     $('#data-4-t').html(result4);
