@@ -37,6 +37,7 @@ function getLvl(score) {
 repl = raw.replace(/'/g, '"')
 repl = repl.replace(/&#39;/g, '"');
 repl = repl.replace(/\\n/g, '\n');
+repl = repl.replace(/\\t/g, '\t');
 
 resObj = JSON.parse(repl)
 

@@ -779,7 +779,8 @@ def showReplayPro():
         text = "数据未公开."
     elif len(result[0][2]) >= 4 and result[0][2][:4] == "奶歌复盘":
         # 生成奶歌复盘
-        return render_template("XiangZhiReplayPro.html", raw=result[0][0].decode().replace('\n', '\\n'), edition=EDITION)
+        text = result[0][0].decode().replace('\n', '\\n').replace('\t', '\\t')
+        return render_template("XiangZhiReplayPro.html", raw=text, edition=EDITION)
     return jsonify({'text': text.decode()})
 
 @app.route('/getReplayPro', methods=['GET'])
