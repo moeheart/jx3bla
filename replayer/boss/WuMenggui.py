@@ -214,19 +214,19 @@ class WuMengguiReplayer(SpecificReplayerPro):
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.npc[event.target].name == "乌蒙贵" and self.phase == 1:
+                        if self.bld.info.npc[event.target].name in ["乌蒙贵", "烏蒙貴"] and self.phase == 1:
                                 self.stat[event.caster][7] += event.damageEff
-                        elif self.bld.info.npc[event.target].name == "黑条巨蛾":
+                        elif self.bld.info.npc[event.target].name in ["黑条巨蛾", "黑條巨蛾"]:
                             self.stat[event.caster][8] += event.damageEff
                             if event.damageEff > 0 and self.phase == 1:
                                 self.phaseTime[1] = event.time - self.phaseStart
                                 self.phase = 2
                                 self.phaseStart = event.time
-                        elif self.bld.info.npc[event.target].name == "触手":
+                        elif self.bld.info.npc[event.target].name in ["触手", "觸手"]:
                             self.chushou[event.target]["dps"][event.caster] += event.damageEff
-                        elif self.bld.info.npc[event.target].name == "蛾卵":
+                        elif self.bld.info.npc[event.target].name in ["蛾卵"]:
                             self.stat[event.caster][11] += event.damageEff
-                        elif self.bld.info.npc[event.target].name == "乌蒙贵" and self.phase == 3:
+                        elif self.bld.info.npc[event.target].name in ["乌蒙贵", "烏蒙貴"] and self.phase == 3:
                             self.stat[event.caster][12] += int(event.fullResult.get("9", 0))
 
                     if (event.damageEff > 0 or event.healEff > 0) and event.scheme == 1:
@@ -240,7 +240,7 @@ class WuMengguiReplayer(SpecificReplayerPro):
                 self.win = 1
                     
         elif event.dataType == "Shout":
-            if event.content in ['"呵呵呵呵呵……哈哈哈哈哈……这就是毒神的力量！"']:
+            if event.content in ['"呵呵呵呵呵……哈哈哈哈哈……这就是毒神的力量！"', '"呵呵呵呵呵……哈哈哈哈哈……這就是毒神的力量！"']:
                 self.phaseTime[2] = event.time - self.phaseStart
                 self.phase = 3
                 self.phaseStart = event.time
@@ -252,7 +252,7 @@ class WuMengguiReplayer(SpecificReplayerPro):
                 if self.phase == 3:
                     self.stat[event.id][13] = int((event.time - self.phaseStart) / 1000)
 
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name == "触手":
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["触手", "觸手"]:
                 # 结算触手伤害
                 for line2 in self.chushou:
                     for line in self.chushou[line2]["dps"]:
@@ -324,7 +324,7 @@ class WuMengguiReplayer(SpecificReplayerPro):
         self.chushouNum = 0
         self.chushouLastTime = 0
         for line2 in self.bld.info.npc:
-            if self.bld.info.npc[line2].name == "触手":
+            if self.bld.info.npc[line2].name in ["触手", "觸手"]:
                 self.chushou[line2] = {"dps": {}, "status": 0, "time": 0}
                 for line in self.bld.info.player:
                     self.chushou[line2]["dps"][line] = 0

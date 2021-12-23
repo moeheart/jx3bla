@@ -82,8 +82,12 @@ class BattleLogData():
         firstBattleInfo = True
 
         print("读取文件：%s" % filePath)
-        f = open(filePath, "r")
-        s = f.read()
+        try:
+            f = open(filePath, "r")
+            s = f.read()
+        except:
+            f = open(filePath, "r", encoding='utf-8')
+            s = f.read()
         jclRaw = s.strip('\n').split('\n')
 
         maxN = len(jclRaw)
@@ -160,6 +164,10 @@ class BattleLogData():
         #读取全局数据
         self.info.skill = {}
         self.info.map = filePath.split('/')[-1].split('\\')[-1].split('-')[6]
+        if self.info.map == "25人普通雷域大澤":
+            self.info.map = "25人普通雷域大泽"
+        elif self.info.map == "25人英雄雷域大澤":
+            self.info.map = "25人英雄雷域大泽"
         self.info.boss = filePath.split('/')[-1].split('\\')[-1].split('-')[7].split('.')[0]
 
 

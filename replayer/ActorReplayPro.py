@@ -232,25 +232,25 @@ class ActorProReplayer(ReplayerBase):
                 if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == '宫傲':
                     self.bossAnalyseName = "宫傲"
 
-                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == '巨型尖吻凤':
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ['巨型尖吻凤', "巨型尖吻鳳"]:
                     self.bossAnalyseName = "巨型尖吻凤"
                     if not timeReseted:
                         self.startTime = event.time
                         timeReseted = 1
 
-                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == '桑乔':
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ['桑乔', "桑喬"]:
                     self.bossAnalyseName = "桑乔"
 
-                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == '悉达罗摩':
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ['悉达罗摩', "悉達羅摩"]:
                     self.bossAnalyseName = "悉达罗摩"
 
-                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == '赐恩血瘤':
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ['赐恩血瘤', "賜恩血瘤"]:
                     self.bossAnalyseName = "尤珈罗摩"
 
                 if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == '月泉淮':
                     self.bossAnalyseName = "月泉淮"
 
-                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == '乌蒙贵':
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ['乌蒙贵', "烏蒙貴"]:
                     self.bossAnalyseName = "乌蒙贵"
 
                 # 通过技能确定具体心法

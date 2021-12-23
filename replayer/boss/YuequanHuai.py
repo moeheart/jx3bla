@@ -247,9 +247,9 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                     if event.target in self.bld.info.npc:
                         if self.bld.info.npc[event.target].name == "月泉淮":
                             self.stat[event.caster][7] += event.damageEff
-                        elif self.bld.info.npc[event.target].name == "蓄积的内力":
+                        elif self.bld.info.npc[event.target].name in ["蓄积的内力", "蓄積的內力"]:
                             self.stat[event.caster][8] += event.damageEff
-                        elif self.bld.info.npc[event.target].name == "天锁":
+                        elif self.bld.info.npc[event.target].name in ["天锁", "天鎖"]:
                             self.stat[event.caster][9] += event.damageEff
                             if self.yqhAppear:
                                 self.stat[event.caster][12] += event.damageEff
@@ -292,22 +292,22 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                 self.lastJiaotu[event.target] = event.time
 
         elif event.dataType == "Shout":
-            if event.content in ['"就到这里吧……我玩够了。"']:
+            if event.content in ['"就到这里吧……我玩够了。"', '"就到這裡吧……我玩夠了。"']:
                 self.win = 1
 
-            if event.content in ['"让老夫品尝品尝你们的内力吧……"']:
+            if event.content in ['"让老夫品尝品尝你们的内力吧……"', '"讓老夫品嘗品嘗你們的內力吧……"']:
                 self.phase = 2
                 self.yqjqTime = event.time
                 self.bh.setEnvironment("28289", "九十九月泉汲取", "2036", event.time, 25000, 1, "")
 
-            if event.content in ['"够了够了！余兴节目到此结束。"']:
+            if event.content in ['"够了够了！余兴节目到此结束。"', '"夠了夠了！ 餘興節目到此結束。"']:
                 self.phase = 3
                 self.bh.setEnvironment("28566", "千八百万凰炎冲", "4531", event.time, 16000, 1, "")
 
             if event.content in ['"丢下兵刃乖乖等死吧。"']:
                 self.xjdnl.append([event.time, 0])
 
-            if event.content in ['"哈哈……站那儿别动。"']:
+            if event.content in ['"哈哈……站那儿别动。"', '"哈哈……站那兒別動。"']:
                 self.yqts.append([event.time, 0])
 
         elif event.dataType == "Death":  # 重伤记录

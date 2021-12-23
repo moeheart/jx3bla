@@ -181,15 +181,15 @@ class YoujiaLuomoReplayer(SpecificReplayerPro):
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.npc[event.target].name == "赐恩血瘤":
+                        if self.bld.info.npc[event.target].name in ["赐恩血瘤", "賜恩血瘤"]:
                             self.stat[event.caster][7] += event.damageEff
-                        elif self.bld.info.npc[event.target].name == "摄魂鬼虫":
+                        elif self.bld.info.npc[event.target].name in ["摄魂鬼虫", "攝魂鬼蟲"]:
                             self.stat[event.caster][8] += event.damageEff
-                        elif self.bld.info.npc[event.target].name == "秽血勇虫":
+                        elif self.bld.info.npc[event.target].name in ["秽血勇虫", "穢血勇蟲"]:
                             self.stat[event.caster][9] += event.damageEff
-                        elif self.bld.info.npc[event.target].name == "毒尸":
+                        elif self.bld.info.npc[event.target].name in ["毒尸", "毒屍"]:
                             self.stat[event.caster][10] += event.damageEff
-                        elif self.bld.info.npc[event.target].name == "血蛊巢心":
+                        elif self.bld.info.npc[event.target].name in ["血蛊巢心", "血蠱巢心"]:
                             if event.damageEff > 0 and self.phase != 2:
                                 self.phaseTime[1] = event.time - self.startTime
                                 self.phase = 2
@@ -211,7 +211,7 @@ class YoujiaLuomoReplayer(SpecificReplayerPro):
             pass
 
         elif event.dataType == "Death":  # 重伤记录
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name == "血蛊巢心":
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["血蛊巢心", "血蠱巢心"]:
                 self.win = 1
 
         elif event.dataType == "Battle":  # 战斗状态变化

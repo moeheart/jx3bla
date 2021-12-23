@@ -183,11 +183,11 @@ class SangQiaoReplayer(SpecificReplayerPro):
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.npc[event.target].name == "桑乔":
+                        if self.bld.info.npc[event.target].name in ["桑乔""", "桑喬"]:
                             self.stat[event.caster][7] += event.damageEff
-                        elif self.bld.info.npc[event.target].name == "蜘蛛网":
+                        elif self.bld.info.npc[event.target].name in ["蜘蛛网", "蜘蛛網"]:
                             self.stat[event.caster][8] += event.damageEff
-                        elif self.bld.info.npc[event.target].name == "蜘蛛茧":
+                        elif self.bld.info.npc[event.target].name in ["蜘蛛茧", "蜘蛛繭"]:
                             self.zzl[event.target]["dps"][event.caster] += event.damageEff
                 
         elif event.dataType == "Buff":
@@ -216,9 +216,9 @@ class SangQiaoReplayer(SpecificReplayerPro):
             return
                 
         elif event.dataType == "Death":  # 重伤记录
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name == "桑乔":
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ['桑乔', "桑喬"]:
                 self.win = 1  # 击杀判定
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name == "蜘蛛茧":
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["蜘蛛茧", "蜘蛛繭"]:
                 if event.time - self.xzzTime > 100:
                     self.zzl[event.id]["status"] = 1  # 正确
                     self.zzl[event.id]["time"] = event.time
@@ -278,7 +278,7 @@ class SangQiaoReplayer(SpecificReplayerPro):
         self.xzzTime = 0  # 小蜘蛛出现
         for line2 in self.bld.info.npc:
             # print(self.bld.info.npc[line2].name)
-            if self.bld.info.npc[line2].name == "蜘蛛茧":
+            if self.bld.info.npc[line2].name in ["蜘蛛茧", "蜘蛛繭"]:
                 self.zzl[line2] = {"dps": {}, "status": 0, "time": 0}
                 for line in self.bld.info.player:
                     self.zzl[line2]["dps"][line] = 0

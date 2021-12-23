@@ -1,0 +1,389 @@
+<html>
+	<head>
+        <link rel="stylesheet" type="text/css" href="../static/XiangZhiReplayPro.css?v={{EDITION}}" />
+
+	</head>
+	<body>
+    <div id="nav"> </div>
+    <div id="table-container">
+        <div id="overall" class="replay-area">
+            <!-- 全局 -->
+            <table>
+                <tr>
+                    <td>复盘版本：</td>
+                    <td id="data-1-1"></td>
+                </tr>
+                <tr>
+                    <td>玩家ID：</td>
+                    <td id="data-1-2"></td>
+                </tr>
+                <tr>
+                    <td>服务器：</td>
+                    <td id="data-1-3"></td>
+                </tr>
+                <tr>
+                    <td>战斗时间：</td>
+                    <td id="data-1-4"></td>
+                </tr>
+                <tr>
+                    <td>生成时间：</td>
+                    <td id="data-1-5"></td>
+                </tr>
+                <tr>
+                    <td>地图：</td>
+                    <td id="data-1-6"></td>
+                </tr>
+                <tr>
+                    <td>首领：</td>
+                    <td id="data-1-7"></td>
+                </tr>
+                <tr>
+                    <td>人数：</td>
+                    <td id="data-1-8"></td>
+                </tr>
+                <tr>
+                    <td>战斗时长：</td>
+                    <td id="data-1-9"></td>
+                </tr>
+                <tr>
+                    <td>数据种类：</td>
+                    <td id="data-1-10"></td>
+                </tr>
+            </table>
+
+        </div>
+        <div id="equip" class="replay-area">
+            <!-- 装备 -->
+            <table id="data-2-t">
+                <tr>
+                    <td>装备分数：</td>
+                    <td id="data-2-1"></td>
+                </tr>
+                <tr>
+                    <td>强化：</td>
+                    <td id="data-2-2"></td>
+                </tr>
+                <tr>
+                    <td>详情：</td>
+                    <td id="data-2-3"></td>
+                </tr>
+                <tr>
+                    <td>根骨：</td>
+                    <td id="data-2-4"></td>
+                </tr>
+                <tr>
+                    <td>治疗量：</td>
+                    <td id="data-2-5"></td>
+                </tr>
+                <tr>
+                    <td>会心：</td>
+                    <td id="data-2-6"></td>
+                </tr>
+                <tr>
+                    <td>会心效果：</td>
+                    <td id="data-2-7"></td>
+                </tr>
+                <tr>
+                    <td>加速：</td>
+                    <td id="data-2-8"></td>
+                </tr>
+            </table>
+            <div id="data-2-h" class="hidden"> 装备信息不可用。</div>
+        </div>
+        <div id="healer" class="replay-area">
+            <!-- 治疗 -->
+            <table id="data-3-t">
+                <tr>
+                    <td>玩家名</td>
+                    <td>有效HPS</td>
+                    <td>虚条HPS</td>
+                </tr>
+            </table>
+        </div>
+        <div id="qixue" class="replay-area">
+            <!-- 奇穴 -->
+            <div id="data-4-t"> </div>
+            <div id="data-4-h" class="hidden"> 奇穴信息不可用。</div>
+        </div>
+        <div id="skill" class="replay-area">
+            <!-- 技能 -->
+            <div id="skill-1" class="skill-subarea">
+                <div class="skill-left">
+                    <img src="../static/icons/7059.png">
+                </div>
+                <div class="skill-right">
+                    <table id="skill-1-t">
+                        <tr>
+                            <td>数量：</td>
+                            <td id="data-5-1-1"></td>
+                        </tr>
+                        <tr>
+                            <td>覆盖率：</td>
+                            <td id="data-5-1-2"></td>
+                        </tr>
+                        <tr>
+                            <td>延迟：</td>
+                            <td id="data-5-1-3"></td>
+                        </tr>
+                        <tr>
+                            <td>犹香HPS：</td>
+                            <td id="data-5-1-4"></td>
+                        </tr>
+                        <tr>
+                            <td>平吟HPS：</td>
+                            <td id="data-5-1-5"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div id="skill-2" class="skill-subarea">
+                <div class="skill-left">
+                    <img src="../static/icons/7174.png">
+                </div>
+                <div class="skill-right">
+                    <table id="skill-2-t">
+                        <tr>
+                            <td>数量：</td>
+                            <td id="data-5-2-1"></td>
+                        </tr>
+                        <tr>
+                            <td>延迟：</td>
+                            <td id="data-5-2-2"></td>
+                        </tr>
+                        <tr>
+                            <td>HPS：</td>
+                            <td id="data-5-2-3"></td>
+                        </tr>
+                        <tr>
+                            <td>古道HPS：</td>
+                            <td id="data-5-2-4"></td>
+                        </tr>
+                        <tr>
+                            <td>有效比例：</td>
+                            <td id="data-5-2-5"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div id="skill-3" class="skill-subarea">
+                <div class="skill-left">
+                    <img src="../static/icons/7176.png">
+                </div>
+                <div class="skill-right">
+                    <table id="skill-3-t">
+                        <tr>
+                            <td>数量：</td>
+                            <td id="data-5-3-1"></td>
+                        </tr>
+                        <tr>
+                            <td>延迟：</td>
+                            <td id="data-5-3-2"></td>
+                        </tr>
+                        <tr>
+                            <td>HPS：</td>
+                            <td id="data-5-3-3"></td>
+                        </tr>
+                        <tr>
+                            <td>覆盖率：</td>
+                            <td id="data-5-3-4"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div id="skill-4" class="skill-subarea">
+                <div class="skill-left">
+                    <img src="../static/icons/7172.png">
+                </div>
+                <div class="skill-right">
+                    <table id="skill-4-t">
+                        <tr>
+                            <td>数量：</td>
+                            <td id="data-5-4-1"></td>
+                        </tr>
+                        <tr>
+                            <td>延迟：</td>
+                            <td id="data-5-4-2"></td>
+                        </tr>
+                        <tr>
+                            <td>HPS：</td>
+                            <td id="data-5-4-3"></td>
+                        </tr>
+                        <tr>
+                            <td>覆盖率：</td>
+                            <td id="data-5-4-4"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div id="skill-5" class="skill-subarea">
+                <div class="skill-left">
+                    <img src="../static/icons/7168.png">
+                </div>
+                <div class="skill-right">
+                    <table id="skill-5-t">
+                        <tr>
+                            <td>数量：</td>
+                            <td id="data-5-5-1"></td>
+                        </tr>
+                        <tr>
+                            <td>HPS：</td>
+                            <td id="data-5-5-2"></td>
+                        </tr>
+                        <tr>
+                            <td>有效比例：</td>
+                            <td id="data-5-5-3"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div id="skill-6" class="skill-subarea">
+                <div class="skill-left">
+                    <img src="../static/icons/7173.png">
+                </div>
+                <div class="skill-right">
+                    <table id="skill-6-t">
+                        <tr>
+                            <td>数量：</td>
+                            <td id="data-5-6-1"></td>
+                        </tr>
+                        <tr>
+                            <td>延迟：</td>
+                            <td id="data-5-6-2"></td>
+                        </tr>
+                        <tr>
+                            <td>HPS：</td>
+                            <td id="data-5-6-3"></td>
+                        </tr>
+                        <tr>
+                            <td>枕流HPS：</td>
+                            <td id="data-5-6-4"></td>
+                        </tr>
+                        <tr>
+                            <td>有效比例：</td>
+                            <td id="data-5-6-5"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div id="skill-7" class="skill-subarea">
+                <div class="skill-left">
+                    <img src="../static/icons/7175.png">
+                </div>
+                <div class="skill-right">
+                    <table id="skill-7-t">
+                        <tr>
+                            <td>数量：</td>
+                            <td id="data-5-7-1"></td>
+                        </tr>
+                        <tr>
+                            <td>延迟：</td>
+                            <td id="data-5-7-2"></td>
+                        </tr>
+                        <tr>
+                            <td>HPS：</td>
+                            <td id="data-5-7-3"></td>
+                        </tr>
+                        <tr>
+                            <td>有效比例：</td>
+                            <td id="data-5-7-4"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div id="skill-8" class="skill-subarea">
+                <div class="skill-left">
+                </div>
+                <div class="skill-right">
+                    <table id="skill-8-t">
+                        <tr>
+                            <td>APS：</td>
+                            <td id="data-5-8-1"></td>
+                        </tr>
+                        <tr>
+                            <td>桑柔DPS：</td>
+                            <td id="data-5-8-2"></td>
+                        </tr>
+                        <tr>
+                            <td>庄周梦DPS：</td>
+                            <td id="data-5-8-3"></td>
+                        </tr>
+                        <tr>
+                            <td>玉简DPS：</td>
+                            <td id="data-5-8-4"></td>
+                        </tr>
+                        <tr>
+                            <td>战斗效率：</td>
+                            <td id="data-5-8-5"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div id="replay" class="replay-area">
+            <!-- 回放 -->
+            <div id="replay-paint">
+                <canvas id="replay-timeline"></canvas>
+            </div>
+        </div>
+        <div id="dps" class="replay-area">
+            <!-- 输出 -->
+            <table id="data-7-t">
+                <tr>
+                    <td class="playername">玩家名</td>
+                    <td>DPS</td>
+                    <td>覆盖率</td>
+                    <td>破盾次数</td>
+                </tr>
+            </table>
+        </div>
+        <div id="score" class="replay-area">
+            <!-- 打分 -->
+            <table id="data-8-t">
+                <tr>
+                    <td>数值分：</td>
+                    <td id="data-8-1a"></td>
+                    <td id="data-8-1b"></td>
+                </tr>
+                <tr>
+                    <td>统计分：</td>
+                    <td id="data-8-2a"></td>
+                    <td id="data-8-2b"></td>
+                </tr>
+                <tr>
+                    <td>操作分：</td>
+                    <td id="data-8-3a"></td>
+                    <td id="data-8-3b"></td>
+                </tr>
+                <tr>
+                    <td>总评：</td>
+                    <td id="data-8-4a"></td>
+                    <td id="data-8-4b"></td>
+                </tr>
+            </table>
+            <div id="data-8-res"></div>
+            <div id="data-8-h" class="hidden"> 评分信息不可用。</div>
+        </div>
+        <div id="ad" class="replay-area">
+            <!-- 广告 -->
+            <div>
+                科技&五奶群：418483739
+            </div>
+            <div>
+                相知PVE群：538939220
+            </div>
+            <div>
+                复盘编号：<p id="ad-id"> </p>
+            </div>
+            <div>
+                广告位招租
+            </div>
+        </div>
+    </div>
+	</body>
+
+    <script src="../static/jquery-3.3.1.js"></script>
+    <script>
+        raw = {{raw}};
+    </script>
+    <script src="../static/XiangZhiReplayPro.js?v={{EDITION}}"></script>
+</html>

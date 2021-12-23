@@ -241,9 +241,9 @@ class XidaLuomoReplayer(SpecificReplayerPro):
             else:
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
-                    if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == "悉达罗摩":
+                    if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ["悉达罗摩", "悉達羅摩"]:
                         self.stat[event.caster][7] += event.damageEff
-                    if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == "灵虫":
+                    if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ["灵虫", "靈蟲"]:
                         self.stat[event.caster][8] += event.damageEff
 
                 if event.target in self.lingchongIdDict and event.id in INTERRUPT_DICT:
@@ -288,7 +288,8 @@ class XidaLuomoReplayer(SpecificReplayerPro):
                 return
 
         elif event.dataType == "Shout":
-            if event.content in ['"来吧，进餐时间到了！"']:
+            # print(event.content)
+            if event.content in ['"来吧，进餐时间到了！"', '"來吧，進餐時間到了！"']:
                 self.win = 1
 
         elif event.dataType == "Death":  # 重伤记录
@@ -298,7 +299,7 @@ class XidaLuomoReplayer(SpecificReplayerPro):
             pass
 
         elif event.dataType == "Scene":  # 进入、离开场景
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["悉达罗摩宝箱"]:
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["悉达罗摩宝箱", "悉達羅摩寶箱"]:
                 self.win = 1
             # if event.id in self.bld.info.npc:
             #     print(event.time, self.bld.info.npc[event.id].name)
@@ -307,7 +308,7 @@ class XidaLuomoReplayer(SpecificReplayerPro):
                 if event.time - self.sgzh[-1][0] > 10000:
                     self.sgzh.append([event.time, event.time + 10000])  # 10秒蚀骨之花
 
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name == "灵虫" and event.enter:
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["灵虫", "靈蟲"] and event.enter:
                 # print("[Lingchong]", self.bld.info.npc[event.id].templateID, event.time)
                 pass
 

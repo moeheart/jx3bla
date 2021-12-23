@@ -769,16 +769,17 @@ def showReplayPro():
     id = request.args.get('id')
     db = pymysql.connect(ip, app.dbname, app.dbpwd, "jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
-    sql = """SELECT statistics, public FROM ReplayProStat WHERE shortID = %s OR hash = "%s";"""%(id, id)
+    sql = """SELECT statistics, public, replayedition FROM ReplayProStat WHERE shortID = %s OR hash = "%s";"""%(id, id)
     cursor.execute(sql)
     result = cursor.fetchall()
+    db.close()
     if len(result) == 0:
         text = "结果未找到."
     elif result[0][1] == 0:
         text = "数据未公开."
-    else:
-        text = result[0][0]
-    db.close()
+    elif len(result[0][2]) >= 4 and result[0][2][:4] == "奶歌复盘":
+        # 生成奶歌复盘
+        return render_template("XiangZhiReplayPro.html", raw=result[0][0].decode(), edition=EDITION)
     return jsonify({'text': text.decode()})
 
 @app.route('/getReplayPro', methods=['GET'])
