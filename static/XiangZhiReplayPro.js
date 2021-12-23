@@ -86,9 +86,9 @@ for (var i in resObj.healer.table){
 //part 4
 if (resObj.qixue.available) {
     result4 = "";
-    for (var i = 0; i < 12; i++) {
+    for (var i = 1; i <= 12; i++) {
         result4 += resObj.qixue[i];
-        if (i != 11) {
+        if (i != 12) {
             result4 += ",";
         }
         if (i == 6) {
