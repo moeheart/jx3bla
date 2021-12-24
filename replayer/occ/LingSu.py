@@ -507,7 +507,7 @@ class LingSuReplayer(ReplayerBase):
         self.result["overall"]["sumTime"] = self.bld.info.sumTime
         self.result["overall"]["sumTimePrint"] = parseTime(self.bld.info.sumTime / 1000)
         self.result["overall"]["dataType"] = self.bld.dataType
-        self.result["overall"]["calTank"] = self.config.xiangzhiCalTank
+        # self.result["overall"]["calTank"] = self.config.xiangzhiCalTank
         self.result["overall"]["mask"] = self.config.mask
 
         # 需要记录特定治疗量的BOSS
@@ -519,7 +519,6 @@ class LingSuReplayer(ReplayerBase):
                 break
 
         # 记录盾的存在情况与减疗
-        shieldLogDict = {}
         jianLiaoLog = {}
 
         # 记录战斗中断的时间，通常用于P2为垃圾时间的BOSS.
@@ -549,25 +548,13 @@ class LingSuReplayer(ReplayerBase):
         for key in self.bld.info.player:
             occDetailList[key] = self.bld.info.player[key].occ
 
-        self.shieldCountersNew = {}
+        self.peiwuCounter = {}
         for key in self.bld.info.player:
-            self.shieldCountersNew[key] = ShieldCounterNew("16911", self.startTime, self.finalTime)
+            self.peiwuCounter[key] = ShieldCounterNew("20877", self.startTime, self.finalTime)
 
         # 自动推导奶歌角色名与ID，在连接场景中会被指定，这一步可跳过
         if self.myname == "":
-            # if len(XiangZhiList) >= 2:
-            #     nameList = []
-            #     for line in XiangZhiList:
-            #         nameList.append(namedict[line][0])
-            #     s = str(nameList)
-            #     raise Exception('奶歌的数量不止一个，请手动指示ID。可能的ID为：%s' % s)
-            # elif len(XiangZhiList) == 0:
-            #     raise Exception('没有找到奶歌，请确认数据是否正确')
-            # else:
-            #     self.mykey = XiangZhiList[0]
-            #     self.myname = self.bld.info.player[self.mykey].name
-            #     print("自动推断奶歌角色名为：%s"%self.myname)
-            raise Exception("奶歌名暂时不可自动推导，需要通过前序分析来手动指定")
+            raise Exception("角色名暂时不可自动推导，需要通过前序分析来手动指定")
         else:
             for key in self.bld.info.player:
                 if self.bld.info.player[key].name == self.myname:
@@ -584,24 +571,22 @@ class LingSuReplayer(ReplayerBase):
                 continue
 
             if event.dataType == "Skill":
-                # 记录奶歌和治疗心法的出现情况.
-                if event.caster not in XiangZhiList and event.id in ["14231", "14140", "14301"]:  # 奶歌的特征技能
-                    XiangZhiList.append(event.caster)
-                    self.healerDict[event.caster] = 0
+                # 记录治疗心法的出现情况.
                 if event.caster not in self.healerDict and event.id in ["565", "554", "555", "2232", "6662", "2233", "6675",
-                                                                  "2231", "101", "142", "138", "16852", "18864", "27621", "27623", "28083"]:  # 其它治疗的特征技能
+                                                                  "2231", "101", "142", "138", "14231", "14140", "14301", "16852", "18864",
+                                                                  "27621", "27623", "28083"]:  # 奶妈的特征技能
                     self.healerDict[event.caster] = 0
 
                 # 记录主动贴盾，主要是为了防止复盘记录中的数据丢失。
-                if event.id == "14231" and event.caster == self.mykey:
-                    jianLiaoStack = 0
-                    if event.target in jianLiaoLog:
-                        jianLiaoStack = jianLiaoLog[event.target].checkState(event.time)
-                    if jianLiaoStack < 20:
-                        if event.target not in shieldLogDict:
-                            shieldLogDict[event.target] = []
-                        shieldLogDict[event.target].append([event.time, 1])
-                        self.shieldCountersNew[event.target].setState(event.time, 1)
+                # if event.id == "14231" and event.caster == self.mykey:
+                #     jianLiaoStack = 0
+                #     if event.target in jianLiaoLog:
+                #         jianLiaoStack = jianLiaoLog[event.target].checkState(event.time)
+                #     if jianLiaoStack < 20:
+                #         if event.target not in shieldLogDict:
+                #             shieldLogDict[event.target] = []
+                #         shieldLogDict[event.target].append([event.time, 1])
+                #         self.shieldCountersNew[event.target].setState(event.time, 1)
 
                 if event.caster in occDetailList and occDetailList[event.caster] in ['1', '2', '3', '4', '5', '6', '7', '10',
                                                                            '21', '22', '212']:
@@ -613,11 +598,8 @@ class LingSuReplayer(ReplayerBase):
                     self.activeBoss = "哑头陀"
 
             elif event.dataType == "Buff":
-                if event.id in ["9334", "16911"] and event.caster == self.mykey:  # buff梅花三弄
-                    if event.target not in shieldLogDict:
-                        shieldLogDict[event.target] = []
-                    shieldLogDict[event.target].append([event.time, event.stack])
-                    self.shieldCountersNew[event.target].setState(event.time, event.stack)
+                if event.id in ["20877"] and event.caster == self.mykey:  # buff配伍
+                    self.peiwuCounter[event.target].setState(event.time, event.stack)
                 if event.id in ["15774", "17200"]:  # buff精神匮乏
                     if event.target not in jianLiaoLog:
                         jianLiaoLog[event.target] = BuffCounter("17200", self.startTime, self.finalTime)
@@ -634,8 +616,8 @@ class LingSuReplayer(ReplayerBase):
             self.result["overall"]["sumTimePrint"] = parseTime(self.result["overall"]["sumTime"] / 1000)
             self.finalTime = self.interrupt
 
-        for key in self.bld.info.player:
-            self.shieldCountersNew[key].inferFirst()
+        # for key in self.bld.info.player:
+        #     self.shieldCountersNew[key].inferFirst()
 
         self.result["overall"]["playerID"] = self.myname
 
@@ -655,7 +637,7 @@ class LingSuReplayer(ReplayerBase):
             eee = ExcelExportEquipment()
             strEquip = eee.export(jsonEquip)
             adr = AttributeDisplayRemote()
-            res = adr.Display(strEquip, "22h")
+            res = adr.Display(strEquip, "212h")
             self.result["equip"]["score"] = int(self.bld.info.player[self.mykey].equipScore)
             self.result["equip"]["sketch"] = jsonEquip["sketch"]
             self.result["equip"]["spirit"] = res["根骨"]
@@ -675,7 +657,7 @@ class LingSuReplayer(ReplayerBase):
         if self.bld.info.player[self.mykey].qx != {}:
             self.result["qixue"]["available"] = 1
             for key in self.bld.info.player[self.mykey].qx:
-                self.result["qixue"][key] = getXiangZhiQixue(self.bld.info.player[self.mykey].qx[key]["2"])
+                self.result["qixue"][key] = getLingSuQixue(self.bld.info.player[self.mykey].qx[key]["2"])
 
         # print(self.result["overall"])
         # print(self.result["equip"])
@@ -1361,7 +1343,7 @@ class LingSuReplayer(ReplayerBase):
         '''
         开始灵素复盘分析.
         '''
-        # self.FirstStageAnalysis()
+        self.FirstStageAnalysis()
         # self.SecondStageAnalysis()
         # self.recordRater()
         # self.prepareUpload()

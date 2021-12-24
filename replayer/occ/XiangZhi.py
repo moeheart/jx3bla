@@ -903,7 +903,6 @@ class XiangZhiProReplayer(ReplayerBase):
                 break
 
         # 记录盾的存在情况与减疗
-        shieldLogDict = {}
         jianLiaoLog = {}
 
         # 记录战斗中断的时间，通常用于P2为垃圾时间的BOSS.
@@ -981,9 +980,6 @@ class XiangZhiProReplayer(ReplayerBase):
                     if event.target in jianLiaoLog:
                         jianLiaoStack = jianLiaoLog[event.target].checkState(event.time)
                     if jianLiaoStack < 20:
-                        if event.target not in shieldLogDict:
-                            shieldLogDict[event.target] = []
-                        shieldLogDict[event.target].append([event.time, 1])
                         self.shieldCountersNew[event.target].setState(event.time, 1)
 
                 if event.caster in occDetailList and occDetailList[event.caster] in ['1', '2', '3', '4', '5', '6', '7', '10',
@@ -997,9 +993,6 @@ class XiangZhiProReplayer(ReplayerBase):
 
             elif event.dataType == "Buff":
                 if event.id in ["9334", "16911"] and event.caster == self.mykey:  # buff梅花三弄
-                    if event.target not in shieldLogDict:
-                        shieldLogDict[event.target] = []
-                    shieldLogDict[event.target].append([event.time, event.stack])
                     self.shieldCountersNew[event.target].setState(event.time, event.stack)
                 if event.id in ["15774", "17200"]:  # buff精神匮乏
                     if event.target not in jianLiaoLog:
@@ -1029,7 +1022,6 @@ class XiangZhiProReplayer(ReplayerBase):
         self.result["overall"]["name"] = self.myname
 
         # 获取玩家装备和奇穴，即使获取失败也存档
-        # TODO 实现
         self.result["equip"] = {"available": 0}
         if self.bld.info.player[self.mykey].equip != {}:
             self.result["equip"]["available"] = 1
