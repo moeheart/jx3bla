@@ -92,166 +92,6 @@ def getXiangZhiQixue(id):
         # return "未知"
         return id  # 方便在技改附近批量更新
 
-class ShieldCounterNew(BuffCounter):
-    '''
-    盾的统计类.
-    继承buff的统计类，加入获得次数、破盾次数等指标.
-    '''
-
-    def inferFirst(self):
-        '''
-        根据记录尝试推导战斗开始前是否存在盾，若存在则强制修改最开始的情形为有盾.
-        '''
-        if len(self.log) > 1 and self.log[1][1] == 0:
-            self.log[0][1] = 1
-
-    def countCast(self):
-        '''
-        计算盾施放的次数.
-        根据buff做推断，消失间隔小于500ms的视为没有消失.
-        returns:
-        - num 盾施放的次数.
-        '''
-        num = 0
-        lastTime = 0
-        lastStack = 0
-        for line in self.log:
-            if line[1] == 1 and lastStack == 0 and line[0] - lastTime > 500:
-                num += 1
-            lastTime = line[0]
-            lastStack = line[1]
-        return num
-
-    def countBreak(self):
-        '''
-        计算破盾的次数.
-        直接通过施放的次数推导.
-        returns:
-        - num 破盾的次数.
-        '''
-        num = self.countCast()
-        if self.checkState(self.finalTime) == 1:
-            num -= 1
-        return num
-
-    def getHeatTable(self, interval=500):
-        '''
-        获取单个玩家的覆盖率热力表.
-        params:
-        - interval: 间隔
-        returns:
-        - 结果对象
-        '''
-        time = 0
-        nowi = 0
-        result = {"interval": interval, "timeline": []}
-        for nowTime in range(self.startTime, self.finalTime, interval):
-            single = 0
-            while nowi < len(self.log) and self.log[nowi][0] < nowTime:
-                nowi += 1
-            if len(self.log) > 0 and nowi > 0:
-                single = self.log[nowi-1][1]
-            result["timeline"].append(single)
-        return result
-
-    def __init__(self, shieldLog, startTime, finalTime):
-        '''
-        初始化.
-        '''
-        super().__init__(shieldLog, startTime, finalTime)
-
-class HotCounter(BuffCounter):
-    '''
-    HOT的统计类.
-    继承buff的统计类，考虑HOT的持续时间等指标。
-    '''
-
-    def getHeatTable(self, interval=500):
-        '''
-        获取单个玩家的覆盖率热力表.
-        params:
-        - interval: 间隔
-        returns:
-        - 结果对象
-        '''
-        nowi = 0
-        result = {"interval": interval, "timeline": []}
-        for nowTime in range(self.startTime, self.finalTime, interval):
-            single = 0
-            while nowi < len(self.log) and self.log[nowi][0] < nowTime:
-                nowi += 1
-            if len(self.log) > 0 and nowi > 0 and self.log[nowi-1][1] > 0:
-                single = (self.log[nowi-1][2] + self.log[nowi-1][0] - nowTime) / self.log[nowi-1][2]
-            # single = int(single * 100)
-            result["timeline"].append(single)
-        return result
-
-    def setState(self, time, stack, duration):
-        '''
-        设置特定时间点buff的层数.
-        无论是获得还是消亡均可用这个方法。对应的层数的有效时间即是这个时刻到下一个时刻中间的部分。
-        params:
-        - time: 获得buff的时刻.
-        - stack: buff层数，可以为0.
-        - duration: 预计的持续时间.
-        '''
-        self.log.append([int(time), int(stack), int(duration)])
-
-    def __init__(self, shieldLog, startTime, finalTime):
-        '''
-        初始化.
-        '''
-        super().__init__(shieldLog, startTime, finalTime)
-
-class SkillLogCounter():
-    '''
-    技能统计类.
-    TODO: 扩展这个类的功能，支持更多统计.
-    '''
-    skillLog = []
-    actLog = []
-    startTime = 0
-    finalTime = 0
-    speed = 3770
-    sumBusyTime = 0
-    sumSpareTime = 0
-
-    def getLength(self, length):
-        flames = calculFramesAfterHaste(self.speed, length)
-        return flames * 0.0625 * 1000
-
-    def analysisSkillData(self):
-        for line in self.skillLog:
-            if line[1] in [15181, 15082, 25232]:  #奶歌常见的自动施放技能：影子宫，影子宫，桑柔
-                continue
-            elif line[1] in [14137, 14300]:  # 宫，变宫
-                self.actLog.append([line[0] - self.getLength(24), self.getLength(24)])
-            elif line[1] in [14140, 14301]:  # 徵，变徵
-                self.actLog.append([line[0] - self.getLength(16), self.getLength(16)])
-            else:
-                self.actLog.append([line[0], self.getLength(24)])
-
-        self.actLog.sort(key=lambda x: x[0])
-
-        nowTime = self.startTime
-        self.sumBusyTime = 0
-        self.sumSpareTime = 0
-        for line in self.actLog:
-            if line[0] > nowTime:
-                self.sumSpareTime += line[0] - nowTime
-                self.sumBusyTime += line[1]
-                nowTime = line[0] + line[1]
-            elif line[0] + line[1] > nowTime:
-                self.sumBusyTime += line[0] + line[1] - nowTime
-                nowTime = line[0] + line[1]
-
-    def __init__(self, skillLog, startTime, finalTime, speed=3770):
-        self.skillLog = skillLog
-        self.actLog = []
-        self.startTime = startTime
-        self.finalTime = finalTime
-        self.speed = speed
-
 def countCluster(teamLog, teamLastTime, event):
     '''
     根据HOT的获取事件提取组队聚类信息.
@@ -530,7 +370,7 @@ class XiangZhiProWindow():
         label = tk.Label(frame5_1, image=frame5_1.photo)
         label.place(x=5, y=25)
         ToolTip(label, "梅花三弄")
-        text = "数量：%d\n"%self.result["skill"]["meihua"]["num"]
+        text = "数量：%d(%.2f)\n"%(self.result["skill"]["meihua"]["num"], self.result["skill"]["meihua"]["numPerSec"])
         text = text + "覆盖率：%s%%\n" % parseCent(self.result["skill"]["meihua"]["cover"])
         text = text + "延迟：%dms\n" % self.result["skill"]["meihua"]["delay"]
         text = text + "犹香HPS：%d\n" % self.result["skill"]["meihua"].get("youxiangHPS", 0)
@@ -544,7 +384,7 @@ class XiangZhiProWindow():
         label = tk.Label(frame5_2, image=frame5_2.photo)
         label.place(x=5, y=25)
         ToolTip(label, "徵")
-        text = "数量：%d\n"%self.result["skill"]["zhi"]["num"]
+        text = "数量：%d(%.2f)\n" % (self.result["skill"]["zhi"]["num"], self.result["skill"]["zhi"]["numPerSec"])
         text = text + "延迟：%dms\n" % self.result["skill"]["zhi"]["delay"]
         text = text + "HPS：%d\n" % self.result["skill"]["zhi"]["HPS"]
         text = text + "古道HPS：%d\n" % self.result["skill"]["zhi"].get("gudaoHPS", 0)
@@ -558,7 +398,7 @@ class XiangZhiProWindow():
         label = tk.Label(frame5_3, image=frame5_3.photo)
         label.place(x=5, y=25)
         ToolTip(label, "角")
-        text = "数量：%d\n"%self.result["skill"]["jue"]["num"]
+        text = "数量：%d(%.2f)\n" % (self.result["skill"]["jue"]["num"], self.result["skill"]["jue"]["numPerSec"])
         text = text + "延迟：%dms\n" % self.result["skill"]["jue"]["delay"]
         text = text + "HPS：%d\n" % self.result["skill"]["jue"]["HPS"]
         text = text + "覆盖率：%s%%\n" % parseCent(self.result["skill"]["jue"]["cover"])
@@ -571,7 +411,7 @@ class XiangZhiProWindow():
         label = tk.Label(frame5_4, image=frame5_4.photo)
         label.place(x=5, y=25)
         ToolTip(label, "商")
-        text = "数量：%d\n"%self.result["skill"]["shang"]["num"]
+        text = "数量：%d(%.2f)\n" % (self.result["skill"]["shang"]["num"], self.result["skill"]["shang"]["numPerSec"])
         text = text + "延迟：%dms\n" % self.result["skill"]["shang"]["delay"]
         text = text + "HPS：%d\n" % self.result["skill"]["shang"]["HPS"]
         text = text + "覆盖率：%s%%\n" % parseCent(self.result["skill"]["shang"]["cover"])
@@ -596,7 +436,7 @@ class XiangZhiProWindow():
         label = tk.Label(frame5_6, image=frame5_6.photo)
         label.place(x=5, y=25)
         ToolTip(label, "宫")
-        text = "数量：%d\n"%self.result["skill"]["gong"]["num"]
+        text = "数量：%d(%.2f)\n" % (self.result["skill"]["gong"]["num"], self.result["skill"]["gong"]["numPerSec"])
         text = text + "延迟：%dms\n" % self.result["skill"]["gong"]["delay"]
         text = text + "HPS：%d\n" % self.result["skill"]["gong"]["HPS"]
         text = text + "枕流HPS：%d\n" % self.result["skill"]["meihua"].get("zhenliuHPS", 0)
@@ -666,7 +506,7 @@ class XiangZhiProWindow():
                                          int(255 - (255 - 180) * line / 100)))
                     canvas6.create_rectangle(nowTimePixel, 31, nowTimePixel + 5, 70, fill=color, width=0)
                     nowTimePixel += 5
-                canvas6.create_image(10, 40, image=canvas6.im["7059"])
+                # canvas6.create_image(10, 40, image=canvas6.im["7059"])
             elif self.result["replay"]["heatType"] == "hot":
                 yPos = [31, 39, 47, 55, 63, 70]
                 for j in range(5):
@@ -680,8 +520,8 @@ class XiangZhiProWindow():
                                                  int(255 - (255 - 180) * line / 100)))
                         canvas6.create_rectangle(nowTimePixel, yPos[j], nowTimePixel + 5, yPos[j+1], fill=color, width=0)
                         nowTimePixel += 5
-                canvas6.create_image(10, 40, image=canvas6.im["7172"])
-                canvas6.create_image(30, 40, image=canvas6.im["7176"])
+                # canvas6.create_image(10, 40, image=canvas6.im["7172"])
+                # canvas6.create_image(30, 40, image=canvas6.im["7176"])
         nowt = 0
         while nowt < battleTime:
             nowt += 10000
@@ -772,24 +612,26 @@ class XiangZhiProWindow():
         frame8sub.place(x=30, y=30)
 
         if self.result["score"]["available"] == 0:
-            tb = TableConstructor(self.config, frame8sub)
-            tb.AppendHeader("数值分：", "对治疗数值的打分，包括治疗量、各个技能数量。")
-            tb.AppendContext("0", width=9)
-            tb.AppendContext("F")
-            tb.EndOfLine()
-            tb.AppendHeader("统计分：", "对统计结果的打分，包括梅花三弄和HOT的覆盖率。")
-            tb.AppendContext("0", width=9)
-            tb.AppendContext("F")
-            tb.EndOfLine()
-            tb.AppendHeader("操作分：", "对操作表现的打分，包括战斗效率，各个技能延迟。")
-            tb.AppendContext("0", width=9)
-            tb.AppendContext("F")
-            tb.EndOfLine()
-            tb.AppendHeader("总评：", "综合计算这几项的结果。")
-            tb.AppendContext("0", width=9)
-            tb.AppendContext("F")
-            tb.EndOfLine()
+            # tb = TableConstructor(self.config, frame8sub)
+            # tb.AppendHeader("数值分：", "对治疗数值的打分，包括治疗量、各个技能数量。")
+            # tb.AppendContext("0", width=9)
+            # tb.AppendContext("F")
+            # tb.EndOfLine()
+            # tb.AppendHeader("统计分：", "对统计结果的打分，包括梅花三弄和HOT的覆盖率。")
+            # tb.AppendContext("0", width=9)
+            # tb.AppendContext("F")
+            # tb.EndOfLine()
+            # tb.AppendHeader("操作分：", "对操作表现的打分，包括战斗效率，各个技能延迟。")
+            # tb.AppendContext("0", width=9)
+            # tb.AppendContext("F")
+            # tb.EndOfLine()
+            # tb.AppendHeader("总评：", "综合计算这几项的结果。")
+            # tb.AppendContext("0", width=9)
+            # tb.AppendContext("F")
+            # tb.EndOfLine()
             tk.Label(frame8, text="复盘生成时的版本尚不支持打分。").place(x=10, y=150)
+        elif self.result["score"]["available"] == 11:
+            tk.Label(frame8, text="由于BOSS机制原因，不提供打分结果。").place(x=10, y=150)
         else:
             tb = TableConstructor(self.config, frame8sub)
             tb.AppendHeader("数值分：", "对治疗数值的打分，包括治疗量、各个技能数量。")
@@ -1672,6 +1514,7 @@ class XiangZhiProReplayer(ReplayerBase):
         # 梅花三弄
         self.result["skill"]["meihua"] = {}
         self.result["skill"]["meihua"]["num"] = mhsnSkill.getNum()
+        self.result["skill"]["meihua"]["numPerSec"] = roundCent(self.result["skill"]["meihua"]["num"] / self.result["overall"]["sumTime"] * 1000, 2)
         self.result["skill"]["meihua"]["delay"] = int(mhsnSkill.getAverageDelay())
         self.result["skill"]["meihua"]["cover"] = roundCent(overallRate)
         self.result["skill"]["meihua"]["youxiangHPS"] = int(youxiangHeal / self.result["overall"]["sumTime"] * 1000)
@@ -1679,6 +1522,7 @@ class XiangZhiProReplayer(ReplayerBase):
         # 宫
         self.result["skill"]["gong"] = {}
         self.result["skill"]["gong"]["num"] = gongSkill.getNum()
+        self.result["skill"]["gong"]["numPerSec"] = roundCent(self.result["skill"]["gong"]["num"] / self.result["overall"]["sumTime"] * 1000, 2)
         self.result["skill"]["gong"]["delay"] = int(gongSkill.getAverageDelay())
         effHeal = gongSkill.getHealEff()
         self.result["skill"]["gong"]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
@@ -1687,6 +1531,7 @@ class XiangZhiProReplayer(ReplayerBase):
         # 徵
         self.result["skill"]["zhi"] = {}
         self.result["skill"]["zhi"]["num"] = zhiSkill.getNum()
+        self.result["skill"]["zhi"]["numPerSec"] = roundCent(self.result["skill"]["zhi"]["num"] / self.result["overall"]["sumTime"] * 1000, 2)
         self.result["skill"]["zhi"]["delay"] = int(zhiSkill.getAverageDelay())
         effHeal = zhiSkill.getHealEff()
         self.result["skill"]["zhi"]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
@@ -1704,6 +1549,8 @@ class XiangZhiProReplayer(ReplayerBase):
         # 商，注意Buff与Skill统计不同
         self.result["skill"]["shang"] = {}
         self.result["skill"]["shang"]["num"] = shangBuff.getNum()
+        self.result["skill"]["shang"]["numPerSec"] = roundCent(
+            self.result["skill"]["shang"]["num"] / self.result["overall"]["sumTime"] * 1000, 2)
         self.result["skill"]["shang"]["delay"] = int(shangSkill.getAverageDelay())
         effHeal = shangBuff.getHealEff()
         self.result["skill"]["shang"]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
@@ -1725,6 +1572,8 @@ class XiangZhiProReplayer(ReplayerBase):
         # 角
         self.result["skill"]["jue"] = {}
         self.result["skill"]["jue"]["num"] = jueBuff.getNum()
+        self.result["skill"]["jue"]["numPerSec"] = roundCent(
+            self.result["skill"]["jue"]["num"] / self.result["overall"]["sumTime"] * 1000, 2)
         self.result["skill"]["jue"]["delay"] = int(jueSkill.getAverageDelay())
         effHeal = jueBuff.getHealEff()
         self.result["skill"]["jue"]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
@@ -1820,6 +1669,10 @@ class XiangZhiProReplayer(ReplayerBase):
         if map not in ["25人普通雷域大泽", "25人英雄雷域大泽"]:
             return
         if boss not in ["巨型尖吻凤", "桑乔", "悉达罗摩", "尤珈罗摩", "月泉淮", "乌蒙贵"]:
+            return
+
+        if boss == "巨型尖吻凤":
+            self.result["score"]["available"] = 11  # BOSS机制原因不提供评分
             return
 
         self.result["score"]["available"] = 1

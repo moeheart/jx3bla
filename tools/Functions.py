@@ -60,6 +60,10 @@ class SkillCounter():
             self.delta = getLength(24, self.haste)
         if self.skillid in ["14140", "14301"]:  # 徵，变徵
             self.delta = getLength(8, self.haste)
+        if self.skillid in ["27622"]:  # 白芷含芳
+            self.delta = getLength(24, self.haste)
+        if self.skillid in ["27624"]:  # 当归四逆
+            self.delta = getLength(8, self.haste)
 
     def getAverageDelay(self):
         '''
@@ -81,8 +85,8 @@ class SkillCounter():
                 continue
             num += 1
             sumDelay += max(line[0] - line[1] - line[2], 0)
-        #print(self.log)
-        #print(logClear)
+            # print("[Delay]", line[0] - line[1] - line[2])
+        # print("=======")
         return sumDelay / (num + 1e-10)
 
     def getNum(self):
@@ -238,6 +242,166 @@ class BuffCounter():
         self.startTime = startTime
         self.finalTime = finalTime
         self.log = [[startTime, 0]]
+
+class HotCounter(BuffCounter):
+    '''
+    HOT的统计类.
+    继承buff的统计类，考虑HOT的持续时间等指标。
+    '''
+
+    def getHeatTable(self, interval=500):
+        '''
+        获取单个玩家的覆盖率热力表.
+        params:
+        - interval: 间隔
+        returns:
+        - 结果对象
+        '''
+        nowi = 0
+        result = {"interval": interval, "timeline": []}
+        for nowTime in range(self.startTime, self.finalTime, interval):
+            single = 0
+            while nowi < len(self.log) and self.log[nowi][0] < nowTime:
+                nowi += 1
+            if len(self.log) > 0 and nowi > 0 and self.log[nowi-1][1] > 0:
+                single = (self.log[nowi-1][2] + self.log[nowi-1][0] - nowTime) / self.log[nowi-1][2]
+            # single = int(single * 100)
+            result["timeline"].append(single)
+        return result
+
+    def setState(self, time, stack, duration):
+        '''
+        设置特定时间点buff的层数.
+        无论是获得还是消亡均可用这个方法。对应的层数的有效时间即是这个时刻到下一个时刻中间的部分。
+        params:
+        - time: 获得buff的时刻.
+        - stack: buff层数，可以为0.
+        - duration: 预计的持续时间.
+        '''
+        self.log.append([int(time), int(stack), int(duration)])
+
+    def __init__(self, shieldLog, startTime, finalTime):
+        '''
+        初始化.
+        '''
+        super().__init__(shieldLog, startTime, finalTime)
+
+class SkillLogCounter():
+    '''
+    技能统计类.
+    TODO: 扩展这个类的功能，支持更多统计.
+    '''
+    skillLog = []
+    actLog = []
+    startTime = 0
+    finalTime = 0
+    speed = 3770
+    sumBusyTime = 0
+    sumSpareTime = 0
+
+    def getLength(self, length):
+        flames = calculFramesAfterHaste(self.speed, length)
+        return flames * 0.0625 * 1000
+
+    def analysisSkillData(self):
+        for line in self.skillLog:
+            if line[1] in [15181, 15082, 25232]:  #奶歌常见的自动施放技能：影子宫，影子宫，桑柔
+                continue
+            elif line[1] in [14137, 14300]:  # 宫，变宫
+                self.actLog.append([line[0] - self.getLength(24), self.getLength(24)])
+            elif line[1] in [14140, 14301]:  # 徵，变徵
+                self.actLog.append([line[0] - self.getLength(16), self.getLength(16)])
+            else:
+                self.actLog.append([line[0], self.getLength(24)])
+
+        self.actLog.sort(key=lambda x: x[0])
+
+        nowTime = self.startTime
+        self.sumBusyTime = 0
+        self.sumSpareTime = 0
+        for line in self.actLog:
+            if line[0] > nowTime:
+                self.sumSpareTime += line[0] - nowTime
+                self.sumBusyTime += line[1]
+                nowTime = line[0] + line[1]
+            elif line[0] + line[1] > nowTime:
+                self.sumBusyTime += line[0] + line[1] - nowTime
+                nowTime = line[0] + line[1]
+
+    def __init__(self, skillLog, startTime, finalTime, speed=3770):
+        self.skillLog = skillLog
+        self.actLog = []
+        self.startTime = startTime
+        self.finalTime = finalTime
+        self.speed = speed
+
+class ShieldCounterNew(BuffCounter):
+    '''
+    盾的统计类.
+    继承buff的统计类，加入获得次数、破盾次数等指标.
+    '''
+
+    def inferFirst(self):
+        '''
+        根据记录尝试推导战斗开始前是否存在盾，若存在则强制修改最开始的情形为有盾.
+        '''
+        if len(self.log) > 1 and self.log[1][1] == 0:
+            self.log[0][1] = 1
+
+    def countCast(self):
+        '''
+        计算盾施放的次数.
+        根据buff做推断，消失间隔小于500ms的视为没有消失.
+        returns:
+        - num 盾施放的次数.
+        '''
+        num = 0
+        lastTime = 0
+        lastStack = 0
+        for line in self.log:
+            if line[1] == 1 and lastStack == 0 and line[0] - lastTime > 500:
+                num += 1
+            lastTime = line[0]
+            lastStack = line[1]
+        return num
+
+    def countBreak(self):
+        '''
+        计算破盾的次数.
+        直接通过施放的次数推导.
+        returns:
+        - num 破盾的次数.
+        '''
+        num = self.countCast()
+        if self.checkState(self.finalTime) == 1:
+            num -= 1
+        return num
+
+    def getHeatTable(self, interval=500):
+        '''
+        获取单个玩家的覆盖率热力表.
+        params:
+        - interval: 间隔
+        returns:
+        - 结果对象
+        '''
+        time = 0
+        nowi = 0
+        result = {"interval": interval, "timeline": []}
+        for nowTime in range(self.startTime, self.finalTime, interval):
+            single = 0
+            while nowi < len(self.log) and self.log[nowi][0] < nowTime:
+                nowi += 1
+            if len(self.log) > 0 and nowi > 0:
+                single = self.log[nowi-1][1]
+            result["timeline"].append(single)
+        return result
+
+    def __init__(self, shieldLog, startTime, finalTime):
+        '''
+        初始化.
+        '''
+        super().__init__(shieldLog, startTime, finalTime)
         
 def parseEdition(e):
     '''

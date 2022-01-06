@@ -438,10 +438,10 @@ class AnnounceWindow():
         self.window.destroy()
         
     def show_tutorial(self):
-        webbrowser.open("https://www.bilibili.com/video/BV1Xp4y1s7vu")
+        webbrowser.open("https://www.jx3box.com/bps/31349")
         
     def show_help(self):
-        webbrowser.open("https://wwe.lanzous.com/i2332od2wja")
+        webbrowser.open("https://wwe.lanzouy.com/iKY8Ayggt4j")
         
     def show_update(self):
         webbrowser.open("https://github.com/moeheart/jx3bla/blob/master/update.md")

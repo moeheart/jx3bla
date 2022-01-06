@@ -38,6 +38,7 @@ from replayer.boss.WuMenggui import WuMengguiReplayer
 
 from replayer.occ.XiangZhi import XiangZhiProReplayer
 from replayer.occ.LingSu import LingSuReplayer
+from replayer.occ.LiJingYiDao import LiJingYiDaoReplayer
 
 class ActorProReplayer(ReplayerBase):
 
@@ -796,6 +797,11 @@ class ActorProReplayer(ReplayerBase):
                 lingsuRep = LingSuReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime)
                 lingsuRep.replay()
                 self.occResult[name] = {"occ": "212h", "result": lingsuRep.result}
+            if self.config.lingsuActive and self.occDetailList[id] == "2h":  # 奶花
+                name = self.bld.info.player[id].name
+                lijingyidaoRep = LiJingYiDaoReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime)
+                lijingyidaoRep.replay()
+                self.occResult[name] = {"occ": "2h", "result": lijingyidaoRep.result}
 
     def replay(self):
         '''

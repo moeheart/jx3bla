@@ -8,6 +8,7 @@ from tools.Functions import getColor
 from replayer.TableConstructor import TableConstructor
 from replayer.occ.XiangZhi import XiangZhiProWindow
 from replayer.occ.LingSu import LingSuWindow
+from replayer.occ.LiJingYiDao import LiJingYiDaoWindow
 
 
 class TableConstructorMeta(TableConstructor):
@@ -27,6 +28,11 @@ class TableConstructorMeta(TableConstructor):
         elif xfResult["occ"] == "212h":
             self.frame.occReplay[name] = LingSuWindow(self.config, xfResult["result"])
             button = tk.Button(self.frame, text='灵素', height=1, command=self.frame.occReplay[name].start, bg=getColor("212"))
+            button.grid(row=self.nowx, column=self.nowy)
+            self.nowy += 1
+        elif xfResult["occ"] == "2h":
+            self.frame.occReplay[name] = LiJingYiDaoWindow(self.config, xfResult["result"])
+            button = tk.Button(self.frame, text='离经易道', height=1, command=self.frame.occReplay[name].start, bg=getColor("2"))
             button.grid(row=self.nowx, column=self.nowy)
             self.nowy += 1
 
