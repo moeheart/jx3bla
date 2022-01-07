@@ -49,11 +49,19 @@ class AttributeDisplay():
             baseAttribute = {'atTherapyPowerBase': 2768}  # 为简洁性只写这一个
             hRate = 1.8
             cRate = 0.11
+        if occ == '2h':  # 奶花
+            c1 = 'atNeutralCriticalStrike'
+            c2 = 'atMagicCriticalStrike'
+            ct1 = 'atNeutralCriticalDamagePowerBase'
+            ct2 = 'atMagicCriticalDamagePowerBase'
+            baseAttribute = {'atTherapyPowerBase': 2780}  # 为简洁性只写这一个
+            hRate = 1.65
+            cRate = 0.41
 
         attribute = self.ac.attribMerge(attribute, baseAttribute)
 
         spirit = attribute.get('atSpiritBase', 0)
-        if occ in ['22h', '212h']:  # 根骨
+        if occ in ['22h', '212h', '2h']:  # 根骨
             result['根骨'] = spirit
 
         # 由根骨得到的额外属性
@@ -61,7 +69,7 @@ class AttributeDisplay():
                                 'atMagicCriticalStrike': int((cRate + 0.64) * spirit)}
         attribute = self.ac.attribMerge(attribute, extraAttributeSpirit)
 
-        if occ in ['22h', '212h']:  # 治疗通用
+        if occ in ['22h', '212h', '2h']:  # 治疗通用
             result['基础治疗'] = attribute.get('atTherapyPowerBase', 0)
             result['治疗'] = attribute.get('atTherapyPowerBase', 0) + attribute.get('atTherapyPower', 0)
             result['会心等级'] = attribute.get(c1, 0) + attribute.get(c2, 0) + attribute.get(c3, 0)

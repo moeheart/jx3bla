@@ -23,67 +23,6 @@ import hashlib
 import webbrowser
 import pyperclip
 
-LINGSU_QIXUE = {'28597': '醒窍',
-'28605': '凝壁',
-'28609': '不染',
-'28637': '素柯',
-'28649': '相须',
-'28678': '飘黄',
-'28700': '同梦',
-'28711': '清嘉',
-'28758': '败叶',
-'28732': '决明',
-'28740': '旋生飞草',
-'28467': '陌归',
-'29528': '反佐',
-'28349': '月见',
-'28612': '寸草',
-'28641': '韶时',
-'28710': '畅和',
-'28405': '蔓蕊',
-'28704': '苦降',
-'28624': '忘忧',
-'28727': '幽姿',
-'28435': '摧蕊',
-'28743': '顾步',
-'28748': '辞零',
-'28603': '收涩',
-'28608': '鬼卿',
-'28713': '木通',
-'28644': '妒茵',
-'28651': '释冰',
-'28691': '挂雨',
-'28708': '晴柔',
-'28421': '渡若',
-'28428': '双生',
-'28735': '独活',
-'28744': '莲池',
-'28751': '卫矛',
-'28627': '游泽',
-'28646': '水苏',
-'28400': '寒香',
-'28698': '孤芳',
-'28730': '绿绦',
-'28716': '浅碧',
-'28650': '香稠',
-'28736': '织翠',
-'28726': '自馨',
-'29471': '青圃着尘',
-'28722': '配伍',
-'28731': '燕徊',
-'28739': '胜娇',
-'28759': '拂怜',
-'28756': '百药宣时'}
-
-def getLingSuQixue(id):
-    '''
-    根据ID获取灵素奇穴名.
-    '''
-    if id in LINGSU_QIXUE:
-        return LINGSU_QIXUE[id]
-    else:
-        return id  # 方便在技改附近批量更新
-
 class LiJingYiDaoWindow():
     '''
     奶花复盘界面显示类.
@@ -143,77 +82,77 @@ class LiJingYiDaoWindow():
         # Part 1: 全局
         frame1 = tk.Frame(window, width=200, height=230, highlightthickness=1, highlightbackground="#7f1fdf")
         frame1.place(x=10, y=10)
-        # frame1sub = tk.Frame(frame1)
-        # frame1sub.place(x=0, y=0)
-        # tb = TableConstructor(self.config, frame1sub)
-        # tb.AppendContext("复盘版本：", justify="right")
-        # tb.AppendContext(self.result["overall"]["edition"])
-        # tb.EndOfLine()
-        # tb.AppendContext("玩家ID：", justify="right")
-        # tb.AppendContext(self.result["overall"]["playerID"], color="#7f1fdf")
-        # tb.EndOfLine()
-        # tb.AppendContext("服务器：", justify="right")
-        # tb.AppendContext(self.result["overall"]["server"])
-        # tb.EndOfLine()
-        # tb.AppendContext("战斗时间：", justify="right")
-        # tb.AppendContext(self.result["overall"]["battleTimePrint"])
-        # tb.EndOfLine()
-        # tb.AppendContext("生成时间：", justify="right")
-        # tb.AppendContext(self.result["overall"]["generateTimePrint"])
-        # tb.EndOfLine()
-        # tb.AppendContext("地图：", justify="right")
-        # tb.AppendContext(self.result["overall"]["map"])
-        # tb.EndOfLine()
-        # tb.AppendContext("首领：", justify="right")
-        # tb.AppendContext(self.result["overall"]["boss"], color="#ff0000")
-        # tb.EndOfLine()
-        # tb.AppendContext("战斗时长：", justify="right")
-        # tb.AppendContext(self.result["overall"]["sumTimePrint"])
-        # tb.EndOfLine()
-        # tb.AppendContext("数据种类：", justify="right")
-        # tb.AppendContext(self.result["overall"]["dataType"])
-        # tb.EndOfLine()
+        frame1sub = tk.Frame(frame1)
+        frame1sub.place(x=0, y=0)
+        tb = TableConstructor(self.config, frame1sub)
+        tb.AppendContext("复盘版本：", justify="right")
+        tb.AppendContext(self.result["overall"]["edition"])
+        tb.EndOfLine()
+        tb.AppendContext("玩家ID：", justify="right")
+        tb.AppendContext(self.result["overall"]["playerID"], color="#7f1fdf")
+        tb.EndOfLine()
+        tb.AppendContext("服务器：", justify="right")
+        tb.AppendContext(self.result["overall"]["server"])
+        tb.EndOfLine()
+        tb.AppendContext("战斗时间：", justify="right")
+        tb.AppendContext(self.result["overall"]["battleTimePrint"])
+        tb.EndOfLine()
+        tb.AppendContext("生成时间：", justify="right")
+        tb.AppendContext(self.result["overall"]["generateTimePrint"])
+        tb.EndOfLine()
+        tb.AppendContext("地图：", justify="right")
+        tb.AppendContext(self.result["overall"]["map"])
+        tb.EndOfLine()
+        tb.AppendContext("首领：", justify="right")
+        tb.AppendContext(self.result["overall"]["boss"], color="#ff0000")
+        tb.EndOfLine()
+        tb.AppendContext("战斗时长：", justify="right")
+        tb.AppendContext(self.result["overall"]["sumTimePrint"])
+        tb.EndOfLine()
+        tb.AppendContext("数据种类：", justify="right")
+        tb.AppendContext(self.result["overall"]["dataType"])
+        tb.EndOfLine()
 
         # Part 2: 装备
         frame2 = tk.Frame(window, width=200, height=230, highlightthickness=1, highlightbackground="#7f1fdf")
         frame2.place(x=220, y=10)
-        # frame2sub = tk.Frame(frame2)
-        # frame2sub.place(x=0, y=0)
-        # if self.result["equip"]["available"] == 0:
-        #     text = "装备信息获取失败。\n在进入战斗后打开团队装分面板即可获取。\n如果是第一视角也可以自动获取。"
-        #     tk.Label(frame2, text=text, justify="left").place(x=0, y=0)
-        # else:
-        #     tb = TableConstructor(self.config, frame2sub)
-        #     tb.AppendContext("装备分数：", justify="right")
-        #     color4 = "#000000"
-        #     if "大橙武" in self.result["equip"]["sketch"]:
-        #         color4 = "#ffcc00"
-        #     tb.AppendContext("%d"%self.result["equip"]["score"], color=color4)
-        #     tb.EndOfLine()
-        #     tb.AppendContext("详情：", justify="right")
-        #     tb.AppendContext(self.result["equip"]["sketch"])
-        #     tb.EndOfLine()
-        #     tb.AppendContext("强化：", justify="right")
-        #     tb.AppendContext(self.result["equip"].get("forge", ""))
-        #     tb.EndOfLine()
-        #     tb.AppendContext("根骨：", justify="right")
-        #     tb.AppendContext("%d"%self.result["equip"]["spirit"])
-        #     tb.EndOfLine()
-        #     tb.AppendContext("治疗量：", justify="right")
-        #     tb.AppendContext("%d(%d)"%(self.result["equip"]["heal"], self.result["equip"]["healBase"]))
-        #     tb.EndOfLine()
-        #     tb.AppendContext("会心：", justify="right")
-        #     tb.AppendContext("%s(%d)"%(self.result["equip"]["critPercent"], self.result["equip"]["crit"]))
-        #     tb.EndOfLine()
-        #     tb.AppendContext("会心效果：", justify="right")
-        #     tb.AppendContext("%s(%d)"%(self.result["equip"]["critpowPercent"], self.result["equip"]["critpow"]))
-        #     tb.EndOfLine()
-        #     tb.AppendContext("加速：", justify="right")
-        #     tb.AppendContext("%s(%d)"%(self.result["equip"]["hastePercent"], self.result["equip"]["haste"]))
-        #     tb.EndOfLine()
-        #
-        #     b2 = tk.Button(frame2, text='导出', height=1, command=self.exportEquipment)
-        #     b2.place(x=140, y=180)
+        frame2sub = tk.Frame(frame2)
+        frame2sub.place(x=0, y=0)
+        if self.result["equip"]["available"] == 0:
+            text = "装备信息获取失败。\n在进入战斗后打开团队装分面板即可获取。\n如果是第一视角也可以自动获取。"
+            tk.Label(frame2, text=text, justify="left").place(x=0, y=0)
+        else:
+            tb = TableConstructor(self.config, frame2sub)
+            tb.AppendContext("装备分数：", justify="right")
+            color4 = "#000000"
+            if "大橙武" in self.result["equip"]["sketch"]:
+                color4 = "#ffcc00"
+            tb.AppendContext("%d"%self.result["equip"]["score"], color=color4)
+            tb.EndOfLine()
+            tb.AppendContext("详情：", justify="right")
+            tb.AppendContext(self.result["equip"]["sketch"])
+            tb.EndOfLine()
+            tb.AppendContext("强化：", justify="right")
+            tb.AppendContext(self.result["equip"].get("forge", ""))
+            tb.EndOfLine()
+            tb.AppendContext("根骨：", justify="right")
+            tb.AppendContext("%d"%self.result["equip"]["spirit"])
+            tb.EndOfLine()
+            tb.AppendContext("治疗量：", justify="right")
+            tb.AppendContext("%d(%d)"%(self.result["equip"]["heal"], self.result["equip"]["healBase"]))
+            tb.EndOfLine()
+            tb.AppendContext("会心：", justify="right")
+            tb.AppendContext("%s(%d)"%(self.result["equip"]["critPercent"], self.result["equip"]["crit"]))
+            tb.EndOfLine()
+            tb.AppendContext("会心效果：", justify="right")
+            tb.AppendContext("%s(%d)"%(self.result["equip"]["critpowPercent"], self.result["equip"]["critpow"]))
+            tb.EndOfLine()
+            tb.AppendContext("加速：", justify="right")
+            tb.AppendContext("%s(%d)"%(self.result["equip"]["hastePercent"], self.result["equip"]["haste"]))
+            tb.EndOfLine()
+
+            b2 = tk.Button(frame2, text='导出', height=1, command=self.exportEquipment)
+            b2.place(x=140, y=180)
 
         # Part 3: 治疗
         frame3 = tk.Frame(window, width=310, height=150, highlightthickness=1, highlightbackground="#7f1fdf")
@@ -237,18 +176,18 @@ class LiJingYiDaoWindow():
         # Part 4: 奇穴
         frame4 = tk.Frame(window, width=310, height=70, highlightthickness=1, highlightbackground="#7f1fdf")
         frame4.place(x=430, y=170)
-        # if self.result["qixue"]["available"] == 0:
-        #     text = "奇穴信息获取失败。\n在进入战斗后查看目标的奇穴即可获取。\n如果是第一视角也可以自动获取。"
-        #     tk.Label(frame4, text=text, justify="left").place(x=0, y=0)
-        # else:
-        #     text = ""
-        #     for i in range(1, 7):
-        #         text = text + self.result["qixue"][str(i)] + ','
-        #     text = text + '\n'
-        #     for i in range(7, 13):
-        #         text = text + self.result["qixue"][str(i)] + ','
-        #     text = text[:-1]
-        #     tk.Label(frame4, text=text, justify="left").place(x=0, y=0)
+        if self.result["qixue"]["available"] == 0:
+            text = "奇穴信息获取失败。\n在进入战斗后查看目标的奇穴即可获取。\n如果是第一视角也可以自动获取。"
+            tk.Label(frame4, text=text, justify="left").place(x=0, y=0)
+        else:
+            text = ""
+            for i in range(1, 7):
+                text = text + self.result["qixue"][str(i)] + ','
+            text = text + '\n'
+            for i in range(7, 13):
+                text = text + self.result["qixue"][str(i)] + ','
+            text = text[:-1]
+            tk.Label(frame4, text=text, justify="left").place(x=0, y=0)
 
         # Part 5: 技能
         # TODO 加入图片转存
@@ -729,7 +668,7 @@ class LiJingYiDaoReplayer(ReplayerBase):
             eee = ExcelExportEquipment()
             strEquip = eee.export(jsonEquip)
             adr = AttributeDisplayRemote()
-            res = adr.Display(strEquip, "212h")
+            res = adr.Display(strEquip, "2h")
             self.result["equip"]["score"] = int(self.bld.info.player[self.mykey].equipScore)
             self.result["equip"]["sketch"] = jsonEquip["sketch"]
             self.result["equip"]["forge"] = jsonEquip["forge"]
@@ -750,7 +689,11 @@ class LiJingYiDaoReplayer(ReplayerBase):
         if self.bld.info.player[self.mykey].qx != {}:
             self.result["qixue"]["available"] = 1
             for key in self.bld.info.player[self.mykey].qx:
-                self.result["qixue"][key] = getLingSuQixue(self.bld.info.player[self.mykey].qx[key]["2"])
+                qxKey = "1,%s,1" % self.bld.info.player[self.mykey].qx[key]["2"]
+                if qxKey in SKILL_NAME:
+                    self.result["qixue"][key] = SKILL_NAME[qxKey]
+                else:
+                    self.result["qixue"][key] = self.bld.info.player[self.mykey].qx[key]["2"]
 
         # print(self.result["overall"])
         # print(self.result["equip"])
@@ -1535,7 +1478,7 @@ class LiJingYiDaoReplayer(ReplayerBase):
         upload = {}
         upload["server"] = self.result["overall"]["server"]
         upload["id"] = self.result["overall"]["playerID"]
-        upload["occ"] = "lingsu"
+        upload["occ"] = "lijingyidao"
         upload["score"] = self.result["score"]["sum"]
         upload["battledate"] = time.strftime("%Y-%m-%d", time.localtime(self.result["overall"]["battleTime"]))
         upload["mapdetail"] = self.result["overall"]["map"]
@@ -1567,7 +1510,7 @@ class LiJingYiDaoReplayer(ReplayerBase):
         '''
         开始奶花复盘分析.
         '''
-        # self.FirstStageAnalysis()
+        self.FirstStageAnalysis()
         # self.SecondStageAnalysis()
         # self.recordRater()
         # self.prepareUpload()
