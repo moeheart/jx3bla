@@ -9,7 +9,8 @@ from replayer.TableConstructor import TableConstructor
 from replayer.occ.XiangZhi import XiangZhiProWindow
 from replayer.occ.LingSu import LingSuWindow
 from replayer.occ.LiJingYiDao import LiJingYiDaoWindow
-
+from replayer.occ.YunChangXinJing import YunChangXinJingWindow
+from replayer.occ.BuTianJue import BuTianJueWindow
 
 class TableConstructorMeta(TableConstructor):
     '''
@@ -33,6 +34,16 @@ class TableConstructorMeta(TableConstructor):
         elif xfResult["occ"] == "2h":
             self.frame.occReplay[name] = LiJingYiDaoWindow(self.config, xfResult["result"])
             button = tk.Button(self.frame, text='离经易道', height=1, command=self.frame.occReplay[name].start, bg=getColor("2"))
+            button.grid(row=self.nowx, column=self.nowy)
+            self.nowy += 1
+        elif xfResult["occ"] == "5h":
+            self.frame.occReplay[name] = YunChangXinJingWindow(self.config, xfResult["result"])
+            button = tk.Button(self.frame, text='云裳心经', height=1, command=self.frame.occReplay[name].start, bg=getColor("5"))
+            button.grid(row=self.nowx, column=self.nowy)
+            self.nowy += 1
+        elif xfResult["occ"] == "6h":
+            self.frame.occReplay[name] = BuTianJueWindow(self.config, xfResult["result"])
+            button = tk.Button(self.frame, text='补天诀', height=1, command=self.frame.occReplay[name].start, bg=getColor("6"))
             button.grid(row=self.nowx, column=self.nowy)
             self.nowy += 1
 

@@ -64,6 +64,12 @@ class SkillCounter():
             self.delta = getLength(24, self.haste)
         if self.skillid in ["27624"]:  # 当归四逆
             self.delta = getLength(8, self.haste)
+        if self.skillid in ["138", "140"]:  # 提针，彼针
+            self.delta = getLength(24, self.haste)
+        if self.skillid in ["142"]:  # 长针
+            self.delta = getLength(48, self.haste)
+        if self.skillid in ["28541"]:  # 泷雾
+            self.delta = getLength(8, self.haste)
 
     def getAverageDelay(self):
         '''
@@ -264,7 +270,7 @@ class HotCounter(BuffCounter):
             while nowi < len(self.log) and self.log[nowi][0] < nowTime:
                 nowi += 1
             if len(self.log) > 0 and nowi > 0 and self.log[nowi-1][1] > 0:
-                single = (self.log[nowi-1][2] + self.log[nowi-1][0] - nowTime) / self.log[nowi-1][2]
+                single = max((self.log[nowi-1][2] + self.log[nowi-1][0] - nowTime) / (self.log[nowi-1][2] + 1e-10), 0)
             # single = int(single * 100)
             result["timeline"].append(single)
         return result
@@ -567,7 +573,89 @@ def parseCent(num, digit=2):
         return "%s.%s" % (n1, n2)
     else:
         return "%s" % n1
-        
+
+def countCluster(teamLog, teamLastTime, event):
+    '''
+    根据HOT的获取事件提取组队聚类信息.
+    params:
+    - teamLog: 玩家两两配对的事件.
+    - teamLastTime: 玩家上次获取HOT的时间.
+    - event: HOT事件.
+    '''
+    if event.target in teamLastTime:
+        teamLastTime[event.target] = event.time
+    else:
+        return teamLog, teamLastTime
+    # print("[teamLastTime]", event.time, teamLastTime)
+    for player in teamLastTime:
+        if event.time - teamLastTime[player] < 100:
+            if player not in teamLog[event.target]:
+                teamLog[event.target][player] = 0
+            teamLog[event.target][player] += 1
+            if event.target != player:
+                if event.target not in teamLog[player]:
+                    teamLog[player][event.target] = 0
+                teamLog[player][event.target] += 1
+    return teamLog, teamLastTime
+
+def finalCluster(teamLog):
+    '''
+    根据组队聚类信息计算聚类结果.
+    params:
+    - teamLog: 玩家两两配对的事件.
+    returns:
+    - teamCluster: 聚类结果.
+    - numCluster: 聚类结果中每个类别的数量.
+    '''
+    teamCluster = {}
+    for player in teamLog:
+        teamCluster[player] = 0
+    nTeam = 0
+    numCluster = [0]
+
+    # 聚类5次
+    for _ in range(5):
+        maxValue = 0
+        maxPlayer = ""
+        for player in teamLog:
+            if teamCluster[player] == 0:
+                value = teamLog[player].get(player, 0)
+                if value > maxValue:
+                    maxValue = value
+                    maxPlayer = player
+        if maxPlayer == "":
+            break
+        player = maxPlayer
+        singleRes = []
+        for playerT in teamLog[player]:
+            singleRes.append([playerT, teamLog[player][playerT]])
+        singleRes.sort(key=lambda x: -x[1])
+        j = 4  # 最多选5人
+        while len(singleRes) <= j or (j >= 1 and singleRes[j-1][1] / (singleRes[j][1] + 1e-10) >= 3):
+            j -= 1
+        # print(singleRes)
+        # print(j)
+        if j >= 1:
+            nTeam += 1
+            numCluster.append(0)
+            for i in range(0, j+1):
+                teamCluster[singleRes[i][0]] = nTeam
+                numCluster[nTeam] += 1
+        else:
+            teamCluster[player] = -1
+
+    # 为剩余角色聚类
+    hasRemain = 0
+    for player in teamCluster:
+        if teamCluster[player] <= 0:
+            if not hasRemain:
+                hasRemain = 1
+                nTeam += 1
+                numCluster.append(0)
+            teamCluster[player] = nTeam
+            numCluster[nTeam] += 1
+
+    return teamCluster, numCluster
         
 def checkOccDetailBySkill(default, skillID, damage):
     '''
@@ -577,12 +665,14 @@ def checkOccDetailBySkill(default, skillID, damage):
     #    return '3d'
     #elif skillID in ["18207", "18773"] and int(damage) < 3000:
     #    return '3t'
-    if skillID in ["2636"]:
+    if skillID in ["25587"]:
+        return default + 't'
+    elif skillID in ["2636"]:
         return '2d'
-    elif skillID in ["101", "138", "14664"]:
+    elif skillID in ["101", "138", "14664", "28541"]:
         return '2h'
-    elif skillID in ["444"]:
-        return '3d'
+    # elif skillID in ["444"]:
+    #     return '3d'
     elif skillID in ["15115"]:
         return '3t'
     elif skillID in ["365", "2699"]:

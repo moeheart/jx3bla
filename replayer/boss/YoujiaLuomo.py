@@ -174,7 +174,7 @@ class YoujiaLuomoReplayer(SpecificReplayerPro):
 
         if event.dataType == "Skill":
             if event.target in self.bld.info.player:
-                if event.heal > 0 and event.effect != 7 and event.caster in self.hps: #非化解
+                if event.heal > 0 and event.effect != 7 and event.caster in self.hps:  # 非化解
                     self.hps[event.caster] += event.healEff
                     
             else:
@@ -183,6 +183,18 @@ class YoujiaLuomoReplayer(SpecificReplayerPro):
                     if event.target in self.bld.info.npc:
                         if self.bld.info.npc[event.target].name in ["赐恩血瘤", "賜恩血瘤"]:
                             self.stat[event.caster][7] += event.damageEff
+                            # 瘤子的开怪检测
+                            if event.target not in self.xueLiuFirstHit:
+                                self.xueLiuFirstHit[event.target] = 1
+                                self.xueLiuActiveNum += 1
+                                if self.xueLiuActiveNum == 3 and self.xueLiuFirstDown != 1:  # 分锅
+                                    self.potList.append([self.bld.info.player[event.caster].name,
+                                                         self.occDetailList[event.caster],
+                                                         0,
+                                                         self.bossNamePrint,
+                                                         "%s提前开对场瘤子" % (parseTime((event.time - self.startTime) / 1000)),
+                                                         []])
+
                         elif self.bld.info.npc[event.target].name in ["摄魂鬼虫", "攝魂鬼蟲"]:
                             self.stat[event.caster][8] += event.damageEff
                         elif self.bld.info.npc[event.target].name in ["秽血勇虫", "穢血勇蟲"]:
@@ -213,6 +225,8 @@ class YoujiaLuomoReplayer(SpecificReplayerPro):
         elif event.dataType == "Death":  # 重伤记录
             if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["血蛊巢心", "血蠱巢心"]:
                 self.win = 1
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["赐恩血瘤", "賜恩血瘤"]:
+                self.xueLiuFirstDown = 1
 
         elif event.dataType == "Battle":  # 战斗状态变化
             pass
@@ -251,6 +265,9 @@ class YoujiaLuomoReplayer(SpecificReplayerPro):
         self.detail["boss"] = self.bossNamePrint
         self.win = 0
         self.stunCounter = {}
+        self.xueLiuFirstHit = {}
+        self.xueLiuActiveNum = 0
+        self.xueLiuFirstDown = 0
 
         self.phase = 1
         self.phaseStart = self.startTime

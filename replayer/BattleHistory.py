@@ -88,7 +88,7 @@ class BattleHistory():
                "description": description}
         self.log["special"].append(res)
 
-    def setNormalSkill(self, skillid, skillname, iconid, start, duration, num, healeff, effrate, delay, busyTime, description):
+    def setNormalSkill(self, skillid, skillname, iconid, start, duration, num, healeff, effrate, delay, busyTime, description, target=""):
         '''
         添加常规技能.
         params:
@@ -103,6 +103,7 @@ class BattleHistory():
         - delay: 平均延时.
         - busyTime: 实际所用时间.
         - description: 描述.
+        - target: 目标ID，用于奶花复盘指示分队
         '''
         res = {"skillid": skillid,
                "skillname": skillname,
@@ -115,6 +116,8 @@ class BattleHistory():
                "delay": delay,
                "busyTime": busyTime,
                "description": description}
+        if target != "":
+            res["team"] = target
         self.log["normal"].append(res)
 
     def getNormalEfficiency(self):
@@ -130,7 +133,7 @@ class BattleHistory():
             if record["start"] > lastTime:
                 spare += record["start"] - lastTime
                 busy += record["busyTime"]
-                lastTime = record["start"] + record["busyTime"]
+                lastTime = record["start"] + record["busyTime"]  # 这里暂存了spare的时间
             elif record["start"] + record["duration"] > lastTime:
                 spare -= lastTime - record["start"]
                 busy += record["start"] + record["busyTime"] - lastTime
@@ -138,6 +141,7 @@ class BattleHistory():
             else:
                 spare -= record["busyTime"]
                 busy += record["busyTime"]
+            # print(spare, busy, lastTime, record["start"], record["busyTime"])
         spare += self.finalTime - lastTime
         return busy / (spare + busy + 1e-10)
 

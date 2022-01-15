@@ -39,6 +39,8 @@ from replayer.boss.WuMenggui import WuMengguiReplayer
 from replayer.occ.XiangZhi import XiangZhiProReplayer
 from replayer.occ.LingSu import LingSuReplayer
 from replayer.occ.LiJingYiDao import LiJingYiDaoReplayer
+from replayer.occ.YunChangXinJing import YunChangXinJingReplayer
+from replayer.occ.BuTianJue import BuTianJueReplayer
 
 class ActorProReplayer(ReplayerBase):
 
@@ -199,6 +201,8 @@ class ActorProReplayer(ReplayerBase):
 
         timeReseted = 0
 
+        # skillList50 = {}
+
         for event in self.bld.log:
             
             # if len(item) > 5 and item[5] not in occdict:
@@ -258,6 +262,10 @@ class ActorProReplayer(ReplayerBase):
                 if event.caster in occDetailList and occDetailList[event.caster] in ['1', '2', '3', '4', '5', '6', '7', '10',
                                                                            '21', '22', '212']:
                     occDetailList[event.caster] = checkOccDetailBySkill(occDetailList[event.caster], event.id, event.damageEff)
+
+                # if event.caster == "15697871" and event.id not in skillList50:
+                #     skillList50[event.id] = 1
+                #     print(event.time, event.id, self.bld.info.getSkillName(event.full_id))
 
                     
             elif event.dataType == "Buff":
@@ -789,19 +797,29 @@ class ActorProReplayer(ReplayerBase):
         for id in self.bld.info.player:
             if self.config.xiangzhiActive and self.occDetailList[id] == "22h":  # 奶歌
                 name = self.bld.info.player[id].name
-                xiangzhiRep = XiangZhiProReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime)
+                xiangzhiRep = XiangZhiProReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime, self.win)
                 xiangzhiRep.replay()
                 self.occResult[name] = {"occ": "22h", "result": xiangzhiRep.result}
             if self.config.lingsuActive and self.occDetailList[id] == "212h":  # 灵素
                 name = self.bld.info.player[id].name
-                lingsuRep = LingSuReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime)
+                lingsuRep = LingSuReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime, self.win)
                 lingsuRep.replay()
                 self.occResult[name] = {"occ": "212h", "result": lingsuRep.result}
             if self.config.lingsuActive and self.occDetailList[id] == "2h":  # 奶花
                 name = self.bld.info.player[id].name
-                lijingyidaoRep = LiJingYiDaoReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime)
+                lijingyidaoRep = LiJingYiDaoReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime, self.win)
                 lijingyidaoRep.replay()
                 self.occResult[name] = {"occ": "2h", "result": lijingyidaoRep.result}
+            # if self.config.lingsuActive and self.occDetailList[id] == "5h":  # 奶秀
+            #     name = self.bld.info.player[id].name
+            #     yunchangxinjingRep = YunChangXinJingReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime)
+            #     yunchangxinjingRep.replay()
+            #     self.occResult[name] = {"occ": "5h", "result": yunchangxinjingRep.result}
+            if self.config.lingsuActive and self.occDetailList[id] == "6h":  # 奶毒
+                name = self.bld.info.player[id].name
+                butianjueRep = BuTianJueReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime, self.win)
+                butianjueRep.replay()
+                self.occResult[name] = {"occ": "6h", "result": butianjueRep.result}
 
     def replay(self):
         '''

@@ -9,6 +9,7 @@ from Constants import *
 from tools.Functions import *
 from equip.AttributeDisplayRemote import AttributeDisplayRemote
 from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
+from replayer.Name import *
 
 import os
 import time
@@ -22,147 +23,6 @@ import urllib.request
 import hashlib
 import webbrowser
 import pyperclip
-
-XIANGZHI_QIXUE = {
-    '14237':'雪海',
-    '14247':'太和',
-    '23313':'枕流',
-    '24020':'流音',
-    '14405':'谪仙',
-    '14384':'自赏',
-    '14406':'寸光阴',
-    '26728':'诗上',
-    '14244':'凝绝',
-    '14359':'棋宫',
-    '14242':'掷杯',
-    '19308':'思议',
-    '14238':'红隙',
-    '14373':'秋鸿',
-    '17521':'争簇',
-    '14439':'织心',
-    '14164':'超然',
-    '14361':'引芳',
-    '14313':'井仪',
-    '22029':'绝唱',
-    '14163':'相依',
-    '14557':'贯珠',
-    '18718':'凝眉',
-    '22030':'无尽藏',
-    '14464':'蔚风',
-    '18382':'风入松',
-    '14286':'流霜',
-    '14285':'殊曲',
-    '14248':'寒酒',
-    '14253':'犹香',
-    '14251':'笙簧',
-    '22797':'蒹葭',
-    '14461':'鸣鸾',
-    '14167':'寿生',
-    '14155':'剡注',
-    '14442':'桑柔',
-    '14256':'石间意',
-    '14169':'一指回鸾',
-    '14254':'温语',
-    '14249':'平吟',
-    '23678':'乐情',
-    '14874':'捣衣',
-    '14470':'天音知脉',
-    '18819':'庄周梦',
-    '22808':'大韶',
-    '15068':'琴音共鸣',
-    '26772':'行云',
-    '25234':'绕梁',
-    '25235':'不器',
-    '25236':'古道',
-    '25229':'游太清',
-    '28131':'祭子期',
-    '29069':'游羽',
-    '28248':'潋滟',
-    '29003':'敛意',
-    '28210':'江永',
-}
-
-def getXiangZhiQixue(id):
-    '''
-    根据ID获取奶歌奇穴名.
-    '''
-    if id in XIANGZHI_QIXUE:
-        return XIANGZHI_QIXUE[id]
-    else:
-        # return "未知"
-        return id  # 方便在技改附近批量更新
-
-def countCluster(teamLog, teamLastTime, event):
-    '''
-    根据HOT的获取事件提取组队聚类信息.
-    params:
-    - teamLog: 玩家两两配对的事件.
-    - teamLastTime: 玩家上次获取HOT的时间.
-    - event: HOT事件.
-    '''
-    if event.target in teamLastTime:
-        teamLastTime[event.target] = event.time
-    else:
-        return teamLog, teamLastTime
-    # print("[teamLastTime]", event.time, teamLastTime)
-    for player in teamLastTime:
-        if event.time - teamLastTime[player] < 100:
-            if player not in teamLog[event.target]:
-                teamLog[event.target][player] = 0
-            teamLog[event.target][player] += 1
-            if event.target != player:
-                if event.target not in teamLog[player]:
-                    teamLog[player][event.target] = 0
-                teamLog[player][event.target] += 1
-    return teamLog, teamLastTime
-
-def finalCluster(teamLog):
-    '''
-    根据组队聚类信息计算聚类结果.
-    params:
-    - teamLog: 玩家两两配对的事件.
-    returns:
-    - teamCluster: 聚类结果.
-    - numCluster: 聚类结果中每个类别的数量.
-    '''
-    teamCluster = {}
-    for player in teamLog:
-        teamCluster[player] = 0
-    nTeam = 0
-    numCluster = [0]
-
-    # 从前五名开始按一定阈值聚类
-    for player in teamLog:
-        if teamCluster[player] != 0:
-            continue
-        singleRes = []
-        for playerT in teamLog[player]:
-            singleRes.append([playerT, teamLog[player][playerT]])
-        singleRes.sort(key=lambda x: -x[1])
-        j = 5
-        while len(singleRes) <= j or (j >= 1 and singleRes[j-1][1] / (singleRes[j][1] + 1e-10) >= 3):
-            j -= 1
-        # print(singleRes)
-        # print(j)
-        if j >= 1:
-            nTeam += 1
-            numCluster.append(0)
-            for i in range(0, j+1):
-                teamCluster[singleRes[i][0]] = nTeam
-                numCluster[nTeam] += 1
-
-    # 为剩余角色聚类
-    hasRemain = 0
-    for player in teamCluster:
-        if teamCluster[player] == 0:
-            if not hasRemain:
-                hasRemain = 1
-                nTeam += 1
-                numCluster.append(0)
-            teamCluster[player] = nTeam
-            numCluster[nTeam] += 1
-
-    return teamCluster, numCluster
 
 class XiangZhiProWindow():
     '''
@@ -269,8 +129,11 @@ class XiangZhiProWindow():
         tb.AppendContext("地图：", justify="right")
         tb.AppendContext(self.result["overall"]["map"])
         tb.EndOfLine()
+        bossPrint = self.result["overall"]["boss"]
+        if self.result["overall"].get("win", 1) == 0:
+            bossPrint = bossPrint + "(未通关)"
         tb.AppendContext("首领：", justify="right")
-        tb.AppendContext(self.result["overall"]["boss"], color="#ff0000")
+        tb.AppendContext(bossPrint, color="#ff0000")
         tb.EndOfLine()
         tb.AppendContext("人数：", justify="right")
         tb.AppendContext("%.2f"%self.result["overall"].get("numPlayer", 0))
@@ -420,20 +283,8 @@ class XiangZhiProWindow():
 
         frame5_5 = tk.Frame(frame5, width=180, height=95)
         frame5_5.place(x=0, y=100)
-        frame5_5.photo = tk.PhotoImage(file="icons/7168.png")
+        frame5_5.photo = tk.PhotoImage(file="icons/7173.png")
         label = tk.Label(frame5_5, image=frame5_5.photo)
-        label.place(x=5, y=25)
-        ToolTip(label, "相依")
-        text = "数量：%d\n"%self.result["skill"]["xiangyi"]["num"]
-        text = text + "HPS：%d\n" % self.result["skill"]["xiangyi"]["HPS"]
-        text = text + "有效比例：%s%%\n" % parseCent(self.result["skill"]["xiangyi"]["effRate"])
-        label = tk.Label(frame5_5, text=text, justify="left")
-        label.place(x=60, y=25)
-
-        frame5_6 = tk.Frame(frame5, width=180, height=95)
-        frame5_6.place(x=180, y=100)
-        frame5_6.photo = tk.PhotoImage(file="icons/7173.png")
-        label = tk.Label(frame5_6, image=frame5_6.photo)
         label.place(x=5, y=25)
         ToolTip(label, "宫")
         text = "数量：%d(%.2f)\n" % (self.result["skill"]["gong"]["num"], self.result["skill"]["gong"]["numPerSec"])
@@ -441,21 +292,29 @@ class XiangZhiProWindow():
         text = text + "HPS：%d\n" % self.result["skill"]["gong"]["HPS"]
         text = text + "枕流HPS：%d\n" % self.result["skill"]["meihua"].get("zhenliuHPS", 0)
         text = text + "有效比例：%s%%\n" % parseCent(self.result["skill"]["gong"]["effRate"])
-        label = tk.Label(frame5_6, text=text, justify="left")
+        label = tk.Label(frame5_5, text=text, justify="left")
         label.place(x=60, y=10)
 
-        frame5_7 = tk.Frame(frame5, width=180, height=95)
-        frame5_7.place(x=360, y=100)
-        frame5_7.photo = tk.PhotoImage(file="icons/7175.png")
-        label = tk.Label(frame5_7, image=frame5_7.photo)
+        frame5_6 = tk.Frame(frame5, width=180, height=95)
+        frame5_6.place(x=180, y=100)
+        frame5_6.photo = tk.PhotoImage(file="icons/7175.png")
+        label = tk.Label(frame5_6, image=frame5_6.photo)
         label.place(x=5, y=25)
         ToolTip(label, "羽")
         text = "数量：%d\n"%self.result["skill"]["yu"]["num"]
         text = text + "延迟：%dms\n" % self.result["skill"]["yu"]["delay"]
         text = text + "HPS：%d\n" % self.result["skill"]["yu"]["HPS"]
         text = text + "有效比例：%s%%\n" % parseCent(self.result["skill"]["yu"]["effRate"])
-        label = tk.Label(frame5_7, text=text, justify="left")
+        label = tk.Label(frame5_6, text=text, justify="left")
         label.place(x=60, y=20)
+
+        frame5_7 = tk.Frame(frame5, width=180, height=95)
+        frame5_7.place(x=360, y=100)
+        text = "相依数量：%d\n" % self.result["skill"]["xiangyi"]["num"]
+        text = text + "相依HPS：%d\n" % self.result["skill"]["xiangyi"]["HPS"]
+        text = text + "沐风覆盖率：%s%%\n" % parseCent(self.result["skill"]["mufeng"]["cover"])
+        label = tk.Label(frame5_7, text=text, justify="left")
+        label.place(x=20, y=25)
 
         frame5_8 = tk.Frame(frame5, width=180, height=95)
         frame5_8.place(x=540, y=100)
@@ -592,9 +451,9 @@ class XiangZhiProWindow():
 
         tb = TableConstructor(self.config, frame7sub)
         tb.AppendHeader("玩家名", "", width=13)
-        tb.AppendHeader("DPS", "全程去除庄周梦增益后的DPS，注意包含重伤时间。")
+        tb.AppendHeader("自身DPS", "全程去除庄周梦/玉简增益后的DPS，注意包含重伤时间。")
         tb.AppendHeader("覆盖率", "梅花三弄的覆盖率。")
-        tb.AppendHeader("破盾次数", "破盾次数，包含盾受到伤害消失、未刷新自然消失、及穿透消失。")
+        tb.AppendHeader("破盾", "破盾次数，包含盾受到伤害消失、未刷新自然消失、及穿透消失。")
         tb.EndOfLine()
         for record in self.result["dps"]["table"]:
             name = self.getMaskName(record["name"])
@@ -734,6 +593,7 @@ class XiangZhiProReplayer(ReplayerBase):
         self.result["overall"]["dataType"] = self.bld.dataType
         self.result["overall"]["calTank"] = self.config.xiangzhiCalTank
         self.result["overall"]["mask"] = self.config.mask
+        self.result["overall"]["win"] = self.win
 
         # 需要记录特定治疗量的BOSS
         self.npcName = ""
@@ -780,18 +640,6 @@ class XiangZhiProReplayer(ReplayerBase):
 
         # 自动推导奶歌角色名与ID，在连接场景中会被指定，这一步可跳过
         if self.myname == "":
-            # if len(XiangZhiList) >= 2:
-            #     nameList = []
-            #     for line in XiangZhiList:
-            #         nameList.append(namedict[line][0])
-            #     s = str(nameList)
-            #     raise Exception('奶歌的数量不止一个，请手动指示ID。可能的ID为：%s' % s)
-            # elif len(XiangZhiList) == 0:
-            #     raise Exception('没有找到奶歌，请确认数据是否正确')
-            # else:
-            #     self.mykey = XiangZhiList[0]
-            #     self.myname = self.bld.info.player[self.mykey].name
-            #     print("自动推断奶歌角色名为：%s"%self.myname)
             raise Exception("奶歌名暂时不可自动推导，需要通过前序分析来手动指定")
         else:
             for key in self.bld.info.player:
@@ -893,7 +741,14 @@ class XiangZhiProReplayer(ReplayerBase):
         if self.bld.info.player[self.mykey].qx != {}:
             self.result["qixue"]["available"] = 1
             for key in self.bld.info.player[self.mykey].qx:
-                self.result["qixue"][key] = getXiangZhiQixue(self.bld.info.player[self.mykey].qx[key]["2"])
+                qxKey = "1,%s,1" % self.bld.info.player[self.mykey].qx[key]["2"]
+                qxKey0 = "1,%s,0" % self.bld.info.player[self.mykey].qx[key]["2"]
+                if qxKey in SKILL_NAME:
+                    self.result["qixue"][key] = SKILL_NAME[qxKey]
+                elif qxKey0 in SKILL_NAME:
+                    self.result["qixue"][key] = SKILL_NAME[qxKey0]
+                else:
+                    self.result["qixue"][key] = self.bld.info.player[self.mykey].qx[key]["2"]
 
         # print(self.result["overall"])
         # print(self.result["equip"])
@@ -959,6 +814,7 @@ class XiangZhiProReplayer(ReplayerBase):
         shangBuffDict = {}
         jueBuffDict = {}
         nongmeiDict = {}  # 弄梅
+        mufengDict = BuffCounter("412", self.startTime, self.finalTime)  # 沐风
         battleDict = {}
         firstHitDict = {}
         for line in self.bld.info.player:
@@ -1362,6 +1218,8 @@ class XiangZhiProReplayer(ReplayerBase):
                                        event.time, 0, "触发cw特效")
                 if event.id in ["9584"] and event.caster == self.mykey:  # 弄梅
                     nongmeiDict[event.target].setState(event.time, event.stack)
+                if event.id in ["3067"] and event.target == self.mykey:  # 沐风
+                    mufengDict.setState(event.time, event.stack)
 
             elif event.dataType == "Shout":
                 pass
@@ -1454,6 +1312,9 @@ class XiangZhiProReplayer(ReplayerBase):
 
         damageList = dictToPairs(damageDict)
         damageList.sort(key=lambda x: -x[1])
+
+        # for line in occDetailList:
+        #     print(line, occDetailList[line], self.bld.info.player[line].name)
 
         # 计算DPS的盾指标
         overallShieldHeat = {"interval": 500, "timeline": []}
@@ -1601,12 +1462,16 @@ class XiangZhiProReplayer(ReplayerBase):
         # print("[teamCluster]", teamCluster)
         # print("[HotHeat]", hotHeat)
         # print("[HotHeat0]", hotHeat[0])
-        # 相依
+        # 杂项
         self.result["skill"]["xiangyi"] = {}
         self.result["skill"]["xiangyi"]["num"] = xySkill.getNum()
         effHeal = xySkill.getHealEff()
         self.result["skill"]["xiangyi"]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
         self.result["skill"]["xiangyi"]["effRate"] = roundCent(effHeal / (xySkill.getHeal() + 1e-10))
+        self.result["skill"]["mufeng"] = {}
+        num = battleTimeDict[self.mykey]
+        sum = mufengDict.buffTimeIntegral()
+        self.result["skill"]["mufeng"]["cover"] = roundCent(sum / (num + 1e-10))
         # 整体
         self.result["skill"]["general"] = {}
         self.result["skill"]["general"]["APS"] = int(numAbsorb2 / self.result["overall"]["sumTime"] * 1000)
@@ -1950,7 +1815,7 @@ class XiangZhiProReplayer(ReplayerBase):
         self.recordRater()
         self.prepareUpload()
 
-    def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", bossBh=None, startTime=0, finalTime=0):
+    def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", bossBh=None, startTime=0, finalTime=0, win=0):
         '''
         初始化.
         params:
@@ -1964,7 +1829,7 @@ class XiangZhiProReplayer(ReplayerBase):
         - startTime: 演员复盘推断得到的战斗开始时间.
         - finalTime: 演员复盘推断得到的战斗结束时间.
         '''
-        #self.win = 0
+        self.win = win
         super().__init__(config, fileNameInfo, path, bldDict, window)
 
         self.myname = myname
