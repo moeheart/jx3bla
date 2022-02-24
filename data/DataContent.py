@@ -325,7 +325,8 @@ class SingleDataCast(SingleData):
         self.time = int(item[3])
         self.caster = item[5]["1"]
         self.id = item[5]["2"]
-        self.level = item[5]["3"]
+        self.level = int(item[5]["3"])
+        self.full_id = "1,%s,%d" % (self.id, self.level)
 
     def setByJx3dat(self, item):
         '''

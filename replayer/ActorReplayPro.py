@@ -405,8 +405,20 @@ class ActorProReplayer(ReplayerBase):
 
         if not self.lastTry:
             self.finalTime -= self.failThreshold * 1000
-        
-        #for line in sk:
+
+        for key in self.bld.info.npc:
+            if self.bld.info.npc[key].templateID in ["105143", "105308", "105309", "105310", "105311", "105312"]:
+                print(self.bld.info.npc[key].templateID, self.bld.info.npc[key].name, self.bld.info.npc[key].x, self.bld.info.npc[key].y, self.bld.info.npc[key].z)
+
+        ycfx = {}
+        for line in self.bld.info.player:
+            ycfx[line] = {"name": self.bld.info.player[line].name, "log": [], "sumStack": 0, "sumCollect": 0, "nowStack": 0, "nowTime": 0}
+
+        qteStat = []
+        qteTime = 0
+
+        damageCount = 0
+
         for event in self.bld.log:
 
             # item = line[""]
@@ -484,6 +496,56 @@ class ActorProReplayer(ReplayerBase):
                         if event.caster not in self.dps:
                             self.dps[event.caster] = [0]
                         self.dps[event.caster][0] += event.damageEff
+
+                    if self.bld.info.npc[event.target].name == "修罗僧" and event.time - qteTime < 5000:
+                        qteStat[-1]["damage"] += event.damageEff
+
+                if event.caster in self.bld.info.npc and self.bld.info.npc[event.caster].name == "修罗僧" and event.target in self.bld.info.player:
+                    if self.bld.info.getSkillName(event.full_id) != "寂灭":
+                        print("[Skill]", event.id, event.level, self.bld.info.getSkillName(event.full_id), event.time, event.target, self.bld.info.player[event.target].name, event.damage, event.damageEff)
+
+                # if (event.caster not in self.bld.info.player or event.target not in self.bld.info.npc) and event.heal == 0:# event.id in ["27087", "27073", "27074", "27056", "25948", "27226"]:
+                if event.id in ["27087", "27073", "27074", "27056", "27058", "27226", "27079", "27363"] or self.bld.info.getSkillName(event.full_id) == "内力爆发":
+                    if event.caster in self.bld.info.player:
+                        print("[Skill2-1]", event.id, event.level, self.bld.info.getSkillName(event.full_id), event.time, event.caster, self.bld.info.player[event.caster].name, event.damage, event.damageEff)
+                        if event.target in self.bld.info.npc and event.id in ["27363"]:
+                            print("[Skill2-continue]", self.bld.info.npc[event.target].name)
+                    elif event.caster in self.bld.info.npc:
+                        print("[Skill2-2]", event.id, event.level, self.bld.info.getSkillName(event.full_id), event.time, event.caster,
+                              self.bld.info.npc[event.caster].name, event.damage, event.damageEff)
+                    else:
+                        print("[Skill2-3]", event.id, event.level, self.bld.info.getSkillName(event.full_id), event.time, event.caster,
+                              " ", event.damage, event.damageEff)
+
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == "修罗僧":
+                    damageCount += event.damageEff
+                    if event.damage > event.damageEff:
+                        print("[Damage]", event.id, event.level, self.bld.info.getSkillName(event.full_id), damageCount)
+                        damageCount = 0
+
+
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == "夜叉法相":
+                    print("[Skill3]", event.id, self.bld.info.getSkillName(event.full_id), event.time, event.caster,
+                          event.damage, event.damageEff)
+
+                if event.id in ["27087"]:
+                    diffTime = 5000 - (event.time - ycfx[event.caster]["nowTime"])
+                    diffStack = int(diffTime / 500) + 1
+                    if diffStack >= 7:
+                        diffStack = 10
+                    if diffStack < 0:
+                        diffStack = 0
+                    diffStack /= 10
+                    actualStack = ycfx[event.caster]["nowStack"] * diffStack
+                    ycfx[event.caster]["log"].append([2, parseTime((event.time-self.startTime)/1000), actualStack])
+                    ycfx[event.caster]["sumCollect"] += actualStack
+
+                if event.id in ["27073", "27074"]:
+                    ycfx[event.caster]["log"].append([3, parseTime((event.time-self.startTime)/1000)])
+
+                #TODO 移除
+                # if event.id in ["27209"]:
+                #     print("[Bingqi]", event.time, event.caster, self.bld.info.npc[event.caster].name, event.target, self.bld.info.player[event.target].name, event.damage, event.damageEff)
                             
             elif event.dataType == "Buff":
                 # if occdict[item[5]][0] == '0':
@@ -522,6 +584,20 @@ class ActorProReplayer(ReplayerBase):
                     if len(deathHitDetail[event.target]) >= 20:
                         del deathHitDetail[event.target][0]
                     deathHitDetail[event.target].append([event.time, "禅语消失", 0, event.caster, -1, 0])
+
+                #TODO 移除
+                # if event.id in ["19845"]:
+                #     print("[FumoBuff]", event.time, event.target, self.bld.info.player[event.target].name, event.stack)
+                if event.id in ["19957", "19956", "19689", "19826", "19683", "19789", "19899", "19955", "19975", "19976", "19981", "19989"]:
+                    print("[Buff]", event.id, self.bld.info.getSkillName(event.full_id), event.time, event.target,
+                          self.bld.info.player[event.target].name, event.stack, (event.end-event.frame)/16)
+
+                    if event.id in ["19689", "19826"]:
+                        ycfx[event.target]["log"].append([1, parseTime((event.time-self.startTime)/1000), event.stack])
+                        ycfx[event.target]["nowStack"] = event.stack
+                        ycfx[event.target]["sumStack"] += event.stack
+                        ycfx[event.target]["nowTime"] = event.time
+
 
             elif event.dataType == "Death":  # 重伤记录
                 
@@ -599,11 +675,47 @@ class ActorProReplayer(ReplayerBase):
 
             elif event.dataType == "Shout":  # 喊话
                 pass
+                # TODO 移除
+                print("[Shout]", event.time, event.content)
                     
             elif event.dataType == "Battle":  # 战斗状态变化
                 pass
 
+            elif event.dataType == "Scene":  # 进入、离开场景
+                pass
+                # TODO 移除
+                if event.id in self.bld.info.npc and "的" not in self.bld.info.npc[event.id].name:
+                    print("[Appear]", event.time, event.id, event.enter, self.bld.info.npc[event.id].templateID, self.bld.info.npc[event.id].name)
+                else:
+                    pass
+                    # print("[Appear]", event.time, event.id, event.enter, "xxx")
+
+            elif event.dataType == "Cast":  # 施放技能事件，jcl专属
+                if event.caster in self.bld.info.npc and self.bld.info.npc[event.caster].name == "修罗僧":
+                    print("[Cast]", event.time, event.id, self.bld.info.getSkillName(event.full_id))
+                    if self.bld.info.getSkillName(event.full_id) in ["大韦陀献杵", "普门杖法", "伏魔铲法"]:
+                        qteTime = event.time
+                        qteStat.append({"time": qteTime, "name": self.bld.info.getSkillName(event.full_id), "damage": 0})
+
+
             num += 1
+
+        for line in ycfx:
+            if ycfx[line]["log"] != []:
+                print("[%s]夜叉法相心法统计："%ycfx[line]["name"])
+                for row in ycfx[line]["log"]:
+                    if row[0] == 1:
+                        print("%s BUFF层数变为：%d"%(row[1], row[2]))
+                    elif row[0] == 2:
+                        print("%s 使用吐纳，聚集层数：%.1f"%(row[1], row[2]))
+                    elif row[0] == 3:
+                        print("%s 使用内力爆发"%row[1])
+                print("获得层数：%d"%ycfx[line]["sumStack"])
+                print("聚集层数：%.1f" % ycfx[line]["sumCollect"])
+                print("\n")
+
+        for line in qteStat:
+            print("时间：%d, 技能：%s, 伤害：%d"%(line["time"], line["name"], line["damage"]))
 
         # 调整战斗时间
         self.startTime, self.finalTime, self.battleTime = self.bossAnalyser.trimTime()

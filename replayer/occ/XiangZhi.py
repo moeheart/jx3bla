@@ -2,7 +2,7 @@
 # 奶歌复盘pro，用于奶歌复盘的生成、展示。
 
 from replayer.ReplayerBase import ReplayerBase
-from replayer.BattleHistory import BattleHistory
+from replayer.BattleHistory import BattleHistory, SingleSkill
 from replayer.TableConstructor import TableConstructor, ToolTip
 from tools.Names import *
 from Constants import *
@@ -471,23 +471,6 @@ class XiangZhiProWindow():
         frame8sub.place(x=30, y=30)
 
         if self.result["score"]["available"] == 0:
-            # tb = TableConstructor(self.config, frame8sub)
-            # tb.AppendHeader("数值分：", "对治疗数值的打分，包括治疗量、各个技能数量。")
-            # tb.AppendContext("0", width=9)
-            # tb.AppendContext("F")
-            # tb.EndOfLine()
-            # tb.AppendHeader("统计分：", "对统计结果的打分，包括梅花三弄和HOT的覆盖率。")
-            # tb.AppendContext("0", width=9)
-            # tb.AppendContext("F")
-            # tb.EndOfLine()
-            # tb.AppendHeader("操作分：", "对操作表现的打分，包括战斗效率，各个技能延迟。")
-            # tb.AppendContext("0", width=9)
-            # tb.AppendContext("F")
-            # tb.EndOfLine()
-            # tb.AppendHeader("总评：", "综合计算这几项的结果。")
-            # tb.AppendContext("0", width=9)
-            # tb.AppendContext("F")
-            # tb.EndOfLine()
             tk.Label(frame8, text="复盘生成时的版本尚不支持打分。").place(x=10, y=150)
         elif self.result["score"]["available"] == 11:
             tk.Label(frame8, text="由于BOSS机制原因，不提供打分结果。").place(x=10, y=150)
@@ -780,7 +763,7 @@ class XiangZhiProReplayer(ReplayerBase):
             hpsActive = 0
             hpsTime = 0
             hpsSumTime = 0
-            numSmall = 0
+            # numSmall = 0
 
         numHeal = 0
         numEffHeal = 0
@@ -802,7 +785,7 @@ class XiangZhiProReplayer(ReplayerBase):
         teamLastTime = {}  # 小队聚类时间
 
         # 技能统计
-        mhsnSkill = SkillCounter("14231", self.startTime, self.finalTime, self.haste)  # 梅花三弄
+        mhsnSkill = SkillHealCounter("14231", self.startTime, self.finalTime, self.haste)  # 梅花三弄
         gongSkill = SkillHealCounter("14137", self.startTime, self.finalTime, self.haste)  # 宫
         zhiSkill = SkillHealCounter("14140", self.startTime, self.finalTime, self.haste)  # 徵
         yuSkill = SkillHealCounter("14141", self.startTime, self.finalTime, self.haste)  # 羽
@@ -834,90 +817,43 @@ class XiangZhiProReplayer(ReplayerBase):
         gudaoHeal = 0
         zhenliuHeal = 0
 
-
         # 战斗回放初始化
         bh = BattleHistory(self.startTime, self.finalTime)
-        bhSkill = "0"
-        bhTimeStart = 0
-        bhTimeEnd = 0
-        bhNum = 0
-        bhHeal = 0
-        bhHealEff = 0
-        bhDelay = 0
-        bhDelayNum = 0
-        bhBusy = 0
-        skillNameDict = {"0": "未知",
-                         "14231": "梅花三弄",
-                         "18864": "宫",
-                         "14360": "宫",
-                         "16852": "宫",
-                         # "14140": "徵",
-                         "14362": "徵",
-                         # "14301": "徵",
-                         "18865": "徵",
-                         "14141": "羽",
-                         "14354": "羽",
-                         "14355": "羽",
-                         "14356": "羽",
-                         "14138": "商",
-                         "14139": "角",
-                         "9002": "扶摇直上",
-                         "9003": "蹑云逐月",
-                         "14169": "一指回鸾", }
-        specialNameDict = {"14081": "孤影化双",
-                           "14075": "云生结海",
-                           "14069": "高山流水",
-                           "14076": "青霄飞羽",
-                           "21324": "青霄飞羽·落",
-                           "15039": "移形换影",
-                           "15040": "移形换影",
-                           "15041": "移形换影",
-                           "15042": "移形换影",
-                           "15043": "移形换影",
-                           "15044": "移形换影",
-                           "18838": "高山流水·切换",
-                           "18839": "高山流水·切换",
-                           "18841": "梅花三弄·切换",
-                           "18842": "梅花三弄·切换",
-                           "18845": "阳春白雪·切换",
-                           "18846": "阳春白雪·切换",
-                           }
-        skillIconDict = {"0": "未知",
-                         "14231": "7059",
-                         "18864": "7173",
-                         "14360": "7173",
-                         "16852": "7173",
-                         # "14140": "7174",
-                         "14362": "7174",
-                         # "14301": "7174",
-                         "18865": "7174",
-                         "14141": "7175",
-                         "14354": "7175",
-                         "14355": "7175",
-                         "14356": "7175",
-                         "14138": "7172",
-                         "14139": "7176",
-                         "14081": "7052",
-                         "14075": "7048",
-                         "14069": "7080",
-                         "14076": "7078",
-                         "21324": "7128",
-                         "15039": "7066",
-                         "15040": "7066",
-                         "15041": "7066",
-                         "15042": "7066",
-                         "15043": "7066",
-                         "15044": "7066",
-                         "18838": "7080",
-                         "18839": "7080",
-                         "18841": "7059",
-                         "18842": "7059",
-                         "18845": "7077",
-                         "18846": "7077",
-                         "9002": "1485",
-                         "9003": "1490",
-                         "14169": "7045",
-                         }
+        ss = SingleSkill(self.startTime, self.haste)
+
+        # 技能信息
+        # [技能统计对象, 技能名, [所有技能ID], 图标ID, 是否为gcd技能, 运功时长, 是否倒读条, 是否吃加速]
+        skillInfo = [[None, "未知", ["0"], "0", True, 0, False, True],
+                     [mhsnSkill, "梅花三弄", ["14231"], "7059", True, 0, False, True],
+                     [gongSkill, "宫", ["18864", "14360", "16852"], "7173", True, 24, False, True],
+                     [zhiSkill, "徵", ["14362", "18865"], "7174", True, 8, True, True],
+                     [yuSkill, "羽", ["14141", "14354", "14355", "14356"], "7175", True, 0, False, True],
+                     [shangSkill, "商", ["14138"], "7172", True, 0, False, True],
+                     [jueSkill, "角", ["14139"], "7176", True, 0, False, True],
+                     [None, "扶摇直上", ["9002"], "1485", True, 0, False, True],
+                     [None, "蹑云逐月", ["9003"], "1490", True, 0, False, True],
+                     [None, "一指回鸾", ["14169"], "7045", True, 0, False, True],
+                     [None, "孤影化双", ["14081"], "7052", False, 0, False, True],
+                     [None, "云生结海", ["14075"], "7048", False, 0, False, True],
+                     [None, "高山流水", ["14069"], "7080", False, 0, False, True],
+                     [None, "青霄飞羽", ["14076"], "7078", False, 0, False, True],
+                     [None, "青霄飞羽·落", ["21324"], "7128", False, 0, False, True],
+                     [None, "移形换影", ["15039", "15040", "15041", "15042", "15043", "15044"], "7066", False, 0, False, True],
+                     [None, "高山流水·切换", ["18838", "18839"], "7080", False, 0, False, True],
+                     [None, "梅花三弄·切换", ["18841", "18842"], "7059", False, 0, False, True],
+                     [None, "阳春白雪·切换", ["18845", "18846"], "7077", False, 0, False, True],
+                    ]
+
+        gcdSkillIndex = {}
+        nonGcdSkillIndex = {}
+        for i in range(len(skillInfo)):
+            line = skillInfo[i]
+            for id in line[2]:
+                if line[4]:
+                    gcdSkillIndex[id] = i
+                else:
+                    nonGcdSkillIndex[id] = i
+
         xiangZhiUnimportant = ["15181", "15082", "25232",  # 影子宫，桑柔
                                "14082", # 疏影横斜
                                "4877", "15054", "15057",  # 水特效作用，盾奇穴效果
@@ -957,18 +893,12 @@ class XiangZhiProReplayer(ReplayerBase):
                                "14150",  # 云生结海平摊
                                "29532", "29541",  # 飘黄
                                "14427", "14426",  # 浮生清脉阵
+                               "20763", "20764", "21321",  # 相依
+                               "14153",  # 云生结海
                                ]
-        xiangZhiSpecial = ["20763", "20764", "21321",  # 相依
-                           "15039", # 传影子
-                           "14150", "14153", # 云生结海
-                           "14075", # 云生结海主动
-                           "18838", # 梅花切高山
-                           "18841", # 高山切梅花
-                           "14069", # 高山
-                           "14076", # 青霄飞羽
-                           "21324", # 青霄飞羽·落
-                           "14081", # 孤影施放
-                           ]
+
+        print(gcdSkillIndex)
+        print(nonGcdSkillIndex)
 
         for event in self.bld.log:
             if event.time < self.startTime:
@@ -998,116 +928,38 @@ class XiangZhiProReplayer(ReplayerBase):
                     # if event.caster == self.mykey and event.scheme == 1 and event.id in xiangZhiUnimportant and event.heal != 0:
                     #     print(event.id, event.time)
 
-                    if event.scheme == 1 and event.heal != 0 and event.caster == self.mykey and event.id not in skillNameDict:
+                    if event.scheme == 1 and event.heal != 0 and event.caster == self.mykey:
                         # 打印所有有治疗量的技能，以进行整理
                         # print("[Heal]", event.id, event.heal)
                         pass
 
                     if event.caster == self.mykey and event.scheme == 1 and event.id not in xiangZhiUnimportant:  # 影子宫、桑柔等需要过滤的技能
-                        skillLog.append([event.time, event.id])
+                        # skillLog.append([event.time, event.id])
 
                         # 若技能没有连续，则在战斗回放中记录技能
-                        if ((event.id not in skillNameDict or skillNameDict[event.id] != skillNameDict[bhSkill]) and event.id not in xiangZhiSpecial)\
-                            or event.time - lastSkillTime > 3000:
+                        if ((event.id not in gcdSkillIndex or gcdSkillIndex[event.id] != gcdSkillIndex[ss.skill]) and event.id not in nonGcdSkillIndex)\
+                          or event.time - ss.timeEnd > 3000:
                             # 记录本次技能
-                            # print("[ReplaceSkill]", event.id, bhSkill)
+                            # print("[ReplaceSkill]", event.id, ss.skill)
                             # 此处的逻辑完全可以去掉，保留这个逻辑就是为了监控哪些是值得挖掘的隐藏技能
-                            if bhSkill != "0":
-                                bh.setNormalSkill(bhSkill, skillNameDict[bhSkill], skillIconDict[bhSkill],
-                                                  bhTimeStart, bhTimeEnd - bhTimeStart, bhNum, bhHeal,
-                                                  roundCent(bhHealEff / (bhHeal + 1e-10)),
-                                                  int(bhDelay / (bhDelayNum + 1e-10)), bhBusy, "")
-                            bhSkill = "0"
-                            bhTimeStart = 0
-                            bhNum = 0
-                            bhHeal = 0
-                            bhHealEff = 0
-                            bhDelay = 0
-                            bhDelayNum = 0
-                            bhBusy = 0
-                        if bhSkill == "0" and event.id in skillNameDict:
-                            bhSkill = event.id
-                            bhTimeStart = event.time  # 并非最终结果，对于读条技能可能会修正
-                        # 分技能进行处理
-                        if event.id in ["14231"]:  # 梅花三弄
-                            bhNum += 1
-                            bhDelayNum += 1
-                            bhDelay += event.time - lastSkillTime
-                            lastSkillTime = mhsnSkill.recordSkill(event.time, lastSkillTime) + getLength(24, self.haste)
-                            bhTimeEnd = lastSkillTime
-                            bhBusy += getLength(24, self.haste)
-                        elif event.id in ["18864", "14360", "16852"]:  # 宫实际效果
-                            if bhNum == 0:
-                                bhTimeStart -= getLength(24, self.haste)
-                            if event.time - lastSkillTime > 100 or bhNum == 0:
-                                bhNum += 1
-                                bhDelayNum += 1
-                                bhDelay += max(event.time - lastSkillTime - getLength(24, self.haste), 0)
-                                bhBusy += getLength(24, self.haste)
-                            bhHeal += event.heal
-                            bhHealEff += event.healEff
-                            gongSkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime)
-                            lastSkillTime = event.time
-                            bhTimeEnd = lastSkillTime
-                        elif event.id in ["14362", "18865"]:  # 徵实际效果
-                            if bhNum == 0:
-                                bhTimeStart -= getLength(8, self.haste)
-                            if event.time - lastSkillTime > 100 or bhNum == 0:
-                                bhNum += 1
-                                bhDelayNum += 1
-                                bhDelay += max(event.time - lastSkillTime - getLength(8, self.haste), 0)
-                                bhBusy += getLength(8, self.haste)
-                            bhHeal += event.heal
-                            bhHealEff += event.healEff
-                            zhiSkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime)
-                            lastSkillTime = event.time
-                            bhTimeEnd = lastSkillTime
-                        elif event.id in ["14354", "14355"]:  # 羽
-                            bhNum += 1
-                            bhDelayNum += 1
-                            bhDelay += event.time - lastSkillTime
-                            bhHeal += event.heal
-                            bhHealEff += event.healEff
-                            lastSkillTime = yuSkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime) + getLength(24, self.haste)
-                            bhTimeEnd = lastSkillTime
-                            bhBusy += getLength(24, self.haste)
-                        elif event.id in ["21321"]:  # 相依
-                            # TODO 实现特殊技能处理
-                            xySkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime)
-                        elif event.id in ["14138"]:  # 商
-                            bhNum += 1
-                            bhDelayNum += 1
-                            bhDelay += event.time - lastSkillTime
-                            bhHeal += event.heal
-                            bhHealEff += event.healEff
-                            lastSkillTime = shangSkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime) + getLength(24, self.haste)
-                            bhTimeEnd = lastSkillTime
-                            bhBusy += getLength(24, self.haste)
-                        elif event.id in ["14139"]:  # 角
-                            bhNum += 1
-                            bhDelayNum += 1
-                            bhDelay += event.time - lastSkillTime
-                            bhHeal += event.heal
-                            bhHealEff += event.healEff
-                            lastSkillTime = jueSkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime) + getLength(24, self.haste)
-                            bhTimeEnd = lastSkillTime
-                            bhBusy += getLength(24, self.haste)
-                        elif event.id in ["9002", "9003"]:  # 扶摇、蹑云
-                            bhNum += 1
-                            bhDelayNum += 1
-                            bhDelay += event.time - lastSkillTime
-                            lastSkillTime = event.time + getLength(24, self.haste)
-                            bhTimeEnd = lastSkillTime
-                            bhBusy += getLength(24, self.haste)
-                        elif event.id in ["14169"]:  # 一指回鸾
-                            bhNum += 1
-                            bhDelayNum += 1
-                            bhDelay += event.time - lastSkillTime
-                            lastSkillTime = event.time + getLength(24, self.haste)
-                            bhTimeEnd = lastSkillTime
-                            bhBusy += getLength(24, self.haste)
+
+                            if ss.skill != "0":
+                                index = gcdSkillIndex[ss.skill]
+                                line = skillInfo[index]
+                                bh.setNormalSkill(ss.skill, line[1], line[3],
+                                                  ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
+                                                  roundCent(ss.healEff / (ss.heal + 1e-10)),
+                                                  int(ss.delay / (ss.delayNum + 1e-10)), ss.busy, "")
+                            ss.reset()
+                        # 根据技能表进行自动处理
+                        if event.id in gcdSkillIndex:
+                            if ss.skill == "0":
+                                ss.initSkill(event)
+                            index = gcdSkillIndex[event.id]
+                            line = skillInfo[index]
+                            ss.analyseSkill(event, line[5], line[0], tunnel=line[6], hasteAffected=line[7])
                         # 处理特殊技能
-                        elif event.id in specialNameDict:  # 特殊技能
+                        elif event.id in nonGcdSkillIndex:  # 特殊技能
                             desc = ""
                             if event.id in ["18838", "18839"]:
                                 desc = "切换曲风到高山流水"
@@ -1115,12 +967,9 @@ class XiangZhiProReplayer(ReplayerBase):
                                 desc = "切换曲风到梅花三弄"
                             if event.id in ["18845", "18846"]:
                                 desc = "切换曲风到阳春白雪"
-                            bh.setSpecialSkill(event.id, specialNameDict[event.id], skillIconDict[event.id],
-                                               event.time, 0, desc)
-                        else:
-                            pass
-                            # 对于其它的技能暂时不做记录
-                            # lastSkillTime = event.time
+                            index = nonGcdSkillIndex[event.id]
+                            line = skillInfo[index]
+                            bh.setSpecialSkill(event.id, line[1], line[3], event.time, 0, desc)
 
                     if event.caster == self.mykey and event.scheme == 1:
                         # 统计不计入时间轴的治疗量
@@ -1132,6 +981,8 @@ class XiangZhiProReplayer(ReplayerBase):
                             gudaoHeal += event.healEff
                         if event.id == "26965":  # 枕流
                             zhenliuHeal += event.healEff
+                        if event.id == "21321":  # 相依
+                            xySkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime)
 
                     if event.caster == self.mykey and event.scheme == 2:
                         if event.id in ["9459", "9460", "9461", "9462"]:  # 商
@@ -1168,9 +1019,6 @@ class XiangZhiProReplayer(ReplayerBase):
                             nongmei = nongmeiDict[event.target].checkState(event.time - 100)
                             if meihua or nongmei:
                                 numAbsorb2 += absorb
-
-                    if event.id == "14169":  # 一指回鸾
-                        numPurge += 1
 
                 # 统计伤害技能
                 if event.damageEff > 0 and event.id not in ["24710", "24730", "25426", "25445"]:  # 技能黑名单
@@ -1234,11 +1082,13 @@ class XiangZhiProReplayer(ReplayerBase):
             num += 1
 
         # 记录最后一个技能
-        if bhSkill != "0":
-            bh.setNormalSkill(bhSkill, skillNameDict[bhSkill], skillIconDict[bhSkill],
-                              bhTimeStart, bhTimeEnd - bhTimeStart, bhNum, bhHeal,
-                              roundCent(bhHealEff / (bhHeal + 1e-10)),
-                              int(bhDelay / (bhDelayNum + 1e-10)), bhBusy, "")
+        if ss.skill != "0":
+            index = gcdSkillIndex[ss.skill]
+            line = skillInfo[index]
+            bh.setNormalSkill(ss.skill, line[1], line[3],
+                              ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
+                              roundCent(ss.healEff / (ss.heal + 1e-10)),
+                              int(ss.delay / (ss.delayNum + 1e-10)), ss.busy, "")
 
         # 同步BOSS的技能信息
         if self.bossBh is not None:
@@ -1246,11 +1096,11 @@ class XiangZhiProReplayer(ReplayerBase):
             bh.log["call"] = self.bossBh.log["call"]
 
         # 计算战斗效率等统计数据，TODO 扩写
-        skillCounter = SkillLogCounter(skillLog, self.startTime, self.finalTime, self.haste)
-        skillCounter.analysisSkillData()
-        sumBusyTime = skillCounter.sumBusyTime
-        sumSpareTime = skillCounter.sumSpareTime
-        spareRate = sumSpareTime / (sumBusyTime + sumSpareTime + 1e-10)
+        # skillCounter = SkillLogCounter(skillLog, self.startTime, self.finalTime, self.haste, ss.skillLog)
+        # skillCounter.analysisSkillData()
+        # sumBusyTime = skillCounter.sumBusyTime
+        # sumSpareTime = skillCounter.sumSpareTime
+        # spareRate = sumSpareTime / (sumBusyTime + sumSpareTime + 1e-10)
 
         if hpsActive:
             hpsSumTime += (self.finalTime - int(hpsTime)) / 1000
@@ -1497,6 +1347,14 @@ class XiangZhiProReplayer(ReplayerBase):
         # print("===")
         # for line in self.result["replay"]["special"]:
         #     print(line)
+
+        f1 = open("xiangzhiTest.txt", "w")
+        for line in self.result["replay"]["normal"]:
+            f1.write(str(line))
+        f1.write("===")
+        for line in self.result["replay"]["special"]:
+            f1.write(str(line))
+        f1.close()
 
     def scaleScore(self, x, scale):
         N = len(scale)
