@@ -310,15 +310,16 @@ class SkillLogCounter():
         return flames * 0.0625 * 1000
 
     def analysisSkillData(self):
-        for line in self.skillLog:
-            if line[1] in [15181, 15082, 25232]:  #奶歌常见的自动施放技能：影子宫，影子宫，桑柔
-                continue
-            elif line[1] in [14137, 14300]:  # 宫，变宫
-                self.actLog.append([line[0] - self.getLength(24), self.getLength(24)])
-            elif line[1] in [14140, 14301]:  # 徵，变徵
-                self.actLog.append([line[0] - self.getLength(16), self.getLength(16)])
-            else:
-                self.actLog.append([line[0], self.getLength(24)])
+        if self.actLog != []:
+            for line in self.skillLog:
+                if line[1] in [15181, 15082, 25232]:  #奶歌常见的自动施放技能：影子宫，影子宫，桑柔
+                    continue
+                elif line[1] in [14137, 14300]:  # 宫，变宫
+                    self.actLog.append([line[0] - self.getLength(24), self.getLength(24)])
+                elif line[1] in [14140, 14301]:  # 徵，变徵
+                    self.actLog.append([line[0] - self.getLength(16), self.getLength(16)])
+                else:
+                    self.actLog.append([line[0], self.getLength(24)])
 
         self.actLog.sort(key=lambda x: x[0])
 
@@ -334,12 +335,13 @@ class SkillLogCounter():
                 self.sumBusyTime += line[0] + line[1] - nowTime
                 nowTime = line[0] + line[1]
 
-    def __init__(self, skillLog, startTime, finalTime, speed=3770):
+    def __init__(self, skillLog, startTime, finalTime, speed=3770, actLog=[]):
         self.skillLog = skillLog
         self.actLog = []
         self.startTime = startTime
         self.finalTime = finalTime
         self.speed = speed
+        self.actLog = actLog
 
 class ShieldCounterNew(BuffCounter):
     '''
