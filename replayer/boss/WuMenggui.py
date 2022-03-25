@@ -131,7 +131,7 @@ class WuMengguiReplayer(SpecificReplayerPro):
         # 计算阶段时间
         self.phaseTime[self.phase] += self.finalTime - self.phaseStart
 
-        self.detail["P1Time"] = int((self.phaseTime[1]) / 1000)
+        self.detail["P1Time"] = int(self.phaseTime[1] / 1000)
         self.detail["P2Time"] = int(self.phaseTime[2] / 1000)
         self.detail["P3Time"] = int(self.phaseTime[3] / 1000)
 
@@ -144,6 +144,8 @@ class WuMengguiReplayer(SpecificReplayerPro):
         '''
         生成复盘结果的流程。需要维护effectiveDPSList, potList与detail。
         '''
+
+        print("[WMGgetResult]")
 
         self.countFinal()
 

@@ -70,6 +70,10 @@ class SkillCounter():
             self.delta = getLength(48, self.haste)
         if self.skillid in ["28541"]:  # 泷雾
             self.delta = getLength(8, self.haste)
+        if self.skillid in ["2232"]:  # 冰蚕牵丝
+            self.delta = getLength(24, self.haste)
+        if self.skillid in ["6252"]:  # 醉舞九天
+            self.delta = getLength(16, self.haste)
 
     def getAverageDelay(self):
         '''
@@ -161,7 +165,7 @@ class SkillHealCounter(SkillCounter):
             delta = self.delta
         if lastTime == 0:
             if len(self.log) != 0:
-                lastTime = self.log[-1][1]
+                lastTime = self.log[-1][0]
             else:
                 lastTime = self.startTime
         self.log.append([time, lastTime, delta, heal, healEff])
@@ -227,6 +231,21 @@ class BuffCounter():
         if len(self.log) > 0:
             time += self.log[-1][1] * (self.finalTime - self.log[-1][0])
         return time
+
+    def shrink(self, threshold=100):
+        '''
+        对记录进行收缩，减少大小的同时优化在界面显示时的效果.
+        params:
+        - threshold: 融合的最小间隔
+        '''
+        i = 1
+        while i < len(self.log):
+            if i+1 < len(self.log) and self.log[i+1][0] - self.log[i][0] < threshold:
+                del self.log[i]
+            if self.log[i][1] == self.log[i-1][1]:
+                del self.log[i]
+                i -= 1
+            i += 1
 
     def sumTime(self):
         '''
@@ -646,6 +665,8 @@ def finalCluster(teamLog):
         else:
             teamCluster[player] = -1
 
+    # print(nTeam)
+
     # 为剩余角色聚类
     hasRemain = 0
     for player in teamCluster:
@@ -656,6 +677,9 @@ def finalCluster(teamLog):
                 numCluster.append(0)
             teamCluster[player] = nTeam
             numCluster[nTeam] += 1
+
+    # print(teamCluster)
+    # print(numCluster)
 
     return teamCluster, numCluster
         

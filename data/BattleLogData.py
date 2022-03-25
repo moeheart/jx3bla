@@ -155,6 +155,11 @@ class BattleLogData():
                         possiblePlayerName = '的'.join(jclItem[5]["2"].strip('"').split('的')[:-1])
                         if possiblePlayerName in playerNameDict:
                             summonDict[jclItem[5]["1"]] = playerNameDict[possiblePlayerName]
+                elif jclItem[4] == "12":
+                    self.info.addDoodad(jclItem[5]["1"], jclItem[5]["2"])
+                    self.info.doodad[jclItem[5]["1"]].x = int(jclItem[5]["3"])
+                    self.info.doodad[jclItem[5]["1"]].y = int(jclItem[5]["4"])
+                    self.info.doodad[jclItem[5]["1"]].z = int(jclItem[5]["5"])
 
                 # TODO: 完整的player信息
                 continue

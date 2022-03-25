@@ -273,7 +273,7 @@ class SingleDataBattle(SingleData):
 
 class SingleDataScene(SingleData):
     '''
-    进入或离开场景事件，对应jx3dat-6, jcl-2/3/6/7
+    进入或离开场景事件，对应jx3dat-6, jcl-2/3/6/7/10/11
     战斗状态变化事件包括：
       time: 毫秒数，对应jx3dat[3], jcl[4]
       id: ID, 对应jx3dat[7], jcl[6][1]
@@ -288,7 +288,7 @@ class SingleDataScene(SingleData):
         '''
         self.time = int(item[3])
         self.id = item[5]["1"]
-        if item[4] in ["2", "6"]:
+        if item[4] in ["2", "6", "10"]:
             self.enter = 1
         else:
             self.enter = 0
@@ -423,7 +423,19 @@ class OverallData():
             self.npc[key].name = name.strip('"')
             self.npc[key].templateID = "0"
 
+    def addDoodad(self, key, templateID):
+        '''
+        添加一个交互物件.
+        parmas:
+        - key: NPC的ID。
+        - templateID: 交互物件模板ID.
+        '''
+        if key not in self.npc:
+            self.doodad[key] = NPCdata()
+            self.doodad[key].templateID = templateID
+
     def __init__(self):
         self.player = {}
         self.npc = {}
+        self.doodad = {}
 

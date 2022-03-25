@@ -122,6 +122,50 @@ class BattleHistory():
             res["team"] = target
         self.log["normal"].append(res)
 
+    def getNonGcdEfficiency(self, nonGcdLog):
+        '''
+        计算考虑非gcd读条技能的战斗效率.
+        params:
+        - nonGcdLog: 需要考虑的非gcd技能记录，格式为BuffCounter中的log
+        returns:
+        - res: 战斗效率.
+        '''
+
+        mergedLog = []
+        for record in self.log["normal"]:
+            mergedLog.append(record)
+        for i in range(len(nonGcdLog)):
+            if nonGcdLog[i][1] == 1 and i != len(nonGcdLog) - 1:
+                mergedLog.append({"start": nonGcdLog[i][0], "duration": nonGcdLog[i+1][0] - nonGcdLog[i][0],
+                                  "busyTime": nonGcdLog[i+1][0] - nonGcdLog[i][0]})
+        mergedLog.sort(key=lambda x: x["start"])
+
+        i = 0
+        while i < len(mergedLog) - 1:
+            if mergedLog[i]["start"] + mergedLog[i]["duration"] > mergedLog[i+1]["start"] + mergedLog[i+1]["duration"]:
+                del mergedLog[i+1]
+                i -= 1
+            i += 1
+
+        spare = 0
+        busy = 0
+        lastTime = self.startTime
+        for record in mergedLog:
+            if record["start"] > lastTime:
+                spare += record["start"] - lastTime
+                busy += record["busyTime"]
+                lastTime = record["start"] + record["busyTime"]  # 这里暂存了spare的时间
+            elif record["start"] + record["duration"] > lastTime:
+                spare -= lastTime - record["start"]
+                busy += record["start"] + record["busyTime"] - lastTime
+                lastTime = record["start"] + record["busyTime"]
+            else:
+                spare -= record["busyTime"]
+                busy += record["busyTime"]
+            # print(spare, busy, lastTime, record["start"], record["busyTime"])
+        spare += self.finalTime - lastTime
+        return busy / (spare + busy + 1e-10)
+
     def getNormalEfficiency(self):
         '''
         计算常规技能的战斗效率.
@@ -154,7 +198,7 @@ class BattleHistory():
         - startTime: 战斗开始时间.
         - finalTime: 战斗结束时间.
         '''
-        self.log = {"environment": [], "normal": [], "special": [], "call": {}}
+        self.log = {"environment": [], "normal": [], "special": [], "call": {}, "nongcd": []}
         self.startTime = startTime
         self.finalTime = finalTime
 
@@ -195,13 +239,16 @@ class SingleSkill():
             self.num += 1
             self.delayNum += 1
             self.delay += max(event.time - self.timeEnd - getLength(castLength, hasteActual), 0)
-            singleBusy = max(getLength(self.gcd, self.haste), getLength(castLength, hasteActual))
+            singleBusy = getLength(castLength, hasteActual)
+            if not tunnel:
+                singleBusy = max(getLength(self.gcd, self.haste), singleBusy)
             singleEnd = event.time + max(getLength(self.gcd, self.haste) - getLength(castLength, hasteActual), 0) * (1 - tunnelD)
             self.busy += singleBusy
             self.skillLog.append([singleBusy, singleEnd])
         self.heal += event.heal
         self.healEff += event.healEff
         self.timeEnd = event.time + max(getLength(self.gcd, self.haste) - getLength(castLength, hasteActual), 0) * (1 - tunnelD)
+        self.target = event.target
 
     def reset(self):
         '''
@@ -215,6 +262,7 @@ class SingleSkill():
         self.delay = 0
         self.delayNum = 0
         self.busy = 0
+        self.target = ""
 
     def __init__(self, timeEnd, haste):
         '''
@@ -235,3 +283,4 @@ class SingleSkill():
         self.haste = haste
         self.gcd = 24  # 一般心法的gcd都是24帧，注意加速是之后再计算
         self.skillLog = []  # 用于战斗效率计算
+        self.target = ""

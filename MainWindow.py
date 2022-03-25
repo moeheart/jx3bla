@@ -310,10 +310,13 @@ class MainWindow():
         window = tk.Tk()
         window.title('剑三警长')
         window.geometry('300x220')
-        
-        resp = urllib.request.urlopen('http://139.199.102.41:8009/getAnnouncement')
-        res = json.load(resp)
-        #res = {"announcement": "", "version": "0.0.0", "url": ""}  # 非联机版本跳过加载步骤
+
+        if parseEdition(EDITION) == 0:  # 非联机版本跳过加载步骤
+            res = {"announcement": "", "version": "0.0.0", "url": ""}
+        else:
+            resp = urllib.request.urlopen('http://139.199.102.41:8009/getAnnouncement')
+            res = json.load(resp)
+
         self.announcement = res["announcement"]
         self.newestEdition = res["version"]
         self.updateurl = res["url"]

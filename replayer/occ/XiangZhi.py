@@ -93,6 +93,14 @@ class XiangZhiProWindow():
         url = "http://139.199.102.41:8009/showReplayPro.html?id=%d"%self.result["overall"]["shortID"]
         webbrowser.open(url)
 
+    def showHelp(self):
+        '''
+        展示复盘窗口的帮助界面，用于解释对应心法的一些显示规则.
+        '''
+        text = '''如果是盾歌，时间轴中表示梅花三弄的实时全团覆盖率。
+如果是血歌，时间轴中表示每个小队的双HOT剩余时间。注意，1-5队可能并不按顺序对应团队面板的1-5队。'''
+        messagebox.showinfo(title='说明', message=text)
+
     def loadWindow(self):
         '''
         使用tkinter绘制详细复盘窗口。
@@ -325,6 +333,9 @@ class XiangZhiProWindow():
         text = text + "战斗效率：%s%%\n" % parseCent(self.result["skill"]["general"]["efficiency"])
         label = tk.Label(frame5_8, text=text, justify="left")
         label.place(x=20, y=10)
+
+        button = tk.Button(frame5, text='？', height=1, command=self.showHelp)
+        button.place(x=680, y=160)
 
         # Part 6: 回放
 
@@ -696,7 +707,7 @@ class XiangZhiProReplayer(ReplayerBase):
 
         # 获取玩家装备和奇穴，即使获取失败也存档
         self.result["equip"] = {"available": 0}
-        if self.bld.info.player[self.mykey].equip != {}:
+        if self.bld.info.player[self.mykey].equip != {} and "beta" not in EDITION:
             self.result["equip"]["available"] = 1
             ea = EquipmentAnalyser()
             jsonEquip = ea.convert2(self.bld.info.player[self.mykey].equip, self.bld.info.player[self.mykey].equipScore)
@@ -824,14 +835,14 @@ class XiangZhiProReplayer(ReplayerBase):
         # 技能信息
         # [技能统计对象, 技能名, [所有技能ID], 图标ID, 是否为gcd技能, 运功时长, 是否倒读条, 是否吃加速]
         skillInfo = [[None, "未知", ["0"], "0", True, 0, False, True],
+                     [None, "扶摇直上", ["9002"], "1485", True, 0, False, True],
+                     [None, "蹑云逐月", ["9003"], "1490", True, 0, False, True],
                      [mhsnSkill, "梅花三弄", ["14231"], "7059", True, 0, False, True],
                      [gongSkill, "宫", ["18864", "14360", "16852"], "7173", True, 24, False, True],
                      [zhiSkill, "徵", ["14362", "18865"], "7174", True, 8, True, True],
                      [yuSkill, "羽", ["14141", "14354", "14355", "14356"], "7175", True, 0, False, True],
                      [shangSkill, "商", ["14138"], "7172", True, 0, False, True],
                      [jueSkill, "角", ["14139"], "7176", True, 0, False, True],
-                     [None, "扶摇直上", ["9002"], "1485", True, 0, False, True],
-                     [None, "蹑云逐月", ["9003"], "1490", True, 0, False, True],
                      [None, "一指回鸾", ["14169"], "7045", True, 0, False, True],
                      [None, "孤影化双", ["14081"], "7052", False, 0, False, True],
                      [None, "云生结海", ["14075"], "7048", False, 0, False, True],
@@ -877,7 +888,6 @@ class XiangZhiProReplayer(ReplayerBase):
                                "15055", # 盾高血量
                                "13332", # 锋凌横绝阵
                                "25231", # 桑柔判定
-                               # "16852", # 群体宫
                                "14137", "14300", # 宫的壳技能
                                "14140", "14301", # 徵的壳技能
                                "14407", "14408", "14409", "14410", "14411", "14412", "14413", "14414", "14415",  # 寸光阴的智障判定
@@ -896,9 +906,6 @@ class XiangZhiProReplayer(ReplayerBase):
                                "20763", "20764", "21321",  # 相依
                                "14153",  # 云生结海
                                ]
-
-        print(gcdSkillIndex)
-        print(nonGcdSkillIndex)
 
         for event in self.bld.log:
             if event.time < self.startTime:
@@ -1632,7 +1639,8 @@ class XiangZhiProReplayer(ReplayerBase):
         '''
         准备上传复盘结果，并向服务器上传.
         '''
-
+        if "beta" in EDITION:
+            return
         upload = {}
         upload["server"] = self.result["overall"]["server"]
         upload["id"] = self.result["overall"]["playerID"]
@@ -1657,7 +1665,7 @@ class XiangZhiProReplayer(ReplayerBase):
         # print(jparse)
         resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadReplayPro', data=jparse)
         res = json.load(resp)
-        print(res)
+        # print(res)
         if res["result"] != "fail":
             self.result["overall"]["shortID"] = res["shortID"]
         else:
