@@ -34,6 +34,9 @@ class Config():
     items_actor = {}
     items_lingsu = {}
     items_user = {}
+    items_lijing = {}
+    items_butian = {}
+    items_yunchang = {}
     
     def getUserInfo(self):
         '''
@@ -87,66 +90,58 @@ class Config():
         检查config.ini是否符合规范。
         '''
         try:
-            self.playername = self.items_general["playername"]
-            self.basepath = self.items_general["basepath"]
-            self.jx3path = self.items_general["jx3path"]
-            self.xiangzhiname = self.items_xiangzhi["xiangzhiname"]
-            self.xiangzhiActive = int(self.items_xiangzhi["active"])
-            self.speed = int(self.items_xiangzhi["speed"])
-            self.xiangzhiPublic = int(self.items_xiangzhi["public"])
-            self.mask = int(self.items_general["mask"])
-            self.color = int(self.items_general["color"])
-            self.text = int(self.items_general["text"])
-            self.actorActive = int(self.items_actor["active"])
-            self.checkAll = int(self.items_actor["checkall"])
-            self.failThreshold = int(self.items_actor["failthreshold"])
-            self.qualifiedRate = float(self.items_actor["qualifiedrate"])
-            self.alertRate = float(self.items_actor["alertrate"])
-            self.bonusRate = float(self.items_actor["bonusrate"])
-            if "datatype" in self.items_general:
-                self.datatype = self.items_general["datatype"]
-            else:
-                self.datatype = "jx3dat"
-            if "edition" in self.items_general:
-                self.edition = self.items_general["edition"]
-            else:
-                self.edition = EDITION
-            if "uuid" in self.items_user:
-                self.userUuid = self.items_user["uuid"]
-            else:
-                self.userUuid = ""
-            if "id" in self.items_user:
-                self.userId = self.items_user["id"]
-            else:
-                self.userId = ""
-            if self.userUuid == "":
+            self.playername = self.items_general.get("playername", "")
+            self.basepath = self.items_general.get("basepath", "")
+            self.jx3path = self.items_general.get("jx3path", "")
+            self.mask = int(self.items_general.get("mask", 0))
+            self.color = int(self.items_general.get("color", 1))
+            self.text = int(self.items_general.get("text", 0))
+            self.datatype = self.items_general.get("datatype", "jcl")
+            self.edition = self.items_general.get("edition", EDITION)
+
+            self.actorActive = int(self.items_actor.get("active", 1))
+            self.checkAll = int(self.items_actor.get("checkall", 0))
+            self.failThreshold = int(self.items_actor.get("failthreshold", 10))
+            self.qualifiedRate = float(self.items_actor.get("qualifiedrate", 0.75))
+            self.alertRate = float(self.items_actor.get("alertrate", 0.85))
+            self.bonusRate = float(self.items_actor.get("bonusrate", 1.20))
+
+            self.userUuid = self.items_user.get("uuid", "")
+            self.userId = self.items_user.get("id", "")
+            if self.userUuid == "" and "beta" not in EDITION:
                 uuid = self.getNewUuid()
                 self.userUuid = uuid
-            if "speedforce" in self.items_xiangzhi:
-                self.xiangzhiSpeedForce = int(self.items_xiangzhi["speedforce"])
-            else:
-                self.xiangzhiSpeedForce = 0
-            if "caltank" in self.items_xiangzhi:
-                self.xiangzhiCalTank = int(self.items_xiangzhi["caltank"])
-            else:
-                self.xiangzhiCalTank = 0
 
-            if "active" in self.items_lingsu:
-                self.lingsuActive = int(self.items_lingsu["active"])
-            else:
-                self.lingsuActive = 1
-            if "speed" in self.items_lingsu:
-                self.lingsuSpeed = int(self.items_lingsu["speed"])
-            else:
-                self.lingsuSpeed = 8780
-            if "public" in self.items_lingsu:
-                self.lingsuPublic = int(self.items_lingsu["public"])
-            else:
-                self.lingsuPublic = 1
-            if "speedforce" in self.items_lingsu:
-                self.lingsuSpeedForce = int(self.items_lingsu["speedforce"])
-            else:
-                self.lingsuSpeedForce = 0
+            self.xiangzhiActive = int(self.items_xiangzhi.get("active", 1))
+            self.speed = int(self.items_xiangzhi.get("speed", 8780))
+            self.xiangzhiPublic = int(self.items_xiangzhi.get("public", 1))
+            self.xiangzhiSpeedForce = int(self.items_xiangzhi.get("speedforce", 0))
+            self.xiangzhiCalTank = int(self.items_xiangzhi.get("caltank", 0))
+            self.xiangzhiStack = int(self.items_xiangzhi.get("stack", 3))
+
+            self.lingsuActive = int(self.items_lingsu.get("active", 1))
+            self.lingsuSpeed = int(self.items_lingsu.get("speed", 8780))
+            self.lingsuPublic = int(self.items_lingsu.get("public", 1))
+            self.lingsuSpeedForce = int(self.items_lingsu.get("speedforce", 0))
+            self.lingsuStack = int(self.items_lingsu.get("stack", 3))
+
+            self.lijingActive = int(self.items_lijing.get("active", 1))
+            self.lijingSpeed = int(self.items_lijing.get("speed", 8780))
+            self.lijingPublic = int(self.items_lijing.get("public", 1))
+            self.lijingSpeedForce = int(self.items_lijing.get("speedforce", 0))
+            self.lijingStack = int(self.items_lijing.get("stack", 3))
+
+            self.butianActive = int(self.items_butian.get("active", 1))
+            self.butianSpeed = int(self.items_butian.get("speed", 8780))
+            self.butianPublic = int(self.items_butian.get("public", 1))
+            self.butianSpeedForce = int(self.items_butian.get("speedforce", 0))
+            self.butianStack = int(self.items_butian.get("stack", 3))
+
+            self.yunchangActive = int(self.items_yunchang.get("active", 1))
+            self.yunchangSpeed = int(self.items_yunchang.get("speed", 8780))
+            self.yunchangPublic = int(self.items_yunchang.get("public", 1))
+            self.yunchangSpeedForce = int(self.items_yunchang.get("speedforce", 0))
+            self.yunchangStack = int(self.items_yunchang.get("stack", 3))
 
             self.getUserInfo()
                 
@@ -221,7 +216,6 @@ edition=%s
 
 [XiangZhiAnalysis]
 active=%d
-xiangzhiname=%s
 speed=%s
 public=%d
 speedforce=%d
@@ -244,34 +238,12 @@ active=%d
 speed=%s
 public=%d
 speedforce=%d"""%(self.playername, self.jx3path, self.basepath, self.mask, self.color, self.text, self.datatype, EDITION,
-        self.xiangzhiActive, self.xiangzhiname, self.speed, self.xiangzhiPublic, self.xiangzhiSpeedForce, self.xiangzhiCalTank,
+        self.xiangzhiActive, self.speed, self.xiangzhiPublic, self.xiangzhiSpeedForce, self.xiangzhiCalTank,
         self.actorActive, self.checkAll, self.failThreshold, self.qualifiedRate, self.alertRate, self.bonusRate,
         self.userUuid, self.userId,
         self.lingsuActive, self.lingsuSpeed, self.lingsuPublic, self.lingsuSpeedForce))
         g.close()
         pass
-
-    def setDefault(self):
-        '''
-        产生默认的参数组。为防止出现隐藏的问题，不对用户开放。
-        '''
-        self.playername = ""
-        self.basepath = ""
-        self.jx3path = ""
-        self.xiangzhiname = ""
-        self.mask = 0
-        self.color = 1
-        self.text = 0
-        self.datatype = "jx3dat"
-        self.speed = 8780
-        self.xiangzhiSpeedForce = 0
-        self.xiangzhiCalTank = 0
-        self.xiangzhiActive = 1
-        self.actorActive = 1
-        self.checkAll = 1
-        self.failThreshold = 10
-        self.userUuid = ""
-        self.userId = ""
 
     def __init__(self, filename, build=0):
         '''
