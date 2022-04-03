@@ -29,15 +29,15 @@ class RawDataLoader():
         bld = BattleLogData(self.window)
 
         if self.window is not None:
-            if self.config.datatype == "jx3dat":
+            if self.config.item["general"]["datatype"] == "jx3dat":
                 bossname = getNickToBoss(filename.split('/')[-1].split('\\')[-1].split('_')[1])
             else:
                 bossname = getNickToBoss(filename.split('/')[-1].split('\\')[-1].split('-')[-1].split('.')[0])
             self.window.setNotice({"t1": "正在读取[%s]..." % bossname, "c1": "#000000"})
 
-        if self.config.datatype == "jcl":
+        if self.config.item["general"]["datatype"] == "jcl":
             bld.loadFromJcl(name)
-        elif self.config.datatype == "jx3dat":
+        elif self.config.item["general"]["datatype"] == "jx3dat":
             bld.loadFromJx3dat(name)
         else:
             raise Exception("未知的数据类型")

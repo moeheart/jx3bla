@@ -76,7 +76,7 @@ class SpecificBossWindow():
         self.detail = detail
         self.occResult = occResult
         self.config = config
-        self.mask = config.mask
+        self.mask = config.item["general"]["mask"]
 
 
 class SpecificReplayerPro():

@@ -526,7 +526,7 @@ class BuTianJueWindow():
         - result: 灵素复盘的结果.
         '''
         self.config = config
-        self.mask = config.mask
+        self.mask = self.config.item["general"]["mask"]
         self.result = result
 
 class BuTianJueReplayer(ReplayerBase):
@@ -555,7 +555,7 @@ class BuTianJueReplayer(ReplayerBase):
         self.result["overall"]["sumTime"] = self.bld.info.sumTime
         self.result["overall"]["sumTimePrint"] = parseTime(self.bld.info.sumTime / 1000)
         self.result["overall"]["dataType"] = self.bld.dataType
-        self.result["overall"]["mask"] = self.config.mask
+        self.result["overall"]["mask"] = self.config.item["general"]["mask"]
 
         # 需要记录特定治疗量的BOSS
         self.npcName = ""
@@ -685,7 +685,7 @@ class BuTianJueReplayer(ReplayerBase):
             self.result["equip"]["critpow"] = res["会效等级"]
             self.result["equip"]["hastePercent"] = res["加速"]
             self.result["equip"]["haste"] = res["加速等级"]
-            if not self.config.xiangzhiSpeedForce:
+            if not self.config.item["butian"]["speedforce"]:
                 self.haste = self.result["equip"]["haste"]
             self.result["equip"]["raw"] = strEquip
 
@@ -1262,11 +1262,11 @@ class BuTianJueReplayer(ReplayerBase):
         upload["mapdetail"] = self.result["overall"]["map"]
         upload["boss"] = self.result["overall"]["boss"]
         upload["statistics"] = self.result
-        upload["public"] = self.xiangzhiPublic
+        upload["public"] = self.public
         upload["edition"] = EDITION
         upload["editionfull"] = parseEdition(EDITION)
         upload["replayedition"] = self.result["overall"]["edition"]
-        upload["userid"] = self.config.items_user["uuid"]
+        upload["userid"] = self.config.item["user"]["uuid"]
         upload["battletime"] = self.result["overall"]["battleTime"]
         upload["submittime"] = int(time.time())
         upload["hash"] = self.getHash()
@@ -1312,16 +1312,15 @@ class BuTianJueReplayer(ReplayerBase):
 
         self.myname = myname
         self.bossBh = bossBh
-        self.failThreshold = config.failThreshold
-        self.mask = config.mask
-        self.xiangzhiPublic = config.xiangzhiPublic
+        self.failThreshold = config.item["actor"]["failthreshold"]
+        self.mask = config.item["general"]["mask"]
+        self.public = config.item["butian"]["public"]
         self.config = config
-        #self.filePath = path + '\\' + fileNameInfo[0]
         self.bld = bldDict[fileNameInfo[0]]
         self.startTime = startTime
         self.finalTime = finalTime
 
         self.result = {}
-        self.haste = config.speed
+        self.haste = config.item["butian"]["speed"]
 
 

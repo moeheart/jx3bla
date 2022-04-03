@@ -124,7 +124,7 @@ class MainWindow():
         fileLookUp.initFromConfig(config)
         self.config = config
         self.fileLookUp = fileLookUp
-        self.dataType = self.config.datatype
+        self.dataType = self.config.item["general"]["datatype"]
         # 如需在复盘模式后接实时模式，则使用这个逻辑
         if self.liveListener is None:
             liveListener = LiveListener(self.fileLookUp.basepath, self.config, self.analyser, self)
@@ -134,7 +134,7 @@ class MainWindow():
             replayFileList = selectionFileList
         else:
             filelist, allFilelist, map = fileLookUp.getLocalFile()
-            if config.checkAll:
+            if config.item["actor"]["checkall"]:
                 # bldDict = RawDataLoader(config, allFilelist, fileLookUp.basepath, window, self.bldDict).bldDict
                 replayFileList = allFilelist
             else:

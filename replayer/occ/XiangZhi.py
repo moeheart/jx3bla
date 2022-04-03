@@ -556,7 +556,7 @@ class XiangZhiProWindow():
         - result: 奶歌复盘的结果.
         '''
         self.config = config
-        self.mask = config.mask
+        self.mask = self.config.item["general"]["mask"]
         self.result = result
 
 class XiangZhiProReplayer(ReplayerBase):
@@ -585,8 +585,8 @@ class XiangZhiProReplayer(ReplayerBase):
         self.result["overall"]["sumTime"] = self.bld.info.sumTime
         self.result["overall"]["sumTimePrint"] = parseTime(self.bld.info.sumTime / 1000)
         self.result["overall"]["dataType"] = self.bld.dataType
-        self.result["overall"]["calTank"] = self.config.xiangzhiCalTank
-        self.result["overall"]["mask"] = self.config.mask
+        self.result["overall"]["calTank"] = self.config.item["xiangzhi"]["caltank"]
+        self.result["overall"]["mask"] = self.config.item["general"]["mask"]
         self.result["overall"]["win"] = self.win
 
         # 需要记录特定治疗量的BOSS
@@ -727,7 +727,7 @@ class XiangZhiProReplayer(ReplayerBase):
             self.result["equip"]["critpow"] = res["会效等级"]
             self.result["equip"]["hastePercent"] = res["加速"]
             self.result["equip"]["haste"] = res["加速等级"]
-            if not self.config.xiangzhiSpeedForce:
+            if not self.config.item["xiangzhi"]["speedforce"]:
                 self.haste = self.result["equip"]["haste"]
             self.result["equip"]["raw"] = strEquip
 
@@ -1189,7 +1189,7 @@ class XiangZhiProReplayer(ReplayerBase):
                 continue
             if getOccType(occDetailList[key]) == "healer":
                 continue
-            if getOccType(occDetailList[key]) == "tank" and not self.config.xiangzhiCalTank:
+            if getOccType(occDetailList[key]) == "tank" and not self.config.item["xiangzhi"]["caltank"]:
                 continue
             if key == self.mykey:
                 continue
@@ -1349,11 +1349,11 @@ class XiangZhiProReplayer(ReplayerBase):
         # print(self.result["healer"])
         # print(self.result["dps"])
         # print(self.result["skill"])
-        # for line in self.result["replay"]["normal"]:
-        #     print(line)
-        # print("===")
-        # for line in self.result["replay"]["special"]:
-        #     print(line)
+        for line in self.result["replay"]["normal"]:
+            print(line)
+        print("===")
+        for line in self.result["replay"]["special"]:
+            print(line)
 
         f1 = open("xiangzhiTest.txt", "w")
         for line in self.result["replay"]["normal"]:
@@ -1650,11 +1650,11 @@ class XiangZhiProReplayer(ReplayerBase):
         upload["mapdetail"] = self.result["overall"]["map"]
         upload["boss"] = self.result["overall"]["boss"]
         upload["statistics"] = self.result
-        upload["public"] = self.xiangzhiPublic
+        upload["public"] = self.public
         upload["edition"] = EDITION
         upload["editionfull"] = parseEdition(EDITION)
         upload["replayedition"] = self.result["overall"]["edition"]
-        upload["userid"] = self.config.items_user["uuid"]
+        upload["userid"] = self.config.item["user"]["uuid"]
         upload["battletime"] = self.result["overall"]["battleTime"]
         upload["submittime"] = int(time.time())
         upload["hash"] = self.getHash()
@@ -1700,14 +1700,14 @@ class XiangZhiProReplayer(ReplayerBase):
 
         self.myname = myname
         self.bossBh = bossBh
-        self.failThreshold = config.failThreshold
-        self.mask = config.mask
-        self.xiangzhiPublic = config.xiangzhiPublic
+        self.failThreshold = config.item["actor"]["failthreshold"]
+        self.mask = config.item["general"]["mask"]
+        self.public = config.item["xiangzhi"]["public"]
         self.config = config
         self.bld = bldDict[fileNameInfo[0]]
         self.startTime = startTime
         self.finalTime = finalTime
 
         self.result = {}
-        self.haste = config.speed
+        self.haste = config.item["xiangzhi"]["speed"]
 

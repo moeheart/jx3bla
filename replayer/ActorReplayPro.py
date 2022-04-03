@@ -117,7 +117,7 @@ class ActorProReplayer(ReplayerBase):
         
         result["time"] = int(time.time())
         result["begintime"] = self.beginTime
-        result["userid"] = self.config.items_user["uuid"]
+        result["userid"] = self.config.item["user"]["uuid"]
         #result["instancecd"] = self.instanceCD
         
         #print(result["begintime"])
@@ -133,7 +133,7 @@ class ActorProReplayer(ReplayerBase):
         #     allInfo["effectiveDPSList"][i][0] = allInfo["effectiveDPSList"][i][0]
         # for i in range(len(allInfo["potList"])):
         #     allInfo["potList"][i][0] = allInfo["potList"][i][0]
-        allInfo["mask"] = self.config.mask
+        allInfo["mask"] = self.config.item["general"]["mask"]
 
         result["statistics"] = allInfo
 
@@ -822,27 +822,27 @@ class ActorProReplayer(ReplayerBase):
         '''
         self.occResult = {}
         for id in self.bld.info.player:
-            if self.config.xiangzhiActive and self.occDetailList[id] == "22h":  # 奶歌
+            if self.config.item["xiangzhi"]["active"] and self.occDetailList[id] == "22h":  # 奶歌
                 name = self.bld.info.player[id].name
                 xiangzhiRep = XiangZhiProReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime, self.win)
                 xiangzhiRep.replay()
                 self.occResult[name] = {"occ": "22h", "result": xiangzhiRep.result}
-            if self.config.lingsuActive and self.occDetailList[id] == "212h":  # 灵素
+            if self.config.item["lingsu"]["active"] and self.occDetailList[id] == "212h":  # 灵素
                 name = self.bld.info.player[id].name
                 lingsuRep = LingSuReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime, self.win)
                 lingsuRep.replay()
                 self.occResult[name] = {"occ": "212h", "result": lingsuRep.result}
-            if self.config.lingsuActive and self.occDetailList[id] == "2h":  # 奶花
+            if self.config.item["lijing"]["active"] and self.occDetailList[id] == "2h":  # 奶花
                 name = self.bld.info.player[id].name
                 lijingyidaoRep = LiJingYiDaoReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime, self.win)
                 lijingyidaoRep.replay()
                 self.occResult[name] = {"occ": "2h", "result": lijingyidaoRep.result}
-            # if self.config.lingsuActive and self.occDetailList[id] == "5h":  # 奶秀
+            # if self.config.item["yunchang"]["active"] and self.occDetailList[id] == "5h":  # 奶秀
             #     name = self.bld.info.player[id].name
             #     yunchangxinjingRep = YunChangXinJingReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime)
             #     yunchangxinjingRep.replay()
             #     self.occResult[name] = {"occ": "5h", "result": yunchangxinjingRep.result}
-            if self.config.lingsuActive and self.occDetailList[id] == "6h":  # 奶毒
+            if self.config.item["butian"]["active"] and self.occDetailList[id] == "6h":  # 奶毒
                 name = self.bld.info.player[id].name
                 butianjueRep = BuTianJueReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime, self.win)
                 butianjueRep.replay()
@@ -871,9 +871,9 @@ class ActorProReplayer(ReplayerBase):
         super().__init__(config, fileNameInfo, path, bldDict, window)
 
         self.config = config
-        self.failThreshold = config.failThreshold  # BOSS失败时倒推的秒数
+        self.failThreshold = config.item["actor"]["failthreshold"]  # BOSS失败时倒推的秒数
         self.win = 0
-        self.mask = config.mask
+        self.mask = config.item["general"]["mask"]
         self.bldDict = bldDict
         self.fileNameInfo = fileNameInfo
         self.path = path
@@ -887,9 +887,9 @@ class ActorProReplayer(ReplayerBase):
         else:
             self.bossNamePrint = "%s.%d" % (self.bossname, self.numTry)
 
-        self.qualifiedRate = config.qualifiedRate
-        self.alertRate = config.alertRate
-        self.bonusRate = config.bonusRate
+        self.qualifiedRate = config.item["actor"]["qualifiedrate"]  # qualifiedRate
+        self.alertRate = config.item["actor"]["alertrate"]  # alertRate
+        self.bonusRate = config.item["actor"]["bonusrate"]  # bonusRate
 
         # self.getMap()
         # self.lastTimeStamp = 0
@@ -901,39 +901,3 @@ class ActorProReplayer(ReplayerBase):
         self.equipmentDict = {}
         self.available = True  # 暂时用来判定月泉淮中间分片
 
-
-#TODO 重构，想办法移除
-# class ActorAnalysis():
-#
-#     def analysis(self):
-#         self.potList = []
-#         for line in self.generator:
-#             self.potList += line.potList
-#
-#     def loadData(self, fileList, path, raw):
-#         for filename in fileList:
-#             res = ActorStatGenerator(filename, path, rawdata=raw[filename[0]], failThreshold=self.failThreshold,
-#                 battleDate=self.battledate, mask=self.mask, dpsThreshold=self.dpsThreshold, uploadTiantiFlag=self.uploadTiantiFlag)
-#
-#             analysisExitCode = res.firstStageAnalysis()
-#             if analysisExitCode == 1:
-#                 continue
-#             res.secondStageAnalysis()
-#             if res.upload:
-#                 res.prepareUpload()
-#             self.generator.append(res)
-#
-#     def __init__(self, filelist, map, path, config, raw):
-#         self.myname = config.xiangzhiname
-#         self.mask = config.mask
-#         self.color = config.color
-#         self.text = config.text
-#         self.speed = config.speed
-#         self.failThreshold = config.failThreshold
-#         self.uploadTiantiFlag = config.uploadTianti
-#         self.map = map
-#         self.battledate = '-'.join(filelist[0][0].split('-')[0:3])
-#         self.dpsThreshold = {"qualifiedRate": config.qualifiedRate,
-#                              "alertRate": config.alertRate,
-#                              "bonusRate": config.bonusRate}
-#         self.loadData(filelist, path, raw)
