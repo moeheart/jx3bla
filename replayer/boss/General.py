@@ -170,6 +170,12 @@ class GeneralReplayer(SpecificReplayerPro):
             
         elif event.dataType == "Battle": #战斗状态变化
             pass
+
+        elif event.dataType == "Cast":  # 施放技能事件，jcl专属
+            if event.caster in self.bld.info.npc:  # 记录非玩家施放的技能
+                skillName = self.bld.info.getSkillName(event.full_id)
+                self.bh.setEnvironment(event.id, skillName+"(施法)", "341", event.time, 0, 1, "施法类别")
+
                     
     def analyseFirstStage(self, item):
         '''
@@ -193,7 +199,8 @@ class GeneralReplayer(SpecificReplayerPro):
         self.hps = {}
         self.detail["boss"] = self.bossNamePrint
         self.win = 0
-
+        self.bh = BattleHistory(self.startTime, self.finalTime)
+        self.hasBh = True
         
         for line in self.bld.info.player:
             self.hps[line] = 0
