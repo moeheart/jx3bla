@@ -27,7 +27,7 @@ class BattleHistory():
             res["call"] = []
         return res
 
-    def setEnvironment(self, skillid, skillname, iconid, start, duration, num, description):
+    def setEnvironment(self, skillid, skillname, iconid, start, duration, num, description, type="unknown"):
         '''
         添加场地.
         params:
@@ -38,6 +38,7 @@ class BattleHistory():
         - duration: 技能持续时间.
         - num: 技能次数.
         - description: 描述.
+        - type: 种类，一般为cast, skill, buff, shout等
         '''
         res = {"skillid": skillid,
                "skillname": skillname,
@@ -45,7 +46,8 @@ class BattleHistory():
                "start": start,
                "duration": duration,
                "num": num,
-               "description": description}
+               "description": description,
+               "type": type}
         self.log["environment"].append(res)
 
     def setCall(self, skillid, skillname, iconid, start, duration, player, description):

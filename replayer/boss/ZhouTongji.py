@@ -1,6 +1,6 @@
-# Created by moeheart at 10/08/2021
-# 通用BOSS的复盘库。
-# 主要是为未特化的BOSS提供复盘方法以及界面展示。
+# Created by moeheart at 04/07/2022
+# 周通忌的定制复盘库。
+# 功能待定。
 
 from replayer.boss.Base import SpecificReplayerPro, SpecificBossWindow, ToolTip
 from replayer.BattleHistory import BattleHistory
@@ -10,9 +10,9 @@ from tools.Functions import *
 
 import tkinter as tk
         
-class GeneralWindow(SpecificBossWindow):
+class ZhouTongjiWindow(SpecificBossWindow):
     '''
-    通用复盘窗口类。
+    周通忌的定制复盘窗口类。
     '''
 
     def loadWindow(self):
@@ -21,7 +21,7 @@ class GeneralWindow(SpecificBossWindow):
         '''
         window = tk.Toplevel()
         #window = tk.Tk()
-        window.title('通用BOSS复盘')
+        window.title('周通忌复盘')
         window.geometry('1200x800')
         
         frame1 = tk.Frame(window)
@@ -90,14 +90,15 @@ class GeneralWindow(SpecificBossWindow):
     def __init__(self, config, effectiveDPSList, detail, occResult):
         super().__init__(config, effectiveDPSList, detail, occResult)
 
-class GeneralReplayer(SpecificReplayerPro):
+class ZhouTongjiReplayer(SpecificReplayerPro):
 
     def countFinal(self):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
         for line in self.bh.log["environment"]:
-            print(line)
+            timePrint = "%.1f" % ((line["start"] - self.startTime) / 1000)
+            print(timePrint, line["type"], line["skillname"], line["skillid"])
 
     def getResult(self):
         '''
@@ -112,27 +113,27 @@ class GeneralReplayer(SpecificReplayerPro):
                 line = self.stat[id]
                 if id in self.equipmentDict:
                     line[4] = self.equipmentDict[id]["score"]
-                    line[5] = "%s|%s"%(self.equipmentDict[id]["sketch"], self.equipmentDict[id]["forge"])
+                    line[5] = "%s|%s" % (self.equipmentDict[id]["sketch"], self.equipmentDict[id]["forge"])
                 else:
                     line[5] = "|"
-                
+
                 if getOccType(self.occDetailList[id]) == "healer":
                     line[3] = int(self.hps[id] / self.battleTime * 1000)
 
                 dps = int(line[2] / self.battleTime * 1000)
                 bossResult.append([line[0],
                                    line[1],
-                                   dps, 
+                                   dps,
                                    line[3],
                                    line[4],
                                    line[5],
                                    line[6],
                                    ])
-        bossResult.sort(key = lambda x:-x[2])
+        bossResult.sort(key=lambda x: -x[2])
         self.effectiveDPSList = bossResult
 
         return self.effectiveDPSList, self.potList, self.detail
-        
+
     def recordDeath(self, item, deathSource):
         '''
         在有玩家重伤时的额外代码。
@@ -151,10 +152,10 @@ class GeneralReplayer(SpecificReplayerPro):
 
         if event.dataType == "Skill":
             if event.target in self.bld.info.player:
-                if event.heal > 0 and event.effect != 7 and event.caster in self.hps: #非化解
+                if event.heal > 0 and event.effect != 7 and event.caster in self.hps:  # 非化解
                     self.hps[event.caster] += event.healEff
 
-                if event.caster in self.bld.info.npc and event.damage > 0:
+                if event.caster in self.bld.info.npc and event.heal == 0 and event.scheme == 1:
                     # 尝试记录技能事件
                     name = "s%s" % event.id
                     if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 3000:
@@ -162,35 +163,63 @@ class GeneralReplayer(SpecificReplayerPro):
                         skillName = self.bld.info.getSkillName(event.full_id)
                         if "," not in skillName:
                             self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式命中玩家", "skill")
-                    
+
             else:
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
-                
+
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
                 return
 
-            if event.caster in self.bld.info.npc:
+            if event.caster in self.bld.info.npc and event.stack > 0:
                 # 尝试记录buff事件
                 name = "b%s" % event.id
-                if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 3000:
+                if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 10000:
                     self.bhTime[name] = event.time
                     skillName = self.bld.info.getSkillName(event.full_id)
                     if "," not in skillName:
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "玩家获得气劲", "buff")
-                    
+
         elif event.dataType == "Shout":
+            if event.content in ['"撕碎你们！"']:
+                pass
+            elif event.content in ['"这！就是！"']:
+                pass
+            elif event.content in ['"狼牙！"']:
+                pass
+            elif event.content in ['"给我上！"']:
+                pass
+            elif event.content in ['"……"']:
+                pass
+            elif event.content in ['"呀啊！！！！！！！！！"']:
+                pass
+            else:
+                self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "Shout")
             return
-                
-        elif event.dataType == "Death": #重伤记录
+
+        elif event.dataType == "Scene":  # 进入、离开场景
+            if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
+                name = "n%s" % self.bld.info.npc[event.id].templateID
+                skillName = self.bld.info.npc[event.id].name
+                if name in ["n108111", "n108109", "n108110"]:
+                    name = "n01"
+                    skillName = "船出现"
+                if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 3000:
+                    self.bhTime[name] = event.time
+                    if "的" not in skillName:
+                        self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
+                                               1, "NPC出现", "npc")
+
+        elif event.dataType == "Death":  # 重伤记录
             pass
 
-        # elif event.dataType == "Buff": #进入、离开场景
-        #     pass
-            
-        elif event.dataType == "Battle": #战斗状态变化
+        elif event.dataType == "Battle":  # 战斗状态变化
             pass
+
+        elif event.dataType == "Alert":  # 系统警告框
+            if event.content in ['"黄河水位即将上涨！"']:
+                self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "系统警告", "Alert")
 
         elif event.dataType == "Cast":  # 施放技能事件，jcl专属
             if event.caster in self.bld.info.npc:  # 记录非玩家施放的技能
@@ -228,12 +257,14 @@ class GeneralReplayer(SpecificReplayerPro):
         self.hasBh = True
 
         self.bhTime = {}
-        self.bhBlackList = ["b17200", "c15076"]
-        
+        self.bhBlackList = ["b17200", "c15076", "c15082", "b20854", "b3447", "b14637", "s15082", "b789", "c3365", "s15181",
+                            "n108263", "n108426", "n108754", "n108736", "n108217", "n108216", "b15775", "b17201",
+                            "s28", "s30117", "s30449", "s30108", "b22275", "s30120", "s30121", "b22274"]
+
         for line in self.bld.info.player:
             self.hps[line] = 0
             self.stat[line] = [self.bld.info.player[line].name, self.occDetailList[line], 0, 0, -1, "", 0] + \
-                []
+                              []
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
         '''

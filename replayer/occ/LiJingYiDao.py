@@ -1005,7 +1005,7 @@ class LiJingYiDaoReplayer(ReplayerBase):
                         battleStat[event.caster][0] += event.damageEff
 
                 # 统计寒清
-                if event.id in ["18274"]: # and event.caster == self.mykey:
+                if event.id in ["18274"] and event.target in hanqingNumDict: # and event.caster == self.mykey:
                     hanqingNumDict[event.target] += 1
 
                 # 根据战斗信息推测进战状态

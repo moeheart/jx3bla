@@ -337,6 +337,34 @@ class SingleDataCast(SingleData):
     def __init__(self):
         self.dataType = "Cast"
 
+class SingleDataAlert(SingleData):
+    '''
+    系统警告事件，对应jx3dat-NaN, jcl-19
+    系统警告事件：
+      time: 毫秒数，对应jcl[4]
+      type: 信息类型（MSG_NOTICE_GREEN，MSG_NOTICE_YELLOW，MSG_NOTICE_RED中的一个），对应jcl[6][1]
+      content: 信息内容, 对应jcl[6][2]
+    '''
+
+    def setByJcl(self, item):
+        '''
+        从jcl形式的item获取事件信息并记录.
+        params:
+        - item: jcl形式的事件信息.
+        '''
+        self.time = int(item[3])
+        self.type = item[5]["1"]
+        self.content = item[5]["2"]
+
+    def setByJx3dat(self, item):
+        '''
+        jx3dat有，但是回头再确认吧.
+        '''
+        pass
+
+    def __init__(self):
+        self.dataType = "Alert"
+
 class NPCdata():
     '''
     单条NPC数据。玩家也属于特殊的NPC。

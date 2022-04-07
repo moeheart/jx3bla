@@ -36,6 +36,12 @@ from replayer.boss.YoujiaLuomo import YoujiaLuomoReplayer
 from replayer.boss.YuequanHuai import YuequanHuaiReplayer
 from replayer.boss.WuMenggui import WuMengguiReplayer
 
+from replayer.boss.LeQina import LeQinaReplayer
+from replayer.boss.AGeno import AGenoReplayer
+from replayer.boss.ZhouTongji import ZhouTongjiReplayer
+from replayer.boss.ZhouZhi import ZhouZhiReplayer
+from replayer.boss.ChangXiu import ChangXiuReplayer
+
 from replayer.occ.XiangZhi import XiangZhiProReplayer
 from replayer.occ.LingSu import LingSuReplayer
 from replayer.occ.LiJingYiDao import LiJingYiDaoReplayer
@@ -258,6 +264,21 @@ class ActorProReplayer(ReplayerBase):
                 if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ['乌蒙贵', "烏蒙貴", "黑条巨蛾", "黑條巨蛾"]:
                     self.bossAnalyseName = "乌蒙贵"
 
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ['勒齐那', "勒齊那"]:
+                    self.bossAnalyseName = "勒齐那"
+
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ['阿阁诺', "阿閣諾"]:
+                    self.bossAnalyseName = "阿阁诺"
+
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ['周通忌']:
+                    self.bossAnalyseName = "周通忌"
+
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ['周贽', "周贄", "狼牙精锐", "狼牙精銳", "李秦授"]:
+                    self.bossAnalyseName = "周贽"
+
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ['常宿']:
+                    self.bossAnalyseName = "常宿"
+
                 # 通过技能确定具体心法
                 if event.caster in occDetailList and occDetailList[event.caster] in ['1', '2', '3', '4', '5', '6', '7', '10',
                                                                            '21', '22', '212']:
@@ -382,6 +403,21 @@ class ActorProReplayer(ReplayerBase):
                                            self.finalTime, self.battleTime, self.bossNamePrint)
         elif self.bossAnalyseName == "乌蒙贵":
             bossAnalyser = WuMengguiReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "勒齐那":
+            bossAnalyser = LeQinaReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "阿阁诺":
+            bossAnalyser = AGenoReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "周通忌":
+            bossAnalyser = ZhouTongjiReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "周贽":
+            bossAnalyser = ZhouZhiReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint)
+        elif self.bossAnalyseName == "常宿":
+            bossAnalyser = ChangXiuReplayer(self.bld, occDetailList, self.startTime,
                                            self.finalTime, self.battleTime, self.bossNamePrint)
         else:
             bossAnalyser = GeneralReplayer(self.bld, occDetailList, self.startTime,
@@ -803,6 +839,11 @@ class ActorProReplayer(ReplayerBase):
 
         if self.bossAnalyser.hasBh:
             self.bh = self.bossAnalyser.bh
+
+
+
+
+
         else:
             self.bh = None
 

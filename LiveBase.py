@@ -34,6 +34,12 @@ from replayer.boss.YoujiaLuomo import YoujiaLuomoWindow
 from replayer.boss.YuequanHuai import YuequanHuaiWindow
 from replayer.boss.WuMenggui import WuMengguiWindow
 
+from replayer.boss.LeQina import LeQinaWindow
+from replayer.boss.AGeno import AGenoWindow
+from replayer.boss.ZhouTongji import ZhouTongjiWindow
+from replayer.boss.ZhouZhi import ZhouZhiWindow
+from replayer.boss.ChangXiu import ChangXiuWindow
+
 class ToolTip(object):
     '''
     浮动标签类，用于实现简单的浮动标签。
@@ -507,6 +513,16 @@ class SingleBossWindow():
             elif detail["boss"] == "月泉淮":
                 self.specificBossWindow = YuequanHuaiWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             elif detail["boss"] == "乌蒙贵":
+                self.specificBossWindow = WuMengguiWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
+            elif detail["boss"] == "勒齐那":
+                self.specificBossWindow = WuMengguiWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
+            elif detail["boss"] == "阿阁诺":
+                self.specificBossWindow = WuMengguiWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
+            elif detail["boss"] == "周通忌":
+                self.specificBossWindow = WuMengguiWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
+            elif detail["boss"] == "周贽":
+                self.specificBossWindow = WuMengguiWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
+            elif detail["boss"] == "常宿":
                 self.specificBossWindow = WuMengguiWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             else:
                 self.specificBossWindow = GeneralWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)

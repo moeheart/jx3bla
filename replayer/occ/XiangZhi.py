@@ -1349,19 +1349,19 @@ class XiangZhiProReplayer(ReplayerBase):
         # print(self.result["healer"])
         # print(self.result["dps"])
         # print(self.result["skill"])
-        for line in self.result["replay"]["normal"]:
-            print(line)
-        print("===")
-        for line in self.result["replay"]["special"]:
-            print(line)
-
-        f1 = open("xiangzhiTest.txt", "w")
-        for line in self.result["replay"]["normal"]:
-            f1.write(str(line))
-        f1.write("===")
-        for line in self.result["replay"]["special"]:
-            f1.write(str(line))
-        f1.close()
+        # for line in self.result["replay"]["normal"]:
+        #     print(line)
+        # print("===")
+        # for line in self.result["replay"]["special"]:
+        #     print(line)
+        #
+        # f1 = open("xiangzhiTest.txt", "w")
+        # for line in self.result["replay"]["normal"]:
+        #     f1.write(str(line))
+        # f1.write("===")
+        # for line in self.result["replay"]["special"]:
+        #     f1.write(str(line))
+        # f1.close()
 
     def scaleScore(self, x, scale):
         N = len(scale)

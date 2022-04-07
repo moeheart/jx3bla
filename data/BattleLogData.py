@@ -125,6 +125,8 @@ class BattleLogData():
                 singleData = SingleDataScene()
             elif jclItem[4] in ["19"]:
                 singleData = SingleDataCast()
+            elif jclItem[4] in ["15"]:
+                singleData = SingleDataAlert()
             else:
                 # 读取全局数据
                 if jclItem[4] == "1":
