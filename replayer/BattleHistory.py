@@ -92,7 +92,43 @@ class BattleHistory():
                "description": description}
         self.log["special"].append(res)
 
-    def setNormalSkill(self, skillid, skillname, iconid, start, duration, num, healeff, effrate, delay, busyTime, description, target=""):
+    def getLastNormalSkill(self):
+        '''
+        获取上一次施放的常规技能.
+        returns:
+        - skillid: 技能ID.
+        - start: 技能开始施放时间.
+        '''
+        if len(self.log["normal"]) == 0:
+            return "0", 0
+        else:
+            return self.log["normal"][-1]["skillid"], self.log["normal"][-1]["start"]
+
+    def updateNormalSkill(self, skillid, skillname, iconid, start, duration, num, heal, healeff, delay=0, busyTime=0, description="", target="", targetName=""):
+        '''
+        在常规技能的末尾与当前技能相同时进行更新.
+        params:
+        - skillid: 技能ID.
+        - skillname: 技能名，用于显示.
+        - iconid: 图标ID，用于显示.
+        - start: 技能开始时刻，以毫秒计.
+        - duration: 技能持续时间.
+        - num: 技能次数.
+        - heal: 治疗量.
+        - healeff: 有效治疗量.
+        - delay: 平均延时.
+        - busyTime: 实际所用时间.
+        - description: 描述.
+        - target: 目标ID，用于奶花复盘指示分队.
+        - targetName: 目标角色名，用于复盘中进行精确显示.
+        '''
+        assert self.log["normal"][-1]["skillname"] == skillname
+        self.log["normal"][-1]["num"] += num
+        self.log["normal"][-1]["healeff"] += healeff
+        self.log["normal"][-1]["heal"] += heal
+        self.log["normal"][-1]["targetName"] += '+' + targetName
+
+    def setNormalSkill(self, skillid, skillname, iconid, start, duration, num, heal, healeff, delay=0, busyTime=0, description="", target="", targetName=""):
         '''
         添加常规技能.
         params:
@@ -102,24 +138,26 @@ class BattleHistory():
         - start: 技能开始时刻，以毫秒计.
         - duration: 技能持续时间.
         - num: 技能次数.
-        - healeff: 治疗量.
-        - effrate: 有效比例.
+        - heal: 治疗量.
+        - healeff: 有效治疗量.
         - delay: 平均延时.
         - busyTime: 实际所用时间.
         - description: 描述.
-        - target: 目标ID，用于奶花复盘指示分队
+        - target: 目标ID，用于奶花复盘指示分队.
+        - targetName: 目标角色名，用于复盘中进行精确显示.
         '''
         res = {"skillid": skillid,
                "skillname": skillname,
                "iconid": iconid,
                "start": start,
                "duration": duration,
+               "targetName": targetName,
                "num": num,
+               "heal": heal,
                "healeff": healeff,
-               "effrate": effrate,
-               "delay": delay,
-               "busyTime": busyTime,
-               "description": description}
+               }
+        if description != "":
+            res["description"] = description
         if target != "":
             res["team"] = target
         self.log["normal"].append(res)
@@ -138,8 +176,7 @@ class BattleHistory():
             mergedLog.append(record)
         for i in range(len(nonGcdLog)):
             if nonGcdLog[i][1] == 1 and i != len(nonGcdLog) - 1:
-                mergedLog.append({"start": nonGcdLog[i][0], "duration": nonGcdLog[i+1][0] - nonGcdLog[i][0],
-                                  "busyTime": nonGcdLog[i+1][0] - nonGcdLog[i][0]})
+                mergedLog.append({"start": nonGcdLog[i][0], "duration": nonGcdLog[i+1][0] - nonGcdLog[i][0]})
         mergedLog.sort(key=lambda x: x["start"])
 
         i = 0
@@ -155,15 +192,15 @@ class BattleHistory():
         for record in mergedLog:
             if record["start"] > lastTime:
                 spare += record["start"] - lastTime
-                busy += record["busyTime"]
-                lastTime = record["start"] + record["busyTime"]  # 这里暂存了spare的时间
+                busy += record["duration"]
+                lastTime = record["start"] + record["duration"]  # 这里暂存了spare的时间
             elif record["start"] + record["duration"] > lastTime:
                 spare -= lastTime - record["start"]
-                busy += record["start"] + record["busyTime"] - lastTime
-                lastTime = record["start"] + record["busyTime"]
+                busy += record["start"] + record["duration"] - lastTime
+                lastTime = record["start"] + record["duration"]
             else:
-                spare -= record["busyTime"]
-                busy += record["busyTime"]
+                spare -= record["duration"]
+                busy += record["duration"]
             # print(spare, busy, lastTime, record["start"], record["busyTime"])
         spare += self.finalTime - lastTime
         return busy / (spare + busy + 1e-10)
@@ -180,16 +217,17 @@ class BattleHistory():
         for record in self.log["normal"]:
             if record["start"] > lastTime:
                 spare += record["start"] - lastTime
-                busy += record["busyTime"]
-                lastTime = record["start"] + record["busyTime"]  # 这里暂存了spare的时间
+                busy += record["duration"]
+                lastTime = record["start"] + record["duration"]  # 这里暂存了spare的时间
             elif record["start"] + record["duration"] > lastTime:
                 spare -= lastTime - record["start"]
-                busy += record["start"] + record["busyTime"] - lastTime
-                lastTime = record["start"] + record["busyTime"]
+                busy += record["start"] + record["duration"] - lastTime
+                lastTime = record["start"] + record["duration"]
             else:
-                spare -= record["busyTime"]
-                busy += record["busyTime"]
-            # print(spare, busy, lastTime, record["start"], record["busyTime"])
+                spare -= record["duration"]
+                busy += record["duration"]
+            print(record)
+            print(spare, busy, lastTime, record["start"], record["duration"])
         spare += self.finalTime - lastTime
         return busy / (spare + busy + 1e-10)
 

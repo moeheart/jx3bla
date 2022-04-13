@@ -358,19 +358,52 @@ class LiJingYiDaoWindow():
             pos = int(nowt / 100)
             canvas6.create_text(pos, 50, text=text)
         # 绘制常规技能轴
-        for record in self.result["replay"]["normal"]:
-            posStart = int((record["start"] - startTime) / 100)
-            posEnd = int((record["start"] + record["duration"] - startTime) / 100)
-            canvas6.create_image(posStart+10, 80, image=canvas6.im[record["iconid"]])
-            # 绘制表示持续的条
-            if posStart + 20 < posEnd:
-                canvas6.create_rectangle(posStart+20, 70, posEnd, 90, fill="#7f1fdf")
-            # 绘制重复次数
-            if posStart + 30 < posEnd and record["num"] > 1:
-                canvas6.create_text(posStart+30, 80, text="*%d"%record["num"])
-            # 绘制目标分队
-            if "team" in record:
-                canvas6.create_text(posStart+7, 80, text="%d" % record["team"], font="Arial 12 bold", fill="#ff0000")
+        j = -1
+        lastName = ""
+        lastStart = 0
+        l = len(self.result["replay"]["normal"])
+        for i in range(l + 1):
+            if i == l:
+                record = {"skillname": "Final", "start": 999999999999}
+            else:
+                record = self.result["replay"]["normal"][i]
+            if record["skillname"] != lastName or record["start"] - lastStart > 3000:
+                if j == -1:
+                    j = i
+                    lastName = record["skillname"]
+                    lastStart = record["start"]
+                    continue
+                # 结算上一个技能
+                if self.config.item["lijing"]["stack"] != "不堆叠" and i-j >= int(self.config.item["lijing"]["stack"]):
+                    # 进行堆叠显示
+                    record_first = self.result["replay"]["normal"][j]
+                    record_last = self.result["replay"]["normal"][i-1]
+                    posStart = int((record_first["start"] - startTime) / 100)
+                    posEnd = int((record_last["start"] + record_last["duration"] - startTime) / 100)
+                    canvas6.create_image(posStart + 10, 80, image=canvas6.im[record_last["iconid"]])
+                    # 绘制表示持续的条
+                    if posStart + 20 < posEnd:
+                        canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill="#64fab4")
+                    # 绘制重复次数
+                    if posStart + 30 < posEnd:
+                        canvas6.create_text(posStart + 30, 80, text="*%d" % (i-j))
+                else:
+                    # 进行独立显示
+                    for k in range(j, i):
+                        record_single = self.result["replay"]["normal"][k]
+                        posStart = int((record_single["start"] - startTime) / 100)
+                        posEnd = int((record_single["start"] + record_single["duration"] - startTime) / 100)
+                        canvas6.create_image(posStart + 10, 80, image=canvas6.im[record_single["iconid"]])
+                        # 绘制表示持续的条
+                        if posStart + 20 < posEnd:
+                            canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill="#64fab4")
+                        # 绘制目标分队
+                        if "team" in record_single and record_single["team"] != 0:
+                            canvas6.create_text(posStart + 7, 80, text="%d" % record_single["team"], font="Arial 12 bold",
+                                                fill="#ff0000")
+                j = i
+            lastName = record["skillname"]
+            lastStart = record["start"]
 
         # 绘制特殊技能轴
         for record in self.result["replay"]["special"]:
@@ -700,7 +733,6 @@ class LiJingYiDaoReplayer(ReplayerBase):
         occDetailList = self.occDetailList
 
         num = 0
-        skillLog = []
 
         # 以承疗者记录的关键治疗
         self.criticalHealCounter = {}
@@ -783,7 +815,7 @@ class LiJingYiDaoReplayer(ReplayerBase):
                      [changzhenSkill, "长针", ["3038"], "396", True, 48, False, True],
                      [bizhenSkill, "彼针", ["26666", "26667", "26668"], "1518", True, 24, False, True],
                      [chunniSkill, "春泥护花", ["132"], "413", True, 0, False, True],
-                     [None, "利针", ["2654", "2872", "2873"], "3004", True, 16, False, True],
+                     [None, "利针", ["2654"], "3004", True, 16, False, True],
                      [None, "清风垂露", ["133"], "1523", True, 0, False, True],
                      [None, "折叶笼花", ["14963"], "7510", True, 0, False, True],
                      [None, "碧水滔天", ["131"], "1525", True, 0, False, True],
@@ -855,6 +887,7 @@ class LiJingYiDaoReplayer(ReplayerBase):
                                "16",  # 判官笔法
                                "28465",  # 天工甲士开始读条
                                "28540",  # 泷雾引导
+                               "2872", "2873", # 利针实际作用
                                ]
 
         for event in self.bld.log:
@@ -891,45 +924,10 @@ class LiJingYiDaoReplayer(ReplayerBase):
                         # print("[Heal]", event.id, event.heal)
                         pass
 
-                    if event.caster == self.mykey and event.scheme == 1 and event.id not in xiangZhiUnimportant:  # 影子宫、桑柔等需要过滤的技能
-                        skillLog.append([event.time, event.id])
-
-                        # 若技能没有连续，则在战斗回放中记录技能
-                        if ((event.id not in gcdSkillIndex or gcdSkillIndex[event.id] != gcdSkillIndex[ss.skill]) and event.id not in nonGcdSkillIndex)\
-                            or event.time - ss.timeEnd > 3000:
-                            # 记录本次技能
-                            # print("[ReplaceSkill]", event.id, ss.skill)
-                            # 此处的逻辑完全可以去掉，保留这个逻辑就是为了监控哪些是值得挖掘的隐藏技能
-                            if ss.skill != "0":
-                                if ss.skill not in ["101", "3038", "26666", "26667", "26668"]:
-                                    ss.target = ""
-                                if ss.num != 2:
-                                    index = gcdSkillIndex[ss.skill]
-                                    line = skillInfo[index]
-                                    bh.setNormalSkill(ss.skill, line[1], line[3],
-                                                      ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
-                                                      roundCent(ss.healEff / (ss.heal + 1e-10)),
-                                                      int(ss.delay / (ss.delayNum + 1e-10)), ss.busy, "", ss.target)
-                                else:
-                                    index = gcdSkillIndex[ss.skill]
-                                    line = skillInfo[index]
-                                    bh.setNormalSkill(ss.skill, line[1], line[3],
-                                                      ss2.timeStart, ss2.timeEnd - ss2.timeStart, 1, ss2.heal,
-                                                      roundCent(ss2.healEff / (ss2.heal + 1e-10)),
-                                                      int(ss2.delay / (ss2.delayNum + 1e-10)), ss2.busy, "", ss.target)
-                                    bh.setNormalSkill(ss.skill, line[1], line[3],
-                                                      ss.timeEnd - (ss2.timeEnd - ss2.timeStart), ss2.timeEnd - ss2.timeStart, 1, ss.heal - ss2.heal,
-                                                      roundCent((ss.healEff - ss2.healEff) / (ss.heal - ss2.heal + 1e-10)),
-                                                      int((ss.delay - ss2.delay) / (ss.delayNum - ss2.delayNum + 1e-10)), ss.busy - ss2.busy, "", ss.target)
-                            ss.reset()
-                        if ss.num == 1:
-                            # 记录一个快照
-                            ss2 = copy.copy(ss)
-
+                    if event.caster == self.mykey and event.scheme == 1:
                         # 根据技能表进行自动处理
                         if event.id in gcdSkillIndex:
-                            if ss.skill == "0":
-                                ss.initSkill(event)
+                            ss.initSkill(event)
                             index = gcdSkillIndex[event.id]
                             line = skillInfo[index]
                             castTime = line[5]
@@ -945,17 +943,34 @@ class LiJingYiDaoReplayer(ReplayerBase):
                                 if sf2 or sf3:
                                     castTime = 0
                             ss.analyseSkill(event, castTime, line[0], tunnel=line[6], hasteAffected=line[7])
+                            target = ""
+                            if event.id in ["101", "3038", "26666", "26667", "26668"]:
+                                target = event.target
+                            targetName = "Unknown"
+                            if event.target in self.bld.info.player:
+                                targetName = self.bld.info.player[event.target].name
+                            elif event.target in self.bld.info.npc:
+                                targetName = self.bld.info.npc[event.target].name
+                            lastSkillID, lastTime = bh.getLastNormalSkill()
+                            if lastSkillID == ss.skill and ss.timeStart - lastTime < 100:
+                                # 相同技能，原地更新
+                                bh.updateNormalSkill(ss.skill, line[1], line[3],
+                                                     ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
+                                                     ss.healEff, 0, ss.busy, "", target, targetName)
+                            else:
+                                # 不同技能，新建条目
+                                bh.setNormalSkill(ss.skill, line[1], line[3],
+                                                  ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
+                                                  ss.healEff, 0, ss.busy, "", target, targetName)
+                            ss.reset()
                         elif event.id in nonGcdSkillIndex:  # 特殊技能
                             desc = ""
                             index = nonGcdSkillIndex[event.id]
                             line = skillInfo[index]
                             bh.setSpecialSkill(event.id, line[1], line[3], event.time, 0, desc)
-                        else:
+                        # 无法分析的技能
+                        elif event.id not in xiangZhiUnimportant:
                             pass
-                            # 对于其它的技能暂时不做记录
-                            # lastSkillTime = event.time
-
-                    if event.caster == self.mykey and event.scheme == 1:
                         # 统计不计入时间轴的治疗量
                         if event.id in ["6112"]:  # 清疏
                             qingshuHeal += event.healEff
@@ -1080,8 +1095,11 @@ class LiJingYiDaoReplayer(ReplayerBase):
 
         # 记录每次技能的目标队伍
         for i in range(len(bh.log["normal"])):
-            if "team" in bh.log["normal"][i] and bh.log["normal"][i]["team"] in teamCluster:
-                bh.log["normal"][i]["team"] = teamCluster[bh.log["normal"][i]["team"]]
+            if "team" in bh.log["normal"][i]:
+                if bh.log["normal"][i]["team"] in teamCluster:
+                    bh.log["normal"][i]["team"] = teamCluster[bh.log["normal"][i]["team"]]
+                else:
+                    bh.log["normal"][i]["team"] = 0
 
         # 计算伤害
         for key in battleStat:

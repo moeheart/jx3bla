@@ -380,16 +380,48 @@ class LingSuWindow():
             pos = int(nowt / 100)
             canvas6.create_text(pos, 50, text=text)
         # 绘制常规技能轴
-        for record in self.result["replay"]["normal"]:
-            posStart = int((record["start"] - startTime) / 100)
-            posEnd = int((record["start"] + record["duration"] - startTime) / 100)
-            canvas6.create_image(posStart+10, 80, image=canvas6.im[record["iconid"]])
-            # 绘制表示持续的条
-            if posStart + 20 < posEnd:
-                canvas6.create_rectangle(posStart+20, 70, posEnd, 90, fill="#64fab4")
-            # 绘制重复次数
-            if posStart + 30 < posEnd and record["num"] > 1:
-                canvas6.create_text(posStart+30, 80, text="*%d"%record["num"])
+        j = -1
+        lastName = ""
+        lastStart = 0
+        l = len(self.result["replay"]["normal"])
+        for i in range(l + 1):
+            if i == l:
+                record = {"skillname": "Final", "start": 999999999999}
+            else:
+                record = self.result["replay"]["normal"][i]
+            if record["skillname"] != lastName or record["start"] - lastStart > 3000:
+                if j == -1:
+                    j = i
+                    lastName = record["skillname"]
+                    lastStart = record["start"]
+                    continue
+                # 结算上一个技能
+                if self.config.item["lingsu"]["stack"] != "不堆叠" and i-j >= int(self.config.item["lingsu"]["stack"]):
+                    # 进行堆叠显示
+                    record_first = self.result["replay"]["normal"][j]
+                    record_last = self.result["replay"]["normal"][i-1]
+                    posStart = int((record_first["start"] - startTime) / 100)
+                    posEnd = int((record_last["start"] + record_last["duration"] - startTime) / 100)
+                    canvas6.create_image(posStart + 10, 80, image=canvas6.im[record_last["iconid"]])
+                    # 绘制表示持续的条
+                    if posStart + 20 < posEnd:
+                        canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill="#64fab4")
+                    # 绘制重复次数
+                    if posStart + 30 < posEnd:
+                        canvas6.create_text(posStart + 30, 80, text="*%d" % (i-j))
+                else:
+                    # 进行独立显示
+                    for k in range(j, i):
+                        record_single = self.result["replay"]["normal"][k]
+                        posStart = int((record_single["start"] - startTime) / 100)
+                        posEnd = int((record_single["start"] + record_single["duration"] - startTime) / 100)
+                        canvas6.create_image(posStart + 10, 80, image=canvas6.im[record_single["iconid"]])
+                        # 绘制表示持续的条
+                        if posStart + 20 < posEnd:
+                            canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill="#64fab4")
+                j = i
+            lastName = record["skillname"]
+            lastStart = record["start"]
 
         # 绘制特殊技能轴
         for record in self.result["replay"]["special"]:
@@ -963,50 +995,30 @@ class LingSuReplayer(ReplayerBase):
                         # print("[Heal]", event.id, event.heal)
                         pass
 
-                    if event.caster == self.mykey and event.scheme == 1 and event.id not in xiangZhiUnimportant:  # 影子宫、桑柔等需要过滤的技能
-                        # skillLog.append([event.time, event.id])
-
-                        # 若技能没有连续，则在战斗回放中记录技能
-                        if ((event.id not in gcdSkillIndex or gcdSkillIndex[event.id] != gcdSkillIndex[ss.skill]) and event.id not in nonGcdSkillIndex)\
-                          or event.time - ss.timeEnd > 3000:
-                            # 记录本次技能
-                            # print("[ReplaceSkill]", event.id, ss.skill)
-                            # 此处的逻辑完全可以去掉，保留这个逻辑就是为了监控哪些是值得挖掘的隐藏技能
-                            if ss.skill != "0":
-                                if ss.num != 2:
-                                    index = gcdSkillIndex[ss.skill]
-                                    line = skillInfo[index]
-                                    bh.setNormalSkill(ss.skill, line[1], line[3],
-                                                      ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
-                                                      roundCent(ss.healEff / (ss.heal + 1e-10)),
-                                                      int(ss.delay / (ss.delayNum + 1e-10)), ss.busy, "")
-                                else:
-                                    index = gcdSkillIndex[ss.skill]
-                                    line = skillInfo[index]
-                                    bh.setNormalSkill(ss.skill, line[1], line[3],
-                                                      ss2.timeStart, ss2.timeEnd - ss2.timeStart, 1, ss2.heal,
-                                                      roundCent(ss2.healEff / (ss2.heal + 1e-10)),
-                                                      int(ss2.delay / (ss2.delayNum + 1e-10)), ss2.busy, "")
-                                    bh.setNormalSkill(ss.skill, line[1], line[3],
-                                                      ss.timeEnd - (ss2.timeEnd - ss2.timeStart), ss2.timeEnd - ss2.timeStart, 1, ss.heal - ss2.heal,
-                                                      roundCent((ss.healEff - ss2.healEff) / (ss.heal - ss2.heal + 1e-10)),
-                                                      int((ss.delay - ss2.delay) / (ss.delayNum - ss2.delayNum + 1e-10)), ss.busy - ss2.busy, "")
-                            ss.reset()
-                        if ss.num == 1:
-                            # 记录一个快照
-                            ss2 = copy.copy(ss)
-                        # 记录药性相关
-                        if event.id in ["27622", "27633", "27624", "27630", "28620"]:
-                            if event.time - yaoxingLog[-1][0] > 100:
-                                yaoxingLog.append([event.time, 0, 0, 0])
-                            yaoxingLog[-1][3] = event.id
+                    if event.caster == self.mykey and event.scheme == 1:
                         # 根据技能表进行自动处理
                         if event.id in gcdSkillIndex:
-                            if ss.skill == "0":
-                                ss.initSkill(event)
+                            ss.initSkill(event)
                             index = gcdSkillIndex[event.id]
                             line = skillInfo[index]
                             ss.analyseSkill(event, line[5], line[0], tunnel=line[6], hasteAffected=line[7])
+                            targetName = "Unknown"
+                            if event.target in self.bld.info.player:
+                                targetName = self.bld.info.player[event.target].name
+                            elif event.target in self.bld.info.npc:
+                                targetName = self.bld.info.npc[event.target].name
+                            lastSkillID, lastTime = bh.getLastNormalSkill()
+                            if lastSkillID == ss.skill and ss.timeStart - lastTime < 100:
+                                # 相同技能，原地更新
+                                bh.updateNormalSkill(ss.skill, line[1], line[3],
+                                                     ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
+                                                     ss.healEff, 0, ss.busy, "", "", targetName)
+                            else:
+                                # 不同技能，新建条目
+                                bh.setNormalSkill(ss.skill, line[1], line[3],
+                                                  ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
+                                                  ss.healEff, 0, ss.busy, "", "", targetName)
+                            ss.reset()
                         # 处理特殊技能
                         elif event.id in nonGcdSkillIndex:  # 特殊技能
                             desc = ""
@@ -1030,12 +1042,16 @@ class LingSuReplayer(ReplayerBase):
                                 index = nonGcdSkillIndex[event.id]
                                 line = skillInfo[index]
                                 bh.setSpecialSkill(event.id, line[1], line[3], event.time, 0, desc)
-                        else:
+                        # 无法分析的技能
+                        elif event.id not in xiangZhiUnimportant:
                             pass
-                            # 对于其它的技能暂时不做记录
-                            # lastSkillTime = event.time
 
-                    if event.caster == self.mykey and event.scheme == 1:
+                        # 记录药性相关
+                        if event.id in ["27622", "27633", "27624", "27630", "28620"]:
+                            if event.time - yaoxingLog[-1][0] > 100:
+                                yaoxingLog.append([event.time, 0, 0, 0])
+                            yaoxingLog[-1][3] = event.id
+
                         # 统计不计入时间轴的治疗量
                         if event.id in ["28083", "28734", "28733", "28757"]:  # 灵素中和
                             lszhSkill.recordSkill(event.time, event.heal, event.healEff, event.time)

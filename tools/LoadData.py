@@ -126,6 +126,7 @@ class LuaTableAnalyserToDict():
         nowLabel = 1
         keyStart = 0
         keyQuote = 0
+        keyDash = 0
 
         while True:
             if nowi > self.nextI:
@@ -137,7 +138,7 @@ class LuaTableAnalyserToDict():
             c = self.s[nowi]
             if c == "[":
                 keyStart = 1
-            elif c == "{":
+            elif c == "{" and keyQuote != 1:
                 jdata, pn = self.parseLuatable(nowi + 1, maxn)
                 nowi = pn
                 nowItem = jdata
@@ -147,8 +148,12 @@ class LuaTableAnalyserToDict():
                 else:
                     nowKey += c
             elif keyStart == 0:
-                if c == '"':
+                if c == '\\':
+                    keyDash = 1
+                if c == '"' and not keyDash:
                     keyQuote = (keyQuote + 1) % 2
+                if c != '\\':
+                    keyDash = 0
                 if c == "," and keyQuote != 1:
                     if nowKey != "":
                         nowDict[nowKey] = nowItem
@@ -165,6 +170,7 @@ class LuaTableAnalyserToDict():
                             nowDict[str(nowLabel)] = nowItem
                     return nowDict, nowi
                 elif c != '=':
+                    # print(c, nowItem)
                     nowItem += c
             nowi += 1
             if nowi >= maxn:

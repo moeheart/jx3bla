@@ -515,15 +515,15 @@ class SingleBossWindow():
             elif detail["boss"] == "乌蒙贵":
                 self.specificBossWindow = WuMengguiWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             elif detail["boss"] == "勒齐那":
-                self.specificBossWindow = WuMengguiWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
+                self.specificBossWindow = LeQinaWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             elif detail["boss"] == "阿阁诺":
-                self.specificBossWindow = WuMengguiWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
+                self.specificBossWindow = AGenoWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             elif detail["boss"] == "周通忌":
-                self.specificBossWindow = WuMengguiWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
+                self.specificBossWindow = ZhouTongjiWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             elif detail["boss"] == "周贽":
-                self.specificBossWindow = WuMengguiWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
+                self.specificBossWindow = ZhouZhiWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             elif detail["boss"] == "常宿":
-                self.specificBossWindow = WuMengguiWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
+                self.specificBossWindow = ChangXiuWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             else:
                 self.specificBossWindow = GeneralWindow(self.mainWindow.config, effectiveDPSList, detail, occResult)
             self.specificBossWindow.setPotWindow(self)
