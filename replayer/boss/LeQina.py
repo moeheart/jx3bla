@@ -19,8 +19,10 @@ class LeQinaWindow(SpecificBossWindow):
         '''
         使用tkinter绘制详细复盘窗口。
         '''
+
+        self.setTimelineWindow(self.bh, "勒齐那")
+
         window = tk.Toplevel()
-        #window = tk.Tk()
         window.title('勒齐那复盘')
         window.geometry('1200x800')
         
@@ -79,16 +81,19 @@ class LeQinaWindow(SpecificBossWindow):
         frame2.pack()
         buttonPrev = tk.Button(frame2, text='<<', width=2, height=1, command=self.openPrev)
         submitButton = tk.Button(frame2, text='战斗事件记录', command=self.openPot)
+        timelineButton = tk.Button(frame2, text='时间轴', command=self.openTimelineWindow)
         buttonNext = tk.Button(frame2, text='>>', width=2, height=1, command=self.openNext)
         buttonPrev.grid(row=0, column=0)
         submitButton.grid(row=0, column=1)
-        buttonNext.grid(row=0, column=2)
+        timelineButton.grid(row=0, column=2)
+        buttonNext.grid(row=0, column=3)
 
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
 
-    def __init__(self, config, effectiveDPSList, detail, occResult):
+    def __init__(self, config, effectiveDPSList, detail, occResult, bh):
         super().__init__(config, effectiveDPSList, detail, occResult)
+        self.bh = bh
 
 class LeQinaReplayer(SpecificReplayerPro):
 
@@ -96,6 +101,8 @@ class LeQinaReplayer(SpecificReplayerPro):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
+        self.bh.setEnvironmentImgs(self.bhImgs)
+
         for line in self.bh.log["environment"]:
             timePrint = "%.1f" % ((line["start"] - self.startTime) / 1000)
             print(timePrint, line["type"], line["skillname"], line["skillid"])
@@ -162,7 +169,7 @@ class LeQinaReplayer(SpecificReplayerPro):
                         self.bhTime[name] = event.time
                         skillName = self.bld.info.getSkillName(event.full_id)
                         if "," not in skillName:
-                            self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式命中玩家", "skill")
+                            self.bh.setEnvironment(event.id, skillName, "13", event.time, 0, 1, "招式命中玩家", "skill")
                     
             else:
                 if event.caster in self.bld.info.player and event.caster in self.stat:
@@ -179,10 +186,10 @@ class LeQinaReplayer(SpecificReplayerPro):
                     self.bhTime[name] = event.time
                     skillName = self.bld.info.getSkillName(event.full_id)
                     if "," not in skillName:
-                        self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "玩家获得气劲", "buff")
+                        self.bh.setEnvironment(event.id, skillName, "13", event.time, 0, 1, "玩家获得气劲", "buff")
                     
         elif event.dataType == "Shout":
-            self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "Shout")
+            self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
             return
 
         elif event.dataType == "Scene":  # 进入、离开场景
@@ -192,7 +199,9 @@ class LeQinaReplayer(SpecificReplayerPro):
                     self.bhTime[name] = event.time
                     skillName = self.bld.info.npc[event.id].name
                     if "的" not in skillName:
-                        self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0, 1, "NPC出现", "npc")
+                        self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "340", event.time, 0, 1, "NPC出现", "npc")
+            if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name in ["勒齐那宝箱", "勒齊那寶箱"]:
+                self.win = 1
                 
         elif event.dataType == "Death": #重伤记录
             pass
@@ -207,7 +216,7 @@ class LeQinaReplayer(SpecificReplayerPro):
                     self.bhTime[name] = event.time
                     skillName = self.bld.info.getSkillName(event.full_id)
                     if "," not in skillName:
-                        self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式开始运功", "cast")
+                        self.bh.setEnvironment(event.id, skillName, "13", event.time, 0, 1, "招式开始运功", "cast")
 
                     
     def analyseFirstStage(self, item):
@@ -241,6 +250,11 @@ class LeQinaReplayer(SpecificReplayerPro):
                             "s30335", "s30334", "b22400", "s30462", "s30333", "b22402", "b22401",
                             "n108263", "n108426", "n108754", "n108736", "b15775", "b17201",
                             "b22478", "s30370", "s30368"]
+        self.bhImgs = {"s30274": "12375",  # 燃焰横扫
+                       "c30838": "14155",  # 污油喷溅
+                       "c30278": "12376",  # 翻找口袋
+                       "b22487": "14833",  # 火刑
+                       }
         
         for line in self.bld.info.player:
             self.hps[line] = 0

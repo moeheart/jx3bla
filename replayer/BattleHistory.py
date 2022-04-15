@@ -27,9 +27,26 @@ class BattleHistory():
             res["call"] = []
         return res
 
+    def setEnvironmentImgs(self, imgDict):
+        '''
+        通过对应表对场地轴的图片进行修正.
+        params:
+        - imgDict: 字典类型，从对应的事件映射到图片ID.
+        '''
+        for i in range(len(self.log["environment"])):
+            name = ""
+            if self.log["environment"][i]["type"] == "cast":
+                name = "c" + self.log["environment"][i]["skillid"]
+            elif self.log["environment"][i]["type"] == "buff":
+                name = "b" + self.log["environment"][i]["skillid"]
+            elif self.log["environment"][i]["type"] == "skill":
+                name = "s" + self.log["environment"][i]["skillid"]
+            if name in imgDict:
+                self.log["environment"][i]["iconid"] = imgDict[name]
+
     def setEnvironment(self, skillid, skillname, iconid, start, duration, num, description, type="unknown"):
         '''
-        添加场地.
+        添加场地事件.
         params:
         - skillid: 技能ID.
         - skillname: 技能名，用于显示.
@@ -226,8 +243,6 @@ class BattleHistory():
             else:
                 spare -= record["duration"]
                 busy += record["duration"]
-            print(record)
-            print(spare, busy, lastTime, record["start"], record["duration"])
         spare += self.finalTime - lastTime
         return busy / (spare + busy + 1e-10)
 

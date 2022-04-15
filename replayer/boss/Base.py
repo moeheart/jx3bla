@@ -6,6 +6,7 @@ from tools.Functions import *
 import threading
 import tkinter as tk
 from replayer.TableConstructor import TableConstructor, ToolTip
+from window.TimelineWindow import TimelineWindow
 
 class SpecificBossWindow():
 
@@ -46,6 +47,21 @@ class SpecificBossWindow():
         设置分锅界面对象，为后面通过复盘窗口打开分锅窗口提供连接。
         '''
         self.potWindow = potWindow
+
+    def openTimelineWindow(self):
+        '''
+        打开时间轴窗口。
+        '''
+        self.timelineWindow.start()
+
+    def setTimelineWindow(self, data, boss):
+        '''
+        设置时间轴窗口对象.
+        - environment: 环境轴，与BattleLog中的定义相同.
+        - boss: BOSS名称.
+        '''
+        self.timelineWindow = TimelineWindow()
+        self.timelineWindow.setData(data, boss)
 
     def final(self):
         '''

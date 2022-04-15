@@ -840,10 +840,6 @@ class ActorProReplayer(ReplayerBase):
         if self.bossAnalyser.hasBh:
             self.bh = self.bossAnalyser.bh
 
-
-
-
-
         else:
             self.bh = None
 
