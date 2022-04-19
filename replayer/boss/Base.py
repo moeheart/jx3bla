@@ -144,6 +144,19 @@ class SpecificReplayerPro():
         '''
         self.potList.append(pot)
 
+    def mergeBlackList(self, blackList, config):
+        '''
+        将BOSS复盘中附带的列表和设置中的过滤监控词条列表合并.
+        params:
+        - blackList: 合并之前的列表.
+        - config: 设置类.
+        returns:
+        - blackList: 合并之后的列表
+        '''
+        configList = config.item["actor"]["filter"].split(',')
+        blackList.extend(configList)
+        return blackList
+
     def trimTime(self):
         '''
         根据战斗记录的结果修剪时间。

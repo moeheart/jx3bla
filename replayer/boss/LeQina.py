@@ -246,10 +246,12 @@ class LeQinaReplayer(SpecificReplayerPro):
 
         self.bhTime = {}
         self.bhBlackList = ["b17200", "c15076", "c15082", "b20854", "b3447", "b14637", "s15082", "b789", "c3365", "s15181", "s20763",
-                            "s30500", "s30461", "s30275", "c3365", "b22615", "b22614",
+                            "s30500", "s30461", "s30275", "c3365", "b22615", "b22614", "s6746", "b17933", "b6131",
                             "s30335", "s30334", "b22400", "s30462", "s30333", "b22402", "b22401",
                             "n108263", "n108426", "n108754", "n108736", "b15775", "b17201",
                             "b22478", "s30370", "s30368"]
+        self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
+
         self.bhInfo = {"s30274": ["12375", "#ff7700"],  # 燃焰横扫
                        "c30838": ["14155", "#7777ff"],  # 污油喷溅
                        "c30278": ["12376", "#ff00ff"],  # 翻找口袋
@@ -261,9 +263,10 @@ class LeQinaReplayer(SpecificReplayerPro):
             self.stat[line] = [self.bld.info.player[line].name, self.occDetailList[line], 0, 0, -1, "", 0] + \
                 []
 
-    def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
+    def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''
         对类本身进行初始化。
         '''
         super().__init__(bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint)
+        self.config = config
 

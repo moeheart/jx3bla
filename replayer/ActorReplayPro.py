@@ -406,19 +406,19 @@ class ActorProReplayer(ReplayerBase):
                                            self.finalTime, self.battleTime, self.bossNamePrint)
         elif self.bossAnalyseName == "勒齐那":
             bossAnalyser = LeQinaReplayer(self.bld, occDetailList, self.startTime,
-                                           self.finalTime, self.battleTime, self.bossNamePrint)
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
         elif self.bossAnalyseName == "阿阁诺":
             bossAnalyser = AGenoReplayer(self.bld, occDetailList, self.startTime,
-                                           self.finalTime, self.battleTime, self.bossNamePrint)
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
         elif self.bossAnalyseName == "周通忌":
             bossAnalyser = ZhouTongjiReplayer(self.bld, occDetailList, self.startTime,
-                                           self.finalTime, self.battleTime, self.bossNamePrint)
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
         elif self.bossAnalyseName == "周贽":
             bossAnalyser = ZhouZhiReplayer(self.bld, occDetailList, self.startTime,
-                                           self.finalTime, self.battleTime, self.bossNamePrint)
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
         elif self.bossAnalyseName == "常宿":
             bossAnalyser = ChangXiuReplayer(self.bld, occDetailList, self.startTime,
-                                           self.finalTime, self.battleTime, self.bossNamePrint)
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
         else:
             bossAnalyser = GeneralReplayer(self.bld, occDetailList, self.startTime,
                                            self.finalTime, self.battleTime, self.bossNamePrint)
@@ -874,11 +874,11 @@ class ActorProReplayer(ReplayerBase):
                 lijingyidaoRep = LiJingYiDaoReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime, self.win)
                 lijingyidaoRep.replay()
                 self.occResult[name] = {"occ": "2h", "result": lijingyidaoRep.result}
-            # if self.config.item["yunchang"]["active"] and self.occDetailList[id] == "5h":  # 奶秀
-            #     name = self.bld.info.player[id].name
-            #     yunchangxinjingRep = YunChangXinJingReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime)
-            #     yunchangxinjingRep.replay()
-            #     self.occResult[name] = {"occ": "5h", "result": yunchangxinjingRep.result}
+            if self.config.item["yunchang"]["active"] and self.occDetailList[id] == "5h":  # 奶秀
+                name = self.bld.info.player[id].name
+                yunchangxinjingRep = YunChangXinJingReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime)
+                yunchangxinjingRep.replay()
+                self.occResult[name] = {"occ": "5h", "result": yunchangxinjingRep.result}
             if self.config.item["butian"]["active"] and self.occDetailList[id] == "6h":  # 奶毒
                 name = self.bld.info.player[id].name
                 butianjueRep = BuTianJueReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime, self.win)

@@ -271,8 +271,10 @@ class AGenoReplayer(SpecificReplayerPro):
 
         self.bhTime = {}
         self.bhBlackList = ["b17200", "c15076", "c15082", "b20854", "b3447", "b14637", "s15082", "b789", "c3365", "s15181", "s20763",
-                            "n108263", "n108426", "n108754", "n108736", "b15775", "b17201",
+                            "n108263", "n108426", "n108754", "n108736", "b15775", "b17201", "s6746", "b17933", "b6131",
                             "s28", "s30069", "b22589", "s30405", "s30070", "s30071"]
+        self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
+
         self.bhInfo = {"b22741": ["4576", "#ff00ff"],  # 蝠击锁定
                        "c30071": ["3436", "#ff7700"],  # 黑血风遁
                        "s30086": ["342", "#00ff00"],  # 磐翼裹身
@@ -288,9 +290,10 @@ class AGenoReplayer(SpecificReplayerPro):
             self.stat[line] = [self.bld.info.player[line].name, self.occDetailList[line], 0, 0, -1, "", 0] + \
                               []
 
-    def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
+    def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''
         对类本身进行初始化。
         '''
         super().__init__(bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint)
+        self.config = config
 

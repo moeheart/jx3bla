@@ -254,12 +254,13 @@ class ChangXiuReplayer(SpecificReplayerPro):
 
         self.bhTime = {}
         self.bhBlackList = ["b17200", "c15076", "c15082", "b20854", "b3447", "b14637", "s15082", "b789", "c3365", "s15181",
-                            "n108263", "n108426", "n108754", "n108736", "n108217", "n108216", "b15775", "b17201",
+                            "n108263", "n108426", "n108754", "n108736", "n108217", "n108216", "b15775", "b17201", "s6746", "b17933", "b6131",
                             "n108727", "n108738",
                             "s30044", "s30055", "b22228", "b22660", "b22197", "n108264", "s30048", "c30051", "s30056",
                             "n108121", "n108257", "b22192", "s30158", "s30157", "c30157", "c30158", "b22199", "b22229",
                             "s30134", "b22190", "b22494", "n108629", "b22493", "b22195", "b22191", "s30060",
                             ]
+        self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
         self.bhInfo = {"s30047": ["2019", "#ff00ff"],  # 罪笞
                        "b22246": ["2141", "#7777ff"],  # 伐逆buff
@@ -279,9 +280,10 @@ class ChangXiuReplayer(SpecificReplayerPro):
             self.stat[line] = [self.bld.info.player[line].name, self.occDetailList[line], 0, 0, -1, "", 0] + \
                 []
 
-    def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
+    def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''
         对类本身进行初始化。
         '''
         super().__init__(bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint)
+        self.config = config
 

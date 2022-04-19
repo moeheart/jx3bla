@@ -271,9 +271,11 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
 
         self.bhTime = {}
         self.bhBlackList = ["b17200", "c15076", "c15082", "b20854", "b3447", "b14637", "s15082", "b789", "c3365", "s15181",
-                            "n108263", "n108426", "n108754", "n108736", "n108217", "n108216", "b15775", "b17201",
+                            "n108263", "n108426", "n108754", "n108736", "n108217", "n108216", "b15775", "b17201", "s6746", "b17933", "b6131",
                             "s28", "s30117", "s30449", "s30108", "b22275", "s30120", "s30121", "b22274",
                             "s30115", "s30896"]
+        self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
+
         self.bhInfo = {"s30116": ["2021", "#ff7700"],  # 撕裂回旋
                        "c30106": ["2019", "#ff7700"],  # 这！就是！狼牙！
                        "c30172": ["2024", "#7700ff"],  # 象鼻横扫
@@ -285,9 +287,10 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
             self.stat[line] = [self.bld.info.player[line].name, self.occDetailList[line], 0, 0, -1, "", 0] + \
                               []
 
-    def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
+    def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''
         对类本身进行初始化。
         '''
         super().__init__(bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint)
+        self.config = config
 

@@ -117,6 +117,7 @@ class Config():
             self.item["actor"]["qualifiedrate"] = float(self.item["actor"].get("qualifiedrate", 0.75))
             self.item["actor"]["alertrate"] = float(self.item["actor"].get("alertrate", 0.85))
             self.item["actor"]["bonusrate"] = float(self.item["actor"].get("bonusrate", 1.20))
+            self.item["actor"]["filter"] = self.item["actor"].get("filter", "")
 
             self.item["user"]["uuid"] = self.item["user"].get("uuid", "")
             self.item["user"]["id"] = self.item["user"].get("id", "")
@@ -869,6 +870,9 @@ class ConfigWindow():
         self.constructEntry("Frame2", frame3, "DPS补贴线",
                             "团队-心法DPS的补贴线。\n如果全程高于这个值，一般代表可以发DPS补贴。\n以1为单位。",
                             "actor", "bonusrate")
+        self.constructEntry("Frame2", frame3, "过滤监控列表",
+                            "在展示时间轴时人工指定需要过滤的技能或buff，由玩家指定，用逗号隔开，例如：\ns6746,b17933,b6131",
+                            "actor", "filter")
 
         # self.var3_1 = tk.IntVar(window)
         # self.cb3_1 = tk.Checkbutton(frame3, text = "启用演员复盘", variable = self.var3_1, onvalue = 1, offvalue = 0)
