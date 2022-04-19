@@ -992,7 +992,8 @@ class LingSuReplayer(ReplayerBase):
                                 bh.setSpecialSkill(event.id, line[1], line[3], event.time, 0, desc)
                         # 无法分析的技能
                         elif event.id not in xiangZhiUnimportant:
-                            print("[LingSuNonRec]", event.time, event.id, event.heal, event.healEff)
+                            pass
+                            # print("[LingSuNonRec]", event.time, event.id, event.heal, event.healEff)
 
                         # 记录药性相关
                         if event.id in ["27622", "27633", "27624", "27630", "28620"]:

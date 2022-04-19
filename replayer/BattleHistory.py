@@ -27,11 +27,11 @@ class BattleHistory():
             res["call"] = []
         return res
 
-    def setEnvironmentImgs(self, imgDict):
+    def setEnvironmentInfo(self, infoDict):
         '''
-        通过对应表对场地轴的图片进行修正.
+        通过对应表对场地轴的图片和颜色进行修正.
         params:
-        - imgDict: 字典类型，从对应的事件映射到图片ID.
+        - infoDict: 字典类型，从对应的事件映射到[图片ID,颜色]的数组.
         '''
         for i in range(len(self.log["environment"])):
             name = ""
@@ -41,10 +41,11 @@ class BattleHistory():
                 name = "b" + self.log["environment"][i]["skillid"]
             elif self.log["environment"][i]["type"] == "skill":
                 name = "s" + self.log["environment"][i]["skillid"]
-            if name in imgDict:
-                self.log["environment"][i]["iconid"] = imgDict[name]
+            if name in infoDict:
+                self.log["environment"][i]["iconid"] = infoDict[name][0]
+                self.log["environment"][i]["color"] = infoDict[name][1]
 
-    def setEnvironment(self, skillid, skillname, iconid, start, duration, num, description, type="unknown"):
+    def setEnvironment(self, skillid, skillname, iconid, start, duration, num, description, type="unknown", color="#ffffff"):
         '''
         添加场地事件.
         params:
@@ -56,6 +57,7 @@ class BattleHistory():
         - num: 技能次数.
         - description: 描述.
         - type: 种类，一般为cast, skill, buff, shout等
+        - color: 颜色，用于显示
         '''
         res = {"skillid": skillid,
                "skillname": skillname,
@@ -64,7 +66,8 @@ class BattleHistory():
                "duration": duration,
                "num": num,
                "description": description,
-               "type": type}
+               "type": type,
+               "color": color}
         self.log["environment"].append(res)
 
     def setCall(self, skillid, skillname, iconid, start, duration, player, description):

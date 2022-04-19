@@ -19,8 +19,10 @@ class AGenoWindow(SpecificBossWindow):
         '''
         使用tkinter绘制详细复盘窗口。
         '''
+
+        self.setTimelineWindow(self.bh, "阿阁诺")
+
         window = tk.Toplevel()
-        #window = tk.Tk()
         window.title('阿阁诺复盘')
         window.geometry('1200x800')
         
@@ -79,16 +81,19 @@ class AGenoWindow(SpecificBossWindow):
         frame2.pack()
         buttonPrev = tk.Button(frame2, text='<<', width=2, height=1, command=self.openPrev)
         submitButton = tk.Button(frame2, text='战斗事件记录', command=self.openPot)
+        timelineButton = tk.Button(frame2, text='时间轴', command=self.openTimelineWindow)
         buttonNext = tk.Button(frame2, text='>>', width=2, height=1, command=self.openNext)
         buttonPrev.grid(row=0, column=0)
         submitButton.grid(row=0, column=1)
-        buttonNext.grid(row=0, column=2)
+        timelineButton.grid(row=0, column=2)
+        buttonNext.grid(row=0, column=3)
 
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
 
-    def __init__(self, config, effectiveDPSList, detail, occResult):
+    def __init__(self, config, effectiveDPSList, detail, occResult, bh):
         super().__init__(config, effectiveDPSList, detail, occResult)
+        self.bh = bh
 
 class AGenoReplayer(SpecificReplayerPro):
 
@@ -96,6 +101,8 @@ class AGenoReplayer(SpecificReplayerPro):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
+        self.bh.setEnvironmentInfo(self.bhInfo)
+
         for line in self.bh.log["environment"]:
             timePrint = "%.1f" % ((line["start"] - self.startTime) / 1000)
             print(timePrint, line["type"], line["skillname"], line["skillid"])
@@ -162,7 +169,7 @@ class AGenoReplayer(SpecificReplayerPro):
                         self.bhTime[name] = event.time
                         skillName = self.bld.info.getSkillName(event.full_id)
                         if "," not in skillName:
-                            self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式命中玩家", "skill")
+                            self.bh.setEnvironment(event.id, skillName, "13", event.time, 0, 1, "招式命中玩家", "skill")
 
             else:
                 if event.caster in self.bld.info.player and event.caster in self.stat:
@@ -179,7 +186,20 @@ class AGenoReplayer(SpecificReplayerPro):
                     self.bhTime[name] = event.time
                     skillName = self.bld.info.getSkillName(event.full_id)
                     if "," not in skillName:
-                        self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "玩家获得气劲", "buff")
+                        self.bh.setEnvironment(event.id, skillName, "13", event.time, 0, 1, "玩家获得气劲", "buff")
+
+            if event.id == "22589":
+                if event.stack < 20:
+                    self.shitouCount[event.stack] += 1
+                    if self.shitouCount[event.stack] == 8:  # 平滑阈值
+                        self.shitouLast = self.shitouStack
+                        self.shitouStack = event.stack
+                        for i in range(20):
+                            if i != self.shitouStack:
+                                self.shitouCount[i] = 0
+                        if self.shitouStack > self.shitouLast and event.time - self.shitouLastTime > 10000:
+                            self.bh.setEnvironment("0", "船出现", "3404", event.time, 0, 1, "NPC出现", "npc", "#333333")
+                            self.shitouLastTime = event.time
 
         elif event.dataType == "Shout":
             if event.content in ['"喔？敢扰乱大人计划的，都得死！"']:
@@ -189,7 +209,8 @@ class AGenoReplayer(SpecificReplayerPro):
             elif event.content in ['"喝！都给我下去喂鱼吧！"']:
                 pass
             else:
-                self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "Shout")
+                # self.bh.setEnvironment("0", event.content, "13", event.time, 0, 1, "喊话", "shout")
+                pass
             return
 
         elif event.dataType == "Scene":  # 进入、离开场景
@@ -199,11 +220,13 @@ class AGenoReplayer(SpecificReplayerPro):
                 if name in ["n108111", "n108109", "n108110"]:
                     name = "n01"
                     skillName = "船出现"
-                if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 3000:
-                    self.bhTime[name] = event.time
-                    if "的" not in skillName:
-                        self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
-                                               1, "NPC出现", "npc")
+                # if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 3000:
+                #     self.bhTime[name] = event.time
+                #     if "的" not in skillName:
+                #         self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "13", event.time, 0,
+                #                                1, "NPC出现", "npc")
+            if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name in ["阿阁诺宝箱", "阿閣諾寶箱"]:
+                self.win = 1
 
         elif event.dataType == "Death":  # 重伤记录
             pass
@@ -218,7 +241,7 @@ class AGenoReplayer(SpecificReplayerPro):
                     self.bhTime[name] = event.time
                     skillName = self.bld.info.getSkillName(event.full_id)
                     if "," not in skillName:
-                        self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式开始运功", "cast")
+                        self.bh.setEnvironment(event.id, skillName, "13", event.time, 0, 1, "招式开始运功", "cast")
 
                     
     def analyseFirstStage(self, item):
@@ -247,9 +270,18 @@ class AGenoReplayer(SpecificReplayerPro):
         self.hasBh = True
 
         self.bhTime = {}
-        self.bhBlackList = ["b17200", "c15076", "c15082", "b20854", "b3447", "b14637", "s15082", "b789", "c3365", "s15181",
+        self.bhBlackList = ["b17200", "c15076", "c15082", "b20854", "b3447", "b14637", "s15082", "b789", "c3365", "s15181", "s20763",
                             "n108263", "n108426", "n108754", "n108736", "b15775", "b17201",
-                            "s28", "s30069", "b22589", "s30405"]
+                            "s28", "s30069", "b22589", "s30405", "s30070", "s30071"]
+        self.bhInfo = {"b22741": ["4576", "#ff00ff"],  # 蝠击锁定
+                       "c30071": ["3436", "#ff7700"],  # 黑血风遁
+                       "s30086": ["342", "#00ff00"],  # 磐翼裹身
+                       }
+
+        self.shitouStack = 0
+        self.shitouLast = 0
+        self.shitouLastTime = 0
+        self.shitouCount = [0] * 20  # BOSS的石头统计有时会因为重伤乱掉，所以加一个平滑
 
         for line in self.bld.info.player:
             self.hps[line] = 0

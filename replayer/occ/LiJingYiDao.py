@@ -972,7 +972,8 @@ class LiJingYiDaoReplayer(ReplayerBase):
                             bh.setSpecialSkill(event.id, line[1], line[3], event.time, 0, desc)
                         # 无法分析的技能
                         elif event.id not in xiangZhiUnimportant:
-                            print("[LijingNonRec]", event.time, event.id, event.heal, event.healEff)
+                            pass
+                            # print("[LijingNonRec]", event.time, event.id, event.heal, event.healEff)
                         # 统计不计入时间轴的治疗量
                         if event.id in ["6112"]:  # 清疏
                             qingshuHeal += event.healEff

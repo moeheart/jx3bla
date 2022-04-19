@@ -101,7 +101,7 @@ class LeQinaReplayer(SpecificReplayerPro):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
-        self.bh.setEnvironmentImgs(self.bhImgs)
+        self.bh.setEnvironmentInfo(self.bhInfo)
 
         for line in self.bh.log["environment"]:
             timePrint = "%.1f" % ((line["start"] - self.startTime) / 1000)
@@ -189,17 +189,17 @@ class LeQinaReplayer(SpecificReplayerPro):
                         self.bh.setEnvironment(event.id, skillName, "13", event.time, 0, 1, "玩家获得气劲", "buff")
                     
         elif event.dataType == "Shout":
-            self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
-            return
+            # self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
+            pass
 
         elif event.dataType == "Scene":  # 进入、离开场景
-            if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
-                name = "n%s" % self.bld.info.npc[event.id].templateID
-                if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 3000:
-                    self.bhTime[name] = event.time
-                    skillName = self.bld.info.npc[event.id].name
-                    if "的" not in skillName:
-                        self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "340", event.time, 0, 1, "NPC出现", "npc")
+            # if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
+            #     name = "n%s" % self.bld.info.npc[event.id].templateID
+            #     if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 3000:
+            #         self.bhTime[name] = event.time
+            #         skillName = self.bld.info.npc[event.id].name
+            #         if "的" not in skillName:
+            #             self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "340", event.time, 0, 1, "NPC出现", "npc")
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name in ["勒齐那宝箱", "勒齊那寶箱"]:
                 self.win = 1
                 
@@ -245,15 +245,15 @@ class LeQinaReplayer(SpecificReplayerPro):
         self.hasBh = True
 
         self.bhTime = {}
-        self.bhBlackList = ["b17200", "c15076", "c15082", "b20854", "b3447", "b14637", "s15082", "b789", "c3365", "s15181",
+        self.bhBlackList = ["b17200", "c15076", "c15082", "b20854", "b3447", "b14637", "s15082", "b789", "c3365", "s15181", "s20763",
                             "s30500", "s30461", "s30275", "c3365", "b22615", "b22614",
                             "s30335", "s30334", "b22400", "s30462", "s30333", "b22402", "b22401",
                             "n108263", "n108426", "n108754", "n108736", "b15775", "b17201",
                             "b22478", "s30370", "s30368"]
-        self.bhImgs = {"s30274": "12375",  # 燃焰横扫
-                       "c30838": "14155",  # 污油喷溅
-                       "c30278": "12376",  # 翻找口袋
-                       "b22487": "14833",  # 火刑
+        self.bhInfo = {"s30274": ["12375", "#ff7700"],  # 燃焰横扫
+                       "c30838": ["14155", "#7777ff"],  # 污油喷溅
+                       "c30278": ["12376", "#ff00ff"],  # 翻找口袋
+                       "b22487": ["14833", "#ff0000"],  # 火刑
                        }
         
         for line in self.bld.info.player:

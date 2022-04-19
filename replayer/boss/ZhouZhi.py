@@ -19,8 +19,10 @@ class ZhouZhiWindow(SpecificBossWindow):
         '''
         使用tkinter绘制详细复盘窗口。
         '''
+
+        self.setTimelineWindow(self.bh, "周贽")
+
         window = tk.Toplevel()
-        #window = tk.Tk()
         window.title('周贽复盘')
         window.geometry('1200x800')
         
@@ -79,16 +81,19 @@ class ZhouZhiWindow(SpecificBossWindow):
         frame2.pack()
         buttonPrev = tk.Button(frame2, text='<<', width=2, height=1, command=self.openPrev)
         submitButton = tk.Button(frame2, text='战斗事件记录', command=self.openPot)
+        timelineButton = tk.Button(frame2, text='时间轴', command=self.openTimelineWindow)
         buttonNext = tk.Button(frame2, text='>>', width=2, height=1, command=self.openNext)
         buttonPrev.grid(row=0, column=0)
         submitButton.grid(row=0, column=1)
-        buttonNext.grid(row=0, column=2)
+        timelineButton.grid(row=0, column=2)
+        buttonNext.grid(row=0, column=3)
 
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
 
-    def __init__(self, config, effectiveDPSList, detail, occResult):
+    def __init__(self, config, effectiveDPSList, detail, occResult, bh):
         super().__init__(config, effectiveDPSList, detail, occResult)
+        self.bh = bh
 
 class ZhouZhiReplayer(SpecificReplayerPro):
 
@@ -96,6 +101,8 @@ class ZhouZhiReplayer(SpecificReplayerPro):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
+        self.bh.setEnvironmentInfo(self.bhInfo)
+
         for line in self.bh.log["environment"]:
             timePrint = "%.1f" % ((line["start"] - self.startTime) / 1000)
             print(timePrint, line["type"], line["skillname"], line["skillid"])
@@ -185,31 +192,48 @@ class ZhouZhiReplayer(SpecificReplayerPro):
             if event.content in ['"先锋出击！"']:
                 pass
             elif event.content in ['"列阵！迎敌！"']:
-                self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "Shout")
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "Shout", "#333333")
             elif event.content in ['"杀！"']:
                 pass
             elif event.content in ['"杀啊！"']:
                 pass
             elif event.content in ['"放箭！"']:
-                self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "Shout")
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
             elif event.content in ['"立盾！"']:
                 pass
+            elif event.content in ['"呃……"']:
+                pass
+            elif event.content in ['"“赤枪鬼”在此！今日定要杀你们个片甲不留！！"']:
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
+            elif event.content in ['"已降服敌将！"']:
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
+            elif event.content in ['"好！敌将被俘，士气大减。"']:
+                pass
+            elif event.content in ['"骑兵听令，出城助战！"']:
+                pass
+            elif event.content in ['"骑兵先头冲阵，尔等紧随其后，杀！"']:
+                pass
+            elif event.content in ['"哼！就凭你们这点人马，还妄想打败我狼牙大军？"']:
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
+            elif event.content in ['"报！狼牙断旗在此，我军生擒敌将徐璜玉，北门告捷！"']:
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
+            elif event.content in ['"撤！"']:
+                pass
+            elif event.content in ['"乘胜追击！"']:
+                pass
             else:
-                self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "Shout")
+                self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
             return
 
         elif event.dataType == "Scene":  # 进入、离开场景
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
                 name = "n%s" % self.bld.info.npc[event.id].templateID
                 skillName = self.bld.info.npc[event.id].name
-                if name in ["n108111", "n108109", "n108110"]:
-                    name = "n01"
-                    skillName = "船出现"
                 if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 3000:
                     self.bhTime[name] = event.time
-                    if "的" not in skillName:
-                        self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
-                                               1, "NPC出现", "npc")
+                    # if "的" not in skillName:
+                    #     self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
+                    #                            1, "NPC出现", "npc")
 
         elif event.dataType == "Death":  # 重伤记录
             pass
@@ -258,14 +282,27 @@ class ZhouZhiReplayer(SpecificReplayerPro):
 
         self.bhTime = {}
         self.bhBlackList = ["b17200", "c15076", "c15082", "b20854", "b3447", "b14637", "s15082", "b789", "c3365", "s15181",
-                            "n108263", "n108426", "n108754", "n108736", "n108217", "n108216", "b15775", "b17201",
+                            "n108263", "n108426", "n108754", "n108736", "n108217", "n108216", "b15775", "b17201", "s20763",
                             "n108172", "b22316", "b22315", "s30459", "c30139", "b22227", "b22317", "s30178",
                             "n108174", "n108127", "n108126", "n108125", "n108515", "s30046", "s30210", "s30329", "b22449",
                             "n108223", "n108224", "n108225", "s30139", "s30440", "s30341", "s30340",
                             "n108676", "n108682", "n108642", "n108639", "n109125", "n109129", "n109126", "n109127", "n109128",
                             "n109096", "n108269", "n108687", "n108685", "s30319", "n108265", "n108266", "n108268",
-                            "n108260", "n108267", "n108638"
+                            "n108260", "n108267", "n108638", "b22318", "c30083", "s30318", "b22440", "s30408", "s30330",
+                            "s30332", "s30409", "b22472", "s30270", "s30460", "s30272",
+
                             ]
+        self.bhInfo = {"s30179": ["11343", "#00ffff"],  # 箭雨
+                       "c30327": ["3293", "#ff00ff"],  # 精准射击
+                       "c30271": ["4576", "#ff7700"],  # 横扫
+                       "c30323": ["3450", "#7700ff"],  # 贯体箭
+                       "c30270": ["342", "#7777ff"],  # 挥击P1
+                       "c30460": ["342", "#7777ff"],  # 挥击P2
+                       "c30272": ["3436", "#0000ff"],  # 突刺
+                       "c30330": ["2028", "#ff0000"],  # 摧山
+                       "c30332": ["4504", "#773333"],  # 震岳
+                       "b22448": ["4544", "#00ff00"],  # 冲锋目标
+                       }
 
         for line in self.bld.info.player:
             self.hps[line] = 0

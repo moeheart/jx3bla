@@ -19,8 +19,10 @@ class ChangXiuWindow(SpecificBossWindow):
         '''
         使用tkinter绘制详细复盘窗口。
         '''
+
+        self.setTimelineWindow(self.bh, "常宿")
+
         window = tk.Toplevel()
-        #window = tk.Tk()
         window.title('常宿复盘')
         window.geometry('1200x800')
         
@@ -79,16 +81,19 @@ class ChangXiuWindow(SpecificBossWindow):
         frame2.pack()
         buttonPrev = tk.Button(frame2, text='<<', width=2, height=1, command=self.openPrev)
         submitButton = tk.Button(frame2, text='战斗事件记录', command=self.openPot)
+        timelineButton = tk.Button(frame2, text='时间轴', command=self.openTimelineWindow)
         buttonNext = tk.Button(frame2, text='>>', width=2, height=1, command=self.openNext)
         buttonPrev.grid(row=0, column=0)
         submitButton.grid(row=0, column=1)
-        buttonNext.grid(row=0, column=2)
+        timelineButton.grid(row=0, column=2)
+        buttonNext.grid(row=0, column=3)
 
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
 
-    def __init__(self, config, effectiveDPSList, detail, occResult):
+    def __init__(self, config, effectiveDPSList, detail, occResult, bh):
         super().__init__(config, effectiveDPSList, detail, occResult)
+        self.bh = bh
 
 class ChangXiuReplayer(SpecificReplayerPro):
 
@@ -96,6 +101,8 @@ class ChangXiuReplayer(SpecificReplayerPro):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
+        self.bh.setEnvironmentInfo(self.bhInfo)
+
         for line in self.bh.log["environment"]:
             timePrint = "%.1f" % ((line["start"] - self.startTime) / 1000)
             print(timePrint, line["type"], line["skillname"], line["skillid"])
@@ -183,25 +190,22 @@ class ChangXiuReplayer(SpecificReplayerPro):
 
         elif event.dataType == "Shout":
             if event.content in ['"罪！罚！"']:
-                self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "Shout")
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
             elif event.content in ['"哼！"']:
                 pass
             else:
-                self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "Shout")
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
             return
 
         elif event.dataType == "Scene":  # 进入、离开场景
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
                 name = "n%s" % self.bld.info.npc[event.id].templateID
                 skillName = self.bld.info.npc[event.id].name
-                if name in ["n108111", "n108109", "n108110"]:
-                    name = "n01"
-                    skillName = "船出现"
-                if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 3000:
-                    self.bhTime[name] = event.time
-                    if "的" not in skillName:
-                        self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
-                                               1, "NPC出现", "npc")
+                # if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 3000:
+                #     self.bhTime[name] = event.time
+                #     if "的" not in skillName:
+                #         self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
+                #                                1, "NPC出现", "npc")
 
         elif event.dataType == "Death":  # 重伤记录
             pass
@@ -254,8 +258,21 @@ class ChangXiuReplayer(SpecificReplayerPro):
                             "n108727", "n108738",
                             "s30044", "s30055", "b22228", "b22660", "b22197", "n108264", "s30048", "c30051", "s30056",
                             "n108121", "n108257", "b22192", "s30158", "s30157", "c30157", "c30158", "b22199", "b22229",
-                            "s30134", "b22190", "b22494", "n108629", "b22493", "b22195", "b22191",
+                            "s30134", "b22190", "b22494", "n108629", "b22493", "b22195", "b22191", "s30060",
                             ]
+
+        self.bhInfo = {"s30047": ["2019", "#ff00ff"],  # 罪笞
+                       "b22246": ["2141", "#7777ff"],  # 伐逆buff
+                       "c30140": ["2024", "#0000ff"],  # 伐逆读条(lvl1/2)
+                       "c30888": ["3431", "#0077ff"],  # 罪印
+                       "c30048": ["2021", "#00ffff"],  # 罪挥
+                       "c30159": ["3409", "#ff0077"],  # 伐乱·罪影
+                       "c30889": ["3430", "#ff77cc"],  # 罚印
+                       "s30085": ["3436", "#ff0000"],  # 罪笞·鞭挞
+                       "c30056": ["4531", "#ff7700"],  # 罚绞
+                       "c30059": ["2028", "#00ff00"],  # 伐违
+                       "c30060": ["2028", "#77ff77"],  # 伐违·御
+                       }
 
         for line in self.bld.info.player:
             self.hps[line] = 0

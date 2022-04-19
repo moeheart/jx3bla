@@ -19,8 +19,10 @@ class ZhouTongjiWindow(SpecificBossWindow):
         '''
         使用tkinter绘制详细复盘窗口。
         '''
+
+        self.setTimelineWindow(self.bh, "周通忌")
+
         window = tk.Toplevel()
-        #window = tk.Tk()
         window.title('周通忌复盘')
         window.geometry('1200x800')
         
@@ -79,16 +81,19 @@ class ZhouTongjiWindow(SpecificBossWindow):
         frame2.pack()
         buttonPrev = tk.Button(frame2, text='<<', width=2, height=1, command=self.openPrev)
         submitButton = tk.Button(frame2, text='战斗事件记录', command=self.openPot)
+        timelineButton = tk.Button(frame2, text='时间轴', command=self.openTimelineWindow)
         buttonNext = tk.Button(frame2, text='>>', width=2, height=1, command=self.openNext)
         buttonPrev.grid(row=0, column=0)
         submitButton.grid(row=0, column=1)
-        buttonNext.grid(row=0, column=2)
+        timelineButton.grid(row=0, column=2)
+        buttonNext.grid(row=0, column=3)
 
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
 
-    def __init__(self, config, effectiveDPSList, detail, occResult):
+    def __init__(self, config, effectiveDPSList, detail, occResult, bh):
         super().__init__(config, effectiveDPSList, detail, occResult)
+        self.bh = bh
 
 class ZhouTongjiReplayer(SpecificReplayerPro):
 
@@ -96,6 +101,9 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
+
+        self.bh.setEnvironmentInfo(self.bhInfo)
+
         for line in self.bh.log["environment"]:
             timePrint = "%.1f" % ((line["start"] - self.startTime) / 1000)
             print(timePrint, line["type"], line["skillname"], line["skillid"])
@@ -182,6 +190,8 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "玩家获得气劲", "buff")
 
         elif event.dataType == "Shout":
+
+
             if event.content in ['"撕碎你们！"']:
                 pass
             elif event.content in ['"这！就是！"']:
@@ -194,22 +204,25 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"呀啊！！！！！！！！！"']:
                 pass
+            elif event.content in ['"今日就让你们见识见识，本将这副巨象铠甲的厉害！"']:
+                pass
             else:
-                self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "Shout")
+                self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
             return
 
         elif event.dataType == "Scene":  # 进入、离开场景
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
                 name = "n%s" % self.bld.info.npc[event.id].templateID
                 skillName = self.bld.info.npc[event.id].name
-                if name in ["n108111", "n108109", "n108110"]:
-                    name = "n01"
-                    skillName = "船出现"
                 if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 3000:
                     self.bhTime[name] = event.time
-                    if "的" not in skillName:
-                        self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
-                                               1, "NPC出现", "npc")
+                    if skillName in ["狼牙精锐士兵", ""]:
+                        self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, "小怪", "340", event.time, 0,
+                                               1, "小怪出现", "npc", "#333333")
+
+                    # if "的" not in skillName:
+                    #     self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
+                    #                            1, "NPC出现", "npc")
 
         elif event.dataType == "Death":  # 重伤记录
             pass
@@ -219,7 +232,7 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
 
         elif event.dataType == "Alert":  # 系统警告框
             if event.content in ['"黄河水位即将上涨！"']:
-                self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "系统警告", "Alert")
+                self.bh.setEnvironment("0", "涨潮", "2033", event.time, 0, 1, "系统警告", "alert", "#0077ff")
 
         elif event.dataType == "Cast":  # 施放技能事件，jcl专属
             if event.caster in self.bld.info.npc:  # 记录非玩家施放的技能
@@ -259,7 +272,13 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
         self.bhTime = {}
         self.bhBlackList = ["b17200", "c15076", "c15082", "b20854", "b3447", "b14637", "s15082", "b789", "c3365", "s15181",
                             "n108263", "n108426", "n108754", "n108736", "n108217", "n108216", "b15775", "b17201",
-                            "s28", "s30117", "s30449", "s30108", "b22275", "s30120", "s30121", "b22274"]
+                            "s28", "s30117", "s30449", "s30108", "b22275", "s30120", "s30121", "b22274",
+                            "s30115", "s30896"]
+        self.bhInfo = {"s30116": ["2021", "#ff7700"],  # 撕裂回旋
+                       "c30106": ["2019", "#ff7700"],  # 这！就是！狼牙！
+                       "c30172": ["2024", "#7700ff"],  # 象鼻横扫
+                       "c30113": ["3426", "#ff00ff"],  # 象牙冲锋
+                       }
 
         for line in self.bld.info.player:
             self.hps[line] = 0

@@ -7,6 +7,8 @@ from PIL import Image
 from PIL import ImageTk
 from tools.Functions import *
 import threading
+import pyperclip
+from tkinter import messagebox
 
 class TimelineWindow():
     '''
@@ -25,6 +27,52 @@ class TimelineWindow():
         self.windowAlive = True
         self.windowThread = threading.Thread(target=self.loadWindow)
         self.windowThread.start()
+
+    def generateLinear(self):
+        '''
+        生成线性时间轴.
+        '''
+        try:
+            startSec = float(self.entry.get())
+        except:
+            startSec = 0.0
+        res = ""
+        for line in self.bh.log["environment"]:
+            time = (line["start"] - self.bh.startTime) / 1000
+            if startSec > time:
+                continue
+            timeS = "%.1f" % (time - startSec)
+            text = "%s,%s;\n" % (timeS, line["skillname"])
+            res += text
+        pyperclip.copy(res)
+        messagebox.showinfo(title='提示', message='导出到剪贴板成功！')
+
+    def generateParallel(self):
+        '''
+        生成双排时间轴.
+        '''
+        try:
+            startSec = float(self.entry.get())
+        except:
+            startSec = 0.0
+        res1 = ""
+        res2 = ""
+        n = 0
+        for line in self.bh.log["environment"]:
+            time = (line["start"] - self.bh.startTime) / 1000
+            if startSec > time:
+                continue
+            timeS = "%.1f" % (time - startSec)
+            text = "%s,%s;" % (timeS, line["skillname"])
+            if n % 2 == 0:
+                res1 += text
+            else:
+                res2 += text
+            n += 1
+        res = "%s\n%s\n" % (res1, res2)
+        pyperclip.copy(res)
+        messagebox.showinfo(title='提示', message='导出到剪贴板成功！')
+
 
     def loadWindow(self):
         '''
@@ -80,27 +128,40 @@ class TimelineWindow():
             row = int((line["start"] - self.bh.startTime) / 60000)
             baseY = row * singleHeight
             baseX = int((line["start"] - self.bh.startTime - 60000*row) * timeRate)
-
-            color = (0, 0, 0)
-            if line["type"] == "cast":
-                color = (128, 128, 255)
-            elif line["type"] == "skill":
-                color = (255, 128, 0)
-            elif line["type"] == "buff":
-                color = (0, 128, 255)
-            elif line["type"] == "shout":
-                color = (128, 0, 0)
-                continue
-            elif line["type"] == "npc":
-                color = (128, 0, 0)
-                continue
-            colorH = getColorHex(color)
+            # color = (0, 0, 0)
+            # if line["type"] == "cast":
+            #     color = (128, 128, 255)
+            # elif line["type"] == "skill":
+            #     color = (255, 128, 0)
+            # elif line["type"] == "buff":
+            #     color = (0, 128, 255)
+            # elif line["type"] == "shout":
+            #     color = (128, 0, 0)
+            #     continue
+            # elif line["type"] == "npc":
+            #     color = (128, 0, 0)
+            #     continue
+            # colorH = getColorHex(color)
+            colorH = line["color"]
             text = line["skillname"]
             time = "%.1f" % ((line["start"] - self.bh.startTime) / 1000)
             canvas.create_text(baseX, baseY+15, text=text, fill=colorH)
             canvas.create_text(baseX, baseY+45, text=time, fill=colorH)
             if line["iconid"] in canvas.im:
                 canvas.create_image(baseX, baseY+30, image=canvas.im[line["iconid"]])
+
+        frame2 = tk.Frame(window, width=730, height=100)
+        frame2.place(x=0, y=overallHeight)
+
+        label = tk.Label(frame2, text="起始时间：")
+        entry = tk.Entry(frame2, show=None)
+        self.entry = entry
+        button1 = tk.Button(frame2, text='生成线性时间轴', command=self.generateLinear)
+        button2 = tk.Button(frame2, text='生成双排时间轴', command=self.generateParallel)
+        label.grid(row=0, column=0)
+        entry.grid(row=0, column=1)
+        button1.grid(row=0, column=2)
+        button2.grid(row=0, column=3)
 
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
