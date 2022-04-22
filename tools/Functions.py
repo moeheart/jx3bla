@@ -274,11 +274,12 @@ class HotCounter(BuffCounter):
     继承buff的统计类，考虑HOT的持续时间等指标。
     '''
 
-    def getHeatTable(self, interval=500):
+    def getHeatTable(self, interval=500, decay=1):
         '''
         获取单个玩家的覆盖率热力表.
         params:
-        - interval: 间隔
+        - interval: 间隔.
+        - decay: 是否衰减.
         returns:
         - 结果对象
         '''
@@ -289,8 +290,10 @@ class HotCounter(BuffCounter):
             while nowi < len(self.log) and self.log[nowi][0] < nowTime:
                 nowi += 1
             if len(self.log) > 0 and nowi > 0 and self.log[nowi-1][1] > 0:
-                single = max((self.log[nowi-1][2] + self.log[nowi-1][0] - nowTime) / (self.log[nowi-1][2] + 1e-10), 0)
-            # single = int(single * 100)
+                if decay:
+                    single = max((self.log[nowi-1][2] + self.log[nowi-1][0] - nowTime) / (self.log[nowi-1][2] + 1e-10), 0)
+                else:
+                    single = self.log[nowi - 1][1]
             result["timeline"].append(single)
         return result
 
@@ -412,7 +415,6 @@ class ShieldCounterNew(BuffCounter):
         returns:
         - 结果对象
         '''
-        time = 0
         nowi = 0
         result = {"interval": interval, "timeline": []}
         for nowTime in range(self.startTime, self.finalTime, interval):

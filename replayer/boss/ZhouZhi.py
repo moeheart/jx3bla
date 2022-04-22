@@ -103,9 +103,9 @@ class ZhouZhiReplayer(SpecificReplayerPro):
         '''
         self.bh.setEnvironmentInfo(self.bhInfo)
 
-        for line in self.bh.log["environment"]:
-            timePrint = "%.1f" % ((line["start"] - self.startTime) / 1000)
-            print(timePrint, line["type"], line["skillname"], line["skillid"])
+        # for line in self.bh.log["environment"]:
+        #     timePrint = "%.1f" % ((line["start"] - self.startTime) / 1000)
+        #     print(timePrint, line["type"], line["skillname"], line["skillid"])
 
     def getResult(self):
         '''
@@ -179,6 +179,9 @@ class ZhouZhiReplayer(SpecificReplayerPro):
             if event.target not in self.bld.info.player:
                 return
 
+            if event.id == "22440" and event.stack == 1:  # 瞄准
+                self.bh.setCall("22440", "瞄准", "3293", event.time, 0, event.target, "精准射击的目标")
+
             if event.caster in self.bld.info.npc and event.stack > 0:
                 # 尝试记录buff事件
                 name = "b%s" % event.id
@@ -203,7 +206,7 @@ class ZhouZhiReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"呃……"']:
                 pass
-            elif event.content in ['"“赤枪鬼”在此！今日定要杀你们个片甲不留！！"']:
+            elif event.content in ['"“赤枪鬼”在此！今日定要杀你们个片甲不留！！"', '"“赤枪鬼”在此！今日定要杀你们个片甲不留！"']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
             elif event.content in ['"已降服敌将！"']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
@@ -217,6 +220,7 @@ class ZhouZhiReplayer(SpecificReplayerPro):
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
             elif event.content in ['"报！狼牙断旗在此，我军生擒敌将徐璜玉，北门告捷！"']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
+                self.win = 1
             elif event.content in ['"撤！"']:
                 pass
             elif event.content in ['"乘胜追击！"']:
@@ -281,16 +285,14 @@ class ZhouZhiReplayer(SpecificReplayerPro):
         self.hasBh = True
 
         self.bhTime = {}
-        self.bhBlackList = ["b17200", "c15076", "c15082", "b20854", "b3447", "b14637", "s15082", "b789", "c3365", "s15181",
-                            "n108263", "n108426", "n108754", "n108736", "n108217", "n108216", "b15775", "b17201", "s20763", "s6746", "b17933", "b6131",
-                            "n108172", "b22316", "b22315", "s30459", "c30139", "b22227", "b22317", "s30178",
-                            "n108174", "n108127", "n108126", "n108125", "n108515", "s30046", "s30210", "s30329", "b22449",
-                            "n108223", "n108224", "n108225", "s30139", "s30440", "s30341", "s30340",
-                            "n108676", "n108682", "n108642", "n108639", "n109125", "n109129", "n109126", "n109127", "n109128",
-                            "n109096", "n108269", "n108687", "n108685", "s30319", "n108265", "n108266", "n108268",
-                            "n108260", "n108267", "n108638", "b22318", "c30083", "s30318", "b22440", "s30408", "s30330",
-                            "s30332", "s30409", "b22472", "s30270", "s30460", "s30272",
-                            ]
+        self.bhBlackList.extend(["n108172", "b22316", "b22315", "s30459", "c30139", "b22227", "b22317", "s30178",
+                                 "n108174", "n108127", "n108126", "n108125", "n108515", "s30046", "s30210", "s30329", "b22449",
+                                 "n108223", "n108224", "n108225", "s30139", "s30440", "s30341", "s30340",
+                                 "n108676", "n108682", "n108642", "n108639", "n109125", "n109129", "n109126", "n109127", "n109128",
+                                 "n109096", "n108269", "n108687", "n108685", "s30319", "n108265", "n108266", "n108268",
+                                 "n108260", "n108267", "n108638", "b22318", "c30083", "s30318", "b22440", "s30408", "s30330",
+                                 "s30332", "s30409", "b22472", "s30270", "s30460", "s30272", "s30320",
+                                 ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
         self.bhInfo = {"s30179": ["11343", "#00ffff"],  # 箭雨

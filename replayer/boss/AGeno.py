@@ -103,9 +103,9 @@ class AGenoReplayer(SpecificReplayerPro):
         '''
         self.bh.setEnvironmentInfo(self.bhInfo)
 
-        for line in self.bh.log["environment"]:
-            timePrint = "%.1f" % ((line["start"] - self.startTime) / 1000)
-            print(timePrint, line["type"], line["skillname"], line["skillid"])
+        # for line in self.bh.log["environment"]:
+        #     timePrint = "%.1f" % ((line["start"] - self.startTime) / 1000)
+        #     print(timePrint, line["type"], line["skillname"], line["skillid"])
 
     def getResult(self):
         '''
@@ -178,6 +178,9 @@ class AGenoReplayer(SpecificReplayerPro):
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
                 return
+
+            if event.id == "22741" and event.stack == 1:  # 蝠击锁定
+                self.bh.setCall("22741", "蝠击锁定", "4576", event.time, 0, event.target, "点名圈")
 
             if event.caster in self.bld.info.npc and event.stack > 0:
                 # 尝试记录buff事件
@@ -270,9 +273,7 @@ class AGenoReplayer(SpecificReplayerPro):
         self.hasBh = True
 
         self.bhTime = {}
-        self.bhBlackList = ["b17200", "c15076", "c15082", "b20854", "b3447", "b14637", "s15082", "b789", "c3365", "s15181", "s20763",
-                            "n108263", "n108426", "n108754", "n108736", "b15775", "b17201", "s6746", "b17933", "b6131",
-                            "s28", "s30069", "b22589", "s30405", "s30070", "s30071"]
+        self.bhBlackList.extend(["s28", "s30069", "b22589", "s30405", "s30070", "s30071"])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
         self.bhInfo = {"b22741": ["4576", "#ff00ff"],  # 蝠击锁定

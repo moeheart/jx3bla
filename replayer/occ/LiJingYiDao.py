@@ -802,7 +802,6 @@ class LiJingYiDaoReplayer(ReplayerBase):
         # 战斗回放初始化
         bh = BattleHistory(self.startTime, self.finalTime)
         ss = SingleSkill(self.startTime, self.haste)
-        ss2 = SingleSkill(self.startTime, self.haste)  # 存一个技能, 在只有两个技能相同时不合并.
 
         # 技能信息
         # [技能统计对象, 技能名, [所有技能ID], 图标ID, 是否为gcd技能, 运功时长, 是否倒读条, 是否吃加速]
@@ -817,7 +816,7 @@ class LiJingYiDaoReplayer(ReplayerBase):
                      [chunniSkill, "春泥护花", ["132"], "413", True, 0, False, True],
                      [None, "利针", ["2654"], "3004", True, 16, False, True],
                      [None, "清风垂露", ["133"], "1523", True, 0, False, True],
-                     [None, "折叶笼花", ["14963"], "7510", True, 0, False, True],
+                     [None, "折叶笼花", ["14963"], "16602", True, 0, False, True],
                      [None, "碧水滔天", ["131"], "1525", True, 0, False, True],
                      [None, "大针", ["24911"], "14148", True, 0, False, True],
                      [None, "天工甲士", ["28724"], "16223", True, 80, False, True],
@@ -954,7 +953,7 @@ class LiJingYiDaoReplayer(ReplayerBase):
                             elif event.target in self.bld.info.npc:
                                 targetName = self.bld.info.npc[event.target].name
                             lastSkillID, lastTime = bh.getLastNormalSkill()
-                            if lastSkillID == ss.skill and ss.timeStart - lastTime < 100:
+                            if gcdSkillIndex[lastSkillID] == gcdSkillIndex[ss.skill] and ss.timeStart - lastTime < 100:
                                 # 相同技能，原地更新
                                 bh.updateNormalSkill(ss.skill, line[1], line[3],
                                                      ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
@@ -1037,10 +1036,10 @@ class LiJingYiDaoReplayer(ReplayerBase):
                     if event.target not in self.criticalHealCounter:
                         self.criticalHealCounter[event.target] = BuffCounter("buffID", self.startTime, self.finalTime)
                     self.criticalHealCounter[event.target].setState(event.time, event.stack)
-                if event.id in ["6360"] and event.level in [66, 76, 86] and event.stack == 1:  # 特效腰坠:
+                if event.id in ["6360"] and event.level in [66, 76, 86] and event.stack == 1 and event.target == self.mykey:  # 特效腰坠:
                     bh.setSpecialSkill(event.id, "特效腰坠", "3414",
                                        event.time, 0, "开启特效腰坠")
-                if event.id in ["12770"] and event.stack == 1:  # cw特效:
+                if event.id in ["12770"] and event.stack == 1 and event.target == self.mykey:  # cw特效:
                     bh.setSpecialSkill(event.id, "cw特效", "14404",
                                        event.time, 0, "触发cw特效")
                     cwDict.setState(event.time, event.stack)

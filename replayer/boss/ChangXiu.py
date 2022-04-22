@@ -103,9 +103,9 @@ class ChangXiuReplayer(SpecificReplayerPro):
         '''
         self.bh.setEnvironmentInfo(self.bhInfo)
 
-        for line in self.bh.log["environment"]:
-            timePrint = "%.1f" % ((line["start"] - self.startTime) / 1000)
-            print(timePrint, line["type"], line["skillname"], line["skillid"])
+        # for line in self.bh.log["environment"]:
+        #     timePrint = "%.1f" % ((line["start"] - self.startTime) / 1000)
+        #     print(timePrint, line["type"], line["skillname"], line["skillid"])
 
     def getResult(self):
         '''
@@ -179,6 +179,15 @@ class ChangXiuReplayer(SpecificReplayerPro):
             if event.target not in self.bld.info.player:
                 return
 
+            if event.id == "22494" and event.stack == 1:  # 罪印
+                self.bh.setCall("22494", "罪印", "3431", event.time, 0, event.target, "罪印点名")
+            if event.id == "22493" and event.stack == 1:  # 罚印
+                self.bh.setCall("22493", "罚印", "3430", event.time, 0, event.target, "罚印点名")
+            if event.id == "22229" and event.stack == 1:  # 伐乱
+                self.bh.setCall("22229", "伐乱", "3409", event.time, 0, event.target, "伐乱点名，排圈")
+            if event.id == "22246" and event.stack == 1:  # 伐逆
+                self.bh.setCall("22246", "伐逆", "2141", event.time, 0, event.target, "伐逆点名，排矩形")
+
             if event.caster in self.bld.info.npc and event.stack > 0:
                 # 尝试记录buff事件
                 name = "b%s" % event.id
@@ -189,10 +198,24 @@ class ChangXiuReplayer(SpecificReplayerPro):
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "玩家获得气劲", "buff")
 
         elif event.dataType == "Shout":
-            if event.content in ['"罪！罚！"']:
+            if event.content in ['"来吧！"']:
+                pass
+            elif event.content in ['"喝啊！"']:
+                pass
+            elif event.content in ['"罪！"']:
+                pass
+            elif event.content in ['"罚！"']:
+                pass
+            elif event.content in ['"乱！"']:
+                pass
+            elif event.content in ['"罪！罚！"']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
             elif event.content in ['"哼！"']:
-                pass
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
+                self.win = 1
+            elif event.content in ['"你我……再会……"']:
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
+                self.win = 1
             else:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
             return
@@ -214,8 +237,7 @@ class ChangXiuReplayer(SpecificReplayerPro):
             pass
 
         elif event.dataType == "Alert":  # 系统警告框
-            if event.content in ['"黄河水位即将上涨！"']:
-                self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "系统警告", "Alert")
+            pass
 
         elif event.dataType == "Cast":  # 施放技能事件，jcl专属
             if event.caster in self.bld.info.npc:  # 记录非玩家施放的技能
@@ -253,13 +275,12 @@ class ChangXiuReplayer(SpecificReplayerPro):
         self.hasBh = True
 
         self.bhTime = {}
-        self.bhBlackList = ["b17200", "c15076", "c15082", "b20854", "b3447", "b14637", "s15082", "b789", "c3365", "s15181",
-                            "n108263", "n108426", "n108754", "n108736", "n108217", "n108216", "b15775", "b17201", "s6746", "b17933", "b6131",
-                            "n108727", "n108738",
-                            "s30044", "s30055", "b22228", "b22660", "b22197", "n108264", "s30048", "c30051", "s30056",
-                            "n108121", "n108257", "b22192", "s30158", "s30157", "c30157", "c30158", "b22199", "b22229",
-                            "s30134", "b22190", "b22494", "n108629", "b22493", "b22195", "b22191", "s30060",
-                            ]
+        self.bhBlackList.extend(["n108727", "n108738",
+                                 "s30044", "s30055", "b22228", "b22660", "b22197", "n108264", "s30048", "c30051", "s30056",
+                                 "n108121", "n108257", "b22192", "s30158", "s30157", "c30157", "c30158", "b22199", "b22229",
+                                 "s30134", "b22190", "b22494", "n108629", "b22493", "b22195", "b22191", "s30060",
+                                 "c30216", "s30216", "b22622",
+                                 ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
         self.bhInfo = {"s30047": ["2019", "#ff00ff"],  # 罪笞

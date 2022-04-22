@@ -104,9 +104,9 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
 
         self.bh.setEnvironmentInfo(self.bhInfo)
 
-        for line in self.bh.log["environment"]:
-            timePrint = "%.1f" % ((line["start"] - self.startTime) / 1000)
-            print(timePrint, line["type"], line["skillname"], line["skillid"])
+        # for line in self.bh.log["environment"]:
+        #     timePrint = "%.1f" % ((line["start"] - self.startTime) / 1000)
+        #     print(timePrint, line["type"], line["skillname"], line["skillid"])
 
     def getResult(self):
         '''
@@ -225,7 +225,8 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
                     #                            1, "NPC出现", "npc")
 
         elif event.dataType == "Death":  # 重伤记录
-            pass
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["周通忌"]:
+                self.win = 1
 
         elif event.dataType == "Battle":  # 战斗状态变化
             pass
@@ -270,10 +271,8 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
         self.hasBh = True
 
         self.bhTime = {}
-        self.bhBlackList = ["b17200", "c15076", "c15082", "b20854", "b3447", "b14637", "s15082", "b789", "c3365", "s15181",
-                            "n108263", "n108426", "n108754", "n108736", "n108217", "n108216", "b15775", "b17201", "s6746", "b17933", "b6131",
-                            "s28", "s30117", "s30449", "s30108", "b22275", "s30120", "s30121", "b22274",
-                            "s30115", "s30896"]
+        self.bhBlackList.extend(["s28", "s30117", "s30449", "s30108", "b22275", "s30120", "s30121", "b22274",
+                                 "s30115", "s30896"])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
         self.bhInfo = {"s30116": ["2021", "#ff7700"],  # 撕裂回旋

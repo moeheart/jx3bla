@@ -103,9 +103,9 @@ class LeQinaReplayer(SpecificReplayerPro):
         '''
         self.bh.setEnvironmentInfo(self.bhInfo)
 
-        for line in self.bh.log["environment"]:
-            timePrint = "%.1f" % ((line["start"] - self.startTime) / 1000)
-            print(timePrint, line["type"], line["skillname"], line["skillid"])
+        # for line in self.bh.log["environment"]:
+        #     timePrint = "%.1f" % ((line["start"] - self.startTime) / 1000)
+        #     print(timePrint, line["type"], line["skillname"], line["skillid"])
 
     def getResult(self):
         '''
@@ -179,6 +179,15 @@ class LeQinaReplayer(SpecificReplayerPro):
             if event.target not in self.bld.info.player:
                 return
 
+            if event.id == "22614" and event.stack == 1:  # 翻找口袋·燃火
+                self.bh.setCall("22614", "翻找口袋·燃火", "12376", event.time, 0, event.target, "点名排火圈")
+            if event.id == "22615" and event.stack == 1:  # 翻找口袋·污油
+                self.bh.setCall("22615", "翻找口袋·污油", "2025", event.time, 0, event.target, "点名排油圈")
+            if event.id == "22487" and event.stack == 1:  # 火刑
+                self.bh.setCall("22487", "火刑", "14833", event.time, 0, event.target, "火刑锁足")
+            if event.id == "22477" and event.stack == 1:  # 焚骨
+                self.bh.setCall("22477", "焚骨", "12452", event.time, 0, event.target, "焚骨点名")
+
             if event.caster in self.bld.info.npc and event.stack > 0:
                 # 尝试记录buff事件
                 name = "b%s" % event.id
@@ -245,11 +254,9 @@ class LeQinaReplayer(SpecificReplayerPro):
         self.hasBh = True
 
         self.bhTime = {}
-        self.bhBlackList = ["b17200", "c15076", "c15082", "b20854", "b3447", "b14637", "s15082", "b789", "c3365", "s15181", "s20763",
-                            "s30500", "s30461", "s30275", "c3365", "b22615", "b22614", "s6746", "b17933", "b6131",
-                            "s30335", "s30334", "b22400", "s30462", "s30333", "b22402", "b22401",
-                            "n108263", "n108426", "n108754", "n108736", "b15775", "b17201",
-                            "b22478", "s30370", "s30368"]
+        self.bhBlackList.extend(["s30500", "s30461", "s30275", "c3365", "b22615", "b22614", "s6746", "b17933", "b6131",
+                                 "s30335", "s30334", "b22400", "s30462", "s30333", "b22402", "b22401",
+                                 "b22478", "s30370", "s30368"])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
         self.bhInfo = {"s30274": ["12375", "#ff7700"],  # 燃焰横扫

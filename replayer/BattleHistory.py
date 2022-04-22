@@ -215,13 +215,11 @@ class BattleHistory():
                 busy += record["duration"]
                 lastTime = record["start"] + record["duration"]  # 这里暂存了spare的时间
             elif record["start"] + record["duration"] > lastTime:
-                spare -= lastTime - record["start"]
-                busy += record["start"] + record["duration"] - lastTime
+                busy += record["duration"]
                 lastTime = record["start"] + record["duration"]
             else:
-                spare -= record["duration"]
-                busy += record["duration"]
-            # print(spare, busy, lastTime, record["start"], record["busyTime"])
+                pass
+            # print(spare, busy, lastTime, record["start"], record["duration"])
         spare += self.finalTime - lastTime
         return busy / (spare + busy + 1e-10)
 
@@ -240,12 +238,10 @@ class BattleHistory():
                 busy += record["duration"]
                 lastTime = record["start"] + record["duration"]  # 这里暂存了spare的时间
             elif record["start"] + record["duration"] > lastTime:
-                spare -= lastTime - record["start"]
-                busy += record["start"] + record["duration"] - lastTime
+                busy += record["duration"]
                 lastTime = record["start"] + record["duration"]
             else:
-                spare -= record["duration"]
-                busy += record["duration"]
+                pass
         spare += self.finalTime - lastTime
         return busy / (spare + busy + 1e-10)
 

@@ -956,7 +956,7 @@ class LingSuReplayer(ReplayerBase):
                             elif event.target in self.bld.info.npc:
                                 targetName = self.bld.info.npc[event.target].name
                             lastSkillID, lastTime = bh.getLastNormalSkill()
-                            if lastSkillID == ss.skill and ss.timeStart - lastTime < 100:
+                            if gcdSkillIndex[lastSkillID] == gcdSkillIndex[ss.skill] and ss.timeStart - lastTime < 100:
                                 # 相同技能，原地更新
                                 bh.updateNormalSkill(ss.skill, line[1], line[3],
                                                      ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
@@ -1082,10 +1082,10 @@ class LingSuReplayer(ReplayerBase):
                     if event.target not in self.criticalHealCounter:
                         self.criticalHealCounter[event.target] = BuffCounter("buffID", self.startTime, self.finalTime)
                     self.criticalHealCounter[event.target].setState(event.time, event.stack)
-                if event.id in ["6360"] and event.level in [66, 76, 86] and event.stack == 1:  # 特效腰坠:
+                if event.id in ["6360"] and event.level in [66, 76, 86] and event.stack == 1 and event.target == self.mykey:  # 特效腰坠:
                     bh.setSpecialSkill(event.id, "特效腰坠", "3414",
                                        event.time, 0, "开启特效腰坠")
-                if event.id in ["21803"] and event.stack == 1:  # cw特效:
+                if event.id in ["21803"] and event.stack == 1 and event.target == self.mykey:  # cw特效:
                     bh.setSpecialSkill(event.id, "cw特效", "15888",
                                        event.time, 0, "触发cw特效")
                 if event.id in ["20075"] and event.caster == self.mykey:  # 千枝

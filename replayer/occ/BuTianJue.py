@@ -289,8 +289,9 @@ class BuTianJueWindow():
         text = text + "蝶旋次数：%d(%.2f)\n" % (self.result["skill"]["dx"]["num"], self.result["skill"]["dx"]["numPerSec"])
         text = text + "沐风覆盖率：%s%%\n" % parseCent(self.result["skill"]["mufeng"]["cover"])
         text = text + "蛊惑覆盖率：%s%%\n" % parseCent(self.result["skill"]["ghzs"]["cover"])
+        text = text + "女娲覆盖率：%s%%\n" % parseCent(self.result["skill"]["nvwa"]["cover"])
         label = tk.Label(frame5_7, text=text, justify="left")
-        label.place(x=20, y=15)
+        label.place(x=20, y=10)
 
         frame5_8 = tk.Frame(frame5, width=180, height=95)
         frame5_8.place(x=540, y=100)
@@ -627,10 +628,6 @@ class BuTianJueReplayer(ReplayerBase):
         for key in self.bld.info.player:
             occDetailList[key] = self.bld.info.player[key].occ
 
-        self.peiwuCounter = {}
-        for key in self.bld.info.player:
-            self.peiwuCounter[key] = ShieldCounterNew("20877", self.startTime, self.finalTime)
-
         # 自动推导奶歌角色名与ID，在连接场景中会被指定，这一步可跳过
         if self.myname == "":
             raise Exception("角色名暂时不可自动推导，需要通过前序分析来手动指定")
@@ -666,8 +663,6 @@ class BuTianJueReplayer(ReplayerBase):
                     self.activeBoss = "哑头陀"
 
             elif event.dataType == "Buff":
-                if event.id in ["20877"] and event.caster == self.mykey:  # buff配伍
-                    self.peiwuCounter[event.target].setState(event.time, event.stack)
                 if event.id in ["15774", "17200"]:  # buff精神匮乏
                     if event.target not in jianLiaoLog:
                         jianLiaoLog[event.target] = BuffCounter("17200", self.startTime, self.finalTime)
@@ -804,6 +799,7 @@ class BuTianJueReplayer(ReplayerBase):
         cyDict = BuffCounter("2844", self.startTime, self.finalTime)  # 蚕引
         cwDict = BuffCounter("12770", self.startTime, self.finalTime)  # cw特效
         mufengDict = BuffCounter("412", self.startTime, self.finalTime)  # 沐风
+        nvwaDict = BuffCounter("2315", self.startTime, self.finalTime)  # 女娲补天
 
         battleDict = {}
         firstHitDict = {}
@@ -1036,9 +1032,7 @@ class BuTianJueReplayer(ReplayerBase):
 
                 # 统计伤害技能
                 if event.damageEff > 0 and event.id not in ["24710", "24730", "25426", "25445"]:  # 技能黑名单
-                    if event.caster in self.peiwuCounter:
-                        # if event.caster not in battleStat:
-                        #     battleStat[event.caster] = [0]  # 伤害
+                    if event.caster in self.bld.info.player:
                         battleStat[event.caster][0] += event.damageEff
 
                 # 根据战斗信息推测进战状态
@@ -1052,15 +1046,17 @@ class BuTianJueReplayer(ReplayerBase):
                     if event.target not in self.criticalHealCounter:
                         self.criticalHealCounter[event.target] = BuffCounter("buffID", self.startTime, self.finalTime)
                     self.criticalHealCounter[event.target].setState(event.time, event.stack)
-                if event.id in ["6360"] and event.level in [66, 76, 86] and event.stack == 1:  # 特效腰坠:
+                if event.id in ["6360"] and event.level in [66, 76, 86] and event.stack == 1 and event.target == self.mykey:  # 特效腰坠:
                     bh.setSpecialSkill(event.id, "特效腰坠", "3414",
                                        event.time, 0, "开启特效腰坠")
-                if event.id in ["12770"] and event.stack == 1:  # cw特效: TODO 奶毒
-                    bh.setSpecialSkill(event.id, "cw特效", "14404",
+                if event.id in ["12769"] and event.stack == 1 and event.target == self.mykey:  # cw特效:
+                    bh.setSpecialSkill(event.id, "cw特效", "14407",
                                        event.time, 0, "触发cw特效")
                     cwDict.setState(event.time, event.stack)
                 if event.id in ["3067"] and event.target == self.mykey:  # 沐风
                     mufengDict.setState(event.time, event.stack)
+                if event.id in ["2315"] and event.target == self.mykey:  # 沐风
+                    nvwaDict.setState(event.time, event.stack)
                 if event.id in ["2316"] and event.caster == self.mykey:  # 蛊惑
                     ghzsDict.setState(event.time, event.stack)
                 if event.id in ["2844"] and event.target == self.mykey:  # 蚕引
@@ -1140,7 +1136,7 @@ class BuTianJueReplayer(ReplayerBase):
         damageList.sort(key=lambda x: -x[1])
 
         # 计算DPS的盾指标
-        for key in self.peiwuCounter:
+        for key in self.bld.info.player:
             liveCount = battleDict[key].buffTimeIntegral()  # 存活时间比例
             if battleDict[key].sumTime() - liveCount < 8000:  # 脱战缓冲时间
                 liveCount = battleDict[key].sumTime()
@@ -1232,6 +1228,9 @@ class BuTianJueReplayer(ReplayerBase):
         num = battleTimeDict[self.mykey]
         sum = mufengDict.buffTimeIntegral()
         self.result["skill"]["mufeng"]["cover"] = roundCent(sum / (num + 1e-10))
+        self.result["skill"]["nvwa"] = {}
+        sum = nvwaDict.buffTimeIntegral()
+        self.result["skill"]["nvwa"]["cover"] = roundCent(sum / (num + 1e-10))
         self.result["skill"]["ghzs"] = {}
         num = battleTimeDict[self.mykey]
         sum = ghzsDict.buffTimeIntegral()
@@ -1289,7 +1288,7 @@ class BuTianJueReplayer(ReplayerBase):
         upload = {}
         upload["server"] = self.result["overall"]["server"]
         upload["id"] = self.result["overall"]["playerID"]
-        upload["occ"] = "lingsu"
+        upload["occ"] = "butianjue"
         upload["score"] = self.result["score"]["sum"]
         upload["battledate"] = time.strftime("%Y-%m-%d", time.localtime(self.result["overall"]["battleTime"]))
         upload["mapdetail"] = self.result["overall"]["map"]

@@ -990,7 +990,7 @@ class XiangZhiProReplayer(ReplayerBase):
                             elif event.target in self.bld.info.npc:
                                 targetName = self.bld.info.npc[event.target].name
                             lastSkillID, lastTime = bh.getLastNormalSkill()
-                            if lastSkillID == ss.skill and ss.timeStart - lastTime < 100:
+                            if gcdSkillIndex[lastSkillID] == gcdSkillIndex[ss.skill] and ss.timeStart - lastTime < 100:
                                 # 相同技能，原地更新
                                 bh.updateNormalSkill(ss.skill, line[1], line[3],
                                                      ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
@@ -1104,10 +1104,10 @@ class XiangZhiProReplayer(ReplayerBase):
                                           fengleiActiveTime, event.time - fengleiActiveTime, 1, 0,
                                           0,
                                           0, 1, "风雷读条，在此不做细节区分，只记录读条时间")
-                if event.id in ["6360"] and event.level in [66, 76, 86] and event.stack == 1:  # 特效腰坠:
+                if event.id in ["6360"] and event.level in [66, 76, 86] and event.stack == 1 and event.target == self.mykey:  # 特效腰坠:
                     bh.setSpecialSkill(event.id, "特效腰坠", "3414",
                                        event.time, 0, "开启特效腰坠")
-                if event.id in ["10193"] and event.stack == 1:  # cw特效:
+                if event.id in ["10193"] and event.stack == 1 and event.target == self.mykey:  # cw特效:
                     bh.setSpecialSkill(event.id, "cw特效", "14416",
                                        event.time, 0, "触发cw特效")
                 if event.id in ["9584"] and event.caster == self.mykey:  # 弄梅
