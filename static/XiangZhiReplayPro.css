@@ -192,12 +192,12 @@
     line-height: 12px;
 }
 
-#skill-5-t{
-    margin-top: 20px;
+#skill-3-t, #skill-4-t, #skill-6-t{
+    margin-top: 10px;
 }
 
-#skill-3-t, #skill-4-t, #skill-7-t{
-    margin-top: 10px;
+#skill-7-t{
+    margin-top: 20px;
 }
 
 /* Part 6 */

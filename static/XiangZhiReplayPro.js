@@ -129,23 +129,24 @@ $('#data-5-4-2').html(shang.delay);
 $('#data-5-4-3').html(shang.HPS);
 $('#data-5-4-4').html(parseCent(shang.cover));
 
-xiangyi = resObj.skill.xiangyi;
-$('#data-5-5-1').html(xiangyi.num);
-$('#data-5-5-2').html(xiangyi.HPS);
-$('#data-5-5-3').html(parseCent(xiangyi.effRate));
-
 gong = resObj.skill.gong;
-$('#data-5-6-1').html(gong.num);
-$('#data-5-6-2').html(gong.delay);
-$('#data-5-6-3').html(gong.HPS);
-$('#data-5-6-4').html(gong.zhenliuHPS);
-$('#data-5-6-5').html(parseCent(gong.effRate));
+$('#data-5-5-1').html(gong.num);
+$('#data-5-5-2').html(gong.delay);
+$('#data-5-5-3').html(gong.HPS);
+$('#data-5-5-4').html(gong.zhenliuHPS);
+$('#data-5-5-5').html(parseCent(gong.effRate));
 
 yu = resObj.skill.yu;
-$('#data-5-7-1').html(yu.num);
-$('#data-5-7-2').html(yu.delay);
-$('#data-5-7-3').html(yu.HPS);
-$('#data-5-7-4').html(parseCent(yu.effRate));
+$('#data-5-6-1').html(yu.num);
+$('#data-5-6-2').html(yu.delay);
+$('#data-5-6-3').html(yu.HPS);
+$('#data-5-6-4').html(parseCent(yu.effRate));
+
+xiangyi = resObj.skill.xiangyi;
+$('#data-5-7-1').html(xiangyi.num);
+$('#data-5-7-2').html(xiangyi.HPS);
+mufeng = resObj.skill.mufeng
+$('#data-5-7-3').html(parseCent(mufeng.cover));
 
 general = resObj.skill.general;
 $('#data-5-8-1').html(general.APS);
@@ -180,7 +181,6 @@ if (resObj.replay.heatType){
             ctx.fillRect(nowTimePixel, 1, 5, 39);
             nowTimePixel += 5;
         }
-        //canvas6.create_image(10, 40, image=canvas6.im["7059"]);
     }
     else if (resObj.replay.heatType == "hot"){
         yPos = [1, 9, 17, 25, 33, 39];
@@ -199,8 +199,6 @@ if (resObj.replay.heatType){
                 nowTimePixel += 5;
             }
         }
-        //canvas6.create_image(10, 40, image=canvas6.im["7172"])
-        //canvas6.create_image(30, 40, image=canvas6.im["7176"])
     }
 }
 
@@ -213,38 +211,87 @@ while (nowt < battleTime) {
     ctx.fillText(text, pos, 26);
 }
 
+
+
+
+
 startTime = resObj.replay.startTime
 painter = $('#replay-paint')
 // 绘制常规技能轴
+
+var stack = 3;  // 堆叠数量，TODO后续改成可在页面中修改
+var j = -1;
+var lastName = "";
+var lastStart = 0;
+l = resObj.replay.normal.length;
+for (var i = 0; i <= l; i++) {
+    if (i == l) {
+        record = {"skillname": "Final", "start": 999999999999};
+    } else {
+        record = resObj.replay.normal[i];
+    }
+    if (record.skillname != lastName || record.start - lastStart > 3000) {
+        if (j == -1) {
+            j = i;
+            lastName = record.skillname;
+            lastStart = record.start;
+            continue;
+        }
+        if (i - j >= stack) {
+            // 进行堆叠显示
+            var record_first = resObj.replay.normal[j];
+            var record_last = resObj.replay.normal[i-1];
+            posStart = parseInt((record_first.start - startTime) / 100);
+            if (posStart < 0) {
+                posStart = 0;
+            }
+            posLength = parseInt((record_last.start + record_last.duration - record_first.start) / 100);
+            var singleSkill = $("<div></div>");
+            singleSkill.addClass("skill-block");
+            singleSkill.appendTo(painter);
+            var img = $("<img src=../static/icons/" + record_last.iconid + ".png>");
+            img.addClass("skill-image");
+            img.appendTo(singleSkill);
+            if (posLength >= 20) {
+                var block = $("<div></div>");
+                block.addClass("skill-time");
+                block.addClass("xiangzhi");
+                if (posLength >= 30) {
+                    block.html("*" + (i-j));
+                }
+                block.css("width", (posLength - 20) + "px");
+                block.appendTo(singleSkill);
+            }
+            singleSkill.css("top", "70px");
+            singleSkill.css("left", posStart + "px");
+        } else {
+            // 进行独立显示
+            for (var k = j; k < i; k++) {
+                var record_single = resObj.replay.normal[k];
+                posStart = parseInt((record_single.start - startTime) / 100);
+                if (posStart < 0) {
+                    posStart = 0;
+                }
+                posLength = parseInt(record_single.duration / 100);
+                var singleSkill = $("<div></div>");
+                singleSkill.addClass("skill-block");
+                singleSkill.appendTo(painter);
+                var img = $("<img src=../static/icons/" + record_single.iconid + ".png>");
+                img.addClass("skill-image");
+                img.appendTo(singleSkill);
+                singleSkill.css("top", "70px");
+                singleSkill.css("left", posStart + "px");
+            }
+        }
+        j = i;
+    }
+    lastName = record.skillname;
+    lastStart = record.start;
+}
+
+
 for (var i in resObj.replay.normal) {
     record = resObj.replay.normal[i];
-    posStart = parseInt((record.start - startTime) / 100);
-    if (posStart < 0) {
-        posStart = 0;
-    }
-    posLength = parseInt(record.duration / 100);
-
-    var singleSkill = $("<div></div>");
-    singleSkill.addClass("skill-block");
-    singleSkill.appendTo(painter);
-
-    var img = $("<img src=../static/icons/" + record.iconid + ".png>");
-    img.addClass("skill-image");
-    img.appendTo(singleSkill);
-
-    if (posLength >= 20) {
-        var block = $("<div></div>");
-        block.addClass("skill-time");
-        block.addClass("xiangzhi");
-        if (posLength >= 30 && record.num > 1) {
-            block.html("*" + record.num);
-        }
-        block.css("width", (posLength - 20) + "px");
-        block.appendTo(singleSkill);
-    }
-
-    singleSkill.css("top", "70px");
-    singleSkill.css("left", posStart + "px");
 }
 // 绘制特殊技能轴
 for (var i in resObj.replay.special) {
