@@ -354,7 +354,10 @@ class SingleDataAlert(SingleData):
         '''
         self.time = int(item[3])
         self.type = item[5]["1"]
-        self.content = item[5]["2"]
+        if "2" in item[5]:
+            self.content = item[5]["2"]
+        else:
+            self.content = ""
 
     def setByJx3dat(self, item):
         '''

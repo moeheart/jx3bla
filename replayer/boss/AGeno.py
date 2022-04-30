@@ -211,6 +211,8 @@ class AGenoReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"喝！都给我下去喂鱼吧！"']:
                 pass
+            elif event.content in ['"妈的！你们给我等着！"']:
+                self.win = 1
             else:
                 # self.bh.setEnvironment("0", event.content, "13", event.time, 0, 1, "喊话", "shout")
                 pass
@@ -232,7 +234,8 @@ class AGenoReplayer(SpecificReplayerPro):
                 self.win = 1
 
         elif event.dataType == "Death":  # 重伤记录
-            pass
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["阿阁诺", "阿閣諾"]:
+                self.win = 1
 
         elif event.dataType == "Battle":  # 战斗状态变化
             pass

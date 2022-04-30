@@ -717,6 +717,9 @@ class LiJingYiDaoReplayer(ReplayerBase):
                     self.result["qixue"][key] = SKILL_NAME[qxKey]
                 elif qxKey0 in SKILL_NAME:
                     self.result["qixue"][key] = SKILL_NAME[qxKey0]
+                elif self.bld.info.player[self.mykey].qx[key]["2"] == "0":
+                    self.result["qixue"]["available"] = 0
+                    break
                 else:
                     self.result["qixue"][key] = self.bld.info.player[self.mykey].qx[key]["2"]
 

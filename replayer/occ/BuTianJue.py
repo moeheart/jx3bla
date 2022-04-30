@@ -295,10 +295,11 @@ class BuTianJueWindow():
 
         frame5_8 = tk.Frame(frame5, width=180, height=95)
         frame5_8.place(x=540, y=100)
-        text = "gcd效率：%s%%\n" % parseCent(self.result["skill"]["general"]["efficiency"])
+        text = "绮栊覆盖率：%s%%\n" % parseCent(self.result["skill"]["qilong"]["cover"])
+        text = text + "gcd效率：%s%%\n" % parseCent(self.result["skill"]["general"]["efficiency"])
         text = text + "战斗效率：%s%%\n" % parseCent(self.result["skill"]["general"]["efficiencyNonGcd"])
         label = tk.Label(frame5_8, text=text, justify="left")
-        label.place(x=20, y=30)
+        label.place(x=20, y=25)
 
         button = tk.Button(frame5, text='？', height=1, command=self.showHelp)
         button.place(x=680, y=160)
@@ -471,6 +472,7 @@ class BuTianJueWindow():
         tb.AppendHeader("玩家名", "", width=13)
         tb.AppendHeader("DPS", "全程的DPS")
         tb.AppendHeader("吃锅次数", "无效的次数不会计算")
+        tb.AppendHeader("绮栊覆盖率", "绮栊的层数对单位时间的积分。上限为300%。")
         tb.EndOfLine()
         for record in self.result["dps"]["table"]:
             name = self.getMaskName(record["name"])
@@ -478,6 +480,7 @@ class BuTianJueWindow():
             tb.AppendContext(name, color=color, width=13)
             tb.AppendContext(record["damage"])
             tb.AppendContext(record["xwgdNum"])
+            tb.AppendContext(parseCent(record["qilongRate"]) + '%')
             tb.EndOfLine()
 
         # Part 8: 打分
@@ -726,6 +729,9 @@ class BuTianJueReplayer(ReplayerBase):
                     self.result["qixue"][key] = SKILL_NAME[qxKey]
                 elif qxKey0 in SKILL_NAME:
                     self.result["qixue"][key] = SKILL_NAME[qxKey0]
+                elif self.bld.info.player[self.mykey].qx[key]["2"] == "0":
+                    self.result["qixue"]["available"] = 0
+                    break
                 else:
                     self.result["qixue"][key] = self.bld.info.player[self.mykey].qx[key]["2"]
 
@@ -781,6 +787,7 @@ class BuTianJueReplayer(ReplayerBase):
         xwgdNumDict = {}  # 仙王蛊鼎触发次数
         firstXwgd = 0
         firstXwgdTaketime = 0
+        qilongRateDict = {}  # 绮栊覆盖率
 
         # 技能统计
         dxSkill = SkillHealCounter("3051", self.startTime, self.finalTime, self.haste)  # 蝶旋
@@ -809,6 +816,10 @@ class BuTianJueReplayer(ReplayerBase):
             firstHitDict[line] = 0
             battleStat[line] = [0]
             xwgdNumDict[line] = 0
+
+        self.qilongCounter = {}
+        for key in self.bld.info.player:
+            self.qilongCounter[key] = ShieldCounterNew("20831", self.startTime, self.finalTime)
 
         lastSkillTime = self.startTime
 
@@ -1061,6 +1072,8 @@ class BuTianJueReplayer(ReplayerBase):
                     ghzsDict.setState(event.time, event.stack)
                 if event.id in ["2844"] and event.target == self.mykey:  # 蚕引
                     cyDict.setState(event.time, event.stack)
+                if event.id in ["20831"] and event.caster == self.mykey:  # buff绮栊
+                    self.qilongCounter[event.target].setState(event.time, event.stack)
 
             elif event.dataType == "Shout":
                 pass
@@ -1143,14 +1156,27 @@ class BuTianJueReplayer(ReplayerBase):
             battleTimeDict[key] = liveCount
             sumPlayer += liveCount / battleDict[key].sumTime()
 
+            time1 = self.qilongCounter[key].buffTimeIntegral()
+            timeAll = liveCount
+            qilongRateDict[key] = time1 / (timeAll + 1e-10)
+
         for line in damageList:
             self.result["dps"]["numDPS"] += 1
             res = {"name": self.bld.info.player[line[0]].name,
                    "occ": self.bld.info.player[line[0]].occ,
                    "damage": int(line[1] / self.result["overall"]["sumTime"] * 1000),
                    "xwgdNum": xwgdNumDict[line[0]],
+                   "qilongRate": roundCent(qilongRateDict[line[0]]),
                    }
             self.result["dps"]["table"].append(res)
+
+        # 计算绮栊覆盖率
+        numRate = 0
+        sumRate = 0
+        for key in qilongRateDict:
+            numRate += battleTimeDict[key]
+            sumRate += qilongRateDict[key] * battleTimeDict[key]
+        overallRate = sumRate / (numRate + 1e-10)
 
         mxymDict.shrink(100)
         ghzsDict.shrink(100)
@@ -1235,6 +1261,8 @@ class BuTianJueReplayer(ReplayerBase):
         num = battleTimeDict[self.mykey]
         sum = ghzsDict.buffTimeIntegral()
         self.result["skill"]["ghzs"]["cover"] = roundCent(sum / (num + 1e-10))
+        self.result["skill"]["qilong"] = {}
+        self.result["skill"]["qilong"]["cover"] = roundCent(overallRate)
         # 整体
         self.result["skill"]["general"] = {}
         # self.result["skill"]["general"]["HanQingNum"] = numHanQing
