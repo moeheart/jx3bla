@@ -192,7 +192,7 @@ class MainWindow():
             fileLookUp = FileLookUp()
             fileLookUp.initFromConfig(config)
             self.config = config
-            self.dataType = self.config.datatype
+            self.dataType = self.config.item["general"]["datatype"]
             self.fileLookUp = fileLookUp
 
             if self.dataType == "jcl" and "combat_logs" not in fileLookUp.basepath:
@@ -302,7 +302,7 @@ class MainWindow():
     def checkConfig(self):
         if not os.path.isfile("config.ini"):
             time.sleep(0.5)
-            configThread = threading.Thread(target = self.show_license)    
+            configThread = threading.Thread(target=self.show_license)
             configThread.start()
             self.lock.Lock()
         

@@ -868,6 +868,7 @@ class YunChangXinJingReplayer(ReplayerBase):
                      [None, "九微飞花", ["24990"], "13417", True, 0, False, True],
                      [tzhySkill, "跳珠憾玉", ["566"], "1505", True, 0, False, True],
                      [None, "心鼓弦", ["551"], "898", True, 48, False, True],
+                     [None, "天地低昂", ["557"], "1498", True, 0, False, True],
 
                      # [None, "回雪飘摇", ["6250"], "894", False, 16, True, True],
                      [None, "蝶弄足", ["574"], "915", False, 0, False, True],
@@ -906,6 +907,7 @@ class YunChangXinJingReplayer(ReplayerBase):
                                "28982",  # 药宗阵
                                "742",  # T阵
                                "14358",  # 删除羽减伤
+                               "30399", "30273",  # 点燃传染
                                ## 奶秀分割线
                                "6633", "6634", "6635",  # 翔舞判定
                                "24987", "3776",  # 上元判定
@@ -928,6 +930,9 @@ class YunChangXinJingReplayer(ReplayerBase):
                                "505",  # 风袖判定
                                "15207", "15756",  # 繁音判断
                                "25789",  # cw小特效 TODO 统计这个，但是鸽了算了
+                               "1556",  # 婆罗门
+                               "545",  # 婆罗门
+                               "30729",  # 闪避减cd
                                ]
 
         for event in self.bld.log:

@@ -967,7 +967,7 @@ class LiveListener():
         - basepath: 监控的路径
         '''
         filelist = os.listdir(basepath)
-        if self.config.datatype == "jx3dat":
+        if self.config.item["general"]["datatype"] == "jx3dat":
             dataList = [x for x in filelist if x[-12:] == '.fstt.jx3dat']
         else:
             dataList = [x for x in filelist if x[-4:] == '.jcl']
@@ -978,7 +978,7 @@ class LiveListener():
         while(self.listenFlag):
             time.sleep(3)
             filelist = os.listdir(basepath)
-            if self.config.datatype == "jx3dat":
+            if self.config.item["general"]["datatype"] == "jx3dat":
                 dataList = [x for x in filelist if x[-12:] == '.fstt.jx3dat']
             else:
                 dataList = [x for x in filelist if x[-4:] == '.jcl']

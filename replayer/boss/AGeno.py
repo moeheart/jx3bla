@@ -103,6 +103,14 @@ class AGenoReplayer(SpecificReplayerPro):
         '''
         self.bh.setEnvironmentInfo(self.bhInfo)
 
+        for player in self.toushiPlayer:
+            self.potList.append([self.bld.info.player[player].name,
+                                 self.occDetailList[player],
+                                 3,
+                                 self.bossNamePrint,
+                                 "指挥投石车",
+                                 ["指挥投石车的补贴记录"]])
+
         # for line in self.bh.log["environment"]:
         #     timePrint = "%.1f" % ((line["start"] - self.startTime) / 1000)
         #     print(timePrint, line["type"], line["skillname"], line["skillid"])
@@ -174,6 +182,8 @@ class AGenoReplayer(SpecificReplayerPro):
             else:
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
+                if event.id == "30076":
+                    self.toushiPlayer[event.caster] = 1
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -274,9 +284,11 @@ class AGenoReplayer(SpecificReplayerPro):
         self.win = 0
         self.bh = BattleHistory(self.startTime, self.finalTime)
         self.hasBh = True
+        self.toushiPlayer = {}  # 投石
 
         self.bhTime = {}
-        self.bhBlackList.extend(["s28", "s30069", "b22589", "s30405", "s30070", "s30071"])
+        self.bhBlackList.extend(["s28", "s30069", "b22589", "s30405", "s30070", "s30071",
+                                 "b22620", "s30068", "c30086"])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
         self.bhInfo = {"b22741": ["4576", "#ff00ff"],  # 蝠击锁定

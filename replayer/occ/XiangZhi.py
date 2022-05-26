@@ -98,7 +98,8 @@ class XiangZhiProWindow():
         展示复盘窗口的帮助界面，用于解释对应心法的一些显示规则.
         '''
         text = '''如果是盾歌，时间轴中表示梅花三弄的实时全团覆盖率。
-如果是血歌，时间轴中表示每个小队的双HOT剩余时间。注意，1-5队可能并不按顺序对应团队面板的1-5队。'''
+如果是血歌，时间轴中表示每个小队的双HOT剩余时间。注意，1-5队可能并不按顺序对应团队面板的1-5队。
+由于底层机制问题，APS统计在有两个或以上化解同时作用时无法准确计算，仅为推测值。'''
         messagebox.showinfo(title='说明', message=text)
 
     def loadWindow(self):
@@ -847,6 +848,7 @@ class XiangZhiProReplayer(ReplayerBase):
         mufengDict = BuffCounter("412", self.startTime, self.finalTime)  # 沐风
         battleDict = {}
         firstHitDict = {}
+        longkuiDict = {}
         for line in self.bld.info.player:
             shangBuffDict[line] = HotCounter("9459", self.startTime, self.finalTime)  # 商，9460=殊曲，9461=洞天
             jueBuffDict[line] = HotCounter("9463", self.startTime, self.finalTime)  # 角，9460=殊曲，9461=洞天
@@ -855,6 +857,7 @@ class XiangZhiProReplayer(ReplayerBase):
             firstHitDict[line] = 0
             teamLog[line] = {}
             teamLastTime[line] = 0
+            longkuiDict[line] = BuffCounter("20398", self.startTime, self.finalTime)
         lastSkillTime = self.startTime
 
         # 杂项
@@ -1066,7 +1069,8 @@ class XiangZhiProReplayer(ReplayerBase):
                         if absorb > 0:
                             meihua = self.shieldCountersNew[event.target].checkState(event.time - 100)
                             nongmei = nongmeiDict[event.target].checkState(event.time - 100)
-                            if meihua or nongmei:
+                            longkui = longkuiDict[event.target].checkState(event.time - 300)
+                            if (meihua or nongmei) and not longkui:
                                 numAbsorb2 += absorb
 
                 # 统计伤害技能
@@ -1117,6 +1121,8 @@ class XiangZhiProReplayer(ReplayerBase):
                     nongmeiDict[event.target].setState(event.time, event.stack)
                 if event.id in ["3067"] and event.target == self.mykey:  # 沐风
                     mufengDict.setState(event.time, event.stack)
+                if event.id in ["20398"]:  # 龙葵
+                    longkuiDict[event.target].setState(event.time, event.stack)
 
             elif event.dataType == "Shout":
                 pass

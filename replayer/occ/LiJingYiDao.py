@@ -297,13 +297,15 @@ class LiJingYiDaoWindow():
         text = text + "沐风覆盖率：%s%%\n" % parseCent(self.result["skill"]["mufeng"]["cover"])
         text = text + "寒清次数：%d\n" % self.result["skill"]["general"]["HanQingNum"]
         label = tk.Label(frame5_7, text=text, justify="left")
-        label.place(x=20, y=25)
+        label.place(x=20, y=20)
 
         frame5_8 = tk.Frame(frame5, width=180, height=95)
         frame5_8.place(x=540, y=100)
-        text = "战斗效率：%s%%\n" % parseCent(self.result["skill"]["general"]["efficiency"])
+        text = "秋肃覆盖率：%s%%\n" % parseCent(self.result["skill"]["qiusu"]["cover"])
+        text = text + "秋肃DPS：%d\n" % self.result["skill"]["qiusu"]["dps"]
+        text = text + "战斗效率：%s%%\n" % parseCent(self.result["skill"]["general"]["efficiency"])
         label = tk.Label(frame5_8, text=text, justify="left")
-        label.place(x=20, y=30)
+        label.place(x=20, y=20)
 
         button = tk.Button(frame5, text='？', height=1, command=self.showHelp)
         button.place(x=680, y=160)
@@ -457,7 +459,7 @@ class LiJingYiDaoWindow():
 
         tb = TableConstructor(self.config, frame7sub)
         tb.AppendHeader("玩家名", "", width=13)
-        tb.AppendHeader("DPS", "全程去除配伍、飘黄增益后的DPS，注意包含重伤时间。")
+        tb.AppendHeader("等效DPS", "全程去除秋肃增益后的DPS，注意包含重伤时间。")
         tb.AppendHeader("寒清次数", "触发寒清的次数。如果被击未触发寒清则不计入。")
         tb.EndOfLine()
         for record in self.result["dps"]["table"]:
@@ -752,7 +754,7 @@ class LiJingYiDaoReplayer(ReplayerBase):
         numEffHeal = 0
         npcHealStat = {}
         numPurge = 0  # 驱散次数
-        battleStat = {}  # 伤害占比统计，[无盾伤害，有盾伤害，桑柔伤害，玉简伤害]
+        battleStat = {}  # 伤害占比统计，[无秋肃伤害，有秋肃伤害]
         damageDict = {}  # 伤害统计
         healStat = {}  # 治疗统计
         myHealRank = 0  # 个人治疗量排名
@@ -791,9 +793,14 @@ class LiJingYiDaoReplayer(ReplayerBase):
             shuhuaiDict[line] = HotCounter("20070", self.startTime, self.finalTime)  # 述怀
             teamLog[line] = {}
             teamLastTime[line] = 0
-            battleStat[line] = [0]
+            battleStat[line] = [0, 0]
 
         lastSkillTime = self.startTime
+
+        # 秋肃统计
+        qiusuTarget = ""
+        qiusuTime = 0
+        qiusuCounter = BuffCounter("0", self.startTime, self.finalTime)
 
         # 杂项
         qingshuHeal = 0
@@ -827,6 +834,7 @@ class LiJingYiDaoReplayer(ReplayerBase):
                      [longwuSkill, "泷雾", ["28541"], "16224", True, 16, True, True],
                      [None, "护本", ["28555"], "16222", True, 0, False, True],
                      [None, "脱离机甲", ["28480"], "16225", True, 0, False, True],
+                     [None, "商阳指", ["180"], "1514", True, 0, False, True],
 
                      [None, "水月无间", ["136"], "1522", False, 0, False, True],
                      [None, "听风吹雪", ["2663"], "2998", False, 0, False, True],
@@ -989,6 +997,14 @@ class LiJingYiDaoReplayer(ReplayerBase):
                             haozhenPercentHeal += event.healEff
                         if event.id in ["14660", "14665"]:  # 微潮/零落
                             teamLog, teamLastTime = countCluster(teamLog, teamLastTime, event)
+                        if event.id in ["180"]:  # 商阳指
+                            # 秋肃生成
+                            qiusuTarget = event.target
+                            qiusuTime = event.time
+                            if qiusuCounter.log != [] and qiusuCounter.log[-1][1] == 0 and qiusuCounter.log[-1][0] > event.time:
+                                del qiusuCounter.log[-1]
+                            qiusuCounter.setState(event.time, 1)
+                            qiusuCounter.setState(event.time + 18000, 0)
 
                     if event.caster == self.mykey and event.scheme == 2:
                         if event.id in ["631"]:  # 握针
@@ -1019,10 +1035,12 @@ class LiJingYiDaoReplayer(ReplayerBase):
 
                 # 统计伤害技能
                 if event.damageEff > 0 and event.id not in ["24710", "24730", "25426", "25445"]:  # 技能黑名单
-                    if event.caster in self.peiwuCounter:
-                        # if event.caster not in battleStat:
-                        #     battleStat[event.caster] = [0]  # 伤害
-                        battleStat[event.caster][0] += event.damageEff
+                    # 秋肃累计
+                    if event.target in self.bld.info.npc and event.caster in self.bld.info.player:
+                        if event.target == qiusuTarget and event.time - qiusuTime < 18000:
+                            battleStat[event.caster][1] += event.damageEff
+                        else:
+                            battleStat[event.caster][0] += event.damageEff
 
                 # 统计寒清
                 if event.id in ["18274"] and event.target in hanqingNumDict: # and event.caster == self.mykey:
@@ -1107,9 +1125,11 @@ class LiJingYiDaoReplayer(ReplayerBase):
                     bh.log["normal"][i]["team"] = 0
 
         # 计算伤害
+        numdam1 = 0
         for key in battleStat:
             line = battleStat[key]
-            damageDict[key] = line[0]
+            damageDict[key] = line[0] + line[1] / 1.05
+            numdam1 += line[1] / 1.05 * 0.05
 
         # 关键治疗量统计
         if self.activeBoss in ["宓桃", "哑头陀"]:
@@ -1262,6 +1282,12 @@ class LiJingYiDaoReplayer(ReplayerBase):
         effHeal = longwuSkill.getHealEff()
         self.result["skill"]["longwu"]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
         self.result["skill"]["longwu"]["effRate"] = roundCent(effHeal / (longwuSkill.getHeal() + 1e-10))
+        # 秋肃
+        self.result["skill"]["qiusu"] = {}
+        num = battleTimeDict[self.mykey]
+        sum = qiusuCounter.buffTimeIntegral()
+        self.result["skill"]["qiusu"]["cover"] = roundCent(sum / (num + 1e-10))
+        self.result["skill"]["qiusu"]["dps"] = int(numdam1 / self.result["overall"]["sumTime"] * 1000)
         # 杂项
         self.result["skill"]["qingshu"] = {}
         self.result["skill"]["qingshu"]["HPS"] = int(qingshuHeal / self.result["overall"]["sumTime"] * 1000)

@@ -676,7 +676,7 @@ class LingSuReplayer(ReplayerBase):
                     self.activeBoss = "哑头陀"
 
             elif event.dataType == "Buff":
-                if event.id in ["20877"] and event.caster == self.mykey:  # buff配伍
+                if event.id in ["20877"] and event.caster == self.mykey and event.target in self.bld.info.player:  # buff配伍
                     self.peiwuCounter[event.target].setState(event.time, event.stack)
                 if event.id in ["15774", "17200"]:  # buff精神匮乏
                     if event.target not in jianLiaoLog:
@@ -1064,10 +1064,9 @@ class LingSuReplayer(ReplayerBase):
                             battleStat[event.caster][1] += event.damageEff / (1 + 0.0025 * numStack) * 0.0025 * numStack
 
                 # 根据战斗信息推测进战状态
-                if event.caster in self.bld.info.player and firstHitDict[event.caster] == 0 and (event.damageEff > 0 or event.healEff > 0):
+                if event.caster in self.bld.info.player and firstHitDict[event.caster] == 0 and (event.damageEff > 0 or event.healEff > 0 or event.heal > 0) and event.scheme == 1:
                     firstHitDict[event.caster] = 1
-                    if event.scheme == 1:
-                        battleDict[event.caster].setState(event.time, 1)
+                    battleDict[event.caster].setState(event.time, 1)
 
                 if event.id in ["28114", "28403"] and event.caster == self.mykey:
                     # 药性特征技能
