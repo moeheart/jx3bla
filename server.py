@@ -620,6 +620,12 @@ def uploadActorData():
     elif mapName == '25人英雄雷域大泽':
         scoreAdd = 4
         mapDetail = '561'
+    elif mapName == '25人普通河阳之战':
+        scoreAdd = 4
+        mapDetail = '574'
+    elif mapName == '25人英雄河阳之战':
+        scoreAdd = 4
+        mapDetail = '575'
     else:
         scoreSuccess = 0
         response['scoreStatus'] = 'illegal'
