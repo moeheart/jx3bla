@@ -135,7 +135,7 @@ class EquipmentInfo():
                 else:
                     content = line.strip('\n').split('\t')
                     id = content[0]
-                    text = content[4]
+                    text = content[5]
                     res = re.search("SpiStone ([0-9]+)", text)
                     if res:
                         number = res.group(1)
