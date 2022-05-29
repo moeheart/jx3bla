@@ -122,9 +122,9 @@ class EquipmentInfo():
                     if content[7] == "":  # 只记录最简单的形式
                         self.enchant[content[0]] = [content[4], content[5]]
                     else:  # 记录五彩石形式
-                        self.enchant[content[0]] = [content[4], content[5], content[9], content[10],
-                                                    content[11], content[12], content[16], content[17],
-                                                    content[18], content[19], content[23], content[24]]
+                        self.enchant[content[0]] = [content[4], content[5], content[10], content[11],
+                                                    content[12], content[13], content[17], content[18],
+                                                    content[19], content[20], content[24], content[25]]
 
         ITEM_PATH = 'equip/resources/item.txt'
         first = True
