@@ -64,7 +64,7 @@ def getPercent(records):
             num = np.percentile(allResults[key], i)
             num = int(num * 100000) / 100000
             res_percent.append(num)
-        percentResults[key] = {"num": len(allResults[key]), "value": res_percent}
+        percentResults[key] = {"num": len(allResults[key]), "value": str(res_percent)}
     return percentResults
 
 def RefreshStat():
@@ -94,9 +94,12 @@ def RefreshStat():
              records VARCHAR(1280)) DEFAULT CHARSET utf8mb4"""
     cursor.execute(sql)
 
-    for key in res:
-        sql = """INSERT INTO ReplayProStatRank VALUES ("%s", %d, "%s")""" % (key, res[key]["num"], res[key]["value"])
-        cursor.execute(sql)
+    try:
+        for key in res:
+            sql = """INSERT INTO ReplayProStatRank VALUES ("%s", %d, "%s")""" % (key, res[key]["num"], res[key]["value"])
+            cursor.execute(sql)
+    except:
+        print(res[key])
 
     db.commit()
     db.close()
