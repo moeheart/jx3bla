@@ -104,6 +104,12 @@ MAP_DICT = {"428": "25人英雄敖龙岛",
             "573": "10人普通河阳之战",
 }
 
+MAP_DICT_REVERSE = {}
+for key in MAP_DICT:
+    MAP_DICT_REVERSE[MAP_DICT[key]] = key
+    MAP_DICT_REVERSE["雷域大泽"] = "559"
+    MAP_DICT_REVERSE["河阳之战"] = "573"
+
 def getMapFromID(map):
     '''
     从地图ID获取地图名字符串。
@@ -117,6 +123,20 @@ def getMapFromID(map):
     else:
         return "未知"
 
+
+def getIDFromMap(map):
+    '''
+    根据地图字符串获取地图ID。
+    params:
+    - map: 地图对应的中文字符串
+    returns:
+    - res: 地图ID.
+    '''
+
+    if map in MAP_DICT_REVERSE:
+        return MAP_DICT_REVERSE[map]
+    else:
+        return "未知"
 
 
 
