@@ -63,6 +63,8 @@ def getPercent(records):
         for i in range(100):
             num = np.percentile(allResults[key], i)
             num = int(num * 100000) / 100000
+            if num > 1000000000:
+                num = 1000000000
             res_percent.append(num)
         percentResults[key] = {"num": len(allResults[key]), "value": str(res_percent)}
     return percentResults
