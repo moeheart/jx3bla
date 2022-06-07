@@ -7,6 +7,7 @@ import configparser
 import json
 import time
 from tools.Names import *
+from tools.Functions import parseEdition
 
 def getDirection(key):
     if "delay" in key:
