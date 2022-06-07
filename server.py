@@ -890,3 +890,4 @@ if __name__ == '__main__':
     app.debug = config.getboolean('jx3bla', 'debug')
     
     app.run(host='0.0.0.0', port=8009, debug=app.debug, threaded=True)
+
