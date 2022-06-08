@@ -10,6 +10,7 @@ from tools.Functions import *
 from equip.AttributeDisplayRemote import AttributeDisplayRemote
 from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
 from replayer.Name import *
+from replayer.occ.Display import HealerDisplayWindow, SingleSkillDisplayer
 
 import os
 import time
@@ -24,7 +25,7 @@ import hashlib
 import webbrowser
 import pyperclip
 
-class XiangZhiProWindow():
+class XiangZhiProWindow(HealerDisplayWindow):
     '''
     奶歌复盘pro界面显示类.
     通过tkinter将复盘数据显示在图形界面中.
@@ -57,42 +58,6 @@ class XiangZhiProWindow():
             if score >= line[0]:
                 return line[2], line[1], line[3]
 
-    def getMaskName(self, name):
-        '''
-        获取名称打码的结果。事实上只需要对统计列表中的玩家打码.
-        params:
-        - name: 打码之前的玩家名.
-        '''
-        s = name.strip('"')
-        if s == "":
-            return s
-        elif self.mask == 0:
-            return s
-        else:
-            return s[0] + '*' * (len(s) - 1)
-
-    def final(self):
-        '''
-        关闭窗口。
-        '''
-        self.windowAlive = False
-        self.window.destroy()
-
-    def exportEquipment(self):
-        '''
-        导出装备信息到剪贴板.
-        '''
-        copyText = self.result["equip"]["raw"]
-        pyperclip.copy(copyText)
-        messagebox.showinfo(title='提示', message='复制成功！')
-
-    def OpenInWeb(self):
-        '''
-        打开网页版的复盘界面.
-        '''
-        url = "http://139.199.102.41:8009/showReplayPro.html?id=%d"%self.result["overall"]["shortID"]
-        webbrowser.open(url)
-
     def showHelp(self):
         '''
         展示复盘窗口的帮助界面，用于解释对应心法的一些显示规则.
@@ -102,153 +67,39 @@ class XiangZhiProWindow():
 由于底层机制问题，APS统计在有两个或以上化解同时作用时无法准确计算，仅为推测值。'''
         messagebox.showinfo(title='说明', message=text)
 
-    def loadWindow(self):
+    def renderSkill(self):
         '''
-        使用tkinter绘制详细复盘窗口。
+        渲染技能信息(Part 5)，奶歌复盘特化.
         '''
-        window = tk.Toplevel()
-        # window = tk.Tk()
-        window.title('奶歌复盘pro')
-        window.geometry('750x900')
-
-        if "mask" in self.result["overall"]:
-            self.mask = self.result["overall"]["mask"]  # 使用数据中的mask选项顶掉框架中现场读取的判定
-
-        # Part 1: 全局
-        frame1 = tk.Frame(window, width=200, height=230, highlightthickness=1, highlightbackground="#64fab4")
-        frame1.place(x=10, y=10)
-        frame1sub = tk.Frame(frame1)
-        frame1sub.place(x=0, y=0)
-        tb = TableConstructor(self.config, frame1sub)
-        tb.AppendContext("复盘版本：", justify="right")
-        tb.AppendContext(self.result["overall"]["edition"])
-        tb.EndOfLine()
-        tb.AppendContext("玩家ID：", justify="right")
-        tb.AppendContext(self.result["overall"]["playerID"], color="#64fab4")
-        tb.EndOfLine()
-        tb.AppendContext("服务器：", justify="right")
-        tb.AppendContext(self.result["overall"]["server"])
-        tb.EndOfLine()
-        tb.AppendContext("战斗时间：", justify="right")
-        tb.AppendContext(self.result["overall"]["battleTimePrint"])
-        tb.EndOfLine()
-        tb.AppendContext("生成时间：", justify="right")
-        tb.AppendContext(self.result["overall"]["generateTimePrint"])
-        tb.EndOfLine()
-        tb.AppendContext("地图：", justify="right")
-        tb.AppendContext(self.result["overall"]["map"])
-        tb.EndOfLine()
-        bossPrint = self.result["overall"]["boss"]
-        if self.result["overall"].get("win", 1) == 0:
-            bossPrint = bossPrint + "(未通关)"
-        tb.AppendContext("首领：", justify="right")
-        tb.AppendContext(bossPrint, color="#ff0000")
-        tb.EndOfLine()
-        tb.AppendContext("人数：", justify="right")
-        tb.AppendContext("%.2f"%self.result["overall"].get("numPlayer", 0))
-        tb.EndOfLine()
-        tb.AppendContext("战斗时长：", justify="right")
-        tb.AppendContext(self.result["overall"]["sumTimePrint"])
-        tb.EndOfLine()
-        tb.AppendContext("数据种类：", justify="right")
-        tb.AppendContext(self.result["overall"]["dataType"])
-        tb.EndOfLine()
-        #tk.Label(frame1, text=text, justify="left").place(x=0, y=0)
-
-        # Part 2: 装备
-        frame2 = tk.Frame(window, width=200, height=230, highlightthickness=1, highlightbackground="#64fab4")
-        frame2.place(x=220, y=10)
-        frame2sub = tk.Frame(frame2)
-        frame2sub.place(x=0, y=0)
-        if self.result["equip"]["available"] == 0:
-            text = "装备信息获取失败。\n在进入战斗后打开团队装分面板即可获取。\n如果是第一视角也可以自动获取。"
-            tk.Label(frame2, text=text, justify="left").place(x=0, y=0)
-        else:
-            tb = TableConstructor(self.config, frame2sub)
-            tb.AppendContext("装备分数：", justify="right")
-            color4 = "#000000"
-            if "大橙武" in self.result["equip"]["sketch"]:
-                color4 = "#ffcc00"
-            tb.AppendContext("%d"%self.result["equip"]["score"], color=color4)
-            tb.EndOfLine()
-            tb.AppendContext("详情：", justify="right")
-            tb.AppendContext(self.result["equip"]["sketch"])
-            tb.EndOfLine()
-            tb.AppendContext("强化：", justify="right")
-            tb.AppendContext(self.result["equip"].get("forge", ""))
-            tb.EndOfLine()
-            tb.AppendContext("根骨：", justify="right")
-            tb.AppendContext("%d"%self.result["equip"]["spirit"])
-            tb.EndOfLine()
-            tb.AppendContext("治疗量：", justify="right")
-            tb.AppendContext("%d(%d)"%(self.result["equip"]["heal"], self.result["equip"]["healBase"]))
-            tb.EndOfLine()
-            tb.AppendContext("会心：", justify="right")
-            tb.AppendContext("%s(%d)"%(self.result["equip"]["critPercent"], self.result["equip"]["crit"]))
-            tb.EndOfLine()
-            tb.AppendContext("会心效果：", justify="right")
-            tb.AppendContext("%s(%d)"%(self.result["equip"]["critpowPercent"], self.result["equip"]["critpow"]))
-            tb.EndOfLine()
-            tb.AppendContext("加速：", justify="right")
-            tb.AppendContext("%s(%d)"%(self.result["equip"]["hastePercent"], self.result["equip"]["haste"]))
-            tb.EndOfLine()
-
-            b2 = tk.Button(frame2, text='导出', height=1, command=self.exportEquipment)
-            b2.place(x=140, y=180)
-
-        # Part 3: 治疗
-        frame3 = tk.Frame(window, width=310, height=150, highlightthickness=1, highlightbackground="#64fab4")
-        frame3.place(x=430, y=10)
-        frame3sub = tk.Frame(frame3)
-        frame3sub.place(x=0, y=0)
-
-        tb = TableConstructor(self.config, frame3sub)
-        tb.AppendHeader("玩家名", "", width=13)
-        tb.AppendHeader("有效HPS", "最常用语境下的每秒治疗量，注意包含重伤时间。")
-        tb.AppendHeader("虚条HPS", "指虚条的最右端，包含溢出治疗量，也即计算所有绿字。")
-        tb.EndOfLine()
-        for record in self.result["healer"]["table"]:
-            name = self.getMaskName(record["name"])
-            color = getColor(record["occ"])
-            tb.AppendContext(name, color=color, width=13)
-            tb.AppendContext(record["healEff"])
-            tb.AppendContext(record["heal"])
-            tb.EndOfLine()
-
-        # Part 4: 奇穴
-        frame4 = tk.Frame(window, width=310, height=70, highlightthickness=1, highlightbackground="#64fab4")
-        frame4.place(x=430, y=170)
-        if self.result["qixue"]["available"] == 0:
-            text = "奇穴信息获取失败。\n在进入战斗后查看目标的奇穴即可获取。\n如果是第一视角也可以自动获取。"
-            tk.Label(frame4, text=text, justify="left").place(x=0, y=0)
-        else:
-            text = ""
-            for i in range(1, 7):
-                text = text + self.result["qixue"][str(i)] + ','
-            text = text + '\n'
-            for i in range(7, 13):
-                text = text + self.result["qixue"][str(i)] + ','
-            text = text[:-1]
-            tk.Label(frame4, text=text, justify="left").place(x=0, y=0)
-
+        window = self.window
         # Part 5: 技能
         # TODO 加入图片转存
-        frame5 = tk.Frame(window, width=730, height=200, highlightthickness=1, highlightbackground="#64fab4")
+        frame5 = tk.Frame(window, width=730, height=200, highlightthickness=1, highlightbackground=self.themeColor)
         frame5.place(x=10, y=250)
 
-        frame5_1 = tk.Frame(frame5, width=180, height=95)
-        frame5_1.place(x=0, y=0)
-        frame5_1.photo = tk.PhotoImage(file="icons/7059.png")
-        label = tk.Label(frame5_1, image=frame5_1.photo)
-        label.place(x=5, y=25)
-        ToolTip(label, "梅花三弄")
-        text = "数量：%d(%.2f)\n"%(self.result["skill"]["meihua"]["num"], self.result["skill"]["meihua"]["numPerSec"])
-        text = text + "覆盖率：%s%%\n" % parseCent(self.result["skill"]["meihua"]["cover"])
-        text = text + "延迟：%dms\n" % self.result["skill"]["meihua"]["delay"]
-        text = text + "犹香HPS：%d\n" % self.result["skill"]["meihua"].get("youxiangHPS", 0)
-        text = text + "平吟HPS：%d\n" % self.result["skill"]["meihua"].get("pingyinHPS", 0)
-        label = tk.Label(frame5_1, text=text, justify="left")
-        label.place(x=60, y=10)
+        # frame5_1 = tk.Frame(frame5, width=180, height=95)
+        # frame5_1.place(x=0, y=0)
+        # frame5_1.photo = tk.PhotoImage(file="icons/7059.png")
+        # label = tk.Label(frame5_1, image=frame5_1.photo)
+        # label.place(x=5, y=25)
+        # ToolTip(label, "梅花三弄")
+        # text = "数量：%d(%.2f)\n"%(self.result["skill"]["meihua"]["num"], self.result["skill"]["meihua"]["numPerSec"])
+        # text = text + "覆盖率：%s%%\n" % parseCent(self.result["skill"]["meihua"]["cover"])
+        # text = text + "延迟：%dms\n" % self.result["skill"]["meihua"]["delay"]
+        # text = text + "犹香HPS：%d\n" % self.result["skill"]["meihua"].get("youxiangHPS", 0)
+        # text = text + "平吟HPS：%d\n" % self.result["skill"]["meihua"].get("pingyinHPS", 0)
+        # label = tk.Label(frame5_1, text=text, justify="left")
+        # label.place(x=60, y=10)
+
+        mhsnDisplayer = SingleSkillDisplayer(self.result["skill"])
+        mhsnDisplayer.setImage("7059", "梅花三弄")
+        mhsnDisplayer.setDouble("rate", "数量", "meihua", "num", "numPerSec")
+        mhsnDisplayer.setSingle("percent", "覆盖率", "meihua", "cover")
+        mhsnDisplayer.setSingle("int", "延迟", "meihua", "delay")
+        mhsnDisplayer.setSingle("int", "犹香HPS", "meihua", "youxiangHPS")
+        mhsnDisplayer.setSingle("int", "平吟HPS", "meihua", "pingyinHPS")
+        mhsnDisplayer.export_image(frame5, 0)
+
 
         frame5_2 = tk.Frame(frame5, width=180, height=95)
         frame5_2.place(x=180, y=0)
@@ -338,9 +189,14 @@ class XiangZhiProWindow():
         button = tk.Button(frame5, text='？', height=1, command=self.showHelp)
         button.place(x=680, y=160)
 
+    def renderReplay(self):
+        '''
+        渲染回放信息(Part 6)，奶歌复盘特化.
+        '''
+        window = self.window
         # Part 6: 回放
 
-        frame6 = tk.Frame(window, width=730, height=150, highlightthickness=1, highlightbackground="#64fab4")
+        frame6 = tk.Frame(window, width=730, height=150, highlightthickness=1, highlightbackground=self.themeColor)
         frame6.place(x=10, y=460)
         battleTime = self.result["overall"]["sumTime"]
         battleTimePixels = int(battleTime / 100)
@@ -426,7 +282,7 @@ class XiangZhiProWindow():
                     canvas6.create_image(posStart + 10, 80, image=canvas6.im[record_last["iconid"]])
                     # 绘制表示持续的条
                     if posStart + 20 < posEnd:
-                        canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill="#64fab4")
+                        canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill=self.themeColor)
                     # 绘制重复次数
                     if posStart + 30 < posEnd:
                         canvas6.create_text(posStart + 30, 80, text="*%d" % (i-j))
@@ -439,7 +295,7 @@ class XiangZhiProWindow():
                         canvas6.create_image(posStart + 10, 80, image=canvas6.im[record_single["iconid"]])
                         # 绘制表示持续的条
                         if posStart + 20 < posEnd:
-                            canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill="#64fab4")
+                            canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill=self.themeColor)
                 j = i
             lastName = record["skillname"]
             lastStart = record["start"]
@@ -480,8 +336,13 @@ class XiangZhiProWindow():
 
         tk.Label(frame6sub, text="test").place(x=20, y=20)
 
+    def renderTeam(self):
+        '''
+        渲染团队信息(Part 7)，奶歌复盘特化.
+        '''
+        window = self.window
         # Part 7: 输出
-        frame7 = tk.Frame(window, width=290, height=200, highlightthickness=1, highlightbackground="#64fab4")
+        frame7 = tk.Frame(window, width=290, height=200, highlightthickness=1, highlightbackground=self.themeColor)
         frame7.place(x=10, y=620)
         numDPS = self.result["dps"]["numDPS"]
         canvas = tk.Canvas(frame7,width=290,height=190,scrollregion=(0,0,270,numDPS*24)) #创建canvas
@@ -509,8 +370,13 @@ class XiangZhiProWindow():
             tb.AppendContext(record["shieldBreak"])
             tb.EndOfLine()
 
+    def renderRate(self):
+        '''
+        渲染评分信息(Part 8)，奶歌复盘特化.
+        '''
+        window = self.window
         # Part 8: 打分
-        frame8 = tk.Frame(window, width=210, height=200, highlightthickness=1, highlightbackground="#64fab4")
+        frame8 = tk.Frame(window, width=210, height=200, highlightthickness=1, highlightbackground=self.themeColor)
         frame8.place(x=320, y=620)
         frame8sub = tk.Frame(frame8)
         frame8sub.place(x=30, y=30)
@@ -549,8 +415,13 @@ class XiangZhiProWindow():
             tb.EndOfLine()
             tk.Label(frame8, text=desc, fg=color).place(x=10, y=150)
 
+    def renderAdvertise(self):
+        '''
+        渲染广告信息(Part 9)，奶歌复盘特化.
+        '''
+        window = self.window
         # Part 9: 广告
-        frame9 = tk.Frame(window, width=200, height=200, highlightthickness=1, highlightbackground="#64fab4")
+        frame9 = tk.Frame(window, width=200, height=200, highlightthickness=1, highlightbackground=self.themeColor)
         frame9.place(x=540, y=620)
         frame9sub = tk.Frame(frame9)
         frame9sub.place(x=0, y=0)
@@ -564,34 +435,16 @@ class XiangZhiProWindow():
 
         tk.Label(frame9, text="广告位招租").place(x=40, y=140)
 
-        self.window = window
-        window.protocol('WM_DELETE_WINDOW', self.final)
-
-    def start(self):
-        '''
-        创建并展示窗口.
-        '''
-        self.windowAlive = True
-        self.windowThread = threading.Thread(target=self.loadWindow)
-        self.windowThread.start()
-
-    def alive(self):
-        '''
-        返回窗口是否仍生存.
-        returns:
-        - res: 布尔类型，窗口是否仍生存.
-        '''
-        return self.windowAlive
-
     def __init__(self, config, result):
         '''
         初始化.
         params:
+        - config: 设置类
         - result: 奶歌复盘的结果.
         '''
-        self.config = config
-        self.mask = self.config.item["general"]["mask"]
-        self.result = result
+        super().__init__(config, result)
+        self.setThemeColor("#64fab4")
+        self.title = '奶歌复盘pro'
 
 class XiangZhiProReplayer(ReplayerBase):
     '''
