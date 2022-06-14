@@ -10,6 +10,7 @@ from tools.Functions import *
 from equip.AttributeDisplayRemote import AttributeDisplayRemote
 from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
 from replayer.Name import *
+from replayer.occ.Display import HealerDisplayWindow, SingleSkillDisplayer
 
 import os
 import time
@@ -25,47 +26,11 @@ import hashlib
 import webbrowser
 import pyperclip
 
-class YunChangXinJingWindow():
+class YunChangXinJingWindow(HealerDisplayWindow):
     '''
     奶秀复盘界面显示类.
     通过tkinter将复盘数据显示在图形界面中.
     '''
-
-    def getMaskName(self, name):
-        '''
-        获取名称打码的结果。事实上只需要对统计列表中的玩家打码.
-        params:
-        - name: 打码之前的玩家名.
-        '''
-        s = name.strip('"')
-        if s == "":
-            return s
-        elif self.mask == 0:
-            return s
-        else:
-            return s[0] + '*' * (len(s) - 1)
-
-    def final(self):
-        '''
-        关闭窗口。
-        '''
-        self.windowAlive = False
-        self.window.destroy()
-
-    def exportEquipment(self):
-        '''
-        导出装备信息到剪贴板.
-        '''
-        copyText = self.result["equip"]["raw"]
-        pyperclip.copy(copyText)
-        messagebox.showinfo(title='提示', message='复制成功！')
-
-    def OpenInWeb(self):
-        '''
-        打开网页版的复盘界面.
-        '''
-        url = "http://139.199.102.41:8009/showReplayPro.html?id=%d"%self.result["overall"]["shortID"]
-        webbrowser.open(url)
 
     def showHelp(self):
         '''
@@ -76,238 +41,189 @@ class YunChangXinJingWindow():
 战斗效率包含回雪飘摇的读条时间，而gcd效率则不包含。'''
         messagebox.showinfo(title='说明', message=text)
 
-    def loadWindow(self):
+    def renderSkill(self):
         '''
-        使用tkinter绘制详细复盘窗口。
+        渲染技能信息(Part 5)，奶歌复盘特化.
         '''
-        window = tk.Toplevel()
-        # window = tk.Tk()
-        window.title('奶秀复盘')
-        window.geometry('750x900')
-
-        # print(self.result)
-
-        # if "mask" in self.result["overall"]:
-        #     self.mask = self.result["overall"]["mask"]  # 使用数据中的mask选项顶掉框架中现场读取的判定
-
-        # Part 1: 全局
-        frame1 = tk.Frame(window, width=200, height=230, highlightthickness=1, highlightbackground="#ff77ff")
-        frame1.place(x=10, y=10)
-        frame1sub = tk.Frame(frame1)
-        frame1sub.place(x=0, y=0)
-        tb = TableConstructor(self.config, frame1sub)
-        tb.AppendContext("复盘版本：", justify="right")
-        tb.AppendContext(self.result["overall"]["edition"])
-        tb.EndOfLine()
-        tb.AppendContext("玩家ID：", justify="right")
-        tb.AppendContext(self.result["overall"]["playerID"], color="#ff77ff")
-        tb.EndOfLine()
-        tb.AppendContext("服务器：", justify="right")
-        tb.AppendContext(self.result["overall"]["server"])
-        tb.EndOfLine()
-        tb.AppendContext("战斗时间：", justify="right")
-        tb.AppendContext(self.result["overall"]["battleTimePrint"])
-        tb.EndOfLine()
-        tb.AppendContext("生成时间：", justify="right")
-        tb.AppendContext(self.result["overall"]["generateTimePrint"])
-        tb.EndOfLine()
-        tb.AppendContext("地图：", justify="right")
-        tb.AppendContext(self.result["overall"]["map"])
-        tb.EndOfLine()
-        tb.AppendContext("首领：", justify="right")
-        tb.AppendContext(self.result["overall"]["boss"], color="#ff0000")
-        tb.EndOfLine()
-        tb.AppendContext("人数：", justify="right")
-        tb.AppendContext("%.2f"%self.result["overall"].get("numPlayer", 0))
-        tb.EndOfLine()
-        tb.AppendContext("战斗时长：", justify="right")
-        tb.AppendContext(self.result["overall"]["sumTimePrint"])
-        tb.EndOfLine()
-        tb.AppendContext("数据种类：", justify="right")
-        tb.AppendContext(self.result["overall"]["dataType"])
-        tb.EndOfLine()
-
-        # Part 2: 装备
-        frame2 = tk.Frame(window, width=200, height=230, highlightthickness=1, highlightbackground="#ff77ff")
-        frame2.place(x=220, y=10)
-        frame2sub = tk.Frame(frame2)
-        frame2sub.place(x=0, y=0)
-        if self.result["equip"]["available"] == 0:
-            text = "装备信息获取失败。\n在进入战斗后打开团队装分面板即可获取。\n如果是第一视角也可以自动获取。"
-            tk.Label(frame2, text=text, justify="left").place(x=0, y=0)
-        else:
-            tb = TableConstructor(self.config, frame2sub)
-            tb.AppendContext("装备分数：", justify="right")
-            color4 = "#000000"
-            if "大橙武" in self.result["equip"]["sketch"]:
-                color4 = "#ffcc00"
-            tb.AppendContext("%d"%self.result["equip"]["score"], color=color4)
-            tb.EndOfLine()
-            tb.AppendContext("详情：", justify="right")
-            tb.AppendContext(self.result["equip"]["sketch"])
-            tb.EndOfLine()
-            tb.AppendContext("强化：", justify="right")
-            tb.AppendContext(self.result["equip"].get("forge", ""))
-            tb.EndOfLine()
-            tb.AppendContext("根骨：", justify="right")
-            tb.AppendContext("%d"%self.result["equip"]["spirit"])
-            tb.EndOfLine()
-            tb.AppendContext("治疗量：", justify="right")
-            tb.AppendContext("%d(%d)"%(self.result["equip"]["heal"], self.result["equip"]["healBase"]))
-            tb.EndOfLine()
-            tb.AppendContext("会心：", justify="right")
-            tb.AppendContext("%s(%d)"%(self.result["equip"]["critPercent"], self.result["equip"]["crit"]))
-            tb.EndOfLine()
-            tb.AppendContext("会心效果：", justify="right")
-            tb.AppendContext("%s(%d)"%(self.result["equip"]["critpowPercent"], self.result["equip"]["critpow"]))
-            tb.EndOfLine()
-            tb.AppendContext("加速：", justify="right")
-            tb.AppendContext("%s(%d)"%(self.result["equip"]["hastePercent"], self.result["equip"]["haste"]))
-            tb.EndOfLine()
-
-            b2 = tk.Button(frame2, text='导出', height=1, command=self.exportEquipment)
-            b2.place(x=140, y=180)
-
-        # Part 3: 治疗
-        frame3 = tk.Frame(window, width=310, height=150, highlightthickness=1, highlightbackground="#ff77ff")
-        frame3.place(x=430, y=10)
-        frame3sub = tk.Frame(frame3)
-        frame3sub.place(x=0, y=0)
-
-        tb = TableConstructor(self.config, frame3sub)
-        tb.AppendHeader("玩家名", "", width=13)
-        tb.AppendHeader("有效HPS", "最常用语境下的每秒治疗量，注意包含重伤时间。")
-        tb.AppendHeader("虚条HPS", "指虚条的最右端，包含溢出治疗量，也即计算所有绿字。")
-        tb.EndOfLine()
-        for record in self.result["healer"]["table"]:
-            name = self.getMaskName(record["name"])
-            color = getColor(record["occ"])
-            tb.AppendContext(name, color=color, width=13)
-            tb.AppendContext(record["healEff"])
-            tb.AppendContext(record["heal"])
-            tb.EndOfLine()
-
-        # Part 4: 奇穴
-        frame4 = tk.Frame(window, width=310, height=70, highlightthickness=1, highlightbackground="#ff77ff")
-        frame4.place(x=430, y=170)
-        if self.result["qixue"]["available"] == 0:
-            text = "奇穴信息获取失败。\n在进入战斗后查看目标的奇穴即可获取。\n如果是第一视角也可以自动获取。"
-            tk.Label(frame4, text=text, justify="left").place(x=0, y=0)
-        else:
-            text = ""
-            for i in range(1, 7):
-                text = text + self.result["qixue"][str(i)] + ','
-            text = text + '\n'
-            for i in range(7, 13):
-                text = text + self.result["qixue"][str(i)] + ','
-            text = text[:-1]
-            tk.Label(frame4, text=text, justify="left").place(x=0, y=0)
-
+        window = self.window
         # Part 5: 技能
         # TODO 加入图片转存
         frame5 = tk.Frame(window, width=730, height=200, highlightthickness=1, highlightbackground="#ff77ff")
         frame5.place(x=10, y=250)
 
-        frame5_1 = tk.Frame(frame5, width=180, height=95)
-        frame5_1.place(x=0, y=0)
-        frame5_1.photo = tk.PhotoImage(file="icons/894.png")
-        label = tk.Label(frame5_1, image=frame5_1.photo)
-        label.place(x=5, y=25)
-        ToolTip(label, "回雪飘摇")
-        text = "数量：%d(%.2f)\n" % (self.result["skill"]["hxpy"]["num"], self.result["skill"]["hxpy"]["numPerSec"])
-        text = text + "延迟：%dms\n" % self.result["skill"]["hxpy"]["delay"]
-        text = text + "HPS：%d\n" % self.result["skill"]["hxpy"]["HPS"]
-        text = text + "有效比例：%s%%\n" % parseCent(self.result["skill"]["hxpy"]["effRate"])
-        label = tk.Label(frame5_1, text=text, justify="left")
-        label.place(x=60, y=15)
+        hxpyDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
+                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        hxpyDisplayer.setImage("894", "回雪飘摇")
+        hxpyDisplayer.setDouble("rate", "数量", "hxpy", "num", "numPerSec")
+        hxpyDisplayer.setSingle("delay", "延迟", "hxpy", "delay")
+        hxpyDisplayer.setSingle("int", "HPS", "hxpy", "HPS")
+        hxpyDisplayer.setSingle("percent", "有效比例", "hxpy", "effRate")
+        hxpyDisplayer.export_image(frame5, 0)
 
-        frame5_2 = tk.Frame(frame5, width=180, height=95)
-        frame5_2.place(x=180, y=0)
-        frame5_2.photo = tk.PhotoImage(file="icons/897.png")
-        label = tk.Label(frame5_2, image=frame5_2.photo)
-        label.place(x=5, y=25)
-        ToolTip(label, "翔鸾舞柳")
-        text = "数量：%d(%.2f)\n" % (self.result["skill"]["xlwl"]["num"], self.result["skill"]["xlwl"]["numPerSec"])
-        text = text + "延迟：%dms\n" % self.result["skill"]["xlwl"]["delay"]
-        text = text + "持续HPS：%d\n" % self.result["skill"]["xlwl"]["HPS"]
-        text = text + "首跳HPS：%d\n" % self.result["skill"]["xlwl"]["shuangluanHPS"]
-        text = text + "覆盖率：%s%%\n" % parseCent(self.result["skill"]["xlwl"]["cover"])
-        label = tk.Label(frame5_2, text=text, justify="left")
-        label.place(x=60, y=10)
+        # frame5_1 = tk.Frame(frame5, width=180, height=95)
+        # frame5_1.place(x=0, y=0)
+        # frame5_1.photo = tk.PhotoImage(file="icons/894.png")
+        # label = tk.Label(frame5_1, image=frame5_1.photo)
+        # label.place(x=5, y=25)
+        # ToolTip(label, "回雪飘摇")
+        # text = "数量：%d(%.2f)\n" % (self.result["skill"]["hxpy"]["num"], self.result["skill"]["hxpy"]["numPerSec"])
+        # text = text + "延迟：%dms\n" % self.result["skill"]["hxpy"]["delay"]
+        # text = text + "HPS：%d\n" % self.result["skill"]["hxpy"]["HPS"]
+        # text = text + "有效比例：%s%%\n" % parseCent(self.result["skill"]["hxpy"]["effRate"])
+        # label = tk.Label(frame5_1, text=text, justify="left")
+        # label.place(x=60, y=15)
 
-        frame5_3 = tk.Frame(frame5, width=180, height=95)
-        frame5_3.place(x=360, y=0)
-        frame5_3.photo = tk.PhotoImage(file="icons/913.png")
-        label = tk.Label(frame5_3, image=frame5_3.photo)
-        label.place(x=5, y=25)
-        ToolTip(label, "上元点鬟")
-        text = "数量：%d(%.2f)\n" % (self.result["skill"]["sydh"]["num"], self.result["skill"]["sydh"]["numPerSec"])
-        text = text + "延迟：%dms\n" % self.result["skill"]["sydh"]["delay"]
-        text = text + "HPS：%d\n" % self.result["skill"]["sydh"]["HPS"]
-        text = text + "首跳HPS：%d\n" % self.result["skill"]["sydh"]["shuangluanHPS"]
-        text = text + "覆盖率：%s%%\n" % parseCent(self.result["skill"]["sydh"]["cover"])
-        label = tk.Label(frame5_3, text=text, justify="left")
-        label.place(x=60, y=10)
+        xlwlDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
+                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        xlwlDisplayer.setImage("897", "翔鸾舞柳")
+        xlwlDisplayer.setDouble("rate", "数量", "xlwl", "num", "numPerSec")
+        xlwlDisplayer.setSingle("delay", "延迟", "xlwl", "delay")
+        xlwlDisplayer.setSingle("int", "持续HPS", "xlwl", "HPS")
+        xlwlDisplayer.setSingle("int", "首跳HPS", "xlwl", "shuangluanHPS")
+        xlwlDisplayer.setSingle("percent", "覆盖率", "xlwl", "cover")
+        xlwlDisplayer.export_image(frame5, 1)
 
-        frame5_4 = tk.Frame(frame5, width=180, height=95)
-        frame5_4.place(x=540, y=0)
-        frame5_4.photo = tk.PhotoImage(file="icons/900.png")
-        label = tk.Label(frame5_4, image=frame5_4.photo)
-        label.place(x=5, y=25)
-        ToolTip(label, "王母挥袂")
-        text = "数量：%d(%.2f)\n" % (self.result["skill"]["wmhm"]["num"], self.result["skill"]["wmhm"]["numPerSec"])
-        text = text + "HPS：%d\n" % self.result["skill"]["wmhm"]["HPS"]
-        text = text + "辞致HPS：%d\n" % self.result["skill"]["wmhm"]["cizhiHPS"]
-        text = text + "有效比例：%s%%\n" % parseCent(self.result["skill"]["wmhm"]["effRate"])
-        label = tk.Label(frame5_4, text=text, justify="left")
-        label.place(x=60, y=20)
+        # frame5_2 = tk.Frame(frame5, width=180, height=95)
+        # frame5_2.place(x=180, y=0)
+        # frame5_2.photo = tk.PhotoImage(file="icons/897.png")
+        # label = tk.Label(frame5_2, image=frame5_2.photo)
+        # label.place(x=5, y=25)
+        # ToolTip(label, "翔鸾舞柳")
+        # text = "数量：%d(%.2f)\n" % (self.result["skill"]["xlwl"]["num"], self.result["skill"]["xlwl"]["numPerSec"])
+        # text = text + "延迟：%dms\n" % self.result["skill"]["xlwl"]["delay"]
+        # text = text + "持续HPS：%d\n" % self.result["skill"]["xlwl"]["HPS"]
+        # text = text + "首跳HPS：%d\n" % self.result["skill"]["xlwl"]["shuangluanHPS"]
+        # text = text + "覆盖率：%s%%\n" % parseCent(self.result["skill"]["xlwl"]["cover"])
+        # label = tk.Label(frame5_2, text=text, justify="left")
+        # label.place(x=60, y=10)
 
-        frame5_5 = tk.Frame(frame5, width=180, height=95)
-        frame5_5.place(x=0, y=100)
-        frame5_5.photo = tk.PhotoImage(file="icons/1507.png")
-        label = tk.Label(frame5_5, image=frame5_5.photo)
-        label.place(x=5, y=25)
-        ToolTip(label, "风袖低昂")
-        text = "数量：%d(%.2f)\n" % (self.result["skill"]["fxda"]["num"], self.result["skill"]["fxda"]["numPerSec"])
-        text = text + "HPS：%d\n" % self.result["skill"]["fxda"]["HPS"]
-        text = text + "晚晴HPS：%d\n" % self.result["skill"]["fxda"]["wanqingHPS"]
-        text = text + "有效比例：%s%%\n" % parseCent(self.result["skill"]["fxda"]["effRate"])
-        label = tk.Label(frame5_5, text=text, justify="left")
-        label.place(x=60, y=20)
+        sydhDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
+                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        sydhDisplayer.setImage("913", "上元点鬟")
+        sydhDisplayer.setDouble("rate", "数量", "sydh", "num", "numPerSec")
+        sydhDisplayer.setSingle("delay", "延迟", "sydh", "delay")
+        sydhDisplayer.setSingle("int", "HPS", "sydh", "HPS")
+        sydhDisplayer.setSingle("int", "首跳HPS", "sydh", "shuangluanHPS")
+        sydhDisplayer.setSingle("percent", "覆盖率", "sydh", "cover")
+        sydhDisplayer.export_image(frame5, 2)
 
-        frame5_6 = tk.Frame(frame5, width=180, height=95)
-        frame5_6.place(x=180, y=100)
-        frame5_6.photo = tk.PhotoImage(file="icons/13417.png")
-        label = tk.Label(frame5_6, image=frame5_6.photo)
-        label.place(x=5, y=25)
-        ToolTip(label, "九微飞花")
-        text = "数量：%d(%.2f)\n" % (self.result["skill"]["jwfh"]["num"], self.result["skill"]["jwfh"]["numPerSec"])
-        text = text + "HPS：%d\n" % self.result["skill"]["jwfh"]["HPS"]
-        text = text + "有效比例：%s%%\n" % parseCent(self.result["skill"]["jwfh"]["effRate"])
-        label = tk.Label(frame5_6, text=text, justify="left")
-        label.place(x=60, y=20)
+        # frame5_3 = tk.Frame(frame5, width=180, height=95)
+        # frame5_3.place(x=360, y=0)
+        # frame5_3.photo = tk.PhotoImage(file="icons/913.png")
+        # label = tk.Label(frame5_3, image=frame5_3.photo)
+        # label.place(x=5, y=25)
+        # ToolTip(label, "上元点鬟")
+        # text = "数量：%d(%.2f)\n" % (self.result["skill"]["sydh"]["num"], self.result["skill"]["sydh"]["numPerSec"])
+        # text = text + "延迟：%dms\n" % self.result["skill"]["sydh"]["delay"]
+        # text = text + "HPS：%d\n" % self.result["skill"]["sydh"]["HPS"]
+        # text = text + "首跳HPS：%d\n" % self.result["skill"]["sydh"]["shuangluanHPS"]
+        # text = text + "覆盖率：%s%%\n" % parseCent(self.result["skill"]["sydh"]["cover"])
+        # label = tk.Label(frame5_3, text=text, justify="left")
+        # label.place(x=60, y=10)
 
-        frame5_7 = tk.Frame(frame5, width=180, height=95)
-        frame5_7.place(x=360, y=100)
-        text = "垂眉HPS：%d\n" % self.result["skill"]["xlwl"]["chuimeiHPS"]
-        text = text + "沐风覆盖率：%s%%\n" % parseCent(self.result["skill"]["mufeng"]["cover"])
-        text = text + "跳珠数量：%d(%.2f)\n" % (self.result["skill"]["tzhy"]["num"], self.result["skill"]["tzhy"]["numPerSec"])
-        text = text + "跳珠HPS：%d\n" % self.result["skill"]["tzhy"]["HPS"]
-        label = tk.Label(frame5_7, text=text, justify="left")
-        label.place(x=20, y=15)
+        wmhmDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
+                                           self.result["overall"]["map"], self.result["overall"]["boss"])
+        wmhmDisplayer.setImage("900", "王母挥袂")
+        wmhmDisplayer.setDouble("rate", "数量", "wmhm", "num", "numPerSec")
+        wmhmDisplayer.setSingle("int", "HPS", "wmhm", "HPS")
+        wmhmDisplayer.setSingle("int", "辞致HPS", "wmhm", "cizhiHPS")
+        wmhmDisplayer.setSingle("percent", "有效比例", "wmhm", "effRate")
+        wmhmDisplayer.export_image(frame5, 3)
 
-        frame5_8 = tk.Frame(frame5, width=180, height=95)
-        frame5_8.place(x=540, y=100)
-        text = "gcd效率：%s%%\n" % parseCent(self.result["skill"]["general"]["efficiency"])
-        text = text + "战斗效率：%s%%\n" % parseCent(self.result["skill"]["general"]["efficiencyNonGcd"])
-        label = tk.Label(frame5_8, text=text, justify="left")
-        label.place(x=20, y=30)
+        # frame5_4 = tk.Frame(frame5, width=180, height=95)
+        # frame5_4.place(x=540, y=0)
+        # frame5_4.photo = tk.PhotoImage(file="icons/900.png")
+        # label = tk.Label(frame5_4, image=frame5_4.photo)
+        # label.place(x=5, y=25)
+        # ToolTip(label, "王母挥袂")
+        # text = "数量：%d(%.2f)\n" % (self.result["skill"]["wmhm"]["num"], self.result["skill"]["wmhm"]["numPerSec"])
+        # text = text + "HPS：%d\n" % self.result["skill"]["wmhm"]["HPS"]
+        # text = text + "辞致HPS：%d\n" % self.result["skill"]["wmhm"]["cizhiHPS"]
+        # text = text + "有效比例：%s%%\n" % parseCent(self.result["skill"]["wmhm"]["effRate"])
+        # label = tk.Label(frame5_4, text=text, justify="left")
+        # label.place(x=60, y=20)
+
+        fxdaDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
+                                           self.result["overall"]["map"], self.result["overall"]["boss"])
+        fxdaDisplayer.setImage("1507", "风袖低昂")
+        fxdaDisplayer.setDouble("rate", "数量", "fxda", "num", "numPerSec")
+        fxdaDisplayer.setSingle("int", "HPS", "fxda", "HPS")
+        fxdaDisplayer.setSingle("int", "晚晴HPS", "fxda", "wanqingHPS")
+        fxdaDisplayer.setSingle("percent", "有效比例", "fxda", "effRate")
+        fxdaDisplayer.export_image(frame5, 4)
+
+        # frame5_5 = tk.Frame(frame5, width=180, height=95)
+        # frame5_5.place(x=0, y=100)
+        # frame5_5.photo = tk.PhotoImage(file="icons/1507.png")
+        # label = tk.Label(frame5_5, image=frame5_5.photo)
+        # label.place(x=5, y=25)
+        # ToolTip(label, "风袖低昂")
+        # text = "数量：%d(%.2f)\n" % (self.result["skill"]["fxda"]["num"], self.result["skill"]["fxda"]["numPerSec"])
+        # text = text + "HPS：%d\n" % self.result["skill"]["fxda"]["HPS"]
+        # text = text + "晚晴HPS：%d\n" % self.result["skill"]["fxda"]["wanqingHPS"]
+        # text = text + "有效比例：%s%%\n" % parseCent(self.result["skill"]["fxda"]["effRate"])
+        # label = tk.Label(frame5_5, text=text, justify="left")
+        # label.place(x=60, y=20)
+
+        jwfhDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
+                                           self.result["overall"]["map"], self.result["overall"]["boss"])
+        jwfhDisplayer.setImage("13417", "九微飞花")
+        jwfhDisplayer.setDouble("rate", "数量", "jwfh", "num", "numPerSec")
+        jwfhDisplayer.setSingle("int", "HPS", "jwfh", "HPS")
+        jwfhDisplayer.setSingle("percent", "有效比例", "jwfh", "effRate")
+        jwfhDisplayer.export_image(frame5, 5)
+
+        # frame5_6 = tk.Frame(frame5, width=180, height=95)
+        # frame5_6.place(x=180, y=100)
+        # frame5_6.photo = tk.PhotoImage(file="icons/13417.png")
+        # label = tk.Label(frame5_6, image=frame5_6.photo)
+        # label.place(x=5, y=25)
+        # ToolTip(label, "九微飞花")
+        # text = "数量：%d(%.2f)\n" % (self.result["skill"]["jwfh"]["num"], self.result["skill"]["jwfh"]["numPerSec"])
+        # text = text + "HPS：%d\n" % self.result["skill"]["jwfh"]["HPS"]
+        # text = text + "有效比例：%s%%\n" % parseCent(self.result["skill"]["jwfh"]["effRate"])
+        # label = tk.Label(frame5_6, text=text, justify="left")
+        # label.place(x=60, y=20)
+
+        info1Displayer = SingleSkillDisplayer(self.result["skill"], self.occ,
+                                              self.result["overall"]["map"], self.result["overall"]["boss"])
+        info1Displayer.setSingle("int", "垂眉HPS", "xlwl", "chuimeiHPS")
+        info1Displayer.setDouble("rate", "跳珠数量", "tzhy", "num", "numPerSec")
+        info1Displayer.setSingle("int", "跳珠HPS", "tzhy", "HPS")
+        info1Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
+        info1Displayer.export_text(frame5, 6)
+
+        # frame5_7 = tk.Frame(frame5, width=180, height=95)
+        # frame5_7.place(x=360, y=100)
+        # text = "垂眉HPS：%d\n" % self.result["skill"]["xlwl"]["chuimeiHPS"]
+        # text = text + "沐风覆盖率：%s%%\n" % parseCent(self.result["skill"]["mufeng"]["cover"])
+        # text = text + "跳珠数量：%d(%.2f)\n" % (self.result["skill"]["tzhy"]["num"], self.result["skill"]["tzhy"]["numPerSec"])
+        # text = text + "跳珠HPS：%d\n" % self.result["skill"]["tzhy"]["HPS"]
+        # label = tk.Label(frame5_7, text=text, justify="left")
+        # label.place(x=20, y=15)
+
+        info2Displayer = SingleSkillDisplayer(self.result["skill"], self.occ,
+                                              self.result["overall"]["map"], self.result["overall"]["boss"])
+        info2Displayer.setSingle("percent", "gcd效率", "general", "efficiency")
+        info2Displayer.setSingle("percent", "战斗效率", "general", "efficiencyNonGcd")
+        info2Displayer.export_text(frame5, 7)
+
+        # frame5_8 = tk.Frame(frame5, width=180, height=95)
+        # frame5_8.place(x=540, y=100)
+        # text = "gcd效率：%s%%\n" % parseCent(self.result["skill"]["general"]["efficiency"])
+        # text = text + "战斗效率：%s%%\n" % parseCent(self.result["skill"]["general"]["efficiencyNonGcd"])
+        # label = tk.Label(frame5_8, text=text, justify="left")
+        # label.place(x=20, y=30)
 
         button = tk.Button(frame5, text='？', height=1, command=self.showHelp)
         button.place(x=680, y=160)
 
+    def renderReplay(self):
+        '''
+        渲染回放信息(Part 6)，奶歌复盘特化.
+        '''
+        window = self.window
         # Part 6: 回放
-
         frame6 = tk.Frame(window, width=730, height=150, highlightthickness=1, highlightbackground="#ff77ff")
         frame6.place(x=10, y=460)
         battleTime = self.result["overall"]["sumTime"]
@@ -361,40 +277,6 @@ class YunChangXinJingWindow():
             zwjt = self.result["replay"]["hxpy"][i-1][1]
             if zwjt == 1:
                 canvas6.create_rectangle(posStart, 61, posEnd, 70, fill="#ff77ff", width=0)
-        # # 迷仙引梦
-        # for i in range(1, len(self.result["replay"]["mxym"])):
-        #     posStart = int((self.result["replay"]["mxym"][i-1][0] - startTime) / 100)
-        #     posStart = max(posStart, 1)
-        #     posEnd = int((self.result["replay"]["mxym"][i][0] - startTime) / 100)
-        #     # if posEnd - posStart < 3:
-        #     #     posEnd = posStart + 3
-        #     mxym = self.result["replay"]["mxym"][i-1][1]
-        #     if mxym == 1:
-        #         canvas6.create_rectangle(posStart, 31, posEnd, 40, fill="#cc3385", width=0)
-        # # 仙王蛊鼎
-        # for i in range(1, len(self.result["replay"]["xwgd"])):
-        #     posStart = int((self.result["replay"]["xwgd"][i-1][0] - startTime) / 100)
-        #     posStart = max(posStart, 1)
-        #     posEnd = int((self.result["replay"]["xwgd"][i][0] - startTime) / 100)
-        #     xwgd = self.result["replay"]["xwgd"][i-1][1]
-        #     if xwgd == 1:
-        #         canvas6.create_rectangle(posStart, 41, posEnd, 50, fill="#4419b7", width=0)
-        # # 蛊惑众生
-        # for i in range(1, len(self.result["replay"]["ghzs"])):
-        #     posStart = int((self.result["replay"]["ghzs"][i-1][0] - startTime) / 100)
-        #     posStart = max(posStart, 1)
-        #     posEnd = int((self.result["replay"]["ghzs"][i][0] - startTime) / 100)
-        #     ghzs = self.result["replay"]["ghzs"][i-1][1]
-        #     if ghzs == 1:
-        #         canvas6.create_rectangle(posStart, 51, posEnd, 60, fill="#ff58ee", width=0)
-        # # 醉舞九天
-        # for i in range(1, len(self.result["replay"]["zwjt"])):
-        #     posStart = int((self.result["replay"]["zwjt"][i-1][0] - startTime) / 100)
-        #     posStart = max(posStart, 1)
-        #     posEnd = int((self.result["replay"]["zwjt"][i][0] - startTime) / 100)
-        #     zwjt = self.result["replay"]["zwjt"][i-1][1]
-        #     if zwjt == 1:
-        #         canvas6.create_rectangle(posStart, 61, posEnd, 70, fill="#957ded", width=0)
 
         nowt = 0
         while nowt < battleTime:
@@ -482,6 +364,11 @@ class YunChangXinJingWindow():
 
         tk.Label(frame6sub, text="test").place(x=20, y=20)
 
+    def renderTeam(self):
+        '''
+        渲染团队信息(Part 7)，奶歌复盘特化.
+        '''
+        window = self.window
         # Part 7: 输出
         frame7 = tk.Frame(window, width=290, height=200, highlightthickness=1, highlightbackground="#ff77ff")
         frame7.place(x=10, y=620)
@@ -507,6 +394,11 @@ class YunChangXinJingWindow():
             tb.AppendContext(record["damage"])
             tb.EndOfLine()
 
+    def renderRate(self):
+        '''
+        渲染评分信息(Part 8)，奶歌复盘特化.
+        '''
+        window = self.window
         # Part 8: 打分
         frame8 = tk.Frame(window, width=210, height=200, highlightthickness=1, highlightbackground="#ff77ff")
         frame8.place(x=320, y=620)
@@ -545,6 +437,11 @@ class YunChangXinJingWindow():
         #     tb.EndOfLine()
         #     tk.Label(frame8, text=desc, fg=color).place(x=10, y=150)
 
+    def renderAdvertise(self):
+        '''
+        渲染广告信息(Part 9)，奶歌复盘特化.
+        '''
+        window = self.window
         # Part 9: 广告
         frame9 = tk.Frame(window, width=200, height=200, highlightthickness=1, highlightbackground="#ff77ff")
         frame9.place(x=540, y=620)
@@ -564,31 +461,16 @@ class YunChangXinJingWindow():
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
 
-    def start(self):
-        '''
-        创建并展示窗口.
-        '''
-        self.windowAlive = True
-        self.windowThread = threading.Thread(target=self.loadWindow)
-        self.windowThread.start()
-
-    def alive(self):
-        '''
-        返回窗口是否仍生存.
-        returns:
-        - res: 布尔类型，窗口是否仍生存.
-        '''
-        return self.windowAlive
-
     def __init__(self, config, result):
         '''
         初始化.
         params:
         - result: 灵素复盘的结果.
         '''
-        self.config = config
-        self.mask = self.config.item["general"]["mask"]
-        self.result = result
+        super().__init__(config, result)
+        self.setThemeColor("#ff77ff")
+        self.title = '奶秀复盘'
+        self.occ = "yunchangxinjing"
 
 class YunChangXinJingReplayer(ReplayerBase):
     '''

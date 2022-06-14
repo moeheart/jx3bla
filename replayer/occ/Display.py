@@ -6,14 +6,67 @@ import tkinter as tk
 from tkinter import messagebox
 from PIL import Image
 from PIL import ImageTk
+import json
 
 from replayer.TableConstructor import TableConstructor, ToolTip
+from replayer.Percent import *
 from tools.Functions import *
+from tools.Names import getIDFromMap
+
+def getDirection(key):
+    if "delay" in key:
+        return -1
+    else:
+        return 1
 
 class SingleSkillDisplayer():
     '''
     单个技能展示类，用于整理并显示单独的技能。
     '''
+
+    def getSkillPercent(self, name, key, value):
+        '''
+        获取对应统计数据的百分数.
+        params:
+        - name: results中的分类，用于计算百分位数.
+        - key: results中的键，用于计算百分位数.
+        - value: 对应的值.
+        returns:
+        - num: 记录总数量.
+        - percent: 排名百分位.
+        - color: 排名颜色.
+        '''
+        value = getDirection(key) * value
+        percent_key = "%s-%s-%s-%s-%s" % (self.occ, self.map, self.boss, name, key)
+        if percent_key in STAT_PERCENT:
+            # 计算百分位数流程
+            result = STAT_PERCENT[percent_key]
+            num = result["num"]
+            table = json.loads(result["value"])
+            l = 0
+            r = 100
+            while r > l + 1:
+                m = (l + r + 1) // 2
+                if value >= table[m]:
+                    l = m
+                else:
+                    r = m
+            if m >= 95:
+                color = "#ff7700"
+            elif m >= 75:
+                color = "#330077"
+            elif m >= 50:
+                color = "#0000ff"
+            elif m >= 25:
+                color = "#007700"
+            else:
+                color = "#aaaaaa"
+            percent = m
+            return num, percent, color
+        else:
+            # 缺省值流程
+            return 0, 0, "#000000"
+
 
     def export_image(self, frame, pos):
         '''
@@ -37,19 +90,35 @@ class SingleSkillDisplayer():
         label.place(x=5, y=25)
         ToolTip(label, self.skillName)
 
-        text = ""
+        labelY = 45 - 9 * len(self.attrib)
         for line in self.attrib:
+            text1 = "%s：" % line[1]
+            label1 = tk.Label(subFrame, text=text1, justify="left")
+            label1.place(x=60, y=labelY)
+            text = ""
             if line[0] == "int":
-                text = text + "%s：%d\n" % (line[1], line[2])
+                text = "%d\n" % line[2]
+                num, percent, color = self.getSkillPercent(line[3], line[4], line[2])
             elif line[0] == "percent":
-                text + "%s：%s%%\n" % (line[1], parseCent(line[2]))
+                text = "%s%%\n" % parseCent(line[2])
+                num, percent, color = self.getSkillPercent(line[3], line[4], line[2])
+            elif line[0] == "delay":
+                text = "%dms\n" % line[2]
+                num, percent, color = self.getSkillPercent(line[3], line[4], line[2])
             elif line[0] == "plus":
-                text += "%s：%d+%d\n" % (line[1], line[2], line[5])
+                text = "%d+%d\n" % (line[2], line[5])
+                num, percent, color = self.getSkillPercent(line[3], line[4], line[2])
             elif line[0] == "rate":
-                text += "%s：%d(%.2f)\n" % (line[1], line[2], line[5])
-        label = tk.Label(subFrame, text=text, justify="left")
-        labelY = 35 - 5 * len(self.attrib)
-        label.place(x=60, y=labelY)
+                text = "%d(%.2f)\n" % (line[2], line[5])
+                num, percent, color = self.getSkillPercent(line[6], line[7], line[5])
+            if num > 0:
+                descText = "排名：%d%%\n数量：%d" % (percent, num)
+            else:
+                descText = "排名未知"
+            label2 = tk.Label(subFrame, text=text, justify="left", fg=color)
+            label2.place(x=120, y=labelY)
+            ToolTip(label2, descText)
+            labelY += 18
 
     def export_text(self, frame, pos):
         '''
@@ -65,6 +134,39 @@ class SingleSkillDisplayer():
             x = (pos - 4) * 180
         else:
             x = pos * 180
+
+        subFrame = tk.Frame(frame, width=180, height=95)
+        subFrame.place(x=x, y=y)
+
+        labelY = 45 - 9 * len(self.attrib)
+        for line in self.attrib:
+            text1 = "%s：" % line[1]
+            label1 = tk.Label(subFrame, text=text1, justify="left")
+            label1.place(x=10, y=labelY)
+            text = ""
+            if line[0] == "int":
+                text = "%d\n" % line[2]
+                num, percent, color = self.getSkillPercent(line[3], line[4], line[2])
+            elif line[0] == "percent":
+                text = "%s%%\n" % parseCent(line[2])
+                num, percent, color = self.getSkillPercent(line[3], line[4], line[2])
+            elif line[0] == "delay":
+                text = "%dms\n" % line[2]
+                num, percent, color = self.getSkillPercent(line[3], line[4], line[2])
+            elif line[0] == "plus":
+                text = "%d+%d\n" % (line[2], line[5])
+                num, percent, color = self.getSkillPercent(line[3], line[4], line[2])
+            elif line[0] == "rate":
+                text = "%d(%.2f)\n" % (line[2], line[5])
+                num, percent, color = self.getSkillPercent(line[6], line[7], line[5])
+            if num > 0:
+                descText = "排名：%d%%\n数量：%d" % (percent, num)
+            else:
+                descText = "排名未知"
+            label2 = tk.Label(subFrame, text=text, justify="left", fg=color)
+            label2.place(x=80, y=labelY)
+            ToolTip(label2, descText)
+            labelY += 18
 
     def setDoubleRaw(self, style, desc, value1, name1, key1, value2, name2, key2):
         '''
@@ -123,15 +225,21 @@ class SingleSkillDisplayer():
         self.iconID = iconID
         self.skillName = skillName
 
-    def __init__(self, skill):
+    def __init__(self, skill, occ, map, boss):
         '''
         初始化.
         params:
         - skill: 技能统计的结果.
+        - occ: 所属心法.
+        - map: 复盘对应的地图(原始字符串).
+        - boss: 复盘对应的boss.
         '''
         self.withImage = False
         self.attrib = []
         self.skill = skill
+        self.occ = occ
+        self.map = getIDFromMap(map)
+        self.boss = boss
 
 
 class HealerDisplayWindow():
@@ -278,8 +386,29 @@ class HealerDisplayWindow():
             name = self.getMaskName(record["name"])
             color = getColor(record["occ"])
             tb.AppendContext(name, color=color, width=13)
-            tb.AppendContext(record["healEff"])
-            tb.AppendContext(record["heal"])
+            if name != self.result["overall"]["playerID"]:
+                # 非当前玩家
+                tb.AppendContext(record["healEff"])
+                tb.AppendContext(record["heal"])
+            else:
+                # 当前玩家
+                hpsDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
+                                                    self.result["overall"]["map"], self.result["overall"]["boss"])
+
+                num, percent, color = hpsDisplayer.getSkillPercent("healer", "healEff", record["healEff"])
+                if num > 0:
+                    descText = "排名：%d%%\n数量：%d" % (percent, num)
+                else:
+                    descText = "排名未知"
+                tb.AppendHeader(record["healEff"], descText, color=color)
+
+                num, percent, color = hpsDisplayer.getSkillPercent("healer", "heal", record["heal"])
+                if num > 0:
+                    descText = "排名：%d%%\n数量：%d" % (percent, num)
+                else:
+                    descText = "排名未知"
+                tb.AppendHeader(record["heal"], descText, color=color)
+
             tb.EndOfLine()
 
     def renderQx(self):

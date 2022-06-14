@@ -77,114 +77,78 @@ class XiangZhiProWindow(HealerDisplayWindow):
         frame5 = tk.Frame(window, width=730, height=200, highlightthickness=1, highlightbackground=self.themeColor)
         frame5.place(x=10, y=250)
 
-        # frame5_1 = tk.Frame(frame5, width=180, height=95)
-        # frame5_1.place(x=0, y=0)
-        # frame5_1.photo = tk.PhotoImage(file="icons/7059.png")
-        # label = tk.Label(frame5_1, image=frame5_1.photo)
-        # label.place(x=5, y=25)
-        # ToolTip(label, "梅花三弄")
-        # text = "数量：%d(%.2f)\n"%(self.result["skill"]["meihua"]["num"], self.result["skill"]["meihua"]["numPerSec"])
-        # text = text + "覆盖率：%s%%\n" % parseCent(self.result["skill"]["meihua"]["cover"])
-        # text = text + "延迟：%dms\n" % self.result["skill"]["meihua"]["delay"]
-        # text = text + "犹香HPS：%d\n" % self.result["skill"]["meihua"].get("youxiangHPS", 0)
-        # text = text + "平吟HPS：%d\n" % self.result["skill"]["meihua"].get("pingyinHPS", 0)
-        # label = tk.Label(frame5_1, text=text, justify="left")
-        # label.place(x=60, y=10)
-
-        mhsnDisplayer = SingleSkillDisplayer(self.result["skill"])
+        mhsnDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
+                                             self.result["overall"]["map"], self.result["overall"]["boss"])
         mhsnDisplayer.setImage("7059", "梅花三弄")
         mhsnDisplayer.setDouble("rate", "数量", "meihua", "num", "numPerSec")
         mhsnDisplayer.setSingle("percent", "覆盖率", "meihua", "cover")
-        mhsnDisplayer.setSingle("int", "延迟", "meihua", "delay")
+        mhsnDisplayer.setSingle("delay", "延迟", "meihua", "delay")
         mhsnDisplayer.setSingle("int", "犹香HPS", "meihua", "youxiangHPS")
         mhsnDisplayer.setSingle("int", "平吟HPS", "meihua", "pingyinHPS")
         mhsnDisplayer.export_image(frame5, 0)
 
+        zhiDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
+                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        zhiDisplayer.setImage("7174", "徵")
+        zhiDisplayer.setDouble("rate", "数量", "zhi", "num", "numPerSec")
+        zhiDisplayer.setSingle("delay", "延迟", "zhi", "delay")
+        zhiDisplayer.setSingle("int", "HPS", "zhi", "HPS")
+        zhiDisplayer.setSingle("int", "古道HPS", "zhi", "gudaoHPS")
+        zhiDisplayer.setSingle("percent", "有效比例", "zhi", "effRate")
+        zhiDisplayer.export_image(frame5, 1)
 
-        frame5_2 = tk.Frame(frame5, width=180, height=95)
-        frame5_2.place(x=180, y=0)
-        frame5_2.photo = tk.PhotoImage(file="icons/7174.png")
-        label = tk.Label(frame5_2, image=frame5_2.photo)
-        label.place(x=5, y=25)
-        ToolTip(label, "徵")
-        text = "数量：%d(%.2f)\n" % (self.result["skill"]["zhi"]["num"], self.result["skill"]["zhi"]["numPerSec"])
-        text = text + "延迟：%dms\n" % self.result["skill"]["zhi"]["delay"]
-        text = text + "HPS：%d\n" % self.result["skill"]["zhi"]["HPS"]
-        text = text + "古道HPS：%d\n" % self.result["skill"]["zhi"].get("gudaoHPS", 0)
-        text = text + "有效比例：%s%%\n" % parseCent(self.result["skill"]["zhi"]["effRate"])
-        label = tk.Label(frame5_2, text=text, justify="left")
-        label.place(x=60, y=10)
+        jueDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
+                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        jueDisplayer.setImage("7176", "角")
+        jueDisplayer.setDouble("rate", "数量", "jue", "num", "numPerSec")
+        jueDisplayer.setSingle("delay", "延迟", "jue", "delay")
+        jueDisplayer.setSingle("int", "HPS", "jue", "HPS")
+        jueDisplayer.setSingle("percent", "覆盖率", "jue", "cover")
+        jueDisplayer.export_image(frame5, 2)
 
-        frame5_3 = tk.Frame(frame5, width=180, height=95)
-        frame5_3.place(x=360, y=0)
-        frame5_3.photo = tk.PhotoImage(file="icons/7176.png")
-        label = tk.Label(frame5_3, image=frame5_3.photo)
-        label.place(x=5, y=25)
-        ToolTip(label, "角")
-        text = "数量：%d(%.2f)\n" % (self.result["skill"]["jue"]["num"], self.result["skill"]["jue"]["numPerSec"])
-        text = text + "延迟：%dms\n" % self.result["skill"]["jue"]["delay"]
-        text = text + "HPS：%d\n" % self.result["skill"]["jue"]["HPS"]
-        text = text + "覆盖率：%s%%\n" % parseCent(self.result["skill"]["jue"]["cover"])
-        label = tk.Label(frame5_3, text=text, justify="left")
-        label.place(x=60, y=20)
+        shangDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
+                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        shangDisplayer.setImage("7172", "商")
+        shangDisplayer.setDouble("rate", "数量", "shang", "num", "numPerSec")
+        shangDisplayer.setSingle("delay", "延迟", "shang", "delay")
+        shangDisplayer.setSingle("int", "HPS", "shang", "HPS")
+        shangDisplayer.setSingle("percent", "覆盖率", "shang", "cover")
+        shangDisplayer.export_image(frame5, 3)
 
-        frame5_4 = tk.Frame(frame5, width=180, height=95)
-        frame5_4.place(x=540, y=0)
-        frame5_4.photo = tk.PhotoImage(file="icons/7172.png")
-        label = tk.Label(frame5_4, image=frame5_4.photo)
-        label.place(x=5, y=25)
-        ToolTip(label, "商")
-        text = "数量：%d(%.2f)\n" % (self.result["skill"]["shang"]["num"], self.result["skill"]["shang"]["numPerSec"])
-        text = text + "延迟：%dms\n" % self.result["skill"]["shang"]["delay"]
-        text = text + "HPS：%d\n" % self.result["skill"]["shang"]["HPS"]
-        text = text + "覆盖率：%s%%\n" % parseCent(self.result["skill"]["shang"]["cover"])
-        label = tk.Label(frame5_4, text=text, justify="left")
-        label.place(x=60, y=20)
+        gongDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
+                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        gongDisplayer.setImage("7173", "宫")
+        gongDisplayer.setDouble("rate", "数量", "gong", "num", "numPerSec")
+        gongDisplayer.setSingle("delay", "延迟", "gong", "delay")
+        gongDisplayer.setSingle("int", "HPS", "gong", "HPS")
+        gongDisplayer.setSingle("int", "枕流HPS", "gong", "zhenliuHPS")
+        gongDisplayer.setSingle("percent", "有效比例", "gong", "effRate")
+        gongDisplayer.export_image(frame5, 4)
 
-        frame5_5 = tk.Frame(frame5, width=180, height=95)
-        frame5_5.place(x=0, y=100)
-        frame5_5.photo = tk.PhotoImage(file="icons/7173.png")
-        label = tk.Label(frame5_5, image=frame5_5.photo)
-        label.place(x=5, y=25)
-        ToolTip(label, "宫")
-        text = "数量：%d(%.2f)\n" % (self.result["skill"]["gong"]["num"], self.result["skill"]["gong"]["numPerSec"])
-        text = text + "延迟：%dms\n" % self.result["skill"]["gong"]["delay"]
-        text = text + "HPS：%d\n" % self.result["skill"]["gong"]["HPS"]
-        text = text + "枕流HPS：%d\n" % self.result["skill"]["meihua"].get("zhenliuHPS", 0)
-        text = text + "有效比例：%s%%\n" % parseCent(self.result["skill"]["gong"]["effRate"])
-        label = tk.Label(frame5_5, text=text, justify="left")
-        label.place(x=60, y=10)
+        yuDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
+                                           self.result["overall"]["map"], self.result["overall"]["boss"])
+        yuDisplayer.setImage("7175", "羽")
+        yuDisplayer.setDouble("rate", "数量", "yu", "num", "numPerSec")
+        yuDisplayer.setSingle("delay", "延迟", "yu", "delay")
+        yuDisplayer.setSingle("int", "HPS", "yu", "HPS")
+        yuDisplayer.setSingle("percent", "有效比例", "yu", "effRate")
+        yuDisplayer.export_image(frame5, 5)
 
-        frame5_6 = tk.Frame(frame5, width=180, height=95)
-        frame5_6.place(x=180, y=100)
-        frame5_6.photo = tk.PhotoImage(file="icons/7175.png")
-        label = tk.Label(frame5_6, image=frame5_6.photo)
-        label.place(x=5, y=25)
-        ToolTip(label, "羽")
-        text = "数量：%d\n"%self.result["skill"]["yu"]["num"]
-        text = text + "延迟：%dms\n" % self.result["skill"]["yu"]["delay"]
-        text = text + "HPS：%d\n" % self.result["skill"]["yu"]["HPS"]
-        text = text + "有效比例：%s%%\n" % parseCent(self.result["skill"]["yu"]["effRate"])
-        label = tk.Label(frame5_6, text=text, justify="left")
-        label.place(x=60, y=20)
+        info1Displayer = SingleSkillDisplayer(self.result["skill"], self.occ,
+                                              self.result["overall"]["map"], self.result["overall"]["boss"])
+        info1Displayer.setSingle("int", "相依数量", "xiangyi", "num")
+        info1Displayer.setSingle("int", "相依HPS", "xiangyi", "HPS")
+        info1Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
+        info1Displayer.export_text(frame5, 6)
 
-        frame5_7 = tk.Frame(frame5, width=180, height=95)
-        frame5_7.place(x=360, y=100)
-        text = "相依数量：%d\n" % self.result["skill"]["xiangyi"]["num"]
-        text = text + "相依HPS：%d\n" % self.result["skill"]["xiangyi"]["HPS"]
-        text = text + "沐风覆盖率：%s%%\n" % parseCent(self.result["skill"]["mufeng"]["cover"])
-        label = tk.Label(frame5_7, text=text, justify="left")
-        label.place(x=20, y=25)
-
-        frame5_8 = tk.Frame(frame5, width=180, height=95)
-        frame5_8.place(x=540, y=100)
-        text = "APS：%d\n" % self.result["skill"]["general"].get("APS", 0)
-        text = text + "桑柔DPS：%d\n" % self.result["skill"]["general"]["SangrouDPS"]
-        text = text + "庄周梦DPS：%d\n" % self.result["skill"]["general"]["ZhuangzhouDPS"]
-        text = text + "玉简DPS：%d\n" % self.result["skill"]["general"].get("YujianDPS", 0)
-        text = text + "战斗效率：%s%%\n" % parseCent(self.result["skill"]["general"]["efficiency"])
-        label = tk.Label(frame5_8, text=text, justify="left")
-        label.place(x=20, y=10)
+        info2Displayer = SingleSkillDisplayer(self.result["skill"], self.occ,
+                                              self.result["overall"]["map"], self.result["overall"]["boss"])
+        info2Displayer.setSingle("int", "APS估算", "general", "APS")
+        info2Displayer.setSingle("int", "桑柔DPS", "general", "SangrouDPS")
+        info2Displayer.setSingle("int", "庄周梦DPS", "general", "ZhuangzhouDPS")
+        info2Displayer.setSingle("int", "玉简DPS", "general", "YujianDPS")
+        info2Displayer.setSingle("percent", "战斗效率", "general", "efficiency")
+        info2Displayer.export_text(frame5, 7)
 
         button = tk.Button(frame5, text='？', height=1, command=self.showHelp)
         button.place(x=680, y=160)
@@ -195,7 +159,6 @@ class XiangZhiProWindow(HealerDisplayWindow):
         '''
         window = self.window
         # Part 6: 回放
-
         frame6 = tk.Frame(window, width=730, height=150, highlightthickness=1, highlightbackground=self.themeColor)
         frame6.place(x=10, y=460)
         battleTime = self.result["overall"]["sumTime"]
@@ -445,6 +408,7 @@ class XiangZhiProWindow(HealerDisplayWindow):
         super().__init__(config, result)
         self.setThemeColor("#64fab4")
         self.title = '奶歌复盘pro'
+        self.occ = "xiangzhi"
 
 class XiangZhiProReplayer(ReplayerBase):
     '''

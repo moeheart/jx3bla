@@ -73,11 +73,11 @@ class TableConstructor():
         label.grid(row=self.nowx, column=self.nowy)
         self.nowy += 1
     
-    def AppendHeader(self, text, hint, width=None):
+    def AppendHeader(self, text, hint, width=None, color=None):
         '''
         添加标题栏。
         '''
-        label = tk.Label(self.frame, text=text, width=width, height=1)
+        label = tk.Label(self.frame, text=text, width=width, height=1, fg=color)
         label.grid(row=self.nowx, column=self.nowy)
         self.nowy += 1
         if hint != "":

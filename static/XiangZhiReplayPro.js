@@ -102,7 +102,7 @@ else {
     $('#data-4-h').removeClass("hidden");
 }
 
-//part 5
+//part 5  TODO 重构
 meihua = resObj.skill.meihua;
 $('#data-5-1-1').html(meihua.num);
 $('#data-5-1-2').html(parseCent(meihua.cover));
