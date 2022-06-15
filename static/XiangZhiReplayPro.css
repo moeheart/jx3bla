@@ -174,17 +174,18 @@
 }
 
 .skill-left {
-    width: 60px;
+    width: 50px;
     display: inline-block;
 }
 
 .skill-left img{
-    margin: 24px 10px;
+    margin: 24px 2px;
 }
 
 .skill-right{
     display: inline-block;
     height: 95px;
+    width: 128px;
 }
 
 .skill-right table{

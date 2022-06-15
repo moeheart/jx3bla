@@ -1,5 +1,11 @@
+occ = "xiangzhi";
+
 function parseCent(x) {
     return (parseInt(x * 10000) / 100) + '%'
+}
+
+function parseDigit(x) {
+    return (parseInt(x * 100) / 100);
 }
 
 function parseTime(time){
@@ -103,6 +109,170 @@ else {
 }
 
 //part 5  TODO 重构
+
+var SingleSkillDisplayer = function(skill, occ, map, boss){
+    this.log = [];
+    this.skill = skill;
+    this.occ = occ;
+    this.map = map;
+    this.boss = boss;
+    this.setImage = function(id, name){
+        this.id = id;
+        this.name = name;
+    }
+
+    this.setSingle = function(style, desc, name, key){
+        var value = this.skill[name][key];
+        if (value == undefined) {
+            value = 0;
+        }
+        this.log.push([style, desc, value, name, key]);
+    }
+
+    this.setDouble = function(style, desc, name, key1, key2){
+        var value1 = this.skill[name][key1];
+        if (value1 == undefined) {
+            value1 = 0;
+        }
+        var value2 = this.skill[name][key2];
+        if (value2 == undefined) {
+            value2 = 0;
+        }
+        this.log.push([style, desc, value1, name, key1, value2, name, key2]);
+    }
+
+    this.export = function(frame, id, type){
+        // 生成div
+        var subarea = $("<div></div>");
+        subarea.addClass("skill-subarea");
+        subarea.appendTo(frame);
+        if (type == "image") {
+            var skillLeft = $("<div></div>");
+            skillLeft.addClass("skill-left");
+            var img = $('<img src="../static/icons/' + this.id + '.png">');
+            img.appendTo(skillLeft);
+            skillLeft.appendTo(subarea);
+        }
+        var skillRight = $("<div></div>");
+        skillRight.addClass("skill-right");
+        skillRight.appendTo(subarea);
+        var table = $("<table></table>");
+        table.appendTo(skillRight);
+        var num = 0;
+        for (i in this.log) {
+            var line = this.log[i];
+            var tr = $("<tr></tr>");
+            tr.appendTo(table);
+            var td = $("<td></td>");
+            td.html(line[1] + ":");
+            td.appendTo(tr);
+            if (line[0] == "int") {
+                var td = $("<td></td>");
+                td.html(line[2]);
+                td.appendTo(tr);
+            } else if (line[0] == "percent") {
+                var td = $("<td></td>");
+                td.html(parseCent(line[2]));
+                td.appendTo(tr);
+            } else if (line[0] == "delay") {
+                var td = $("<td></td>");
+                td.html(line[2] + "ms");
+                td.appendTo(tr);
+            } else if (line[0] == "plus") {
+                var td = $("<td></td>");
+                td.html(line[2] + "+" + line[5]);
+                td.appendTo(tr);
+            } else if (line[0] == "rate") {
+                var td = $("<td></td>");
+                td.html(line[2] + "(" + parseDigit(line[5]) + ")");
+                td.appendTo(tr);
+            }
+            num++;
+        }
+        if (num < 5) {
+            table.css("margin-top", (5-num)*10 + "px");
+        }
+    }
+}
+
+var skillPanel = $('#skill');
+
+
+mhsnDisplayer = new SingleSkillDisplayer(resObj.skill, occ,
+                                     resObj.overall.map, resObj.overall.boss);
+mhsnDisplayer.setImage("7059", "梅花三弄")
+mhsnDisplayer.setDouble("rate", "数量", "meihua", "num", "numPerSec")
+mhsnDisplayer.setSingle("percent", "覆盖率", "meihua", "cover")
+mhsnDisplayer.setSingle("delay", "延迟", "meihua", "delay")
+mhsnDisplayer.setSingle("int", "犹香HPS", "meihua", "youxiangHPS")
+mhsnDisplayer.setSingle("int", "平吟HPS", "meihua", "pingyinHPS")
+mhsnDisplayer.export(skillPanel, 0, "image");
+
+
+zhiDisplayer = new SingleSkillDisplayer(resObj.skill, occ,
+                                     resObj.overall.map, resObj.overall.boss);
+zhiDisplayer.setImage("7174", "徵")
+zhiDisplayer.setDouble("rate", "数量", "zhi", "num", "numPerSec")
+zhiDisplayer.setSingle("delay", "延迟", "zhi", "delay")
+zhiDisplayer.setSingle("int", "HPS", "zhi", "HPS")
+zhiDisplayer.setSingle("int", "古道HPS", "zhi", "gudaoHPS")
+zhiDisplayer.setSingle("percent", "有效比例", "zhi", "effRate")
+zhiDisplayer.export(skillPanel, 1, "image");
+
+jueDisplayer = new SingleSkillDisplayer(resObj.skill, occ,
+                                     resObj.overall.map, resObj.overall.boss);
+jueDisplayer.setImage("7176", "角")
+jueDisplayer.setDouble("rate", "数量", "jue", "num", "numPerSec")
+jueDisplayer.setSingle("delay", "延迟", "jue", "delay")
+jueDisplayer.setSingle("int", "HPS", "jue", "HPS")
+jueDisplayer.setSingle("percent", "覆盖率", "jue", "cover")
+jueDisplayer.export(skillPanel, 2, "image");
+
+shangDisplayer = new SingleSkillDisplayer(resObj.skill, occ,
+                                     resObj.overall.map, resObj.overall.boss);
+shangDisplayer.setImage("7172", "商")
+shangDisplayer.setDouble("rate", "数量", "shang", "num", "numPerSec")
+shangDisplayer.setSingle("delay", "延迟", "shang", "delay")
+shangDisplayer.setSingle("int", "HPS", "shang", "HPS")
+shangDisplayer.setSingle("percent", "覆盖率", "shang", "cover")
+shangDisplayer.export(skillPanel, 3, "image");
+
+gongDisplayer = new SingleSkillDisplayer(resObj.skill, occ,
+                                     resObj.overall.map, resObj.overall.boss);
+gongDisplayer.setImage("7173", "宫")
+gongDisplayer.setDouble("rate", "数量", "gong", "num", "numPerSec")
+gongDisplayer.setSingle("delay", "延迟", "gong", "delay")
+gongDisplayer.setSingle("int", "HPS", "gong", "HPS")
+gongDisplayer.setSingle("int", "枕流HPS", "gong", "zhenliuHPS")
+gongDisplayer.setSingle("percent", "有效比例", "gong", "effRate")
+gongDisplayer.export(skillPanel, 4, "image");
+
+yuDisplayer = new SingleSkillDisplayer(resObj.skill, occ,
+                                     resObj.overall.map, resObj.overall.boss);
+yuDisplayer.setImage("7175", "羽")
+yuDisplayer.setDouble("rate", "数量", "yu", "num", "numPerSec")
+yuDisplayer.setSingle("delay", "延迟", "yu", "delay")
+yuDisplayer.setSingle("int", "HPS", "yu", "HPS")
+yuDisplayer.setSingle("percent", "有效比例", "yu", "effRate")
+yuDisplayer.export(skillPanel, 5, "image");
+
+info1Displayer = new SingleSkillDisplayer(resObj.skill, occ,
+                                     resObj.overall.map, resObj.overall.boss);
+info1Displayer.setSingle("int", "相依数量", "xiangyi", "num")
+info1Displayer.setSingle("int", "相依HPS", "xiangyi", "HPS")
+info1Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
+info1Displayer.export(skillPanel, 6, "text");
+
+info2Displayer = new SingleSkillDisplayer(resObj.skill, occ,
+                                     resObj.overall.map, resObj.overall.boss);
+info2Displayer.setSingle("int", "APS估算", "general", "APS")
+info2Displayer.setSingle("int", "桑柔DPS", "general", "SangrouDPS")
+info2Displayer.setSingle("int", "庄周梦DPS", "general", "ZhuangzhouDPS")
+info2Displayer.setSingle("int", "玉简DPS", "general", "YujianDPS")
+info2Displayer.setSingle("percent", "战斗效率", "general", "efficiency")
+info2Displayer.export(skillPanel, 7, "text");
+
+
 meihua = resObj.skill.meihua;
 $('#data-5-1-1').html(meihua.num);
 $('#data-5-1-2').html(parseCent(meihua.cover));
