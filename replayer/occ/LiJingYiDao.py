@@ -50,8 +50,7 @@ class LiJingYiDaoWindow(HealerDisplayWindow):
         frame5 = tk.Frame(window, width=730, height=200, highlightthickness=1, highlightbackground="#7f1fdf")
         frame5.place(x=10, y=250)
 
-        wozhenDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        wozhenDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         wozhenDisplayer.setImage("1519", "握针")
         wozhenDisplayer.setDouble("rate", "数量", "wozhen", "num", "numPerSec")
         wozhenDisplayer.setSingle("delay", "延迟", "wozhen", "delay")
@@ -60,8 +59,7 @@ class LiJingYiDaoWindow(HealerDisplayWindow):
         wozhenDisplayer.setSingle("percent", "覆盖率", "wozhen", "cover")
         wozhenDisplayer.export_image(frame5, 0)
         
-        tizhenDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        tizhenDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         tizhenDisplayer.setImage("395", "提针")
         tizhenDisplayer.setDouble("rate", "数量", "tizhen", "num", "numPerSec")
         tizhenDisplayer.setSingle("delay", "延迟", "tizhen", "delay")
@@ -70,8 +68,7 @@ class LiJingYiDaoWindow(HealerDisplayWindow):
         tizhenDisplayer.setSingle("percent", "有效比例", "tizhen", "effRate")
         tizhenDisplayer.export_image(frame5, 1)
         
-        changzhenDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                           self.result["overall"]["map"], self.result["overall"]["boss"])
+        changzhenDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         changzhenDisplayer.setImage("396", "长针")
         changzhenDisplayer.setDouble("rate", "数量", "changzhen", "num", "numPerSec")
         changzhenDisplayer.setSingle("delay", "延迟", "changzhen", "delay")
@@ -80,8 +77,7 @@ class LiJingYiDaoWindow(HealerDisplayWindow):
         changzhenDisplayer.setSingle("percent", "有效比例", "changzhen", "effRate")
         changzhenDisplayer.export_image(frame5, 2)
 
-        bizhenDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        bizhenDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         bizhenDisplayer.setImage("1518", "彼针")
         bizhenDisplayer.setDouble("rate", "数量", "bizhen", "num", "numPerSec")
         bizhenDisplayer.setSingle("delay", "延迟", "bizhen", "delay")
@@ -90,14 +86,12 @@ class LiJingYiDaoWindow(HealerDisplayWindow):
         bizhenDisplayer.setSingle("percent", "述怀覆盖", "bizhen", "shCover")
         bizhenDisplayer.export_image(frame5, 3)
 
-        chunniDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                           self.result["overall"]["map"], self.result["overall"]["boss"])
+        chunniDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         chunniDisplayer.setImage("413", "春泥护花")
         chunniDisplayer.setDouble("rate", "数量", "chunni", "num", "numPerSec")
         chunniDisplayer.export_image(frame5, 4)
 
-        longwuDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        longwuDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         longwuDisplayer.setImage("16221", "泷雾")
         longwuDisplayer.setDouble("rate", "数量", "longwu", "num", "numPerSec")
         longwuDisplayer.setSingle("delay", "延迟", "longwu", "delay")
@@ -105,15 +99,13 @@ class LiJingYiDaoWindow(HealerDisplayWindow):
         longwuDisplayer.setSingle("percent", "有效比例", "longwu", "effRate")
         longwuDisplayer.export_image(frame5, 5)
 
-        info1Displayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                              self.result["overall"]["map"], self.result["overall"]["boss"])
+        info1Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         info1Displayer.setSingle("int", "清疏HPS", "qingshu", "HPS")
         info1Displayer.setSingle("int", "寒清次数", "general", "HanQingNum")
         info1Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
         info1Displayer.export_text(frame5, 6)
 
-        info2Displayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                              self.result["overall"]["map"], self.result["overall"]["boss"])
+        info2Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         info2Displayer.setSingle("percent", "秋肃覆盖率", "qiusu", "cover")
         info2Displayer.setSingle("int", "秋肃DPS", "qiusu", "dps")
         info2Displayer.setSingle("percent", "战斗效率", "general", "efficiency")
@@ -363,7 +355,7 @@ class LiJingYiDaoWindow(HealerDisplayWindow):
         初始化.
         params:
         - config: 设置类
-        - result: 灵素复盘的结果.
+        - result: 奶花复盘的结果.
         '''
         super().__init__(config, result)
         self.setThemeColor("#7f1fdf")
@@ -1120,6 +1112,8 @@ class LiJingYiDaoReplayer(ReplayerBase):
         # 计算战斗回放
         self.result["replay"] = bh.getJsonReplay(self.mykey)
         self.result["replay"]["heat"] = {"interval": 500, "timeline": hotHeat}
+
+        self.getRankFromStat("lijingyidao")
 
         # print(self.result["healer"])
         # print(self.result["dps"])

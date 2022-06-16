@@ -51,8 +51,7 @@ class YunChangXinJingWindow(HealerDisplayWindow):
         frame5 = tk.Frame(window, width=730, height=200, highlightthickness=1, highlightbackground="#ff77ff")
         frame5.place(x=10, y=250)
 
-        hxpyDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        hxpyDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         hxpyDisplayer.setImage("894", "回雪飘摇")
         hxpyDisplayer.setDouble("rate", "数量", "hxpy", "num", "numPerSec")
         hxpyDisplayer.setSingle("delay", "延迟", "hxpy", "delay")
@@ -73,8 +72,7 @@ class YunChangXinJingWindow(HealerDisplayWindow):
         # label = tk.Label(frame5_1, text=text, justify="left")
         # label.place(x=60, y=15)
 
-        xlwlDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        xlwlDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         xlwlDisplayer.setImage("897", "翔鸾舞柳")
         xlwlDisplayer.setDouble("rate", "数量", "xlwl", "num", "numPerSec")
         xlwlDisplayer.setSingle("delay", "延迟", "xlwl", "delay")
@@ -97,8 +95,7 @@ class YunChangXinJingWindow(HealerDisplayWindow):
         # label = tk.Label(frame5_2, text=text, justify="left")
         # label.place(x=60, y=10)
 
-        sydhDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        sydhDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         sydhDisplayer.setImage("913", "上元点鬟")
         sydhDisplayer.setDouble("rate", "数量", "sydh", "num", "numPerSec")
         sydhDisplayer.setSingle("delay", "延迟", "sydh", "delay")
@@ -121,8 +118,7 @@ class YunChangXinJingWindow(HealerDisplayWindow):
         # label = tk.Label(frame5_3, text=text, justify="left")
         # label.place(x=60, y=10)
 
-        wmhmDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                           self.result["overall"]["map"], self.result["overall"]["boss"])
+        wmhmDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         wmhmDisplayer.setImage("900", "王母挥袂")
         wmhmDisplayer.setDouble("rate", "数量", "wmhm", "num", "numPerSec")
         wmhmDisplayer.setSingle("int", "HPS", "wmhm", "HPS")
@@ -143,8 +139,7 @@ class YunChangXinJingWindow(HealerDisplayWindow):
         # label = tk.Label(frame5_4, text=text, justify="left")
         # label.place(x=60, y=20)
 
-        fxdaDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                           self.result["overall"]["map"], self.result["overall"]["boss"])
+        fxdaDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         fxdaDisplayer.setImage("1507", "风袖低昂")
         fxdaDisplayer.setDouble("rate", "数量", "fxda", "num", "numPerSec")
         fxdaDisplayer.setSingle("int", "HPS", "fxda", "HPS")
@@ -165,8 +160,7 @@ class YunChangXinJingWindow(HealerDisplayWindow):
         # label = tk.Label(frame5_5, text=text, justify="left")
         # label.place(x=60, y=20)
 
-        jwfhDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                           self.result["overall"]["map"], self.result["overall"]["boss"])
+        jwfhDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         jwfhDisplayer.setImage("13417", "九微飞花")
         jwfhDisplayer.setDouble("rate", "数量", "jwfh", "num", "numPerSec")
         jwfhDisplayer.setSingle("int", "HPS", "jwfh", "HPS")
@@ -185,8 +179,7 @@ class YunChangXinJingWindow(HealerDisplayWindow):
         # label = tk.Label(frame5_6, text=text, justify="left")
         # label.place(x=60, y=20)
 
-        info1Displayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                              self.result["overall"]["map"], self.result["overall"]["boss"])
+        info1Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         info1Displayer.setSingle("int", "垂眉HPS", "xlwl", "chuimeiHPS")
         info1Displayer.setDouble("rate", "跳珠数量", "tzhy", "num", "numPerSec")
         info1Displayer.setSingle("int", "跳珠HPS", "tzhy", "HPS")
@@ -202,8 +195,7 @@ class YunChangXinJingWindow(HealerDisplayWindow):
         # label = tk.Label(frame5_7, text=text, justify="left")
         # label.place(x=20, y=15)
 
-        info2Displayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                              self.result["overall"]["map"], self.result["overall"]["boss"])
+        info2Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         info2Displayer.setSingle("percent", "gcd效率", "general", "efficiency")
         info2Displayer.setSingle("percent", "战斗效率", "general", "efficiencyNonGcd")
         info2Displayer.export_text(frame5, 7)
@@ -465,7 +457,7 @@ class YunChangXinJingWindow(HealerDisplayWindow):
         '''
         初始化.
         params:
-        - result: 灵素复盘的结果.
+        - result: 奶秀复盘的结果.
         '''
         super().__init__(config, result)
         self.setThemeColor("#ff77ff")
@@ -1181,6 +1173,8 @@ class YunChangXinJingReplayer(ReplayerBase):
         self.result["replay"]["hxpy"] = hxpyDict.log
         self.result["replay"]["heat"] = {"interval": 500, "timeline": [xiangwuHeat, shangyuanHeat]}
 
+        self.getRankFromStat("yunchangxinjing")
+
         # print(self.result["healer"])
         # print(self.result["dps"])
         # for line in self.result["skill"]:
@@ -1254,7 +1248,7 @@ class YunChangXinJingReplayer(ReplayerBase):
 
     def replay(self):
         '''
-        开始灵素复盘分析.
+        开始奶秀复盘分析.
         '''
         self.FirstStageAnalysis()
         self.SecondStageAnalysis()

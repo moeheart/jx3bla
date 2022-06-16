@@ -863,27 +863,27 @@ class ActorProReplayer(ReplayerBase):
                 name = self.bld.info.player[id].name
                 xiangzhiRep = XiangZhiProReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime, self.win)
                 xiangzhiRep.replay()
-                self.occResult[name] = {"occ": "22h", "result": xiangzhiRep.result}
+                self.occResult[name] = {"occ": "22h", "result": xiangzhiRep.result, "rank": xiangzhiRep.rank}
             if self.config.item["lingsu"]["active"] and self.occDetailList[id] == "212h":  # 灵素
                 name = self.bld.info.player[id].name
                 lingsuRep = LingSuReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime, self.win)
                 lingsuRep.replay()
-                self.occResult[name] = {"occ": "212h", "result": lingsuRep.result}
+                self.occResult[name] = {"occ": "212h", "result": lingsuRep.result, "rank": lingsuRep.rank}
             if self.config.item["lijing"]["active"] and self.occDetailList[id] == "2h":  # 奶花
                 name = self.bld.info.player[id].name
                 lijingyidaoRep = LiJingYiDaoReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime, self.win)
                 lijingyidaoRep.replay()
-                self.occResult[name] = {"occ": "2h", "result": lijingyidaoRep.result}
+                self.occResult[name] = {"occ": "2h", "result": lijingyidaoRep.result, "rank": lijingyidaoRep.rank}
             if self.config.item["yunchang"]["active"] and self.occDetailList[id] == "5h":  # 奶秀
                 name = self.bld.info.player[id].name
                 yunchangxinjingRep = YunChangXinJingReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime)
                 yunchangxinjingRep.replay()
-                self.occResult[name] = {"occ": "5h", "result": yunchangxinjingRep.result}
+                self.occResult[name] = {"occ": "5h", "result": yunchangxinjingRep.result, "rank": yunchangxinjingRep.rank}
             if self.config.item["butian"]["active"] and self.occDetailList[id] == "6h":  # 奶毒
                 name = self.bld.info.player[id].name
                 butianjueRep = BuTianJueReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime, self.win)
                 butianjueRep.replay()
-                self.occResult[name] = {"occ": "6h", "result": butianjueRep.result}
+                self.occResult[name] = {"occ": "6h", "result": butianjueRep.result, "rank": butianjueRep.rank}
 
     def replay(self):
         '''

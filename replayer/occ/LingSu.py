@@ -49,15 +49,13 @@ class LingSuWindow(HealerDisplayWindow):
         frame5 = tk.Frame(window, width=730, height=200, highlightthickness=1, highlightbackground="#00ac99")
         frame5.place(x=10, y=250)
 
-        lszhDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        lszhDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         lszhDisplayer.setImage("16025", "灵素中和")
         lszhDisplayer.setDouble("rate", "数量", "lszh", "num", "numPerSec")
         lszhDisplayer.setSingle("int", "HPS", "lszh", "HPS")
         lszhDisplayer.export_image(frame5, 0)
         
-        bzhfDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        bzhfDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         bzhfDisplayer.setImage("15411", "白芷含芳")
         bzhfDisplayer.setDouble("rate", "数量", "bzhf", "num", "numPerSec")
         bzhfDisplayer.setSingle("delay", "延迟", "bzhf", "delay")
@@ -65,8 +63,7 @@ class LingSuWindow(HealerDisplayWindow):
         bzhfDisplayer.setSingle("percent", "有效比例", "bzhf", "effRate")
         bzhfDisplayer.export_image(frame5, 1)
         
-        cshxDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        cshxDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         cshxDisplayer.setImage("15414", "赤芍寒香")
         cshxDisplayer.setDouble("rate", "数量", "cshx", "num", "numPerSec")
         cshxDisplayer.setSingle("delay", "延迟", "cshx", "delay")
@@ -75,8 +72,7 @@ class LingSuWindow(HealerDisplayWindow):
         cshxDisplayer.setSingle("int", "本体HPS", "cshx", "skillHPS")
         cshxDisplayer.export_image(frame5, 2)
 
-        dgsnDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        dgsnDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         dgsnDisplayer.setImage("15412", "当归四逆")
         dgsnDisplayer.setDouble("rate", "数量", "dgsn", "num", "numPerSec")
         dgsnDisplayer.setSingle("delay", "延迟", "dgsn", "delay")
@@ -84,31 +80,27 @@ class LingSuWindow(HealerDisplayWindow):
         dgsnDisplayer.setSingle("percent", "有效比例", "dgsn", "effRate")
         dgsnDisplayer.export_image(frame5, 3)
 
-        qczlDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        qczlDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         qczlDisplayer.setImage("15420", "青川濯莲")
         qczlDisplayer.setDouble("rate", "数量", "qczl", "num", "numPerSec")
         qczlDisplayer.setSingle("int", "HPS", "qczl", "HPS")
         qczlDisplayer.setSingle("percent", "有效比例", "qczl", "effRate")
         qczlDisplayer.export_image(frame5, 4)
 
-        ygzxDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        ygzxDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         ygzxDisplayer.setImage("15400", "银光照雪")
         ygzxDisplayer.setDouble("rate", "数量", "ygzx", "num", "numPerSec")
         ygzxDisplayer.setSingle("int", "HPS", "ygzx", "HPS")
         ygzxDisplayer.setSingle("percent", "有效比例", "ygzx", "effRate")
         ygzxDisplayer.export_image(frame5, 5)
 
-        info1Displayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                              self.result["overall"]["map"], self.result["overall"]["boss"])
+        info1Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         info1Displayer.setSingle("int", "七情数量", "qqhh", "num")
         info1Displayer.setSingle("int", "七情HPS", "qqhh", "HPS")
         info1Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
         info1Displayer.export_text(frame5, 6)
 
-        info2Displayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                              self.result["overall"]["map"], self.result["overall"]["boss"])
+        info2Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         info2Displayer.setSingle("percent", "配伍比例", "general", "PeiwuRate")
         info2Displayer.setSingle("int", "飘黄数量", "general", "PiaohuangNum")
         info2Displayer.setSingle("int", "配伍DPS", "general", "PeiwuDPS")
@@ -1147,6 +1139,8 @@ class LingSuReplayer(ReplayerBase):
         # 银光照雪
         self.result["skill"]["ygzx"] = {}
         self.result["skill"]["ygzx"]["num"] = ygzxSkill.getNum()
+        self.result["skill"]["ygzx"]["numPerSec"] = roundCent(
+            self.result["skill"]["ygzx"]["num"] / self.result["overall"]["sumTime"] * 1000, 2)
         effHeal = ygzxSkill.getHealEff()
         self.result["skill"]["ygzx"]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
         self.result["skill"]["ygzx"]["effRate"] = roundCent(effHeal / (ygzxSkill.getHeal() + 1e-10))
@@ -1175,6 +1169,8 @@ class LingSuReplayer(ReplayerBase):
         self.result["skill"]["general"]["PeiwuDPS"] = int(numdam1 / self.result["overall"]["sumTime"] * 1000)
         self.result["skill"]["general"]["PiaohuangDPS"] = int(numdam2 / self.result["overall"]["sumTime"] * 1000)
         self.result["skill"]["general"]["efficiency"] = bh.getNormalEfficiency()
+
+        self.getRankFromStat("lingsu")
 
         # 计算战斗回放
         self.result["replay"] = bh.getJsonReplay(self.mykey)

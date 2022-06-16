@@ -24,49 +24,35 @@ class SingleSkillDisplayer():
     单个技能展示类，用于整理并显示单独的技能。
     '''
 
-    def getSkillPercent(self, name, key, value):
+    def getSkillPercent(self, name, key):
         '''
         获取对应统计数据的百分数.
         params:
         - name: results中的分类，用于计算百分位数.
         - key: results中的键，用于计算百分位数.
-        - value: 对应的值.
         returns:
         - num: 记录总数量.
         - percent: 排名百分位.
         - color: 排名颜色.
         '''
-        value = getDirection(key) * value
-        percent_key = "%s-%s-%s-%s-%s" % (self.occ, self.map, self.boss, name, key)
-        if percent_key in STAT_PERCENT:
-            # 计算百分位数流程
-            result = STAT_PERCENT[percent_key]
-            num = result["num"]
-            table = json.loads(result["value"])
-            l = 0
-            r = 100
-            while r > l + 1:
-                m = (l + r + 1) // 2
-                if value >= table[m]:
-                    l = m
-                else:
-                    r = m
-            if m >= 95:
+        if name in self.rank and key in self.rank[name]:
+            # 查找成功
+            num = self.rank[name][key]["num"]
+            percent = self.rank[name][key]["percent"]
+            if percent >= 95:
                 color = "#ff7700"
-            elif m >= 75:
+            elif percent >= 75:
                 color = "#330077"
-            elif m >= 50:
+            elif percent >= 50:
                 color = "#0000ff"
-            elif m >= 25:
+            elif percent >= 25:
                 color = "#007700"
             else:
                 color = "#aaaaaa"
-            percent = m
             return num, percent, color
         else:
-            # 缺省值流程
+            # 查找失败
             return 0, 0, "#000000"
-
 
     def export_image(self, frame, pos):
         '''
@@ -98,19 +84,21 @@ class SingleSkillDisplayer():
             text = ""
             if line[0] == "int":
                 text = "%d\n" % line[2]
-                num, percent, color = self.getSkillPercent(line[3], line[4], line[2])
+                num, percent, color = self.getSkillPercent(line[3], line[4])
             elif line[0] == "percent":
                 text = "%s%%\n" % parseCent(line[2])
-                num, percent, color = self.getSkillPercent(line[3], line[4], line[2])
+                num, percent, color = self.getSkillPercent(line[3], line[4])
             elif line[0] == "delay":
                 text = "%dms\n" % line[2]
-                num, percent, color = self.getSkillPercent(line[3], line[4], line[2])
+                num, percent, color = self.getSkillPercent(line[3], line[4])
             elif line[0] == "plus":
                 text = "%d+%d\n" % (line[2], line[5])
-                num, percent, color = self.getSkillPercent(line[3], line[4], line[2])
+                num, percent, color = self.getSkillPercent(line[3], line[4])
             elif line[0] == "rate":
                 text = "%d(%.2f)\n" % (line[2], line[5])
-                num, percent, color = self.getSkillPercent(line[6], line[7], line[5])
+                num, percent, color = self.getSkillPercent(line[6], line[7])
+            else:
+                num, percent, color = 0, 0, "#000000"
             if num > 0:
                 descText = "排名：%d%%\n数量：%d" % (percent, num)
             else:
@@ -146,19 +134,21 @@ class SingleSkillDisplayer():
             text = ""
             if line[0] == "int":
                 text = "%d\n" % line[2]
-                num, percent, color = self.getSkillPercent(line[3], line[4], line[2])
+                num, percent, color = self.getSkillPercent(line[3], line[4])
             elif line[0] == "percent":
                 text = "%s%%\n" % parseCent(line[2])
-                num, percent, color = self.getSkillPercent(line[3], line[4], line[2])
+                num, percent, color = self.getSkillPercent(line[3], line[4])
             elif line[0] == "delay":
                 text = "%dms\n" % line[2]
-                num, percent, color = self.getSkillPercent(line[3], line[4], line[2])
+                num, percent, color = self.getSkillPercent(line[3], line[4])
             elif line[0] == "plus":
                 text = "%d+%d\n" % (line[2], line[5])
-                num, percent, color = self.getSkillPercent(line[3], line[4], line[2])
+                num, percent, color = self.getSkillPercent(line[3], line[4])
             elif line[0] == "rate":
                 text = "%d(%.2f)\n" % (line[2], line[5])
-                num, percent, color = self.getSkillPercent(line[6], line[7], line[5])
+                num, percent, color = self.getSkillPercent(line[6], line[7])
+            else:
+                num, percent, color = 0, 0, "#000000"
             if num > 0:
                 descText = "排名：%d%%\n数量：%d" % (percent, num)
             else:
@@ -225,21 +215,17 @@ class SingleSkillDisplayer():
         self.iconID = iconID
         self.skillName = skillName
 
-    def __init__(self, skill, occ, map, boss):
+    def __init__(self, skill, rank):
         '''
         初始化.
         params:
         - skill: 技能统计的结果.
-        - occ: 所属心法.
-        - map: 复盘对应的地图(原始字符串).
-        - boss: 复盘对应的boss.
+        - rank: 排名列表.
         '''
         self.withImage = False
         self.attrib = []
         self.skill = skill
-        self.occ = occ
-        self.map = getIDFromMap(map)
-        self.boss = boss
+        self.rank = rank
 
 
 class HealerDisplayWindow():
@@ -392,17 +378,16 @@ class HealerDisplayWindow():
                 tb.AppendContext(record["heal"])
             else:
                 # 当前玩家
-                hpsDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                                    self.result["overall"]["map"], self.result["overall"]["boss"])
+                hpsDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
 
-                num, percent, color = hpsDisplayer.getSkillPercent("healer", "healEff", record["healEff"])
+                num, percent, color = hpsDisplayer.getSkillPercent("healer", "healEff")
                 if num > 0:
                     descText = "排名：%d%%\n数量：%d" % (percent, num)
                 else:
                     descText = "排名未知"
                 tb.AppendHeader(record["healEff"], descText, color=color)
 
-                num, percent, color = hpsDisplayer.getSkillPercent("healer", "heal", record["heal"])
+                num, percent, color = hpsDisplayer.getSkillPercent("healer", "heal")
                 if num > 0:
                     descText = "排名：%d%%\n数量：%d" % (percent, num)
                 else:
@@ -522,11 +507,13 @@ class HealerDisplayWindow():
         '''
         初始化.
         params:
+        - config: 设置类.
         - result: 复盘逻辑返回的结果.
         '''
         self.config = config
         self.mask = self.config.item["general"]["mask"]
-        self.result = result
+        self.result = result["result"]
+        self.rank = result["rank"]
         if "mask" in self.result["overall"]:
             self.mask = self.result["overall"]["mask"]  # 使用数据中的mask选项顶掉框架中现场读取的判定
         self.themeColor = "#000000"  # 默认为黑色

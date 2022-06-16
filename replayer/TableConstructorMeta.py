@@ -22,27 +22,27 @@ class TableConstructorMeta(TableConstructor):
         添加心法复盘按钮。
         '''
         if xfResult["occ"] == "22h":
-            self.frame.occReplay[name] = XiangZhiProWindow(self.config, xfResult["result"])
+            self.frame.occReplay[name] = XiangZhiProWindow(self.config, xfResult)
             button = tk.Button(self.frame, text='相知', height=1, command=self.frame.occReplay[name].start, bg=getColor("22"))
             button.grid(row=self.nowx, column=self.nowy)
             self.nowy += 1
         elif xfResult["occ"] == "212h":
-            self.frame.occReplay[name] = LingSuWindow(self.config, xfResult["result"])
+            self.frame.occReplay[name] = LingSuWindow(self.config, xfResult)
             button = tk.Button(self.frame, text='灵素', height=1, command=self.frame.occReplay[name].start, bg=getColor("212"))
             button.grid(row=self.nowx, column=self.nowy)
             self.nowy += 1
         elif xfResult["occ"] == "2h":
-            self.frame.occReplay[name] = LiJingYiDaoWindow(self.config, xfResult["result"])
+            self.frame.occReplay[name] = LiJingYiDaoWindow(self.config, xfResult)
             button = tk.Button(self.frame, text='离经易道', height=1, command=self.frame.occReplay[name].start, bg=getColor("2"))
             button.grid(row=self.nowx, column=self.nowy)
             self.nowy += 1
         elif xfResult["occ"] == "5h":
-            self.frame.occReplay[name] = YunChangXinJingWindow(self.config, xfResult["result"])
+            self.frame.occReplay[name] = YunChangXinJingWindow(self.config, xfResult)
             button = tk.Button(self.frame, text='云裳心经', height=1, command=self.frame.occReplay[name].start, bg=getColor("5"))
             button.grid(row=self.nowx, column=self.nowy)
             self.nowy += 1
         elif xfResult["occ"] == "6h":
-            self.frame.occReplay[name] = BuTianJueWindow(self.config, xfResult["result"])
+            self.frame.occReplay[name] = BuTianJueWindow(self.config, xfResult)
             button = tk.Button(self.frame, text='补天诀', height=1, command=self.frame.occReplay[name].start, bg=getColor("6"))
             button.grid(row=self.nowx, column=self.nowy)
             self.nowy += 1

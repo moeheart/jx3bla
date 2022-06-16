@@ -77,8 +77,7 @@ class XiangZhiProWindow(HealerDisplayWindow):
         frame5 = tk.Frame(window, width=730, height=200, highlightthickness=1, highlightbackground=self.themeColor)
         frame5.place(x=10, y=250)
 
-        mhsnDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        mhsnDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         mhsnDisplayer.setImage("7059", "梅花三弄")
         mhsnDisplayer.setDouble("rate", "数量", "meihua", "num", "numPerSec")
         mhsnDisplayer.setSingle("percent", "覆盖率", "meihua", "cover")
@@ -87,8 +86,7 @@ class XiangZhiProWindow(HealerDisplayWindow):
         mhsnDisplayer.setSingle("int", "平吟HPS", "meihua", "pingyinHPS")
         mhsnDisplayer.export_image(frame5, 0)
 
-        zhiDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        zhiDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         zhiDisplayer.setImage("7174", "徵")
         zhiDisplayer.setDouble("rate", "数量", "zhi", "num", "numPerSec")
         zhiDisplayer.setSingle("delay", "延迟", "zhi", "delay")
@@ -97,8 +95,7 @@ class XiangZhiProWindow(HealerDisplayWindow):
         zhiDisplayer.setSingle("percent", "有效比例", "zhi", "effRate")
         zhiDisplayer.export_image(frame5, 1)
 
-        jueDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        jueDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         jueDisplayer.setImage("7176", "角")
         jueDisplayer.setDouble("rate", "数量", "jue", "num", "numPerSec")
         jueDisplayer.setSingle("delay", "延迟", "jue", "delay")
@@ -106,8 +103,7 @@ class XiangZhiProWindow(HealerDisplayWindow):
         jueDisplayer.setSingle("percent", "覆盖率", "jue", "cover")
         jueDisplayer.export_image(frame5, 2)
 
-        shangDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        shangDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         shangDisplayer.setImage("7172", "商")
         shangDisplayer.setDouble("rate", "数量", "shang", "num", "numPerSec")
         shangDisplayer.setSingle("delay", "延迟", "shang", "delay")
@@ -115,8 +111,7 @@ class XiangZhiProWindow(HealerDisplayWindow):
         shangDisplayer.setSingle("percent", "覆盖率", "shang", "cover")
         shangDisplayer.export_image(frame5, 3)
 
-        gongDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        gongDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         gongDisplayer.setImage("7173", "宫")
         gongDisplayer.setDouble("rate", "数量", "gong", "num", "numPerSec")
         gongDisplayer.setSingle("delay", "延迟", "gong", "delay")
@@ -125,8 +120,7 @@ class XiangZhiProWindow(HealerDisplayWindow):
         gongDisplayer.setSingle("percent", "有效比例", "gong", "effRate")
         gongDisplayer.export_image(frame5, 4)
 
-        yuDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                           self.result["overall"]["map"], self.result["overall"]["boss"])
+        yuDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         yuDisplayer.setImage("7175", "羽")
         yuDisplayer.setDouble("rate", "数量", "yu", "num", "numPerSec")
         yuDisplayer.setSingle("delay", "延迟", "yu", "delay")
@@ -134,15 +128,13 @@ class XiangZhiProWindow(HealerDisplayWindow):
         yuDisplayer.setSingle("percent", "有效比例", "yu", "effRate")
         yuDisplayer.export_image(frame5, 5)
 
-        info1Displayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                              self.result["overall"]["map"], self.result["overall"]["boss"])
+        info1Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         info1Displayer.setSingle("int", "相依数量", "xiangyi", "num")
         info1Displayer.setSingle("int", "相依HPS", "xiangyi", "HPS")
         info1Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
         info1Displayer.export_text(frame5, 6)
 
-        info2Displayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                              self.result["overall"]["map"], self.result["overall"]["boss"])
+        info2Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         info2Displayer.setSingle("int", "APS估算", "general", "APS")
         info2Displayer.setSingle("int", "桑柔DPS", "general", "SangrouDPS")
         info2Displayer.setSingle("int", "庄周梦DPS", "general", "ZhuangzhouDPS")
@@ -1123,6 +1115,7 @@ class XiangZhiProReplayer(ReplayerBase):
         # 羽
         self.result["skill"]["yu"] = {}
         self.result["skill"]["yu"]["num"] = yuSkill.getNum()
+        self.result["skill"]["yu"]["numPerSec"] = roundCent(self.result["skill"]["yu"]["num"] / self.result["overall"]["sumTime"] * 1000, 2)
         self.result["skill"]["yu"]["delay"] = int(yuSkill.getAverageDelay())
         effHeal = yuSkill.getHealEff()
         self.result["skill"]["yu"]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
@@ -1210,6 +1203,8 @@ class XiangZhiProReplayer(ReplayerBase):
         else:  # 默认为盾鸽
             self.result["replay"]["heatType"] = "meihua"
             self.result["replay"]["heat"] = overallShieldHeat
+
+        self.getRankFromStat("xiangzhi")
 
         # print(self.result["healer"])
         # print(self.result["dps"])

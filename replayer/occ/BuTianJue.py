@@ -51,8 +51,7 @@ class BuTianJueWindow(HealerDisplayWindow):
         frame5 = tk.Frame(window, width=730, height=200, highlightthickness=1, highlightbackground="#3f1f9f")
         frame5.place(x=10, y=250)
         
-        bcqsDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        bcqsDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         bcqsDisplayer.setImage("2745", "冰蚕牵丝")
         bcqsDisplayer.setDouble("rate", "数量", "bcqs", "num", "numPerSec")
         bcqsDisplayer.setSingle("delay", "延迟", "bcqs", "delay")
@@ -60,8 +59,7 @@ class BuTianJueWindow(HealerDisplayWindow):
         bcqsDisplayer.setSingle("percent", "有效比例", "bcqs", "effRate")
         bcqsDisplayer.export_image(frame5, 0)
 
-        zwjtDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                             self.result["overall"]["map"], self.result["overall"]["boss"])
+        zwjtDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         zwjtDisplayer.setImage("2746", "醉舞九天")
         zwjtDisplayer.setDouble("rate", "数量", "zwjt", "num", "numPerSec")
         zwjtDisplayer.setSingle("delay", "延迟", "zwjt", "delay")
@@ -69,8 +67,7 @@ class BuTianJueWindow(HealerDisplayWindow):
         zwjtDisplayer.setSingle("percent", "有效比例", "zwjt", "effRate")
         zwjtDisplayer.export_image(frame5, 1)
 
-        ssztDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                           self.result["overall"]["map"], self.result["overall"]["boss"])
+        ssztDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         ssztDisplayer.setImage("3028", "圣手织天")
         ssztDisplayer.setDouble("rate", "数量", "sszt", "num", "numPerSec")
         ssztDisplayer.setSingle("delay", "延迟", "sszt", "delay")
@@ -78,32 +75,28 @@ class BuTianJueWindow(HealerDisplayWindow):
         ssztDisplayer.setSingle("percent", "有效比例", "sszt", "effRate")
         ssztDisplayer.export_image(frame5, 2)
 
-        qdtrDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                           self.result["overall"]["map"], self.result["overall"]["boss"])
+        qdtrDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         qdtrDisplayer.setImage("2748", "千蝶吐瑞")
         qdtrDisplayer.setDouble("rate", "数量", "qdtr", "num", "numPerSec")
         qdtrDisplayer.setSingle("int", "HPS", "qdtr", "HPS")
         qdtrDisplayer.setSingle("percent", "有效比例", "qdtr", "effRate")
         qdtrDisplayer.export_image(frame5, 3)
 
-        dcDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                           self.result["overall"]["map"], self.result["overall"]["boss"])
+        dcDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         dcDisplayer.setImage("9567", "蝶池")
         dcDisplayer.setDouble("rate", "数量", "dc", "num", "numPerSec")
         dcDisplayer.setSingle("int", "HPS", "dc", "HPS")
         dcDisplayer.setSingle("percent", "有效比例", "dc", "effRate")
         dcDisplayer.export_image(frame5, 4)
 
-        mxymDisplayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                           self.result["overall"]["map"], self.result["overall"]["boss"])
+        mxymDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         mxymDisplayer.setImage("7255", "迷仙引梦")
         mxymDisplayer.setDouble("rate", "数量", "mxym", "num", "numPerSec")
         mxymDisplayer.setSingle("int", "HPS", "mxym", "HPS")
         mxymDisplayer.setSingle("percent", "覆盖率", "mxym", "cover")
         mxymDisplayer.export_image(frame5, 5)
 
-        info1Displayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                              self.result["overall"]["map"], self.result["overall"]["boss"])
+        info1Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         info1Displayer.setSingle("int", "蝶旋HPS", "dx", "HPS")
         info1Displayer.setSingle("int", "蝶旋次数", "dx", "num")
         info1Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
@@ -111,8 +104,7 @@ class BuTianJueWindow(HealerDisplayWindow):
         info1Displayer.setSingle("percent", "女娲覆盖率", "nvwa", "cover")
         info1Displayer.export_text(frame5, 6)
 
-        info2Displayer = SingleSkillDisplayer(self.result["skill"], self.occ,
-                                              self.result["overall"]["map"], self.result["overall"]["boss"])
+        info2Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         info2Displayer.setSingle("percent", "绮栊覆盖率", "qilong", "cover")
         info2Displayer.setSingle("percent", "gcd效率", "general", "efficiency")
         info2Displayer.setSingle("percent", "战斗效率", "general", "efficiencyNonGcd")
@@ -380,7 +372,7 @@ class BuTianJueWindow(HealerDisplayWindow):
         '''
         初始化.
         params:
-        - result: 灵素复盘的结果.
+        - result: 奶毒复盘的结果.
         '''
         super().__init__(config, result)
         self.setThemeColor("#3f1f9f")
@@ -1097,6 +1089,8 @@ class BuTianJueReplayer(ReplayerBase):
         self.result["replay"]["ghzs"] = ghzsDict.log
         self.result["replay"]["zwjt"] = zwjtDict.log
 
+        self.getRankFromStat("butianjue")
+
         # self.result["replay"]["heat"] = {"interval": 500, "timeline": hotHeat}
 
         # print(self.result["healer"])
@@ -1168,7 +1162,7 @@ class BuTianJueReplayer(ReplayerBase):
 
     def replay(self):
         '''
-        开始灵素复盘分析.
+        开始奶毒复盘分析.
         '''
         self.FirstStageAnalysis()
         self.SecondStageAnalysis()
