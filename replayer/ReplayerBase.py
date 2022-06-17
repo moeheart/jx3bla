@@ -72,7 +72,7 @@ class RankCalculator():
             self.rank[name] = {}
             for key in self.result["skill"][name]:
                 value = self.result["skill"][name][key]
-                num, percent = self.getSkillPercent(occ, map, boss, name, key ,value)
+                num, percent = self.getSkillPercent(occ, map, boss, name, key, value)
                 self.rank[name][key] = {"num": num, "percent": percent}
         # 记录HPS
         self.rank["healer"] = {}

@@ -80,6 +80,24 @@
     top: 620px;
 }
 
+.highlight{
+    background-color: #ffff77;
+}
+
+.float-window{
+    position: absolute;
+    left: 500px;
+    top: 300px;
+    background-color: #bbbbbb;
+    /* width: 100px; */
+    font-size: 14px;
+}
+
+.fw-title{
+    font-size: 18px;
+    font-weight: bold;
+}
+
 .occ-1, .occ-1d, .occ-1t{
 	color: rgb(210, 180, 0);
 }
