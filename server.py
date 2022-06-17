@@ -787,7 +787,8 @@ def showReplayPro():
     elif len(result[0][2]) >= 4 and result[0][2][:4] == "奶歌复盘":
         # 生成奶歌复盘
         text = result[0][0].decode().replace('\n', '\\n').replace('\t', '\\t')
-        jResult = json.loads(text)
+        text1 = text.replace("'", '"')
+        jResult = json.loads(text1)
         rc = RankCalculator(jResult)
         print(result[0][3])
         rank = rc.getRankFromStat("xiangzhi")
