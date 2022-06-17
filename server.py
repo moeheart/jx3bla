@@ -14,11 +14,11 @@ import configparser
 import os
 import traceback
 from Constants import *
+
 from tools.Functions import *
 from equip.AttributeDisplay import AttributeDisplay
-
 from tools.painter import XiangZhiPainter
-from ReplayBase import RankCalculator
+from replayer.ReplayerBase import RankCalculator
 
 version = EDITION
 ip = "139.199.102.41"
