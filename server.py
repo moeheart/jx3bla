@@ -18,6 +18,7 @@ from tools.Functions import *
 from equip.AttributeDisplay import AttributeDisplay
 
 from tools.painter import XiangZhiPainter
+from ReplayBase import RankCalculator
 
 version = EDITION
 ip = "139.199.102.41"
@@ -775,7 +776,7 @@ def showReplayPro():
     id = request.args.get('id')
     db = pymysql.connect(ip, app.dbname, app.dbpwd, "jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
-    sql = """SELECT statistics, public, replayedition FROM ReplayProStat WHERE shortID = %s OR hash = "%s";"""%(id, id)
+    sql = """SELECT statistics, public, replayedition, occ FROM ReplayProStat WHERE shortID = %s OR hash = "%s";"""%(id, id)
     cursor.execute(sql)
     result = cursor.fetchall()
     db.close()
@@ -786,7 +787,12 @@ def showReplayPro():
     elif len(result[0][2]) >= 4 and result[0][2][:4] == "奶歌复盘":
         # 生成奶歌复盘
         text = result[0][0].decode().replace('\n', '\\n').replace('\t', '\\t')
-        return render_template("XiangZhiReplayPro.html", raw=text, edition=EDITION)
+        jResult = json.loads(text)
+        rc = RankCalculator(jResult)
+        print(result[0][3])
+        rank = rc.getRankFromStat("xiangzhi")
+        rankStr = json.dumps(rank)
+        return render_template("XiangZhiReplayPro.html", raw=text, rank=rankStr, edition=EDITION)
     return jsonify({'text': text.decode()})
 
 @app.route('/getReplayPro', methods=['GET'])
