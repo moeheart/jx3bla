@@ -136,7 +136,7 @@ class LuaTableAnalyserToDict():
                 self.nextI = int((self.lastPercent + 1) * self.maxn / 100)
 
             c = self.s[nowi]
-            if c == "[":
+            if c == "[" and keyQuote != 1:
                 keyStart = 1
             elif c == "{" and keyQuote != 1:
                 jdata, pn = self.parseLuatable(nowi + 1, maxn)

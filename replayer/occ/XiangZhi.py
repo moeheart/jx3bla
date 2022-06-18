@@ -691,6 +691,7 @@ class XiangZhiProReplayer(ReplayerBase):
                      [yuSkill, "羽", ["14141", "14354", "14355", "14356"], "7175", True, 0, False, True],
                      [shangSkill, "商", ["14138"], "7172", True, 0, False, True],
                      [jueSkill, "角", ["14139"], "7176", True, 0, False, True],
+                     [None, "风雷引", ["15502"], "13", True, 0, False, False],
                      [None, "一指回鸾", ["14169"], "7045", True, 0, False, True],
                      [None, "孤影化双", ["14081"], "7052", False, 0, False, True],
                      [None, "云生结海", ["14075"], "7048", False, 0, False, True],

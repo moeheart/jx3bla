@@ -178,6 +178,10 @@ class BattleLogData():
             self.info.map = "25人普通雷域大泽"
         elif self.info.map == "25人英雄雷域大澤":
             self.info.map = "25人英雄雷域大泽"
+        elif self.info.map == "25人普通河陽之戰":
+            self.info.map = "25人普通河阳之战"
+        elif self.info.map == "25人英雄河陽之戰":
+            self.info.map = "25人英雄河阳之战"
         self.info.boss = filePath.split('/')[-1].split('\\')[-1].split('-')[7].split('.')[0]
 
 

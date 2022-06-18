@@ -876,7 +876,7 @@ class YunChangXinJingReplayer(ReplayerBase):
                             # 无法分析的技能
                         elif event.id not in xiangZhiUnimportant:
                             pass
-                            print("[YunChangNonRec]", event.time, event.id, event.heal, event.healEff)
+                            # print("[YunChangNonRec]", event.time, event.id, event.heal, event.healEff)
 
                         # 统计不计入时间轴的治疗量
                         if event.id in ["6209"]:  # 辞致

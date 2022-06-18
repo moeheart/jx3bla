@@ -7,6 +7,7 @@ from tkinter import messagebox
 from PIL import Image
 from PIL import ImageTk
 import json
+import webbrowser
 
 from replayer.TableConstructor import TableConstructor, ToolTip
 from replayer.Percent import *

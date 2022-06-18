@@ -211,6 +211,7 @@ class SingleDataShout(SingleData):
         params:
         - item: jx3dat形式的事件信息.
         '''
+        # print("[DataShout]", item)
         self.time = int(item["3"])
         self.content = item["5"]
         self.id = item["6"]
