@@ -1205,6 +1205,7 @@ class XiangZhiProReplayer(ReplayerBase):
             self.result["replay"]["heat"] = overallShieldHeat
 
         self.getRankFromStat("xiangzhi")
+        self.result["rank"] = self.rank
 
         # print(self.result["healer"])
         # print(self.result["dps"])

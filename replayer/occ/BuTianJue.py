@@ -1090,6 +1090,7 @@ class BuTianJueReplayer(ReplayerBase):
         self.result["replay"]["zwjt"] = zwjtDict.log
 
         self.getRankFromStat("butianjue")
+        self.result["rank"] = self.rank
 
         # self.result["replay"]["heat"] = {"interval": 500, "timeline": hotHeat}
 

@@ -1,4 +1,4 @@
-occ = "xiangzhi";
+
 
 function parseCent(x) {
     return (parseInt(x * 10000) / 100) + '%'
@@ -247,73 +247,72 @@ var SingleSkillDisplayer = function(skill, rank){
 
 var skillPanel = $('#skill');
 
+if (occ == "xiangzhi") {
+    mhsnDisplayer = new SingleSkillDisplayer(resObj.skill, rankObj);
+    mhsnDisplayer.setImage("7059", "梅花三弄")
+    mhsnDisplayer.setDouble("rate", "数量", "meihua", "num", "numPerSec")
+    mhsnDisplayer.setSingle("percent", "覆盖率", "meihua", "cover")
+    mhsnDisplayer.setSingle("delay", "延迟", "meihua", "delay")
+    mhsnDisplayer.setSingle("int", "犹香HPS", "meihua", "youxiangHPS")
+    mhsnDisplayer.setSingle("int", "平吟HPS", "meihua", "pingyinHPS")
+    mhsnDisplayer.export(skillPanel, 0, "image");
 
-mhsnDisplayer = new SingleSkillDisplayer(resObj.skill, rankObj);
-mhsnDisplayer.setImage("7059", "梅花三弄")
-mhsnDisplayer.setDouble("rate", "数量", "meihua", "num", "numPerSec")
-mhsnDisplayer.setSingle("percent", "覆盖率", "meihua", "cover")
-mhsnDisplayer.setSingle("delay", "延迟", "meihua", "delay")
-mhsnDisplayer.setSingle("int", "犹香HPS", "meihua", "youxiangHPS")
-mhsnDisplayer.setSingle("int", "平吟HPS", "meihua", "pingyinHPS")
-mhsnDisplayer.export(skillPanel, 0, "image");
+    zhiDisplayer = new SingleSkillDisplayer(resObj.skill, rankObj);
+    zhiDisplayer.setImage("7174", "徵")
+    zhiDisplayer.setDouble("rate", "数量", "zhi", "num", "numPerSec")
+    zhiDisplayer.setSingle("delay", "延迟", "zhi", "delay")
+    zhiDisplayer.setSingle("int", "HPS", "zhi", "HPS")
+    zhiDisplayer.setSingle("int", "古道HPS", "zhi", "gudaoHPS")
+    zhiDisplayer.setSingle("percent", "有效比例", "zhi", "effRate")
+    zhiDisplayer.export(skillPanel, 1, "image");
 
+    jueDisplayer = new SingleSkillDisplayer(resObj.skill, rankObj);
+    jueDisplayer.setImage("7176", "角")
+    jueDisplayer.setDouble("rate", "数量", "jue", "num", "numPerSec")
+    jueDisplayer.setSingle("delay", "延迟", "jue", "delay")
+    jueDisplayer.setSingle("int", "HPS", "jue", "HPS")
+    jueDisplayer.setSingle("percent", "覆盖率", "jue", "cover")
+    jueDisplayer.export(skillPanel, 2, "image");
 
-zhiDisplayer = new SingleSkillDisplayer(resObj.skill, rankObj);
-zhiDisplayer.setImage("7174", "徵")
-zhiDisplayer.setDouble("rate", "数量", "zhi", "num", "numPerSec")
-zhiDisplayer.setSingle("delay", "延迟", "zhi", "delay")
-zhiDisplayer.setSingle("int", "HPS", "zhi", "HPS")
-zhiDisplayer.setSingle("int", "古道HPS", "zhi", "gudaoHPS")
-zhiDisplayer.setSingle("percent", "有效比例", "zhi", "effRate")
-zhiDisplayer.export(skillPanel, 1, "image");
+    shangDisplayer = new SingleSkillDisplayer(resObj.skill, rankObj);
+    shangDisplayer.setImage("7172", "商")
+    shangDisplayer.setDouble("rate", "数量", "shang", "num", "numPerSec")
+    shangDisplayer.setSingle("delay", "延迟", "shang", "delay")
+    shangDisplayer.setSingle("int", "HPS", "shang", "HPS")
+    shangDisplayer.setSingle("percent", "覆盖率", "shang", "cover")
+    shangDisplayer.export(skillPanel, 3, "image");
 
-jueDisplayer = new SingleSkillDisplayer(resObj.skill, rankObj);
-jueDisplayer.setImage("7176", "角")
-jueDisplayer.setDouble("rate", "数量", "jue", "num", "numPerSec")
-jueDisplayer.setSingle("delay", "延迟", "jue", "delay")
-jueDisplayer.setSingle("int", "HPS", "jue", "HPS")
-jueDisplayer.setSingle("percent", "覆盖率", "jue", "cover")
-jueDisplayer.export(skillPanel, 2, "image");
+    gongDisplayer = new SingleSkillDisplayer(resObj.skill, rankObj);
+    gongDisplayer.setImage("7173", "宫")
+    gongDisplayer.setDouble("rate", "数量", "gong", "num", "numPerSec")
+    gongDisplayer.setSingle("delay", "延迟", "gong", "delay")
+    gongDisplayer.setSingle("int", "HPS", "gong", "HPS")
+    gongDisplayer.setSingle("int", "枕流HPS", "gong", "zhenliuHPS")
+    gongDisplayer.setSingle("percent", "有效比例", "gong", "effRate")
+    gongDisplayer.export(skillPanel, 4, "image");
 
-shangDisplayer = new SingleSkillDisplayer(resObj.skill, rankObj);
-shangDisplayer.setImage("7172", "商")
-shangDisplayer.setDouble("rate", "数量", "shang", "num", "numPerSec")
-shangDisplayer.setSingle("delay", "延迟", "shang", "delay")
-shangDisplayer.setSingle("int", "HPS", "shang", "HPS")
-shangDisplayer.setSingle("percent", "覆盖率", "shang", "cover")
-shangDisplayer.export(skillPanel, 3, "image");
+    yuDisplayer = new SingleSkillDisplayer(resObj.skill, rankObj);
+    yuDisplayer.setImage("7175", "羽")
+    yuDisplayer.setDouble("rate", "数量", "yu", "num", "numPerSec")
+    yuDisplayer.setSingle("delay", "延迟", "yu", "delay")
+    yuDisplayer.setSingle("int", "HPS", "yu", "HPS")
+    yuDisplayer.setSingle("percent", "有效比例", "yu", "effRate")
+    yuDisplayer.export(skillPanel, 5, "image");
 
-gongDisplayer = new SingleSkillDisplayer(resObj.skill, rankObj);
-gongDisplayer.setImage("7173", "宫")
-gongDisplayer.setDouble("rate", "数量", "gong", "num", "numPerSec")
-gongDisplayer.setSingle("delay", "延迟", "gong", "delay")
-gongDisplayer.setSingle("int", "HPS", "gong", "HPS")
-gongDisplayer.setSingle("int", "枕流HPS", "gong", "zhenliuHPS")
-gongDisplayer.setSingle("percent", "有效比例", "gong", "effRate")
-gongDisplayer.export(skillPanel, 4, "image");
+    info1Displayer = new SingleSkillDisplayer(resObj.skill, rankObj);
+    info1Displayer.setSingle("int", "相依数量", "xiangyi", "num")
+    info1Displayer.setSingle("int", "相依HPS", "xiangyi", "HPS")
+    info1Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
+    info1Displayer.export(skillPanel, 6, "text");
 
-yuDisplayer = new SingleSkillDisplayer(resObj.skill, rankObj);
-yuDisplayer.setImage("7175", "羽")
-yuDisplayer.setDouble("rate", "数量", "yu", "num", "numPerSec")
-yuDisplayer.setSingle("delay", "延迟", "yu", "delay")
-yuDisplayer.setSingle("int", "HPS", "yu", "HPS")
-yuDisplayer.setSingle("percent", "有效比例", "yu", "effRate")
-yuDisplayer.export(skillPanel, 5, "image");
-
-info1Displayer = new SingleSkillDisplayer(resObj.skill, rankObj);
-info1Displayer.setSingle("int", "相依数量", "xiangyi", "num")
-info1Displayer.setSingle("int", "相依HPS", "xiangyi", "HPS")
-info1Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
-info1Displayer.export(skillPanel, 6, "text");
-
-info2Displayer = new SingleSkillDisplayer(resObj.skill, rankObj);
-info2Displayer.setSingle("int", "APS估算", "general", "APS")
-info2Displayer.setSingle("int", "桑柔DPS", "general", "SangrouDPS")
-info2Displayer.setSingle("int", "庄周梦DPS", "general", "ZhuangzhouDPS")
-info2Displayer.setSingle("int", "玉简DPS", "general", "YujianDPS")
-info2Displayer.setSingle("percent", "战斗效率", "general", "efficiency")
-info2Displayer.export(skillPanel, 7, "text");
-
+    info2Displayer = new SingleSkillDisplayer(resObj.skill, rankObj);
+    info2Displayer.setSingle("int", "APS估算", "general", "APS")
+    info2Displayer.setSingle("int", "桑柔DPS", "general", "SangrouDPS")
+    info2Displayer.setSingle("int", "庄周梦DPS", "general", "ZhuangzhouDPS")
+    info2Displayer.setSingle("int", "玉简DPS", "general", "YujianDPS")
+    info2Displayer.setSingle("percent", "战斗效率", "general", "efficiency")
+    info2Displayer.export(skillPanel, 7, "text");
+}
 
 $('.stat-rank').on('mouseout', function(e) {
     var target = $(e.target);
@@ -355,33 +354,36 @@ ctx.lineWidth = 1;
 ctx.strokeRect(0,0,battleTimePixels,40);
 ctx.stroke();
 nowt = 0;
-if (resObj.replay.heatType){
-    if (resObj.replay.heatType == "meihua"){
-        nowTimePixel = 0
-        for (i in resObj.replay.heat.timeline) {
-            var line = resObj.replay.heat.timeline[i];
-            ctx.fillStyle = "rgb(" + parseInt(255 - (255 - 100) * line / 100) + "," +
-                                     parseInt(255 - (255 - 250) * line / 100) + "," +
-                                     parseInt(255 - (255 - 180) * line / 100) + ")";
-            ctx.fillRect(nowTimePixel, 1, 5, 39);
-            nowTimePixel += 5;
-        }
-    }
-    else if (resObj.replay.heatType == "hot"){
-        yPos = [1, 9, 17, 25, 33, 39];
-        for (var j = 0; j < 5; j++) {
-            nowTimePixel = 0;
-            for (i in resObj.replay.heat.timeline[j]) {
-                var line = resObj.replay.heat.timeline[j][i];
-                if (line == 0)
-                    ctx.fillStyle = "#ff7777";
-                else {
-                    ctx.fillStyle = "rgb(" + parseInt(255 - (255 - 100) * line / 100) + "," +
-                                             parseInt(255 - (255 - 250) * line / 100) + "," +
-                                             parseInt(255 - (255 - 180) * line / 100) + ")";
-                }
-                ctx.fillRect(nowTimePixel, yPos[j], 5, yPos[j+1] - yPos[j]);
+
+if (occ == "xiangzhi") {
+    if (resObj.replay.heatType){
+        if (resObj.replay.heatType == "meihua"){
+            nowTimePixel = 0
+            for (i in resObj.replay.heat.timeline) {
+                var line = resObj.replay.heat.timeline[i];
+                ctx.fillStyle = "rgb(" + parseInt(255 - (255 - 100) * line / 100) + "," +
+                                         parseInt(255 - (255 - 250) * line / 100) + "," +
+                                         parseInt(255 - (255 - 180) * line / 100) + ")";
+                ctx.fillRect(nowTimePixel, 1, 5, 39);
                 nowTimePixel += 5;
+            }
+        }
+        else if (resObj.replay.heatType == "hot"){
+            yPos = [1, 9, 17, 25, 33, 39];
+            for (var j = 0; j < 5; j++) {
+                nowTimePixel = 0;
+                for (i in resObj.replay.heat.timeline[j]) {
+                    var line = resObj.replay.heat.timeline[j][i];
+                    if (line == 0)
+                        ctx.fillStyle = "#ff7777";
+                    else {
+                        ctx.fillStyle = "rgb(" + parseInt(255 - (255 - 100) * line / 100) + "," +
+                                                 parseInt(255 - (255 - 250) * line / 100) + "," +
+                                                 parseInt(255 - (255 - 180) * line / 100) + ")";
+                    }
+                    ctx.fillRect(nowTimePixel, yPos[j], 5, yPos[j+1] - yPos[j]);
+                    nowTimePixel += 5;
+                }
             }
         }
     }
@@ -395,10 +397,6 @@ while (nowt < battleTime) {
     ctx.font="12px Arial";
     ctx.fillText(text, pos, 26);
 }
-
-
-
-
 
 startTime = resObj.replay.startTime
 painter = $('#replay-paint')
@@ -640,7 +638,6 @@ $('.skill-active').on('mouseover', function(e) {
         text += "目标：" + target.attr("targetName") + "<br/>";
     $('.fw-content').html(text);
 });
-
 
 //part 7
 

@@ -1171,6 +1171,7 @@ class LingSuReplayer(ReplayerBase):
         self.result["skill"]["general"]["efficiency"] = bh.getNormalEfficiency()
 
         self.getRankFromStat("lingsu")
+        self.result["rank"] = self.rank
 
         # 计算战斗回放
         self.result["replay"] = bh.getJsonReplay(self.mykey)

@@ -1174,6 +1174,7 @@ class YunChangXinJingReplayer(ReplayerBase):
         self.result["replay"]["heat"] = {"interval": 500, "timeline": [xiangwuHeat, shangyuanHeat]}
 
         self.getRankFromStat("yunchangxinjing")
+        self.result["rank"] = self.rank
 
         # print(self.result["healer"])
         # print(self.result["dps"])

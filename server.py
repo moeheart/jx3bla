@@ -784,16 +784,16 @@ def showReplayPro():
         text = "结果未找到."
     elif result[0][1] == 0:
         text = "数据未公开."
-    elif len(result[0][2]) >= 4 and result[0][2][:4] == "奶歌复盘":
-        # 生成奶歌复盘
+    elif result[0][3] in ["xiangzhi", "lingsu", "lijingyidao", "butianjue", "yunchangxinjing"]:
+        # 生成复盘页面
+        occ = result[0][3]
         text = result[0][0].decode().replace('\n', '\\n').replace('\t', '\\t')
         text1 = text.replace("'", '"')
         jResult = json.loads(text1)
         rc = RankCalculator(jResult)
-        print(result[0][3])
-        rank = rc.getRankFromStat("xiangzhi")
+        rank = rc.getRankFromStat(occ)
         rankStr = json.dumps(rank)
-        return render_template("XiangZhiReplayPro.html", raw=text, rank=rankStr, edition=EDITION)
+        return render_template("HealerReplay.html", raw=text, rank=rankStr, occ=occ, edition=EDITION)
     return jsonify({'text': text.decode()})
 
 @app.route('/getReplayPro', methods=['GET'])
