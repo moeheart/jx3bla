@@ -108,7 +108,7 @@ class ReplayerBase():
         rc = RankCalculator(self.result)
         self.rank = rc.getRankFromStat(occ)
 
-    def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None):
+    def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, actorData={}):
         '''
         初始化.
         params:
@@ -117,6 +117,7 @@ class ReplayerBase():
         - path: 路径.
         - bldDict: 战斗数据缓存.
         - window: 主窗口，用于显示进度条.
+        - actorData: 演员复盘得到的统计记录.
         '''
         self.numTry = fileNameInfo[1]
         self.lastTry = fileNameInfo[2]
@@ -130,3 +131,13 @@ class ReplayerBase():
             bldDict[fileNameInfo[0]] = self.bldDict[fileNameInfo[0]]
         else:
             self.bldDict = bldDict
+        if actorData != {}:
+            self.actorData = actorData
+            self.startTime = actorData["startTime"]
+            self.finalTime = actorData["finalTime"]
+            self.win = actorData["win"]
+            self.bossBh = actorData["bossBh"]
+            self.battleDict = actorData["battleDict"]
+            self.unusualDeathDict = actorData["unusualDeathDict"]
+            self.deathDict = actorData["deathDict"]
+

@@ -655,19 +655,19 @@ class XiangZhiProReplayer(ReplayerBase):
         jueBuffDict = {}
         nongmeiDict = {}  # 弄梅
         mufengDict = BuffCounter("412", self.startTime, self.finalTime)  # 沐风
-        battleDict = {}
         firstHitDict = {}
         longkuiDict = {}
         for line in self.bld.info.player:
             shangBuffDict[line] = HotCounter("9459", self.startTime, self.finalTime)  # 商，9460=殊曲，9461=洞天
             jueBuffDict[line] = HotCounter("9463", self.startTime, self.finalTime)  # 角，9460=殊曲，9461=洞天
-            battleDict[line] = BuffCounter("0", self.startTime, self.finalTime)  # 战斗状态统计
             nongmeiDict[line] = BuffCounter("9584", self.startTime, self.finalTime)
             firstHitDict[line] = 0
             teamLog[line] = {}
             teamLastTime[line] = 0
             longkuiDict[line] = BuffCounter("20398", self.startTime, self.finalTime)
         lastSkillTime = self.startTime
+
+        battleDict = self.battleDict
 
         # 杂项
         fengleiActiveTime = self.startTime
@@ -898,9 +898,9 @@ class XiangZhiProReplayer(ReplayerBase):
 
                 # 根据战斗信息推测进战状态
                 if event.caster in self.bld.info.player and firstHitDict[event.caster] == 0 and (event.damageEff > 0 or event.healEff > 0):
-                    firstHitDict[event.caster] = 1
-                    if event.scheme == 1:
-                        battleDict[event.caster].setState(event.time, 1)
+                    pass
+                    # if event.scheme == 1:
+                    #     battleDict[event.caster].setState(event.time, 1)
 
             elif event.dataType == "Buff":
                 if event.id == "需要处理的buff！现在还没有":
@@ -941,8 +941,9 @@ class XiangZhiProReplayer(ReplayerBase):
                 pass
 
             elif event.dataType == "Battle":
-                if event.id in self.bld.info.player:
-                    battleDict[event.id].setState(event.time, event.fight)
+                pass
+                # if event.id in self.bld.info.player:
+                #     battleDict[event.id].setState(event.time, event.fight)
 
             num += 1
 
@@ -1224,6 +1225,45 @@ class XiangZhiProReplayer(ReplayerBase):
         # for line in self.result["replay"]["special"]:
         #     f1.write(str(line) + '\n')
         # f1.close()
+
+        # 计算专案组
+        self.result["review"] = {"available": 1, "content": []}
+
+        # code 1 不要死
+        num = self.deathDict[self.mykey]["num"]
+        if num > 0:
+            time = roundCent(((self.finalTime - self.startTime) - self.battleDict[self.mykey].buffTimeIntegral()) / 1000, 2)
+            self.result["review"]["content"].append({"code": 1, "duration": time, "rate": 0, "status": 3})
+        else:
+            self.result["review"]["content"].append({"code": 0, "duration": 0, "rate": 1, "status": 0})
+
+        # code 10 不要放生队友
+        num = 0
+        log = []
+        time = []
+        id = []
+        damage = []
+        for key in self.unusualDeathDict:
+            if self.unusualDeathDict[key]["num"] > 0:
+                for line in self.unusualDeathDict[key]["log"]:
+                    num += 1
+                    log.append([(int(line[0]) - self.startTime) / 1000, self.bld.info.player[key].name, "%s:%d/%d" % (line[1], line[2], line[6])])
+        log.sort(key=lambda x: x[0])
+        for line in log:
+            time.append(parseTime(line[0]))
+            id.append(line[1])
+            damage.append(line[2])
+        if num > 0:
+            self.result["review"]["content"].append({"code": 10, "time": time, "id": id, "damage": damage, "rate": 0, "status": 3})
+        else:
+            self.result["review"]["content"].append({"code": 10, "time": time, "id": id, "damage": damage, "rate": 1, "status": 0})
+
+        # code 11 保持gcd不要空转
+
+        # 测试效果
+        print("[XiangzhiReview]", self.result["review"])
+
+
 
     def scaleScore(self, x, scale):
         N = len(scale)
@@ -1543,7 +1583,7 @@ class XiangZhiProReplayer(ReplayerBase):
         self.recordRater()
         self.prepareUpload()
 
-    def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", bossBh=None, startTime=0, finalTime=0, win=0):
+    def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", actorData={}):
         '''
         初始化.
         params:
@@ -1553,23 +1593,16 @@ class XiangZhiProReplayer(ReplayerBase):
         - bldDict: 战斗数据缓存.
         - window: 主窗口，用于显示进度条.
         - myname: 需要复盘的奶歌名.
-        - bossBh: BOSS施放的技能列表类，用于生成时间轴.
-        - startTime: 演员复盘推断得到的战斗开始时间.
-        - finalTime: 演员复盘推断得到的战斗结束时间.
+        - actorData: 演员复盘得到的统计记录.
         '''
-        self.win = win
-        super().__init__(config, fileNameInfo, path, bldDict, window)
+        super().__init__(config, fileNameInfo, path, bldDict, window, actorData)
 
         self.myname = myname
-        self.bossBh = bossBh
         self.failThreshold = config.item["actor"]["failthreshold"]
         self.mask = config.item["general"]["mask"]
         self.public = config.item["xiangzhi"]["public"]
         self.config = config
         self.bld = bldDict[fileNameInfo[0]]
-        self.startTime = startTime
-        self.finalTime = finalTime
-
         self.result = {}
         self.haste = config.item["xiangzhi"]["speed"]
 

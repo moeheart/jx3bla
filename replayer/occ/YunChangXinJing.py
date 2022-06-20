@@ -1256,7 +1256,7 @@ class YunChangXinJingReplayer(ReplayerBase):
         self.recordRater()
         self.prepareUpload()
 
-    def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", bossBh=None, startTime=0, finalTime=0, win=0):
+    def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", actorData={}):
         '''
         初始化.
         params:
@@ -1266,23 +1266,16 @@ class YunChangXinJingReplayer(ReplayerBase):
         - bldDict: 战斗数据缓存.
         - window: 主窗口，用于显示进度条.
         - myname: 需要复盘的奶歌名.
-        - bossBh: BOSS施放的技能列表类，用于生成时间轴.
-        - startTime: 演员复盘推断得到的战斗开始时间.
-        - finalTime: 演员复盘推断得到的战斗结束时间.
+        - actorData: 演员复盘得到的统计记录.
         '''
-        #self.win = 0
-        super().__init__(config, fileNameInfo, path, bldDict, window)
+        super().__init__(config, fileNameInfo, path, bldDict, window, actorData)
 
         self.myname = myname
-        self.bossBh = bossBh
         self.failThreshold = config.item["actor"]["failthreshold"]
         self.mask = config.item["general"]["mask"]
         self.public = config.item["yunchang"]["public"]
         self.config = config
         self.bld = bldDict[fileNameInfo[0]]
-        self.startTime = startTime
-        self.finalTime = finalTime
-
         self.result = {}
         self.haste = config.item["yunchang"]["speed"]
 
