@@ -126,6 +126,84 @@ class SkillCounter():
         else:
             self.delta = delta
 
+class SkillCounterAdvance(SkillCounter):
+    '''
+    扩展技能统计类，在基类的基础上支持最大可能数量统计.
+    '''
+
+    def getHeal(self):
+        '''
+        获取这个技能的总治疗量.
+        '''
+        sum = 0
+        for line in self.log:
+            sum += line[3]
+        return sum
+
+    def getHealEff(self):
+        '''
+        获取这个技能的总有效治疗量.
+        '''
+        sum = 0
+        for line in self.log:
+            sum += line[4]
+        return sum
+
+    def recordSkill(self, time, heal, healEff, lastTime=0, delta=-1):
+        '''
+        记录技能施放的事件.
+        params:
+        - time: 技能施放的时间点.
+        - heal: 治疗量.
+        - healEff: 有效治疗量.
+        - lastTime: 上一个技能施放的时间点. 如果未提供则自动推断. 技能的施放以开始读条的时间为准。
+        - delta: 所记录技能的读条时间.
+        returns:
+        - res: 推测的减去读条时间的技能位置.
+        '''
+        if delta == -1:
+            delta = self.delta
+        if lastTime == 0:
+            if len(self.log) != 0:
+                lastTime = self.log[-1][0]
+            else:
+                lastTime = self.startTime
+        self.log.append([time, lastTime, delta, heal, healEff])
+        return time - delta
+
+    def getMaxPossible(self):
+        '''
+        获取技能最大可能的施放次数.
+        '''
+        if self.cd == 0:
+            return 99999
+        else:
+            return int((self.finalTime - self.startTime) / self.cd) + self.stack
+
+    def __init__(self, skillInfoSingle, startTime, finalTime, haste, delta=-1):
+        '''
+        构造函数.
+        params:
+        - skillInfoSingle: 技能信息数组.
+        - startTime: 战斗开始时间.
+        - finalTime: 战斗结束时间.
+        - haste: 加速.
+        - delta: 指定的技能读条时间.
+        '''
+        self.skillid = skillInfoSingle[2][0]
+        self.startTime = startTime
+        self.finalTime = finalTime
+        self.log = []
+        self.haste = haste
+        if delta == -1:
+            self.delta = 0
+            self.getDelta()
+        else:
+            self.delta = delta
+        self.cd = skillInfoSingle[8] * 1000
+        self.stack = skillInfoSingle[9]
+        self.name = skillInfoSingle[1]
+
 class SkillHealCounter(SkillCounter):
     '''
     治疗技能的统计类，在基类的基础上支持统计治疗量、有效治疗量等数据.
@@ -620,6 +698,26 @@ def countCluster(teamLog, teamLastTime, event):
                     teamLog[player][event.target] = 0
                 teamLog[player][event.target] += 1
     return teamLog, teamLastTime
+
+def getRateStatus(rate, thres0, thres1, thres2):
+    '''
+    根据阈值来给出打分结果.
+    params:
+    - rate: 打分参数.
+    - thres0: 为0时的阈值，大于等于这个数时返回0.
+    - thres1: 为1时的阈值，大于等于这个数但小于thres0时返回1.
+    - thres2: 为2时的阈值，大于等于这个数但小于thres1时返回2.
+    returns:
+    - status: 结果.
+    '''
+    if rate >= thres0:
+        return 0
+    elif rate >= thres1:
+        return 1
+    elif rate >= thres2:
+        return 2
+    else:
+        return 3
 
 def finalCluster(teamLog):
     '''

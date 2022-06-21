@@ -681,38 +681,44 @@ class XiangZhiProReplayer(ReplayerBase):
         ss = SingleSkill(self.startTime, self.haste)
 
         # 技能信息
-        # [技能统计对象, 技能名, [所有技能ID], 图标ID, 是否为gcd技能, 运功时长, 是否倒读条, 是否吃加速]
-        skillInfo = [[None, "未知", ["0"], "0", True, 0, False, True],
-                     [None, "扶摇直上", ["9002"], "1485", True, 0, False, True],
-                     [None, "蹑云逐月", ["9003"], "1490", True, 0, False, True],
-                     [mhsnSkill, "梅花三弄", ["14231"], "7059", True, 0, False, True],
-                     [gongSkill, "宫", ["18864", "14360", "16852"], "7173", True, 24, False, True],
-                     [zhiSkill, "徵", ["14362", "18865"], "7174", True, 8, True, True],
-                     [yuSkill, "羽", ["14141", "14354", "14355", "14356"], "7175", True, 0, False, True],
-                     [shangSkill, "商", ["14138"], "7172", True, 0, False, True],
-                     [jueSkill, "角", ["14139"], "7176", True, 0, False, True],
-                     [None, "风雷引", ["15502"], "13", True, 0, False, False],
-                     [None, "一指回鸾", ["14169"], "7045", True, 0, False, True],
-                     [None, "孤影化双", ["14081"], "7052", False, 0, False, True],
-                     [None, "云生结海", ["14075"], "7048", False, 0, False, True],
-                     [None, "高山流水", ["14069"], "7080", False, 0, False, True],
-                     [None, "青霄飞羽", ["14076"], "7078", False, 0, False, True],
-                     [None, "青霄飞羽·落", ["21324"], "7128", False, 0, False, True],
-                     [None, "移形换影", ["15039", "15040", "15041", "15042", "15043", "15044"], "7066", False, 0, False, True],
-                     [None, "高山流水·切换", ["18838", "18839"], "7080", False, 0, False, True],
-                     [None, "梅花三弄·切换", ["18841", "18842"], "7059", False, 0, False, True],
-                     [None, "阳春白雪·切换", ["18845", "18846"], "7077", False, 0, False, True],
+        # [技能统计对象, 技能名, [所有技能ID], 图标ID, 是否为gcd技能, 运功时长, 是否倒读条, 是否吃加速, cd时间, 充能数量]
+        skillInfo = [[None, "未知", ["0"], "0", True, 0, False, True, 0, 1],
+                     [None, "扶摇直上", ["9002"], "1485", True, 0, False, True, 30, 1],
+                     [None, "蹑云逐月", ["9003"], "1490", True, 0, False, True, 30, 1],
+                     [mhsnSkill, "梅花三弄", ["14231"], "7059", True, 0, False, True, 0, 1],
+                     [gongSkill, "宫", ["18864", "14360", "16852"], "7173", True, 24, False, True, 0, 1],
+                     [zhiSkill, "徵", ["14362", "18865"], "7174", True, 8, True, True, 0, 1],
+                     [yuSkill, "羽", ["14141", "14354", "14355", "14356"], "7175", True, 0, False, True, 6, 3],
+                     [shangSkill, "商", ["14138"], "7172", True, 0, False, True, 0, 1],
+                     [jueSkill, "角", ["14139"], "7176", True, 0, False, True, 0, 1],
+                     [None, "风雷引", ["15502"], "13", True, 0, False, False, 180, 1],
+                     [None, "一指回鸾", ["14169"], "7045", True, 0, False, True, 0, 1],
+                     [None, "孤影化双", ["14081"], "7052", False, 0, False, True, 180, 1],
+                     [None, "云生结海", ["14075"], "7048", False, 0, False, True, 80, 1],
+                     [None, "高山流水", ["14069"], "7080", False, 0, False, True, 0, 1],
+                     [None, "青霄飞羽", ["14076"], "7078", False, 0, False, True, 35, 1],
+                     [None, "青霄飞羽·落", ["21324"], "7128", False, 0, False, True, 0, 1],
+                     [None, "疏影横斜", ["14082"], "7066", False, 0, False, True, 20, 3],
+                     [None, "移形换影", ["15039", "15040", "15041", "15042", "15043", "15044"], "7066", False, 0, False, True, 0, 1],
+                     [None, "高山流水·切换", ["18838", "18839"], "7080", False, 0, False, True, 0, 1],
+                     [None, "梅花三弄·切换", ["18841", "18842"], "7059", False, 0, False, True, 0, 1],
+                     [None, "阳春白雪·切换", ["18845", "18846"], "7077", False, 0, False, True, 0, 1],
                     ]
 
         gcdSkillIndex = {}
         nonGcdSkillIndex = {}
         for i in range(len(skillInfo)):
             line = skillInfo[i]
+            if line[0] is None:
+                skillInfo[i][0] = SkillCounterAdvance(line, self.startTime, self.finalTime, self.haste)
             for id in line[2]:
                 if line[4]:
                     gcdSkillIndex[id] = i
                 else:
                     nonGcdSkillIndex[id] = i
+        yzInfo = [None, "特效腰坠", ["0"], "3414", False, 0, False, True, 180, 1]
+        yzSkill = SkillCounterAdvance(yzInfo, self.startTime, self.finalTime, self.haste)
+        yzInfo[0] = yzSkill
 
         xiangZhiUnimportant = ["4877",  # 水特效作用
                                "25682", "25683", "25684", "25685", "25686", "24787", "24788", "24789", "24790", # 破招
@@ -829,6 +835,9 @@ class XiangZhiProReplayer(ReplayerBase):
                             index = nonGcdSkillIndex[event.id]
                             line = skillInfo[index]
                             bh.setSpecialSkill(event.id, line[1], line[3], event.time, 0, desc)
+                            skillObj = line[0]
+                            if skillObj is not None:
+                                skillObj.recordSkill(event.time, event.heal, event.healEff, ss.timeEnd, delta=-1)
                         # 无法分析的技能
                         elif event.id not in xiangZhiUnimportant:
                             pass
@@ -924,6 +933,7 @@ class XiangZhiProReplayer(ReplayerBase):
                 if event.id in ["6360"] and event.level in [66, 76, 86] and event.stack == 1 and event.target == self.mykey:  # 特效腰坠:
                     bh.setSpecialSkill(event.id, "特效腰坠", "3414",
                                        event.time, 0, "开启特效腰坠")
+                    yzSkill.recordSkill(event.time, event.heal, event.healEff, ss.timeEnd, delta=-1)
                 if event.id in ["10193"] and event.stack == 1 and event.target == self.mykey:  # cw特效:
                     bh.setSpecialSkill(event.id, "cw特效", "14416",
                                        event.time, 0, "触发cw特效")
@@ -933,6 +943,12 @@ class XiangZhiProReplayer(ReplayerBase):
                     mufengDict.setState(event.time, event.stack)
                 if event.id in ["20398"]:  # 龙葵
                     longkuiDict[event.target].setState(event.time, event.stack)
+
+                if event.id in ["9993", "9994", "9995", "9996", "9997", "9998"]:
+                    # 记录影子事件
+                    skillObj = skillInfo[nonGcdSkillIndex["14082"]][0]
+                    if skillObj is not None:
+                        skillObj.recordSkill(event.time, 0, 0, ss.timeEnd, delta=-1)
 
             elif event.dataType == "Shout":
                 pass
@@ -1199,9 +1215,11 @@ class XiangZhiProReplayer(ReplayerBase):
 
         # 计算战斗回放
         self.result["replay"] = bh.getJsonReplay(self.mykey)
+        xuegeFlag = 0
         if self.result["skill"]["shang"]["cover"] > 0.1:  # HOT覆盖率大于10%，判定为血鸽
             self.result["replay"]["heatType"] = "hot"
             self.result["replay"]["heat"] = {"interval": 500, "timeline": hotHeat}
+            xuegeFlag = 1
         else:  # 默认为盾鸽
             self.result["replay"]["heatType"] = "meihua"
             self.result["replay"]["heat"] = overallShieldHeat
@@ -1259,9 +1277,71 @@ class XiangZhiProReplayer(ReplayerBase):
             self.result["review"]["content"].append({"code": 10, "time": time, "id": id, "damage": damage, "rate": 1, "status": 0})
 
         # code 11 保持gcd不要空转
+        gcd = self.result["skill"]["general"]["efficiency"]
+        gcdRank = self.result["rank"]["general"]["efficiency"]["percent"]
+        res = {"code": 11, "cover": gcd, "rank": gcdRank, "rate": gcdRank}
+        res["status"] = getRateStatus(gcdRank, 75, 50, 25)
+        self.result["review"]["content"].append(res)
+
+        # code 12 提高HPS或者虚条HPS
+        hps = 0
+        ohps = 0
+        for record in self.result["healer"]["table"]:
+            if record["name"] == self.result["overall"]["playerID"]:
+                # 当前玩家
+                hps = record["healEff"]
+                ohps = record["heal"]
+        hpsRank = self.result["rank"]["healer"]["healEff"]["percent"]
+        ohpsRank = self.result["rank"]["healer"]["heal"]["percent"]
+        rate = max(hpsRank, ohpsRank)
+        res = {"code": 12, "hps": hps, "ohps": ohps, "hpsRank": hpsRank, "ohpsRank": ohpsRank, "rate": rate}
+        res["status"] = getRateStatus(rate, 75, 50, 25)
+        self.result["review"]["content"].append(res)
+
+        # code 13 使用有cd的技能
+
+        scCandidate = []
+        for id in ["14081", "14082"]:
+            scCandidate.append(skillInfo[nonGcdSkillIndex[id]][0])
+        scCandidate.append(yzSkill)
+
+        rateSum = 0
+        rateNum = 0
+        numAll = []
+        sumAll = []
+        skillAll = []
+        for skillObj in scCandidate:
+            print(skillObj)
+            num = skillObj.getNum()
+            sum = skillObj.getMaxPossible()
+            skill = skillObj.name
+            if skill != "特效腰坠" or num != 0:
+                rateNum += 1
+                rateSum += num / sum
+                numAll.append(num)
+                sumAll.append(sum)
+                skillAll.append(skill)
+        rate = roundCent(rateSum / rateNum, 4)
+        res = {"code": 13, "skill": skillAll, "num": numAll, "sum": sumAll, "rate": rate}
+        res["status"] = getRateStatus(rate, 50, 25, 0)
+        self.result["review"]["content"].append(res)
+
+        # code 101 不要玩血歌
+        if xuegeFlag:
+            self.result["review"]["content"].append({"code": 101, "num": 1, "rate": 0, "status": 3})
+        else:
+            self.result["review"]["content"].append({"code": 101, "num": 0, "rate": 1, "status": 0})
+
+        # code 102 保证`梅花三弄`的覆盖率
+        cover = self.result["skill"]["meihua"]["cover"]
+        coverRank = self.result["rank"]["meihua"]["cover"]["percent"]
+        res = {"code": 102, "cover": cover, "rank": coverRank, "rate": coverRank}
+        res["status"] = getRateStatus(coverRank, 75, 50, 25)
+        self.result["review"]["content"].append(res)
 
         # 测试效果
-        print("[XiangzhiReview]", self.result["review"])
+        for line in self.result["review"]["content"]:
+            print(line)
 
 
 
