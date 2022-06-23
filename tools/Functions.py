@@ -267,6 +267,18 @@ class BuffCounter():
     通用的buff统计类，记录buff的获取、消亡、层数，并给出覆盖率、存在时间等指标.
     '''
 
+    def setStateSafe(self, time, stack):
+        '''
+        设置特定时间点buff的层数.
+        如果类中buff有晚于这个时间点的记录，则将其覆盖.
+        params:
+        - time: 获得buff的时刻.
+        - stack: buff层数，可以为0.
+        '''
+        if self.log != [] and self.log[-1][0] > time:
+            del self.log[-1]
+        self.log.append([int(time), int(stack)])
+
     def setState(self, time, stack):
         '''
         设置特定时间点buff的层数.
@@ -710,11 +722,11 @@ def getRateStatus(rate, thres0, thres1, thres2):
     returns:
     - status: 结果.
     '''
-    if rate >= thres0:
+    if rate >= thres0 / 100:
         return 0
-    elif rate >= thres1:
+    elif rate >= thres1 / 100:
         return 1
-    elif rate >= thres2:
+    elif rate >= thres2 / 100:
         return 2
     else:
         return 3
