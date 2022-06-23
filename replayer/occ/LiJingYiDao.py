@@ -580,7 +580,7 @@ class LiJingYiDaoReplayer(ReplayerBase):
         tizhenSkill = SkillHealCounter("138", self.startTime, self.finalTime, self.haste)  # 提针
         changzhenSkill = SkillHealCounter("142", self.startTime, self.finalTime, self.haste)  # 长针
         bizhenSkill = SkillHealCounter("140", self.startTime, self.finalTime, self.haste)  # 彼针
-        chunniSkill = SkillHealCounter("132", self.startTime, self.finalTime, self.haste)  # 春泥护花
+        # chunniSkill = SkillHealCounter("132", self.startTime, self.finalTime, self.haste)  # 春泥护花
         longwuSkill = SkillHealCounter("28541", self.startTime, self.finalTime, self.haste)  # 泷雾
         wozhenBuff = SkillHealCounter("631", self.startTime, self.finalTime, self.haste)  # 握针
         shuhuaiBuff = SkillHealCounter("5693", self.startTime, self.finalTime, self.haste)  # 述怀
@@ -624,41 +624,46 @@ class LiJingYiDaoReplayer(ReplayerBase):
         ss = SingleSkill(self.startTime, self.haste)
 
         # 技能信息
-        # [技能统计对象, 技能名, [所有技能ID], 图标ID, 是否为gcd技能, 运功时长, 是否倒读条, 是否吃加速]
-        skillInfo = [[None, "未知", ["0"], "0", True, 0, False, True],
-                     [None, "扶摇直上", ["9002"], "1485", True, 0, False, True],
-                     [None, "蹑云逐月", ["9003"], "1490", True, 0, False, True],
+        # [技能统计对象, 技能名, [所有技能ID], 图标ID, 是否为gcd技能, 运功时长, 是否倒读条, 是否吃加速, cd时间, 充能数量]
+        skillInfo = [[None, "未知", ["0"], "0", True, 0, False, True, 0, 1],
+                     [None, "扶摇直上", ["9002"], "1485", True, 0, False, True, 30, 1],
+                     [None, "蹑云逐月", ["9003"], "1490", True, 0, False, True, 30, 1],
 
-                     [wozhenSkill, "握针", ["101"], "1519", True, 0, False, True],
-                     [tizhenSkill, "提针", ["22792", "22886"], "395", True, 24, False, True],
-                     [changzhenSkill, "长针", ["3038"], "396", True, 48, False, True],
-                     [bizhenSkill, "彼针", ["26666", "26667", "26668"], "1518", True, 24, False, True],
-                     [chunniSkill, "春泥护花", ["132"], "413", True, 0, False, True],
-                     [None, "利针", ["2654"], "3004", True, 16, False, True],
-                     [None, "清风垂露", ["133"], "1523", True, 0, False, True],
-                     [None, "折叶笼花", ["14963"], "16602", True, 0, False, True],
-                     [None, "碧水滔天", ["131"], "1525", True, 0, False, True],
-                     [None, "大针", ["24911"], "14148", True, 0, False, True],
-                     [None, "天工甲士", ["28724"], "16223", True, 80, False, True],
-                     [None, "天工", ["28720"], "16224", True, 32, False, False],
-                     [longwuSkill, "泷雾", ["28541"], "16224", True, 16, True, True],
-                     [None, "护本", ["28555"], "16222", True, 0, False, True],
-                     [None, "脱离机甲", ["28480"], "16225", True, 0, False, True],
-                     [None, "商阳指", ["180"], "1514", True, 0, False, True],
+                     [wozhenSkill, "握针", ["101"], "1519", True, 0, False, True, 0, 1],
+                     [tizhenSkill, "提针", ["22792", "22886"], "395", True, 24, False, True, 0, 1],
+                     [changzhenSkill, "长针", ["3038"], "396", True, 48, False, True, 0, 1],
+                     [bizhenSkill, "彼针", ["26666", "26667", "26668"], "1518", True, 24, False, True, 6, 1],
+                     [None, "春泥护花", ["132"], "413", True, 0, False, True, 36, 1],
+                     [None, "利针", ["2654"], "3004", True, 16, False, True, 0, 1],
+                     [None, "清风垂露", ["133"], "1523", True, 0, False, True, 3, 1],
+                     [None, "折叶笼花", ["14963"], "16602", True, 0, False, True, 70, 1],
+                     [None, "碧水滔天", ["131"], "1525", True, 0, False, True, 95, 1],
+                     [None, "大针", ["24911"], "14148", True, 0, False, True, 50, 1],
+                     [None, "天工甲士", ["28724"], "16223", True, 80, False, True, 0, 1],
+                     [None, "天工", ["28720"], "16224", True, 32, False, False, 0, 1],
+                     [longwuSkill, "泷雾", ["28541"], "16224", True, 16, True, True, 0, 1],
+                     [None, "护本", ["28555"], "16222", True, 0, False, True, 10, 1],
+                     [None, "脱离机甲", ["28480"], "16225", True, 0, False, True, 0, 1],
+                     [None, "商阳指", ["180"], "1514", True, 0, False, True, 0, 1],
 
-                     [None, "水月无间", ["136"], "1522", False, 0, False, True],
-                     [None, "听风吹雪", ["2663"], "2998", False, 0, False, True],
+                     [None, "水月无间", ["136"], "1522", False, 0, False, True, 60, 1],
+                     [None, "听风吹雪", ["2663"], "2998", False, 0, False, True, 75, 1],
                     ]
 
         gcdSkillIndex = {}
         nonGcdSkillIndex = {}
         for i in range(len(skillInfo)):
             line = skillInfo[i]
+            if line[0] is None:
+                skillInfo[i][0] = SkillCounterAdvance(line, self.startTime, self.finalTime, self.haste)
             for id in line[2]:
                 if line[4]:
                     gcdSkillIndex[id] = i
                 else:
                     nonGcdSkillIndex[id] = i
+        yzInfo = [None, "特效腰坠", ["0"], "3414", False, 0, False, True, 180, 1]
+        yzSkill = SkillCounterAdvance(yzInfo, self.startTime, self.finalTime, self.haste)
+        yzInfo[0] = yzSkill
 
         xiangZhiUnimportant = ["4877",  # 水特效作用
                                "25682", "25683", "25684", "25685", "25686", "24787", "24788", "24789", "24790",  # 破招
@@ -790,6 +795,9 @@ class LiJingYiDaoReplayer(ReplayerBase):
                             index = nonGcdSkillIndex[event.id]
                             line = skillInfo[index]
                             bh.setSpecialSkill(event.id, line[1], line[3], event.time, 0, desc)
+                            skillObj = line[0]
+                            if skillObj is not None:
+                                skillObj.recordSkill(event.time, event.heal, event.healEff, ss.timeEnd, delta=-1)
                         # 无法分析的技能
                         elif event.id not in xiangZhiUnimportant:
                             pass
@@ -1080,7 +1088,7 @@ class LiJingYiDaoReplayer(ReplayerBase):
         self.result["skill"]["bizhen"]["shCover"] = roundCent(sum / (num + 1e-10))
         # 春泥护花
         self.result["skill"]["chunni"] = {}
-        self.result["skill"]["chunni"]["num"] = chunniSkill.getNum()
+        self.result["skill"]["chunni"]["num"] = skillInfo[gcdSkillIndex["132"]][0].getNum()
         self.result["skill"]["chunni"]["numPerSec"] = roundCent(
             self.result["skill"]["chunni"]["num"] / self.result["overall"]["sumTime"] * 1000, 2)
         # 泷雾
@@ -1181,6 +1189,39 @@ class LiJingYiDaoReplayer(ReplayerBase):
         self.result["review"]["content"].append(res)
 
         # code 13 使用有cd的技能(TODO)
+
+        scCandidate = []
+        for id in ["132", "131", "136", "2663", "14963", "24911"]:
+            if id in nonGcdSkillIndex:
+                scCandidate.append(skillInfo[nonGcdSkillIndex[id]][0])
+            else:
+                scCandidate.append(skillInfo[gcdSkillIndex[id]][0])
+        scCandidate.append(yzSkill)
+
+        rateSum = 0
+        rateNum = 0
+        numAll = []
+        sumAll = []
+        skillAll = []
+        for skillObj in scCandidate:
+            num = skillObj.getNum()
+            sum = skillObj.getMaxPossible()
+            if sum < num:
+                sum = num
+            skill = skillObj.name
+            if skill in ["折叶笼花", "大针", "特效腰坠"] and num == 0:
+                continue
+            # TODO 通过奇穴和装备辅助判断
+            # TODO 修改春泥这类既统计治疗又统计cd的技能
+            rateNum += 1
+            rateSum += num / sum
+            numAll.append(num)
+            sumAll.append(sum)
+            skillAll.append(skill)
+        rate = roundCent(rateSum / rateNum, 4)
+        res = {"code": 13, "skill": skillAll, "num": numAll, "sum": sumAll, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 50, 25, 0)
+        self.result["review"]["content"].append(res)
 
         # 敬请期待
         res = {"code": 90, "rate": 0, "status": 1}

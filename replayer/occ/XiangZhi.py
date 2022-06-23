@@ -1385,13 +1385,16 @@ class XiangZhiProReplayer(ReplayerBase):
             print(skillObj)
             num = skillObj.getNum()
             sum = skillObj.getMaxPossible()
+            if sum < num:
+                sum = num
             skill = skillObj.name
-            if skill != "特效腰坠" or num != 0:
-                rateNum += 1
-                rateSum += num / sum
-                numAll.append(num)
-                sumAll.append(sum)
-                skillAll.append(skill)
+            if skill in ["特效腰坠"] and num == 0:
+                continue
+            rateNum += 1
+            rateSum += num / sum
+            numAll.append(num)
+            sumAll.append(sum)
+            skillAll.append(skill)
         rate = roundCent(rateSum / rateNum, 4)
         res = {"code": 13, "skill": skillAll, "num": numAll, "sum": sumAll, "rate": rate}
         res["status"] = getRateStatus(res["rate"], 50, 25, 0)
