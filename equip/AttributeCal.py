@@ -97,13 +97,14 @@ class AttributeCal():
 
         #计算五彩石
         colorID = equips["0"]["plug0"]
-        colorAttrib = self.equipmentInfo.color[colorID]
-        for i in range(3):  # 按属性个数排序
-            if colorAttrib[i*4+2] == "" or colorAttrib[i*4+1] == "":
-                continue
-            if sumPlug >= int(colorAttrib[i*4+2]) and sumPlugLvl >= int(colorAttrib[i*4+3]):
-                colorSingleAttrib = {colorAttrib[i*4]: int(colorAttrib[i*4+1])}
-                sumAttrib = self.attribMerge(colorSingleAttrib, sumAttrib)
+        if colorID in self.equipmentInfo.color:
+            colorAttrib = self.equipmentInfo.color[colorID]
+            for i in range(3):  # 按属性个数排序
+                if colorAttrib[i*4+2] == "" or colorAttrib[i*4+1] == "":
+                    continue
+                if sumPlug >= int(colorAttrib[i*4+2]) and sumPlugLvl >= int(colorAttrib[i*4+3]):
+                    colorSingleAttrib = {colorAttrib[i*4]: int(colorAttrib[i*4+1])}
+                    sumAttrib = self.attribMerge(colorSingleAttrib, sumAttrib)
 
         #计算套装
         for line in setCount:
@@ -152,6 +153,7 @@ if __name__ == "__main__":
 51029	0	0	0	4	4		
 50981	0	0	0	4	4		
 26782	0	0	0	4	4	4	25692"""
+    str = "27891\t0\t0\t0\t4\t\t\t\n50103\t0\t0\t0\t\t\t\t\n50169\t0\t0\t0\t\t\t\t\n31668\t0\t0\t0\t4\t\t\t\n31680\t0\t0\t0\t\t\t\t\n31680\t0\t0\t0\t\t\t\t\n50079\t0\t0\t0\t\t\t\t\n31674\t0\t0\t0\t4\t\t\t\n55389\t0\t0\t0\t4\t4\t\t\n50157\t0\t0\t0\t\t\t\t\n55371\t0\t0\t0\t4\t4\t\t\n24995\t0\t0\t0\t\t\t\t"
     ac = AttributeCal()
     ac.CalculateAll(str)
     # im = ImportExcelEquipment()
