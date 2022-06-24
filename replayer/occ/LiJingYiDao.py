@@ -618,6 +618,17 @@ class LiJingYiDaoReplayer(ReplayerBase):
         changzhenAOEHeal = 0
         haozhenDirectHeal = 0  # 毫针本体
         haozhenPercentHeal = 0  # 毫针贯体
+        shuiyueStack = 0
+        shuiyueNum = 0
+        xqxStack = 0
+        xqxNum = 0
+        instantNum = 0
+        instantChangzhenNum = 0
+        weichaoSingleList = []
+        weichaoNum = 0
+        weichaoSkill = 0
+        weichaoEff = 0
+        weichaoEffList = []
 
         # 战斗回放初始化
         bh = BattleHistory(self.startTime, self.finalTime)
@@ -758,17 +769,24 @@ class LiJingYiDaoReplayer(ReplayerBase):
                             index = gcdSkillIndex[event.id]
                             line = skillInfo[index]
                             castTime = line[5]
+                            sfFlag = 0
                             if event.id in ["22792", "22886", "3038", "26666", "26667", "26668"]:
                                 # 检查水月
                                 sf = shuiyueDict.checkState(event.time - 200)
                                 if sf:
                                     castTime = 0
-                            if event.id in ["3038", "26666", "26667", "26668"]:
+                                    instantNum += 1
+                                    sfFlag = 1
+                            if not sfFlag and event.id in ["3038", "26666", "26667", "26668"]:
                                 # 检查行气血、cw
                                 sf2 = xqxDict.checkState(event.time - 200)
                                 sf3 = cwDict.checkState(event.time - 200)
                                 if sf2 or sf3:
                                     castTime = 0
+                                    instantNum += 1
+                                    sfFlag = 1
+                            if sfFlag and event.id in ["3038"]:
+                                instantChangzhenNum += 1
                             ss.analyseSkill(event, castTime, line[0], tunnel=line[6], hasteAffected=line[7])
                             target = ""
                             if event.id in ["101", "3038", "26666", "26667", "26668"]:
@@ -815,6 +833,23 @@ class LiJingYiDaoReplayer(ReplayerBase):
                             haozhenPercentHeal += event.healEff
                         if event.id in ["14660", "14665"]:  # 微潮/零落
                             teamLog, teamLastTime = countCluster(teamLog, teamLastTime, event)
+                        if event.id in ["14660"]:
+                            # 根据微潮统计长针有效目标数
+                            timeDiff = event.time - weichaoSkill
+                            effFlag = 0
+                            if wozhenDict[event.target].checkState(event.time) == 0:
+                                effFlag = 1
+                            if timeDiff > 100:
+                                if weichaoNum != 0:
+                                    weichaoSingleList.append(weichaoNum)
+                                if weichaoEff != 0:
+                                    weichaoEffList.append(weichaoEff)
+                                weichaoNum = 1
+                                weichaoEff = effFlag
+                            else:
+                                weichaoNum += 1
+                                weichaoEff += effFlag
+                            weichaoSkill = event.time
                         if event.id in ["180"]:  # 商阳指
                             # 秋肃生成
                             qiusuTarget = event.target
@@ -884,13 +919,20 @@ class LiJingYiDaoReplayer(ReplayerBase):
                     cwDict.setState(event.time, event.stack)
                 if event.id in ["6266"] and event.target == self.mykey:  # 行气血
                     xqxDict.setState(event.time, event.stack)
+                    if event.stack > xqxStack:
+                        xqxNum += event.stack
+                    xqxStack = event.stack
                 if event.id in ["412"] and event.target == self.mykey:  # 水月无间
                     shuiyueDict.setState(event.time, event.stack)
+                    if event.stack > shuiyueStack:
+                        shuiyueNum += event.stack
+                    shuiyueStack = event.stack
                 if event.id in ["3067"] and event.target == self.mykey:  # 沐风
                     mufengDict.setState(event.time, event.stack)
                 if event.id in ["631"] and event.caster == self.mykey and event.target in self.bld.info.player:  # 握针
                     wozhenDict[event.target].setState(event.time, event.stack, int((event.end - event.frame + 3) * 62.5))
                     # teamLog, teamLastTime = countCluster(teamLog, teamLastTime, event)
+                    # print("[WozhenTest]", event.time, event.id, event.stack)
                 if event.id in ["5693"] and event.caster == self.mykey and event.target in self.bld.info.player:  # 述怀
                     shuhuaiDict[event.target].setState(event.time, event.stack, int((event.end - event.frame + 3) * 62.5))
                     # teamLog, teamLastTime = countCluster(teamLog, teamLastTime, event)
@@ -915,6 +957,10 @@ class LiJingYiDaoReplayer(ReplayerBase):
                               ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
                               roundCent(ss.healEff / (ss.heal + 1e-10)),
                               int(ss.delay / (ss.delayNum + 1e-10)), ss.busy, "")
+        if weichaoNum != 0:
+            weichaoSingleList.append(weichaoNum)
+        if weichaoEff != 0:
+            weichaoEffList.append(weichaoEff)
 
         # 同步BOSS的技能信息
         if self.bossBh is not None:
@@ -1188,7 +1234,7 @@ class LiJingYiDaoReplayer(ReplayerBase):
         res["status"] = getRateStatus(res["rate"], 75, 50, 25)
         self.result["review"]["content"].append(res)
 
-        # code 13 使用有cd的技能(TODO)
+        # code 13 使用有cd的技能
 
         scCandidate = []
         for id in ["132", "131", "136", "2663", "14963", "24911"]:
@@ -1223,9 +1269,59 @@ class LiJingYiDaoReplayer(ReplayerBase):
         res["status"] = getRateStatus(res["rate"], 50, 25, 0)
         self.result["review"]["content"].append(res)
 
-        # 敬请期待
-        res = {"code": 90, "rate": 0, "status": 1}
+        # code 201 保证`秋肃`的覆盖率
+        cover = self.result["skill"]["qiusu"]["cover"]
+        coverRank = self.result["rank"]["qiusu"]["cover"]["percent"]
+        res = {"code": 201, "cover": cover, "rank": coverRank, "rate": roundCent(coverRank / 100)}
+        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
         self.result["review"]["content"].append(res)
+
+        # code 202 保证`握针`的覆盖率
+        cover = self.result["skill"]["wozhen"]["cover"]
+        coverRank = self.result["rank"]["wozhen"]["cover"]["percent"]
+        res = {"code": 202, "cover": cover, "rank": coverRank, "rate": roundCent(coverRank / 100)}
+        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
+        self.result["review"]["content"].append(res)
+
+        # code 203 不要浪费瞬发次数
+        rate = roundCent(instantNum / (shuiyueNum + xqxNum))
+        res = {"code": 203, "timeShuiyue": shuiyueNum, "timeXqx": xqxNum, "timeCast": instantNum, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 75, 0, 0)
+        self.result["review"]["content"].append(res)
+
+        # code 204 优先瞬发`长针`
+        rate = roundCent(instantChangzhenNum / instantNum)
+        res = {"code": 204, "timeCast": instantNum, "timeChangzhen": instantChangzhenNum, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 75, 0, 0)
+        self.result["review"]["content"].append(res)
+
+        # code 205 选择合适的`长针`目标
+        num = 0
+        sum = 0
+        for i in weichaoSingleList:
+            sum += 1
+            if i >= 4:
+                num += 1
+        coverRate = roundCent(num / sum)
+        res = {"code": 205, "time": sum, "coverTime": num, "rate": coverRate}
+        res["status"] = getRateStatus(res["rate"], 75, 0, 0)
+        self.result["review"]["content"].append(res)
+
+        # code 206 提高握针扩散效率
+        num = 0
+        sum = 0
+        for i in weichaoEffList:
+            sum += 1
+            num += i
+        cover = roundCent(num / sum)
+        rate = roundCent(num / sum / 4)
+        res = {"code": 206, "cover": cover, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 75, 0, 0)
+        self.result["review"]["content"].append(res)
+
+        # # 敬请期待
+        # res = {"code": 90, "rate": 0, "status": 1}
+        # self.result["review"]["content"].append(res)
 
         # 测试效果，在UI写好之后注释掉
         for line in self.result["review"]["content"]:

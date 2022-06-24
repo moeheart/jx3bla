@@ -1104,6 +1104,17 @@ class BuTianJueReplayer(ReplayerBase):
         # for line in self.result["replay"]["special"]:
         #     print(line)
 
+        # 计算专案组
+        self.result["review"] = {"available": 1, "content": []}
+
+        # 敬请期待
+        res = {"code": 90, "rate": 0, "status": 1}
+        self.result["review"]["content"].append(res)
+
+        # 测试效果，在UI写好之后注释掉
+        for line in self.result["review"]["content"]:
+            print(line)
+
     def recordRater(self):
         '''
         实现打分. 由于此处是单BOSS，因此打分直接由类内进行，不再整体打分。
