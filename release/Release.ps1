@@ -1,5 +1,8 @@
 python release/GeneratorGenerator.py
 python release/EquipmentTypeGenerator.py
+python release/JsonGenerator.py
+python release/NameGenerator.py
+python release/PercentGenerator.py
 git add *.py *.md
 git commit -m "[Auto]Update as the log"
 git push origin
