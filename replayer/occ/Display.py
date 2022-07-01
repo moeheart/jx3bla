@@ -14,6 +14,7 @@ from replayer.Percent import *
 from tools.Functions import *
 from tools.Names import getIDFromMap
 from tools.StaticJson import *
+from window.ReviewWindow import ReviewerWindow
 
 def getDirection(key):
     if "delay" in key:
@@ -437,6 +438,12 @@ class HealerDisplayWindow():
         '''
         pass
 
+    def openReviewerWindow(self):
+        '''
+        打开专案组窗口.
+        '''
+        self.reviewerWindow.start()
+
     def renderRate(self):
         '''
         渲染评分信息，需要派生类实现(Part 8).
@@ -453,10 +460,11 @@ class HealerDisplayWindow():
             tk.Label(frame8, text="%.2f" % score).place(x=100, y=20)
             numReview = 0
             tk.Label(frame8, text="共有%d条手法建议。" % numReview).place(x=30, y=50)
-            b2 = tk.Button(frame8, text='在[专案组]中查看', height=1)#, command=self.OpenInWeb)
+            b2 = tk.Button(frame8, text='在[专案组]中查看', height=1, command=self.openReviewerWindow)
             b2.place(x=60, y=80)
             tk.Label(frame8, text="本模块仅可作为提高手法的参考，").place(x=20, y=110)
             tk.Label(frame8, text="请勿使用本模块出警！").place(x=20, y=130)
+            self.reviewerWindow = ReviewerWindow(self.result, self.themeColor)
         else:
             tk.Label(frame8, text="复盘生成时的版本尚不支持此功能。").place(x=10, y=20)
 
