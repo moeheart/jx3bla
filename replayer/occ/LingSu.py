@@ -300,49 +300,6 @@ class LingSuWindow(HealerDisplayWindow):
             tb.AppendContext(record["PiaohuangNum"])
             tb.EndOfLine()
 
-    def renderRate(self):
-        '''
-        渲染评分信息(Part 8)，灵素复盘特化.
-        '''
-        window = self.window
-        # Part 8: 打分
-        frame8 = tk.Frame(window, width=210, height=200, highlightthickness=1, highlightbackground="#00ac99")
-        frame8.place(x=320, y=620)
-        frame8sub = tk.Frame(frame8)
-        frame8sub.place(x=30, y=30)
-
-        if self.result["score"]["available"] == 10:
-            tk.Label(frame8, text="复盘生成时的版本尚不支持打分。").place(x=10, y=150)
-        elif self.result["score"]["available"] == 1:
-            tb = TableConstructor(self.config, frame8sub)
-            tb.AppendHeader("数值分：", "对治疗数值的打分，包括治疗量、各个技能数量。")
-            descA = "治疗量评分：%.1f\n盾数量评分：%.1f\n徵数量评分：%.1f\n宫数量评分：%.1f" % (self.result["score"]["scoreA1"], self.result["score"]["scoreA2"],
-                                                               self.result["score"]["scoreA3"], self.result["score"]["scoreA4"])
-            tb.AppendHeader(self.result["score"]["scoreA"], descA, width=9)
-            lvlA, colorA, _ = self.getLvl(self.result["score"]["scoreA"])
-            tb.AppendContext(lvlA, color=colorA)
-            tb.EndOfLine()
-            tb.AppendHeader("统计分：", "对统计结果的打分，包括梅花三弄和HOT的覆盖率。")
-            descB = "盾覆盖率评分：%.1f\nHOT覆盖率评分：%.1f" % (self.result["score"]["scoreB1"], self.result["score"]["scoreB2"])
-            tb.AppendHeader(self.result["score"]["scoreB"], descB, width=9)
-            lvlB, colorB, _ = self.getLvl(self.result["score"]["scoreB"])
-            tb.AppendContext(lvlB, color=colorB)
-            tb.EndOfLine()
-            tb.AppendHeader("操作分：", "对操作表现的打分，包括战斗效率，各个技能延迟。")
-            descC = "战斗效率评分：%.1f\n盾延迟评分：%.1f\n徵延迟评分：%.1f\n宫延迟评分：%.1f" % (self.result["score"]["scoreC1"], self.result["score"]["scoreC2"],
-                                                               self.result["score"]["scoreC3"], self.result["score"]["scoreC4"])
-            tb.AppendHeader(self.result["score"]["scoreC"], descC, width=9)
-            lvlC, colorC, _ = self.getLvl(self.result["score"]["scoreC"])
-            tb.AppendContext(lvlC, color=colorC)
-            tb.EndOfLine()
-
-            tb.AppendHeader("总评：", "综合计算这几项的结果。")
-            tb.AppendContext(self.result["score"]["sum"], width=9)
-            lvl, color, desc = self.getLvl(self.result["score"]["sum"])
-            tb.AppendContext(lvl, color=color)
-            tb.EndOfLine()
-            tk.Label(frame8, text=desc, fg=color).place(x=10, y=150)
-
     def renderAdvertise(self):
         '''
         渲染广告信息(Part 9)，灵素复盘特化.
@@ -1024,6 +981,7 @@ class LingSuReplayer(ReplayerBase):
         sumHeal = 0
         numid = 0
         topHeal = 0
+        myHealStat = {"hps": 0, "ohps": 0}
         for line in healList:
             if numid == 0:
                 topHeal = line[1][0]
@@ -1043,6 +1001,9 @@ class LingSuReplayer(ReplayerBase):
                    "healEff": int(line[1][0] / self.result["overall"]["sumTime"] * 1000),
                    "heal": int(line[1][1] / self.result["overall"]["sumTime"] * 1000)}
             self.result["healer"]["table"].append(res)
+            if line[0] == self.mykey:
+                myHealStat["hps"] = res["healEff"]
+                myHealStat["ohps"] = res["heal"]
 
         # 计算DPS列表(Part 7)
         self.result["dps"] = {"table": [], "numDPS": 0}
@@ -1169,15 +1130,32 @@ class LingSuReplayer(ReplayerBase):
         self.result["skill"]["general"]["PeiwuDPS"] = int(numdam1 / self.result["overall"]["sumTime"] * 1000)
         self.result["skill"]["general"]["PiaohuangDPS"] = int(numdam2 / self.result["overall"]["sumTime"] * 1000)
         self.result["skill"]["general"]["efficiency"] = bh.getNormalEfficiency()
-
-        self.getRankFromStat("lingsu")
-        self.result["rank"] = self.rank
-
         # 计算战斗回放
         self.result["replay"] = bh.getJsonReplay(self.mykey)
         self.result["replay"]["qianzhi"] = qianzhiDict.log
         self.result["replay"]["qingchuan"] = qingchuanDict.log
         self.result["replay"]["yaoxing"] = yaoxingInfer
+        # 统计治疗相关
+        # TODO 改为整体统计
+        self.result["skill"]["healer"] = {}
+        self.result["skill"]["healer"]["heal"] = myHealStat["ohps"]
+        self.result["skill"]["healer"]["healEff"] = myHealStat["hps"]
+
+        self.getRankFromStat("lingsu")
+        self.result["rank"] = self.rank
+        sumWeight = 0
+        sumScore = 0
+        specialKey = {"lszh-numPerSec": 20, "general-efficiency": 20, "healer-healEff": 20}
+        for key1 in self.result["rank"]:
+            for key2 in self.result["rank"][key1]:
+                key = "%s-%s" % (key1, key2)
+                weight = 1
+                if key in specialKey:
+                    weight = specialKey[key]
+                    # print(key)
+                sumScore += self.result["rank"][key1][key2]["percent"] * weight
+                sumWeight += weight
+        reviewScore = roundCent((sumScore / sumWeight) ** 0.5 * 10, 2)
 
         # print(self.result["healer"])
         # print(self.result["dps"])
@@ -1196,9 +1174,22 @@ class LingSuReplayer(ReplayerBase):
         res = {"code": 90, "rate": 0, "status": 1}
         self.result["review"]["content"].append(res)
 
-        # 测试效果，在UI写好之后注释掉
+        # 排序
+        self.result["review"]["content"].sort(key=lambda x:-x["status"] * 1000 + x["rate"])
+        num = 0
         for line in self.result["review"]["content"]:
-            print(line)
+            if line["status"] > 0:
+                num += 1
+                reviewScore -= [0, 1, 3, 10][line["status"]]
+        self.result["review"]["num"] = num
+        if reviewScore < 0:
+            reviewScore = 0
+        self.result["review"]["score"] = reviewScore
+        self.result["skill"]["general"]["score"] = reviewScore
+
+        # # 测试效果，在UI写好之后注释掉
+        # for line in self.result["review"]["content"]:
+        #     print(line)
 
     def recordRater(self):
         '''

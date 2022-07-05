@@ -804,14 +804,162 @@ def getReplayPro():
     sql = """SELECT statistics, public FROM ReplayProStat WHERE shortID = %s OR hash = "%s";"""%(id, id)
     cursor.execute(sql)
     result = cursor.fetchall()
+    flag = 0
     if len(result) == 0:
+        flag = 0
         text = "结果未找到."
     elif result[0][1] == 0:
+        flag = 0
         text = "数据未公开."
-    else:
+    elif result[0][3] in ["xiangzhi", "lingsu", "lijingyidao"]:  #, "butianjue", "yunchangxinjing"]:
+        flag = 1
         text = result[0][0]
+        text1 = text.decode().replace('\n', '\\n').replace('\t', '\\t').replace("'", '"')
+        jResult = json.loads(text1)
+        rc = RankCalculator(jResult)
+        rank = rc.getRankFromStat(occ)
+        rankStr = json.dumps(rank)
+    else:
+        flag = 0
+        text = "不支持的心法，请等待之后的版本更新."
     db.close()
-    return jsonify({'text': text.decode()})
+    if flag:
+        return jsonify({'available': 1, 'text': "请求成功", 'raw': text, 'rank': rankStr})
+    else:
+        return jsonify({'available': 0, 'text': text})
+
+
+@app.route('/getMultiPlayer', methods=['GET'])
+def getMultiPlayer():
+    server = request.args.get('server')
+    ids = request.args.get('ids')
+    map = request.args.get('map')
+
+    db = pymysql.connect(ip, app.dbname, app.dbpwd, "jx3bla", port=3306, charset='utf8')
+    cursor = db.cursor()
+    ids_split = ids.split(' ')
+
+    overallResJson = {}
+    overallResJson["server"] = server
+    for id in ids_split:
+        sql = '''SELECT score, boss FROM ReplayProStat WHERE server = "%s" AND id = "%s" AND mapdetail = "%s" AND public = 1''' % (server, id, map)
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        resJson = {}
+        highestScore = {}
+        sumScore = {}
+        numRecord = {}
+        avgScore = {}
+        for record in result:
+            score = record[0]
+            boss = record[1]
+            if score > highestScore.get(boss, -1):
+                highestScore[boss] = score
+            numRecord[boss] = numRecord.get(boss, 0) + 1
+            sumScore[boss] = numRecord.get(boss, 0) + score
+        numBoss = 0
+        sumHighestScore = 0
+        sumAverageScore = 0
+        for boss in sumScore:
+            numBoss += 1
+            avgScore[boss] = roundCent(sumScore[boss] / numRecord[boss])
+            sumHighestScore += highestScore[boss]
+            sumAverageScore += avgScore[boss]
+            resJson[boss] = {"highest": highestScore[boss], "average": avgScore[boss], "num": numRecord[boss]}
+        overallAverageScore = roundCent(sumAverageScore / numBoss)
+        overallHighestScore = roundCent(sumHighestScore / numBoss)
+        resJson["overall"] = {"highest": overallHighestScore, "average": overallAverageScore, "num": numBoss}
+        overallResJson[id] = resJson
+    db.close()
+    return jsonify({'available': 1, 'text': "请求成功", 'result': overallResJson})
+
+@app.route('/getSinglePlayer', methods=['GET'])
+def getSinglePlayer():
+    server = request.args.get('server')
+    id = request.args.get('ids')
+    map = request.args.get('map')
+    db = pymysql.connect(ip, app.dbname, app.dbpwd, "jx3bla", port=3306, charset='utf8')
+    cursor = db.cursor()
+
+    result = {}
+
+    sql = '''SELECT score, boss, occ, edition, battletime, submittime, shortID FROM ReplayProStat WHERE server = "%s" AND id = "%s" AND mapdetail = "%s" AND public = 1''' % (server, id, map)
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    resJson = {"stat": {}}
+    highestScore = {}
+    sumScore = {}
+    numRecord = {}
+    avgScore = {}
+    allResults = {}
+    for record in result:
+        score = record[0]
+        boss = record[1]
+        occ = record[2]
+        edition = record[3]
+        battleTime = record[4]
+        submitTime = record[5]
+        shortID = record[6]
+        if score > highestScore.get(boss, -1):
+            highestScore[boss] = score
+        numRecord[boss] = numRecord.get(boss, 0) + 1
+        sumScore[boss] = numRecord.get(boss, 0) + score
+        if boss not in allResults:
+            allResults[boss] = []
+        allResults.append({"score": score, "occ": occ, "edition": edition, "battleTime": battleTime, "submitTime": submitTime, "shortID": shortID})
+    numBoss = 0
+    sumHighestScore = 0
+    sumAverageScore = 0
+    for boss in sumScore:
+        numBoss += 1
+        avgScore[boss] = roundCent(sumScore[boss] / numRecord[boss])
+        sumHighestScore += highestScore[boss]
+        sumAverageScore += avgScore[boss]
+        resJson["stat"][boss] = {"highest": highestScore[boss], "average": avgScore[boss], "num": numRecord[boss]}
+    overallAverageScore = roundCent(sumAverageScore / numBoss)
+    overallHighestScore = roundCent(sumHighestScore / numBoss)
+    resJson["stat"]["overall"] = {"highest": overallHighestScore, "average": overallAverageScore, "num": numBoss}
+    resJson["table"] = allResults
+
+    db.close()
+    return jsonify({'available': 1, 'text': "请求成功", 'result': resJson})
+
+@app.route('/getRank', methods=['GET'])
+def getRank():
+    map = request.args.get('map')
+    boss = request.args.get("boss")
+    occ = request.args.get("occ")
+    page = request.args.get("page")
+    db = pymysql.connect(ip, app.dbname, app.dbpwd, "jx3bla", port=3306, charset='utf8')
+    cursor = db.cursor()
+
+    result = {}
+    numPerPage = 50
+
+    sql = '''SELECT server, id, score, edition, battletime, submittime, shortID FROM ReplayProStat WHERE mapdetail = "%s" AND boss = "%s" AND occ = "%s" AND public = 1''' % (map, boss, occ)
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    resJson = {"table": []}
+
+    result.sort(key=lambda x:-x[2])
+
+    for i in range((page-1)*50, page*50):
+        if i < len(result):
+            record = result[i]
+            server = record[0]
+            id = record[1]
+            score = record[2]
+            # boss = record[1]
+            # occ = record[2]
+            edition = record[3]
+            battleTime = record[4]
+            submitTime = record[5]
+            shortID = record[6]
+            resJson["table"].append({"score": score, "server": server, "id": id, "battleTime": battleTime, "submitTime": submitTime, "shortID": shortID})
+
+    resJson["num"] = len(result)
+    db.close()
+    return jsonify({'available': 1, 'text': "请求成功", 'result': resJson})
     
 @app.route('/uploadXiangZhiData', methods=['POST'])
 def uploadXiangZhiData():

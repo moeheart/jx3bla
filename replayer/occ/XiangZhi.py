@@ -944,7 +944,7 @@ class XiangZhiProReplayer(ReplayerBase):
                 if event.id in ["6360"] and event.level in [66, 76, 86] and event.stack == 1 and event.target == self.mykey:  # 特效腰坠:
                     bh.setSpecialSkill(event.id, "特效腰坠", "3414",
                                        event.time, 0, "开启特效腰坠")
-                    yzSkill.recordSkill(event.time, event.heal, event.healEff, ss.timeEnd, delta=-1)
+                    yzSkill.recordSkill(event.time, 0, 0, ss.timeEnd, delta=-1)
                 if event.id in ["10193"] and event.stack == 1 and event.target == self.mykey:  # cw特效:
                     bh.setSpecialSkill(event.id, "cw特效", "14416",
                                        event.time, 0, "触发cw特效")
@@ -1045,6 +1045,7 @@ class XiangZhiProReplayer(ReplayerBase):
         sumHeal = 0
         numid = 0
         topHeal = 0
+        myHealStat = {"hps": 0, "ohps": 0}
         for line in healList:
             if numid == 0:
                 topHeal = line[1][0]
@@ -1064,6 +1065,9 @@ class XiangZhiProReplayer(ReplayerBase):
                    "healEff": int(line[1][0] / self.result["overall"]["sumTime"] * 1000),
                    "heal": int(line[1][1] / self.result["overall"]["sumTime"] * 1000)}
             self.result["healer"]["table"].append(res)
+            if line[0] == self.mykey:
+                myHealStat["hps"] = res["healEff"]
+                myHealStat["ohps"] = res["heal"]
 
         # 计算DPS列表(Part 7)
         self.result["dps"] = {"table": [], "numDPS": 0}
@@ -1238,7 +1242,6 @@ class XiangZhiProReplayer(ReplayerBase):
         self.result["skill"]["general"]["ZhuangzhouDPS"] = int(numdam1 / self.result["overall"]["sumTime"] * 1000)
         self.result["skill"]["general"]["YujianDPS"] = int(numdam3 / self.result["overall"]["sumTime"] * 1000)
         self.result["skill"]["general"]["efficiency"] = bh.getNormalEfficiency()
-
         # 计算战斗回放
         self.result["replay"] = bh.getJsonReplay(self.mykey)
         xuegeFlag = 0
@@ -1249,9 +1252,27 @@ class XiangZhiProReplayer(ReplayerBase):
         else:  # 默认为盾鸽
             self.result["replay"]["heatType"] = "meihua"
             self.result["replay"]["heat"] = overallShieldHeat
+        # 统计治疗相关
+        # TODO 改为整体统计
+        self.result["skill"]["healer"] = {}
+        self.result["skill"]["healer"]["heal"] = myHealStat["ohps"]
+        self.result["skill"]["healer"]["healEff"] = myHealStat["hps"]
 
         self.getRankFromStat("xiangzhi")
         self.result["rank"] = self.rank
+        sumWeight = 0
+        sumScore = 0
+        specialKey = {"meihua-num": 20, "general-efficiency": 20, "zhi-numPerSec": 10, "general-APS": 10, "healer-healEff": 10}
+        for key1 in self.result["rank"]:
+            for key2 in self.result["rank"][key1]:
+                key = "%s-%s" % (key1, key2)
+                weight = 1
+                if key in specialKey:
+                    weight = specialKey[key]
+                sumScore += self.result["rank"][key1][key2]["percent"] * weight
+                sumWeight += weight
+
+        reviewScore = roundCent((sumScore / sumWeight) ** 0.5 * 10, 2)
 
         # print(self.result["healer"])
         # print(self.result["dps"])
@@ -1277,9 +1298,9 @@ class XiangZhiProReplayer(ReplayerBase):
         num = self.deathDict[self.mykey]["num"]
         if num > 0:
             time = roundCent(((self.finalTime - self.startTime) - self.battleDict[self.mykey].buffTimeIntegral()) / 1000, 2)
-            self.result["review"]["content"].append({"code": 1, "duration": time, "rate": 0, "status": 3})
+            self.result["review"]["content"].append({"code": 1, "num": num, "duration": time, "rate": 0, "status": 3})
         else:
-            self.result["review"]["content"].append({"code": 0, "duration": 0, "rate": 1, "status": 0})
+            self.result["review"]["content"].append({"code": 1, "num": num, "duration": 0, "rate": 1, "status": 0})
 
         # code 10 不要放生队友
         num = 0
@@ -1298,9 +1319,9 @@ class XiangZhiProReplayer(ReplayerBase):
             id.append(line[1])
             damage.append(line[2])
         if num > 0:
-            self.result["review"]["content"].append({"code": 10, "time": time, "id": id, "damage": damage, "rate": 0, "status": 3})
+            self.result["review"]["content"].append({"code": 10, "num": num, "time": time, "id": id, "damage": damage, "rate": 0, "status": 3})
         else:
-            self.result["review"]["content"].append({"code": 10, "time": time, "id": id, "damage": damage, "rate": 1, "status": 0})
+            self.result["review"]["content"].append({"code": 10, "num": num, "time": time, "id": id, "damage": damage, "rate": 1, "status": 0})
 
         # code 11 保持gcd不要空转
         gcd = self.result["skill"]["general"]["efficiency"]
@@ -1327,7 +1348,7 @@ class XiangZhiProReplayer(ReplayerBase):
         # code 13 使用有cd的技能
 
         scCandidate = []
-        for id in ["14081", "14082"]:
+        for id in ["14082"]:
             scCandidate.append(skillInfo[nonGcdSkillIndex[id]][0])
         scCandidate.append(yzSkill)
 
@@ -1337,7 +1358,6 @@ class XiangZhiProReplayer(ReplayerBase):
         sumAll = []
         skillAll = []
         for skillObj in scCandidate:
-            print(skillObj)
             num = skillObj.getNum()
             sum = skillObj.getMaxPossible()
             if sum < num:
@@ -1369,7 +1389,6 @@ class XiangZhiProReplayer(ReplayerBase):
         self.result["review"]["content"].append(res)
 
         # code 103 中断`徵`的倒读条
-        print(zhiCastList)
         num = [0] * 7
         sum = zhiCastNum
         for i in zhiCastList:
@@ -1415,9 +1434,22 @@ class XiangZhiProReplayer(ReplayerBase):
         res["status"] = getRateStatus(res["rate"], 50, 0, 0)
         self.result["review"]["content"].append(res)
 
-        # 测试效果，在UI写好之后注释掉
+        # 排序
+        self.result["review"]["content"].sort(key=lambda x:-x["status"] * 1000 + x["rate"])
+        num = 0
         for line in self.result["review"]["content"]:
-            print(line)
+            if line["status"] > 0:
+                num += 1
+                reviewScore -= [0, 1, 3, 10][line["status"]]
+        self.result["review"]["num"] = num
+        if reviewScore < 0:
+            reviewScore = 0
+        self.result["review"]["score"] = reviewScore
+        self.result["skill"]["general"]["score"] = reviewScore
+
+        # 测试效果，在UI写好之后注释掉
+        # for line in self.result["review"]["content"]:
+        #     print(line)
 
 
     def scaleScore(self, x, scale):
