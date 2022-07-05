@@ -433,6 +433,8 @@ class YunChangXinJingReplayer(ReplayerBase):
         主要处理全局信息，玩家列表等.
         '''
 
+        self.window.setNotice({"t2": "加载奶秀复盘...", "c2": "#ff77ff"})
+
         # 除玩家名外，所有的全局信息都可以在第一阶段直接获得
         self.result["overall"] = {}
         self.result["overall"]["edition"] = "奶秀复盘 v%s"%EDITION

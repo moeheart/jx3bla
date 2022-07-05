@@ -177,6 +177,8 @@ class ActorProReplayer(ReplayerBase):
         for id in self.bld.info.player:
             self.window.playerEquipment[id] = self.bld.info.player[id].equip
 
+        self.window.setNotice({"t1": "正在分析[%s]..." % self.bossname, "c1": "#000000", "t2": "数据整体处理...", "c2": "#0000ff"})
+
         # TODO 为格式错误准备报错信息
         if len(self.bld.log) == 0:
             raise Exception('复盘信息格式错误，请确认设置是否正确。如果不清楚细节，请先使用实时模式。')

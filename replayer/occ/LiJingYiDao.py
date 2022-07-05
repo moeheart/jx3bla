@@ -331,6 +331,8 @@ class LiJingYiDaoReplayer(ReplayerBase):
         主要处理全局信息，玩家列表等.
         '''
 
+        self.window.setNotice({"t2": "加载奶花复盘...", "c2": "#7f1fdf"})
+
         # 除玩家名外，所有的全局信息都可以在第一阶段直接获得
         self.result["overall"] = {}
         self.result["overall"]["edition"] = "奶花复盘 v%s"%EDITION

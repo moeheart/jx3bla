@@ -347,6 +347,8 @@ class LingSuReplayer(ReplayerBase):
         主要处理全局信息，玩家列表等.
         '''
 
+        self.window.setNotice({"t2": "加载灵素复盘...", "c2": "#00ac99"})
+
         # 除玩家名外，所有的全局信息都可以在第一阶段直接获得
         self.result["overall"] = {}
         self.result["overall"]["edition"] = "灵素复盘 v%s"%EDITION

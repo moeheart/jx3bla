@@ -369,6 +369,8 @@ class XiangZhiProReplayer(ReplayerBase):
         主要处理全局信息，玩家列表等.
         '''
 
+        self.window.setNotice({"t2": "加载奶歌复盘...", "c2": "#64fab4"})
+
         # 大部分全局信息都可以在第一阶段直接获得
         self.result["overall"] = {}
         self.result["overall"]["edition"] = "奶歌复盘pro v%s"%EDITION
