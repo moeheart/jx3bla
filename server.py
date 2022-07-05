@@ -930,6 +930,10 @@ def getRank():
     boss = request.args.get("boss")
     occ = request.args.get("occ")
     page = request.args.get("page")
+    if page is None:
+        page = 1
+    else:
+        page = int(page)
     db = pymysql.connect(ip, app.dbname, app.dbpwd, "jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
 
