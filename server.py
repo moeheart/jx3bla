@@ -866,8 +866,8 @@ def getMultiPlayer():
             sumHighestScore += highestScore[boss]
             sumAverageScore += avgScore[boss]
             resJson[boss] = {"highest": highestScore[boss], "average": avgScore[boss], "num": numRecord[boss]}
-        overallAverageScore = roundCent(sumAverageScore / numBoss)
-        overallHighestScore = roundCent(sumHighestScore / numBoss)
+        overallAverageScore = roundCent(sumAverageScore / (numBoss + 1e-10))
+        overallHighestScore = roundCent(sumHighestScore / (numBoss + 1e-10))
         resJson["overall"] = {"highest": overallHighestScore, "average": overallAverageScore, "num": numBoss}
         overallResJson[id] = resJson
     db.close()
@@ -876,7 +876,7 @@ def getMultiPlayer():
 @app.route('/getSinglePlayer', methods=['GET'])
 def getSinglePlayer():
     server = request.args.get('server')
-    id = request.args.get('ids')
+    id = request.args.get('id')
     map = request.args.get('map')
     db = pymysql.connect(ip, app.dbname, app.dbpwd, "jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
@@ -912,12 +912,12 @@ def getSinglePlayer():
     sumAverageScore = 0
     for boss in sumScore:
         numBoss += 1
-        avgScore[boss] = roundCent(sumScore[boss] / numRecord[boss])
+        avgScore[boss] = roundCent(sumScore[boss] / (numRecord[boss] + 1e-10))
         sumHighestScore += highestScore[boss]
         sumAverageScore += avgScore[boss]
         resJson["stat"][boss] = {"highest": highestScore[boss], "average": avgScore[boss], "num": numRecord[boss]}
-    overallAverageScore = roundCent(sumAverageScore / numBoss)
-    overallHighestScore = roundCent(sumHighestScore / numBoss)
+    overallAverageScore = roundCent(sumAverageScore / (numBoss + 1e-10))
+    overallHighestScore = roundCent(sumHighestScore / (numBoss + 1e-10))
     resJson["stat"]["overall"] = {"highest": overallHighestScore, "average": overallAverageScore, "num": numBoss}
     resJson["table"] = allResults
 
