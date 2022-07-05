@@ -813,6 +813,7 @@ def getReplayPro():
         text = "数据未公开."
     elif result[0][3] in ["xiangzhi", "lingsu", "lijingyidao"]:  #, "butianjue", "yunchangxinjing"]:
         flag = 1
+        occ = result[0][3]
         text = result[0][0]
         text1 = text.decode().replace('\n', '\\n').replace('\t', '\\t').replace("'", '"')
         jResult = json.loads(text1)
