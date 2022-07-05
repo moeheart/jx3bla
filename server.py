@@ -856,7 +856,7 @@ def getMultiPlayer():
             if score > highestScore.get(boss, -1):
                 highestScore[boss] = score
             numRecord[boss] = numRecord.get(boss, 0) + 1
-            sumScore[boss] = numRecord.get(boss, 0) + score
+            sumScore[boss] = sumScore.get(boss, 0) + score
         numBoss = 0
         sumHighestScore = 0
         sumAverageScore = 0
@@ -901,7 +901,7 @@ def getSinglePlayer():
         if score > highestScore.get(boss, -1):
             highestScore[boss] = score
         numRecord[boss] = numRecord.get(boss, 0) + 1
-        sumScore[boss] = numRecord.get(boss, 0) + score
+        sumScore[boss] = sumScore.get(boss, 0) + score
         if boss not in allResults:
             allResults[boss] = []
         allResults[boss].append({"score": score, "occ": occ, "edition": edition, "battleTime": battleTime, "submitTime": submitTime, "shortID": shortID})
