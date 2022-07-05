@@ -757,7 +757,7 @@ def uploadReplayPro():
 
         statistics["overall"]["shortID"] = shortID
 
-        sql = """INSERT INTO ReplayProStat VALUES ("%s", "%s", "%s", %d, "%s", "%s", "%s", "%s", %d, "%s", %d, "%s", %d, "%s", "%s", %d, %d)""" % (
+        sql = """INSERT INTO ReplayProStat VALUES ("%s", "%s", "%s", %.2f, "%s", "%s", "%s", "%s", %d, "%s", %d, "%s", %d, "%s", "%s", %d, %d)""" % (
             server, id, occ, score, battleDate, mapDetail, boss, hash, shortID, statistics, public, edition, editionFull, replayedition, userID, battleTime,
             submitTime)
         cursor.execute(sql)
