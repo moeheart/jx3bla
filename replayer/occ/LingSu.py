@@ -1221,7 +1221,7 @@ class LingSuReplayer(ReplayerBase):
         upload["server"] = self.result["overall"]["server"]
         upload["id"] = self.result["overall"]["playerID"]
         upload["occ"] = "lingsu"
-        upload["score"] = self.result["score"]["sum"]
+        upload["score"] = 0
         upload["battledate"] = time.strftime("%Y-%m-%d", time.localtime(self.result["overall"]["battleTime"]))
         upload["mapdetail"] = self.result["overall"]["map"]
         upload["boss"] = self.result["overall"]["boss"]
