@@ -825,7 +825,7 @@ def getReplayPro():
         text = "不支持的心法，请等待之后的版本更新."
     db.close()
     if flag:
-        return jsonify({'available': 1, 'text': "请求成功", 'raw': text, 'rank': rankStr})
+        return jsonify({'available': 1, 'text': "请求成功", 'raw': text1, 'rank': rankStr})
     else:
         return jsonify({'available': 0, 'text': text})
 
