@@ -881,8 +881,6 @@ def getSinglePlayer():
     db = pymysql.connect(ip, app.dbname, app.dbpwd, "jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
 
-    result = {}
-
     sql = '''SELECT score, boss, occ, edition, battletime, submittime, shortID FROM ReplayProStat WHERE server = "%s" AND id = "%s" AND mapdetail = "%s" AND public = 1''' % (server, id, map)
     cursor.execute(sql)
     result = cursor.fetchall()
@@ -891,7 +889,7 @@ def getSinglePlayer():
     sumScore = {}
     numRecord = {}
     avgScore = {}
-    allResults = {}
+    allResults = []
     for record in result:
         score = record[0]
         boss = record[1]
@@ -937,7 +935,6 @@ def getRank():
     db = pymysql.connect(ip, app.dbname, app.dbpwd, "jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
 
-    result = {}
     numPerPage = 50
 
     sql = '''SELECT server, id, score, edition, battletime, submittime, shortID FROM ReplayProStat WHERE mapdetail = "%s" AND boss = "%s" AND occ = "%s" AND public = 1''' % (map, boss, occ)
@@ -948,7 +945,7 @@ def getRank():
     result = list(result)
     result.sort(key=lambda x:-x[2])
 
-    for i in range((page-1)*50, page*50):
+    for i in range((page-1)*numPerPage, page*numPerPage):
         if i < len(result):
             record = result[i]
             server = record[0]
