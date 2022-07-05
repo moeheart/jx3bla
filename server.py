@@ -889,7 +889,7 @@ def getSinglePlayer():
     sumScore = {}
     numRecord = {}
     avgScore = {}
-    allResults = []
+    allResults = {}
     for record in result:
         score = record[0]
         boss = record[1]
@@ -904,7 +904,7 @@ def getSinglePlayer():
         sumScore[boss] = numRecord.get(boss, 0) + score
         if boss not in allResults:
             allResults[boss] = []
-        allResults.append({"score": score, "occ": occ, "edition": edition, "battleTime": battleTime, "submitTime": submitTime, "shortID": shortID})
+        allResults[boss].append({"score": score, "occ": occ, "edition": edition, "battleTime": battleTime, "submitTime": submitTime, "shortID": shortID})
     numBoss = 0
     sumHighestScore = 0
     sumAverageScore = 0
