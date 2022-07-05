@@ -941,6 +941,7 @@ def getRank():
     result = cursor.fetchall()
     resJson = {"table": []}
 
+    result = list(result)
     result.sort(key=lambda x:-x[2])
 
     for i in range((page-1)*50, page*50):
@@ -955,7 +956,7 @@ def getRank():
             battleTime = record[4]
             submitTime = record[5]
             shortID = record[6]
-            resJson["table"].append({"score": score, "server": server, "id": id, "battleTime": battleTime, "submitTime": submitTime, "shortID": shortID})
+            resJson["table"].append({"score": score, "server": server, "edition": edition, "id": id, "battleTime": battleTime, "submitTime": submitTime, "shortID": shortID})
 
     resJson["num"] = len(result)
     db.close()
