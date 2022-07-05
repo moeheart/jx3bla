@@ -6,8 +6,12 @@ from tools.LoadData import *
 from tools.Names import *
 from data.BattleLogData import RawDataLoader
 from replayer.Percent import *
+from Constants import *
 
+import time
 import json
+import hashlib
+import urllib.request
 
 def getDirection(key):
     if "delay" in key:
@@ -107,6 +111,57 @@ class ReplayerBase():
         '''
         rc = RankCalculator(self.result)
         self.rank = rc.getRankFromStat(occ)
+
+    def getHash(self):
+        '''
+        获取战斗结果的哈希值.
+        '''
+        hashStr = ""
+        nameList = []
+        for key in self.bld.info.player:
+            nameList.append(self.bld.info.player[key].name)
+        nameList.sort()
+        battleMinute = time.strftime("%Y-%m-%d %H:%M", time.localtime(self.result["overall"]["battleTime"]))
+        hashStr = battleMinute + self.result["overall"]["map"] + "".join(nameList) + self.mykey
+        hashres = hashlib.md5(hashStr.encode(encoding="utf-8")).hexdigest()
+        return hashres
+
+    def prepareUpload(self):
+        '''
+        准备上传复盘结果，并向服务器上传.
+        '''
+        if "beta" in EDITION:
+            return
+        upload = {}
+        upload["server"] = self.result["overall"]["server"]
+        upload["id"] = self.result["overall"]["playerID"]
+        upload["occ"] = self.occ
+        upload["score"] = self.result["review"]["score"]
+        upload["battledate"] = time.strftime("%Y-%m-%d", time.localtime(self.result["overall"]["battleTime"]))
+        upload["mapdetail"] = self.result["overall"]["map"]
+        upload["boss"] = self.result["overall"]["boss"]
+        upload["statistics"] = self.result
+        upload["public"] = self.public
+        upload["edition"] = EDITION
+        upload["editionfull"] = parseEdition(EDITION)
+        upload["replayedition"] = self.result["overall"]["edition"]
+        upload["userid"] = self.config.item["user"]["uuid"]
+        upload["battletime"] = self.result["overall"]["battleTime"]
+        upload["submittime"] = int(time.time())
+        upload["hash"] = self.getHash()
+
+        Jdata = json.dumps(upload)
+        jpost = {'jdata': Jdata}
+        jparse = urllib.parse.urlencode(jpost).encode('utf-8')
+        # print(jparse)
+        resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadReplayPro', data=jparse)
+        res = json.load(resp)
+        # print(res)
+        if res["result"] != "fail":
+            self.result["overall"]["shortID"] = res["shortID"]
+        else:
+            self.result["overall"]["shortID"] = "数据保存出错"
+        return res
 
     def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, actorData={}):
         '''

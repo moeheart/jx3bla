@@ -8,6 +8,7 @@ from PIL import Image
 from PIL import ImageTk
 import json
 import webbrowser
+import pyperclip
 
 from replayer.TableConstructor import TableConstructor, ToolTip
 from replayer.Percent import *
