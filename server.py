@@ -715,7 +715,7 @@ def uploadReplayPro():
     occ = jdata["occ"]
     replayedition = jdata["replayedition"]
 
-    db = pymysql.connect(ip, app.dbname, app.dbpwd, "jx3bla", port=3306, charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
 
     try:
@@ -776,7 +776,7 @@ def uploadReplayPro():
 @app.route('/showReplayPro.html', methods=['GET'])
 def showReplayPro():
     id = request.args.get('id')
-    db = pymysql.connect(ip, app.dbname, app.dbpwd, "jx3bla", port=3306, charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     sql = """SELECT statistics, public, replayedition, occ FROM ReplayProStat WHERE shortID = %s OR hash = "%s";"""%(id, id)
     cursor.execute(sql)
@@ -801,7 +801,7 @@ def showReplayPro():
 @app.route('/getReplayPro', methods=['GET'])
 def getReplayPro():
     id = request.args.get('id')
-    db = pymysql.connect(ip, app.dbname, app.dbpwd, "jx3bla", port=3306, charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     sql = """SELECT statistics, public, replayedition, occ FROM ReplayProStat WHERE shortID = %s OR hash = "%s";"""%(id, id)
     cursor.execute(sql)
@@ -838,7 +838,7 @@ def getMultiPlayer():
     ids = request.args.get('ids')
     map = request.args.get('map')
 
-    db = pymysql.connect(ip, app.dbname, app.dbpwd, "jx3bla", port=3306, charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     ids_split = ids.split(' ')
 
@@ -881,7 +881,7 @@ def getSinglePlayer():
     server = request.args.get('server')
     id = request.args.get('id')
     map = request.args.get('map')
-    db = pymysql.connect(ip, app.dbname, app.dbpwd, "jx3bla", port=3306, charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
 
     sql = '''SELECT score, boss, occ, edition, battletime, submittime, shortID FROM ReplayProStat WHERE server = "%s" AND id = "%s" AND mapdetail = "%s" AND public = 1''' % (server, id, map)
@@ -935,7 +935,7 @@ def getRank():
         page = 1
     else:
         page = int(page)
-    db = pymysql.connect(ip, app.dbname, app.dbpwd, "jx3bla", port=3306, charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
 
     numPerPage = 50
