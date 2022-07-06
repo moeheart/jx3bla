@@ -36,7 +36,7 @@ def Response_headers(content):
     
 @app.route('/getAnnouncement', methods=['GET'])
 def getAnnouncement():
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     sql = '''SELECT * FROM PreloadInfo;'''
     cursor.execute(sql)
@@ -55,7 +55,7 @@ def setAnnouncement():
     version = jdata["version"]
     announcement = jdata["announcement"]
     updateurl = jdata["updateurl"]
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     
     sql = '''DELETE FROM PreloadInfo;'''
@@ -89,7 +89,7 @@ def getUuid():
     hashStr = mac + ip + str(intTime)
     uuid = hashlib.md5(hashStr.encode(encoding="utf-8")).hexdigest()
     
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     
     sql = '''INSERT INTO UserInfo VALUES ("%s", "%s", "%s", "%s", %d, %d, %d, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);'''%(uuid, "", mac, userip, intTime, 0, 0)
@@ -105,7 +105,7 @@ def setUserId():
     uuid = request.form.get('uuid')
     id = request.form.get('id')
     
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     
     sql = '''SELECT * from UserInfo WHERE uuid = "%s"'''%(uuid)
@@ -139,7 +139,7 @@ def setUserId():
 def getUserInfo():
     uuid = request.form.get('uuid')
     
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     sql = '''SELECT * from UserInfo WHERE uuid = "%s"'''%(uuid)
     cursor.execute(sql)
@@ -165,7 +165,7 @@ def getUserInfo():
 def userLvlup():
     uuid = request.form.get('uuid')
     
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     sql = '''SELECT * from UserInfo WHERE uuid = "%s"'''%(uuid)
     cursor.execute(sql)
@@ -224,7 +224,7 @@ def getDpsStat():
     mapDetail = jdata["mapdetail"]
     boss = jdata["boss"]
     
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     
     sql = '''SELECT statistics from DpsStat WHERE mapdetail = "%s" and boss = "%s"'''%(mapDetail, boss)
@@ -245,7 +245,7 @@ def Tianwang():
     server = request.args.get('server')
     ids = request.args.get('ids')
     
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
 
     playerDps = {}
@@ -396,7 +396,7 @@ def XiangZhiTable():
     if order not in ['score', 'battledate']:
         return jsonify({'result': '排序方式不正确'})
     
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     
     edition = "5.1.0"
@@ -436,7 +436,7 @@ def XiangZhiDataPng():
     key = request.args.get('key')
     
     if key != None:
-        db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+        db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
         cursor = db.cursor()
         
         sql = '''SELECT * FROM XiangZhiStat WHERE hash = "%s"'''%key
@@ -484,7 +484,7 @@ def uploadComment():
     player = jdata["player"]
     hash = jdata["hash"]
     
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     
     sql = '''SELECT time from CommentInfo WHERE server = "%s" AND player = "%s" and userid = "%s" and mapdetail = "%s"'''%(server, player, userid, mapdetail)
@@ -596,7 +596,7 @@ def uploadActorData():
     
     #增加五个字段：editionfull INT, userid VARCHAR(32), battletime INT, submittime INT, instanceid VARCHAR(32)
     
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     
     sql = '''SELECT * from ActorStat WHERE hash = "%s"'''%hash
@@ -998,7 +998,7 @@ def uploadXiangZhiData():
     
     #增加五个字段：editionfull INT, userid VARCHAR(32), battletime INT, submittime INT, instanceid VARCHAR(32)
     
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     
     sql = '''SELECT score from XiangZhiStat WHERE mapdetail = "%s"'''%mapDetail
