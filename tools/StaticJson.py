@@ -120,7 +120,7 @@ REVIEW_JSON = {
       "descCondition": [1, 2, 3],
       "desc": "`徵`应当在读条过半时中断（带有`争簇`时为第3跳，无`争簇`时为第2跳），这样可以最大化利用`弄梅`；特别是当点出`谪仙`时，不中断会导致损失徵的跳数。",
       "addCondition": [0, 1, 2, 3],
-      "add": "你总共运功了`time`次徵，但只正确中断了`perfectTime`次，其中有`fullTime`次完全没有进行中断。"
+      "add": "你总共运功了`time`次徵，其中正确中断了`perfectTime`次，有`fullTime`次完全没有进行中断。"
     },
     {
       "code": 104,
@@ -131,7 +131,7 @@ REVIEW_JSON = {
       "threshold": [75, 0, 0, 0],
       "descCondition": [1, 2, 3],
       "desc": "`徵`会以当前目标中心进行20尺扩散，因此选择正确的目标可以让更多队友受到治疗效果。使用茗伊团队面板的扩散辅助可以精准地找到最适合的目标。",
-      "addCondition": [0, 1, 2, 3],
+      "addCondition": [1, 2, 3],
       "add": "你总共施放了`time`次徵，但只有`coverTime`次覆盖了4个或更多的目标。"
     },
     {
@@ -144,7 +144,7 @@ REVIEW_JSON = {
       "threshold": [75, 0, 0, 0],
       "descCondition": [1, 2, 3],
       "desc": "记得使用`移形换影`去回收影子以维持健康的内力，从而弥补贴盾的大量消耗。",
-      "addCondition": [0, 1, 2, 3],
+      "addCondition": [1, 2, 3],
       "add": "你浪费了`wasteTime`次影子提供的回蓝。"
     },
     {
