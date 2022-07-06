@@ -30,13 +30,21 @@ class FileLookUp():
         '''
         从注册表获取剑三的目录。这种方式有可能失败。
         '''
+        pathres = ""
         try:
-            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\JX3Installer', )
-            pathres = winreg.QueryValueEx(key, "InstPath")[0]
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\Kingsoft\JX3', )
+            pathres = winreg.QueryValueEx(key, "InstallPath")[0]
         except:
+            pass
+        if pathres == "":
+            try:
+                key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\JX3Installer', )
+                pathres = winreg.QueryValueEx(key, "InstPath")[0]
+            except:
+                pass
+        if pathres == "":
             print("自动获取目录失败，请手动指定剑三目录")
             self.basepath = "自动获取目录失败，请手动指定剑三目录"
-            pathres = ""
         self.jx3path = pathres
 
     def getBasePath(self, playerName):
@@ -45,11 +53,32 @@ class FileLookUp():
         params
         - playerName 玩家名。
         '''
-        l1 = os.listdir(self.jx3path)
-        datapath = "%s\\Game\\JX3\\bin\\zhcn_hd\\interface\\MY#DATA" % self.jx3path
+        # l1 = os.listdir(self.jx3path)
+        # datapath = "%s\\Game\\JX3\\bin\\zhcn_hd\\interface\\MY#DATA" % self.jx3path
+        # l = os.listdir(datapath)
+
         resDir = ""
+        pathList = ['Game', 'JX3', 'bin', 'zhcn_hd', 'interface', 'MY#DATA']
+        pathList2 = ['Game', 'JX3', 'bin', 'zhcn_exp', 'interface', 'MY#DATA']
+
+        datapath = ""
+        self.jx3path = self.jx3path.strip('/').replace('/', '\\')
+
+        flag = 0
+        for i in range(len(pathList)):
+            datapath = "%s\\%s" % (self.jx3path, '\\'.join(pathList[i:]))
+            if os.path.exists(datapath):
+                flag = 1
+                break
+
+        if not flag:
+            print("自动读取剑三路径失败，请尝试手动输入剑三路径。")
+            self.basepath = "自动读取剑三路径失败，请尝试手动输入剑三路径。"
+            return
+
+        datapath = datapath.strip('/').replace('/', '\\')
         l = os.listdir(datapath)
-        
+
         resTime = 0
         
         for name in l:
@@ -65,10 +94,10 @@ class FileLookUp():
                         else:
                             resDir = "%s\\userdata\\fight_stat" % path2
         self.basepath = resDir
-        print(self.basepath)
+        print("自动推导的基准路径：", self.basepath)
         if resDir == "":
-            print("查找角色失败，请检查记录者角色名或剑三目录是否正确")
-            self.basepath = "查找角色失败，请检查记录者角色名或剑三目录是否正确"
+            print("查找角色失败，请检查记录者角色名是否正确。")
+            self.basepath = "查找角色失败，请检查记录者角色名是否正确。"
 
     def getLocalFile(self):
         '''

@@ -690,7 +690,7 @@ class ConfigWindow():
                             "在当前电脑上线的角色的ID，同时也是记录者。\n通常情况下，只需要指定此项。\n如果指定了基准路径，则无需指定此项。",
                             "general", "playername")
         self.constructEntry("Frame1", frame1, "剑三路径",
-                            "剑三路径，一般是名为JX3的文件夹，其下应当有Games文件夹或bin文件夹。\n在自动获取路径失败时，需要指定此项，这通常是由于剑三客户端本身或者安装的方式异于常人。\n指定此项时，必须指定角色名。\n如果指定了基准路径，则无需指定此项。",
+                            "剑三路径，一般是名为JX3的文件夹，一般可以右键剑三的快捷方式找到，例如C:\\JX3。\n有时客户端并非标准安装方式（如体服），这时也可以使用MY#DATA的任意上层文件夹代替，例如C:\\SeasunGame\\Game\\JX3_EXP\\bin\\zhcn_exp。\n此项会尝试自动从注册表获取，如果获取失败，才需要手动指定。\n指定此项时，必须指定角色名。\n如果指定了基准路径，则无需指定此项。",
                             "general", "jx3path")
         self.constructEntry("Frame1", frame1, "基准路径",
                             "基准路径，一般为Game\\JX3\\bin\\zhcn_hd\\interface\\MY#DATA\\一串数字@zhcn\\userdata\\fight_stat\n必备选项，可以点击右侧的自动获取来从角色名自动推导。\n如果留空，则会在运行时自动推导。推导失败时将以当前目录作为基准目录。",
