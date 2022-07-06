@@ -645,6 +645,11 @@ class XiangZhiProReplayer(ReplayerBase):
         zhiSingleNum = 0
         zhiSingleList = []
 
+        # 影子的推断统计
+        shadowBuffDict = {}
+        for i in range(6):
+            shadowBuffDict[str(i+9993)] = BuffCounter(str(i+9993), self.startTime, self.finalTime)
+
         # 战斗回放初始化
         bh = BattleHistory(self.startTime, self.finalTime)
         ss = SingleSkill(self.startTime, self.haste)
@@ -805,7 +810,7 @@ class XiangZhiProReplayer(ReplayerBase):
                             line = skillInfo[index]
                             bh.setSpecialSkill(event.id, line[1], line[3], event.time, 0, desc)
                             skillObj = line[0]
-                            if skillObj is not None:
+                            if skillObj is not None and event.id != "14082":  # 防止第一视角的影子重复计算
                                 skillObj.recordSkill(event.time, event.heal, event.healEff, ss.timeEnd, delta=-1)
                         # 无法分析的技能
                         elif event.id not in xiangZhiUnimportant:
@@ -830,7 +835,7 @@ class XiangZhiProReplayer(ReplayerBase):
                             timeDiff2 = event.time - zhiLastCast
                             reset = 0
                             flag = 1
-                            if timeDiff > 100 and (timeDiff2 < 100 or timeDiff < 250):
+                            if timeDiff > 100 and (timeDiff2 < 100 or timeDiff < 200):
                                 zhiZheXian = 1
                                 bh.log["normal"][-1]["instant"] = 1
                                 bh.log["normal"][-1]["start"] = event.time
@@ -843,9 +848,9 @@ class XiangZhiProReplayer(ReplayerBase):
                                 reset = 1
                             elif timeDiff > 1100:
                                 reset = 2
-                            elif zhiLocalNum == 7:
+                            elif zhiLocalNum == 6:
                                 reset = 1
-                                zhiZheXian = 1
+                                # zhiZheXian = 1
                             elif timeDiff > 100:
                                 zhiLocalNum += 1
                             else:
@@ -855,9 +860,11 @@ class XiangZhiProReplayer(ReplayerBase):
                                     zhiSingleList.append(zhiSingleNum)
                                 zhiSingleNum = 0
                             zhiSingleNum += 1
-                            if reset and zhiLocalNum >= 1:
-                                zhiCastNum += 1
-                                zhiCastList.append(zhiLocalNum)
+                            if reset:
+                                if zhiLocalNum >= 1:
+                                    zhiCastNum += 1
+                                    zhiCastList.append(zhiLocalNum)
+                                    # print("[ZhiZheXian]", zhiZheXian)
                                 zhiLocalNum = reset - 1
                             if zhiLocalNum == 6:
                                 zhiCompleteNum += 1
@@ -921,6 +928,13 @@ class XiangZhiProReplayer(ReplayerBase):
                     # if event.scheme == 1:
                     #     battleDict[event.caster].setState(event.time, 1)
 
+                if event.caster == self.mykey and event.id in ["15039", "15040", "15041", "15042", "15043", "15044"]:
+                    # print("[xzTransport]", event.time, event.id)
+                    state = shadowBuffDict[str(int(event.id)-15039+9993)].checkState(event.time - 50)
+                    if state == 0:
+                        skillObj = skillInfo[nonGcdSkillIndex["14082"]][0]
+                        skillObj.recordSkill(event.time, 0, 0, ss.timeEnd, delta=-1)
+
             elif event.dataType == "Buff":
                 if event.id == "需要处理的buff！现在还没有":
                     if event.target not in self.criticalHealCounter:
@@ -957,11 +971,15 @@ class XiangZhiProReplayer(ReplayerBase):
                 if event.id in ["20398"]:  # 龙葵
                     longkuiDict[event.target].setState(event.time, event.stack)
 
-                if event.id in ["9993", "9994", "9995", "9996", "9997", "9998"]:
+                if event.id in ["9993", "9994", "9995", "9996", "9997", "9998"] and event.target == self.mykey:
                     # 记录影子事件
                     skillObj = skillInfo[nonGcdSkillIndex["14082"]][0]
-                    if skillObj is not None:
+                    if skillObj is not None and event.stack == 1:
                         skillObj.recordSkill(event.time, 0, 0, ss.timeEnd, delta=-1)
+                        # print("[xzRecord]", skillObj.getNum())
+                    # print("[xzShadow]", event.time, event.id, event.stack)
+                    shadowBuffDict[event.id].setState(event.time, event.stack)
+
 
             elif event.dataType == "Shout":
                 pass
@@ -985,6 +1003,7 @@ class XiangZhiProReplayer(ReplayerBase):
                     if zhiSingleNum > 0:
                         zhiSingleList.append(zhiSingleNum)
                     zhiSingleNum = 0
+                    # print(event.time, event.id)
 
             num += 1
 
@@ -1355,24 +1374,24 @@ class XiangZhiProReplayer(ReplayerBase):
         scCandidate.append(yzSkill)
 
         rateSum = 0
-        rateNum = 0 + 1e-10
+        rateNum = 0
         numAll = []
         sumAll = []
         skillAll = []
         for skillObj in scCandidate:
             num = skillObj.getNum()
-            sum = skillObj.getMaxPossible() + 1e-10
-            if sum < num:
-                sum = num
+            sum = skillObj.getMaxPossible()
+            # if sum < num:
+            #     sum = num
             skill = skillObj.name
             if skill in ["特效腰坠"] and num == 0:
                 continue
             rateNum += 1
-            rateSum += num / sum
+            rateSum += min(num / (sum + 1e-10), 1)
             numAll.append(num)
             sumAll.append(sum)
             skillAll.append(skill)
-        rate = roundCent(rateSum / rateNum, 4)
+        rate = roundCent(rateSum / (rateNum + 1e-10), 4)
         res = {"code": 13, "skill": skillAll, "num": numAll, "sum": sumAll, "rate": rate}
         res["status"] = getRateStatus(res["rate"], 50, 25, 0)
         self.result["review"]["content"].append(res)
@@ -1392,9 +1411,10 @@ class XiangZhiProReplayer(ReplayerBase):
 
         # code 103 中断`徵`的倒读条
         num = [0] * 7
-        sum = zhiCastNum + 1e-10
+        sum = zhiCastNum
+        # print(zhiCastList)
         for i in zhiCastList:
-            num[i] += 1
+            num[min(i, 6)] += 1
         if num[3] >= num[2]:
             # 争簇
             perfectTime = num[3]
@@ -1403,35 +1423,35 @@ class XiangZhiProReplayer(ReplayerBase):
             # 非争簇（真的会有人不点争簇？）
             perfectTime = num[2]
             fullTime = num[3]
-        perfectRate= roundCent(perfectTime / sum, 4)
+        perfectRate= roundCent(perfectTime / (sum + 1e-10), 4)
         res = {"code": 103, "time": sum, "perfectTime": perfectTime, "fullTime": fullTime, "rate": perfectRate}
         res["status"] = getRateStatus(res["rate"], 50, 0, 0)
         self.result["review"]["content"].append(res)
 
         # code 104 选择合适的`徵`目标
         num = 0
-        sum = 1e-10
+        sum = 0
         for i in zhiSingleList:
             sum += 1
             if i >= 4:
                 num += 1
-        coverRate = roundCent(num / sum)
+        coverRate = roundCent(num / (sum + 1e-10))
         res = {"code": 104, "time": sum, "coverTime": num, "rate": coverRate}
         res["status"] = getRateStatus(res["rate"], 75, 0, 0)
         self.result["review"]["content"].append(res)
 
         # code 105 使用`移形换影`
-        sum = skillInfo[nonGcdSkillIndex["14082"]][0].getNum() + 1e-10
+        sum = skillInfo[nonGcdSkillIndex["14082"]][0].getNum()
         num = skillInfo[nonGcdSkillIndex["15039"]][0].getNum()
-        rate = roundCent(num / sum)
+        rate = roundCent(num / (sum + 1e-10))
         res = {"code": 105, "time": sum, "coverTime": num, "wasteTime": sum - num, "rate": rate}
         res["status"] = getRateStatus(res["rate"], 75, 0, 0)
         self.result["review"]["content"].append(res)
 
         # code 106 使用`角`(TODO)
-        sum = battleTimeDict[self.mykey] + 1e-10
+        sum = battleTimeDict[self.mykey]
         num = jueOverallCounter.buffTimeIntegral()
-        cover = roundCent(num / sum)
+        cover = roundCent(num / (sum + 1e-10))
         res = {"code": 106, "cover": cover, "rate": cover}
         res["status"] = getRateStatus(res["rate"], 50, 0, 0)
         self.result["review"]["content"].append(res)

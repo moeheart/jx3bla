@@ -1228,26 +1228,26 @@ class LiJingYiDaoReplayer(ReplayerBase):
         scCandidate.append(yzSkill)
 
         rateSum = 0
-        rateNum = 0 + 1e-10
+        rateNum = 0
         numAll = []
         sumAll = []
         skillAll = []
         for skillObj in scCandidate:
             num = skillObj.getNum()
-            sum = skillObj.getMaxPossible() + 1e-10
-            if sum < num:
-                sum = num
+            sum = skillObj.getMaxPossible()
+            # if sum < num:
+            #     sum = num
             skill = skillObj.name
             if skill in ["折叶笼花", "大针", "特效腰坠"] and num == 0:
                 continue
             # TODO 通过奇穴和装备辅助判断
             # TODO 修改春泥这类既统计治疗又统计cd的技能
             rateNum += 1
-            rateSum += num / sum
+            rateSum += min(num / (sum + 1e-10), 1)
             numAll.append(num)
             sumAll.append(sum)
             skillAll.append(skill)
-        rate = roundCent(rateSum / rateNum, 4)
+        rate = roundCent(rateSum / (rateNum + 1e-10), 4)
         res = {"code": 13, "skill": skillAll, "num": numAll, "sum": sumAll, "rate": rate}
         res["status"] = getRateStatus(res["rate"], 50, 25, 0)
         self.result["review"]["content"].append(res)
@@ -1280,24 +1280,24 @@ class LiJingYiDaoReplayer(ReplayerBase):
 
         # code 205 选择合适的`长针`目标
         num = 0
-        sum = 0 + 1e-10
+        sum = 0
         for i in weichaoSingleList:
             sum += 1
             if i >= 4:
                 num += 1
-        coverRate = roundCent(num / sum)
+        coverRate = roundCent(num / (sum + 1e-10))
         res = {"code": 205, "time": sum, "coverTime": num, "rate": coverRate}
         res["status"] = getRateStatus(res["rate"], 75, 0, 0)
         self.result["review"]["content"].append(res)
 
         # code 206 提高握针扩散效率
         num = 0
-        sum = 0 + 1e-10
+        sum = 0
         for i in weichaoEffList:
             sum += 1
             num += i
-        cover = roundCent(num / sum)
-        rate = roundCent(num / sum / 4)
+        cover = roundCent(num / (sum + 1e-10))
+        rate = roundCent(num / (sum + 1e-10) / 4)
         res = {"code": 206, "cover": cover, "rate": rate}
         res["status"] = getRateStatus(res["rate"], 75, 0, 0)
         self.result["review"]["content"].append(res)
