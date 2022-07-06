@@ -263,7 +263,7 @@ class HealerDisplayWindow():
         '''
         打开网页版的复盘界面.
         '''
-        url = "http://139.199.102.41:8009/showReplayPro.html?id=%d"%self.result["overall"]["shortID"]
+        url = "http://120.48.95.56/#/xiangzhi/%d" % self.result["overall"]["shortID"]
         webbrowser.open(url)
 
     def renderOverall(self):

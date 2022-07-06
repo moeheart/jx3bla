@@ -13,6 +13,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from tools.Functions import *
+from Constants import *
 import pyperclip
 
 from data.DataController import DataController
@@ -142,7 +143,7 @@ class CommentWindow():
         Jdata = json.dumps(result)
         jpost = {'jdata': Jdata}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadComment', data=jparse)
+        resp = urllib.request.urlopen('http://%s:8009/uploadComment' % IP, data=jparse)
         res = json.load(resp)
         
         if res['result'] == 'success':

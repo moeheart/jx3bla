@@ -167,10 +167,10 @@ class FileLookUp():
         self.dataType = config.item["general"]["datatype"]
         if config.item["general"]["basepath"] != "":
             self.basepath = config.item["general"]["basepath"]
-            print("指定基准目录，使用：%s" % self.basepath)
+            # print("指定基准目录，使用：%s" % self.basepath)
             return self.basepath
         elif config.item["general"]["playername"] == "":
-            self.basepath = '.'  # 这一句有点废话的意思，但为了让别人看得清晰还是写上吧
+            self.basepath = '.'
             print("没有指定记录者角色名，将查找当前目录下的文件……")
         else:
             if config.item["general"]["jx3path"] != "":

@@ -58,6 +58,15 @@ class MainWindow():
             self.var2.set(d["t2"])
         if "c2" in d:
             self.text2.config(fg=d["c2"])
+
+    def clearIfRunning(self):
+        '''
+        如果通知栏的文本以...结尾，就将其移除。
+        '''
+        if self.var1.get()[-1] == '.':
+            self.var1.set("")
+        if self.var2.get()[-1] == '.':
+            self.var2.set("")
             
     def setTianwangInfo(self, playerIDList, server):
         self.server = server
@@ -147,6 +156,7 @@ class MainWindow():
         if not self.analyser.checkEmpty():
             self.setNotice({"t1": "复盘完成！", "c1": "#000000"})
             self.show_history()
+            self.clearIfRunning()
 
         #self.checkAttendence()
 
@@ -256,11 +266,11 @@ class MainWindow():
         if self.lock.state():
             return
         if self.playerIDs == []:
-            url = "http://139.199.102.41:8009/TianwangSearch.html"
+            url = "http://%s:8009/TianwangSearch.html" % IP
             webbrowser.open(url)
         else:
             ids = "+".join(self.playerIDs)
-            url = "http://139.199.102.41:8009/Tianwang.html?server=%s&ids=%s"%(self.server, ids)
+            url = "http://%s:8009/Tianwang.html?server=%s&ids=%s"%(IP, self.server, ids)
             webbrowser.open(url)
         
     def show_history(self):
@@ -314,7 +324,7 @@ class MainWindow():
         if parseEdition(EDITION) == 0:  # 非联机版本跳过加载步骤
             res = {"announcement": "", "version": "0.0.0", "url": ""}
         else:
-            resp = urllib.request.urlopen('http://139.199.102.41:8009/getAnnouncement')
+            resp = urllib.request.urlopen('http://%s:8009/getAnnouncement' % IP)
             res = json.load(resp)
 
         self.announcement = res["announcement"]

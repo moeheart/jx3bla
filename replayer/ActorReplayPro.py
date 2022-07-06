@@ -147,7 +147,7 @@ class ActorProReplayer(ReplayerBase):
 
         jpost = {'jdata': Jdata}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadActorData', data=jparse)
+        resp = urllib.request.urlopen('http://%s:8009/uploadActorData' % IP, data=jparse)
         
         res = json.load(resp)
         
@@ -729,7 +729,7 @@ class ActorProReplayer(ReplayerBase):
                 Jdata = json.dumps(result)
                 jpost = {'jdata': Jdata}
                 jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-                resp = urllib.request.urlopen('http://139.199.102.41:8009/getDpsStat', data=jparse)
+                resp = urllib.request.urlopen('http://%s:8009/getDpsStat' % IP, data=jparse)
                 res = json.load(resp)
             if result is None:
                 print("连接服务器失败！")

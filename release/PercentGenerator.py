@@ -5,11 +5,12 @@ import numpy as np
 import pymysql
 import configparser
 import time
+from Constants import *
 
 if __name__ == "__main__":
     # 数据准备
     print("连接数据库...")
-    ip = "139.199.102.41"
+    ip = IP
     config = configparser.RawConfigParser()
     config.readfp(open('settings.cfg'))
 
