@@ -22,7 +22,7 @@ from tools.painter import XiangZhiPainter
 from replayer.ReplayerBase import RankCalculator
 
 version = EDITION
-ip = IP
+ip = "127.0.0.1" # IP
 announcement = "全新的DPS统计已出炉，大家可以关注一下，看一下各门派的表现~"
 app = Flask(__name__)
 CORS(app)
