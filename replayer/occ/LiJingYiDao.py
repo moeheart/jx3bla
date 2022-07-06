@@ -1170,9 +1170,9 @@ class LiJingYiDaoReplayer(ReplayerBase):
         num = self.deathDict[self.mykey]["num"]
         if num > 0:
             time = roundCent(((self.finalTime - self.startTime) - self.battleDict[self.mykey].buffTimeIntegral()) / 1000, 2)
-            self.result["review"]["content"].append({"code": 1, "duration": time, "rate": 0, "status": 3})
+            self.result["review"]["content"].append({"code": 1, "num": num, "duration": time, "rate": 0, "status": 3})
         else:
-            self.result["review"]["content"].append({"code": 1, "duration": 0, "rate": 1, "status": 0})
+            self.result["review"]["content"].append({"code": 1, "num": num, "duration": 0, "rate": 1, "status": 0})
 
         # code 10 不要放生队友
         num = 0
