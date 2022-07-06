@@ -1355,13 +1355,13 @@ class XiangZhiProReplayer(ReplayerBase):
         scCandidate.append(yzSkill)
 
         rateSum = 0
-        rateNum = 0
+        rateNum = 0 + 1e-10
         numAll = []
         sumAll = []
         skillAll = []
         for skillObj in scCandidate:
             num = skillObj.getNum()
-            sum = skillObj.getMaxPossible()
+            sum = skillObj.getMaxPossible() + 1e-10
             if sum < num:
                 sum = num
             skill = skillObj.name
@@ -1392,7 +1392,7 @@ class XiangZhiProReplayer(ReplayerBase):
 
         # code 103 中断`徵`的倒读条
         num = [0] * 7
-        sum = zhiCastNum
+        sum = zhiCastNum + 1e-10
         for i in zhiCastList:
             num[i] += 1
         if num[3] >= num[2]:
@@ -1410,7 +1410,7 @@ class XiangZhiProReplayer(ReplayerBase):
 
         # code 104 选择合适的`徵`目标
         num = 0
-        sum = 0
+        sum = 1e-10
         for i in zhiSingleList:
             sum += 1
             if i >= 4:
@@ -1421,7 +1421,7 @@ class XiangZhiProReplayer(ReplayerBase):
         self.result["review"]["content"].append(res)
 
         # code 105 使用`移形换影`
-        sum = skillInfo[nonGcdSkillIndex["14082"]][0].getNum()
+        sum = skillInfo[nonGcdSkillIndex["14082"]][0].getNum() + 1e-10
         num = skillInfo[nonGcdSkillIndex["15039"]][0].getNum()
         rate = roundCent(num / sum)
         res = {"code": 105, "time": sum, "coverTime": num, "wasteTime": sum - num, "rate": rate}
@@ -1429,7 +1429,7 @@ class XiangZhiProReplayer(ReplayerBase):
         self.result["review"]["content"].append(res)
 
         # code 106 使用`角`(TODO)
-        sum = battleTimeDict[self.mykey]
+        sum = battleTimeDict[self.mykey] + 1e-10
         num = jueOverallCounter.buffTimeIntegral()
         cover = roundCent(num / sum)
         res = {"code": 106, "cover": cover, "rate": cover}

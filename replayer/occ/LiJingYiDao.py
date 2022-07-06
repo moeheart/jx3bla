@@ -1228,13 +1228,13 @@ class LiJingYiDaoReplayer(ReplayerBase):
         scCandidate.append(yzSkill)
 
         rateSum = 0
-        rateNum = 0
+        rateNum = 0 + 1e-10
         numAll = []
         sumAll = []
         skillAll = []
         for skillObj in scCandidate:
             num = skillObj.getNum()
-            sum = skillObj.getMaxPossible()
+            sum = skillObj.getMaxPossible() + 1e-10
             if sum < num:
                 sum = num
             skill = skillObj.name
@@ -1267,20 +1267,20 @@ class LiJingYiDaoReplayer(ReplayerBase):
         self.result["review"]["content"].append(res)
 
         # code 203 不要浪费瞬发次数
-        rate = roundCent(instantNum / (shuiyueNum + xqxNum))
+        rate = roundCent(instantNum / (shuiyueNum + xqxNum + 1e-10))
         res = {"code": 203, "timeShuiyue": shuiyueNum, "timeXqx": xqxNum, "timeCast": instantNum, "rate": rate}
         res["status"] = getRateStatus(res["rate"], 75, 0, 0)
         self.result["review"]["content"].append(res)
 
         # code 204 优先瞬发`长针`
-        rate = roundCent(instantChangzhenNum / instantNum)
+        rate = roundCent(instantChangzhenNum / (instantNum + 1e-10))
         res = {"code": 204, "timeCast": instantNum, "timeChangzhen": instantChangzhenNum, "rate": rate}
         res["status"] = getRateStatus(res["rate"], 75, 0, 0)
         self.result["review"]["content"].append(res)
 
         # code 205 选择合适的`长针`目标
         num = 0
-        sum = 0
+        sum = 0 + 1e-10
         for i in weichaoSingleList:
             sum += 1
             if i >= 4:
@@ -1292,7 +1292,7 @@ class LiJingYiDaoReplayer(ReplayerBase):
 
         # code 206 提高握针扩散效率
         num = 0
-        sum = 0
+        sum = 0 + 1e-10
         for i in weichaoEffList:
             sum += 1
             num += i
