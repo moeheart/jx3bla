@@ -145,5 +145,11 @@ sql = """CREATE TABLE InstanceInfo(
 
 #新建一个表InstanceInfo，表示副本信息，记录instanceid，区服，日期，副本ID。
 
+sql = """CREATE TABLE ReplayProStatRank(
+         name VARCHAR(128),
+         number DOUBLE) DEFAULT CHARSET utf8mb4"""
+
+#ReplayProStatRank，记录统计的数据种类和值。
+
 db.commit()
 db.close()

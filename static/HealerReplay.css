@@ -1,0 +1,280 @@
+.replay-area{
+    border: 1px solid;
+}
+
+#table-container{
+    position: relative;
+}
+
+#overall{
+    position: absolute;
+    width: 200px;
+    height: 230px;
+    left: 10px;
+    top: 10px;
+}
+
+#equip{
+    position: absolute;
+    width: 200px;
+    height: 230px;
+    left: 220px;
+    top: 10px;
+}
+
+#healer{
+    position: absolute;
+    width: 310px;
+    height: 150px;
+    left: 430px;
+    top: 10px;
+}
+
+#qixue{
+    position: absolute;
+    width: 310px;
+    height: 70px;
+    left: 430px;
+    top: 170px;
+}
+
+#skill{
+    position: absolute;
+    width: 730px;
+    height: 200px;
+    left: 10px;
+    top: 250px;
+}
+
+#replay{
+    position: absolute;
+    width: 730px;
+    height: 150px;
+    left: 10px;
+    top: 460px;
+    overflow: auto;
+}
+
+#dps{
+    position: absolute;
+    width: 300px;
+    height: 200px;
+    left: 10px;
+    top: 620px;
+    overflow: auto;
+}
+
+#score{
+    position: absolute;
+    width: 210px;
+    height: 200px;
+    left: 320px;
+    top: 620px;
+}
+
+#ad{
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    left: 540px;
+    top: 620px;
+}
+
+.highlight{
+    background-color: #ffff77;
+}
+
+.float-window{
+    position: absolute;
+    left: 500px;
+    top: 300px;
+    background-color: #bbbbbb;
+    /* width: 100px; */
+    font-size: 14px;
+}
+
+.fw-title{
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.occ-1, .occ-1d, .occ-1t{
+	color: rgb(210, 180, 0);
+}
+.occ-2, .occ-2d, .occ-2h{
+	color: rgb(127, 31, 223);
+}
+.occ-3, .occ-3d, .occ-3t{
+	color: rgb(160, 0, 0);
+}
+.occ-4, .occ-4p, .occ-4m{
+	color: rgb(56, 175, 255);
+}
+.occ-5, .occ-5d, .occ-5h{
+	color: rgb(255, 127, 255);
+}
+.occ-6, .occ-6d, .occ-6h{
+	color: rgb(63, 31, 159);
+}
+.occ-7, .occ-7p, .occ-7m{
+	color: rgb(0, 133, 144);
+}
+.occ-8{
+	color: rgb(220, 220, 0);
+}
+.occ-9{
+	color: rgb(205, 133, 63);
+}
+.occ-10, .occ-10d, .occ-10t{
+	color: rgb(253, 84, 0);
+}
+.occ-21, .occ-21d, .occ-21t{
+	color: rgb(180, 60, 0);
+}
+.occ-22, .occ-22d, .occ-22h{
+	color: rgb(100, 250, 180);
+}
+.occ-23{
+	color: rgb(71, 73, 166);
+}
+.occ-24{
+	color: rgb(195, 171, 227);
+}
+.occ-25{
+	color: rgb(161, 9, 34);
+}
+.occ-211{
+	color: rgb(166, 83, 251);
+}
+.occ-212, .occ-212d, .occ-212h{
+	color: rgb(0, 172, 153);
+}
+
+/* Part 1 */
+
+#overall table{
+    font-size: 13px;
+}
+
+#data-1-2{
+    color: #64fab4;
+}
+
+#data-1-7{
+    color: #ff0000;
+}
+
+/* Part 2 */
+
+#equip table{
+    font-size: 13px;
+}
+
+.cw{
+    color: #ffcc00;
+}
+
+.hidden{
+    display: none;
+}
+
+/* Part 3 */
+
+#healer table{
+    font-size: 13px;
+}
+
+/* Part 5 */
+.skill-subarea{
+    width: 178px;
+    height: 95px;
+    display: inline-block;
+}
+
+.skill-left {
+    width: 50px;
+    display: inline-block;
+}
+
+.skill-left img{
+    margin: 24px 2px;
+}
+
+.skill-right{
+    display: inline-block;
+    height: 95px;
+    width: 128px;
+}
+
+.skill-right table{
+    font-size: 12px;
+    line-height: 12px;
+}
+
+#skill-3-t, #skill-4-t, #skill-6-t{
+    margin-top: 10px;
+}
+
+#skill-7-t{
+    margin-top: 20px;
+}
+
+/* Part 6 */
+
+#replay-timeline{
+    position: absolute;
+    height: 40px;
+    top: 30px;
+}
+
+.skill-block{
+    height: 20px;
+    position: absolute;
+}
+
+.skill-image{
+    height: 20px;
+    width: 20px;
+    position: absolute;
+}
+
+.skill-time{
+    height: 18px;
+    position: absolute;
+    left: 20px;
+    font-size: 14px;
+}
+
+.xiangzhi{
+    background-color: #64fab4;
+    border: 1px solid;
+}
+
+.boss{
+    background-color: #ff7777;
+    border: 1px solid;
+}
+
+/* Part 7 */
+
+#dps table{
+    font-size: 13px;
+}
+
+.playername{
+    width: 100px;
+}
+
+/* Part 8 */
+
+#score table, #score div{
+    font-size: 13px;
+}
+
+/* Part 9 */
+
+p{
+    display: inline-block;
+}
+
+

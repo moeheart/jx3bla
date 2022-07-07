@@ -60,7 +60,7 @@ class BattleHistory():
         - color: 颜色，用于显示
         '''
         res = {"skillid": skillid,
-               "skillname": skillname,
+               "skillname": skillname.strip('"'),
                "iconid": iconid,
                "start": start,
                "duration": duration,

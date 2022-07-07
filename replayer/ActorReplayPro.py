@@ -147,7 +147,7 @@ class ActorProReplayer(ReplayerBase):
 
         jpost = {'jdata': Jdata}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadActorData', data=jparse)
+        resp = urllib.request.urlopen('http://%s:8009/uploadActorData' % IP, data=jparse)
         
         res = json.load(resp)
         
@@ -176,6 +176,8 @@ class ActorProReplayer(ReplayerBase):
         # 向窗口类中存储装备信息，作为不同boss之间的缓存
         for id in self.bld.info.player:
             self.window.playerEquipment[id] = self.bld.info.player[id].equip
+
+        self.window.setNotice({"t1": "正在分析[%s]..." % self.bossname, "c1": "#000000", "t2": "数据整体处理...", "c2": "#0000ff"})
 
         # TODO 为格式错误准备报错信息
         if len(self.bld.log) == 0:
@@ -434,10 +436,18 @@ class ActorProReplayer(ReplayerBase):
         self.penalty1 = {}
         self.penalty2 = {}
         self.guHuoTarget = {}
+        self.battleDict = {}
+        self.deathDict = {}
+        firstHitDict = {}
+        self.unusualDeathDict = {}
         
         for line in self.bld.info.player:
             self.penalty1[line] = BuffCounter(0, self.startTime, self.finalTime)  # 通用易伤
             self.penalty2[line] = BuffCounter(0, self.startTime, self.finalTime)  # 通用减疗
+            self.battleDict[line] = BuffCounter("0", self.startTime, self.finalTime)  # 战斗状态统计
+            firstHitDict[line] = 0
+            self.deathDict[line] = {"num": 0, "log": []}  # 重伤统计
+            self.unusualDeathDict[line] = {"num": 0, "log": []}  # 非正常重伤统计
 
         if not self.lastTry:
             self.finalTime -= self.failThreshold * 1000
@@ -453,13 +463,8 @@ class ActorProReplayer(ReplayerBase):
         qteStat = []
         qteTime = 0
 
-        damageCount = 0
-
         for event in self.bld.log:
 
-            # item = line[""]
-            # if int(item[2]) > self.finalTime:
-            #     break
             if event.time < self.startTime:
                 continue
             if event.time > self.finalTime:
@@ -484,7 +489,7 @@ class ActorProReplayer(ReplayerBase):
                     if event.damage != 0 and event.target in deathHitDetail and '5' not in event.fullResult:
                         if len(deathHitDetail[event.target]) >= 20:
                             del deathHitDetail[event.target][0]
-                        deathHitDetail[event.target].append([event.time, self.bld.info.getSkillName(event.full_id), event.damage, event.caster, -1, event.effect])
+                        deathHitDetail[event.target].append([event.time, self.bld.info.getSkillName(event.full_id), event.damage, event.caster, -1, event.effect, event.damageEff])
 
                     # 普通治疗
                     if event.heal != 0:
@@ -495,14 +500,14 @@ class ActorProReplayer(ReplayerBase):
                             if event.target in deathHitDetail:
                                 if len(deathHitDetail[event.target]) >= 20:
                                     del deathHitDetail[event.target][0]
-                                deathHitDetail[event.target].append([event.time, self.bld.info.getSkillName(event.full_id), event.healEff, event.caster, 1, event.effect])
+                                deathHitDetail[event.target].append([event.time, self.bld.info.getSkillName(event.full_id), event.healEff, event.caster, 1, event.effect, 0])
                         # 计算蛊惑
                         if event.caster in self.guHuoTarget and self.guHuoTarget[event.caster] != "0" and int(int(event.healEff) / 2) > 2000:
                             guHuo = self.guHuoTarget[event.caster]
                             if guHuo in deathHitDetail:
                                 if len(deathHitDetail[guHuo]) >= 20:
                                     del deathHitDetail[guHuo][0]
-                                deathHitDetail[guHuo].append([event.time, self.bld.info.getSkillName(event.full_id)+"(蛊惑)", int(int(event.healEff) / 2), event.caster, 1, event.effect])
+                                deathHitDetail[guHuo].append([event.time, self.bld.info.getSkillName(event.full_id)+"(蛊惑)", int(int(event.healEff) / 2), event.caster, 1, event.effect, 0])
 
                 elif event.target in self.bld.info.npc:
 
@@ -512,7 +517,7 @@ class ActorProReplayer(ReplayerBase):
                         if event.caster in deathHitDetail:
                             if len(deathHitDetail[event.caster]) >= 20:
                                 del deathHitDetail[event.caster][0]
-                            deathHitDetail[event.caster].append([event.time, self.bld.info.getSkillName(event.full_id), event.damage, event.caster, -1, event.effect])
+                            deathHitDetail[event.caster].append([event.time, self.bld.info.getSkillName(event.full_id), event.damage, event.caster, -1, event.effect, event.damageEff])
 
                     # 开怪统计，判断对本体的伤害
                     if event.caster in self.bld.info.player and event.heal == 0 and self.bld.info.npc[event.target].name in self.bossNameDict:
@@ -531,6 +536,12 @@ class ActorProReplayer(ReplayerBase):
                         if event.caster not in self.dps:
                             self.dps[event.caster] = [0]
                         self.dps[event.caster][0] += event.damageEff
+
+                # 根据战斗信息推测进战状态
+                if event.caster in self.bld.info.player and firstHitDict[event.caster] == 0 and (event.damageEff > 0 or event.healEff > 0):
+                    firstHitDict[event.caster] = 1
+                    if event.scheme == 1:
+                        self.battleDict[event.caster].setState(event.time, 1)
 
             elif event.dataType == "Buff":
                 # if occdict[item[5]][0] == '0':
@@ -568,7 +579,7 @@ class ActorProReplayer(ReplayerBase):
                 if event.id in ["6214"] and event.stack == 0 and event.target in deathHitDetail:  # 断禅语
                     if len(deathHitDetail[event.target]) >= 20:
                         del deathHitDetail[event.target][0]
-                    deathHitDetail[event.target].append([event.time, "禅语消失", 0, event.caster, -1, 0])
+                    deathHitDetail[event.target].append([event.time, "禅语消失", 0, event.caster, -1, 0, 0])
 
             elif event.dataType == "Death":  # 重伤记录
                 
@@ -606,6 +617,11 @@ class ActorProReplayer(ReplayerBase):
                 if "能量爆裂" in deathSource:
                     severe = 0
 
+                damageSum1 = 0
+                damageSum5 = 0
+                lastFatal = 0
+                lastLine = [event.time, "未知", 0, "0", -1, 0, 0]
+
                 if event.id in deathHitDetail:
                     deathSourceDetail = ["血量变化记录："]
                     for line in deathHitDetail[event.id]:
@@ -623,6 +639,15 @@ class ActorProReplayer(ReplayerBase):
                             deathSourceDetail.append("-%s, %s:%s%s(%d)"%(parseTime((int(line[0]) - self.startTime) / 1000), name, line[1], resultStr, line[2]))
                         elif line[4] == 1:
                             deathSourceDetail.append("+%s, %s:%s%s(%d)"%(parseTime((int(line[0]) - self.startTime) / 1000), name, line[1], resultStr, line[2]))
+                        if line[2] > line[6] and line[4] == -1 and line[1] not in ["湍流", "溺水"]:
+                            lastFatal = 1
+                        else:
+                            lastFatal = 0
+                        lastLine = line
+                        if event.time - line[0] < 1000:
+                            damageSum1 += line[2]
+                        if event.time - line[0] < 5000:
+                            damageSum5 += line[2]
 
                     state1 = self.penalty1[event.id].checkState(event.time - 500)
                     state2 = self.penalty2[event.id].checkState(event.time - 500)
@@ -640,6 +665,14 @@ class ActorProReplayer(ReplayerBase):
                                                   deathSourceDetail,
                                                   0])
 
+                    self.deathDict[event.id]["num"] += 1
+                    self.deathDict[event.id]["log"].append(lastLine)
+
+                    if damageSum1 < 250000 and damageSum5 < 300000 and lastFatal:
+                        # 非正常死亡界限值，需要随版本更新
+                        self.unusualDeathDict[event.id]["num"] += 1
+                        self.unusualDeathDict[event.id]["log"].append(lastLine)
+
                     # 对有重伤统计的BOSS进行记录
                     if self.bossAnalyser.activeBoss in []:
                         self.bossAnalyser.recordDeath(item, deathSource)
@@ -649,7 +682,8 @@ class ActorProReplayer(ReplayerBase):
                 # print("[Shout]", event.time, event.content)
                     
             elif event.dataType == "Battle":  # 战斗状态变化
-                pass
+                if event.id in self.bld.info.player:
+                    self.battleDict[event.id].setState(event.time, event.fight)
 
             elif event.dataType == "Scene":  # 进入、离开场景
                 pass
@@ -695,7 +729,7 @@ class ActorProReplayer(ReplayerBase):
                 Jdata = json.dumps(result)
                 jpost = {'jdata': Jdata}
                 jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-                resp = urllib.request.urlopen('http://139.199.102.41:8009/getDpsStat', data=jparse)
+                resp = urllib.request.urlopen('http://%s:8009/getDpsStat' % IP, data=jparse)
                 res = json.load(resp)
             if result is None:
                 print("连接服务器失败！")
@@ -858,32 +892,40 @@ class ActorProReplayer(ReplayerBase):
         主要是心法复盘的实现.
         '''
         self.occResult = {}
+        actorData = {}
+        actorData["startTime"] = self.startTime
+        actorData["finalTime"] = self.finalTime
+        actorData["win"] = self.win
+        actorData["bossBh"] = self.bh
+        actorData["battleDict"] = self.battleDict
+        actorData["deathDict"] = self.deathDict
+        actorData["unusualDeathDict"] = self.unusualDeathDict
         for id in self.bld.info.player:
             if self.config.item["xiangzhi"]["active"] and self.occDetailList[id] == "22h":  # 奶歌
                 name = self.bld.info.player[id].name
-                xiangzhiRep = XiangZhiProReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime, self.win)
+                xiangzhiRep = XiangZhiProReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
                 xiangzhiRep.replay()
-                self.occResult[name] = {"occ": "22h", "result": xiangzhiRep.result}
+                self.occResult[name] = {"occ": "22h", "result": xiangzhiRep.result, "rank": xiangzhiRep.rank}
             if self.config.item["lingsu"]["active"] and self.occDetailList[id] == "212h":  # 灵素
                 name = self.bld.info.player[id].name
-                lingsuRep = LingSuReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime, self.win)
+                lingsuRep = LingSuReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
                 lingsuRep.replay()
-                self.occResult[name] = {"occ": "212h", "result": lingsuRep.result}
+                self.occResult[name] = {"occ": "212h", "result": lingsuRep.result, "rank": lingsuRep.rank}
             if self.config.item["lijing"]["active"] and self.occDetailList[id] == "2h":  # 奶花
                 name = self.bld.info.player[id].name
-                lijingyidaoRep = LiJingYiDaoReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime, self.win)
+                lijingyidaoRep = LiJingYiDaoReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
                 lijingyidaoRep.replay()
-                self.occResult[name] = {"occ": "2h", "result": lijingyidaoRep.result}
+                self.occResult[name] = {"occ": "2h", "result": lijingyidaoRep.result, "rank": lijingyidaoRep.rank}
             if self.config.item["yunchang"]["active"] and self.occDetailList[id] == "5h":  # 奶秀
                 name = self.bld.info.player[id].name
-                yunchangxinjingRep = YunChangXinJingReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime)
+                yunchangxinjingRep = YunChangXinJingReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
                 yunchangxinjingRep.replay()
-                self.occResult[name] = {"occ": "5h", "result": yunchangxinjingRep.result}
+                self.occResult[name] = {"occ": "5h", "result": yunchangxinjingRep.result, "rank": yunchangxinjingRep.rank}
             if self.config.item["butian"]["active"] and self.occDetailList[id] == "6h":  # 奶毒
                 name = self.bld.info.player[id].name
-                butianjueRep = BuTianJueReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, self.bh, self.startTime, self.finalTime, self.win)
+                butianjueRep = BuTianJueReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
                 butianjueRep.replay()
-                self.occResult[name] = {"occ": "6h", "result": butianjueRep.result}
+                self.occResult[name] = {"occ": "6h", "result": butianjueRep.result, "rank": butianjueRep.rank}
 
     def replay(self):
         '''

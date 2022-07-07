@@ -38,7 +38,7 @@ class Config():
         else:
             jpost = {'uuid': self.userUuid}
             jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-            resp = urllib.request.urlopen('http://139.199.102.41:8009/getUserInfo', data=jparse)
+            resp = urllib.request.urlopen('http://%s:8009/getUserInfo' % IP, data=jparse)
             res = json.load(resp)
         
         if res['exist'] == 0:
@@ -72,7 +72,7 @@ class Config():
         mac = "-".join(re.findall(r".{2}",uuid.uuid1().hex[-12:].upper()))
         jpost = {'mac': mac}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        resp = urllib.request.urlopen('http://139.199.102.41:8009/getUuid', data=jparse)
+        resp = urllib.request.urlopen('http://%s:8009/getUuid' % IP, data=jparse)
         res = json.load(resp)
         return res["uuid"]
 
@@ -131,69 +131,14 @@ class Config():
             self.initHealerItems(self.item["butian"], "butian")
             self.initHealerItems(self.item["yunchang"], "yunchang")
 
-            # self.playername = self.item["general"].get("playername", "")
-            # self.basepath = self.item["general"].get("basepath", "")
-            # self.jx3path = self.item["general"].get("jx3path", "")
-            # self.mask = int(self.item["general"].get("mask", 0))
-            # self.color = int(self.item["general"].get("color", 1))
-            # self.text = int(self.item["general"].get("text", 0))
-            # self.datatype = self.item["general"].get("datatype", "jcl")
-            # self.edition = self.item["general"].get("edition", EDITION)
-
-            # self.actorActive = int(self.item["actor"].get("active", 1))
-            # self.checkAll = int(self.item["actor"].get("checkall", 0))
-            # self.failThreshold = int(self.item["actor"].get("failthreshold", 10))
-            # self.qualifiedRate = float(self.item["actor"].get("qualifiedrate", 0.75))
-            # self.alertRate = float(self.item["actor"].get("alertrate", 0.85))
-            # self.bonusRate = float(self.item["actor"].get("bonusrate", 1.20))
-
             self.userUuid = self.item["user"].get("uuid", "")
             self.userId = self.item["user"].get("id", "")
             if self.userUuid == "" and "beta" not in EDITION:
                 uuid = self.getNewUuid()
                 self.userUuid = uuid
 
-            # self.xiangzhiActive = int(self.item["xiangzhi"].get("active", 1))
-            # self.speed = int(self.item["xiangzhi"].get("speed", 8780))
-            # self.xiangzhiPublic = int(self.item["xiangzhi"].get("public", 1))
-            # self.xiangzhiSpeedForce = int(self.item["xiangzhi"].get("speedforce", 0))
-            # self.xiangzhiCalTank = int(self.item["xiangzhi"].get("caltank", 0))
-            # self.xiangzhiStack = int(self.item["xiangzhi"].get("stack", 3))
-            #
-            # self.lingsuActive = int(self.item["lingsu"].get("active", 1))
-            # self.lingsuSpeed = int(self.item["lingsu"].get("speed", 8780))
-            # self.lingsuPublic = int(self.item["lingsu"].get("public", 1))
-            # self.lingsuSpeedForce = int(self.item["lingsu"].get("speedforce", 0))
-            # self.lingsuStack = int(self.item["lingsu"].get("stack", 3))
-            #
-            # self.lijingActive = int(self.item["lijing"].get("active", 1))
-            # self.lijingSpeed = int(self.item["lijing"].get("speed", 8780))
-            # self.lijingPublic = int(self.item["lijing"].get("public", 1))
-            # self.lijingSpeedForce = int(self.item["lijing"].get("speedforce", 0))
-            # self.lijingStack = int(self.item["lijing"].get("stack", 3))
-            #
-            # self.butianActive = int(self.item["butian"].get("active", 1))
-            # self.butianSpeed = int(self.item["butian"].get("speed", 8780))
-            # self.butianPublic = int(self.item["butian"].get("public", 1))
-            # self.butianSpeedForce = int(self.item["butian"].get("speedforce", 0))
-            # self.butianStack = int(self.item["butian"].get("stack", 3))
-            #
-            # self.yunchangActive = int(self.item["yunchang"].get("active", 1))
-            # self.yunchangSpeed = int(self.item["yunchang"].get("speed", 8780))
-            # self.yunchangPublic = int(self.item["yunchang"].get("public", 1))
-            # self.yunchangSpeedForce = int(self.item["yunchang"].get("speedforce", 0))
-            # self.yunchangStack = int(self.item["yunchang"].get("stack", 3))
-
-            self.getUserInfo()
-                
-            # assert self.mask in [0, 1]
-            # assert self.color in [0, 1]
-            # assert self.text in [0, 1]
-            # assert self.xiangzhiActive in [0, 1]
-            # assert self.actorActive in [0, 1]
-            # assert self.checkAll in [0, 1]
-            # assert self.qualifiedRate <= self.alertRate
-            # assert self.alertRate <= self.bonusRate
+            if not self.skipUser:
+                self.getUserInfo()
         except:
             raise Exception("配置文件格式不正确，请确认。如无法定位问题，请删除config.ini，在生成的配置文件的基础上进行修改。")
 
@@ -238,13 +183,15 @@ class Config():
             self.item[nameInConfig] = {}
         self.item[nameInConfig]["nameInFile"] = nameInFile
 
-    def __init__(self, filename, build=0):
+    def __init__(self, filename, build=0, skipUser=1):
         '''
         构造方法。
         params
         - filename: 配置文件名，通常为config.ini。
+        - skipUser: 是否跳过查找用户信息，默认为是.
         '''
         self.item = {}
+        self.skipUser = skipUser
         if not os.path.isfile(filename):
             if build:
                 self.printDefault()
@@ -369,21 +316,21 @@ class LicenseWindow():
         self.label = l
         
         self.var = tk.IntVar(window)
-        self.cb = tk.Checkbutton(window, text = "同意上述协议", variable = self.var, onvalue = 1, offvalue = 0)
+        self.cb = tk.Checkbutton(window, text = "同意上述协议", variable=self.var, onvalue=1, offvalue=0)
         self.cb.bind("<Button-1>", self.hit_box)
         self.cb.pack()
         
         b1 = tk.Button(window, text='完成', height=1, command=self.hit_ok)
-        b1.place(x = 200, y = 350)
+        b1.place(x=200, y=350)
         
         b2 = tk.Button(window, text='关闭', height=1, command=self.hit_cancel)
-        b2.place(x = 250, y = 350)
+        b2.place(x=250, y=350)
 
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
     
     def start(self):
-        self.windowThread = threading.Thread(target = self.loadWindow)    
+        self.windowThread = threading.Thread(target=self.loadWindow)
         self.windowThread.start()
 
     def __init__(self, mainWindow, lock):
@@ -529,7 +476,7 @@ class ConfigWindow():
     '''
 
     def show_xiangzhiTianti(self):
-        webbrowser.open("http://139.199.102.41:8009/XiangZhiTable.html")
+        webbrowser.open("http://%s:8009/XiangZhiTable.html" % IP)
 
     def show_replay(self):
         '''
@@ -537,7 +484,7 @@ class ConfigWindow():
         '''
         pass
         id = self.entry2_8.get()
-        resp = urllib.request.urlopen('http://139.199.102.41:8009/getReplayPro?id=%s'%id)
+        resp = urllib.request.urlopen('http://%s:8009/getReplayPro?id=%s' % (IP, id))
         res = json.load(resp)
         if res["text"] == "结果未找到.":
             messagebox.showinfo(title='嘶', message='找不到该ID对应的数据！')
@@ -551,13 +498,6 @@ class ConfigWindow():
             window.start()
 
     def final(self):
-        # self.config.playername = self.entry1_1.get()
-        # self.config.jx3path = self.entry1_2.get()
-        # self.config.basepath = self.entry1_3.get()
-        # self.config.mask = self.var1_4.get()
-        # self.config.color = self.var1_5.get()
-        # self.config.text = self.var1_6.get()
-        # self.config.datatype = self.var1_7.get()
 
         for frameKey in self.frameInfo:
             for itemKey in self.frameInfo[frameKey]:
@@ -571,23 +511,8 @@ class ConfigWindow():
                 elif res["type"] == "Radio":
                     self.config.item[res["configGroup"]][res["configKey"]] = res["var"].get()
 
-        # self.config.xiangzhiActive = self.var2_1.get()
-        # #self.config.xiangzhiname = self.entry2_2.get()
-        # self.config.speed = self.entry2_3.get()
-        # self.config.xiangzhiPublic = self.var2_4.get()
-        # self.config.xiangzhiSpeedForce = self.var2_6.get()
-        # self.config.xiangzhiCalTank = self.var2_7.get()
-        # self.config.actorActive = self.var3_1.get()
-        # self.config.checkAll = self.var3_2.get()
-        # self.config.failThreshold = self.entry3_3.get()
-        # self.config.qualifiedRate = self.entry3_4.get()
-        # self.config.alertRate = self.entry3_5.get()
-        # self.config.bonusRate = self.entry3_6.get()
         self.config.item["user"]["id"] = self.userId
-        # self.config.lingsuActive = self.var5_1.get()
-        # self.config.lingsuSpeed = self.entry5_2.get()
-        # self.config.lingsuPublic = self.var5_3.get()
-        # self.config.lingsuSpeedForce = self.var5_4.get()
+
         self.config.printSettings()
         self.window.destroy()
         
@@ -596,7 +521,7 @@ class ConfigWindow():
         id = self.entry4_2.get() 
         jpost = {'uuid': uuid, 'id': id}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        resp = urllib.request.urlopen('http://139.199.102.41:8009/setUserId', data=jparse)
+        resp = urllib.request.urlopen('http://%s:8009/setUserId' % IP, data=jparse)
         res = json.load(resp)
 
         if res["result"] == "dupid":
@@ -639,7 +564,7 @@ class ConfigWindow():
     def lvlup(self):
         jpost = {'uuid': self.config.userUuid}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        resp = urllib.request.urlopen('http://139.199.102.41:8009/userLvlup', data=jparse)
+        resp = urllib.request.urlopen('http://%s:8009/userLvlup' % IP, data=jparse)
         res = json.load(resp)
         if res["result"] == "fail":
             messagebox.showinfo(title='错误', message='升级失败！')
@@ -746,7 +671,7 @@ class ConfigWindow():
         使用tkinter绘制设置窗口，同时读取config.ini。
         '''
         
-        self.config = Config("config.ini")
+        self.config = Config("config.ini", skipUser=0)
         config = self.config
         
         window = tk.Toplevel(self.mainWindow)
@@ -765,7 +690,7 @@ class ConfigWindow():
                             "在当前电脑上线的角色的ID，同时也是记录者。\n通常情况下，只需要指定此项。\n如果指定了基准路径，则无需指定此项。",
                             "general", "playername")
         self.constructEntry("Frame1", frame1, "剑三路径",
-                            "剑三路径，一般是名为JX3的文件夹，其下应当有Games文件夹或bin文件夹。\n在自动获取路径失败时，需要指定此项，这通常是由于剑三客户端本身或者安装的方式异于常人。\n指定此项时，必须指定角色名。\n如果指定了基准路径，则无需指定此项。",
+                            "剑三路径，一般是名为JX3的文件夹，一般可以右键剑三的快捷方式找到，例如C:\\JX3。\n有时客户端并非标准安装方式（如体服），这时也可以使用MY#DATA的任意上层文件夹代替，例如C:\\SeasunGame\\Game\\JX3_EXP\\bin\\zhcn_exp。\n此项会尝试自动从注册表获取，如果获取失败，才需要手动指定。\n指定此项时，必须指定角色名。\n如果指定了基准路径，则无需指定此项。",
                             "general", "jx3path")
         self.constructEntry("Frame1", frame1, "基准路径",
                             "基准路径，一般为Game\\JX3\\bin\\zhcn_hd\\interface\\MY#DATA\\一串数字@zhcn\\userdata\\fight_stat\n必备选项，可以点击右侧的自动获取来从角色名自动推导。\n如果留空，则会在运行时自动推导。推导失败时将以当前目录作为基准目录。",
@@ -793,62 +718,6 @@ class ConfigWindow():
 
         tk.Button(frame1, text='自动获取', command=self.get_path).grid(row=2, column=2)
 
-        # self.label1_1 = tk.Label(frame1, text='玩家ID')
-        # self.entry1_1 = tk.Entry(frame1, show=None)
-        # self.label1_2 = tk.Label(frame1, text='剑三路径')
-        # self.entry1_2 = tk.Entry(frame1, show=None)
-        # self.label1_3 = tk.Label(frame1, text='基准路径')
-        # self.entry1_3 = tk.Entry(frame1, show=None)
-        # self.button1_3 = tk.Button(frame1, text='自动获取', command=self.get_path)
-        # self.var1_4 = tk.IntVar(window)
-        # self.var1_5 = tk.IntVar(window)
-        # self.var1_6 = tk.IntVar(window)
-        # self.cb1_4 = tk.Checkbutton(frame1, text="名称打码", variable=self.var1_4, onvalue=1, offvalue=0)
-        # self.cb1_5 = tk.Checkbutton(frame1, text="门派染色", variable=self.var1_5, onvalue=1, offvalue=0)
-        # self.cb1_6 = tk.Checkbutton(frame1, text="生成txt格式", variable=self.var1_6, onvalue=1, offvalue=0)
-        # self.label1_7 = tk.Label(frame1, text='数据格式')
-        # self.var1_7 = tk.StringVar(window)
-        # self.frame1_7 = tk.Frame(frame1)
-        # self.rb1_7_1 = tk.Radiobutton(self.frame1_7, text="jcl", variable=self.var1_7, value="jcl")
-        # self.rb1_7_1.grid(row=0, column=0)
-        # self.rb1_7_2 = tk.Radiobutton(self.frame1_7, text="jx3dat", variable=self.var1_7, value="jx3dat")
-        # self.rb1_7_2.grid(row=0, column=1)
-        #
-        # self.label1_1.grid(row=0, column=0)
-        # self.entry1_1.grid(row=0, column=1)
-        # self.label1_2.grid(row=1, column=0)
-        # self.entry1_2.grid(row=1, column=1)
-        # self.label1_3.grid(row=2, column=0)
-        # self.entry1_3.grid(row=2, column=1)
-        # self.button1_3.grid(row=2, column=2)
-        # self.cb1_4.grid(row=3, column=0)
-        # self.cb1_5.grid(row=4, column=0)
-        # self.cb1_6.grid(row=5, column=0)
-        # self.label1_7.grid(row=6, column=0)
-        # self.frame1_7.grid(row=6, column=1)
-        #
-        # self.entry1_1.insert(0, config.playername)
-        # self.entry1_2.insert(0, config.jx3path)
-        # self.entry1_3.insert(0, config.basepath)
-        # self.init_checkbox(self.cb1_4, config.mask)
-        # self.init_checkbox(self.cb1_5, config.color)
-        # self.init_checkbox(self.cb1_6, config.text)
-        # self.init_radio(self.rb1_7_1, config.datatype, "jcl")
-        # self.init_radio(self.rb1_7_2, config.datatype, "jx3dat")
-        #
-        # ToolTip(self.label1_1, "在当前电脑上线的角色的ID，同时也是记录者。\n通常情况下，只需要指定此项。\n如果指定了基准路径，则无需指定此项。")
-        # ToolTip(self.label1_2, "剑三路径，一般是名为JX3的文件夹，其下应当有Games文件夹或bin文件夹。\n在自动获取路径失败时，需要指定此项，这通常是由于剑三客户端本身或者安装的方式异于常人。\n指定此项时，必须指定角色名。\n如果指定了基准路径，则无需指定此项。")
-        # ToolTip(self.label1_3, "基准路径，一般为Game\\JX3\\bin\\zhcn_hd\\interface\\MY#DATA\\一串数字@zhcn\\userdata\\fight_stat\n必备选项，可以点击右侧的自动获取来从角色名自动推导。\n如果留空，则会在运行时自动推导。推导失败时将以当前目录作为基准目录。")
-        # ToolTip(self.cb1_4, "是否在生成的图片中将ID打码。\n这一选项同样会影响上传的数据，如果开启，则上传的数据也会打码。")
-        # ToolTip(self.cb1_5, "是否在生成的图片开启门派染色。")
-        # ToolTip(self.cb1_6, "是否将生成的图片中的信息以txt格式保存，方便再次传播。")
-        # ToolTip(self.label1_7, "复盘数据的格式，由剑三茗伊插件集的对应功能生成。\n对于指定的格式，必须正确设置，才能进行复盘。")
-        # ToolTip(self.rb1_7_1, "jcl格式，是茗伊团队工具的结果记录。这种记录结构轻巧，且拥有更全面的数据，但没有技能名等固定的信息。\n开启步骤：\n1. 在茗伊插件集-团队-团队工具中，勾选[xxx]\n2. 点击旁边的小齿轮，勾选[xxx]")
-        # ToolTip(self.rb1_7_2, "jx3dat格式，是茗伊战斗统计的结果记录。这种记录无需依赖全局信息，但没有部分数据种类。\n开启步骤：\n1. 在茗伊战斗统计的小齿轮中，勾选[记录所有复盘数据]。\n2. 按Shift点开历史页面，勾选[退出游戏时保存复盘][脱离战斗时保存复盘]，并取消[不保存历史复盘数据]。\n3. 再次按Shift点开历史页面，点击[仅在秘境中启用复盘]2-3次，使其取消。")
-        #
-        # self.entry1_1.bind('<Button-1>', self.clear_basepath)
-        # self.entry1_2.bind('<Button-1>', self.clear_basepath)
-
         # 演员复盘页面
         frame3 = tk.Frame(notebook)
         self.frameInfo["Frame2"] = {"num": 0}
@@ -873,49 +742,6 @@ class ConfigWindow():
         self.constructEntry("Frame2", frame3, "过滤监控列表",
                             "在展示时间轴时人工指定需要过滤的技能或buff，由玩家指定，用逗号隔开，例如：\ns6746,b17933,b6131",
                             "actor", "filter")
-
-        # self.var3_1 = tk.IntVar(window)
-        # self.cb3_1 = tk.Checkbutton(frame3, text = "启用演员复盘", variable = self.var3_1, onvalue = 1, offvalue = 0)
-        # self.var3_2 = tk.IntVar(window)
-        # self.cb3_2 = tk.Checkbutton(frame3, text = "处理拉脱的数据", variable = self.var3_2, onvalue = 1, offvalue = 0)
-        # self.label3_3 = tk.Label(frame3, text='拉脱末尾的无效时间(s)')
-        # self.entry3_3 = tk.Entry(frame3, show=None)
-        # self.label3_4 = tk.Label(frame3, text='DPS及格线')
-        # self.entry3_4 = tk.Entry(frame3, show=None)
-        # self.label3_5 = tk.Label(frame3, text='DPS预警线')
-        # self.entry3_5 = tk.Entry(frame3, show=None)
-        # self.label3_6 = tk.Label(frame3, text='DPS补贴线')
-        # self.entry3_6 = tk.Entry(frame3, show=None)
-        # # self.var3_7 = tk.IntVar(window)
-        # # self.cb3_7 = tk.Checkbutton(frame3, text = "上传至DPS天梯", variable = self.var3_7, onvalue = 1, offvalue = 0)
-        # # self.var3_8 = tk.IntVar(window)
-        # # self.cb3_8 = tk.Checkbutton(frame3, text = "复盘文件保险", variable = self.var3_8, onvalue = 1, offvalue = 0)
-        # self.cb3_1.grid(row=0, column=0)
-        # self.cb3_2.grid(row=1, column=0)
-        # self.label3_3.grid(row=2, column=0)
-        # self.entry3_3.grid(row=2, column=1)
-        # self.label3_4.grid(row=3, column=0)
-        # self.entry3_4.grid(row=3, column=1)
-        # self.label3_5.grid(row=4, column=0)
-        # self.entry3_5.grid(row=4, column=1)
-        # self.label3_6.grid(row=5, column=0)
-        # self.entry3_6.grid(row=5, column=1)
-        # # self.cb3_7.grid(row=6, column=0)
-        # # self.cb3_8.grid(row=7, column=0)
-        #
-        # self.init_checkbox(self.cb3_1, config.actorActive)
-        # self.init_checkbox(self.cb3_2, config.checkAll)
-        # self.entry3_3.insert(0, config.failThreshold)
-        # self.entry3_4.insert(0, config.qualifiedRate)
-        # self.entry3_5.insert(0, config.alertRate)
-        # self.entry3_6.insert(0, config.bonusRate)
-        #
-        # ToolTip(self.cb3_1, "演员复盘的总开关。如果关闭，则将跳过整个演员复盘。")
-        # ToolTip(self.cb3_2, "如果开启，在复盘模式下会尝试复盘所有的数据；\n反之，则复盘每个BOSS的最后一次战斗。")
-        # ToolTip(self.label3_3, "设置拉脱保护时间，在拉脱的数据中，最后若干秒的犯错记录将不再统计。")
-        # ToolTip(self.label3_4, "团队-心法DPS的及格线。\n如果全程低于这个值，一般代表没有工资，或者需要转老板。\n以1为单位。")
-        # ToolTip(self.label3_5, "团队-心法DPS的预警线。\n如果有BOSS低于这个值，一般代表后续需要重点关注。\n以1为单位。")
-        # ToolTip(self.label3_6, "团队-心法DPS的补贴线。\n如果全程高于这个值，一般代表可以发DPS补贴。\n以1为单位。")
 
         # 用户信息界面 TODO 以后维护
         frame4 = tk.Frame(notebook)
@@ -1021,44 +847,10 @@ class ConfigWindow():
                                     "是否统计T心法的覆盖率。\n多数情况下，统计T心法的覆盖率会使数据略微变差。",
                                     configClass, "caltank")
 
-        tk.Button(frame2, text='查看天梯', height=1, command=self.show_xiangzhiTianti).grid(row=5, column=0)
+        # tk.Button(frame2, text='查看天梯', height=1, command=self.show_xiangzhiTianti).grid(row=5, column=0)  # TODO 移除此功能
         tk.Button(frame2, text='根据ID查看复盘', height=1, command=self.show_replay).grid(row=6, column=0)
         self.entry2_8 = tk.Entry(frame2, show=None)
         self.entry2_8.grid(row=6, column=1)
-
-        # self.var2_1 = tk.IntVar(window)
-        # self.cb2_1 = tk.Checkbutton(frame2, text = "启用奶歌复盘", variable = self.var2_1, onvalue = 1, offvalue = 0)
-        # #self.label2_2 = tk.Label(frame2, text='奶歌ID')
-        # #self.entry2_2 = tk.Entry(frame2, show=None)
-        # self.label2_3 = tk.Label(frame2, text='加速')
-        # self.entry2_3 = tk.Entry(frame2, show=None)
-        # self.var2_4 = tk.IntVar(window)
-        # self.var2_6 = tk.IntVar(window)
-        # self.var2_7 = tk.IntVar(window)
-        # self.cb2_4 = tk.Checkbutton(frame2, text="分享结果", variable = self.var2_4, onvalue=1, offvalue=0)
-        # self.cb2_1.grid(row=0, column=0)
-        # #self.label2_2.grid(row=1, column=0)
-        # #self.entry2_2.grid(row=1, column=1)
-        # self.label2_3.grid(row=1, column=0)
-        # self.entry2_3.grid(row=1, column=1)
-        # self.cb2_4.grid(row=2, column=0)
-        # self.cb2_6 = tk.Checkbutton(frame2, text="强制指定", variable=self.var2_6, onvalue=1, offvalue=0)
-        # self.cb2_7 = tk.Checkbutton(frame2, text="统计T的覆盖率", variable=self.var2_7, onvalue=1, offvalue=0)
-        # self.cb2_6.grid(row=1, column=2)
-        # self.cb2_7.grid(row=3, column=0)
-        #
-        # self.init_checkbox(self.cb2_1, config.xiangzhiActive)
-        # #self.entry2_2.insert(0, config.xiangzhiname)
-        # self.entry2_3.insert(0, config.speed)
-        # self.init_checkbox(self.cb2_4, config.xiangzhiPublic)
-        # self.init_checkbox(self.cb2_6, config.xiangzhiSpeedForce)
-        # self.init_checkbox(self.cb2_7, config.xiangzhiCalTank)
-        #
-        # ToolTip(self.cb2_1, "奶歌复盘的总开关。如果关闭，则将跳过整个奶歌复盘。")
-        # ToolTip(self.label2_3, "奶歌的加速等级。用于在复盘中的装备信息获取失败的情况下手动指定加速。")
-        # ToolTip(self.cb2_4, "是否将复盘数据设置为公开。\n在之后的版本中，可以通过网站浏览所有公开的数据。")
-        # ToolTip(self.cb2_6, "是否强制指定加速为设置的值。\n这是用来处理配装信息不准的情况，例如小药、家园酒的增益。")
-        # ToolTip(self.cb2_7, "是否统计T心法的覆盖率。\n多数情况下，统计T心法的覆盖率会使数据略微变差。")
         
         notebook.add(frame1, text='全局')
         notebook.add(frame3, text='演员')
@@ -1075,7 +867,6 @@ class ConfigWindow():
 
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
-        #window.mainloop()
 
     def start(self):
         self.windowThread = threading.Thread(target=self.loadWindow)

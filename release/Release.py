@@ -16,5 +16,5 @@ if __name__ == "__main__":
     Jdata = json.dumps(result)
     jpost = {'jdata': Jdata}
     jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-    urllib.request.urlopen('http://139.199.102.41:8009/setAnnouncement', data=jparse)
-    
+    urllib.request.urlopen('http://%s:8009/setAnnouncement' % IP, data=jparse)
+

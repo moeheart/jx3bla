@@ -10,6 +10,7 @@ from tools.Functions import *
 from equip.AttributeDisplayRemote import AttributeDisplayRemote
 from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
 from replayer.Name import *
+from replayer.occ.Display import HealerDisplayWindow, SingleSkillDisplayer
 
 import os
 import time
@@ -24,7 +25,7 @@ import hashlib
 import webbrowser
 import pyperclip
 
-class XiangZhiProWindow():
+class XiangZhiProWindow(HealerDisplayWindow):
     '''
     奶歌复盘pro界面显示类.
     通过tkinter将复盘数据显示在图形界面中.
@@ -57,42 +58,6 @@ class XiangZhiProWindow():
             if score >= line[0]:
                 return line[2], line[1], line[3]
 
-    def getMaskName(self, name):
-        '''
-        获取名称打码的结果。事实上只需要对统计列表中的玩家打码.
-        params:
-        - name: 打码之前的玩家名.
-        '''
-        s = name.strip('"')
-        if s == "":
-            return s
-        elif self.mask == 0:
-            return s
-        else:
-            return s[0] + '*' * (len(s) - 1)
-
-    def final(self):
-        '''
-        关闭窗口。
-        '''
-        self.windowAlive = False
-        self.window.destroy()
-
-    def exportEquipment(self):
-        '''
-        导出装备信息到剪贴板.
-        '''
-        copyText = self.result["equip"]["raw"]
-        pyperclip.copy(copyText)
-        messagebox.showinfo(title='提示', message='复制成功！')
-
-    def OpenInWeb(self):
-        '''
-        打开网页版的复盘界面.
-        '''
-        url = "http://139.199.102.41:8009/showReplayPro.html?id=%d"%self.result["overall"]["shortID"]
-        webbrowser.open(url)
-
     def showHelp(self):
         '''
         展示复盘窗口的帮助界面，用于解释对应心法的一些显示规则.
@@ -102,245 +67,91 @@ class XiangZhiProWindow():
 由于底层机制问题，APS统计在有两个或以上化解同时作用时无法准确计算，仅为推测值。'''
         messagebox.showinfo(title='说明', message=text)
 
-    def loadWindow(self):
+    def renderSkill(self):
         '''
-        使用tkinter绘制详细复盘窗口。
+        渲染技能信息(Part 5)，奶歌复盘特化.
         '''
-        window = tk.Toplevel()
-        # window = tk.Tk()
-        window.title('奶歌复盘pro')
-        window.geometry('750x900')
-
-        if "mask" in self.result["overall"]:
-            self.mask = self.result["overall"]["mask"]  # 使用数据中的mask选项顶掉框架中现场读取的判定
-
-        # Part 1: 全局
-        frame1 = tk.Frame(window, width=200, height=230, highlightthickness=1, highlightbackground="#64fab4")
-        frame1.place(x=10, y=10)
-        frame1sub = tk.Frame(frame1)
-        frame1sub.place(x=0, y=0)
-        tb = TableConstructor(self.config, frame1sub)
-        tb.AppendContext("复盘版本：", justify="right")
-        tb.AppendContext(self.result["overall"]["edition"])
-        tb.EndOfLine()
-        tb.AppendContext("玩家ID：", justify="right")
-        tb.AppendContext(self.result["overall"]["playerID"], color="#64fab4")
-        tb.EndOfLine()
-        tb.AppendContext("服务器：", justify="right")
-        tb.AppendContext(self.result["overall"]["server"])
-        tb.EndOfLine()
-        tb.AppendContext("战斗时间：", justify="right")
-        tb.AppendContext(self.result["overall"]["battleTimePrint"])
-        tb.EndOfLine()
-        tb.AppendContext("生成时间：", justify="right")
-        tb.AppendContext(self.result["overall"]["generateTimePrint"])
-        tb.EndOfLine()
-        tb.AppendContext("地图：", justify="right")
-        tb.AppendContext(self.result["overall"]["map"])
-        tb.EndOfLine()
-        bossPrint = self.result["overall"]["boss"]
-        if self.result["overall"].get("win", 1) == 0:
-            bossPrint = bossPrint + "(未通关)"
-        tb.AppendContext("首领：", justify="right")
-        tb.AppendContext(bossPrint, color="#ff0000")
-        tb.EndOfLine()
-        tb.AppendContext("人数：", justify="right")
-        tb.AppendContext("%.2f"%self.result["overall"].get("numPlayer", 0))
-        tb.EndOfLine()
-        tb.AppendContext("战斗时长：", justify="right")
-        tb.AppendContext(self.result["overall"]["sumTimePrint"])
-        tb.EndOfLine()
-        tb.AppendContext("数据种类：", justify="right")
-        tb.AppendContext(self.result["overall"]["dataType"])
-        tb.EndOfLine()
-        #tk.Label(frame1, text=text, justify="left").place(x=0, y=0)
-
-        # Part 2: 装备
-        frame2 = tk.Frame(window, width=200, height=230, highlightthickness=1, highlightbackground="#64fab4")
-        frame2.place(x=220, y=10)
-        frame2sub = tk.Frame(frame2)
-        frame2sub.place(x=0, y=0)
-        if self.result["equip"]["available"] == 0:
-            text = "装备信息获取失败。\n在进入战斗后打开团队装分面板即可获取。\n如果是第一视角也可以自动获取。"
-            tk.Label(frame2, text=text, justify="left").place(x=0, y=0)
-        else:
-            tb = TableConstructor(self.config, frame2sub)
-            tb.AppendContext("装备分数：", justify="right")
-            color4 = "#000000"
-            if "大橙武" in self.result["equip"]["sketch"]:
-                color4 = "#ffcc00"
-            tb.AppendContext("%d"%self.result["equip"]["score"], color=color4)
-            tb.EndOfLine()
-            tb.AppendContext("详情：", justify="right")
-            tb.AppendContext(self.result["equip"]["sketch"])
-            tb.EndOfLine()
-            tb.AppendContext("强化：", justify="right")
-            tb.AppendContext(self.result["equip"].get("forge", ""))
-            tb.EndOfLine()
-            tb.AppendContext("根骨：", justify="right")
-            tb.AppendContext("%d"%self.result["equip"]["spirit"])
-            tb.EndOfLine()
-            tb.AppendContext("治疗量：", justify="right")
-            tb.AppendContext("%d(%d)"%(self.result["equip"]["heal"], self.result["equip"]["healBase"]))
-            tb.EndOfLine()
-            tb.AppendContext("会心：", justify="right")
-            tb.AppendContext("%s(%d)"%(self.result["equip"]["critPercent"], self.result["equip"]["crit"]))
-            tb.EndOfLine()
-            tb.AppendContext("会心效果：", justify="right")
-            tb.AppendContext("%s(%d)"%(self.result["equip"]["critpowPercent"], self.result["equip"]["critpow"]))
-            tb.EndOfLine()
-            tb.AppendContext("加速：", justify="right")
-            tb.AppendContext("%s(%d)"%(self.result["equip"]["hastePercent"], self.result["equip"]["haste"]))
-            tb.EndOfLine()
-
-            b2 = tk.Button(frame2, text='导出', height=1, command=self.exportEquipment)
-            b2.place(x=140, y=180)
-
-        # Part 3: 治疗
-        frame3 = tk.Frame(window, width=310, height=150, highlightthickness=1, highlightbackground="#64fab4")
-        frame3.place(x=430, y=10)
-        frame3sub = tk.Frame(frame3)
-        frame3sub.place(x=0, y=0)
-
-        tb = TableConstructor(self.config, frame3sub)
-        tb.AppendHeader("玩家名", "", width=13)
-        tb.AppendHeader("有效HPS", "最常用语境下的每秒治疗量，注意包含重伤时间。")
-        tb.AppendHeader("虚条HPS", "指虚条的最右端，包含溢出治疗量，也即计算所有绿字。")
-        tb.EndOfLine()
-        for record in self.result["healer"]["table"]:
-            name = self.getMaskName(record["name"])
-            color = getColor(record["occ"])
-            tb.AppendContext(name, color=color, width=13)
-            tb.AppendContext(record["healEff"])
-            tb.AppendContext(record["heal"])
-            tb.EndOfLine()
-
-        # Part 4: 奇穴
-        frame4 = tk.Frame(window, width=310, height=70, highlightthickness=1, highlightbackground="#64fab4")
-        frame4.place(x=430, y=170)
-        if self.result["qixue"]["available"] == 0:
-            text = "奇穴信息获取失败。\n在进入战斗后查看目标的奇穴即可获取。\n如果是第一视角也可以自动获取。"
-            tk.Label(frame4, text=text, justify="left").place(x=0, y=0)
-        else:
-            text = ""
-            for i in range(1, 7):
-                text = text + self.result["qixue"][str(i)] + ','
-            text = text + '\n'
-            for i in range(7, 13):
-                text = text + self.result["qixue"][str(i)] + ','
-            text = text[:-1]
-            tk.Label(frame4, text=text, justify="left").place(x=0, y=0)
-
+        window = self.window
         # Part 5: 技能
         # TODO 加入图片转存
-        frame5 = tk.Frame(window, width=730, height=200, highlightthickness=1, highlightbackground="#64fab4")
+        frame5 = tk.Frame(window, width=730, height=200, highlightthickness=1, highlightbackground=self.themeColor)
         frame5.place(x=10, y=250)
 
-        frame5_1 = tk.Frame(frame5, width=180, height=95)
-        frame5_1.place(x=0, y=0)
-        frame5_1.photo = tk.PhotoImage(file="icons/7059.png")
-        label = tk.Label(frame5_1, image=frame5_1.photo)
-        label.place(x=5, y=25)
-        ToolTip(label, "梅花三弄")
-        text = "数量：%d(%.2f)\n"%(self.result["skill"]["meihua"]["num"], self.result["skill"]["meihua"]["numPerSec"])
-        text = text + "覆盖率：%s%%\n" % parseCent(self.result["skill"]["meihua"]["cover"])
-        text = text + "延迟：%dms\n" % self.result["skill"]["meihua"]["delay"]
-        text = text + "犹香HPS：%d\n" % self.result["skill"]["meihua"].get("youxiangHPS", 0)
-        text = text + "平吟HPS：%d\n" % self.result["skill"]["meihua"].get("pingyinHPS", 0)
-        label = tk.Label(frame5_1, text=text, justify="left")
-        label.place(x=60, y=10)
+        mhsnDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        mhsnDisplayer.setImage("7059", "梅花三弄")
+        mhsnDisplayer.setDouble("rate", "数量", "meihua", "num", "numPerSec")
+        mhsnDisplayer.setSingle("percent", "覆盖率", "meihua", "cover")
+        mhsnDisplayer.setSingle("delay", "延迟", "meihua", "delay")
+        mhsnDisplayer.setSingle("int", "犹香HPS", "meihua", "youxiangHPS")
+        mhsnDisplayer.setSingle("int", "平吟HPS", "meihua", "pingyinHPS")
+        mhsnDisplayer.export_image(frame5, 0)
 
-        frame5_2 = tk.Frame(frame5, width=180, height=95)
-        frame5_2.place(x=180, y=0)
-        frame5_2.photo = tk.PhotoImage(file="icons/7174.png")
-        label = tk.Label(frame5_2, image=frame5_2.photo)
-        label.place(x=5, y=25)
-        ToolTip(label, "徵")
-        text = "数量：%d(%.2f)\n" % (self.result["skill"]["zhi"]["num"], self.result["skill"]["zhi"]["numPerSec"])
-        text = text + "延迟：%dms\n" % self.result["skill"]["zhi"]["delay"]
-        text = text + "HPS：%d\n" % self.result["skill"]["zhi"]["HPS"]
-        text = text + "古道HPS：%d\n" % self.result["skill"]["zhi"].get("gudaoHPS", 0)
-        text = text + "有效比例：%s%%\n" % parseCent(self.result["skill"]["zhi"]["effRate"])
-        label = tk.Label(frame5_2, text=text, justify="left")
-        label.place(x=60, y=10)
+        zhiDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        zhiDisplayer.setImage("7174", "徵")
+        zhiDisplayer.setDouble("rate", "数量", "zhi", "num", "numPerSec")
+        zhiDisplayer.setSingle("delay", "延迟", "zhi", "delay")
+        zhiDisplayer.setSingle("int", "HPS", "zhi", "HPS")
+        zhiDisplayer.setSingle("int", "古道HPS", "zhi", "gudaoHPS")
+        zhiDisplayer.setSingle("percent", "有效比例", "zhi", "effRate")
+        zhiDisplayer.export_image(frame5, 1)
 
-        frame5_3 = tk.Frame(frame5, width=180, height=95)
-        frame5_3.place(x=360, y=0)
-        frame5_3.photo = tk.PhotoImage(file="icons/7176.png")
-        label = tk.Label(frame5_3, image=frame5_3.photo)
-        label.place(x=5, y=25)
-        ToolTip(label, "角")
-        text = "数量：%d(%.2f)\n" % (self.result["skill"]["jue"]["num"], self.result["skill"]["jue"]["numPerSec"])
-        text = text + "延迟：%dms\n" % self.result["skill"]["jue"]["delay"]
-        text = text + "HPS：%d\n" % self.result["skill"]["jue"]["HPS"]
-        text = text + "覆盖率：%s%%\n" % parseCent(self.result["skill"]["jue"]["cover"])
-        label = tk.Label(frame5_3, text=text, justify="left")
-        label.place(x=60, y=20)
+        jueDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        jueDisplayer.setImage("7176", "角")
+        jueDisplayer.setDouble("rate", "数量", "jue", "num", "numPerSec")
+        jueDisplayer.setSingle("delay", "延迟", "jue", "delay")
+        jueDisplayer.setSingle("int", "HPS", "jue", "HPS")
+        jueDisplayer.setSingle("percent", "覆盖率", "jue", "cover")
+        jueDisplayer.export_image(frame5, 2)
 
-        frame5_4 = tk.Frame(frame5, width=180, height=95)
-        frame5_4.place(x=540, y=0)
-        frame5_4.photo = tk.PhotoImage(file="icons/7172.png")
-        label = tk.Label(frame5_4, image=frame5_4.photo)
-        label.place(x=5, y=25)
-        ToolTip(label, "商")
-        text = "数量：%d(%.2f)\n" % (self.result["skill"]["shang"]["num"], self.result["skill"]["shang"]["numPerSec"])
-        text = text + "延迟：%dms\n" % self.result["skill"]["shang"]["delay"]
-        text = text + "HPS：%d\n" % self.result["skill"]["shang"]["HPS"]
-        text = text + "覆盖率：%s%%\n" % parseCent(self.result["skill"]["shang"]["cover"])
-        label = tk.Label(frame5_4, text=text, justify="left")
-        label.place(x=60, y=20)
+        shangDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        shangDisplayer.setImage("7172", "商")
+        shangDisplayer.setDouble("rate", "数量", "shang", "num", "numPerSec")
+        shangDisplayer.setSingle("delay", "延迟", "shang", "delay")
+        shangDisplayer.setSingle("int", "HPS", "shang", "HPS")
+        shangDisplayer.setSingle("percent", "覆盖率", "shang", "cover")
+        shangDisplayer.export_image(frame5, 3)
 
-        frame5_5 = tk.Frame(frame5, width=180, height=95)
-        frame5_5.place(x=0, y=100)
-        frame5_5.photo = tk.PhotoImage(file="icons/7173.png")
-        label = tk.Label(frame5_5, image=frame5_5.photo)
-        label.place(x=5, y=25)
-        ToolTip(label, "宫")
-        text = "数量：%d(%.2f)\n" % (self.result["skill"]["gong"]["num"], self.result["skill"]["gong"]["numPerSec"])
-        text = text + "延迟：%dms\n" % self.result["skill"]["gong"]["delay"]
-        text = text + "HPS：%d\n" % self.result["skill"]["gong"]["HPS"]
-        text = text + "枕流HPS：%d\n" % self.result["skill"]["meihua"].get("zhenliuHPS", 0)
-        text = text + "有效比例：%s%%\n" % parseCent(self.result["skill"]["gong"]["effRate"])
-        label = tk.Label(frame5_5, text=text, justify="left")
-        label.place(x=60, y=10)
+        gongDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        gongDisplayer.setImage("7173", "宫")
+        gongDisplayer.setDouble("rate", "数量", "gong", "num", "numPerSec")
+        gongDisplayer.setSingle("delay", "延迟", "gong", "delay")
+        gongDisplayer.setSingle("int", "HPS", "gong", "HPS")
+        gongDisplayer.setSingle("int", "枕流HPS", "gong", "zhenliuHPS")
+        gongDisplayer.setSingle("percent", "有效比例", "gong", "effRate")
+        gongDisplayer.export_image(frame5, 4)
 
-        frame5_6 = tk.Frame(frame5, width=180, height=95)
-        frame5_6.place(x=180, y=100)
-        frame5_6.photo = tk.PhotoImage(file="icons/7175.png")
-        label = tk.Label(frame5_6, image=frame5_6.photo)
-        label.place(x=5, y=25)
-        ToolTip(label, "羽")
-        text = "数量：%d\n"%self.result["skill"]["yu"]["num"]
-        text = text + "延迟：%dms\n" % self.result["skill"]["yu"]["delay"]
-        text = text + "HPS：%d\n" % self.result["skill"]["yu"]["HPS"]
-        text = text + "有效比例：%s%%\n" % parseCent(self.result["skill"]["yu"]["effRate"])
-        label = tk.Label(frame5_6, text=text, justify="left")
-        label.place(x=60, y=20)
+        yuDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        yuDisplayer.setImage("7175", "羽")
+        yuDisplayer.setDouble("rate", "数量", "yu", "num", "numPerSec")
+        yuDisplayer.setSingle("delay", "延迟", "yu", "delay")
+        yuDisplayer.setSingle("int", "HPS", "yu", "HPS")
+        yuDisplayer.setSingle("percent", "有效比例", "yu", "effRate")
+        yuDisplayer.export_image(frame5, 5)
 
-        frame5_7 = tk.Frame(frame5, width=180, height=95)
-        frame5_7.place(x=360, y=100)
-        text = "相依数量：%d\n" % self.result["skill"]["xiangyi"]["num"]
-        text = text + "相依HPS：%d\n" % self.result["skill"]["xiangyi"]["HPS"]
-        text = text + "沐风覆盖率：%s%%\n" % parseCent(self.result["skill"]["mufeng"]["cover"])
-        label = tk.Label(frame5_7, text=text, justify="left")
-        label.place(x=20, y=25)
+        info1Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        info1Displayer.setSingle("int", "相依数量", "xiangyi", "num")
+        info1Displayer.setSingle("int", "相依HPS", "xiangyi", "HPS")
+        info1Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
+        info1Displayer.export_text(frame5, 6)
 
-        frame5_8 = tk.Frame(frame5, width=180, height=95)
-        frame5_8.place(x=540, y=100)
-        text = "APS：%d\n" % self.result["skill"]["general"].get("APS", 0)
-        text = text + "桑柔DPS：%d\n" % self.result["skill"]["general"]["SangrouDPS"]
-        text = text + "庄周梦DPS：%d\n" % self.result["skill"]["general"]["ZhuangzhouDPS"]
-        text = text + "玉简DPS：%d\n" % self.result["skill"]["general"].get("YujianDPS", 0)
-        text = text + "战斗效率：%s%%\n" % parseCent(self.result["skill"]["general"]["efficiency"])
-        label = tk.Label(frame5_8, text=text, justify="left")
-        label.place(x=20, y=10)
+        info2Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        info2Displayer.setSingle("int", "APS估算", "general", "APS")
+        info2Displayer.setSingle("int", "桑柔DPS", "general", "SangrouDPS")
+        info2Displayer.setSingle("int", "庄周梦DPS", "general", "ZhuangzhouDPS")
+        info2Displayer.setSingle("int", "玉简DPS", "general", "YujianDPS")
+        info2Displayer.setSingle("percent", "战斗效率", "general", "efficiency")
+        info2Displayer.export_text(frame5, 7)
 
         button = tk.Button(frame5, text='？', height=1, command=self.showHelp)
         button.place(x=680, y=160)
 
+    def renderReplay(self):
+        '''
+        渲染回放信息(Part 6)，奶歌复盘特化.
+        '''
+        window = self.window
         # Part 6: 回放
-
-        frame6 = tk.Frame(window, width=730, height=150, highlightthickness=1, highlightbackground="#64fab4")
+        frame6 = tk.Frame(window, width=730, height=150, highlightthickness=1, highlightbackground=self.themeColor)
         frame6.place(x=10, y=460)
         battleTime = self.result["overall"]["sumTime"]
         battleTimePixels = int(battleTime / 100)
@@ -426,7 +237,7 @@ class XiangZhiProWindow():
                     canvas6.create_image(posStart + 10, 80, image=canvas6.im[record_last["iconid"]])
                     # 绘制表示持续的条
                     if posStart + 20 < posEnd:
-                        canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill="#64fab4")
+                        canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill=self.themeColor)
                     # 绘制重复次数
                     if posStart + 30 < posEnd:
                         canvas6.create_text(posStart + 30, 80, text="*%d" % (i-j))
@@ -439,7 +250,7 @@ class XiangZhiProWindow():
                         canvas6.create_image(posStart + 10, 80, image=canvas6.im[record_single["iconid"]])
                         # 绘制表示持续的条
                         if posStart + 20 < posEnd:
-                            canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill="#64fab4")
+                            canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill=self.themeColor)
                 j = i
             lastName = record["skillname"]
             lastStart = record["start"]
@@ -480,8 +291,13 @@ class XiangZhiProWindow():
 
         tk.Label(frame6sub, text="test").place(x=20, y=20)
 
+    def renderTeam(self):
+        '''
+        渲染团队信息(Part 7)，奶歌复盘特化.
+        '''
+        window = self.window
         # Part 7: 输出
-        frame7 = tk.Frame(window, width=290, height=200, highlightthickness=1, highlightbackground="#64fab4")
+        frame7 = tk.Frame(window, width=290, height=200, highlightthickness=1, highlightbackground=self.themeColor)
         frame7.place(x=10, y=620)
         numDPS = self.result["dps"]["numDPS"]
         canvas = tk.Canvas(frame7,width=290,height=190,scrollregion=(0,0,270,numDPS*24)) #创建canvas
@@ -509,48 +325,13 @@ class XiangZhiProWindow():
             tb.AppendContext(record["shieldBreak"])
             tb.EndOfLine()
 
-        # Part 8: 打分
-        frame8 = tk.Frame(window, width=210, height=200, highlightthickness=1, highlightbackground="#64fab4")
-        frame8.place(x=320, y=620)
-        frame8sub = tk.Frame(frame8)
-        frame8sub.place(x=30, y=30)
-
-        if self.result["score"]["available"] == 0:
-            tk.Label(frame8, text="复盘生成时的版本尚不支持打分。").place(x=10, y=150)
-        elif self.result["score"]["available"] == 11:
-            tk.Label(frame8, text="由于BOSS机制原因，不提供打分结果。").place(x=10, y=150)
-        else:
-            tb = TableConstructor(self.config, frame8sub)
-            tb.AppendHeader("数值分：", "对治疗数值的打分，包括治疗量、各个技能数量。")
-            descA = "治疗量评分：%.1f\n盾数量评分：%.1f\n徵数量评分：%.1f\n宫数量评分：%.1f" % (self.result["score"]["scoreA1"], self.result["score"]["scoreA2"],
-                                                               self.result["score"]["scoreA3"], self.result["score"]["scoreA4"])
-            tb.AppendHeader(self.result["score"]["scoreA"], descA, width=9)
-            lvlA, colorA, _ = self.getLvl(self.result["score"]["scoreA"])
-            tb.AppendContext(lvlA, color=colorA)
-            tb.EndOfLine()
-            tb.AppendHeader("统计分：", "对统计结果的打分，包括梅花三弄和HOT的覆盖率。")
-            descB = "盾覆盖率评分：%.1f\nHOT覆盖率评分：%.1f" % (self.result["score"]["scoreB1"], self.result["score"]["scoreB2"])
-            tb.AppendHeader(self.result["score"]["scoreB"], descB, width=9)
-            lvlB, colorB, _ = self.getLvl(self.result["score"]["scoreB"])
-            tb.AppendContext(lvlB, color=colorB)
-            tb.EndOfLine()
-            tb.AppendHeader("操作分：", "对操作表现的打分，包括战斗效率，各个技能延迟。")
-            descC = "战斗效率评分：%.1f\n盾延迟评分：%.1f\n徵延迟评分：%.1f\n宫延迟评分：%.1f" % (self.result["score"]["scoreC1"], self.result["score"]["scoreC2"],
-                                                               self.result["score"]["scoreC3"], self.result["score"]["scoreC4"])
-            tb.AppendHeader(self.result["score"]["scoreC"], descC, width=9)
-            lvlC, colorC, _ = self.getLvl(self.result["score"]["scoreC"])
-            tb.AppendContext(lvlC, color=colorC)
-            tb.EndOfLine()
-
-            tb.AppendHeader("总评：", "综合计算这几项的结果。")
-            tb.AppendContext(self.result["score"]["sum"], width=9)
-            lvl, color, desc = self.getLvl(self.result["score"]["sum"])
-            tb.AppendContext(lvl, color=color)
-            tb.EndOfLine()
-            tk.Label(frame8, text=desc, fg=color).place(x=10, y=150)
-
+    def renderAdvertise(self):
+        '''
+        渲染广告信息(Part 9)，奶歌复盘特化.
+        '''
+        window = self.window
         # Part 9: 广告
-        frame9 = tk.Frame(window, width=200, height=200, highlightthickness=1, highlightbackground="#64fab4")
+        frame9 = tk.Frame(window, width=200, height=200, highlightthickness=1, highlightbackground=self.themeColor)
         frame9.place(x=540, y=620)
         frame9sub = tk.Frame(frame9)
         frame9sub.place(x=0, y=0)
@@ -564,34 +345,17 @@ class XiangZhiProWindow():
 
         tk.Label(frame9, text="广告位招租").place(x=40, y=140)
 
-        self.window = window
-        window.protocol('WM_DELETE_WINDOW', self.final)
-
-    def start(self):
-        '''
-        创建并展示窗口.
-        '''
-        self.windowAlive = True
-        self.windowThread = threading.Thread(target=self.loadWindow)
-        self.windowThread.start()
-
-    def alive(self):
-        '''
-        返回窗口是否仍生存.
-        returns:
-        - res: 布尔类型，窗口是否仍生存.
-        '''
-        return self.windowAlive
-
     def __init__(self, config, result):
         '''
         初始化.
         params:
+        - config: 设置类
         - result: 奶歌复盘的结果.
         '''
-        self.config = config
-        self.mask = self.config.item["general"]["mask"]
-        self.result = result
+        super().__init__(config, result)
+        self.setThemeColor("#64fab4")
+        self.title = '奶歌复盘pro'
+        self.occ = "xiangzhi"
 
 class XiangZhiProReplayer(ReplayerBase):
     '''
@@ -604,6 +368,8 @@ class XiangZhiProReplayer(ReplayerBase):
         第一阶段复盘.
         主要处理全局信息，玩家列表等.
         '''
+
+        self.window.setNotice({"t2": "加载奶歌复盘...", "c2": "#64fab4"})
 
         # 大部分全局信息都可以在第一阶段直接获得
         self.result["overall"] = {}
@@ -846,19 +612,20 @@ class XiangZhiProReplayer(ReplayerBase):
         jueBuffDict = {}
         nongmeiDict = {}  # 弄梅
         mufengDict = BuffCounter("412", self.startTime, self.finalTime)  # 沐风
-        battleDict = {}
         firstHitDict = {}
         longkuiDict = {}
+        jueOverallCounter = BuffCounter("9463", self.startTime, self.finalTime)  # 角的全局覆盖
         for line in self.bld.info.player:
             shangBuffDict[line] = HotCounter("9459", self.startTime, self.finalTime)  # 商，9460=殊曲，9461=洞天
             jueBuffDict[line] = HotCounter("9463", self.startTime, self.finalTime)  # 角，9460=殊曲，9461=洞天
-            battleDict[line] = BuffCounter("0", self.startTime, self.finalTime)  # 战斗状态统计
             nongmeiDict[line] = BuffCounter("9584", self.startTime, self.finalTime)
             firstHitDict[line] = 0
             teamLog[line] = {}
             teamLastTime[line] = 0
             longkuiDict[line] = BuffCounter("20398", self.startTime, self.finalTime)
         lastSkillTime = self.startTime
+
+        battleDict = self.battleDict
 
         # 杂项
         fengleiActiveTime = self.startTime
@@ -867,42 +634,65 @@ class XiangZhiProReplayer(ReplayerBase):
         gudaoHeal = 0
         zhenliuHeal = 0
 
+        # 徵的特殊统计
+        zhiLastCast = 0
+        zhiLastSkill = 0
+        zhiZheXian = 0
+        zhiCastNum = 0
+        zhiCompleteNum = 0
+        zhiLocalNum = 0
+        zhiCastList = []
+        zhiSingleNum = 0
+        zhiSingleList = []
+
+        # 影子的推断统计
+        shadowBuffDict = {}
+        for i in range(6):
+            shadowBuffDict[str(i+9993)] = BuffCounter(str(i+9993), self.startTime, self.finalTime)
+
         # 战斗回放初始化
         bh = BattleHistory(self.startTime, self.finalTime)
         ss = SingleSkill(self.startTime, self.haste)
 
         # 技能信息
-        # [技能统计对象, 技能名, [所有技能ID], 图标ID, 是否为gcd技能, 运功时长, 是否倒读条, 是否吃加速]
-        skillInfo = [[None, "未知", ["0"], "0", True, 0, False, True],
-                     [None, "扶摇直上", ["9002"], "1485", True, 0, False, True],
-                     [None, "蹑云逐月", ["9003"], "1490", True, 0, False, True],
-                     [mhsnSkill, "梅花三弄", ["14231"], "7059", True, 0, False, True],
-                     [gongSkill, "宫", ["18864", "14360", "16852"], "7173", True, 24, False, True],
-                     [zhiSkill, "徵", ["14362", "18865"], "7174", True, 8, True, True],
-                     [yuSkill, "羽", ["14141", "14354", "14355", "14356"], "7175", True, 0, False, True],
-                     [shangSkill, "商", ["14138"], "7172", True, 0, False, True],
-                     [jueSkill, "角", ["14139"], "7176", True, 0, False, True],
-                     [None, "一指回鸾", ["14169"], "7045", True, 0, False, True],
-                     [None, "孤影化双", ["14081"], "7052", False, 0, False, True],
-                     [None, "云生结海", ["14075"], "7048", False, 0, False, True],
-                     [None, "高山流水", ["14069"], "7080", False, 0, False, True],
-                     [None, "青霄飞羽", ["14076"], "7078", False, 0, False, True],
-                     [None, "青霄飞羽·落", ["21324"], "7128", False, 0, False, True],
-                     [None, "移形换影", ["15039", "15040", "15041", "15042", "15043", "15044"], "7066", False, 0, False, True],
-                     [None, "高山流水·切换", ["18838", "18839"], "7080", False, 0, False, True],
-                     [None, "梅花三弄·切换", ["18841", "18842"], "7059", False, 0, False, True],
-                     [None, "阳春白雪·切换", ["18845", "18846"], "7077", False, 0, False, True],
+        # [技能统计对象, 技能名, [所有技能ID], 图标ID, 是否为gcd技能, 运功时长, 是否倒读条, 是否吃加速, cd时间, 充能数量]
+        skillInfo = [[None, "未知", ["0"], "0", True, 0, False, True, 0, 1],
+                     [None, "扶摇直上", ["9002"], "1485", True, 0, False, True, 30, 1],
+                     [None, "蹑云逐月", ["9003"], "1490", True, 0, False, True, 30, 1],
+                     [mhsnSkill, "梅花三弄", ["14231"], "7059", True, 0, False, True, 0, 1],
+                     [gongSkill, "宫", ["18864", "14360", "16852"], "7173", True, 24, False, True, 0, 1],
+                     [zhiSkill, "徵", ["14362", "18865"], "7174", True, 8, True, True, 0, 1],
+                     [yuSkill, "羽", ["14141", "14354", "14355", "14356"], "7175", True, 0, False, True, 6, 3],
+                     [shangSkill, "商", ["14138"], "7172", True, 0, False, True, 0, 1],
+                     [jueSkill, "角", ["14139"], "7176", True, 0, False, True, 0, 1],
+                     [None, "风雷引", ["15502"], "13", True, 0, False, False, 180, 1],
+                     [None, "一指回鸾", ["14169"], "7045", True, 0, False, True, 0, 1],
+                     [None, "孤影化双", ["14081"], "7052", False, 0, False, True, 180, 1],
+                     [None, "云生结海", ["14075"], "7048", False, 0, False, True, 80, 1],
+                     [None, "高山流水", ["14069"], "7080", False, 0, False, True, 0, 1],
+                     [None, "青霄飞羽", ["14076"], "7078", False, 0, False, True, 35, 1],
+                     [None, "青霄飞羽·落", ["21324"], "7128", False, 0, False, True, 0, 1],
+                     [None, "疏影横斜", ["14082"], "7066", False, 0, False, True, 20, 3],
+                     [None, "移形换影", ["15039", "15040", "15041", "15042", "15043", "15044"], "7066", False, 0, False, True, 0, 1],
+                     [None, "高山流水·切换", ["18838", "18839"], "7080", False, 0, False, True, 0, 1],
+                     [None, "梅花三弄·切换", ["18841", "18842"], "7059", False, 0, False, True, 0, 1],
+                     [None, "阳春白雪·切换", ["18845", "18846"], "7077", False, 0, False, True, 0, 1],
                     ]
 
         gcdSkillIndex = {}
         nonGcdSkillIndex = {}
         for i in range(len(skillInfo)):
             line = skillInfo[i]
+            if line[0] is None:
+                skillInfo[i][0] = SkillCounterAdvance(line, self.startTime, self.finalTime, self.haste)
             for id in line[2]:
                 if line[4]:
                     gcdSkillIndex[id] = i
                 else:
                     nonGcdSkillIndex[id] = i
+        yzInfo = [None, "特效腰坠", ["0"], "3414", False, 0, False, True, 180, 1]
+        yzSkill = SkillCounterAdvance(yzInfo, self.startTime, self.finalTime, self.haste)
+        yzInfo[0] = yzSkill
 
         xiangZhiUnimportant = ["4877",  # 水特效作用
                                "25682", "25683", "25684", "25685", "25686", "24787", "24788", "24789", "24790", # 破招
@@ -1019,6 +809,9 @@ class XiangZhiProReplayer(ReplayerBase):
                             index = nonGcdSkillIndex[event.id]
                             line = skillInfo[index]
                             bh.setSpecialSkill(event.id, line[1], line[3], event.time, 0, desc)
+                            skillObj = line[0]
+                            if skillObj is not None and event.id != "14082":  # 防止第一视角的影子重复计算
+                                skillObj.recordSkill(event.time, event.heal, event.healEff, ss.timeEnd, delta=-1)
                         # 无法分析的技能
                         elif event.id not in xiangZhiUnimportant:
                             pass
@@ -1035,6 +828,49 @@ class XiangZhiProReplayer(ReplayerBase):
                             zhenliuHeal += event.healEff
                         elif event.id == "21321":  # 相依
                             xySkill.recordSkill(event.time, event.heal, event.healEff, lastSkillTime)
+
+                        if event.id in ["14362", "18865"]:
+                            # 徵的运算。此处是推测逻辑，较为复杂，有心重构可以大胆尝试。
+                            timeDiff = event.time - zhiLastSkill
+                            timeDiff2 = event.time - zhiLastCast
+                            reset = 0
+                            flag = 1
+                            if timeDiff > 100 and (timeDiff2 < 100 or timeDiff < 200):
+                                zhiZheXian = 1
+                                bh.log["normal"][-1]["instant"] = 1
+                                bh.log["normal"][-1]["start"] = event.time
+                                bh.log["normal"][-1]["duration"] = 0
+                                reset = 1
+                            elif zhiZheXian and timeDiff > 1100:
+                                bh.log["normal"][-1]["instant"] = 1
+                                bh.log["normal"][-1]["start"] = event.time
+                                bh.log["normal"][-1]["duration"] = 0
+                                reset = 1
+                            elif timeDiff > 1100:
+                                reset = 2
+                            elif zhiLocalNum == 6:
+                                reset = 1
+                                # zhiZheXian = 1
+                            elif timeDiff > 100:
+                                zhiLocalNum += 1
+                            else:
+                                flag = 0
+                            if flag:
+                                if zhiSingleNum > 0:
+                                    zhiSingleList.append(zhiSingleNum)
+                                zhiSingleNum = 0
+                            zhiSingleNum += 1
+                            if reset:
+                                if zhiLocalNum >= 1:
+                                    zhiCastNum += 1
+                                    zhiCastList.append(zhiLocalNum)
+                                    # print("[ZhiZheXian]", zhiZheXian)
+                                zhiLocalNum = reset - 1
+                            if zhiLocalNum == 6:
+                                zhiCompleteNum += 1
+                            zhiLastSkill = event.time
+
+                            # print("[XiangzhiZhiSkill]", event.time, event.id, event.heal, event.healEff)
 
                     if event.caster == self.mykey and event.scheme == 2:
                         if event.id in ["9459", "9460", "9461", "9462"]:  # 商
@@ -1088,9 +924,16 @@ class XiangZhiProReplayer(ReplayerBase):
 
                 # 根据战斗信息推测进战状态
                 if event.caster in self.bld.info.player and firstHitDict[event.caster] == 0 and (event.damageEff > 0 or event.healEff > 0):
-                    firstHitDict[event.caster] = 1
-                    if event.scheme == 1:
-                        battleDict[event.caster].setState(event.time, 1)
+                    pass
+                    # if event.scheme == 1:
+                    #     battleDict[event.caster].setState(event.time, 1)
+
+                if event.caster == self.mykey and event.id in ["15039", "15040", "15041", "15042", "15043", "15044"]:
+                    # print("[xzTransport]", event.time, event.id)
+                    state = shadowBuffDict[str(int(event.id)-15039+9993)].checkState(event.time - 50)
+                    if state == 0:
+                        skillObj = skillInfo[nonGcdSkillIndex["14082"]][0]
+                        skillObj.recordSkill(event.time, 0, 0, ss.timeEnd, delta=-1)
 
             elif event.dataType == "Buff":
                 if event.id == "需要处理的buff！现在还没有":
@@ -1103,6 +946,9 @@ class XiangZhiProReplayer(ReplayerBase):
                 if event.id in ["9463", "9464", "9465", "9466"] and event.caster == self.mykey:  # 角
                     jueBuffDict[event.target].setState(event.time, event.stack, int((event.end - event.frame + 3) * 62.5))
                     teamLog, teamLastTime = countCluster(teamLog, teamLastTime, event)
+                    if event.stack == 1:
+                        jueOverallCounter.setStateSafe(event.time, 1)
+                        jueOverallCounter.setState(event.time + int((event.end - event.frame) * 62.5), 0)
                 if event.id == "10521":  # 风雷标志debuff:
                     if event.stack == 1:
                         fengleiActiveTime = max(event.time, lastSkillTime)
@@ -1114,6 +960,7 @@ class XiangZhiProReplayer(ReplayerBase):
                 if event.id in ["6360"] and event.level in [66, 76, 86] and event.stack == 1 and event.target == self.mykey:  # 特效腰坠:
                     bh.setSpecialSkill(event.id, "特效腰坠", "3414",
                                        event.time, 0, "开启特效腰坠")
+                    yzSkill.recordSkill(event.time, 0, 0, ss.timeEnd, delta=-1)
                 if event.id in ["10193"] and event.stack == 1 and event.target == self.mykey:  # cw特效:
                     bh.setSpecialSkill(event.id, "cw特效", "14416",
                                        event.time, 0, "触发cw特效")
@@ -1124,6 +971,16 @@ class XiangZhiProReplayer(ReplayerBase):
                 if event.id in ["20398"]:  # 龙葵
                     longkuiDict[event.target].setState(event.time, event.stack)
 
+                if event.id in ["9993", "9994", "9995", "9996", "9997", "9998"] and event.target == self.mykey:
+                    # 记录影子事件
+                    skillObj = skillInfo[nonGcdSkillIndex["14082"]][0]
+                    if skillObj is not None and event.stack == 1:
+                        skillObj.recordSkill(event.time, 0, 0, ss.timeEnd, delta=-1)
+                        # print("[xzRecord]", skillObj.getNum())
+                    # print("[xzShadow]", event.time, event.id, event.stack)
+                    shadowBuffDict[event.id].setState(event.time, event.stack)
+
+
             elif event.dataType == "Shout":
                 pass
 
@@ -1131,8 +988,22 @@ class XiangZhiProReplayer(ReplayerBase):
                 pass
 
             elif event.dataType == "Battle":
-                if event.id in self.bld.info.player:
-                    battleDict[event.id].setState(event.time, event.fight)
+                pass
+                # if event.id in self.bld.info.player:
+                #     battleDict[event.id].setState(event.time, event.fight)
+
+            elif event.dataType == "Cast":
+                if event.caster == self.mykey and event.id == "14140":
+                    # 徵
+                    zhiLastCast = event.time
+                    zhiCastNum += 1
+                    if zhiLocalNum > 0:
+                        zhiCastList.append(zhiLocalNum)
+                    zhiLocalNum = 0
+                    if zhiSingleNum > 0:
+                        zhiSingleList.append(zhiSingleNum)
+                    zhiSingleNum = 0
+                    # print(event.time, event.id)
 
             num += 1
 
@@ -1144,6 +1015,9 @@ class XiangZhiProReplayer(ReplayerBase):
                               ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
                               roundCent(ss.healEff / (ss.heal + 1e-10)),
                               int(ss.delay / (ss.delayNum + 1e-10)), ss.busy, "")
+
+        zhiCastList.append(zhiLocalNum)
+        zhiSingleList.append(zhiSingleNum)
 
         # 同步BOSS的技能信息
         if self.bossBh is not None:
@@ -1192,6 +1066,7 @@ class XiangZhiProReplayer(ReplayerBase):
         sumHeal = 0
         numid = 0
         topHeal = 0
+        myHealStat = {"hps": 0, "ohps": 0}
         for line in healList:
             if numid == 0:
                 topHeal = line[1][0]
@@ -1211,6 +1086,9 @@ class XiangZhiProReplayer(ReplayerBase):
                    "healEff": int(line[1][0] / self.result["overall"]["sumTime"] * 1000),
                    "heal": int(line[1][1] / self.result["overall"]["sumTime"] * 1000)}
             self.result["healer"]["table"].append(res)
+            if line[0] == self.mykey:
+                myHealStat["hps"] = res["healEff"]
+                myHealStat["ohps"] = res["heal"]
 
         # 计算DPS列表(Part 7)
         self.result["dps"] = {"table": [], "numDPS": 0}
@@ -1306,6 +1184,7 @@ class XiangZhiProReplayer(ReplayerBase):
         # 羽
         self.result["skill"]["yu"] = {}
         self.result["skill"]["yu"]["num"] = yuSkill.getNum()
+        self.result["skill"]["yu"]["numPerSec"] = roundCent(self.result["skill"]["yu"]["num"] / self.result["overall"]["sumTime"] * 1000, 2)
         self.result["skill"]["yu"]["delay"] = int(yuSkill.getAverageDelay())
         effHeal = yuSkill.getHealEff()
         self.result["skill"]["yu"]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
@@ -1384,15 +1263,37 @@ class XiangZhiProReplayer(ReplayerBase):
         self.result["skill"]["general"]["ZhuangzhouDPS"] = int(numdam1 / self.result["overall"]["sumTime"] * 1000)
         self.result["skill"]["general"]["YujianDPS"] = int(numdam3 / self.result["overall"]["sumTime"] * 1000)
         self.result["skill"]["general"]["efficiency"] = bh.getNormalEfficiency()
-
         # 计算战斗回放
         self.result["replay"] = bh.getJsonReplay(self.mykey)
+        xuegeFlag = 0
         if self.result["skill"]["shang"]["cover"] > 0.1:  # HOT覆盖率大于10%，判定为血鸽
             self.result["replay"]["heatType"] = "hot"
             self.result["replay"]["heat"] = {"interval": 500, "timeline": hotHeat}
+            xuegeFlag = 1
         else:  # 默认为盾鸽
             self.result["replay"]["heatType"] = "meihua"
             self.result["replay"]["heat"] = overallShieldHeat
+        # 统计治疗相关
+        # TODO 改为整体统计
+        self.result["skill"]["healer"] = {}
+        self.result["skill"]["healer"]["heal"] = myHealStat["ohps"]
+        self.result["skill"]["healer"]["healEff"] = myHealStat["hps"]
+
+        self.getRankFromStat("xiangzhi")
+        self.result["rank"] = self.rank
+        sumWeight = 0
+        sumScore = 0
+        specialKey = {"meihua-num": 20, "general-efficiency": 20, "zhi-numPerSec": 10, "general-APS": 10, "healer-healEff": 10}
+        for key1 in self.result["rank"]:
+            for key2 in self.result["rank"][key1]:
+                key = "%s-%s" % (key1, key2)
+                weight = 1
+                if key in specialKey:
+                    weight = specialKey[key]
+                sumScore += self.result["rank"][key1][key2]["percent"] * weight
+                sumWeight += weight
+
+        reviewScore = roundCent((sumScore / sumWeight) ** 0.5 * 10, 2)
 
         # print(self.result["healer"])
         # print(self.result["dps"])
@@ -1410,6 +1311,168 @@ class XiangZhiProReplayer(ReplayerBase):
         # for line in self.result["replay"]["special"]:
         #     f1.write(str(line) + '\n')
         # f1.close()
+
+        # 计算专案组
+        self.result["review"] = {"available": 1, "content": []}
+
+        # code 1 不要死
+        num = self.deathDict[self.mykey]["num"]
+        if num > 0:
+            time = roundCent(((self.finalTime - self.startTime) - self.battleDict[self.mykey].buffTimeIntegral()) / 1000, 2)
+            self.result["review"]["content"].append({"code": 1, "num": num, "duration": time, "rate": 0, "status": 3})
+        else:
+            self.result["review"]["content"].append({"code": 1, "num": num, "duration": 0, "rate": 1, "status": 0})
+
+        # code 10 不要放生队友
+        num = 0
+        log = []
+        time = []
+        id = []
+        damage = []
+        for key in self.unusualDeathDict:
+            if self.unusualDeathDict[key]["num"] > 0:
+                for line in self.unusualDeathDict[key]["log"]:
+                    num += 1
+                    log.append([(int(line[0]) - self.startTime) / 1000, self.bld.info.player[key].name, "%s:%d/%d" % (line[1], line[2], line[6])])
+        log.sort(key=lambda x: x[0])
+        for line in log:
+            time.append(parseTime(line[0]))
+            id.append(line[1])
+            damage.append(line[2])
+        if num > 0:
+            self.result["review"]["content"].append({"code": 10, "num": num, "time": time, "id": id, "damage": damage, "rate": 0, "status": 3})
+        else:
+            self.result["review"]["content"].append({"code": 10, "num": num, "time": time, "id": id, "damage": damage, "rate": 1, "status": 0})
+
+        # code 11 保持gcd不要空转
+        gcd = self.result["skill"]["general"]["efficiency"]
+        gcdRank = self.result["rank"]["general"]["efficiency"]["percent"]
+        res = {"code": 11, "cover": gcd, "rank": gcdRank, "rate": roundCent(gcdRank / 100)}
+        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
+        self.result["review"]["content"].append(res)
+
+        # code 12 提高HPS或者虚条HPS
+        hps = 0
+        ohps = 0
+        for record in self.result["healer"]["table"]:
+            if record["name"] == self.result["overall"]["playerID"]:
+                # 当前玩家
+                hps = record["healEff"]
+                ohps = record["heal"]
+        hpsRank = self.result["rank"]["healer"]["healEff"]["percent"]
+        ohpsRank = self.result["rank"]["healer"]["heal"]["percent"]
+        rate = max(hpsRank, ohpsRank)
+        res = {"code": 12, "hps": hps, "ohps": ohps, "hpsRank": hpsRank, "ohpsRank": ohpsRank, "rate": roundCent(rate / 100)}
+        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
+        self.result["review"]["content"].append(res)
+
+        # code 13 使用有cd的技能
+
+        scCandidate = []
+        for id in ["14082"]:
+            scCandidate.append(skillInfo[nonGcdSkillIndex[id]][0])
+        scCandidate.append(yzSkill)
+
+        rateSum = 0
+        rateNum = 0
+        numAll = []
+        sumAll = []
+        skillAll = []
+        for skillObj in scCandidate:
+            num = skillObj.getNum()
+            sum = skillObj.getMaxPossible()
+            # if sum < num:
+            #     sum = num
+            skill = skillObj.name
+            if skill in ["特效腰坠"] and num == 0:
+                continue
+            rateNum += 1
+            rateSum += min(num / (sum + 1e-10), 1)
+            numAll.append(num)
+            sumAll.append(sum)
+            skillAll.append(skill)
+        rate = roundCent(rateSum / (rateNum + 1e-10), 4)
+        res = {"code": 13, "skill": skillAll, "num": numAll, "sum": sumAll, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 50, 25, 0)
+        self.result["review"]["content"].append(res)
+
+        # code 101 不要玩血歌
+        if xuegeFlag:
+            self.result["review"]["content"].append({"code": 101, "num": 1, "rate": 0, "status": 3})
+        else:
+            self.result["review"]["content"].append({"code": 101, "num": 0, "rate": 1, "status": 0})
+
+        # code 102 保证`梅花三弄`的覆盖率
+        cover = self.result["skill"]["meihua"]["cover"]
+        coverRank = self.result["rank"]["meihua"]["cover"]["percent"]
+        res = {"code": 102, "cover": cover, "rank": coverRank, "rate": roundCent(coverRank / 100)}
+        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
+        self.result["review"]["content"].append(res)
+
+        # code 103 中断`徵`的倒读条
+        num = [0] * 7
+        sum = zhiCastNum
+        # print(zhiCastList)
+        for i in zhiCastList:
+            num[min(i, 6)] += 1
+        if num[3] >= num[2]:
+            # 争簇
+            perfectTime = num[3]
+            fullTime = num[6]
+        else:
+            # 非争簇（真的会有人不点争簇？）
+            perfectTime = num[2]
+            fullTime = num[3]
+        perfectRate= roundCent(perfectTime / (sum + 1e-10), 4)
+        res = {"code": 103, "time": sum, "perfectTime": perfectTime, "fullTime": fullTime, "rate": perfectRate}
+        res["status"] = getRateStatus(res["rate"], 50, 0, 0)
+        self.result["review"]["content"].append(res)
+
+        # code 104 选择合适的`徵`目标
+        num = 0
+        sum = 0
+        for i in zhiSingleList:
+            sum += 1
+            if i >= 4:
+                num += 1
+        coverRate = roundCent(num / (sum + 1e-10))
+        res = {"code": 104, "time": sum, "coverTime": num, "rate": coverRate}
+        res["status"] = getRateStatus(res["rate"], 75, 0, 0)
+        self.result["review"]["content"].append(res)
+
+        # code 105 使用`移形换影`
+        sum = skillInfo[nonGcdSkillIndex["14082"]][0].getNum()
+        num = skillInfo[nonGcdSkillIndex["15039"]][0].getNum()
+        rate = roundCent(num / (sum + 1e-10))
+        res = {"code": 105, "time": sum, "coverTime": num, "wasteTime": sum - num, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 75, 0, 0)
+        self.result["review"]["content"].append(res)
+
+        # code 106 使用`角`(TODO)
+        sum = battleTimeDict[self.mykey]
+        num = jueOverallCounter.buffTimeIntegral()
+        cover = roundCent(num / (sum + 1e-10))
+        res = {"code": 106, "cover": cover, "rate": cover}
+        res["status"] = getRateStatus(res["rate"], 50, 0, 0)
+        self.result["review"]["content"].append(res)
+
+        # 排序
+        self.result["review"]["content"].sort(key=lambda x:-x["status"] * 1000 + x["rate"])
+        num = 0
+        for line in self.result["review"]["content"]:
+            if line["status"] > 0:
+                num += 1
+                reviewScore -= [0, 1, 3, 10][line["status"]]
+        self.result["review"]["num"] = num
+        if reviewScore < 0:
+            reviewScore = 0
+        self.result["review"]["score"] = reviewScore
+        self.result["skill"]["general"]["score"] = reviewScore
+
+        # 测试效果，在UI写好之后注释掉
+        # for line in self.result["review"]["content"]:
+        #     print(line)
+
 
     def scaleScore(self, x, scale):
         N = len(scale)
@@ -1442,284 +1505,6 @@ class XiangZhiProReplayer(ReplayerBase):
 
         self.result["score"] = {"available": 0, "sum": 0}
 
-        map = self.result["overall"]["map"]
-        boss = self.result["overall"]["boss"]
-        if map not in ["25人普通雷域大泽", "25人英雄雷域大泽"]:
-            return
-        if boss not in ["巨型尖吻凤", "桑乔", "悉达罗摩", "尤珈罗摩", "月泉淮", "乌蒙贵"]:
-            return
-
-        if boss == "巨型尖吻凤":
-            self.result["score"]["available"] = 11  # BOSS机制原因不提供评分
-            return
-
-        self.result["score"]["available"] = 1
-        # 数值分A
-        # 治疗量A1
-        stdTable = {'25人普通雷域大泽': {'巨型尖吻凤': [[0, 0], [2072, 3], [4129, 6], [5294, 10]],
-                                  '桑乔': [[0, 0], [1520, 3], [3150, 6], [4302, 10]],
-                                  '悉达罗摩': [[0, 0], [4712, 3], [8983, 6], [11416, 10]],
-                                  '尤珈罗摩': [[0, 0], [43743, 3], [57848, 6], [72406, 10]],
-                                  '月泉淮': [[0, 0], [5180, 3], [14029, 6], [21187, 10]],
-                                  '乌蒙贵': [[0, 0], [5490, 3], [14115, 6], [17161, 10]]},
-                    '25人英雄雷域大泽': {'巨型尖吻凤': [[0, 0], [2259, 3], [4488, 6], [5358, 10]],
-                                  '桑乔': [[0, 0], [1984, 3], [3562, 6], [4563, 10]],
-                                  '悉达罗摩': [[0, 0], [4433, 3], [7054, 6], [8911, 10]],
-                                  '尤珈罗摩': [[0, 0], [67502, 3], [75771, 6], [87567, 10]],
-                                  '月泉淮': [[0, 0], [8170, 3], [14506, 6], [16076, 10]],
-                                  '乌蒙贵': [[0, 0], [3476, 3], [8271, 6], [11394, 10]]}}
-        std = stdTable[map][boss]
-        heal = 0
-        for record in self.result["healer"]["table"]:
-            name = record["name"]
-            if name == self.result["overall"]["playerID"]:
-                heal = record["healEff"]
-                break
-        scoreA1 = self.scaleScore(heal, std)
-        self.result["score"]["scoreA1"] = scoreA1
-        # 盾数量A2
-        stdTable = {'25人普通雷域大泽': {'巨型尖吻凤': [[0, 0], [44, 3], [54, 6], [71, 10]],
-                                  '桑乔': [[0, 0], [56, 3], [64, 6], [74, 10]],
-                                  '悉达罗摩': [[0, 0], [84, 3], [109, 6], [138, 10]],
-                                  '尤珈罗摩': [[0, 0]],
-                                  '月泉淮': [[0, 0], [45, 3], [92, 6], [141, 10]],
-                                  '乌蒙贵': [[0, 0], [47, 3], [81, 6], [113, 10]]},
-                    '25人英雄雷域大泽': {'巨型尖吻凤': [[0, 0], [72, 3], [80, 6], [104, 10]],
-                                  '桑乔': [[0, 0], [62, 3], [72, 6], [88, 10]],
-                                  '悉达罗摩': [[0, 0], [105, 3], [145, 6], [199, 10]],
-                                  '尤珈罗摩': [[0, 0]],
-                                  '月泉淮': [[0, 0], [46, 3], [115, 6], [168, 10]],
-                                  '乌蒙贵': [[0, 0], [100, 3], [121, 6], [139, 10]]}}
-        std = stdTable[map][boss]
-        numShield = self.result["skill"]["meihua"]["num"]
-        scoreA2 = self.scaleScore(numShield, std)
-        self.result["score"]["scoreA2"] = scoreA2
-        # 徵数量A3
-        stdTable = {'25人普通雷域大泽': {'巨型尖吻凤': [[0, 0], [10, 3], [152, 6], [212, 10]],
-                                  '桑乔': [[0, 0], [80, 3], [307, 6], [464, 10]],
-                                  '悉达罗摩': [[0, 0], [173, 3], [349, 6], [472, 10]],
-                                  '尤珈罗摩': [[0, 0]],
-                                  '月泉淮': [[0, 0], [65, 3], [560, 6], [889, 10]],
-                                  '乌蒙贵': [[0, 0], [93, 3], [490, 6], [771, 10]]},
-                    '25人英雄雷域大泽': {'巨型尖吻凤': [[0, 0], [44, 3], [252, 6], [400, 10]],
-                                  '桑乔': [[0, 0], [258, 3], [667, 6], [987, 10]],
-                                  '悉达罗摩': [[0, 0], [104, 3], [498, 6], [708, 10]],
-                                  '尤珈罗摩': [[0, 0]],
-                                  '月泉淮': [[0, 0], [234, 3], [863, 6], [1171, 10]],
-                                  '乌蒙贵': [[0, 0], [288, 3], [1040, 6], [1465, 10]]}}
-        std = stdTable[map][boss]
-        numZhi = self.result["skill"]["zhi"]["num"]
-        scoreA3 = self.scaleScore(numZhi, std)
-        self.result["score"]["scoreA3"] = scoreA3
-        # 宫数量A4
-        stdTable = {'25人普通雷域大泽': {'巨型尖吻凤': [[0, 0]],
-                                  '桑乔': [[0, 0]],
-                                  '悉达罗摩': [[0, 0]],
-                                  '尤珈罗摩': [[0, 0], [150, 3], [345, 6], [570, 10]],
-                                  '月泉淮': [[0, 0]],
-                                  '乌蒙贵': [[0, 0]]},
-                    '25人英雄雷域大泽': {'巨型尖吻凤': [[0, 0]],
-                                  '桑乔': [[0, 0]],
-                                  '悉达罗摩': [[0, 0]],
-                                  '尤珈罗摩': [[0, 0], [221, 3], [658, 6], [1084, 10]],
-                                  '月泉淮': [[0, 0]],
-                                  '乌蒙贵': [[0, 0]]}}
-        std = stdTable[map][boss]
-        numGong = self.result["skill"]["gong"]["num"]
-        scoreA4 = self.scaleScore(numGong, std)
-        self.result["score"]["scoreA4"] = scoreA4
-        # A类总计
-
-        scoreAT1 = scoreA1 * 10
-        scoreAT2 = (scoreA2 + scoreA3) * 5
-        scoreAT3 = (scoreA1 * 2 + scoreA2 + scoreA3) * 3
-        scoreAT4 = (scoreA1 + scoreA4) * 6
-        scoreA = max(scoreAT1, scoreAT2, scoreAT3, scoreAT4)
-        scoreA = min(scoreA, 100)
-        scoreA = roundCent(scoreA, 1)
-        self.result["score"]["scoreA"] = scoreA
-
-        # 统计分B
-        # 盾覆盖率B1
-        stdTable = {'25人普通雷域大泽': {'巨型尖吻凤': [[0, 0], [0.42, 3], [0.45, 6], [0.6, 10]],
-                                  '桑乔': [[0, 0], [0.7, 3], [0.71, 6], [0.83, 10]],
-                                  '悉达罗摩': [[0, 0], [0.35, 3], [0.45, 6], [0.53, 10]],
-                                  '尤珈罗摩': [[0, 0]],
-                                  '月泉淮': [[0, 0], [0.1, 3], [0.36, 6], [0.59, 10]],
-                                  '乌蒙贵': [[0, 0], [0.27, 3], [0.36, 6], [0.49, 10]]},
-                    '25人英雄雷域大泽': {'巨型尖吻凤': [[0, 0], [0.47, 3], [0.56, 6], [0.71, 10]],
-                                  '桑乔': [[0, 0], [0.74, 3], [0.77, 6], [0.88, 10]],
-                                  '悉达罗摩': [[0, 0], [0.49, 3], [0.54, 6], [0.65, 10]],
-                                  '尤珈罗摩': [[0, 0]],
-                                  '月泉淮': [[0, 0], [0.19, 3], [0.32, 6], [0.45, 10]],
-                                  '乌蒙贵': [[0, 0], [0.44, 3], [0.5, 6], [0.6, 10]]}}
-        std = stdTable[map][boss]
-        coverShield = self.result["skill"]["meihua"]["cover"]
-        scoreB1 = self.scaleScore(coverShield, std)
-        self.result["score"]["scoreB1"] = scoreB1
-        # HOT覆盖率B2
-        stdTable = {'25人普通雷域大泽': {'巨型尖吻凤': [[0, 0]],
-                                  '桑乔': [[0, 0]],
-                                  '悉达罗摩': [[0, 0]],
-                                  '尤珈罗摩': [[0, 0], [0.31, 3], [0.42, 6], [0.53, 10]],
-                                  '月泉淮': [[0, 0]],
-                                  '乌蒙贵': [[0, 0]]},
-                    '25人英雄雷域大泽': {'巨型尖吻凤': [[0, 0]],
-                                  '桑乔': [[0, 0]],
-                                  '悉达罗摩': [[0, 0]],
-                                  '尤珈罗摩': [[0, 0], [0.58, 3], [0.63, 6], [0.7, 10]],
-                                  '月泉淮': [[0, 0]],
-                                  '乌蒙贵': [[0, 0]]}}
-        std = stdTable[map][boss]
-        coverHot = (self.result["skill"]["shang"]["cover"] + self.result["skill"]["jue"]["cover"]) / 2
-        scoreB2 = self.scaleScore(coverHot, std)
-        self.result["score"]["scoreB2"] = scoreB2
-        # B类总计
-        scoreBT1 = scoreB1 * 10
-        scoreBT2 = scoreB2 * 10
-        scoreB = max(scoreBT1, scoreBT2)
-        scoreB = min(scoreB, 100)
-        scoreB = roundCent(scoreB, 1)
-        self.result["score"]["scoreB"] = scoreB
-
-        # 操作分C
-        # 战斗效率C1
-        stdTable = {'25人普通雷域大泽': {'巨型尖吻凤': [[0, 0], [0.52, 3], [0.58, 6], [0.73, 10]],
-                                  '桑乔': [[0, 0], [0.46, 3], [0.57, 6], [0.71, 10]],
-                                  '悉达罗摩': [[0, 0], [0.59, 3], [0.64, 6], [0.68, 10]],
-                                  '尤珈罗摩': [[0, 0], [0.53, 3], [0.62, 6], [0.72, 10]],
-                                  '月泉淮': [[0, 0], [0.56, 3], [0.63, 6], [0.75, 10]],
-                                  '乌蒙贵': [[0, 0], [0.47, 3], [0.55, 6], [0.66, 10]]},
-                    '25人英雄雷域大泽': {'巨型尖吻凤': [[0, 0], [0.57, 3], [0.63, 6], [0.76, 10]],
-                                  '桑乔': [[0, 0], [0.4, 3], [0.5, 6], [0.61, 10]],
-                                  '悉达罗摩': [[0, 0], [0.55, 3], [0.63, 6], [0.72, 10]],
-                                  '尤珈罗摩': [[0, 0], [0.68, 3], [0.72, 6], [0.79, 10]],
-                                  '月泉淮': [[0, 0], [0.54, 3], [0.58, 6], [0.71, 10]],
-                                  '乌蒙贵': [[0, 0], [0.39, 3], [0.5, 6], [0.65, 10]]}}
-        std = stdTable[map][boss]
-        efficiency = self.result["skill"]["general"]["efficiency"]
-        scoreC1 = self.scaleScore(efficiency, std)
-        self.result["score"]["scoreC1"] = scoreC1
-        # 盾延迟C2
-        stdTable = {'25人普通雷域大泽': {'巨型尖吻凤': [[500, 0], [368, 3], [261, 6], [174, 10]],
-                                  '桑乔': [[500, 0], [462, 3], [346, 6], [236, 10]],
-                                  '悉达罗摩': [[500, 0], [424, 3], [329, 6], [235, 10]],
-                                  '尤珈罗摩': [[500, 0]],
-                                  '月泉淮': [[500, 0], [352, 3], [226, 6], [215, 10]],
-                                  '乌蒙贵': [[700, 0], [499, 3], [347, 6], [227, 10]]},
-                     '25人英雄雷域大泽': {'巨型尖吻凤': [[500, 0], [343, 3], [302, 6], [201, 10]],
-                                  '桑乔': [[500, 0], [376, 3], [319, 6], [270, 10]],
-                                  '悉达罗摩': [[500, 0], [353, 3], [307, 6], [246, 10]],
-                                  '尤珈罗摩': [[500, 0]],
-                                  '月泉淮': [[500, 0], [356, 3], [285, 6], [168, 10]],
-                                  '乌蒙贵': [[500, 0], [445, 3], [374, 6], [301, 10]]}}
-        std = stdTable[map][boss]
-        delayShield = self.result["skill"]["meihua"]["delay"]
-        scoreC2 = self.scaleScore(delayShield, std)
-        self.result["score"]["scoreC2"] = scoreC2
-        # 徵延迟C3
-        stdTable = {'25人普通雷域大泽': {'巨型尖吻凤': [[300, 0], [123, 3], [110, 6], [27, 10]],
-                                  '桑乔': [[300, 0], [177, 3], [132, 6], [11, 10]],
-                                  '悉达罗摩': [[300, 0], [118, 3], [109, 6], [55, 10]],
-                                  '尤珈罗摩': [[300, 0], [95, 3], [73, 6], [30, 10]],
-                                  '月泉淮': [[300, 0], [108, 3], [96, 6], [24, 10]],
-                                  '乌蒙贵': [[300, 0], [152, 3], [132, 6], [76, 10]]},
-                    '25人英雄雷域大泽': {'巨型尖吻凤': [[300, 0], [155, 3], [112, 6], [37, 10]],
-                                  '桑乔': [[300, 0], [135, 3], [102, 6], [65, 10]],
-                                  '悉达罗摩': [[300, 0], [128, 3], [98, 6], [55, 10]],
-                                  '尤珈罗摩': [[300, 0]],
-                                  '月泉淮': [[300, 0], [109, 3], [75, 6], [39, 10]],
-                                  '乌蒙贵': [[300, 0], [135, 3], [127, 6], [61, 10]]}}
-        std = stdTable[map][boss]
-        delayZhi = self.result["skill"]["zhi"]["delay"]
-        scoreC3 = self.scaleScore(delayZhi, std)
-        self.result["score"]["scoreC3"] = scoreC3
-        # 宫延迟C4
-        stdTable = {'25人普通雷域大泽': {'巨型尖吻凤': [[1, 0]],
-                                  '桑乔': [[1, 0]],
-                                  '悉达罗摩': [[1, 0]],
-                                  '尤珈罗摩': [[500, 0], [344, 3], [279, 6], [217, 10]],
-                                  '月泉淮': [[1, 0]],
-                                  '乌蒙贵': [[1, 0]]},
-                                  '25人英雄雷域大泽': {'巨型尖吻凤': [[1, 0]],
-                                  '桑乔': [[1, 0]],
-                                  '悉达罗摩': [[1, 0]],
-                                  '尤珈罗摩': [[500, 0], [284, 3], [247, 6], [202, 10]],
-                                  '月泉淮': [[1, 0]],
-                                  '乌蒙贵': [[1, 0]]}}
-        std = stdTable[map][boss]
-        delayGong = self.result["skill"]["gong"]["delay"]
-        scoreC4 = self.scaleScore(delayGong, std)
-        self.result["score"]["scoreC4"] = scoreC4
-        # C类总计
-        scoreCT1 = scoreC1 * 10
-        scoreCT2 = (scoreC2 + scoreC3) * 5
-        scoreCT3 = (scoreC1 * 2 + scoreC2 + scoreC3) * 3
-        scoreCT4 = (scoreC1 + scoreC4) * 6
-        scoreC = max(scoreCT1, scoreCT2, scoreCT3, scoreCT4)
-        scoreC = min(scoreC, 100)
-        scoreC = roundCent(scoreC, 1)
-        self.result["score"]["scoreC"] = scoreC
-
-        # 总分
-        scoreT1 = scoreA * 0.1 + (scoreA + scoreB + scoreC) * 0.3
-        scoreT2 = scoreB * 0.1 + (scoreA + scoreB + scoreC) * 0.3
-        scoreT3 = scoreC * 0.1 + (scoreA + scoreB + scoreC) * 0.3
-        score = max(scoreT1, scoreT2, scoreT3)
-        score = roundCent(score, 1)
-        self.result["score"]["sum"] = score
-
-    def getHash(self):
-        '''
-        获取战斗结果的哈希值.
-        '''
-        hashStr = ""
-        nameList = []
-        for key in self.bld.info.player:
-            nameList.append(self.bld.info.player[key].name)
-        nameList.sort()
-        battleMinute = time.strftime("%Y-%m-%d %H:%M", time.localtime(self.result["overall"]["battleTime"]))
-        hashStr = battleMinute + self.result["overall"]["map"] + "".join(nameList)
-        hashres = hashlib.md5(hashStr.encode(encoding="utf-8")).hexdigest()
-        return hashres
-
-    def prepareUpload(self):
-        '''
-        准备上传复盘结果，并向服务器上传.
-        '''
-        if "beta" in EDITION:
-            return
-        upload = {}
-        upload["server"] = self.result["overall"]["server"]
-        upload["id"] = self.result["overall"]["playerID"]
-        upload["occ"] = "xiangzhi"
-        upload["score"] = self.result["score"]["sum"]
-        upload["battledate"] = time.strftime("%Y-%m-%d", time.localtime(self.result["overall"]["battleTime"]))
-        upload["mapdetail"] = self.result["overall"]["map"]
-        upload["boss"] = self.result["overall"]["boss"]
-        upload["statistics"] = self.result
-        upload["public"] = self.public
-        upload["edition"] = EDITION
-        upload["editionfull"] = parseEdition(EDITION)
-        upload["replayedition"] = self.result["overall"]["edition"]
-        upload["userid"] = self.config.item["user"]["uuid"]
-        upload["battletime"] = self.result["overall"]["battleTime"]
-        upload["submittime"] = int(time.time())
-        upload["hash"] = self.getHash()
-
-        Jdata = json.dumps(upload)
-        jpost = {'jdata': Jdata}
-        jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        # print(jparse)
-        resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadReplayPro', data=jparse)
-        res = json.load(resp)
-        # print(res)
-        if res["result"] != "fail":
-            self.result["overall"]["shortID"] = res["shortID"]
-        else:
-            self.result["overall"]["shortID"] = "数据保存出错"
-        return res
-
     def replay(self):
         '''
         开始奶歌复盘pro分析.
@@ -1729,7 +1514,7 @@ class XiangZhiProReplayer(ReplayerBase):
         self.recordRater()
         self.prepareUpload()
 
-    def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", bossBh=None, startTime=0, finalTime=0, win=0):
+    def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", actorData={}):
         '''
         初始化.
         params:
@@ -1739,23 +1524,17 @@ class XiangZhiProReplayer(ReplayerBase):
         - bldDict: 战斗数据缓存.
         - window: 主窗口，用于显示进度条.
         - myname: 需要复盘的奶歌名.
-        - bossBh: BOSS施放的技能列表类，用于生成时间轴.
-        - startTime: 演员复盘推断得到的战斗开始时间.
-        - finalTime: 演员复盘推断得到的战斗结束时间.
+        - actorData: 演员复盘得到的统计记录.
         '''
-        self.win = win
-        super().__init__(config, fileNameInfo, path, bldDict, window)
+        super().__init__(config, fileNameInfo, path, bldDict, window, actorData)
 
         self.myname = myname
-        self.bossBh = bossBh
         self.failThreshold = config.item["actor"]["failthreshold"]
         self.mask = config.item["general"]["mask"]
         self.public = config.item["xiangzhi"]["public"]
         self.config = config
         self.bld = bldDict[fileNameInfo[0]]
-        self.startTime = startTime
-        self.finalTime = finalTime
-
         self.result = {}
         self.haste = config.item["xiangzhi"]["speed"]
+        self.occ = "xiangzhi"
 

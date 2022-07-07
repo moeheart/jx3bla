@@ -253,6 +253,8 @@ class ChangXiuReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"罪！罚！"']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
+                if self.phase == 1:
+                    self.phaseTime[1] = event.time - self.phaseStart
                 self.phase = 2
                 self.phaseStart = event.time
             elif event.content in ['"哼！"']:
@@ -293,7 +295,7 @@ class ChangXiuReplayer(SpecificReplayerPro):
                     if "," not in skillName:
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式开始运功", "cast")
 
-            if event.id == "30456" and self.phase == 1:
+            if event.id == "30456" and self.phase == 1:  # 墨言可畏
                 self.phaseTime[1] = event.time - self.phaseStart
                 self.phase = 2
                 self.phaseStart = 0

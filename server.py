@@ -2,6 +2,7 @@
 from flask import Flask, render_template, url_for, request, redirect, session, make_response, jsonify, abort
 from flask import request    
 from flask import make_response,Response
+from flask_cors import CORS
 import urllib
 import json
 import re
@@ -14,26 +15,28 @@ import configparser
 import os
 import traceback
 from Constants import *
+
 from tools.Functions import *
 from equip.AttributeDisplay import AttributeDisplay
-
 from tools.painter import XiangZhiPainter
+from replayer.ReplayerBase import RankCalculator
 
 version = EDITION
-ip = "139.199.102.41"
+ip = "127.0.0.1" # IP
 announcement = "全新的DPS统计已出炉，大家可以关注一下，看一下各门派的表现~"
-app = Flask(__name__) 
+app = Flask(__name__)
+CORS(app)
 app.config['JSON_AS_ASCII'] = False
 app.ad = AttributeDisplay()
 
-def Response_headers(content):    
+def Response_headers(content):
     resp = Response(content)    
     resp.headers['Access-Control-Allow-Origin'] = '*'    
     return resp
     
 @app.route('/getAnnouncement', methods=['GET'])
 def getAnnouncement():
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     sql = '''SELECT * FROM PreloadInfo;'''
     cursor.execute(sql)
@@ -52,7 +55,7 @@ def setAnnouncement():
     version = jdata["version"]
     announcement = jdata["announcement"]
     updateurl = jdata["updateurl"]
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     
     sql = '''DELETE FROM PreloadInfo;'''
@@ -86,7 +89,7 @@ def getUuid():
     hashStr = mac + ip + str(intTime)
     uuid = hashlib.md5(hashStr.encode(encoding="utf-8")).hexdigest()
     
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     
     sql = '''INSERT INTO UserInfo VALUES ("%s", "%s", "%s", "%s", %d, %d, %d, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);'''%(uuid, "", mac, userip, intTime, 0, 0)
@@ -102,7 +105,7 @@ def setUserId():
     uuid = request.form.get('uuid')
     id = request.form.get('id')
     
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     
     sql = '''SELECT * from UserInfo WHERE uuid = "%s"'''%(uuid)
@@ -136,7 +139,7 @@ def setUserId():
 def getUserInfo():
     uuid = request.form.get('uuid')
     
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     sql = '''SELECT * from UserInfo WHERE uuid = "%s"'''%(uuid)
     cursor.execute(sql)
@@ -162,7 +165,7 @@ def getUserInfo():
 def userLvlup():
     uuid = request.form.get('uuid')
     
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     sql = '''SELECT * from UserInfo WHERE uuid = "%s"'''%(uuid)
     cursor.execute(sql)
@@ -221,7 +224,7 @@ def getDpsStat():
     mapDetail = jdata["mapdetail"]
     boss = jdata["boss"]
     
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     
     sql = '''SELECT statistics from DpsStat WHERE mapdetail = "%s" and boss = "%s"'''%(mapDetail, boss)
@@ -242,7 +245,7 @@ def Tianwang():
     server = request.args.get('server')
     ids = request.args.get('ids')
     
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
 
     playerDps = {}
@@ -393,7 +396,7 @@ def XiangZhiTable():
     if order not in ['score', 'battledate']:
         return jsonify({'result': '排序方式不正确'})
     
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     
     edition = "5.1.0"
@@ -433,7 +436,7 @@ def XiangZhiDataPng():
     key = request.args.get('key')
     
     if key != None:
-        db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+        db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
         cursor = db.cursor()
         
         sql = '''SELECT * FROM XiangZhiStat WHERE hash = "%s"'''%key
@@ -481,7 +484,7 @@ def uploadComment():
     player = jdata["player"]
     hash = jdata["hash"]
     
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     
     sql = '''SELECT time from CommentInfo WHERE server = "%s" AND player = "%s" and userid = "%s" and mapdetail = "%s"'''%(server, player, userid, mapdetail)
@@ -593,7 +596,7 @@ def uploadActorData():
     
     #增加五个字段：editionfull INT, userid VARCHAR(32), battletime INT, submittime INT, instanceid VARCHAR(32)
     
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     
     sql = '''SELECT * from ActorStat WHERE hash = "%s"'''%hash
@@ -620,6 +623,12 @@ def uploadActorData():
     elif mapName == '25人英雄雷域大泽':
         scoreAdd = 4
         mapDetail = '561'
+    elif mapName == '25人普通河阳之战':
+        scoreAdd = 4
+        mapDetail = '574'
+    elif mapName == '25人英雄河阳之战':
+        scoreAdd = 4
+        mapDetail = '575'
     else:
         scoreSuccess = 0
         response['scoreStatus'] = 'illegal'
@@ -706,7 +715,7 @@ def uploadReplayPro():
     occ = jdata["occ"]
     replayedition = jdata["replayedition"]
 
-    db = pymysql.connect(ip, app.dbname, app.dbpwd, "jx3bla", port=3306, charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
 
     try:
@@ -750,7 +759,7 @@ def uploadReplayPro():
 
         statistics["overall"]["shortID"] = shortID
 
-        sql = """INSERT INTO ReplayProStat VALUES ("%s", "%s", "%s", %d, "%s", "%s", "%s", "%s", %d, "%s", %d, "%s", %d, "%s", "%s", %d, %d)""" % (
+        sql = """INSERT INTO ReplayProStat VALUES ("%s", "%s", "%s", %.2f, "%s", "%s", "%s", "%s", %d, "%s", %d, "%s", %d, "%s", "%s", %d, %d)""" % (
             server, id, occ, score, battleDate, mapDetail, boss, hash, shortID, statistics, public, edition, editionFull, replayedition, userID, battleTime,
             submitTime)
         cursor.execute(sql)
@@ -767,9 +776,9 @@ def uploadReplayPro():
 @app.route('/showReplayPro.html', methods=['GET'])
 def showReplayPro():
     id = request.args.get('id')
-    db = pymysql.connect(ip, app.dbname, app.dbpwd, "jx3bla", port=3306, charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
-    sql = """SELECT statistics, public, replayedition FROM ReplayProStat WHERE shortID = %s OR hash = "%s";"""%(id, id)
+    sql = """SELECT statistics, public, replayedition, occ FROM ReplayProStat WHERE shortID = %s OR hash = "%s";"""%(id, id)
     cursor.execute(sql)
     result = cursor.fetchall()
     db.close()
@@ -777,28 +786,185 @@ def showReplayPro():
         text = "结果未找到."
     elif result[0][1] == 0:
         text = "数据未公开."
-    elif len(result[0][2]) >= 4 and result[0][2][:4] == "奶歌复盘":
-        # 生成奶歌复盘
+    elif result[0][3] in ["xiangzhi", "lingsu", "lijingyidao", "butianjue", "yunchangxinjing"]:
+        # 生成复盘页面
+        occ = result[0][3]
         text = result[0][0].decode().replace('\n', '\\n').replace('\t', '\\t')
-        return render_template("XiangZhiReplayPro.html", raw=text, edition=EDITION)
+        text1 = text.replace("'", '"')
+        jResult = json.loads(text1)
+        rc = RankCalculator(jResult)
+        rank = rc.getRankFromStat(occ)
+        rankStr = json.dumps(rank)
+        return render_template("HealerReplay.html", raw=text, rank=rankStr, occ=occ, edition=EDITION)
     return jsonify({'text': text.decode()})
 
 @app.route('/getReplayPro', methods=['GET'])
 def getReplayPro():
     id = request.args.get('id')
-    db = pymysql.connect(ip, app.dbname, app.dbpwd, "jx3bla", port=3306, charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
-    sql = """SELECT statistics, public FROM ReplayProStat WHERE shortID = %s OR hash = "%s";"""%(id, id)
+    sql = """SELECT statistics, public, replayedition, occ FROM ReplayProStat WHERE shortID = %s OR hash = "%s";"""%(id, id)
     cursor.execute(sql)
     result = cursor.fetchall()
+    flag = 0
     if len(result) == 0:
+        flag = 0
         text = "结果未找到."
     elif result[0][1] == 0:
+        flag = 0
         text = "数据未公开."
-    else:
+    elif result[0][3] in ["xiangzhi", "lingsu", "lijingyidao"]:  #, "butianjue", "yunchangxinjing"]:
+        flag = 1
+        occ = result[0][3]
         text = result[0][0]
+        text1 = text.decode().replace('\n', '\\n').replace('\t', '\\t').replace("'", '"')
+        jResult = json.loads(text1)
+        rc = RankCalculator(jResult)
+        rank = rc.getRankFromStat(occ)
+        rankStr = json.dumps(rank)
+    else:
+        flag = 0
+        text = "不支持的心法，请等待之后的版本更新."
     db.close()
-    return jsonify({'text': text.decode()})
+    if flag:
+        return jsonify({'available': 1, 'text': "请求成功", 'raw': text1, 'rank': rankStr})
+    else:
+        return jsonify({'available': 0, 'text': text})
+
+
+@app.route('/getMultiPlayer', methods=['GET'])
+def getMultiPlayer():
+    server = request.args.get('server')
+    ids = request.args.get('ids')
+    map = request.args.get('map')
+
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
+    cursor = db.cursor()
+    ids_split = ids.split(' ')
+
+    overallResJson = {}
+    overallResJson["server"] = server
+    for id in ids_split:
+        sql = '''SELECT score, boss FROM ReplayProStat WHERE server = "%s" AND id = "%s" AND mapdetail = "%s" AND public = 1''' % (server, id, map)
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        resJson = {}
+        highestScore = {}
+        sumScore = {}
+        numRecord = {}
+        avgScore = {}
+        for record in result:
+            score = record[0]
+            boss = record[1]
+            if score > highestScore.get(boss, -1):
+                highestScore[boss] = score
+            numRecord[boss] = numRecord.get(boss, 0) + 1
+            sumScore[boss] = sumScore.get(boss, 0) + score
+        numBoss = 0
+        sumHighestScore = 0
+        sumAverageScore = 0
+        for boss in sumScore:
+            numBoss += 1
+            avgScore[boss] = roundCent(sumScore[boss] / numRecord[boss])
+            sumHighestScore += highestScore[boss]
+            sumAverageScore += avgScore[boss]
+            resJson[boss] = {"highest": highestScore[boss], "average": avgScore[boss], "num": numRecord[boss]}
+        overallAverageScore = roundCent(sumAverageScore / (numBoss + 1e-10))
+        overallHighestScore = roundCent(sumHighestScore / (numBoss + 1e-10))
+        resJson["overall"] = {"highest": overallHighestScore, "average": overallAverageScore, "num": numBoss}
+        overallResJson[id] = resJson
+    db.close()
+    return jsonify({'available': 1, 'text': "请求成功", 'result': overallResJson})
+
+@app.route('/getSinglePlayer', methods=['GET'])
+def getSinglePlayer():
+    server = request.args.get('server')
+    id = request.args.get('id')
+    map = request.args.get('map')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
+    cursor = db.cursor()
+
+    sql = '''SELECT score, boss, occ, edition, battletime, submittime, shortID FROM ReplayProStat WHERE server = "%s" AND id = "%s" AND mapdetail = "%s" AND public = 1''' % (server, id, map)
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    resJson = {"stat": {}}
+    highestScore = {}
+    sumScore = {}
+    numRecord = {}
+    avgScore = {}
+    allResults = {}
+    for record in result:
+        score = record[0]
+        boss = record[1]
+        occ = record[2]
+        edition = record[3]
+        battleTime = record[4]
+        submitTime = record[5]
+        shortID = record[6]
+        if score > highestScore.get(boss, -1):
+            highestScore[boss] = score
+        numRecord[boss] = numRecord.get(boss, 0) + 1
+        sumScore[boss] = sumScore.get(boss, 0) + score
+        if boss not in allResults:
+            allResults[boss] = []
+        allResults[boss].append({"score": score, "occ": occ, "edition": edition, "battleTime": battleTime, "submitTime": submitTime, "shortID": shortID})
+    numBoss = 0
+    sumHighestScore = 0
+    sumAverageScore = 0
+    for boss in sumScore:
+        numBoss += 1
+        avgScore[boss] = roundCent(sumScore[boss] / (numRecord[boss] + 1e-10))
+        sumHighestScore += highestScore[boss]
+        sumAverageScore += avgScore[boss]
+        resJson["stat"][boss] = {"highest": highestScore[boss], "average": avgScore[boss], "num": numRecord[boss]}
+    overallAverageScore = roundCent(sumAverageScore / (numBoss + 1e-10))
+    overallHighestScore = roundCent(sumHighestScore / (numBoss + 1e-10))
+    resJson["stat"]["overall"] = {"highest": overallHighestScore, "average": overallAverageScore, "num": numBoss}
+    resJson["table"] = allResults
+
+    db.close()
+    return jsonify({'available': 1, 'text': "请求成功", 'result': resJson})
+
+@app.route('/getRank', methods=['GET'])
+def getRank():
+    map = request.args.get('map')
+    boss = request.args.get("boss")
+    occ = request.args.get("occ")
+    page = request.args.get("page")
+    if page is None:
+        page = 1
+    else:
+        page = int(page)
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
+    cursor = db.cursor()
+
+    numPerPage = 50
+
+    sql = '''SELECT server, id, score, edition, battletime, submittime, shortID FROM ReplayProStat WHERE mapdetail = "%s" AND boss = "%s" AND occ = "%s" AND public = 1''' % (map, boss, occ)
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    resJson = {"table": []}
+
+    result = list(result)
+    result.sort(key=lambda x:-x[2])
+
+    for i in range((page-1)*numPerPage, page*numPerPage):
+        if i < len(result):
+            record = result[i]
+            server = record[0]
+            id = record[1]
+            score = record[2]
+            # boss = record[1]
+            # occ = record[2]
+            edition = record[3]
+            battleTime = record[4]
+            submitTime = record[5]
+            shortID = record[6]
+            resJson["table"].append({"score": score, "server": server, "edition": edition, "id": id, "battleTime": battleTime, "submitTime": submitTime, "shortID": shortID})
+
+    resJson["num"] = len(result)
+    db.close()
+    return jsonify({'available': 1, 'text': "请求成功", 'result': resJson})
     
 @app.route('/uploadXiangZhiData', methods=['POST'])
 def uploadXiangZhiData():
@@ -832,7 +998,7 @@ def uploadXiangZhiData():
     
     #增加五个字段：editionfull INT, userid VARCHAR(32), battletime INT, submittime INT, instanceid VARCHAR(32)
     
-    db = pymysql.connect(ip,app.dbname,app.dbpwd,"jx3bla",port=3306,charset='utf8')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     
     sql = '''SELECT score from XiangZhiStat WHERE mapdetail = "%s"'''%mapDetail
@@ -884,3 +1050,4 @@ if __name__ == '__main__':
     app.debug = config.getboolean('jx3bla', 'debug')
     
     app.run(host='0.0.0.0', port=8009, debug=app.debug, threaded=True)
+
