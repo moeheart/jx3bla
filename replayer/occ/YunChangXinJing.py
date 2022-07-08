@@ -683,30 +683,43 @@ class YunChangXinJingReplayer(ReplayerBase):
         shuangluanHeal1 = 0  # 双鸾翔舞
         shuangluanHeal3 = 0  # 双鸾上元
         wanqingHeal = 0  # 晚晴
+        jwfhLast = 0  # 九微飞花统计cd
+        sydhNum = 0  # 上元施放
+        sydhWrong = 0  # 上元错误施放
+
+        # 回雪的特殊统计
+        hxpyLastSkill = 0
+        hxpyCastNum = 0
+        hxpyCompleteNum = 0
+        hxpyLocalNum = 0
+        hxpyCastList = []
+        hxpySingleNum = 0
+        hxpySingleList = []
 
         # 战斗回放初始化
         bh = BattleHistory(self.startTime, self.finalTime)
         ss = SingleSkill(self.startTime, self.haste)
 
         # 技能信息
-        # [技能统计对象, 技能名, [所有技能ID], 图标ID, 是否为gcd技能, 运功时长, 是否倒读条, 是否吃加速]
-        skillInfo = [[None, "未知", ["0"], "0", True, 0, False, True],
-                     [None, "扶摇直上", ["9002"], "1485", True, 0, False, True],
-                     [None, "蹑云逐月", ["9003"], "1490", True, 0, False, True],
+        # [技能统计对象, 技能名, [所有技能ID], 图标ID, 是否为gcd技能, 运功时长, 是否倒读条, 是否吃加速, cd时间, 充能数量]
+        skillInfo = [[None, "未知", ["0"], "0", True, 0, False, True, 0, 1],
+                     [None, "扶摇直上", ["9002"], "1485", True, 0, False, True, 30, 1],
+                     [None, "蹑云逐月", ["9003"], "1490", True, 0, False, True, 30, 1],
 
-                     [xlwlSkill, "翔鸾舞柳", ["554"], "897", True, 0, False, True],
-                     [sydhSkill, "上元点鬟", ["556"], "913", True, 0, False, True],
-                     [wmhmSkill, "王母挥袂", ["2976", "28771"], "900", True, 0, False, True],
-                     [fxdaSkill, "风袖低昂", ["555"], "1507", True, 0, False, True],
-                     [None, "九微飞花", ["24990"], "13417", True, 0, False, True],
-                     [tzhySkill, "跳珠憾玉", ["566"], "1505", True, 0, False, True],
-                     [None, "心鼓弦", ["551"], "898", True, 48, False, True],
-                     [None, "天地低昂", ["557"], "1498", True, 0, False, True],
+                     [xlwlSkill, "翔鸾舞柳", ["554"], "897", True, 0, False, True, 0, 1],
+                     [sydhSkill, "上元点鬟", ["556"], "913", True, 0, False, True, 0, 1],
+                     [wmhmSkill, "王母挥袂", ["2976", "28771"], "900", True, 0, False, True, 12, 1],
+                     [None, "风袖低昂", ["555"], "1507", True, 0, False, True, 33, 1],
+                     [None, "九微飞花", ["24990"], "13417", True, 0, False, True, 60, 1],
+                     [tzhySkill, "跳珠憾玉", ["566"], "1505", True, 0, False, True, 3, 1],
+                     [None, "心鼓弦", ["551"], "898", True, 48, False, True, 660, 1],
+                     [None, "天地低昂", ["557"], "1498", True, 0, False, True, 35, 1],
 
                      # [None, "回雪飘摇", ["6250"], "894", False, 16, True, True],
-                     [None, "蝶弄足", ["574"], "915", False, 0, False, True],
-                     [None, "鹊踏枝", ["550"], "912", False, 0, False, True],
-                     [None, "繁音急节", ["568"], "1502", False, 0, False, True],
+                     [None, "蝶弄足", ["574"], "915", False, 0, False, True, 75, 2],
+                     [None, "鹊踏枝", ["550"], "912", False, 0, False, True, 60, 2],
+                     [None, "繁音急节", ["568"], "1502", False, 0, False, True, 54, 1],
+                     [None, "余寒映日", ["18221"], "7497", False, 0, False, True, 35, 1],
                     ]
 
         hxpyTime = getLength(13, self.haste)  # TODO 判断瑰姿
@@ -715,11 +728,21 @@ class YunChangXinJingReplayer(ReplayerBase):
         nonGcdSkillIndex = {}
         for i in range(len(skillInfo)):
             line = skillInfo[i]
+            if line[0] is None:
+                skillInfo[i][0] = SkillCounterAdvance(line, self.startTime, self.finalTime, self.haste)
+            if line[1] == "风袖低昂":
+                fxdaSkill = skillInfo[i][0]
             for id in line[2]:
                 if line[4]:
                     gcdSkillIndex[id] = i
                 else:
                     nonGcdSkillIndex[id] = i
+        yzInfo = [None, "特效腰坠", ["0"], "3414", False, 0, False, True, 180, 1]
+        yzSkill = SkillCounterAdvance(yzInfo, self.startTime, self.finalTime, self.haste)
+        yzInfo[0] = yzSkill
+
+        jwfhWatchSkill = SkillCounterAdvance(skillInfo[gcdSkillIndex["24990"]], self.startTime, self.finalTime,
+                                             self.haste)
 
         xiangZhiUnimportant = ["4877",  # 水特效作用
                                "25682", "25683", "25684", "25685", "25686", "24787", "24788", "24789", "24790",  # 破招
@@ -827,12 +850,22 @@ class YunChangXinJingReplayer(ReplayerBase):
                                                   ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
                                                   ss.healEff, 0, ss.busy, "", "", targetName)
                             ss.reset()
+                            # 在gcd技能生效时重置回雪
+                            if hxpyLocalNum > 0:
+                                hxpyCastList.append(hxpyLocalNum)
+                            hxpyLocalNum = 0
+                            if hxpySingleNum > 0:
+                                hxpySingleList.append(hxpySingleNum)
+                            hxpySingleNum = 0
                         elif event.id in nonGcdSkillIndex:  # 特殊技能
                             desc = ""
                             index = nonGcdSkillIndex[event.id]
                             line = skillInfo[index]
                             bh.setSpecialSkill(event.id, line[1], line[3], event.time, 0, desc)
-                            # 无法分析的技能
+                            skillObj = line[0]
+                            if skillObj is not None:
+                                skillObj.recordSkill(event.time, event.heal, event.healEff, ss.timeEnd, delta=-1)
+                        # 无法分析的技能
                         elif event.id not in xiangZhiUnimportant:
                             pass
                             # print("[YunChangNonRec]", event.time, event.id, event.heal, event.healEff)
@@ -844,6 +877,13 @@ class YunChangXinJingReplayer(ReplayerBase):
                             chuimeiHeal += event.healEff
                         if event.id in ["24992", "24993"]:  # 九微飞花
                             jwfhSkill.recordSkill(event.time, event.heal, event.healEff, event.time)
+                            if event.time - jwfhLast > 5000:
+                                # 记录九微飞花
+                                jwfhWatchSkill.recordSkill(event.time, 0, 0, ss.timeEnd, delta=-1)
+                                # bh.setNormalSkill(ss.skill, line[1], line[3],
+                                #                   ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
+                                #                   ss.healEff, 0, ss.busy, "", "", targetName)
+                            jwfhLast = event.time
                         if event.id in ["6250"]:  # 回雪飘摇
                             hxpySkill.recordSkill(event.time, event.heal, event.healEff, 0)
                             # 回雪也计入战斗效率中
@@ -857,6 +897,37 @@ class YunChangXinJingReplayer(ReplayerBase):
                                 shuangluanHeal3 += event.healEff
                         if event.id in ["6211"]:  # 晚晴
                             wanqingHeal += event.healEff
+                        if event.id in ["556"]:  # 上元主动施放
+                            if event.target in self.bld.info.player:
+                                status = shangyuanDict[event.target].checkState(event.time - 50)
+                                if status:
+                                    sydhWrong += 1
+
+                        if event.id in ["6250"]:
+                            # 回雪的运算。此处是推测逻辑，较为复杂，有心重构可以大胆尝试。
+                            timeDiff = event.time - hxpyLastSkill
+                            reset = 0
+                            flag = 1
+                            if hxpyLocalNum == 3:
+                                reset = 1
+                            elif timeDiff > 100:
+                                hxpyLocalNum += 1
+                            else:
+                                flag = 0
+                            if flag:
+                                if hxpySingleNum > 0:
+                                    hxpySingleList.append(hxpySingleNum)
+                                hxpySingleNum = 0
+                            hxpySingleNum += 1
+                            if reset:
+                                if hxpyLocalNum >= 1:
+                                    hxpyCastNum += 1
+                                    hxpyCastList.append(hxpyLocalNum)
+                                hxpyLocalNum = 0
+                            if hxpyLocalNum == 3:
+                                hxpyCompleteNum += 1
+                            hxpyLastSkill = event.time
+                            # print("[HxpySkill]", event.time, event.id, event.heal, event.healEff)
 
                     if event.caster == self.mykey and event.scheme == 2:
                         # 统计HOT
@@ -905,6 +976,7 @@ class YunChangXinJingReplayer(ReplayerBase):
                 if event.id in ["6360"] and event.level in [66, 76, 86] and event.stack == 1 and event.target == self.mykey:  # 特效腰坠:
                     bh.setSpecialSkill(event.id, "特效腰坠", "3414",
                                        event.time, 0, "开启特效腰坠")
+                    yzSkill.recordSkill(event.time, 0, 0, ss.timeEnd, delta=-1)
                 if event.id in ["12768"] and event.stack == 1 and event.target == self.mykey:  # cw特效
                     bh.setSpecialSkill(event.id, "cw特效", "14402",
                                        event.time, 0, "触发cw特效")
@@ -924,6 +996,18 @@ class YunChangXinJingReplayer(ReplayerBase):
                 if event.id in self.bld.info.player:
                     battleDict[event.id].setState(event.time, event.fight)
 
+            elif event.dataType == "Cast":
+                if event.caster == self.mykey and event.id == "565":
+                    # 回雪飘摇
+                    hxpyCastNum += 1
+                    if hxpyLocalNum > 0:
+                        hxpyCastList.append(hxpyLocalNum)
+                    hxpyLocalNum = 0
+                    if hxpySingleNum > 0:
+                        hxpySingleList.append(hxpySingleNum)
+                    hxpySingleNum = 0
+                    # print("[HxpyCast]", event.time, event.id)
+
             num += 1
 
         # 记录最后一个技能
@@ -934,6 +1018,8 @@ class YunChangXinJingReplayer(ReplayerBase):
                               ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
                               roundCent(ss.healEff / (ss.heal + 1e-10)),
                               int(ss.delay / (ss.delayNum + 1e-10)), ss.busy, "")
+        hxpyCastList.append(hxpyLocalNum)
+        hxpySingleList.append(hxpySingleNum)
 
         # 同步BOSS的技能信息
         if self.bossBh is not None:
@@ -1175,8 +1261,125 @@ class YunChangXinJingReplayer(ReplayerBase):
         # 计算专案组
         self.result["review"] = {"available": 1, "content": []}
 
-        # 敬请期待
-        res = {"code": 90, "rate": 0, "status": 1}
+        # code 1 不要死
+        num = self.deathDict[self.mykey]["num"]
+        if num > 0:
+            time = roundCent(((self.finalTime - self.startTime) - self.battleDict[self.mykey].buffTimeIntegral()) / 1000, 2)
+            self.result["review"]["content"].append({"code": 1, "num": num, "duration": time, "rate": 0, "status": 3})
+        else:
+            self.result["review"]["content"].append({"code": 1, "num": num, "duration": 0, "rate": 1, "status": 0})
+
+        # code 10 不要放生队友
+        num = 0
+        log = []
+        time = []
+        id = []
+        damage = []
+        for key in self.unusualDeathDict:
+            if self.unusualDeathDict[key]["num"] > 0:
+                for line in self.unusualDeathDict[key]["log"]:
+                    num += 1
+                    log.append([(int(line[0]) - self.startTime) / 1000, self.bld.info.player[key].name, "%s:%d/%d" % (line[1], line[2], line[6])])
+        log.sort(key=lambda x: x[0])
+        for line in log:
+            time.append(parseTime(line[0]))
+            id.append(line[1])
+            damage.append(line[2])
+        if num > 0:
+            self.result["review"]["content"].append({"code": 10, "num": num, "time": time, "id": id, "damage": damage, "rate": 0, "status": 3})
+        else:
+            self.result["review"]["content"].append({"code": 10, "num": num, "time": time, "id": id, "damage": damage, "rate": 1, "status": 0})
+
+        # code 11 保持gcd不要空转
+        gcd = self.result["skill"]["general"]["efficiencyNonGcd"]
+        gcdRank = self.result["rank"]["general"]["efficiencyNonGcd"]["percent"]
+        res = {"code": 11, "cover": gcd, "rank": gcdRank, "rate": roundCent(gcdRank / 100)}
+        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
+        self.result["review"]["content"].append(res)
+
+        # code 12 提高HPS或者虚条HPS
+        hps = 0
+        ohps = 0
+        for record in self.result["healer"]["table"]:
+            if record["name"] == self.result["overall"]["playerID"]:
+                # 当前玩家
+                hps = record["healEff"]
+                ohps = record["heal"]
+        hpsRank = self.result["rank"]["healer"]["healEff"]["percent"]
+        ohpsRank = self.result["rank"]["healer"]["heal"]["percent"]
+        rate = max(hpsRank, ohpsRank)
+        res = {"code": 12, "hps": hps, "ohps": ohps, "hpsRank": hpsRank, "ohpsRank": ohpsRank, "rate": roundCent(rate / 100)}
+        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
+        self.result["review"]["content"].append(res)
+
+        # code 13 使用有cd的技能
+
+        scCandidate = []
+        for id in ["555", "568", "18221"]:
+            if id in nonGcdSkillIndex:
+                scCandidate.append(skillInfo[nonGcdSkillIndex[id]][0])
+            else:
+                scCandidate.append(skillInfo[gcdSkillIndex[id]][0])
+        scCandidate.append(yzSkill)
+        scCandidate.append(jwfhWatchSkill)
+
+        rateSum = 0
+        rateNum = 0
+        numAll = []
+        sumAll = []
+        skillAll = []
+        for skillObj in scCandidate:
+            num = skillObj.getNum()
+            sum = skillObj.getMaxPossible()
+            skill = skillObj.name
+            if skill in ["余寒映日", "九微飞花", "特效腰坠"] and num == 0:
+                continue
+            rateNum += 1
+            rateSum += min(num / (sum + 1e-10), 1)
+            numAll.append(num)
+            sumAll.append(sum)
+            skillAll.append(skill)
+        rate = roundCent(rateSum / (rateNum + 1e-10), 4)
+        res = {"code": 13, "skill": skillAll, "num": numAll, "sum": sumAll, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 50, 25, 0)
+        self.result["review"]["content"].append(res)
+
+        # code 501 保证`回雪飘摇`的触发次数
+        numPerSec = self.result["skill"]["hxpy"]["numPerSec"]
+        rank = self.result["rank"]["hxpy"]["numPerSec"]["percent"]
+        rate = roundCent(rank / 100)
+        res = {"code": 501, "numPerSec": numPerSec, "rank": rank, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
+        self.result["review"]["content"].append(res)
+
+        # code 502 保证`上元点鬟`的覆盖率
+        cover = self.result["skill"]["sydh"]["cover"]
+        rank = self.result["rank"]["sydh"]["cover"]["percent"]
+        rate = roundCent(rank / 100)
+        res = {"code": 502, "cover": cover, "rank": rank, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 50, 25, 0)
+        self.result["review"]["content"].append(res)
+
+        # code 503 中断`回雪飘摇`的倒读条
+        num = [0] * 4
+        sum = hxpyCastNum
+        # print("[hxpyList]", hxpyCastList)
+        for i in hxpyCastList:
+            num[min(i, 3)] += 1
+        perfectTime = num[2]
+        earlyTime = num[3]
+        perfectRate= roundCent(perfectTime / (sum + 1e-10), 4)
+        res = {"code": 503, "time": sum, "perfectTime": perfectTime, "earlyTime": earlyTime, "rate": perfectRate}
+        res["status"] = getRateStatus(res["rate"], 85, 50, 0)
+        self.result["review"]["content"].append(res)
+
+        # code 504 保证`上元点鬟`的覆盖率
+        sum = sydhSkill.getNum()
+        wrongTime = sydhWrong
+        perfectTime = sum - sydhWrong
+        rate = roundCent(perfectTime / (sum + 1e-10))
+        res = {"code": 504, "time": time, "wrongTime": wrongTime, "perfectTime": perfectTime, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 95, 90, 0)
         self.result["review"]["content"].append(res)
 
         # 排序

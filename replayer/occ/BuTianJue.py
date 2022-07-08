@@ -568,7 +568,7 @@ class BuTianJueReplayer(ReplayerBase):
         bcqsSkill = SkillHealCounter("2232", self.startTime, self.finalTime, self.haste)  # 冰蚕牵丝
         zwjtSkill = SkillHealCounter("6252", self.startTime, self.finalTime, self.haste)  # 醉舞九天
         ssztSkill = SkillHealCounter("?", self.startTime, self.finalTime, self.haste)  # 圣手织天
-        qdtrSkill = SkillHealCounter("?", self.startTime, self.finalTime, self.haste)  # 千蝶吐瑞
+        # qdtrSkill = SkillHealCounter("?", self.startTime, self.finalTime, self.haste)  # 千蝶吐瑞
         mxymSkill = SkillHealCounter("?", self.startTime, self.finalTime, self.haste)  # 迷仙引梦
 
         zwjtDict = BuffCounter("?", self.startTime, self.finalTime)  # 用buff类型来记录醉舞九天的具体时间
@@ -580,6 +580,8 @@ class BuTianJueReplayer(ReplayerBase):
         cwDict = BuffCounter("12770", self.startTime, self.finalTime)  # cw特效
         mufengDict = BuffCounter("412", self.startTime, self.finalTime)  # 沐风
         nvwaDict = BuffCounter("2315", self.startTime, self.finalTime)  # 女娲补天
+        xjDict = BuffCounter("5950", self.startTime, self.finalTime)  # 献祭
+        bdDict = BuffCounter("10237", self.startTime, self.finalTime)  # 碧蝶
 
         battleDict = {}
         firstHitDict = {}
@@ -600,6 +602,13 @@ class BuTianJueReplayer(ReplayerBase):
         wuhuoHeal = 0  # 无惑
         xjmjHeal = 0  # 献祭秘籍
         bdxjHeal = 0  # 碧蝶献祭
+        qdtrLast = 0  # 千蝶施放统计cd
+        mxymLast = 0  # 迷仙引梦统计cd
+        instantNum = 0  # 瞬发冰蚕次数
+        canyinNum = 0  # 蚕引次数
+        diechiNum = 0  # 蝶池施放次数
+        diechiCorrect = 0  # 蝶池正确施放次数
+        diechiLast = 0  # 蝶池防止重复统计
 
         # 战斗回放初始化
         bh = BattleHistory(self.startTime, self.finalTime)
@@ -613,7 +622,7 @@ class BuTianJueReplayer(ReplayerBase):
 
                      [bcqsSkill, "冰蚕牵丝", ["2526", "27391", "6662"], "2745", True, 24, False, True, 0, 1],
                      [ssztSkill, "圣手织天", ["13425", "13426"], "3028", True, 0, False, True, 18, 1],
-                     [qdtrSkill, "千蝶吐瑞", ["2449"], "2748", True, 8, True, True, 60, 1],
+                     [None, "千蝶吐瑞", ["2449"], "2748", True, 8, True, True, 60, 1],
                      [None, "迷仙引梦", ["15132"], "7255", True, 8, False, True, 30, 1],
                      [None, "仙王蛊鼎", ["2234"], "2747", True, 24, False, True, 120, 1],
                      [None, "玄水蛊", ["3702"], "3038", True, 0, False, True, 40, 1],
@@ -627,6 +636,7 @@ class BuTianJueReplayer(ReplayerBase):
                      [None, "蝶鸾", ["3054"], "2764", False, 0, False, True, 6, 1],
                      [None, "女娲补天", ["2230"], "2743", False, 0, False, True, 24, 1],
                      [None, "灵蛊", ["18584"], "2777", False, 0, False, True, 20, 3],
+                     [None, "迷仙引梦·收", ["21825"], "11310", False, 0, False, True, 0, 1],
                     ]
 
         zwjtTime = getLength(16, self.haste)
@@ -637,6 +647,8 @@ class BuTianJueReplayer(ReplayerBase):
             line = skillInfo[i]
             if line[0] is None:
                 skillInfo[i][0] = SkillCounterAdvance(line, self.startTime, self.finalTime, self.haste)
+            if line[1] == "千蝶吐瑞":
+                qdtrSkill = skillInfo[i][0]
             for id in line[2]:
                 if line[4]:
                     gcdSkillIndex[id] = i
@@ -645,6 +657,11 @@ class BuTianJueReplayer(ReplayerBase):
         yzInfo = [None, "特效腰坠", ["0"], "3414", False, 0, False, True, 180, 1]
         yzSkill = SkillCounterAdvance(yzInfo, self.startTime, self.finalTime, self.haste)
         yzInfo[0] = yzSkill
+
+        qdtrWatchSkill = SkillCounterAdvance(skillInfo[gcdSkillIndex["2449"]], self.startTime, self.finalTime,
+                                             self.haste)
+        mxymWatchSkill = SkillCounterAdvance(skillInfo[gcdSkillIndex["15132"]], self.startTime, self.finalTime,
+                                             self.haste)
 
         xiangZhiUnimportant = ["4877",  # 水特效作用
                                "25682", "25683", "25684", "25685", "25686", "24787", "24788", "24789", "24790",  # 破招
@@ -730,31 +747,50 @@ class BuTianJueReplayer(ReplayerBase):
                                 sf = cyDict.checkState(event.time - 200)
                                 if sf:
                                     castTime = 0
-                            ss.analyseSkill(event, castTime, line[0], tunnel=line[6], hasteAffected=line[7])
-                            targetName = "Unknown"
-                            if event.target in self.bld.info.player:
-                                targetName = self.bld.info.player[event.target].name
-                            elif event.target in self.bld.info.npc:
-                                targetName = self.bld.info.npc[event.target].name
-                            lastSkillID, lastTime = bh.getLastNormalSkill()
-                            if gcdSkillIndex[lastSkillID] == gcdSkillIndex[ss.skill] and ss.timeStart - lastTime < 100:
-                                # 相同技能，原地更新
-                                bh.updateNormalSkill(ss.skill, line[1], line[3],
-                                                     ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
-                                                     ss.healEff, 0, ss.busy, "", "", targetName)
-                            else:
-                                # 不同技能，新建条目
-                                bh.setNormalSkill(ss.skill, line[1], line[3],
-                                                  ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
-                                                  ss.healEff, 0, ss.busy, "", "", targetName)
-                            ss.reset()
+                                    if bh.log["normal"] == [] or bh.log["normal"][-1]["skillname"] != "冰蚕牵丝" or event.time - bh.log["normal"][-1]["start"] - bh.log["normal"][-1]["duration"] > 100:
+                                        instantNum += 1
+                            skip = 0
+                            if event.id in ["2965"]:
+                                # 检查碧蝶引
+                                skip = xjDict.checkState(event.time - 200)
+                                if skip:
+                                    bh.setSpecialSkill(event.id, 0, 0, event.time, 0, "瞬发碧蝶引")
+                            if not skip:
+                                ss.analyseSkill(event, castTime, line[0], tunnel=line[6], hasteAffected=line[7])
+                                targetName = "Unknown"
+                                if event.target in self.bld.info.player:
+                                    targetName = self.bld.info.player[event.target].name
+                                elif event.target in self.bld.info.npc:
+                                    targetName = self.bld.info.npc[event.target].name
+                                lastSkillID, lastTime = bh.getLastNormalSkill()
+                                if gcdSkillIndex[lastSkillID] == gcdSkillIndex[ss.skill] and ss.timeStart - lastTime < 100:
+                                    # 相同技能，原地更新
+                                    bh.updateNormalSkill(ss.skill, line[1], line[3],
+                                                         ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
+                                                         ss.healEff, 0, ss.busy, "", "", targetName)
+                                else:
+                                    # 不同技能，新建条目
+                                    bh.setNormalSkill(ss.skill, line[1], line[3],
+                                                      ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
+                                                      ss.healEff, 0, ss.busy, "", "", targetName)
+                                ss.reset()
+                            # 特殊处理千蝶
+                            if event.id == "2449":
+                                if event.time - qdtrLast > 1000:
+                                    qdtrWatchSkill.recordSkill(event.time, 0, 0, ss.timeEnd, delta=-1)
+                                qdtrLast = event.time
                         elif event.id in nonGcdSkillIndex:  # 特殊技能
                             desc = ""
                             index = nonGcdSkillIndex[event.id]
                             line = skillInfo[index]
                             bh.setSpecialSkill(event.id, line[1], line[3], event.time, 0, desc)
                             skillObj = line[0]
-                            if skillObj is not None:
+                            record = True
+                            if skillObj is None:
+                                record = False
+                            if event.id == "21825" and bh.log["special"] != [] and bh.log["special"][-1]["skillid"] == "21825" and event.time - bh.log["special"][-1]["start"] < 100:
+                                record = False
+                            if record:
                                 skillObj.recordSkill(event.time, event.heal, event.healEff, ss.timeEnd, delta=-1)
                         # 无法分析的技能
                         elif event.id not in xiangZhiUnimportant:
@@ -769,8 +805,19 @@ class BuTianJueReplayer(ReplayerBase):
                             if event.time - mxymDict.log[-1][0] > 200:
                                 mxymDict.setState(event.time - 2000, 1)
                                 mxymDict.setState(event.time, 0)
+                                if event.time - mxymLast > 5000:
+                                    mxymWatchSkill.recordSkill(event.time, 0, 0, ss.timeEnd, delta=-1)
+                                mxymLast = event.time
                         if event.id in ["18884"]:  # 蝶池
                             dcSkill.recordSkill(event.time, event.heal, event.healEff, event.time)
+                            #print("[Diechi]", event.time, event.heal, event.healEff)
+                            if event.time - diechiLast > 5000:
+                                diechiNum += 1
+                            if event.time - diechiLast > 500:
+                                state = bdDict.checkState(event.time - 50)
+                                if state:
+                                    diechiCorrect += 1
+                            diechiLast = event.time
                         if event.id in ["2998"]:  # 无惑
                             wuhuoHeal += event.healEff
                         if event.id in ["26771"]:  # 献祭秘籍
@@ -852,9 +899,17 @@ class BuTianJueReplayer(ReplayerBase):
                 if event.id in ["2316"] and event.caster == self.mykey:  # 蛊惑
                     ghzsDict.setState(event.time, event.stack)
                 if event.id in ["2844"] and event.target == self.mykey:  # 蚕引
+                    prevStack = cyDict.checkState(event.time)
                     cyDict.setState(event.time, event.stack)
+                    if event.stack > prevStack:
+                        canyinNum += event.stack - prevStack
                 if event.id in ["20831"] and event.caster == self.mykey:  # buff绮栊
                     self.qilongCounter[event.target].setState(event.time, event.stack)
+                if event.id in ["5950"] and event.caster == self.mykey:  # 献祭
+                    xjDict.setState(event.time, event.stack)
+                if event.id in ["10237"] and event.caster == self.mykey:  # 碧蝶
+                    bdDict.setState(event.time, event.stack)
+                    #print("[Bidie]", event.time, event.stack)
 
             elif event.dataType == "Shout":
                 pass
@@ -1126,8 +1181,8 @@ class BuTianJueReplayer(ReplayerBase):
             self.result["review"]["content"].append({"code": 10, "num": num, "time": time, "id": id, "damage": damage, "rate": 1, "status": 0})
 
         # code 11 保持gcd不要空转
-        gcd = self.result["skill"]["general"]["efficiency"]
-        gcdRank = self.result["rank"]["general"]["efficiency"]["percent"]
+        gcd = self.result["skill"]["general"]["efficiencyNonGcd"]
+        gcdRank = self.result["rank"]["general"]["efficiencyNonGcd"]["percent"]
         res = {"code": 11, "cover": gcd, "rank": gcdRank, "rate": roundCent(gcdRank / 100)}
         res["status"] = getRateStatus(res["rate"], 75, 50, 25)
         self.result["review"]["content"].append(res)
@@ -1156,6 +1211,7 @@ class BuTianJueReplayer(ReplayerBase):
             else:
                 scCandidate.append(skillInfo[gcdSkillIndex[id]][0])
         scCandidate.append(yzSkill)
+        scCandidate.append(qdtrWatchSkill)
 
         rateSum = 0
         rateNum = 0
@@ -1178,8 +1234,70 @@ class BuTianJueReplayer(ReplayerBase):
         res["status"] = getRateStatus(res["rate"], 50, 25, 0)
         self.result["review"]["content"].append(res)
 
-        # 敬请期待
-        res = {"code": 90, "rate": 0, "status": 1}
+        # code 401 保证`冰蚕牵丝`或`醉舞九天`的触发次数
+        bcNum = self.result["skill"]["bcqs"]["numPerSec"]
+        bcRank = self.result["rank"]["bcqs"]["numPerSec"]["percent"]
+        zwNum = self.result["skill"]["zwjt"]["numPerSec"]
+        zwRank = self.result["rank"]["zwjt"]["numPerSec"]["percent"]
+        rate = roundCent(max(bcRank, zwRank) / 100)
+        res = {"code": 401, "bcNum": bcNum, "bcRank": bcRank, "zwNum": zwNum, "zwRank": zwRank, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
+        self.result["review"]["content"].append(res)
+
+        # code 402 使用`蛊惑众生`
+        cover = self.result["skill"]["ghzs"]["cover"]
+        res = {"code": 402, "cover": cover, "rate": roundCent(cover / 100)}
+        res["status"] = getRateStatus(res["rate"], 90, 50, 0)
+        self.result["review"]["content"].append(res)
+
+        # code 403 保证回蓝技能的使用次数
+        scCandidate = []
+        for id in ["2234"]:
+            if id in nonGcdSkillIndex:
+                scCandidate.append(skillInfo[nonGcdSkillIndex[id]][0])
+            else:
+                scCandidate.append(skillInfo[gcdSkillIndex[id]][0])
+        scCandidate.append(mxymWatchSkill)
+
+        rateSum = 0
+        rateNum = 0
+        numAll = []
+        sumAll = []
+        skillAll = []
+        for skillObj in scCandidate:
+            num = skillObj.getNum()
+            sum = skillObj.getMaxPossible()
+            skill = skillObj.name
+            if skill in ["特效腰坠"] and num == 0:
+                continue
+            rateNum += 1
+            rateSum += min(num / (sum + 1e-10), 1)
+            numAll.append(num)
+            sumAll.append(sum)
+            skillAll.append(skill)
+        rate = roundCent(rateSum / (rateNum + 1e-10), 4)
+        res = {"code": 403, "skill": skillAll, "num": numAll, "sum": sumAll, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 80, 60, 40)
+        self.result["review"]["content"].append(res)
+
+        # code 404 不要回收`迷仙引梦`
+        timeAll = mxymWatchSkill.getNum()
+        timeCast = skillInfo[nonGcdSkillIndex["21825"]][0].getNum()
+        rate = roundCent(1 - timeCast / (timeAll + 1e-10))
+        res = {"code": 404, "timeAll": timeAll, "timeCast": timeCast, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 90, 0, 0)
+        self.result["review"]["content"].append(res)
+
+        # code 405 使用`蚕引`层数
+        rate = roundCent(instantNum / (canyinNum + 1e-10))
+        res = {"code": 405, "sumAll": canyinNum, "timeCast": instantNum, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 90, 50, 0)
+        self.result["review"]["content"].append(res)
+
+        # code 406 保留`碧蝶献祭`的会心增益到`蝶池`
+        rate = roundCent(diechiCorrect / (diechiNum + 1e-10))
+        res = {"code": 406, "sumAll": diechiNum, "rightTime": diechiCorrect, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 90, 50, 0)
         self.result["review"]["content"].append(res)
 
         # 排序
