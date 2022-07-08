@@ -768,6 +768,8 @@ class LiJingYiDaoReplayer(ReplayerBase):
                                 bh.setNormalSkill(ss.skill, line[1], line[3],
                                                   ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
                                                   ss.healEff, 0, ss.busy, "", target, targetName)
+                                if sfFlag:
+                                    bh.log["normal"][-1]["instant"] = 1
                             ss.reset()
                         elif event.id in nonGcdSkillIndex:  # 特殊技能
                             desc = ""
@@ -1235,8 +1237,6 @@ class LiJingYiDaoReplayer(ReplayerBase):
         for skillObj in scCandidate:
             num = skillObj.getNum()
             sum = skillObj.getMaxPossible()
-            # if sum < num:
-            #     sum = num
             skill = skillObj.name
             if skill in ["折叶笼花", "大针", "特效腰坠"] and num == 0:
                 continue

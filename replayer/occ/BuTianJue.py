@@ -606,27 +606,27 @@ class BuTianJueReplayer(ReplayerBase):
         ss = SingleSkill(self.startTime, self.haste)
 
         # 技能信息
-        # [技能统计对象, 技能名, [所有技能ID], 图标ID, 是否为gcd技能, 运功时长, 是否倒读条, 是否吃加速]
-        skillInfo = [[None, "未知", ["0"], "0", True, 0, False, True],
-                     [None, "扶摇直上", ["9002"], "1485", True, 0, False, True],
-                     [None, "蹑云逐月", ["9003"], "1490", True, 0, False, True],
+        # [技能统计对象, 技能名, [所有技能ID], 图标ID, 是否为gcd技能, 运功时长, 是否倒读条, 是否吃加速, cd时间, 充能数量]
+        skillInfo = [[None, "未知", ["0"], "0", True, 0, False, True, 0, 1],
+                     [None, "扶摇直上", ["9002"], "1485", True, 0, False, True, 30, 1],
+                     [None, "蹑云逐月", ["9003"], "1490", True, 0, False, True, 30, 1],
 
-                     [bcqsSkill, "冰蚕牵丝", ["2526", "27391", "6662"], "2745", True, 24, False, True],
-                     [ssztSkill, "圣手织天", ["13425", "13426"], "3028", True, 0, False, True],
-                     [qdtrSkill, "千蝶吐瑞", ["2449"], "2748", True, 8, True, True],
-                     [None, "迷仙引梦", ["15132"], "7255", True, 8, False, True],
-                     [None, "仙王蛊鼎", ["2234"], "2747", True, 24, False, True],
-                     [None, "玄水蛊", ["3702"], "3038", True, 0, False, True],
-                     [None, "圣元阵", ["25058"], "13447", True, 0, False, True],
-                     [None, "蛊惑众生", ["2231"], "2744", True, 0, False, True],
-                     [None, "碧蝶引", ["2965"], "3025", True, 0, False, True],
+                     [bcqsSkill, "冰蚕牵丝", ["2526", "27391", "6662"], "2745", True, 24, False, True, 0, 1],
+                     [ssztSkill, "圣手织天", ["13425", "13426"], "3028", True, 0, False, True, 18, 1],
+                     [qdtrSkill, "千蝶吐瑞", ["2449"], "2748", True, 8, True, True, 60, 1],
+                     [None, "迷仙引梦", ["15132"], "7255", True, 8, False, True, 30, 1],
+                     [None, "仙王蛊鼎", ["2234"], "2747", True, 24, False, True, 120, 1],
+                     [None, "玄水蛊", ["3702"], "3038", True, 0, False, True, 40, 1],
+                     [None, "圣元阵", ["25058"], "13447", True, 0, False, True, 40, 1],
+                     [None, "蛊惑众生", ["2231"], "2744", True, 0, False, True, 20, 1],
+                     [None, "碧蝶引", ["2965"], "3025", True, 0, False, True, 0, 1],
 
-                     # [None, "醉舞九天", ["6252"], "2746", False, 16, True, True],
-                     [None, "化蝶", ["2228"], "2830", False, 0, False, True],
-                     [None, "蛊虫献祭", ["2226"], "2762", False, 0, False, True],
-                     [None, "蝶鸾", ["3054"], "2764", False, 0, False, True],
-                     [None, "女娲补天", ["2230"], "2743", False, 0, False, True],
-                     [None, "灵蛊", ["18584"], "2777", False, 0, False, True],
+                     # [None, "醉舞九天", ["6252"], "2746", False, 16, True, True, 0, 1],
+                     [None, "化蝶", ["2228"], "2830", False, 0, False, True, 30, 1],
+                     [None, "蛊虫献祭", ["2226"], "2762", False, 0, False, True, 30, 1],
+                     [None, "蝶鸾", ["3054"], "2764", False, 0, False, True, 6, 1],
+                     [None, "女娲补天", ["2230"], "2743", False, 0, False, True, 24, 1],
+                     [None, "灵蛊", ["18584"], "2777", False, 0, False, True, 20, 3],
                     ]
 
         zwjtTime = getLength(16, self.haste)
@@ -635,11 +635,16 @@ class BuTianJueReplayer(ReplayerBase):
         nonGcdSkillIndex = {}
         for i in range(len(skillInfo)):
             line = skillInfo[i]
+            if line[0] is None:
+                skillInfo[i][0] = SkillCounterAdvance(line, self.startTime, self.finalTime, self.haste)
             for id in line[2]:
                 if line[4]:
                     gcdSkillIndex[id] = i
                 else:
                     nonGcdSkillIndex[id] = i
+        yzInfo = [None, "特效腰坠", ["0"], "3414", False, 0, False, True, 180, 1]
+        yzSkill = SkillCounterAdvance(yzInfo, self.startTime, self.finalTime, self.haste)
+        yzInfo[0] = yzSkill
 
         xiangZhiUnimportant = ["4877",  # 水特效作用
                                "25682", "25683", "25684", "25685", "25686", "24787", "24788", "24789", "24790",  # 破招
@@ -748,7 +753,10 @@ class BuTianJueReplayer(ReplayerBase):
                             index = nonGcdSkillIndex[event.id]
                             line = skillInfo[index]
                             bh.setSpecialSkill(event.id, line[1], line[3], event.time, 0, desc)
-                            # 无法分析的技能
+                            skillObj = line[0]
+                            if skillObj is not None:
+                                skillObj.recordSkill(event.time, event.heal, event.healEff, ss.timeEnd, delta=-1)
+                        # 无法分析的技能
                         elif event.id not in xiangZhiUnimportant:
                             pass
                             # print("[ButianNonRec]", event.time, event.id, event.heal, event.healEff)
@@ -1087,6 +1095,88 @@ class BuTianJueReplayer(ReplayerBase):
 
         # 计算专案组
         self.result["review"] = {"available": 1, "content": []}
+
+        # code 1 不要死
+        num = self.deathDict[self.mykey]["num"]
+        if num > 0:
+            time = roundCent(((self.finalTime - self.startTime) - self.battleDict[self.mykey].buffTimeIntegral()) / 1000, 2)
+            self.result["review"]["content"].append({"code": 1, "num": num, "duration": time, "rate": 0, "status": 3})
+        else:
+            self.result["review"]["content"].append({"code": 1, "num": num, "duration": 0, "rate": 1, "status": 0})
+
+        # code 10 不要放生队友
+        num = 0
+        log = []
+        time = []
+        id = []
+        damage = []
+        for key in self.unusualDeathDict:
+            if self.unusualDeathDict[key]["num"] > 0:
+                for line in self.unusualDeathDict[key]["log"]:
+                    num += 1
+                    log.append([(int(line[0]) - self.startTime) / 1000, self.bld.info.player[key].name, "%s:%d/%d" % (line[1], line[2], line[6])])
+        log.sort(key=lambda x: x[0])
+        for line in log:
+            time.append(parseTime(line[0]))
+            id.append(line[1])
+            damage.append(line[2])
+        if num > 0:
+            self.result["review"]["content"].append({"code": 10, "num": num, "time": time, "id": id, "damage": damage, "rate": 0, "status": 3})
+        else:
+            self.result["review"]["content"].append({"code": 10, "num": num, "time": time, "id": id, "damage": damage, "rate": 1, "status": 0})
+
+        # code 11 保持gcd不要空转
+        gcd = self.result["skill"]["general"]["efficiency"]
+        gcdRank = self.result["rank"]["general"]["efficiency"]["percent"]
+        res = {"code": 11, "cover": gcd, "rank": gcdRank, "rate": roundCent(gcdRank / 100)}
+        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
+        self.result["review"]["content"].append(res)
+
+        # code 12 提高HPS或者虚条HPS
+        hps = 0
+        ohps = 0
+        for record in self.result["healer"]["table"]:
+            if record["name"] == self.result["overall"]["playerID"]:
+                # 当前玩家
+                hps = record["healEff"]
+                ohps = record["heal"]
+        hpsRank = self.result["rank"]["healer"]["healEff"]["percent"]
+        ohpsRank = self.result["rank"]["healer"]["heal"]["percent"]
+        rate = max(hpsRank, ohpsRank)
+        res = {"code": 12, "hps": hps, "ohps": ohps, "hpsRank": hpsRank, "ohpsRank": ohpsRank, "rate": roundCent(rate / 100)}
+        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
+        self.result["review"]["content"].append(res)
+
+        # code 13 使用有cd的技能
+
+        scCandidate = []
+        for id in ["2226", "2230"]:
+            if id in nonGcdSkillIndex:
+                scCandidate.append(skillInfo[nonGcdSkillIndex[id]][0])
+            else:
+                scCandidate.append(skillInfo[gcdSkillIndex[id]][0])
+        scCandidate.append(yzSkill)
+
+        rateSum = 0
+        rateNum = 0
+        numAll = []
+        sumAll = []
+        skillAll = []
+        for skillObj in scCandidate:
+            num = skillObj.getNum()
+            sum = skillObj.getMaxPossible()
+            skill = skillObj.name
+            if skill in ["特效腰坠"] and num == 0:
+                continue
+            rateNum += 1
+            rateSum += min(num / (sum + 1e-10), 1)
+            numAll.append(num)
+            sumAll.append(sum)
+            skillAll.append(skill)
+        rate = roundCent(rateSum / (rateNum + 1e-10), 4)
+        res = {"code": 13, "skill": skillAll, "num": numAll, "sum": sumAll, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 50, 25, 0)
+        self.result["review"]["content"].append(res)
 
         # 敬请期待
         res = {"code": 90, "rate": 0, "status": 1}

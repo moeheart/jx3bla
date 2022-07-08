@@ -571,8 +571,8 @@ class LingSuReplayer(ReplayerBase):
         lszhSkill = SkillHealCounter("28083", self.startTime, self.finalTime, self.haste)  # 灵素中和
         bzhfSkill = SkillHealCounter("27622", self.startTime, self.finalTime, self.haste)  # 白芷含芳
         cshxSkill = SkillHealCounter("27633", self.startTime, self.finalTime, self.haste)  # 赤芍寒香
-        dgsnSkill = SkillHealCounter("27624", self.startTime, self.finalTime, self.haste)  # 当归四逆
-        qqhhSkill = SkillHealCounter("28620", self.startTime, self.finalTime, self.haste)  # 七情和合
+        # dgsnSkill = SkillCounterAdvance("27624", self.startTime, self.finalTime, self.haste)  # 当归四逆
+        # qqhhSkill = SkillCounterAdvance("28620", self.startTime, self.finalTime, self.haste)  # 七情和合
         qczlSkill = SkillHealCounter("27669", self.startTime, self.finalTime, self.haste)  # 青川濯莲
         ygzxSkill = SkillHealCounter("27531", self.startTime, self.finalTime, self.haste)  # 银光照雪
         cshxBuff = SkillHealCounter("20070", self.startTime, self.finalTime, self.haste)  # 赤芍寒香  (20819素柯)
@@ -593,6 +593,13 @@ class LingSuReplayer(ReplayerBase):
         # 杂项
         qianzhiRemain = 0
         qianzhiLast = 0
+        zyhrLast = 0
+        zyhrCast = 0
+        zyhrList = []
+        zyhrNum = []
+        qqhhMaxNum = 0
+        dgsnLast = 0
+        zhongheInQianzhi = 0
 
         # 药性判断
         yaoxingLog = [[0, 0, 0, 0]]  # 药性记录: (时间，中和次数，变化，技能ID)
@@ -603,34 +610,48 @@ class LingSuReplayer(ReplayerBase):
         ss2 = SingleSkill(self.startTime, self.haste)  # 存一个技能, 在只有两个技能相同时不合并.
 
         # 技能信息
-        # [技能统计对象, 技能名, [所有技能ID], 图标ID, 是否为gcd技能, 运功时长, 是否倒读条, 是否吃加速]
-        skillInfo = [[None, "未知", ["0"], "0", True, 0, False, True],
-                     [None, "扶摇直上", ["9002"], "1485", True, 0, False, True],
-                     [None, "蹑云逐月", ["9003"], "1490", True, 0, False, True],
-                     [bzhfSkill, "白芷含芳", ["27622"], "15411", True, 24, False, True],
-                     [cshxSkill, "赤芍寒香", ["27633"], "15414", True, 0, False, True],
-                     [dgsnSkill, "当归四逆", ["27624"], "15412", True, 8, True, True],
-                     [None, "龙葵自苦", ["27630"], "15413", True, 0, False, True],
-                     [qqhhSkill, "七情和合", ["28620"], "15416", True, 0, False, True],
-                     [None, "青川濯莲", ["27669"], "15420", True, 24, False, True],
-                     [None, "枯木苏息", ["27675"], "15422", True, 80, False, True],
-                     [None, "千枝绽蕊", ["27650"], "15417", False, 0, False, True],
-                     [None, "凌然天风", ["27642"], "15405", False, 0, False, True],
-                     [None, "逐云寒蕊", ["27674"], "15421", False, 0, False, True],
-                     [None, "青圃着尘", ["28533"], "15768", False, 0, False, True],
-                     [None, "银光照雪", ["27531", "28347"], "15400", False, 0, False, True],
-                     [None, "百药宣时", ["28756"], "15718", False, 0, False, True],
+        # [技能统计对象, 技能名, [所有技能ID], 图标ID, 是否为gcd技能, 运功时长, 是否倒读条, 是否吃加速, cd时间, 充能数量]
+        skillInfo = [[None, "未知", ["0"], "0", True, 0, False, True, 0, 1],
+                     [None, "扶摇直上", ["9002"], "1485", True, 0, False, True, 30, 1],
+                     [None, "蹑云逐月", ["9003"], "1490", True, 0, False, True, 30, 1],
+                     [bzhfSkill, "白芷含芳", ["27622"], "15411", True, 24, False, True, 0, 1],
+                     [cshxSkill, "赤芍寒香", ["27633"], "15414", True, 0, False, True, 0, 1],
+                     [None, "当归四逆", ["27624"], "15412", True, 8, True, True, 16, 1],
+                     [None, "龙葵自苦", ["27630"], "15413", True, 0, False, True, 25, 1],
+                     [None, "七情和合", ["28620"], "15416", True, 0, False, True, 22, 1],
+                     [None, "青川濯莲", ["27669"], "15420", True, 24, False, True, 40, 1],
+                     [None, "枯木苏息", ["27675"], "15422", True, 80, False, True, 240, 1],
+                     [None, "千枝绽蕊", ["27650"], "15417", False, 0, False, True, 0, 1],
+                     [None, "凌然天风", ["27642"], "15405", False, 0, False, True, 38, 1],
+                     [None, "逐云寒蕊", ["27674"], "15421", False, 0, False, True, 74, 1],
+                     [None, "青圃着尘", ["28533"], "15768", False, 0, False, True, 40, 1],
+                     [None, "银光照雪", ["27531", "28347"], "15400", False, 0, False, True, 10, 1],
+                     [None, "百药宣时", ["28756"], "15718", False, 0, False, True, 60, 1],
                     ]
 
         gcdSkillIndex = {}
         nonGcdSkillIndex = {}
         for i in range(len(skillInfo)):
             line = skillInfo[i]
+            if line[0] is None:
+                skillInfo[i][0] = SkillCounterAdvance(line, self.startTime, self.finalTime, self.haste)
+            if line[1] == "当归四逆":
+                dgsnSkill = skillInfo[i][0]
+            elif line[1] == "七情和合":
+                qqhhSkill = skillInfo[i][0]
             for id in line[2]:
                 if line[4]:
                     gcdSkillIndex[id] = i
                 else:
                     nonGcdSkillIndex[id] = i
+        yzInfo = [None, "特效腰坠", ["0"], "3414", False, 0, False, True, 180, 1]
+        yzSkill = SkillCounterAdvance(yzInfo, self.startTime, self.finalTime, self.haste)
+        yzInfo[0] = yzSkill
+
+        # 监控cd用的类
+        qczlWatchSkill = SkillCounterAdvance(skillInfo[gcdSkillIndex["27669"]], self.startTime, self.finalTime, self.haste)
+        dgsnWatchSkill = SkillCounterAdvance(skillInfo[gcdSkillIndex["27624"]], self.startTime, self.finalTime,
+                                             self.haste)
 
         xiangZhiUnimportant = ["4877",  # 水特效作用
                                "25682", "25683", "25684", "25685", "25686", "24787", "24788", "24789", "24790", # 破招
@@ -737,6 +758,12 @@ class LingSuReplayer(ReplayerBase):
                                                   ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
                                                   ss.healEff, 0, ss.busy, "", "", targetName)
                             ss.reset()
+                            # 特殊处理当归四逆
+                            if event.id == "27624":
+                                if event.time - dgsnLast > 1000:
+                                    dgsnWatchSkill.recordSkill(event.time, 0, 0, ss.timeEnd, delta=-1)
+                                dgsnLast = event.time
+
                         # 处理特殊技能
                         elif event.id in nonGcdSkillIndex:  # 特殊技能
                             desc = ""
@@ -747,6 +774,7 @@ class LingSuReplayer(ReplayerBase):
                                 desc = "开启凌然天风"
                             elif event.id in ["27674"]:
                                 desc = "逐云寒蕊"
+                                zyhrCast = event.time
                             elif event.id in ["28533"]:
                                 desc = "青圃着尘结算"
                             elif event.id in ["28756"]:
@@ -760,6 +788,11 @@ class LingSuReplayer(ReplayerBase):
                                 index = nonGcdSkillIndex[event.id]
                                 line = skillInfo[index]
                                 bh.setSpecialSkill(event.id, line[1], line[3], event.time, 0, desc)
+                                index = nonGcdSkillIndex[event.id]
+                                line = skillInfo[index]
+                                skillObj = line[0]
+                                if skillObj is not None:
+                                    skillObj.recordSkill(event.time, event.heal, event.healEff, ss.timeEnd, delta=-1)
                         # 无法分析的技能
                         elif event.id not in xiangZhiUnimportant:
                             pass
@@ -778,8 +811,12 @@ class LingSuReplayer(ReplayerBase):
                             if event.time - yaoxingLog[-1][0] > 100 or yaoxingLog[-1][2] != 0:
                                 yaoxingLog.append([event.time, 0, 0, 0])
                             yaoxingLog[-1][1] += 1
-                        if event.id in ["27673", "27670", "28003"]:  # 青川濯莲
+                            state = qianzhiDict.checkState(event.time - 50)
+                            if state:
+                                zhongheInQianzhi += 1
+                        if event.id in ["27673", "28003"]:  # 青川濯莲
                             qczlSkill.recordSkill(event.time, event.heal, event.healEff, event.time)
+                            # print("[qcvlSkill]", event.time, event.id, event.heal, event.healEff)
                         if event.id in ["27531", "28347"]:  # 银光照雪
                             ygzxSkill.recordSkill(event.time, event.heal, event.healEff, event.time)
 
@@ -854,6 +891,7 @@ class LingSuReplayer(ReplayerBase):
                 if event.id in ["6360"] and event.level in [66, 76, 86] and event.stack == 1 and event.target == self.mykey:  # 特效腰坠:
                     bh.setSpecialSkill(event.id, "特效腰坠", "3414",
                                        event.time, 0, "开启特效腰坠")
+                    yzSkill.recordSkill(event.time, 0, 0, ss.timeEnd, delta=-1)
                 if event.id in ["21803"] and event.stack == 1 and event.target == self.mykey:  # cw特效:
                     bh.setSpecialSkill(event.id, "cw特效", "15888",
                                        event.time, 0, "触发cw特效")
@@ -867,6 +905,19 @@ class LingSuReplayer(ReplayerBase):
                     qianzhiRemain = 0
                 if event.id in ["20800"] and event.target == self.mykey:  # 青川濯莲
                     qingchuanDict.setState(event.time, event.stack)
+                    if event.stack == 1:
+                        qczlWatchSkill.recordSkill(event.time, 0, 0, ss.timeEnd, delta=-1)
+                if event.id in ["20854"] and event.time - zyhrCast < 20000:  # 逐云寒蕊判定
+                    if event.time - zyhrLast > 20000:  # 保证是新的一次
+                        zyhrNum.append(len(zyhrList))
+                        zyhrList = []
+                        zyhrLast = event.time
+                    if event.target not in zyhrList:
+                        zyhrList.append(event.target)
+                if event.id in ["20811"] and event.target == self.mykey:  # 七情debuff判定
+                    if event.stack > qqhhMaxNum:
+                        qqhhMaxNum = event.stack
+
                 if event.id in ["3067"] and event.target == self.mykey:  # 沐风
                     mufengDict.setState(event.time, event.stack)
 
@@ -890,6 +941,9 @@ class LingSuReplayer(ReplayerBase):
                               ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
                               roundCent(ss.healEff / (ss.heal + 1e-10)),
                               int(ss.delay / (ss.delayNum + 1e-10)), ss.busy, "")
+
+        zyhrNum.append(len(zyhrList))
+        zyhrNum = zyhrNum[1:]
 
         # 同步BOSS的技能信息
         if self.bossBh is not None:
@@ -947,12 +1001,17 @@ class LingSuReplayer(ReplayerBase):
 
         yaoxingInfer = [[self.startTime, maxYaoxing]]
         nowYaoxing = maxYaoxing
+        yaoxingSum = 0
+        yaoxingWaste = 0
         for i in range(1, len(yaoxingLog)):
             prevYaoxing = nowYaoxing
             nowYaoxing += yaoxingLog[i][2]
+            yaoxingSum += abs(yaoxingLog[i][2])
             if nowYaoxing < -5:
+                yaoxingWaste += (-5 - nowYaoxing)
                 nowYaoxing = -5
             if nowYaoxing > 5:
+                yaoxingWaste += (nowYaoxing - 5)
                 nowYaoxing = 5
             if line[3] == '26820':
                 nowYaoxing = 0
@@ -1172,9 +1231,138 @@ class LingSuReplayer(ReplayerBase):
         # 计算专案组
         self.result["review"] = {"available": 1, "content": []}
 
-        # 敬请期待
-        res = {"code": 90, "rate": 0, "status": 1}
+        # code 1 不要死
+        num = self.deathDict[self.mykey]["num"]
+        if num > 0:
+            time = roundCent(((self.finalTime - self.startTime) - self.battleDict[self.mykey].buffTimeIntegral()) / 1000, 2)
+            self.result["review"]["content"].append({"code": 1, "num": num, "duration": time, "rate": 0, "status": 3})
+        else:
+            self.result["review"]["content"].append({"code": 1, "num": num, "duration": 0, "rate": 1, "status": 0})
+
+        # code 10 不要放生队友
+        num = 0
+        log = []
+        time = []
+        id = []
+        damage = []
+        for key in self.unusualDeathDict:
+            if self.unusualDeathDict[key]["num"] > 0:
+                for line in self.unusualDeathDict[key]["log"]:
+                    num += 1
+                    log.append([(int(line[0]) - self.startTime) / 1000, self.bld.info.player[key].name, "%s:%d/%d" % (line[1], line[2], line[6])])
+        log.sort(key=lambda x: x[0])
+        for line in log:
+            time.append(parseTime(line[0]))
+            id.append(line[1])
+            damage.append(line[2])
+        if num > 0:
+            self.result["review"]["content"].append({"code": 10, "num": num, "time": time, "id": id, "damage": damage, "rate": 0, "status": 3})
+        else:
+            self.result["review"]["content"].append({"code": 10, "num": num, "time": time, "id": id, "damage": damage, "rate": 1, "status": 0})
+
+        # code 11 保持gcd不要空转
+        gcd = self.result["skill"]["general"]["efficiency"]
+        gcdRank = self.result["rank"]["general"]["efficiency"]["percent"]
+        res = {"code": 11, "cover": gcd, "rank": gcdRank, "rate": roundCent(gcdRank / 100)}
+        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
         self.result["review"]["content"].append(res)
+
+        # code 12 提高HPS或者虚条HPS
+        hps = 0
+        ohps = 0
+        for record in self.result["healer"]["table"]:
+            if record["name"] == self.result["overall"]["playerID"]:
+                # 当前玩家
+                hps = record["healEff"]
+                ohps = record["heal"]
+        hpsRank = self.result["rank"]["healer"]["healEff"]["percent"]
+        ohpsRank = self.result["rank"]["healer"]["heal"]["percent"]
+        rate = max(hpsRank, ohpsRank)
+        res = {"code": 12, "hps": hps, "ohps": ohps, "hpsRank": hpsRank, "ohpsRank": ohpsRank, "rate": roundCent(rate / 100)}
+        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
+        self.result["review"]["content"].append(res)
+
+        # code 13 使用有cd的技能
+
+        scCandidate = []
+        for id in ["28620", "27531", "28756", "28533"]:
+            if id in nonGcdSkillIndex:
+                scCandidate.append(skillInfo[nonGcdSkillIndex[id]][0])
+            else:
+                scCandidate.append(skillInfo[gcdSkillIndex[id]][0])
+        scCandidate.append(yzSkill)
+        scCandidate.append(qczlWatchSkill)
+        scCandidate.append(dgsnWatchSkill)
+
+        rateSum = 0
+        rateNum = 0
+        numAll = []
+        sumAll = []
+        skillAll = []
+        for skillObj in scCandidate:
+            num = skillObj.getNum()
+            sum = skillObj.getMaxPossible()
+            # if sum < num:
+            #     sum = num
+            skill = skillObj.name
+            if skill in ["特效腰坠", "百药宣时", "青圃着尘"] and num == 0:
+                continue
+            # TODO 通过奇穴和装备辅助判断
+            # TODO 修改春泥这类既统计治疗又统计cd的技能
+            rateNum += 1
+            rateSum += min(num / (sum + 1e-10), 1)
+            numAll.append(num)
+            sumAll.append(sum)
+            skillAll.append(skill)
+        rate = roundCent(rateSum / (rateNum + 1e-10), 4)
+        res = {"code": 13, "skill": skillAll, "num": numAll, "sum": sumAll, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 50, 25, 0)
+        self.result["review"]["content"].append(res)
+
+        # code 301 保证`灵素中和`的触发次数
+        numPerSec = self.result["skill"]["lszh"]["numPerSec"]
+        rank = self.result["rank"]["lszh"]["numPerSec"]["percent"]
+        res = {"code": 301, "numPerSec": numPerSec, "rank": rank, "rate": roundCent(rank / 100)}
+        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
+        self.result["review"]["content"].append(res)
+
+        # code 302 避免药性溢出
+        rate = roundCent(1 - yaoxingWaste / (yaoxingSum + 1e-10))
+        res = {"code": 302, "numOver": yaoxingWaste, "numAll": yaoxingSum, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 95, 90, 0)
+        self.result["review"]["content"].append(res)
+
+        # code 303 提高`飘黄`的覆盖人数
+        num = 0
+        sum = 0
+        for line in zyhrNum:
+            num += 1
+            sum += line
+        zyhrAverage = roundCent(sum / (num + 1e-10))
+        rate = roundCent(zyhrAverage / (self.result["overall"]["numPlayer"] + 1e-10))
+        res = {"code": 303, "numCover": zyhrAverage, "numAll": self.result["overall"]["numPlayer"], "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 90, 50, 10)
+        self.result["review"]["content"].append(res)
+
+        # code 304 注意控制`七情`状态
+        maxLayer = qqhhMaxNum
+        rate = 1 - maxLayer * 0.1
+        res = {"code": 304, "maxLayer": maxLayer, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 50, 30, 0)
+        self.result["review"]["content"].append(res)
+
+        # code 305 充分使用`千枝绽蕊`
+        time = roundCent(qianzhiDict.buffTimeIntegral() / 1000)
+        num = roundCent(zhongheInQianzhi / 5)
+        efficiency = roundCent(num / (time + 1e-10) * 1.75)
+        rate = min(100, efficiency)
+        res = {"code": 305, "time": time, "num": num, "efficiency": efficiency, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 50, 30, 0)
+        self.result["review"]["content"].append(res)
+
+        # # 敬请期待
+        # res = {"code": 90, "rate": 0, "status": 1}
+        # self.result["review"]["content"].append(res)
 
         # 排序
         self.result["review"]["content"].sort(key=lambda x:-x["status"] * 1000 + x["rate"])

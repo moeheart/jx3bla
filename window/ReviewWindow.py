@@ -59,7 +59,7 @@ class ReviewerWindow():
                         else:
                             endFlag = 1
                             break
-                    if type(value) is type(0.0) and value < 1:
+                    if type(value) is type(0.0) and value < 1 and "Per" not in key:
                         valueStr = parseCent(value) + '%'
                     else:
                         valueStr = str(value)

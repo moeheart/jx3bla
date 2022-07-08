@@ -31,6 +31,8 @@ def getSingleStat(record):
         for item in skillStat[skillName]:
             key4 = skillName
             key5 = item
+            if key4 == "qczl" and key5 in ["num", "numPerSec"] and record[12] < parseEdition("8.1.0"):
+                continue
             key = "%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5)
             value = skillStat[skillName][item] * getDirection(key)
             if "delay" in key and value == 0:
@@ -60,7 +62,7 @@ def getPercent(records):
     percentResults = {}
     for key in allResults:
         res_percent = []
-        for i in range(100):
+        for i in range(101):
             num = np.percentile(allResults[key], i)
             num = int(num * 100000) / 100000
             if num > 1000000000:
