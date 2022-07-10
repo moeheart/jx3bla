@@ -813,7 +813,7 @@ def getReplayPro():
     elif result[0][1] == 0:
         flag = 0
         text = "数据未公开."
-    elif result[0][3] in ["xiangzhi", "lingsu", "lijingyidao"]:  #, "butianjue", "yunchangxinjing"]:
+    elif result[0][3] in ["xiangzhi", "lingsu", "lijingyidao", "butianjue", "yunchangxinjing"]:  #, "butianjue", "yunchangxinjing"]:
         flag = 1
         occ = result[0][3]
         text = result[0][0]

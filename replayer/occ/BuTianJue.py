@@ -583,12 +583,9 @@ class BuTianJueReplayer(ReplayerBase):
         xjDict = BuffCounter("5950", self.startTime, self.finalTime)  # 献祭
         bdDict = BuffCounter("10237", self.startTime, self.finalTime)  # 碧蝶
 
-        battleDict = {}
-        firstHitDict = {}
+        battleDict = self.battleDict
 
         for line in self.bld.info.player:
-            battleDict[line] = BuffCounter("0", self.startTime, self.finalTime)  # 战斗状态统计
-            firstHitDict[line] = 0
             battleStat[line] = [0]
             xwgdNumDict[line] = 0
 
@@ -874,12 +871,6 @@ class BuTianJueReplayer(ReplayerBase):
                     if event.caster in self.bld.info.player:
                         battleStat[event.caster][0] += event.damageEff
 
-                # 根据战斗信息推测进战状态
-                if event.caster in self.bld.info.player and firstHitDict[event.caster] == 0 and (event.damageEff > 0 or event.healEff > 0):
-                    firstHitDict[event.caster] = 1
-                    if event.scheme == 1:
-                        battleDict[event.caster].setState(event.time, 1)
-
             elif event.dataType == "Buff":
                 if event.id == "需要处理的buff！现在还没有":
                     if event.target not in self.criticalHealCounter:
@@ -918,8 +909,7 @@ class BuTianJueReplayer(ReplayerBase):
                 pass
 
             elif event.dataType == "Battle":
-                if event.id in self.bld.info.player:
-                    battleDict[event.id].setState(event.time, event.fight)
+                pass
 
             num += 1
 

@@ -660,16 +660,12 @@ class YunChangXinJingReplayer(ReplayerBase):
 
         cwDict = BuffCounter("12770", self.startTime, self.finalTime)  # cw特效
         mufengDict = BuffCounter("412", self.startTime, self.finalTime)  # 沐风
-
-        battleDict = {}
-        firstHitDict = {}
+        battleDict = self.battleDict
 
         xiangwuDict = {}  # 翔舞
         shangyuanDict = {}  # 上元
 
         for line in self.bld.info.player:
-            battleDict[line] = BuffCounter("0", self.startTime, self.finalTime)  # 战斗状态统计
-            firstHitDict[line] = 0
             xiangwuDict[line] = HotCounter("20070", self.startTime, self.finalTime)  # 翔舞
             shangyuanDict[line] = HotCounter("20070", self.startTime, self.finalTime)  # 上元
             battleStat[line] = [0]
@@ -852,6 +848,7 @@ class YunChangXinJingReplayer(ReplayerBase):
                             ss.reset()
                             # 在gcd技能生效时重置回雪
                             if hxpyLocalNum > 0:
+                                hxpyCastNum += 1
                                 hxpyCastList.append(hxpyLocalNum)
                             hxpyLocalNum = 0
                             if hxpySingleNum > 0:
@@ -962,12 +959,6 @@ class YunChangXinJingReplayer(ReplayerBase):
                     if event.caster in self.bld.info.player:
                         battleStat[event.caster][0] += event.damageEff
 
-                # 根据战斗信息推测进战状态
-                if event.caster in self.bld.info.player and firstHitDict[event.caster] == 0 and (event.damageEff > 0 or event.healEff > 0):
-                    firstHitDict[event.caster] = 1
-                    if event.scheme == 1:
-                        battleDict[event.caster].setState(event.time, 1)
-
             elif event.dataType == "Buff":
                 if event.id == "需要处理的buff！现在还没有":
                     if event.target not in self.criticalHealCounter:
@@ -981,6 +972,8 @@ class YunChangXinJingReplayer(ReplayerBase):
                     bh.setSpecialSkill(event.id, "cw特效", "14402",
                                        event.time, 0, "触发cw特效")
                     cwDict.setState(event.time, event.stack)
+                if event.id in ["3067"] and event.target == self.mykey:  # 沐风
+                    mufengDict.setState(event.time, event.stack)
                 if event.id in ["680"] and event.caster == self.mykey and event.target in self.bld.info.player:  # 翔舞
                     xiangwuDict[event.target].setState(event.time, event.stack, int((event.end - event.frame + 3) * 62.5))
                 if event.id in ["681"] and event.caster == self.mykey and event.target in self.bld.info.player:  # 上元
@@ -993,8 +986,7 @@ class YunChangXinJingReplayer(ReplayerBase):
                 pass
 
             elif event.dataType == "Battle":
-                if event.id in self.bld.info.player:
-                    battleDict[event.id].setState(event.time, event.fight)
+                pass
 
             elif event.dataType == "Cast":
                 if event.caster == self.mykey and event.id == "565":
@@ -1367,8 +1359,8 @@ class YunChangXinJingReplayer(ReplayerBase):
         for i in hxpyCastList:
             num[min(i, 3)] += 1
         perfectTime = num[2]
-        earlyTime = num[3]
-        perfectRate= roundCent(perfectTime / (sum + 1e-10), 4)
+        earlyTime = num[1]
+        perfectRate = roundCent(perfectTime / (sum + 1e-10), 4)
         res = {"code": 503, "time": sum, "perfectTime": perfectTime, "earlyTime": earlyTime, "rate": perfectRate}
         res["status"] = getRateStatus(res["rate"], 85, 50, 0)
         self.result["review"]["content"].append(res)

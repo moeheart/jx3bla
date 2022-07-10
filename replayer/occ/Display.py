@@ -263,7 +263,7 @@ class HealerDisplayWindow():
         '''
         打开网页版的复盘界面.
         '''
-        url = "http://120.48.95.56/xiangzhi/%d" % self.result["overall"]["shortID"]
+        url = "http://120.48.95.56/%s/%d" % (self.occ, self.result["overall"]["shortID"])
         webbrowser.open(url)
 
     def renderOverall(self):
@@ -468,44 +468,6 @@ class HealerDisplayWindow():
             self.reviewerWindow = ReviewerWindow(self.result, self.themeColor)
         else:
             tk.Label(frame8, text="复盘生成时的版本尚不支持此功能。").place(x=10, y=20)
-
-
-        # if self.result["score"]["available"] == 0:
-        #     tk.Label(frame8, text="复盘生成时的版本尚不支持打分。").place(x=10, y=150)
-
-        # if self.result["score"]["available"] == 0:
-        #     tk.Label(frame8, text="复盘生成时的版本尚不支持打分。").place(x=10, y=150)
-        # elif self.result["score"]["available"] == 11:
-        #     tk.Label(frame8, text="由于BOSS机制原因，不提供打分结果。").place(x=10, y=150)
-        # else:
-        #     tb = TableConstructor(self.config, frame8sub)
-        #     tb.AppendHeader("数值分：", "对治疗数值的打分，包括治疗量、各个技能数量。")
-        #     descA = "治疗量评分：%.1f\n盾数量评分：%.1f\n徵数量评分：%.1f\n宫数量评分：%.1f" % (self.result["score"]["scoreA1"], self.result["score"]["scoreA2"],
-        #                                                        self.result["score"]["scoreA3"], self.result["score"]["scoreA4"])
-        #     tb.AppendHeader(self.result["score"]["scoreA"], descA, width=9)
-        #     lvlA, colorA, _ = self.getLvl(self.result["score"]["scoreA"])
-        #     tb.AppendContext(lvlA, color=colorA)
-        #     tb.EndOfLine()
-        #     tb.AppendHeader("统计分：", "对统计结果的打分，包括梅花三弄和HOT的覆盖率。")
-        #     descB = "盾覆盖率评分：%.1f\nHOT覆盖率评分：%.1f" % (self.result["score"]["scoreB1"], self.result["score"]["scoreB2"])
-        #     tb.AppendHeader(self.result["score"]["scoreB"], descB, width=9)
-        #     lvlB, colorB, _ = self.getLvl(self.result["score"]["scoreB"])
-        #     tb.AppendContext(lvlB, color=colorB)
-        #     tb.EndOfLine()
-        #     tb.AppendHeader("操作分：", "对操作表现的打分，包括战斗效率，各个技能延迟。")
-        #     descC = "战斗效率评分：%.1f\n盾延迟评分：%.1f\n徵延迟评分：%.1f\n宫延迟评分：%.1f" % (self.result["score"]["scoreC1"], self.result["score"]["scoreC2"],
-        #                                                        self.result["score"]["scoreC3"], self.result["score"]["scoreC4"])
-        #     tb.AppendHeader(self.result["score"]["scoreC"], descC, width=9)
-        #     lvlC, colorC, _ = self.getLvl(self.result["score"]["scoreC"])
-        #     tb.AppendContext(lvlC, color=colorC)
-        #     tb.EndOfLine()
-        #
-        #     tb.AppendHeader("总评：", "综合计算这几项的结果。")
-        #     tb.AppendContext(self.result["score"]["sum"], width=9)
-        #     lvl, color, desc = self.getLvl(self.result["score"]["sum"])
-        #     tb.AppendContext(lvl, color=color)
-        #     tb.EndOfLine()
-        #     tk.Label(frame8, text=desc, fg=color).place(x=10, y=150)
 
     def renderAdvertise(self):
         '''

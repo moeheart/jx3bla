@@ -14,16 +14,10 @@ from replayer.occ.Display import HealerDisplayWindow, SingleSkillDisplayer
 
 import os
 import time
-import json
-import threading
 import tkinter as tk
 from tkinter import messagebox
 from PIL import Image
 from PIL import ImageTk
-import urllib.request
-import hashlib
-import webbrowser
-import pyperclip
 
 class XiangZhiProWindow(HealerDisplayWindow):
     '''
@@ -624,7 +618,6 @@ class XiangZhiProReplayer(ReplayerBase):
             teamLastTime[line] = 0
             longkuiDict[line] = BuffCounter("20398", self.startTime, self.finalTime)
         lastSkillTime = self.startTime
-
         battleDict = self.battleDict
 
         # 杂项
@@ -925,8 +918,6 @@ class XiangZhiProReplayer(ReplayerBase):
                 # 根据战斗信息推测进战状态
                 if event.caster in self.bld.info.player and firstHitDict[event.caster] == 0 and (event.damageEff > 0 or event.healEff > 0):
                     pass
-                    # if event.scheme == 1:
-                    #     battleDict[event.caster].setState(event.time, 1)
 
                 if event.caster == self.mykey and event.id in ["15039", "15040", "15041", "15042", "15043", "15044"]:
                     # print("[xzTransport]", event.time, event.id)
@@ -989,8 +980,6 @@ class XiangZhiProReplayer(ReplayerBase):
 
             elif event.dataType == "Battle":
                 pass
-                # if event.id in self.bld.info.player:
-                #     battleDict[event.id].setState(event.time, event.fight)
 
             elif event.dataType == "Cast":
                 if event.caster == self.mykey and event.id == "14140":
@@ -1104,8 +1093,6 @@ class XiangZhiProReplayer(ReplayerBase):
         for key in self.shieldCountersNew:
             sumShield += self.shieldCountersNew[key].countCast()
             liveCount = battleDict[key].buffTimeIntegral()  # 存活时间比例
-            # print(self.bld.info.player[key].name, liveCount, battleDict[key].sumTime())
-            # print(battleDict[key].log)
             if battleDict[key].sumTime() - liveCount < 8000:  # 脱战缓冲时间
                 liveCount = battleDict[key].sumTime()
             battleTimeDict[key] = liveCount

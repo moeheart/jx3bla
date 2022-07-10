@@ -519,6 +519,8 @@ class LiJingYiDaoReplayer(ReplayerBase):
             hpsSumTime = 0
             numSmall = 0
 
+        battleDict = self.battleDict
+
         numHeal = 0
         numEffHeal = 0
         npcHealStat = {}
@@ -549,13 +551,11 @@ class LiJingYiDaoReplayer(ReplayerBase):
         shuiyueDict = BuffCounter("412", self.startTime, self.finalTime)  # 水月
         mufengDict = BuffCounter("412", self.startTime, self.finalTime)  # 沐风
 
-        battleDict = {}
         firstHitDict = {}
         wozhenDict = {}  # 握针
         shuhuaiDict = {}  # 述怀
 
         for line in self.bld.info.player:
-            battleDict[line] = BuffCounter("0", self.startTime, self.finalTime)  # 战斗状态统计
             firstHitDict[line] = 0
             hanqingNumDict[line] = 0
             wozhenDict[line] = HotCounter("20070", self.startTime, self.finalTime)  # 握针
@@ -862,12 +862,6 @@ class LiJingYiDaoReplayer(ReplayerBase):
                 if event.id in ["18274"] and event.target in hanqingNumDict: # and event.caster == self.mykey:
                     hanqingNumDict[event.target] += 1
 
-                # 根据战斗信息推测进战状态
-                if event.caster in self.bld.info.player and firstHitDict[event.caster] == 0 and (event.damageEff > 0 or event.healEff > 0):
-                    firstHitDict[event.caster] = 1
-                    if event.scheme == 1:
-                        battleDict[event.caster].setState(event.time, 1)
-
             elif event.dataType == "Buff":
                 if event.id == "需要处理的buff！现在还没有":
                     if event.target not in self.criticalHealCounter:
@@ -908,8 +902,7 @@ class LiJingYiDaoReplayer(ReplayerBase):
                 pass
 
             elif event.dataType == "Battle":
-                if event.id in self.bld.info.player:
-                    battleDict[event.id].setState(event.time, event.fight)
+                pass
 
             num += 1
 

@@ -581,11 +581,8 @@ class LingSuReplayer(ReplayerBase):
         qingchuanDict = BuffCounter("20800", self.startTime, self.finalTime)  # 青川buff
         mufengDict = BuffCounter("412", self.startTime, self.finalTime)  # 沐风
 
-        battleDict = {}
-        firstHitDict = {}
+        battleDict = self.battleDict
         for line in self.bld.info.player:
-            battleDict[line] = BuffCounter("0", self.startTime, self.finalTime)  # 战斗状态统计
-            firstHitDict[line] = 0
             piaohuangNumDict[line] = 0
 
         lastSkillTime = self.startTime
@@ -867,11 +864,6 @@ class LingSuReplayer(ReplayerBase):
                             battleStat[event.caster][0] += event.damageEff / (1 + 0.0025 * numStack)
                             battleStat[event.caster][1] += event.damageEff / (1 + 0.0025 * numStack) * 0.0025 * numStack
 
-                # 根据战斗信息推测进战状态
-                if event.caster in self.bld.info.player and firstHitDict[event.caster] == 0 and (event.damageEff > 0 or event.healEff > 0 or event.heal > 0) and event.scheme == 1:
-                    firstHitDict[event.caster] = 1
-                    battleDict[event.caster].setState(event.time, 1)
-
                 if event.id in ["28114", "28403"] and event.caster == self.mykey:
                     # 药性特征技能
                     # print("[YaoxingTest]", event.time, event.id, event.level, self.bld.info.player[event.caster].name,
@@ -928,8 +920,7 @@ class LingSuReplayer(ReplayerBase):
                 pass
 
             elif event.dataType == "Battle":
-                if event.id in self.bld.info.player:
-                    battleDict[event.id].setState(event.time, event.fight)
+                pass
 
             num += 1
 

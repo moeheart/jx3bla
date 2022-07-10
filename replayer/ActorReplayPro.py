@@ -2,13 +2,9 @@
 # 新版演员复盘的通用方法库。
 
 import json
-import threading
 import urllib.request
-import requests
 import hashlib
 import time
-import os
-from PIL import Image, ImageFont, ImageDraw
 
 #from ReplayBase import StatGeneratorBase
 from tools.Functions import *
@@ -47,6 +43,8 @@ from replayer.occ.LingSu import LingSuReplayer
 from replayer.occ.LiJingYiDao import LiJingYiDaoReplayer
 from replayer.occ.YunChangXinJing import YunChangXinJingReplayer
 from replayer.occ.BuTianJue import BuTianJueReplayer
+
+from replayer.CombatTracker import CombatTracker
 
 class ActorProReplayer(ReplayerBase):
 
@@ -463,6 +461,8 @@ class ActorProReplayer(ReplayerBase):
         qteStat = []
         qteTime = 0
 
+        combatTracker = CombatTracker(self.bld.info)
+
         for event in self.bld.log:
 
             if event.time < self.startTime:
@@ -473,6 +473,8 @@ class ActorProReplayer(ReplayerBase):
             self.bossAnalyser.analyseSecondStage(event)
 
             if event.dataType == "Skill":
+
+                combatTracker.recordEvent(event)
 
                 if event.target in self.bld.info.player:
                 #if occdict[item[5]][0] != '0':
@@ -520,7 +522,7 @@ class ActorProReplayer(ReplayerBase):
                             deathHitDetail[event.caster].append([event.time, self.bld.info.getSkillName(event.full_id), event.damage, event.caster, -1, event.effect, event.damageEff])
 
                     # 开怪统计，判断对本体的伤害
-                    if event.caster in self.bld.info.player and event.heal == 0 and self.bld.info.npc[event.target].name in self.bossNameDict:
+                    if event.caster in self.bld.info.player and event.heal == 0:# and self.bld.info.npc[event.target].name in self.bossNameDict:
                         if event.id in ["2516"]:
                             pass
                         elif self.firstHitList[event.caster] == 0:
@@ -538,10 +540,9 @@ class ActorProReplayer(ReplayerBase):
                         self.dps[event.caster][0] += event.damageEff
 
                 # 根据战斗信息推测进战状态
-                if event.caster in self.bld.info.player and firstHitDict[event.caster] == 0 and (event.damageEff > 0 or event.healEff > 0):
+                if event.caster in self.bld.info.player and event.scheme == 1 and firstHitDict[event.caster] == 0 and (event.damageEff > 0 or event.healEff > 0):
                     firstHitDict[event.caster] = 1
-                    if event.scheme == 1:
-                        self.battleDict[event.caster].setState(event.time, 1)
+                    self.battleDict[event.caster].setState(event.time, 1)
 
             elif event.dataType == "Buff":
                 # if occdict[item[5]][0] == '0':
