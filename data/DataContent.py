@@ -421,6 +421,17 @@ class OverallData():
         else:
             return full_id
 
+    def getName(self, key):
+        '''
+        根据玩家或NPC的ID获取名字，防止player和npc类中不存在的问题.
+        '''
+        if key in self.player:
+            return self.player[key].name
+        elif key in self.npc:
+            return self.npc[key].name
+        else:
+            return key
+
     def addPlayer(self, key, name, occ):
         '''
         添加一个玩家信息. 如果有装备和奇穴信息，需要手动增补.

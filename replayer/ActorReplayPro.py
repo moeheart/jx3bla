@@ -704,6 +704,8 @@ class ActorProReplayer(ReplayerBase):
         self.startTime, self.finalTime, self.battleTime = self.bossAnalyser.trimTime()
         self.battleTime += 1e-10  # 防止0战斗时间导致错误
 
+        combatTracker.export(self.battleTime)
+
         recordGORate = 0
 
         effectiveDPSList, potList, detail = self.bossAnalyser.getResult()

@@ -624,7 +624,6 @@ class BuTianJueReplayer(ReplayerBase):
                      [None, "仙王蛊鼎", ["2234"], "2747", True, 24, False, True, 120, 1],
                      [None, "玄水蛊", ["3702"], "3038", True, 0, False, True, 40, 1],
                      [None, "圣元阵", ["25058"], "13447", True, 0, False, True, 40, 1],
-                     [None, "蛊惑众生", ["2231"], "2744", True, 0, False, True, 20, 1],
                      [None, "碧蝶引", ["2965"], "3025", True, 0, False, True, 0, 1],
 
                      # [None, "醉舞九天", ["6252"], "2746", False, 16, True, True, 0, 1],
@@ -634,6 +633,7 @@ class BuTianJueReplayer(ReplayerBase):
                      [None, "女娲补天", ["2230"], "2743", False, 0, False, True, 24, 1],
                      [None, "灵蛊", ["18584"], "2777", False, 0, False, True, 20, 3],
                      [None, "迷仙引梦·收", ["21825"], "11310", False, 0, False, True, 0, 1],
+                     [None, "蛊惑众生", ["2231"], "2744", False, 0, False, True, 20, 1],
                     ]
 
         zwjtTime = getLength(16, self.haste)
@@ -1235,8 +1235,8 @@ class BuTianJueReplayer(ReplayerBase):
         self.result["review"]["content"].append(res)
 
         # code 402 使用`蛊惑众生`
-        cover = self.result["skill"]["ghzs"]["cover"]
-        res = {"code": 402, "cover": cover, "rate": roundCent(cover / 100)}
+        cover = roundCent(self.result["skill"]["ghzs"]["cover"])
+        res = {"code": 402, "cover": cover, "rate": cover}
         res["status"] = getRateStatus(res["rate"], 90, 50, 0)
         self.result["review"]["content"].append(res)
 
