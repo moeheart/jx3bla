@@ -474,7 +474,7 @@ class ActorProReplayer(ReplayerBase):
 
             if event.dataType == "Skill":
 
-                combatTracker.recordEvent(event)
+                combatTracker.recordSkill(event)
 
                 if event.target in self.bld.info.player:
                 #if occdict[item[5]][0] != '0':
@@ -545,6 +545,9 @@ class ActorProReplayer(ReplayerBase):
                     self.battleDict[event.caster].setState(event.time, 1)
 
             elif event.dataType == "Buff":
+
+                combatTracker.recordBuff(event)
+
                 # if occdict[item[5]][0] == '0':
                 #     continue
                 if event.target not in self.bld.info.player:
