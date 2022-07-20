@@ -215,7 +215,7 @@ class BattleLogData():
                 self.info.addNPC(line, result["9"][line])
             else:
                 self.info.addPlayer(line, result["9"][line], result["10"][line])
-                if line in result["18"]:
+                if line in result["18"] and result["18"][line] != {}:
                     self.info.player[line].xf = result["18"][line]["1"]
                     self.info.player[line].equipScore = result["18"][line]["2"]
                     self.info.player[line].equip = result["18"][line]["3"]

@@ -14,20 +14,28 @@ class HealCastRecorder():
         '''
         根据full_id做大量特殊判定，从而实现类似于合并的效果。
         '''
-        id = full_id.split(',')[1]
-        res = info.getSkillName(full_id)
-        if id == "6209":
-            res = "王母挥袂(辞致)"
-        elif id == "6211":
-            res = "风袖低昂(晚晴)"
-        elif full_id == '"1,6249,3"':
-            res = "上元点鬟(双鸾)"
-        elif full_id == '"1,6249,1"':
-            res = "翔鸾舞柳(双鸾)"
-        elif full_id == '"1,6249,1"':
-            res = "翔鸾舞柳(双鸾)"
-        elif id == "15181":
-            res = "宫(疏影横斜)"
+        l = len(full_id.split(','))
+        if l == 3:
+            id = full_id.split(',')[1]
+            res = info.getSkillName(full_id)
+            if id == "6209":
+                res = "王母挥袂(辞致)"
+            elif id == "6211":
+                res = "风袖低昂(晚晴)"
+            elif full_id == '"1,6249,3"':
+                res = "上元点鬟(双鸾)"
+            elif full_id == '"1,6249,1"':
+                res = "翔鸾舞柳(双鸾)"
+            elif full_id == '"1,6249,1"':
+                res = "翔鸾舞柳(双鸾)"
+            elif id == "15181":
+                res = "宫(疏影横斜)"
+        elif l == 4:
+            real_id = ','.join(full_id.split(',')[1:])
+            area = full_id.split(',')[0]
+            res = info.getSkillName(real_id)
+            nameArray = ["未知", "化解"]
+            res = "%s(%s)" % (res, nameArray[int(area)])
 
         return res
 
@@ -117,6 +125,17 @@ class CombatTracker():
                                           "namedSkill": self.ohpsCast[player].namedSkill}
                 ohps["sumHps"] += ohps["player"][player]["hps"]
 
+        # ahps
+        ahps = {"sumHps": 0, "player": {}}
+        for player in self.ahpsCast:
+            self.ahpsCast[player].export(time, self.info)
+            if self.ahpsCast[player].hps > 0:
+                ahps["player"][player] = {"sum": self.ahpsCast[player].sum,
+                                          "hps": self.ahpsCast[player].hps,
+                                          "skill": self.ahpsCast[player].skill,
+                                          "namedSkill": self.ahpsCast[player].namedSkill}
+                ahps["sumHps"] += ahps["player"][player]["hps"]
+
         # 简单展示类
         print("[HPS]", hps["sumHps"])
         for player in hps["player"]:
@@ -124,6 +143,15 @@ class CombatTracker():
             for skill in hps["player"][player]["namedSkill"]:
                 print("--[Skill]", skill, hps["player"][player]["namedSkill"][skill]["sum"],
                       hps["player"][player]["namedSkill"][skill]["num"], parseCent(hps["player"][player]["namedSkill"][skill]["percent"]))
+
+        print("=================")
+
+        print("[aHPS]", ahps["sumHps"])
+        for player in ahps["player"]:
+            print("[Player]", player, self.info.getName(player), ahps["player"][player]["hps"], ahps["player"][player]["sum"])
+            for skill in ahps["player"][player]["namedSkill"]:
+                print("--[Skill]", skill, ahps["player"][player]["namedSkill"][skill]["sum"],
+                      ahps["player"][player]["namedSkill"][skill]["num"], parseCent(ahps["player"][player]["namedSkill"][skill]["percent"]))
 
         # print("[oHPS]", ohps["sumHps"])
         # for player in ohps["player"]:
@@ -144,10 +172,10 @@ class CombatTracker():
         if (full_id in ABSORB_DICT or lvl0_id in ABSORB_DICT or event.id == "9334") and event.target in self.absorbBuff:
             if event.stack != 0:
                 self.absorbBuff[event.target][full_id] = [event.caster, event.time]
-                print("[GetAbsorbBuff]", event.id, event.time, event.target, event.caster)
+                # print("[GetAbsorbBuff]", event.id, event.time, event.target, event.caster)
             elif full_id in self.absorbBuff[event.target]:
                 del self.absorbBuff[event.target][full_id]
-                print("[DelAbsorbBuff]", event.id, event.time, event.target, event.caster)
+                # print("[DelAbsorbBuff]", event.id, event.time, event.target, event.caster)
 
 
     def recordSkill(self, event):
@@ -158,6 +186,24 @@ class CombatTracker():
         if event.heal > 0 and event.effect != 7:
             self.hpsCast[event.caster].record(event.target, event.full_id, event.healEff)
             self.ohpsCast[event.caster].record(event.target, event.full_id, event.heal)
+        elif event.heal > 0 and event.effect == 7:
+            # 插件统计的APS
+            print("[面板APS]", self.info.getSkillName(event.full_id), event.time, event.target, event.heal, event.id)
+
+        # 来源于化解的aps
+        absorb = int(event.fullResult.get("9", 0))
+        if absorb > 0 and event.target in self.absorbBuff:
+            print("[RawAbsorb]", event.time, event.target, absorb)
+            # 目前只记录一个化解的buff，如果单次击破了某个化解盾导致有两个buff都参与了化解，那么其实无法统计到具体的化解量
+            calcBuff = ["0", "0", 0]
+            for key in self.absorbBuff[event.target]:
+                res = self.absorbBuff[event.target][key]
+                if calcBuff[1] == "0" or "9334" in calcBuff[0] or ("9334" not in key and res[1] > calcBuff[2]):
+                    calcBuff = [key, res[0], res[1]]
+            if calcBuff[0] != "0":
+                # 记录化解
+                self.ahpsCast[calcBuff[1]].record(event.target, "1," + calcBuff[0], absorb)
+                print("[复盘aHPS]", self.info.getSkillName(calcBuff[0]), event.time, event.target, absorb, calcBuff[0])
 
     def __init__(self, info):
         '''
