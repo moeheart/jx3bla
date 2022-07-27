@@ -33,14 +33,21 @@
   - 实现奶毒专案组。
   - 实现奶秀专案组。
 - (TODO)扩展HPS的定义，更新不同HPS的指标。
-  - (TODO)实现HPS的基本统计和对齐。
-  - (TODO)对齐aHPS统计
+  - 实现HPS的基本统计和对齐。
+  - 对齐aHPS统计
+    - 统计化解
+    - 统计减伤
+    - (TODO)统计响应式技能
   - (TODO)统计oHPS及无价值oHPS
   - (TODO)统计未解明HPS并推测其有效性
+    - (TODO)统计吸血
+    - (TODO)统计蛊惑
+    - (TODO)推测有效性
   - (TODO)统计无意义HPS
   - (TODO)计算rHPS
 - (TODO)重写HPS统计模块
 - (TODO)在设置面板中提供一个选角色的功能
+
 
 ## 优化
 

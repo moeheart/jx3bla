@@ -10,6 +10,36 @@ class HealCastRecorder():
     记录为"A用B技能治疗C，值为D效果为E"，按A-(此类)-B-C的顺序逐层封装.
     '''
 
+    def specificName(self, id, full_id):
+        '''
+        根据full_id做大量特殊判定，从而实现类似于合并的效果。
+        params:
+        - id: 技能或buff的ID.
+        - full_id: 三名ID表示法.
+        '''
+        res = ""
+        if id == "6209":
+            res = "王母挥袂(辞致)"
+        elif id == "6211":
+            res = "风袖低昂(晚晴)"
+        elif full_id == '"1,6249,3"':
+            res = "上元点鬟(双鸾)"
+        elif full_id == '"1,6249,1"':
+            res = "翔鸾舞柳(双鸾)"
+        elif full_id == '"1,6249,1"':
+            res = "翔鸾舞柳(双鸾)"
+        elif id == "15181":
+            res = "宫(疏影横斜)"
+        elif id == "8571":
+            res = "心法减伤"
+        elif id == "21112":
+            res = "凌然天风"
+        elif id == "3307":
+            res = "田螺阵"
+        elif id == "15914":
+            res = "斩无常"
+        return res
+
     def getSkillName(self, full_id, info):
         '''
         根据full_id做大量特殊判定，从而实现类似于合并的效果。
@@ -18,23 +48,18 @@ class HealCastRecorder():
         if l == 3:
             id = full_id.split(',')[1]
             res = info.getSkillName(full_id)
-            if id == "6209":
-                res = "王母挥袂(辞致)"
-            elif id == "6211":
-                res = "风袖低昂(晚晴)"
-            elif full_id == '"1,6249,3"':
-                res = "上元点鬟(双鸾)"
-            elif full_id == '"1,6249,1"':
-                res = "翔鸾舞柳(双鸾)"
-            elif full_id == '"1,6249,1"':
-                res = "翔鸾舞柳(双鸾)"
-            elif id == "15181":
-                res = "宫(疏影横斜)"
+            resNew = self.specificName(id, full_id)
+            if resNew != "":
+                res = resNew
         elif l == 4:
             real_id = ','.join(full_id.split(',')[1:])
             area = full_id.split(',')[0]
+            id = real_id.split(',')[1]
             res = info.getSkillName(real_id)
-            nameArray = ["未知", "化解"]
+            resNew = self.specificName(id, real_id)
+            if resNew != "":
+                res = resNew
+            nameArray = ["未知", "化解", "减伤"]
             res = "%s(%s)" % (res, nameArray[int(area)])
 
         return res
@@ -166,34 +191,89 @@ class CombatTracker():
         # if "龙葵" in self.info.getSkillName(event.full_id):
         #     print("[NameBuff]", event.time, event.id, event.caster, event.target, event.full_id)
 
-        # 记录化解buff
         full_id = event.full_id.strip('"')
         lvl0_id = ','.join(full_id.split(',')[0:2])+',0'
+
+        # 记录化解buff
         if (full_id in ABSORB_DICT or lvl0_id in ABSORB_DICT or event.id == "9334") and event.target in self.absorbBuff:
             if event.stack != 0:
                 self.absorbBuff[event.target][full_id] = [event.caster, event.time]
+                if full_id in self.buffRemove[event.target]:
+                    del self.buffRemove[event.target][full_id]
+                if event.id == "9334":  # 记录梅花三弄的来源
+                    self.shieldDict[event.target] = event.caster
                 # print("[GetAbsorbBuff]", event.id, event.time, event.target, event.caster)
             elif full_id in self.absorbBuff[event.target]:
-                del self.absorbBuff[event.target][full_id]
+                # 进行延迟移除
+                if event.id != "9334":
+                    self.buffRemove[event.target][full_id] = {"time": event.time + 50}
+                else:  # 盾有更长的黏着时间
+                    self.buffRemove[event.target][full_id] = {"time": event.time + 500}
+                # del self.absorbBuff[event.target][full_id]
                 # print("[DelAbsorbBuff]", event.id, event.time, event.target, event.caster)
+
+        # 记录减伤buff
+        if (full_id in RESIST_DICT or lvl0_id in RESIST_DICT) and event.target in self.resistBuff:
+            if full_id in RESIST_DICT:
+                resistValue = RESIST_DICT[full_id]
+            else:
+                resistValue = RESIST_DICT[lvl0_id]
+            if event.stack != 0:
+                if event.id == "9336" or event.id == "9337":
+                    event.caster = self.shieldDict[event.target]
+                if event.id == "8424":
+                    event.caster = event.target
+                self.resistBuff[event.target][full_id] = [event.caster, event.time, resistValue]
+                if full_id in self.buffRemove[event.target]:
+                    del self.buffRemove[event.target][full_id]
+            elif full_id in self.resistBuff[event.target]:
+                # 进行延迟移除
+                self.buffRemove[event.target][full_id] = {"time": event.time + 50}
+            # if event.id == "9336":
+            #     print("[Buff9336]", event.time, event.id, event.stack)
+
+    def checkRemoveBuff(self, time, target):
+        '''
+        在事件开始前将待移除列表的buff尝试移除的方法.
+        params:
+        - time: 本次事件的时间.
+        - target: 目标玩家.
+        '''
+
+        if target in self.buffRemove:
+            toRemove = []
+            for id in self.buffRemove[target]:
+                if self.buffRemove[target][id]["time"] <= time:
+                    # 执行移除
+                    toRemove.append(id)
+            for id in toRemove:
+                if id in self.absorbBuff[target]:
+                    del self.absorbBuff[target][id]
+                if id in self.resistBuff[target]:
+                    del self.resistBuff[target][id]
+                del self.buffRemove[target][id]
 
 
     def recordSkill(self, event):
         '''
         记录技能事件.
         '''
+
+        # 先检验是否有需要移除的buff
+        self.checkRemoveBuff(event.time, event.target)
+
         # 治疗事件
         if event.heal > 0 and event.effect != 7:
             self.hpsCast[event.caster].record(event.target, event.full_id, event.healEff)
             self.ohpsCast[event.caster].record(event.target, event.full_id, event.heal)
-        elif event.heal > 0 and event.effect == 7:
-            # 插件统计的APS
-            print("[面板APS]", self.info.getSkillName(event.full_id), event.time, event.target, event.heal, event.id)
+        # elif event.heal > 0 and event.effect == 7:
+        #     # 插件统计的APS
+        #     print("[面板APS]", self.info.getSkillName(event.full_id), event.time, event.target, event.heal, event.id)
 
         # 来源于化解的aps
         absorb = int(event.fullResult.get("9", 0))
         if absorb > 0 and event.target in self.absorbBuff:
-            print("[RawAbsorb]", event.time, event.target, absorb)
+            # print("[RawAbsorb]", event.time, event.target, absorb)
             # 目前只记录一个化解的buff，如果单次击破了某个化解盾导致有两个buff都参与了化解，那么其实无法统计到具体的化解量
             calcBuff = ["0", "0", 0]
             for key in self.absorbBuff[event.target]:
@@ -203,7 +283,26 @@ class CombatTracker():
             if calcBuff[0] != "0":
                 # 记录化解
                 self.ahpsCast[calcBuff[1]].record(event.target, "1," + calcBuff[0], absorb)
-                print("[复盘aHPS]", self.info.getSkillName(calcBuff[0]), event.time, event.target, absorb, calcBuff[0])
+                # print("[复盘aHPS]", self.info.getSkillName(calcBuff[0]), event.time, event.target, absorb, calcBuff[0])
+
+        # 来自于减伤的aps
+        sumDamage = event.damage + absorb
+        if sumDamage > 0 and event.target in self.resistBuff:
+            # print("[Damage]", event.time, event.target, sumDamage)
+
+            # 考虑所有减伤，如果减伤之和大于100%，则不做统计，这种情况一般不可能发生.
+            resistSum = 0
+            for key in self.resistBuff[event.target]:
+                resistSum += self.resistBuff[event.target][key][2]
+            if resistSum > 0 and resistSum < 1024:
+                damageOrigin = sumDamage / (1 - resistSum / 1024)
+                for key in self.resistBuff[event.target]:
+                    res = self.resistBuff[event.target][key]
+                    damageResist = int(damageOrigin * (res[2] / 1024))
+                    # print("[ResistRes]", key, sumDamage, resistSum, damageOrigin, damageResist, res)
+                    if res[0] in self.ahpsCast and damageResist < 1000000:
+                        self.ahpsCast[res[0]].record(event.target, "2," + key, damageResist)
+
 
     def __init__(self, info):
         '''
@@ -217,12 +316,18 @@ class CombatTracker():
         self.info = info
 
         self.absorbBuff = {}
+        self.resistBuff = {}
+        self.shieldDict = {}
+        self.buffRemove = {}  # buff延迟删除
 
         for player in info.player:
             self.hpsCast[player] = HealCastRecorder(1)
             self.ohpsCast[player] = HealCastRecorder(1)
             self.ahpsCast[player] = HealCastRecorder(1)
             self.absorbBuff[player] = {}
+            self.resistBuff[player] = {}
+            self.buffRemove[player] = {}
+            self.shieldDict[player] = "0"
         for player in info.npc:
             self.hpsCast[player] = HealCastRecorder(0)
             self.ohpsCast[player] = HealCastRecorder(0)
