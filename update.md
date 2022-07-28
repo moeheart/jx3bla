@@ -40,10 +40,12 @@
     - (TODO)统计响应式技能
   - (TODO)统计oHPS及无价值oHPS
   - (TODO)统计未解明HPS并推测其有效性
-    - (TODO)统计吸血
+    - 统计吸血
     - (TODO)统计蛊惑
     - (TODO)推测有效性
   - (TODO)统计无意义HPS
+    - (TODO)大针的特殊判定
+    - 寂灭的特殊判定
   - (TODO)计算rHPS
 - (TODO)重写HPS统计模块
 - (TODO)在设置面板中提供一个选角色的功能

@@ -23,7 +23,7 @@ for file in l:
                 playerSkillDict[player][skill] = 0
                 headerDict[skill] = 0
             playerSkillDict[player][skill] += d[player][skill]
-    print(file, d["阿秋秋"]["寂灭成功格挡"], d["阿秋秋"]["寂灭总计次数"])
+    # print(file, d["阿秋秋"]["寂灭成功格挡"], d["阿秋秋"]["寂灭总计次数"])
     #if d["左渭雨@飞鸢泛月"]["寂灭成功格挡"] > d["左渭雨@飞鸢泛月"]["寂灭总计次数"]:
     #    print(file)
 

@@ -59,9 +59,10 @@ class HealCastRecorder():
             resNew = self.specificName(id, real_id)
             if resNew != "":
                 res = resNew
-            nameArray = ["未知", "化解", "减伤"]
+            nameArray = ["未知", "化解", "减伤", "吸血"]
             res = "%s(%s)" % (res, nameArray[int(area)])
-
+            if area == "3":
+                res = "吸血"
         return res
 
 
@@ -171,18 +172,21 @@ class CombatTracker():
 
         print("=================")
 
+        print("[oHPS]", ohps["sumHps"])
+        for player in ohps["player"]:
+            print("[Player]", player, self.info.getName(player), ohps["player"][player]["hps"], ohps["player"][player]["sum"])
+            for skill in ohps["player"][player]["namedSkill"]:
+                print("--[Skill]", skill, ohps["player"][player]["namedSkill"][skill]["sum"],
+                      ohps["player"][player]["namedSkill"][skill]["num"], parseCent(ohps["player"][player]["namedSkill"][skill]["percent"]))
+
+        print("=================")
+
         print("[aHPS]", ahps["sumHps"])
         for player in ahps["player"]:
             print("[Player]", player, self.info.getName(player), ahps["player"][player]["hps"], ahps["player"][player]["sum"])
             for skill in ahps["player"][player]["namedSkill"]:
                 print("--[Skill]", skill, ahps["player"][player]["namedSkill"][skill]["sum"],
                       ahps["player"][player]["namedSkill"][skill]["num"], parseCent(ahps["player"][player]["namedSkill"][skill]["percent"]))
-
-        # print("[oHPS]", ohps["sumHps"])
-        # for player in ohps["player"]:
-        #     print("[Player]", ohps["player"][player]["hps"], ohps["player"][player]["sum"])
-        #     for skill in ohps["player"][player]["skill"]:
-        #         print("--[Skill]", skill, hps["player"][player]["skill"][skill]["name"], ohps["player"][player]["skill"][skill]["sum"], parseCent(ohps["player"][player]["skill"][skill]["percent"]))
 
     def recordBuff(self, event):
         '''
@@ -263,12 +267,37 @@ class CombatTracker():
         self.checkRemoveBuff(event.time, event.target)
 
         # 治疗事件
-        if event.heal > 0 and event.effect != 7:
-            self.hpsCast[event.caster].record(event.target, event.full_id, event.healEff)
-            self.ohpsCast[event.caster].record(event.target, event.full_id, event.heal)
+        if event.heal > 0 and event.effect != 7 and event.caster in self.hpsCast:
+            if event.full_id == '"1,23951,40"':  # 特殊处理寂灭
+                if self.cbyCaster in self.hpsCast:
+                    self.hpsCast[self.cbyCaster].record(event.target, event.full_id, event.healEff)
+                    self.ohpsCast[self.cbyCaster].record(event.target, event.full_id, event.heal)
+            else:
+                self.hpsCast[event.caster].record(event.target, event.full_id, event.healEff)
+                self.ohpsCast[event.caster].record(event.target, event.full_id, event.heal)
         # elif event.heal > 0 and event.effect == 7:
         #     # 插件统计的APS
         #     print("[面板APS]", self.info.getSkillName(event.full_id), event.time, event.target, event.heal, event.id)
+
+        # 根据治疗事件更新血量状态
+        if event.heal > 0 and event.target in self.hpStatus:
+            if event.heal == event.healEff:
+                self.hpStatus[event.target]["healNotFull"] = event.time
+            else:
+                self.hpStatus[event.target]["healFull"] = event.time
+            self.hpStatus[event.target]["estimateHP"] += event.heal
+            if self.hpStatus[event.target]["estimateHP"] > 0:
+                self.hpStatus[event.target]["estimateHP"] = 0
+                self.hpStatus[event.target]["healFull"] = event.time
+
+                # 根据伤害事件更新血量状态
+        if event.damage > 0 and event.target in self.hpStatus:
+            self.hpStatus[event.target]["damage"] = event.time
+            self.hpStatus[event.target]["estimateHP"] -= event.damage
+
+        # 记录一些公有技能的状态
+        if event.id == "3982":
+            self.cbyCaster = event.caster
 
         # 来源于化解的aps
         absorb = int(event.fullResult.get("9", 0))
@@ -289,7 +318,6 @@ class CombatTracker():
         sumDamage = event.damage + absorb
         if sumDamage > 0 and event.target in self.resistBuff:
             # print("[Damage]", event.time, event.target, sumDamage)
-
             # 考虑所有减伤，如果减伤之和大于100%，则不做统计，这种情况一般不可能发生.
             resistSum = 0
             for key in self.resistBuff[event.target]:
@@ -303,6 +331,19 @@ class CombatTracker():
                     if res[0] in self.ahpsCast and damageResist < 1000000:
                         self.ahpsCast[res[0]].record(event.target, "2," + key, damageResist)
 
+        # 从吸血推测HPS
+        xixue = int(event.fullResult.get("7", 0))
+        if xixue > 0 and event.caster in self.hpStatus:
+            print("[Xixue]", event.time, event.caster, xixue)
+            self.ohpsCast[event.caster].record(event.caster, "3," + event.full_id, xixue)
+            if self.hpStatus[event.caster]["damage"] > self.hpStatus[event.caster]["healFull"] or \
+              self.hpStatus[event.caster]["healNotFull"] > self.hpStatus[event.caster]["healFull"]:
+                self.hpsCast[event.caster].record(event.caster, "3," + event.full_id, xixue)
+
+            self.hpStatus[event.caster]["estimateHP"] += xixue
+            if self.hpStatus[event.caster]["estimateHP"] > 0:
+                self.hpStatus[event.caster]["estimateHP"] = 0
+                self.hpStatus[event.caster]["healFull"] = event.time
 
     def __init__(self, info):
         '''
@@ -320,6 +361,10 @@ class CombatTracker():
         self.shieldDict = {}
         self.buffRemove = {}  # buff延迟删除
 
+        self.hpStatus = {}
+
+        self.cbyCaster = "0"  # 记录慈悲愿
+
         for player in info.player:
             self.hpsCast[player] = HealCastRecorder(1)
             self.ohpsCast[player] = HealCastRecorder(1)
@@ -328,6 +373,7 @@ class CombatTracker():
             self.resistBuff[player] = {}
             self.buffRemove[player] = {}
             self.shieldDict[player] = "0"
+            self.hpStatus[player] = {"damage": 0, "healNotFull": 0, "healFull": 0, "estimateHP": 0}
         for player in info.npc:
             self.hpsCast[player] = HealCastRecorder(0)
             self.ohpsCast[player] = HealCastRecorder(0)
