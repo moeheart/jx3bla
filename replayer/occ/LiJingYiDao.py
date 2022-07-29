@@ -861,6 +861,16 @@ class LiJingYiDaoReplayer(ReplayerBase):
                 # 统计寒清
                 if event.id in ["18274"] and event.target in hanqingNumDict: # and event.caster == self.mykey:
                     hanqingNumDict[event.target] += 1
+                    # print("[HanqingFlag]", event.time, event.target, self.bld.info.player[event.target].name)
+
+                # # 统计握针
+                # if event.target in self.bld.info.player and event.caster == self.mykey:
+                # # if event.id in ["631"] and event.target in self.bld.info.player:  # and event.caster == self.mykey:
+                #     print("[HealFlag]", event.time, event.target, self.bld.info.player[event.target].name, event.healEff, event.full_id, self.bld.info.getSkillName(event.full_id))
+                #
+                # # 统计任意伤害
+                # if event.target in self.bld.info.player and event.damage > 0:
+                #     print("[Damage]", event.time, event.target, self.bld.info.player[event.target].name, event.damage, self.bld.info.getSkillName(event.full_id))
 
             elif event.dataType == "Buff":
                 if event.id == "需要处理的buff！现在还没有":
@@ -890,7 +900,7 @@ class LiJingYiDaoReplayer(ReplayerBase):
                 if event.id in ["631"] and event.caster == self.mykey and event.target in self.bld.info.player:  # 握针
                     wozhenDict[event.target].setState(event.time, event.stack, int((event.end - event.frame + 3) * 62.5))
                     # teamLog, teamLastTime = countCluster(teamLog, teamLastTime, event)
-                    # print("[WozhenTest]", event.time, event.id, event.stack)
+                    # print("[WozhenTest]", event.time, event.id, event.stack, self.bld.info.player[event.target].name, event.end - event.frame)
                 if event.id in ["5693"] and event.caster == self.mykey and event.target in self.bld.info.player:  # 述怀
                     shuhuaiDict[event.target].setState(event.time, event.stack, int((event.end - event.frame + 3) * 62.5))
                     # teamLog, teamLastTime = countCluster(teamLog, teamLastTime, event)

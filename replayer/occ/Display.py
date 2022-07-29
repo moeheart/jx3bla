@@ -43,7 +43,11 @@ class SingleSkillDisplayer():
             # 查找成功
             num = self.rank[name][key]["num"]
             percent = self.rank[name][key]["percent"]
-            if percent >= 95:
+            if percent == 100:
+                color = "#e5cc80"
+            elif percent == 99:
+                color = "#e268a8"
+            elif percent >= 95:
                 color = "#ff7700"
             elif percent >= 75:
                 color = "#330077"

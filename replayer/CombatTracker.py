@@ -59,10 +59,12 @@ class HealCastRecorder():
             resNew = self.specificName(id, real_id)
             if resNew != "":
                 res = resNew
-            nameArray = ["未知", "化解", "减伤", "吸血"]
+            nameArray = ["未知", "化解", "减伤", "吸血", "蛊惑", "响应"]
             res = "%s(%s)" % (res, nameArray[int(area)])
             if area == "3":
                 res = "吸血"
+            if area == "4":
+                res = "蛊惑众生"
         return res
 
 
@@ -236,6 +238,13 @@ class CombatTracker():
             # if event.id == "9336":
             #     print("[Buff9336]", event.time, event.id, event.stack)
 
+        # 记录蛊惑
+        if event.id in ["2316"]:  # 蛊惑众生
+            if event.stack == 1:
+                self.guHuoTarget[event.caster] = event.target
+            else:
+                self.guHuoTarget[event.caster] = "0"
+
     def checkRemoveBuff(self, time, target):
         '''
         在事件开始前将待移除列表的buff尝试移除的方法.
@@ -268,13 +277,32 @@ class CombatTracker():
 
         # 治疗事件
         if event.heal > 0 and event.effect != 7 and event.caster in self.hpsCast:
+            hanQingFlag = 0
+            if event.full_id == '"2,631,29"':  # 特殊处理寒清
+                if event.target in self.hanQingTime and event.time - self.hanQingTime[event.target] < 500:
+                    hanQingFlag = 1
+                    self.hanQingTime[event.target] = 0
             if event.full_id == '"1,23951,40"':  # 特殊处理寂灭
                 if self.cbyCaster in self.hpsCast:
                     self.hpsCast[self.cbyCaster].record(event.target, event.full_id, event.healEff)
                     self.ohpsCast[self.cbyCaster].record(event.target, event.full_id, event.heal)
+            elif event.full_id in ['"1,23951,70"']:  # 特殊处理大针
+                pass
+            elif hanQingFlag:  # 寒清的响应式统计
+                self.ahpsCast[event.caster].record(event.target, "5," + event.full_id, event.healEff)
+            elif event.full_id in ['"1,29748,1"', '"1,23951,2"']:  # 其它响应式处理
+                self.ahpsCast[event.caster].record(event.target, "5," + event.full_id, event.healEff)
             else:
                 self.hpsCast[event.caster].record(event.target, event.full_id, event.healEff)
                 self.ohpsCast[event.caster].record(event.target, event.full_id, event.heal)
+                # 推算蛊惑产生的治疗量
+                if event.caster in self.guHuoTarget and self.guHuoTarget[event.caster] != "0" and event.healEff > 0:
+                    target = self.guHuoTarget[event.caster]
+                    self.ohpsCast[event.caster].record(event.caster, "4," + event.full_id, event.healEff * 0.5)
+                    if self.hpStatus[event.caster]["damage"] > self.hpStatus[event.caster]["healFull"] or \
+                            self.hpStatus[event.caster]["healNotFull"] > self.hpStatus[event.caster]["healFull"]:
+                        self.hpsCast[event.caster].record(target, "4," + event.full_id, event.healEff * 0.5)
+
         # elif event.heal > 0 and event.effect == 7:
         #     # 插件统计的APS
         #     print("[面板APS]", self.info.getSkillName(event.full_id), event.time, event.target, event.heal, event.id)
@@ -290,7 +318,7 @@ class CombatTracker():
                 self.hpStatus[event.target]["estimateHP"] = 0
                 self.hpStatus[event.target]["healFull"] = event.time
 
-                # 根据伤害事件更新血量状态
+        # 根据伤害事件更新血量状态
         if event.damage > 0 and event.target in self.hpStatus:
             self.hpStatus[event.target]["damage"] = event.time
             self.hpStatus[event.target]["estimateHP"] -= event.damage
@@ -298,6 +326,8 @@ class CombatTracker():
         # 记录一些公有技能的状态
         if event.id == "3982":
             self.cbyCaster = event.caster
+        if event.id == "18274" and event.target in self.hanQingTime:
+            self.hanQingTime[event.target] = event.time
 
         # 来源于化解的aps
         absorb = int(event.fullResult.get("9", 0))
@@ -334,7 +364,7 @@ class CombatTracker():
         # 从吸血推测HPS
         xixue = int(event.fullResult.get("7", 0))
         if xixue > 0 and event.caster in self.hpStatus:
-            print("[Xixue]", event.time, event.caster, xixue)
+            # print("[Xixue]", event.time, event.caster, xixue)
             self.ohpsCast[event.caster].record(event.caster, "3," + event.full_id, xixue)
             if self.hpStatus[event.caster]["damage"] > self.hpStatus[event.caster]["healFull"] or \
               self.hpStatus[event.caster]["healNotFull"] > self.hpStatus[event.caster]["healFull"]:
@@ -364,6 +394,8 @@ class CombatTracker():
         self.hpStatus = {}
 
         self.cbyCaster = "0"  # 记录慈悲愿
+        self.guHuoTarget = {}  # 记录蛊惑
+        self.hanQingTime = {}  # 记录寒清时间
 
         for player in info.player:
             self.hpsCast[player] = HealCastRecorder(1)
@@ -374,6 +406,8 @@ class CombatTracker():
             self.buffRemove[player] = {}
             self.shieldDict[player] = "0"
             self.hpStatus[player] = {"damage": 0, "healNotFull": 0, "healFull": 0, "estimateHP": 0}
+            self.guHuoTarget[player] = "0"
+            self.hanQingTime[player] = 0
         for player in info.npc:
             self.hpsCast[player] = HealCastRecorder(0)
             self.ohpsCast[player] = HealCastRecorder(0)
