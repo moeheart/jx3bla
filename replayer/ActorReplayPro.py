@@ -767,6 +767,7 @@ class ActorProReplayer(ReplayerBase):
         self.battleTime += 1e-10  # 防止0战斗时间导致错误
 
         combatTracker.export(self.battleTime)
+        self.combatTracker = combatTracker
 
         # 修罗统计3
         for line in skillCheckDict:
@@ -973,6 +974,7 @@ class ActorProReplayer(ReplayerBase):
         '''
         self.occResult = {}
         actorData = {}
+        self.actorData = actorData
         actorData["startTime"] = self.startTime
         actorData["finalTime"] = self.finalTime
         actorData["win"] = self.win
@@ -980,6 +982,7 @@ class ActorProReplayer(ReplayerBase):
         actorData["battleDict"] = self.battleDict
         actorData["deathDict"] = self.deathDict
         actorData["unusualDeathDict"] = self.unusualDeathDict
+        actorData["act"] = self.combatTracker
         for id in self.bld.info.player:
             if self.config.item["xiangzhi"]["active"] and self.occDetailList[id] == "22h":  # 奶歌
                 name = self.bld.info.player[id].name

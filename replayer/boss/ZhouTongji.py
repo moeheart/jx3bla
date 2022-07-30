@@ -21,6 +21,7 @@ class ZhouTongjiWindow(SpecificBossWindow):
         '''
 
         self.setTimelineWindow(self.bh, "周通忌")
+        self.setCombatTrackerWindow(self.act)
 
         window = tk.Toplevel()
         window.title('周通忌复盘')
@@ -101,19 +102,23 @@ class ZhouTongjiWindow(SpecificBossWindow):
         frame3.pack()
         buttonPrev = tk.Button(frame3, text='<<', width=2, height=1, command=self.openPrev)
         submitButton = tk.Button(frame3, text='战斗事件记录', command=self.openPot)
+        actButton = tk.Button(frame3, text='数值统计', command=self.openCombatTrackerWindow)
         timelineButton = tk.Button(frame3, text='时间轴', command=self.openTimelineWindow)
         buttonNext = tk.Button(frame3, text='>>', width=2, height=1, command=self.openNext)
         buttonPrev.grid(row=0, column=0)
         submitButton.grid(row=0, column=1)
-        timelineButton.grid(row=0, column=2)
-        buttonNext.grid(row=0, column=3)
+        actButton.grid(row=0, column=2)
+        timelineButton.grid(row=0, column=3)
+        buttonNext.grid(row=0, column=4)
 
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
 
-    def __init__(self, config, effectiveDPSList, detail, occResult, bh):
+    def __init__(self, config, effectiveDPSList, detail, occResult, analysedBattleData):
         super().__init__(config, effectiveDPSList, detail, occResult)
-        self.bh = bh
+        self.analysedBattleData = analysedBattleData
+        self.bh = self.analysedBattleData["bossBh"]
+        self.act = self.analysedBattleData["act"]
 
 class ZhouTongjiReplayer(SpecificReplayerPro):
 

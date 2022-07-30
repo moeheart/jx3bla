@@ -136,7 +136,8 @@ class RHpsRecorder():
         if target in self.records:
             rate = self.effHps[target] / (self.sumHps[target] + 1e-10)
             for line in self.records[target]:
-                recorder[line["caster"]].record(target, line["full_id"], line["heal"] * rate)
+                if line["caster"] in recorder:
+                    recorder[line["caster"]].record(target, line["full_id"], line["heal"] * rate)
 
         self.records[target] = []
         self.effHps[target] = 0
@@ -193,6 +194,7 @@ class CombatTracker():
                                          "skill": self.hpsCast[player].skill,
                                          "namedSkill": self.hpsCast[player].namedSkill}
                 hps["sumHps"] += hps["player"][player]["hps"]
+        self.hps = hps
 
         # ohps
         ohps = {"sumHps": 0, "player": {}}
@@ -204,6 +206,7 @@ class CombatTracker():
                                           "skill": self.ohpsCast[player].skill,
                                           "namedSkill": self.ohpsCast[player].namedSkill}
                 ohps["sumHps"] += ohps["player"][player]["hps"]
+        self.ohps = ohps
 
         # ahps
         ahps = {"sumHps": 0, "player": {}}
@@ -215,6 +218,7 @@ class CombatTracker():
                                           "skill": self.ahpsCast[player].skill,
                                           "namedSkill": self.ahpsCast[player].namedSkill}
                 ahps["sumHps"] += ahps["player"][player]["hps"]
+        self.ahps = ahps
 
         # rhps
         rhps = {"sumHps": 0, "player": {}}
@@ -226,6 +230,8 @@ class CombatTracker():
                                           "skill": self.rhpsCast[player].skill,
                                           "namedSkill": self.rhpsCast[player].namedSkill}
                 rhps["sumHps"] += rhps["player"][player]["hps"]
+        self.rhps = rhps
+
 
         # 简单展示类
         print("[HPS]", hps["sumHps"])
@@ -343,6 +349,10 @@ class CombatTracker():
         '''
         记录技能事件.
         '''
+
+        if event.target not in self.hpStatus:
+            self.hpStatus[event.target] = {"damage": 0, "healNotFull": 0, "healFull": 0, "estimateHP": 0, "status": 0,
+                                           "fullTime": 0}
 
         # 先检验是否有需要移除的buff
         self.checkRemoveBuff(event.time, event.target)

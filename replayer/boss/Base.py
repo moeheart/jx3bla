@@ -7,6 +7,7 @@ import threading
 import tkinter as tk
 from replayer.TableConstructor import TableConstructor, ToolTip
 from window.TimelineWindow import TimelineWindow
+from window.CombatTrackerWindow import CombatTrackerWindow
 
 class SpecificBossWindow():
 
@@ -62,6 +63,19 @@ class SpecificBossWindow():
         '''
         self.timelineWindow = TimelineWindow()
         self.timelineWindow.setData(data, boss)
+
+    def openCombatTrackerWindow(self):
+        '''
+        打开时间轴窗口。
+        '''
+        self.combatTrackerWindow.start()
+
+    def setCombatTrackerWindow(self, act):
+        '''
+        设置统计结果对象.
+        - act: 统计结果对象
+        '''
+        self.combatTrackerWindow = CombatTrackerWindow(act)
 
     def final(self):
         '''
