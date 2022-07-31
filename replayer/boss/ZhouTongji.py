@@ -102,7 +102,7 @@ class ZhouTongjiWindow(SpecificBossWindow):
         frame3.pack()
         buttonPrev = tk.Button(frame3, text='<<', width=2, height=1, command=self.openPrev)
         submitButton = tk.Button(frame3, text='战斗事件记录', command=self.openPot)
-        actButton = tk.Button(frame3, text='数值统计', command=self.openCombatTrackerWindow)
+        actButton = tk.Button(frame3, text='数值统计', command=self.openCombatTrackerWindow, bg='#777777')
         timelineButton = tk.Button(frame3, text='时间轴', command=self.openTimelineWindow)
         buttonNext = tk.Button(frame3, text='>>', width=2, height=1, command=self.openNext)
         buttonPrev.grid(row=0, column=0)

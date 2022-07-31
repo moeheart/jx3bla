@@ -91,7 +91,6 @@ class HealCastRecorder():
                 for key in ["sum", "num", "percent"]:
                     self.namedSkill[self.skill[skill]["name"]][key] += self.skill[skill][key]
 
-
     def record(self, target, skill, value):
         '''
         记录一次治疗事件.
@@ -180,93 +179,102 @@ class CombatTracker():
         - time: 战斗时间.
         '''
 
+        self.time = time
+
         # 脱战时对缓冲区的结算.
         for player in self.hpStatus:
             self.rhpsRecorder.popTarget(player, self.rhpsCast)
 
         # hps
-        hps = {"sumHps": 0, "player": {}}
+        hps = {"sum": 0, "player": {}}
         for player in self.hpsCast:
             self.hpsCast[player].export(time, self.info)
             if self.hpsCast[player].hps > 0:
                 hps["player"][player] = {"sum": self.hpsCast[player].sum,
                                          "hps": self.hpsCast[player].hps,
                                          "skill": self.hpsCast[player].skill,
-                                         "namedSkill": self.hpsCast[player].namedSkill}
-                hps["sumHps"] += hps["player"][player]["hps"]
+                                         "namedSkill": self.hpsCast[player].namedSkill,
+                                         "name": self.info.getName(player),
+                                         "occ": self.info.getOcc(player)}
+                hps["sum"] += hps["player"][player]["hps"]
         self.hps = hps
 
         # ohps
-        ohps = {"sumHps": 0, "player": {}}
+        ohps = {"sum": 0, "player": {}}
         for player in self.ohpsCast:
             self.ohpsCast[player].export(time, self.info)
             if self.ohpsCast[player].hps > 0:
                 ohps["player"][player] = {"sum": self.ohpsCast[player].sum,
                                           "hps": self.ohpsCast[player].hps,
                                           "skill": self.ohpsCast[player].skill,
-                                          "namedSkill": self.ohpsCast[player].namedSkill}
-                ohps["sumHps"] += ohps["player"][player]["hps"]
+                                          "namedSkill": self.ohpsCast[player].namedSkill,
+                                          "name": self.info.getName(player),
+                                          "occ": self.info.getOcc(player)}
+                ohps["sum"] += ohps["player"][player]["hps"]
         self.ohps = ohps
 
         # ahps
-        ahps = {"sumHps": 0, "player": {}}
+        ahps = {"sum": 0, "player": {}}
         for player in self.ahpsCast:
             self.ahpsCast[player].export(time, self.info)
             if self.ahpsCast[player].hps > 0:
                 ahps["player"][player] = {"sum": self.ahpsCast[player].sum,
                                           "hps": self.ahpsCast[player].hps,
                                           "skill": self.ahpsCast[player].skill,
-                                          "namedSkill": self.ahpsCast[player].namedSkill}
-                ahps["sumHps"] += ahps["player"][player]["hps"]
+                                          "namedSkill": self.ahpsCast[player].namedSkill,
+                                          "name": self.info.getName(player),
+                                          "occ": self.info.getOcc(player)}
+                ahps["sum"] += ahps["player"][player]["hps"]
         self.ahps = ahps
 
         # rhps
-        rhps = {"sumHps": 0, "player": {}}
+        rhps = {"sum": 0, "player": {}}
         for player in self.rhpsCast:
             self.rhpsCast[player].export(time, self.info)
             if self.rhpsCast[player].hps > 0:
                 rhps["player"][player] = {"sum": self.rhpsCast[player].sum,
                                           "hps": self.rhpsCast[player].hps,
                                           "skill": self.rhpsCast[player].skill,
-                                          "namedSkill": self.rhpsCast[player].namedSkill}
-                rhps["sumHps"] += rhps["player"][player]["hps"]
+                                          "namedSkill": self.rhpsCast[player].namedSkill,
+                                          "name": self.info.getName(player),
+                                          "occ": self.info.getOcc(player)}
+                rhps["sum"] += rhps["player"][player]["hps"]
         self.rhps = rhps
 
-
-        # 简单展示类
-        print("[HPS]", hps["sumHps"])
-        for player in hps["player"]:
-            print("[Player]", player, self.info.getName(player), hps["player"][player]["hps"], hps["player"][player]["sum"])
-            for skill in hps["player"][player]["namedSkill"]:
-                print("--[Skill]", skill, hps["player"][player]["namedSkill"][skill]["sum"],
-                      hps["player"][player]["namedSkill"][skill]["num"], parseCent(hps["player"][player]["namedSkill"][skill]["percent"]))
-
-        print("=================")
-
-        print("[oHPS]", ohps["sumHps"])
-        for player in ohps["player"]:
-            print("[Player]", player, self.info.getName(player), ohps["player"][player]["hps"], ohps["player"][player]["sum"])
-            for skill in ohps["player"][player]["namedSkill"]:
-                print("--[Skill]", skill, ohps["player"][player]["namedSkill"][skill]["sum"],
-                      ohps["player"][player]["namedSkill"][skill]["num"], parseCent(ohps["player"][player]["namedSkill"][skill]["percent"]))
-
-        print("=================")
-
-        print("[aHPS]", ahps["sumHps"])
-        for player in ahps["player"]:
-            print("[Player]", player, self.info.getName(player), ahps["player"][player]["hps"], ahps["player"][player]["sum"])
-            for skill in ahps["player"][player]["namedSkill"]:
-                print("--[Skill]", skill, ahps["player"][player]["namedSkill"][skill]["sum"],
-                      ahps["player"][player]["namedSkill"][skill]["num"], parseCent(ahps["player"][player]["namedSkill"][skill]["percent"]))
-
-        print("=================")
-
-        print("[rHPS]", rhps["sumHps"])
-        for player in rhps["player"]:
-            print("[Player]", player, self.info.getName(player), rhps["player"][player]["hps"], rhps["player"][player]["sum"])
-            for skill in rhps["player"][player]["namedSkill"]:
-                print("--[Skill]", skill, rhps["player"][player]["namedSkill"][skill]["sum"],
-                      rhps["player"][player]["namedSkill"][skill]["num"], parseCent(rhps["player"][player]["namedSkill"][skill]["percent"]))
+        # # 简单展示
+        # print("[HPS]", hps["sum"])
+        # for player in hps["player"]:
+        #     print("[Player]", player, self.info.getName(player), hps["player"][player]["hps"], hps["player"][player]["sum"])
+        #     for skill in hps["player"][player]["namedSkill"]:
+        #         print("--[Skill]", skill, hps["player"][player]["namedSkill"][skill]["sum"],
+        #               hps["player"][player]["namedSkill"][skill]["num"], parseCent(hps["player"][player]["namedSkill"][skill]["percent"]))
+        #
+        # print("=================")
+        #
+        # print("[oHPS]", ohps["sum"])
+        # for player in ohps["player"]:
+        #     print("[Player]", player, self.info.getName(player), ohps["player"][player]["hps"], ohps["player"][player]["sum"])
+        #     for skill in ohps["player"][player]["namedSkill"]:
+        #         print("--[Skill]", skill, ohps["player"][player]["namedSkill"][skill]["sum"],
+        #               ohps["player"][player]["namedSkill"][skill]["num"], parseCent(ohps["player"][player]["namedSkill"][skill]["percent"]))
+        #
+        # print("=================")
+        #
+        # print("[aHPS]", ahps["sum"])
+        # for player in ahps["player"]:
+        #     print("[Player]", player, self.info.getName(player), ahps["player"][player]["hps"], ahps["player"][player]["sum"])
+        #     for skill in ahps["player"][player]["namedSkill"]:
+        #         print("--[Skill]", skill, ahps["player"][player]["namedSkill"][skill]["sum"],
+        #               ahps["player"][player]["namedSkill"][skill]["num"], parseCent(ahps["player"][player]["namedSkill"][skill]["percent"]))
+        #
+        # print("=================")
+        #
+        # print("[rHPS]", rhps["sum"])
+        # for player in rhps["player"]:
+        #     print("[Player]", player, self.info.getName(player), rhps["player"][player]["hps"], rhps["player"][player]["sum"])
+        #     for skill in rhps["player"][player]["namedSkill"]:
+        #         print("--[Skill]", skill, rhps["player"][player]["namedSkill"][skill]["sum"],
+        #               rhps["player"][player]["namedSkill"][skill]["num"], parseCent(rhps["player"][player]["namedSkill"][skill]["percent"]))
 
     def recordBuff(self, event):
         '''
@@ -412,8 +420,8 @@ class CombatTracker():
                 self.hpStatus[event.target]["fullTime"] = 0
                 self.hpStatus[event.target]["status"] = 0  # 满血期
                 self.rhpsRecorder.popTarget(event.target, self.rhpsCast)  # rHPS结算
-                if event.target in self.info.player:
-                    print("[PopTarget]", event.time, event.target, self.info.player[event.target].name)
+                # if event.target in self.info.player:
+                #     print("[PopTarget]", event.time, event.target, self.info.player[event.target].name)
 
             self.hpStatus[event.target]["estimateHP"] += event.heal
             if self.hpStatus[event.target]["estimateHP"] > 0:

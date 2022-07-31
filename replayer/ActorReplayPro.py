@@ -983,6 +983,7 @@ class ActorProReplayer(ReplayerBase):
         actorData["deathDict"] = self.deathDict
         actorData["unusualDeathDict"] = self.unusualDeathDict
         actorData["act"] = self.combatTracker
+        actorData["occDetailList"] = self.occDetailList
         for id in self.bld.info.player:
             if self.config.item["xiangzhi"]["active"] and self.occDetailList[id] == "22h":  # 奶歌
                 name = self.bld.info.player[id].name

@@ -421,6 +421,15 @@ class OverallData():
         else:
             return full_id
 
+    def getOcc(self, key):
+        '''
+        根据玩家或NPC的ID获取心法，防止player和npc类中不存在的问题.
+        '''
+        if key in self.player:
+            return self.player[key].occ
+        else:
+            return "0"
+
     def getName(self, key):
         '''
         根据玩家或NPC的ID获取名字，防止player和npc类中不存在的问题.
