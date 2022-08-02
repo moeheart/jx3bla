@@ -181,6 +181,7 @@ class YunChangXinJingWindow(HealerDisplayWindow):
 
         info1Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         info1Displayer.setSingle("int", "垂眉HPS", "xlwl", "chuimeiHPS")
+        info1Displayer.setSingle("int", "双鸾次数", "xlwl", "shuangluanNum")
         info1Displayer.setDouble("rate", "跳珠数量", "tzhy", "num", "numPerSec")
         info1Displayer.setSingle("int", "跳珠HPS", "tzhy", "HPS")
         info1Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
@@ -1176,6 +1177,7 @@ class YunChangXinJingReplayer(ReplayerBase):
         sum = mufengDict.buffTimeIntegral()
         self.result["skill"]["mufeng"]["cover"] = roundCent(sum / (num + 1e-10))
         self.result["skill"]["xlwl"]["chuimeiHPS"] = int(chuimeiHeal / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"]["xlwl"]["shuangluanNum"] = xlwlSkill.getNum() + sydhSkill.getNum()  # 注意这两个放在翔舞底下，但是实际上是翔舞+上元的数据
         self.result["skill"]["tzhy"] = {}
         self.result["skill"]["tzhy"]["num"] = tzhySkill.getNum()
         self.result["skill"]["tzhy"]["numPerSec"] = roundCent(
