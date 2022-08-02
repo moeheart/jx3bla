@@ -129,7 +129,7 @@ class XiangZhiProWindow(HealerDisplayWindow):
         info1Displayer.export_text(frame5, 6)
 
         info2Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
-        info2Displayer.setSingle("int", "APS估算", "general", "APS")
+        # info2Displayer.setSingle("int", "APS估算", "general", "APS")
         info2Displayer.setSingle("int", "桑柔DPS", "general", "SangrouDPS")
         info2Displayer.setSingle("int", "庄周梦DPS", "general", "ZhuangzhouDPS")
         info2Displayer.setSingle("int", "玉简DPS", "general", "YujianDPS")
@@ -334,7 +334,7 @@ class XiangZhiProWindow(HealerDisplayWindow):
         tk.Label(frame9, text="相知PVE群：538939220").place(x=20, y=40)
         if "shortID" in self.result["overall"]:
             tk.Label(frame9, text="复盘编号：%s"%self.result["overall"]["shortID"]).place(x=20, y=70)
-            b2 = tk.Button(frame9, text='在网页中打开', height=1, command=self.OpenInWeb)
+            b2 = tk.Button(frame9, text='在网页中打开', height=1, command=self.OpenInWeb, bg='#777777')
             b2.place(x=40, y=90)
 
         tk.Label(frame9, text="广告位招租").place(x=40, y=140)
@@ -415,7 +415,6 @@ class XiangZhiProReplayer(ReplayerBase):
 
         # 记录所有治疗的key，首先尝试直接使用心法列表获取.
         self.healerDict = {}
-        XiangZhiList = []
 
         # 记录具体心法的表.
         occDetailList = {}
@@ -444,12 +443,9 @@ class XiangZhiProReplayer(ReplayerBase):
                 continue
 
             if event.dataType == "Skill":
-                # 记录奶歌和治疗心法的出现情况.
-                if event.caster not in XiangZhiList and event.id in ["14231", "14140", "14301"]:  # 奶歌的特征技能
-                    XiangZhiList.append(event.caster)
-                    self.healerDict[event.caster] = 0
-                if event.caster not in self.healerDict and event.id in ["565", "554", "555", "2232", "6662", "2233", "6675",
-                                                                  "2231", "101", "142", "138", "16852", "18864", "27621", "27623", "28083"]:  # 其它治疗的特征技能
+                # 记录治疗心法的出现情况.
+                if event.caster not in self.healerDict and event.id in ["14231", "14140", "14301", "565", "554", "555", "2232", "6662", "2233", "6675",
+                                                                  "2231", "101", "142", "138", "16852", "18864", "27621", "27623", "28083"]:  # 治疗的特征技能
                     self.healerDict[event.caster] = 0
 
                 # 记录主动贴盾，主要是为了防止复盘记录中的数据丢失。
@@ -557,8 +553,6 @@ class XiangZhiProReplayer(ReplayerBase):
 
         occDetailList = self.occDetailList
 
-        #data = XiangZhiData()
-
         num = 0
         skillLog = []
 
@@ -575,15 +569,12 @@ class XiangZhiProReplayer(ReplayerBase):
 
         numHeal = 0
         numEffHeal = 0
-        numAbsorb1 = 0  # jx3dat推测的化解
-        numAbsorb2 = 0  # 战斗记录推测的化解
+        # numAbsorb1 = 0  # jx3dat推测的化解
+        # numAbsorb2 = 0  # 战斗记录推测的化解
         npcHealStat = {}
         numPurge = 0 # 驱散次数
         battleStat = {}  # 伤害占比统计，[无盾伤害，有盾伤害，桑柔伤害，玉简伤害]
         damageDict = {}  # 伤害统计
-        healStat = {}  # 治疗统计
-        myHealRank = 0  # 个人治疗量排名
-        numHealer = 0  # 治疗数量
         rateDict = {}  # 盾覆盖率
         breakDict = {}  # 破盾次数
         battleTimeDict = {}  # 进战时间
@@ -742,20 +733,10 @@ class XiangZhiProReplayer(ReplayerBase):
             if event.dataType == "Skill":
                 # 统计化解(暂时只能统计jx3dat的，因为jcl里压根没有)
                 if event.effect == 7:
-                    numAbsorb1 += event.healEff
+                    pass
+                    # numAbsorb1 += event.healEff
                 else:
                     # 所有治疗技能都不计算化解.
-                    # 统计自身治疗
-                    if event.caster == self.mykey and event.heal != 0:
-                        numHeal += event.heal
-                        numEffHeal += event.healEff
-
-                    # 统计团队治疗
-                    if event.heal + event.healEff > 0 and event.effect != 7 and event.caster in self.healerDict:
-                        if event.caster not in healStat:
-                            healStat[event.caster] = [0, 0]
-                        healStat[event.caster][0] += event.healEff
-                        healStat[event.caster][1] += event.heal
 
                     # 统计自身技能使用情况.
                     # if event.caster == self.mykey and event.scheme == 1 and event.id in xiangZhiUnimportant and event.heal != 0:
@@ -892,15 +873,15 @@ class XiangZhiProReplayer(ReplayerBase):
                                 npcHealStat[event.caster] = 0
                             npcHealStat[event.caster] += event.healEff
 
-                    # 尝试统计化解
-                    if event.target in self.bld.info.player:
-                        absorb = int(event.fullResult.get("9", 0))
-                        if absorb > 0:
-                            meihua = self.shieldCountersNew[event.target].checkState(event.time - 100)
-                            nongmei = nongmeiDict[event.target].checkState(event.time - 100)
-                            longkui = longkuiDict[event.target].checkState(event.time - 300)
-                            if (meihua or nongmei) and not longkui:
-                                numAbsorb2 += absorb
+                    # # 尝试统计化解
+                    # if event.target in self.bld.info.player:
+                    #     absorb = int(event.fullResult.get("9", 0))
+                    #     if absorb > 0:
+                    #         meihua = self.shieldCountersNew[event.target].checkState(event.time - 100)
+                    #         nongmei = nongmeiDict[event.target].checkState(event.time - 100)
+                    #         longkui = longkuiDict[event.target].checkState(event.time - 300)
+                    #         if (meihua or nongmei) and not longkui:
+                    #             numAbsorb2 += absorb
 
                 # 统计伤害技能
                 if event.damageEff > 0 and event.id not in ["24710", "24730", "25426", "25445"]:  # 技能黑名单
@@ -1049,35 +1030,27 @@ class XiangZhiProReplayer(ReplayerBase):
 
         # 计算团队治疗区(Part 3)
         self.result["healer"] = {"table": [], "numHealer": 0}
-        healList = dictToPairs(healStat)
-        healList.sort(key=lambda x: -x[1][0])
 
-        sumHeal = 0
-        numid = 0
-        topHeal = 0
-        myHealStat = {"hps": 0, "ohps": 0}
-        for line in healList:
-            if numid == 0:
-                topHeal = line[1][0]
-            sumHeal += line[1][0]
-            numid += 1
-            if line[0] == self.mykey and myHealRank == 0:
-                myHealRank = numid
-            # 当前逻辑为治疗量大于第一的20%才被记为治疗，否则为老板
-            if line[1][0] > topHeal * 0.2:
-                numHealer += 1
-        if myHealRank > numHealer:
-            numHealer = myHealRank
-        self.result["healer"]["numHealer"] = numHealer
-        for line in healList:
-            res = {"name": self.bld.info.player[line[0]].name,
-                   "occ": self.bld.info.player[line[0]].occ,
-                   "healEff": int(line[1][0] / self.result["overall"]["sumTime"] * 1000),
-                   "heal": int(line[1][1] / self.result["overall"]["sumTime"] * 1000)}
-            self.result["healer"]["table"].append(res)
-            if line[0] == self.mykey:
-                myHealStat["hps"] = res["healEff"]
-                myHealStat["ohps"] = res["heal"]
+        myHealStat = {}
+        for player in self.act.rhps["player"]:
+            if player in self.healerDict:
+                self.result["healer"]["numHealer"] += 1
+                res = {"rhps": int(self.act.rhps["player"][player]["hps"]),
+                       "name": self.act.rhps["player"][player]["name"],
+                       "occ": self.bld.info.player[player].occ}
+                if player in self.act.hps["player"]:
+                    res["hps"] = int(self.act.hps["player"][player]["hps"])
+                if player in self.act.ahps["player"]:
+                    res["ahps"] = int(self.act.ahps["player"][player]["hps"])
+                if player in self.act.ohps["player"]:
+                    res["ohps"] = int(self.act.ohps["player"][player]["hps"])
+                res["heal"] = res.get("ohps", 0)
+                res["healEff"] = res.get("hps", 0)
+                if player == self.mykey:
+                    myHealStat = res
+                self.result["healer"]["table"].append(res)
+        self.result["healer"]["table"].sort(key=lambda x: -x["rhps"])
+        # print(myHealStat)
 
         # 计算DPS列表(Part 7)
         self.result["dps"] = {"table": [], "numDPS": 0}
@@ -1245,7 +1218,7 @@ class XiangZhiProReplayer(ReplayerBase):
         self.result["skill"]["mufeng"]["cover"] = roundCent(sum / (num + 1e-10))
         # 整体
         self.result["skill"]["general"] = {}
-        self.result["skill"]["general"]["APS"] = int(numAbsorb2 / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"]["general"]["APS"] = myHealStat["ahps"]
         self.result["skill"]["general"]["SangrouDPS"] = int(numdam2 / self.result["overall"]["sumTime"] * 1000)
         self.result["skill"]["general"]["ZhuangzhouDPS"] = int(numdam1 / self.result["overall"]["sumTime"] * 1000)
         self.result["skill"]["general"]["YujianDPS"] = int(numdam3 / self.result["overall"]["sumTime"] * 1000)
@@ -1265,6 +1238,10 @@ class XiangZhiProReplayer(ReplayerBase):
         self.result["skill"]["healer"] = {}
         self.result["skill"]["healer"]["heal"] = myHealStat["ohps"]
         self.result["skill"]["healer"]["healEff"] = myHealStat["hps"]
+        self.result["skill"]["healer"]["ohps"] = myHealStat["ohps"]
+        self.result["skill"]["healer"]["hps"] = myHealStat["hps"]
+        self.result["skill"]["healer"]["rhps"] = myHealStat["rhps"]
+        self.result["skill"]["healer"]["ahps"] = myHealStat["ahps"]
 
         self.getRankFromStat("xiangzhi")
         self.result["rank"] = self.rank
@@ -1435,13 +1412,13 @@ class XiangZhiProReplayer(ReplayerBase):
         res["status"] = getRateStatus(res["rate"], 75, 0, 0)
         self.result["review"]["content"].append(res)
 
-        # code 106 使用`角`(TODO)
-        sum = battleTimeDict[self.mykey]
-        num = jueOverallCounter.buffTimeIntegral()
-        cover = roundCent(num / (sum + 1e-10))
-        res = {"code": 106, "cover": cover, "rate": cover}
-        res["status"] = getRateStatus(res["rate"], 50, 0, 0)
-        self.result["review"]["content"].append(res)
+        # # code 106 使用`角`
+        # sum = battleTimeDict[self.mykey]
+        # num = jueOverallCounter.buffTimeIntegral()
+        # cover = roundCent(num / (sum + 1e-10))
+        # res = {"code": 106, "cover": cover, "rate": cover}
+        # res["status"] = getRateStatus(res["rate"], 50, 0, 0)
+        # self.result["review"]["content"].append(res)
 
         # 排序
         self.result["review"]["content"].sort(key=lambda x:-x["status"] * 1000 + x["rate"])

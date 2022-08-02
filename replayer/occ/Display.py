@@ -373,8 +373,12 @@ class HealerDisplayWindow():
 
         tb = TableConstructor(self.config, frame3sub)
         tb.AppendHeader("玩家名", "", width=13)
-        tb.AppendHeader("有效HPS", "最常用语境下的每秒治疗量，注意包含重伤时间。")
-        tb.AppendHeader("虚条HPS", "指虚条的最右端，包含溢出治疗量，也即计算所有绿字。")
+        # tb.AppendHeader("有效HPS", "最常用语境下的每秒治疗量，注意包含重伤时间。")
+        # tb.AppendHeader("虚条HPS", "指虚条的最右端，包含溢出治疗量，也即计算所有绿字。")
+        tb.AppendHeader("rHPS", "全称raid HPS，是综合考虑有效治疗量、化解、减伤、以及安全范围内的溢出治疗量后得到的值。\nrHPS与对团血的贡献程度完全成正比。在承伤与配置不变的情况下，使rHPS更高的手法就能使团血更稳。")
+        tb.AppendHeader("HPS", "与游戏中[有效HPS]接近的值。相比于插件的统计，其考虑了吸血、蛊惑等隐藏数值，因此与游戏中会有细微的不同。")
+        tb.AppendHeader("aHPS", "全称absorb HPS，包括化解、减伤、响应式治疗。游戏中的APS漏洞百出，而aHPS可以更准确地反应这些被抵消的伤害。")
+        tb.AppendHeader("oHPS", "全称over HPS，指包含溢出的治疗量，也即游戏中的虚条。oHPS与aHPS之和决定了承伤的上限。")
         tb.EndOfLine()
         for record in self.result["healer"]["table"]:
             name = self.getMaskName(record["name"])
@@ -382,26 +386,33 @@ class HealerDisplayWindow():
             tb.AppendContext(name, color=color, width=13)
             if name != self.result["overall"]["playerID"]:
                 # 非当前玩家
-                tb.AppendContext(record["healEff"])
-                tb.AppendContext(record["heal"])
+                tb.AppendContext(record.get("rhps", 0))
+                tb.AppendContext(record.get("hps", record.get("healEff", 0)))
+                tb.AppendContext(record.get("ahps", 0))
+                tb.AppendContext(record.get("ohps", record.get("heal", 0)))
+                # tb.AppendContext(record["healEff"])
+                # tb.AppendContext(record["heal"])
             else:
                 # 当前玩家
                 hpsDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
-
+                # rHPS
+                tb.AppendContext(record.get("rhps", 0))
+                # HPS
                 num, percent, color = hpsDisplayer.getSkillPercent("healer", "healEff")
                 if num > 0:
                     descText = "排名：%d%%\n数量：%d" % (percent, num)
                 else:
                     descText = "排名未知"
-                tb.AppendHeader(record["healEff"], descText, color=color)
-
+                tb.AppendHeader(record.get("hps", record.get("healEff", 0)), descText, color=color)
+                # aHPS
+                tb.AppendContext(record.get("ahps", 0))
+                # oHPS
                 num, percent, color = hpsDisplayer.getSkillPercent("healer", "heal")
                 if num > 0:
                     descText = "排名：%d%%\n数量：%d" % (percent, num)
                 else:
                     descText = "排名未知"
-                tb.AppendHeader(record["heal"], descText, color=color)
-
+                tb.AppendHeader(record.get("ohps", record.get("heal", 0)), descText, color=color)
             tb.EndOfLine()
 
     def renderQx(self):

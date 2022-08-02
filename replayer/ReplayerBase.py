@@ -195,4 +195,5 @@ class ReplayerBase():
             self.battleDict = actorData["battleDict"]
             self.unusualDeathDict = actorData["unusualDeathDict"]
             self.deathDict = actorData["deathDict"]
+            self.act = actorData["act"]
 

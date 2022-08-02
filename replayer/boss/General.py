@@ -87,8 +87,10 @@ class GeneralWindow(SpecificBossWindow):
         self.window = window
         window.protocol('WM_DELETE_WINDOW', self.final)
 
-    def __init__(self, config, effectiveDPSList, detail, occResult):
+    def __init__(self, config, effectiveDPSList, detail, occResult, analysedBattleData):
         super().__init__(config, effectiveDPSList, detail, occResult)
+        self.analysedBattleData = analysedBattleData
+        self.act = self.analysedBattleData["act"]
 
 class GeneralReplayer(SpecificReplayerPro):
 

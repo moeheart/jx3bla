@@ -402,7 +402,7 @@ class YunChangXinJingWindow(HealerDisplayWindow):
         tk.Label(frame9, text="").place(x=20, y=40)
         if "shortID" in self.result["overall"]:
             tk.Label(frame9, text="复盘编号：%s"%self.result["overall"]["shortID"]).place(x=20, y=70)
-            b2 = tk.Button(frame9, text='在网页中打开', height=1, command=self.OpenInWeb)
+            b2 = tk.Button(frame9, text='在网页中打开', height=1, command=self.OpenInWeb, bg='#777777')
             b2.place(x=40, y=90)
 
         # tk.Label(frame9, text="新建文件夹！").place(x=40, y=140)
@@ -630,13 +630,10 @@ class YunChangXinJingReplayer(ReplayerBase):
             hpsSumTime = 0
             numSmall = 0
 
-        numHeal = 0
-        numEffHeal = 0
         npcHealStat = {}
         numPurge = 0  # 驱散次数
         battleStat = {}  # 伤害占比统计，[无盾伤害，有盾伤害，桑柔伤害，玉简伤害]
         damageDict = {}  # 伤害统计
-        healStat = {}  # 治疗统计
         myHealRank = 0  # 个人治疗量排名
         numHealer = 0  # 治疗数量
         battleTimeDict = {}  # 进战时间
@@ -800,17 +797,6 @@ class YunChangXinJingReplayer(ReplayerBase):
                     pass
                 else:
                     # 所有治疗技能都不计算化解.
-                    # 统计自身治疗
-                    if event.caster == self.mykey and event.heal != 0:
-                        numHeal += event.heal
-                        numEffHeal += event.healEff
-
-                    # 统计团队治疗
-                    if event.heal + event.healEff > 0 and event.effect != 7 and event.caster in self.healerDict:
-                        if event.caster not in healStat:
-                            healStat[event.caster] = [0, 0]
-                        healStat[event.caster][0] += event.healEff
-                        healStat[event.caster][1] += event.heal
 
                     # 统计自身技能使用情况.
                     # if event.caster == self.mykey and event.scheme == 1 and event.id in xiangZhiUnimportant and event.heal != 0:
@@ -1033,35 +1019,27 @@ class YunChangXinJingReplayer(ReplayerBase):
 
         # 计算团队治疗区(Part 3)
         self.result["healer"] = {"table": [], "numHealer": 0}
-        healList = dictToPairs(healStat)
-        healList.sort(key=lambda x: -x[1][0])
 
-        sumHeal = 0
-        numid = 0
-        topHeal = 0
-        myHealStat = {"hps": 0, "ohps": 0}
-        for line in healList:
-            if numid == 0:
-                topHeal = line[1][0]
-            sumHeal += line[1][0]
-            numid += 1
-            if line[0] == self.mykey and myHealRank == 0:
-                myHealRank = numid
-            # 当前逻辑为治疗量大于第一的20%才被记为治疗，否则为老板
-            if line[1][0] > topHeal * 0.2:
-                numHealer += 1
-        if myHealRank > numHealer:
-            numHealer = myHealRank
-        self.result["healer"]["numHealer"] = numHealer
-        for line in healList:
-            res = {"name": self.bld.info.player[line[0]].name,
-                   "occ": self.bld.info.player[line[0]].occ,
-                   "healEff": int(line[1][0] / self.result["overall"]["sumTime"] * 1000),
-                   "heal": int(line[1][1] / self.result["overall"]["sumTime"] * 1000)}
-            self.result["healer"]["table"].append(res)
-            if line[0] == self.mykey:
-                myHealStat["hps"] = res["healEff"]
-                myHealStat["ohps"] = res["heal"]
+        myHealStat = {}
+        for player in self.act.rhps["player"]:
+            if player in self.healerDict:
+                self.result["healer"]["numHealer"] += 1
+                res = {"rhps": int(self.act.rhps["player"][player]["hps"]),
+                       "name": self.act.rhps["player"][player]["name"],
+                       "occ": self.bld.info.player[player].occ}
+                if player in self.act.hps["player"]:
+                    res["hps"] = int(self.act.hps["player"][player]["hps"])
+                if player in self.act.ahps["player"]:
+                    res["ahps"] = int(self.act.ahps["player"][player]["hps"])
+                if player in self.act.ohps["player"]:
+                    res["ohps"] = int(self.act.ohps["player"][player]["hps"])
+                res["heal"] = res.get("ohps", 0)
+                res["healEff"] = res.get("hps", 0)
+                if player == self.mykey:
+                    myHealStat = res
+                self.result["healer"]["table"].append(res)
+        self.result["healer"]["table"].sort(key=lambda x: -x["rhps"])
+        # print(myHealStat)
 
         # 计算DPS列表(Part 7)
         self.result["dps"] = {"table": [], "numDPS": 0}
@@ -1214,10 +1192,13 @@ class YunChangXinJingReplayer(ReplayerBase):
         self.result["replay"]["hxpy"] = hxpyDict.log
         self.result["replay"]["heat"] = {"interval": 500, "timeline": [xiangwuHeat, shangyuanHeat]}
         # 统计治疗相关
-        # TODO 改为整体统计
         self.result["skill"]["healer"] = {}
         self.result["skill"]["healer"]["heal"] = myHealStat["ohps"]
         self.result["skill"]["healer"]["healEff"] = myHealStat["hps"]
+        self.result["skill"]["healer"]["ohps"] = myHealStat["ohps"]
+        self.result["skill"]["healer"]["hps"] = myHealStat["hps"]
+        self.result["skill"]["healer"]["rhps"] = myHealStat["rhps"]
+        self.result["skill"]["healer"]["ahps"] = myHealStat["ahps"]
 
 
         self.getRankFromStat("yunchangxinjing")
