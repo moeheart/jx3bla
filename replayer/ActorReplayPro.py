@@ -133,6 +133,7 @@ class ActorProReplayer(ReplayerBase):
         allInfo["effectiveDPSList"] = self.effectiveDPSList
         allInfo["potList"] = self.potList
         allInfo["battleTime"] = self.battleTime
+        allInfo["act"] = self.combatTracker.generateJson()
         # for i in range(len(allInfo["effectiveDPSList"])):
         #     allInfo["effectiveDPSList"][i][0] = allInfo["effectiveDPSList"][i][0]
         # for i in range(len(allInfo["potList"])):
@@ -984,6 +985,7 @@ class ActorProReplayer(ReplayerBase):
         actorData["unusualDeathDict"] = self.unusualDeathDict
         actorData["act"] = self.combatTracker
         actorData["occDetailList"] = self.occDetailList
+        actorData["hash"] = self.hashGroup()
         for id in self.bld.info.player:
             if self.config.item["xiangzhi"]["active"] and self.occDetailList[id] == "22h":  # 奶歌
                 name = self.bld.info.player[id].name

@@ -714,6 +714,7 @@ def uploadReplayPro():
     editionFull = jdata["editionfull"]
     occ = jdata["occ"]
     replayedition = jdata["replayedition"]
+    battleID = jdata.get("battleID", "")
 
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
@@ -759,9 +760,9 @@ def uploadReplayPro():
 
         statistics["overall"]["shortID"] = shortID
 
-        sql = """INSERT INTO ReplayProStat VALUES ("%s", "%s", "%s", %.2f, "%s", "%s", "%s", "%s", %d, "%s", %d, "%s", %d, "%s", "%s", %d, %d)""" % (
+        sql = """INSERT INTO ReplayProStat VALUES ("%s", "%s", "%s", %.2f, "%s", "%s", "%s", "%s", %d, "%s", %d, "%s", %d, "%s", "%s", %d, %d, "%s")""" % (
             server, id, occ, score, battleDate, mapDetail, boss, hash, shortID, statistics, public, edition, editionFull, replayedition, userID, battleTime,
-            submitTime)
+            submitTime, battleID)
         cursor.execute(sql)
         db.commit()
         db.close()

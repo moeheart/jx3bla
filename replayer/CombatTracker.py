@@ -172,6 +172,17 @@ class CombatTracker():
     战斗数据统计类.
     '''
 
+    def generateJson(self):
+        '''
+        将结果导出为json.
+        '''
+        res = {}
+        res["hps"] = self.hps
+        res["ahps"] = self.ahps
+        res["ohps"] = self.ohps
+        res["rhps"] = self.rhps
+        return res
+
     def export(self, time):
         '''
         统计结束时的后处理.

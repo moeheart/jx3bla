@@ -149,6 +149,7 @@ class ReplayerBase():
         upload["battletime"] = self.result["overall"]["battleTime"]
         upload["submittime"] = int(time.time())
         upload["hash"] = self.getHash()
+        upload["battleHash"] = self.battleID
 
         Jdata = json.dumps(upload)
         jpost = {'jdata': Jdata}
@@ -196,4 +197,5 @@ class ReplayerBase():
             self.unusualDeathDict = actorData["unusualDeathDict"]
             self.deathDict = actorData["deathDict"]
             self.act = actorData["act"]
+            self.battleID = actorData["hash"]
 

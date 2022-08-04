@@ -58,6 +58,7 @@ sql = """CREATE TABLE ReplayProStat (
 cursor.execute(sql)
 
 # ReplayProStat表，支持更广泛形式的复盘数据
+# 加一个数据battleID VARCHAR(32), 链接到ActorStat中.
 
 sql = """CREATE TABLE ReplayProInfo(
          dataname VARCHAR(32),
