@@ -573,7 +573,7 @@ def uploadActorData():
     #mapDetail = jdata["mapdetail"]
     edition = jdata["edition"]
     hash = jdata["hash"]
-    statistics = jdata["statistics"].replace('"', '`')
+    statistics = str(jdata["statistics"]).replace('"', '`')
     
     response = {}
     
