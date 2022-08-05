@@ -15,6 +15,10 @@ if __name__ == "__main__":
     result = {"version": EDITION, "announcement": ANNOUNCEMENT, "updateurl": url}
     Jdata = json.dumps(result)
     jpost = {'jdata': Jdata}
+    print(jpost)
     jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-    urllib.request.urlopen('http://%s:8009/setAnnouncement' % IP, data=jparse)
+    print(jparse)
+    print("准备更新……")
+    resp = urllib.request.urlopen('http://%s:8009/setAnnouncement' % IP, data=jparse)
+    print("更新完成！")
 
