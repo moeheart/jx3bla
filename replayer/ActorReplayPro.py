@@ -464,7 +464,7 @@ class ActorProReplayer(ReplayerBase):
 
         combatTracker = CombatTracker(self.bld.info)
 
-        XLS_ACTIVE = 1
+        XLS_ACTIVE = 0
 
         if XLS_ACTIVE:
             # 修罗统计1
