@@ -464,44 +464,47 @@ class ActorProReplayer(ReplayerBase):
 
         combatTracker = CombatTracker(self.bld.info)
 
-        # 修罗统计1
-        skillCheckDict = {"27310,1": "寂灭成功格挡",
-                          "27310,-1": "寂灭总计次数",
-                          "26026,3": "分散",
-                          "26026,4": "分散",
-                          "26026,6": "分散",
-                          "26026,7": "分散",
-                          "26026,8": "分散",
-                          "26073,2": "背对",
-                          "26073,4": "背对",
-                          "26114,0": "拉人",
-                          "27118,0": "拉人",
-                          "27023,0": "拉人",
-                          "26071,1": "多罗叶指",
-                          "26088,0": "出30尺",
-                          }
-        skillUpperLimit = {"27310,1": 1000,
-                           "27310,-1": 1000,
-                           "26026,3": 4,
-                           "26026,4": 4,
-                           "26026,6": 4,
-                           "26026,7": 4,
-                           "26026,8": 4,
-                           "26073,2": 4,
-                           "26073,4": 4,
-                           "26114,0": 8,
-                           "27118,0": 8,
-                           "27023,0": 8,
-                           "26071,1": 1000,
-                           "26088,0": 1000,
-                          }
-        jimieLastTime = 1
-        playerSkillLog = {}
-        for line in self.bld.info.player:
-            playername = self.bld.info.player[line].name
-            playerSkillLog[playername] = {}
-            for name in skillCheckDict:
-                playerSkillLog[playername][skillCheckDict[name]] = 0
+        XLS_ACTIVE = 1
+
+        if XLS_ACTIVE:
+            # 修罗统计1
+            skillCheckDict = {"27310,1": "寂灭成功格挡",
+                              "27310,-1": "寂灭总计次数",
+                              "26026,3": "分散",
+                              "26026,4": "分散",
+                              "26026,6": "分散",
+                              "26026,7": "分散",
+                              "26026,8": "分散",
+                              "26073,2": "背对",
+                              "26073,4": "背对",
+                              "26114,0": "拉人",
+                              "27118,0": "拉人",
+                              "27023,0": "拉人",
+                              "26071,1": "多罗叶指",
+                              "26088,0": "出30尺",
+                              }
+            skillUpperLimit = {"27310,1": 1000,
+                               "27310,-1": 1000,
+                               "26026,3": 4,
+                               "26026,4": 4,
+                               "26026,6": 4,
+                               "26026,7": 4,
+                               "26026,8": 4,
+                               "26073,2": 4,
+                               "26073,4": 4,
+                               "26114,0": 8,
+                               "27118,0": 8,
+                               "27023,0": 8,
+                               "26071,1": 1000,
+                               "26088,0": 1000,
+                              }
+            jimieLastTime = 1
+            playerSkillLog = {}
+            for line in self.bld.info.player:
+                playername = self.bld.info.player[line].name
+                playerSkillLog[playername] = {}
+                for name in skillCheckDict:
+                    playerSkillLog[playername][skillCheckDict[name]] = 0
 
         for event in self.bld.log:
 
@@ -523,25 +526,26 @@ class ActorProReplayer(ReplayerBase):
                     # if item[7] in self.actorSkillList and int(item[10]) != 2:
                     #     data.hitCount[item[5]]["s" + item[7]] += 1
 
-                    # 修罗统计2
-                    playername = self.bld.info.player[event.target].name
-                    if playername in playerSkillLog:
-                        skillIDSpecific = "%s,%s" % (event.id, event.level)
-                        skillIDGeneral = "%s,0" % event.id
-                        if skillIDSpecific in skillCheckDict:
-                            playerSkillLog[playername][skillCheckDict[skillIDSpecific]] += 1
-                        if skillIDGeneral in skillCheckDict:
-                            playerSkillLog[playername][skillCheckDict[skillIDGeneral]] += 1
-                        if skillIDGeneral == "27041,0":
-                            if event.time - jimieLastTime > 2000:
-                                jimieLastTime = event.time
-                                for line in self.bld.info.player:
-                                    playername2 = self.bld.info.player[line].name
-                                    live = self.battleDict[line].checkState(event.time)
-                                    if not live:
-                                        playerSkillLog[playername2][skillCheckDict["27310,-1"]] += 0
-                                    else:
-                                        playerSkillLog[playername2][skillCheckDict["27310,-1"]] += 4
+                    if XLS_ACTIVE:
+                        # 修罗统计2
+                        playername = self.bld.info.player[event.target].name
+                        if playername in playerSkillLog:
+                            skillIDSpecific = "%s,%s" % (event.id, event.level)
+                            skillIDGeneral = "%s,0" % event.id
+                            if skillIDSpecific in skillCheckDict:
+                                playerSkillLog[playername][skillCheckDict[skillIDSpecific]] += 1
+                            if skillIDGeneral in skillCheckDict:
+                                playerSkillLog[playername][skillCheckDict[skillIDGeneral]] += 1
+                            if skillIDGeneral == "27041,0":
+                                if event.time - jimieLastTime > 2000:
+                                    jimieLastTime = event.time
+                                    for line in self.bld.info.player:
+                                        playername2 = self.bld.info.player[line].name
+                                        live = self.battleDict[line].checkState(event.time)
+                                        if not live:
+                                            playerSkillLog[playername2][skillCheckDict["27310,-1"]] += 0
+                                        else:
+                                            playerSkillLog[playername2][skillCheckDict["27310,-1"]] += 4
 
                     # 过量伤害
                     if event.damage > event.damageEff:
@@ -770,20 +774,21 @@ class ActorProReplayer(ReplayerBase):
         combatTracker.export(self.battleTime)
         self.combatTracker = combatTracker
 
-        # 修罗统计3
-        for line in skillCheckDict:
-            num = 0
-            skillName = skillCheckDict[line]
-            for player in playerSkillLog:
-                num += playerSkillLog[player][skillName]
-            if num >= skillUpperLimit[line]:
+        if XLS_ACTIVE:
+            # 修罗统计3
+            for line in skillCheckDict:
+                num = 0
+                skillName = skillCheckDict[line]
                 for player in playerSkillLog:
-                    playerSkillLog[player][skillName] = 0
-        for line in playerSkillLog:
-            fileName = "xlsCount/%d.txt"%self.startTime
-            f = open(fileName, "w")
-            f.write(str(playerSkillLog))
-            f.close()
+                    num += playerSkillLog[player][skillName]
+                if num >= skillUpperLimit[line]:
+                    for player in playerSkillLog:
+                        playerSkillLog[player][skillName] = 0
+            for line in playerSkillLog:
+                fileName = "xlsCount/%d.txt"%self.startTime
+                f = open(fileName, "w")
+                f.write(str(playerSkillLog))
+                f.close()
 
         recordGORate = 0
 

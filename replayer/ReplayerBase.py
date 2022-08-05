@@ -149,7 +149,7 @@ class ReplayerBase():
         upload["battletime"] = self.result["overall"]["battleTime"]
         upload["submittime"] = int(time.time())
         upload["hash"] = self.getHash()
-        upload["battleHash"] = self.battleID
+        upload["battleID"] = self.battleID
 
         Jdata = json.dumps(upload)
         jpost = {'jdata': Jdata}

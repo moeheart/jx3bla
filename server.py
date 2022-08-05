@@ -804,7 +804,7 @@ def getReplayPro():
     id = request.args.get('id')
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
-    sql = """SELECT statistics, public, replayedition, occ FROM ReplayProStat WHERE shortID = %s OR hash = "%s";"""%(id, id)
+    sql = """SELECT statistics, public, replayedition, occ, battleID FROM ReplayProStat WHERE shortID = %s OR hash = "%s";"""%(id, id)
     cursor.execute(sql)
     result = cursor.fetchall()
     flag = 0
@@ -823,12 +823,21 @@ def getReplayPro():
         rc = RankCalculator(jResult)
         rank = rc.getRankFromStat(occ)
         rankStr = json.dumps(rank)
+        battleID = result[0][4]
+        # 找出同场战斗的编号
+        sql = """SELECT id, shortID FROM ReplayProStat WHERE battleID = %s;""" % battleID
+        cursor.execute(sql)
+        result2 = cursor.fetchall()
+        teammateInfo = {}
+        for line in result2:
+            teammateInfo[line[0]] = line[1]
+        print('[TeammateInfo]', teammateInfo)
     else:
         flag = 0
         text = "不支持的心法，请等待之后的版本更新."
     db.close()
     if flag:
-        return jsonify({'available': 1, 'text': "请求成功", 'raw': text1, 'rank': rankStr})
+        return jsonify({'available': 1, 'text': "请求成功", 'raw': text1, 'rank': rankStr, 'teammate': str(teammateInfo)})
     else:
         return jsonify({'available': 0, 'text': text})
 

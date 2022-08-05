@@ -181,6 +181,11 @@ class CombatTracker():
         res["ahps"] = self.ahps
         res["ohps"] = self.ohps
         res["rhps"] = self.rhps
+
+        # 精简技能表，不再记录ID。
+        for t in res:
+            for p in res[t]["player"]:
+                del res[t]["player"][p]["skill"]
         return res
 
     def export(self, time):
