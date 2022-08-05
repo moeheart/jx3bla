@@ -824,13 +824,14 @@ def getReplayPro():
         rank = rc.getRankFromStat(occ)
         rankStr = json.dumps(rank)
         battleID = result[0][4]
-        # 找出同场战斗的编号
-        sql = """SELECT id, shortID FROM ReplayProStat WHERE battleID = "%s";""" % battleID
-        cursor.execute(sql)
-        result2 = cursor.fetchall()
         teammateInfo = {}
-        for line in result2:
-            teammateInfo[line[0]] = line[1]
+        if battleID != "" and battleID != "NULL":
+            # 找出同场战斗的编号
+            sql = """SELECT id, shortID FROM ReplayProStat WHERE battleID = "%s";""" % battleID
+            cursor.execute(sql)
+            result2 = cursor.fetchall()
+            for line in result2:
+                teammateInfo[line[0]] = line[1]
         print('[TeammateInfo]', teammateInfo)
     else:
         flag = 0
