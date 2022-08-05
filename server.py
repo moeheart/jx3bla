@@ -738,7 +738,7 @@ def uploadReplayPro():
         cursor.execute(sql)
         result = cursor.fetchall()
         if result:
-            if result[0][12] >= editionFull:
+            if result[0][12] >= editionFull and (result[0][10] == 1 or public == 0):
                 print("Find Duplicated")
                 db.close()
                 shortID = result[0][8]
