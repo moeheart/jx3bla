@@ -978,8 +978,8 @@ class YunChangXinJingReplayer(ReplayerBase):
             elif event.dataType == "Cast":
                 if event.caster == self.mykey and event.id == "565":
                     # 回雪飘摇
-                    hxpyCastNum += 1
                     if hxpyLocalNum > 0:
+                        hxpyCastNum += 1
                         hxpyCastList.append(hxpyLocalNum)
                     hxpyLocalNum = 0
                     if hxpySingleNum > 0:
