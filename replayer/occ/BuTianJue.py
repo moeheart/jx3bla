@@ -936,10 +936,16 @@ class BuTianJueReplayer(ReplayerBase):
                        "occ": self.bld.info.player[player].occ}
                 if player in self.act.hps["player"]:
                     res["hps"] = int(self.act.hps["player"][player]["hps"])
+                else:
+                    res["hps"] = 0
                 if player in self.act.ahps["player"]:
                     res["ahps"] = int(self.act.ahps["player"][player]["hps"])
+                else:
+                    res["ahps"] = 0
                 if player in self.act.ohps["player"]:
                     res["ohps"] = int(self.act.ohps["player"][player]["hps"])
+                else:
+                    res["ohps"] = 0
                 res["heal"] = res.get("ohps", 0)
                 res["healEff"] = res.get("hps", 0)
                 if player == self.mykey:
@@ -1082,12 +1088,12 @@ class BuTianJueReplayer(ReplayerBase):
         self.result["replay"]["zwjt"] = zwjtDict.log
         # 统计治疗相关
         self.result["skill"]["healer"] = {}
-        self.result["skill"]["healer"]["heal"] = myHealStat["ohps"]
-        self.result["skill"]["healer"]["healEff"] = myHealStat["hps"]
-        self.result["skill"]["healer"]["ohps"] = myHealStat["ohps"]
-        self.result["skill"]["healer"]["hps"] = myHealStat["hps"]
-        self.result["skill"]["healer"]["rhps"] = myHealStat["rhps"]
-        self.result["skill"]["healer"]["ahps"] = myHealStat["ahps"]
+        self.result["skill"]["healer"]["heal"] = myHealStat.get("ohps", 0)
+        self.result["skill"]["healer"]["healEff"] = myHealStat.get("hps", 0)
+        self.result["skill"]["healer"]["ohps"] = myHealStat.get("ohps", 0)
+        self.result["skill"]["healer"]["hps"] = myHealStat.get("hps", 0)
+        self.result["skill"]["healer"]["rhps"] = myHealStat.get("rhps", 0)
+        self.result["skill"]["healer"]["ahps"] = myHealStat.get("ahps", 0)
 
         self.getRankFromStat("butianjue")
         self.result["rank"] = self.rank

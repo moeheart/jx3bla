@@ -1,7 +1,7 @@
 # Created by moeheart at 10/11/2020
 # 全局用到的部分常量。
 
-EDITION = "8.2.0beta"
+EDITION = "8.1.0"
 ANNOUNCEMENT = "8.1版本已发布，更新了所有奶妈的专案组模块以及rHPS统计，请及时更新到最新版本！"
 IP = "120.48.95.56"
 # IP = "139.199.102.41"
