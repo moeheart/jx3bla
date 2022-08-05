@@ -968,6 +968,8 @@ def getRank():
     for i in range((page-1)*numPerPage, page*numPerPage):
         if i < len(result_var):
             record = result_var[i]
+            if parseEdition(record[3]) < parseEdition("8.1.0") and occ in ["lingsu", "butianjue", "yunchangxinjing"]:
+                record[2] += 100
             server = record[0]
             id = record[1]
             score = record[2]
@@ -977,8 +979,6 @@ def getRank():
             battleTime = record[4]
             submitTime = record[5]
             shortID = record[6]
-            if parseEdition(record[3]) < parseEdition("8.1.0") and occ in ["lingsu", "butianjue", "yunchangxinjing"]:
-                record[2] += 100
             resJson["table"].append({"score": score, "server": server, "edition": edition, "id": id, "battleTime": battleTime, "submitTime": submitTime, "shortID": shortID})
 
     resJson["num"] = len(result)
