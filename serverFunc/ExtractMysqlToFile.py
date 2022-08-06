@@ -20,17 +20,18 @@ cursor = db.cursor()
 # for start in range(START, END + 1, 1000):
 #     end = start + 1000
 #     print("Running from %d to %d" % (start, end))
-#
-#     sql = """SELECT statistics, shortID FROM ReplayProStat WHERE shortID >= %d AND shortID <= %d;"""%(start, end)
-#     cursor.execute(sql)
-#     result = cursor.fetchall()
-#
-#     for line in result:
-#         f = open("database/ReplayProStat/%d" % line[1], "w")
-#         f.write(line[0].decode())
-#         f.close()
 
-sql = """SELECT statistics, hash FROM ActorStat LIMIT 10;"""
+# sql = """SELECT statistics, shortID FROM ReplayProStat WHERE shortID >= %d AND shortID <= %d;"""%(start, end)
+sql = """SELECT statistics, shortID FROM ReplayProStat;"""
+cursor.execute(sql)
+result = cursor.fetchall()
+
+for line in result:
+    f = open("database/ReplayProStat/%d" % line[1], "w")
+    f.write(line[0].decode())
+    f.close()
+
+sql = """SELECT statistics, hash FROM ActorStat;"""
 cursor.execute(sql)
 result = cursor.fetchall()
 
