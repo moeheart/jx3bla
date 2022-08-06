@@ -685,7 +685,7 @@ def uploadActorData():
     cursor.execute(sql)
 
     with open("database/ActorStat/%d" % hash, "w") as f:
-        f.write(statistics)
+        f.write(str(statistics))
         
     sql = """INSERT INTO ActorStat VALUES ("%s", "%s", "%s", "%s", "%s", "%s", %d, %d, "%s", %d, %d, "")"""%(
         server, boss, battleDate, mapDetail, edition, hash, win, editionFull, userID, battleTime, submitTime)
@@ -764,7 +764,7 @@ def uploadReplayPro():
         statistics["overall"]["shortID"] = shortID
 
         with open("database/ReplayProStat/%d" % shortID, "w") as f:
-            f.write(statistics)
+            f.write(str(statistics))
 
         sql = """INSERT INTO ReplayProStat VALUES ("%s", "%s", "%s", %.2f, "%s", "%s", "%s", "%s", %d, %d, "%s", %d, "%s", "%s", %d, %d, "%s")""" % (
             server, id, occ, score, battleDate, mapDetail, boss, hash, shortID, public, edition, editionFull, replayedition, userID, battleTime,
