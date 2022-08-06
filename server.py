@@ -684,7 +684,7 @@ def uploadActorData():
     sql = '''DELETE FROM ActorStat WHERE hash = "%s"''' % hash
     cursor.execute(sql)
 
-    with open("database/ActorStat/%d" % hash, "w") as f:
+    with open("database/ActorStat/%s" % hash, "w") as f:
         f.write(str(statistics))
         
     sql = """INSERT INTO ActorStat VALUES ("%s", "%s", "%s", "%s", "%s", "%s", %d, %d, "%s", %d, %d, "")"""%(
