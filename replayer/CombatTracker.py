@@ -257,41 +257,6 @@ class CombatTracker():
                 rhps["sum"] += rhps["player"][player]["hps"]
         self.rhps = rhps
 
-        # # 简单展示
-        # print("[HPS]", hps["sum"])
-        # for player in hps["player"]:
-        #     print("[Player]", player, self.info.getName(player), hps["player"][player]["hps"], hps["player"][player]["sum"])
-        #     for skill in hps["player"][player]["namedSkill"]:
-        #         print("--[Skill]", skill, hps["player"][player]["namedSkill"][skill]["sum"],
-        #               hps["player"][player]["namedSkill"][skill]["num"], parseCent(hps["player"][player]["namedSkill"][skill]["percent"]))
-        #
-        # print("=================")
-        #
-        # print("[oHPS]", ohps["sum"])
-        # for player in ohps["player"]:
-        #     print("[Player]", player, self.info.getName(player), ohps["player"][player]["hps"], ohps["player"][player]["sum"])
-        #     for skill in ohps["player"][player]["namedSkill"]:
-        #         print("--[Skill]", skill, ohps["player"][player]["namedSkill"][skill]["sum"],
-        #               ohps["player"][player]["namedSkill"][skill]["num"], parseCent(ohps["player"][player]["namedSkill"][skill]["percent"]))
-        #
-        # print("=================")
-        #
-        # print("[aHPS]", ahps["sum"])
-        # for player in ahps["player"]:
-        #     print("[Player]", player, self.info.getName(player), ahps["player"][player]["hps"], ahps["player"][player]["sum"])
-        #     for skill in ahps["player"][player]["namedSkill"]:
-        #         print("--[Skill]", skill, ahps["player"][player]["namedSkill"][skill]["sum"],
-        #               ahps["player"][player]["namedSkill"][skill]["num"], parseCent(ahps["player"][player]["namedSkill"][skill]["percent"]))
-        #
-        # print("=================")
-        #
-        # print("[rHPS]", rhps["sum"])
-        # for player in rhps["player"]:
-        #     print("[Player]", player, self.info.getName(player), rhps["player"][player]["hps"], rhps["player"][player]["sum"])
-        #     for skill in rhps["player"][player]["namedSkill"]:
-        #         print("--[Skill]", skill, rhps["player"][player]["namedSkill"][skill]["sum"],
-        #               rhps["player"][player]["namedSkill"][skill]["num"], parseCent(rhps["player"][player]["namedSkill"][skill]["percent"]))
-
     def recordBuff(self, event):
         '''
         记录buff事件.
