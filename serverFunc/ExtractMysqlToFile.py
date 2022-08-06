@@ -27,7 +27,7 @@ for start in range(START, END + 1, 100):
 
     for line in result:
         f = open("database/ReplayProStat/%d" % line[1], "w")
-        f.write(line[0])
+        f.write(line[0].decode())
         f.close()
 
 db.close()
