@@ -681,11 +681,14 @@ def uploadActorData():
         response['result'] = 'dupid'
         return jsonify(response)
             
-    sql = '''DELETE FROM ActorStat WHERE hash = "%s"'''%hash
+    sql = '''DELETE FROM ActorStat WHERE hash = "%s"''' % hash
     cursor.execute(sql)
+
+    with open("database/ActorStat/%d" % hash, "w") as f:
+        f.write(statistics)
         
-    sql = """INSERT INTO ActorStat VALUES ("%s", "%s", "%s", "%s", "%s", "%s", %d, "%s", %d, "%s", %d, %d, "")"""%(
-        server, boss, battleDate, mapDetail, edition, hash, win, statistics, editionFull, userID, battleTime, submitTime)
+    sql = """INSERT INTO ActorStat VALUES ("%s", "%s", "%s", "%s", "%s", "%s", %d, %d, "%s", %d, %d, "")"""%(
+        server, boss, battleDate, mapDetail, edition, hash, win, editionFull, userID, battleTime, submitTime)
     cursor.execute(sql)
     db.commit()
     db.close()
@@ -760,8 +763,11 @@ def uploadReplayPro():
 
         statistics["overall"]["shortID"] = shortID
 
-        sql = """INSERT INTO ReplayProStat VALUES ("%s", "%s", "%s", %.2f, "%s", "%s", "%s", "%s", %d, "%s", %d, "%s", %d, "%s", "%s", %d, %d, "%s")""" % (
-            server, id, occ, score, battleDate, mapDetail, boss, hash, shortID, statistics, public, edition, editionFull, replayedition, userID, battleTime,
+        with open("database/ReplayProStat/%d" % shortID, "w") as f:
+            f.write(statistics)
+
+        sql = """INSERT INTO ReplayProStat VALUES ("%s", "%s", "%s", %.2f, "%s", "%s", "%s", "%s", %d, %d, "%s", %d, "%s", "%s", %d, %d, "%s")""" % (
+            server, id, occ, score, battleDate, mapDetail, boss, hash, shortID, public, edition, editionFull, replayedition, userID, battleTime,
             submitTime, battleID)
         cursor.execute(sql)
         db.commit()
