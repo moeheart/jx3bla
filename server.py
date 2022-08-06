@@ -646,7 +646,7 @@ def uploadActorData():
             scoreSuccess = 0
             response['scoreStatus'] = 'dupid'
         else:
-            lastTime = result[0][11]
+            lastTime = result[0][10]
             if submitTime - lastTime > 180:
                 scoreSuccess = 0
                 response['scoreStatus'] = 'expire'
@@ -734,14 +734,14 @@ def uploadReplayPro():
 
         print(num, numOver)
 
-        sql = '''SELECT * from ReplayProStat WHERE hash = "%s"''' % hash
+        sql = '''SELECT shortID, public, editionfull from ReplayProStat WHERE hash = "%s"''' % hash
         cursor.execute(sql)
         result = cursor.fetchall()
         if result:
-            if result[0][12] >= editionFull and (result[0][10] == 1 or public == 0):
+            if result[0][2] >= editionFull and (result[0][1] == 1 or public == 0):
                 print("Find Duplicated")
                 db.close()
-                shortID = result[0][8]
+                shortID = result[0][0]
                 return jsonify({'result': 'dupid', 'num': num, 'numOver': numOver, 'shortID': shortID})
             else:
                 print("Update edition")
@@ -779,7 +779,7 @@ def showReplayPro():
     id = request.args.get('id')
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
-    sql = """SELECT statistics, public, replayedition, occ FROM ReplayProStat WHERE shortID = %s OR hash = "%s";"""%(id, id)
+    sql = """SELECT shortID, public, replayedition, occ FROM ReplayProStat WHERE shortID = %s OR hash = "%s";"""%(id, id)
     cursor.execute(sql)
     result = cursor.fetchall()
     db.close()
@@ -790,7 +790,9 @@ def showReplayPro():
     elif result[0][3] in ["xiangzhi", "lingsu", "lijingyidao", "butianjue", "yunchangxinjing"]:
         # 生成复盘页面
         occ = result[0][3]
-        text = result[0][0].decode().replace('\n', '\\n').replace('\t', '\\t')
+        with open("database/ReplayProStat/%d" % result[0][0], "r") as f:
+            text = f.read().replace('\n', '\\n').replace('\t', '\\t')
+        # text = result[0][0].decode().replace('\n', '\\n').replace('\t', '\\t')
         text1 = text.replace("'", '"')
         jResult = json.loads(text1)
         rc = RankCalculator(jResult)
@@ -804,7 +806,7 @@ def getReplayPro():
     id = request.args.get('id')
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
-    sql = """SELECT statistics, public, replayedition, occ, battleID FROM ReplayProStat WHERE shortID = %s OR hash = "%s";"""%(id, id)
+    sql = """SELECT shortID, public, replayedition, occ, battleID FROM ReplayProStat WHERE shortID = %s OR hash = "%s";"""%(id, id)
     cursor.execute(sql)
     result = cursor.fetchall()
     flag = 0
@@ -817,8 +819,9 @@ def getReplayPro():
     elif result[0][3] in ["xiangzhi", "lingsu", "lijingyidao", "butianjue", "yunchangxinjing"]:
         flag = 1
         occ = result[0][3]
-        text = result[0][0]
-        text1 = text.decode().replace('\n', '\\n').replace('\t', '\\t').replace("'", '"')
+        with open("database/ReplayProStat/%d" % result[0][0], "r") as f:
+            text = f.read().replace('\n', '\\n').replace('\t', '\\t').replace("'", '"')
+        text1 = text
         jResult = json.loads(text1)
         rc = RankCalculator(jResult)
         rank = rc.getRankFromStat(occ)
