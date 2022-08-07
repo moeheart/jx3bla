@@ -1,12 +1,12 @@
 # Created by moeheart at 10/17/2021
 # 雷域大泽3号-悉达罗摩的复盘库。
 
-from replayer.boss.Base import SpecificReplayerPro, SpecificBossWindow, ToolTip
+from window.SpecificBossWindow import SpecificBossWindow
+from replayer.boss.Base import SpecificReplayerPro
 from replayer.BattleHistory import BattleHistory
 from replayer.TableConstructorMeta import TableConstructorMeta
 from replayer.utils import CriticalHealCounter, DpsShiftWindow
 from tools.Functions import *
-from Constants import *
 
 import tkinter as tk
         
@@ -19,10 +19,9 @@ class XidaLuomoWindow(SpecificBossWindow):
         '''
         使用tkinter绘制详细复盘窗口。
         '''
-        window = tk.Toplevel()
-        #window = tk.Tk()
-        window.title('悉达罗摩复盘')
-        window.geometry('1200x1000')
+
+        self.constructWindow("悉达罗摩", "1200x1000")
+        window = self.window
         
         frame1 = tk.Frame(window)
         frame1.pack()
@@ -31,14 +30,8 @@ class XidaLuomoWindow(SpecificBossWindow):
         #0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
         
         tb = TableConstructorMeta(self.config, frame1)
-        
-        tb.AppendHeader("玩家名", "", width=13)
-        tb.AppendHeader("有效DPS", "全程DPS。与游戏中不同的是，重伤时间也会被计算在内。")
-        tb.AppendHeader("团队-心法DPS", "综合考虑当前团队情况与对应心法的全局表现，计算的百分比。平均水平为100%。")
-        tb.AppendHeader("装分", "玩家的装分，可能会获取失败。")
-        tb.AppendHeader("详情", "装备详细描述，暂未完全实装。")
-        tb.AppendHeader("强化", "装备强化列表，表示[精炼满级装备数量]/[插8]-[插7]-[插6]/[五彩石等级]/[紫色附魔]-[蓝色附魔]/[大附魔：手腰脚头衣裤]")
-        tb.AppendHeader("被控", "受到影响无法正常输出的时间，以秒计。")
+
+        self.constructCommonHeader(tb, "")
         tb.AppendHeader("本体DPS", "对悉达罗摩的DPS。")
         tb.AppendHeader("灵虫DPS", "对灵虫的DPS。时间仍然按照整场战斗计算。")
         tb.AppendHeader("主动踩花", "在花出现1秒之后踩花的次数，代表主动踩花。")
@@ -46,38 +39,16 @@ class XidaLuomoWindow(SpecificBossWindow):
         tb.EndOfLine()
         
         for i in range(len(self.effectiveDPSList)):
-            name = self.getMaskName(self.getMaskName(self.effectiveDPSList[i][0]))
-            color = getColor(self.effectiveDPSList[i][1])
-            tb.AppendContext(name, color=color, width=13)
-            tb.AppendContext(int(self.effectiveDPSList[i][2]))
+            line = self.effectiveDPSList[i]
+            self.constructCommonLine(tb, line)
 
-            if getOccType(self.effectiveDPSList[i][1]) != "healer":
-                text3 = str(self.effectiveDPSList[i][3]) + '%'
-                color3 = "#000000"
-            else:
-                text3 = self.effectiveDPSList[i][3]
-                color3 = "#00ff00"
-            tb.AppendContext(text3, color=color3)
-            
-            text4 = "-"
-            if self.effectiveDPSList[i][4] != -1:
-                text4 = int(self.effectiveDPSList[i][4])
-            color4 = "#000000"
-            if "大橙武" in self.effectiveDPSList[i][5]:
-                color4 = "#ffcc00"
-            tb.AppendContext(text4, color=color4)
-            
-            tb.AppendContext(self.effectiveDPSList[i][5].split('|')[0])
-            tb.AppendContext(self.effectiveDPSList[i][5].split('|')[1])
-            tb.AppendContext(int(self.effectiveDPSList[i][6]))
-
-            tb.AppendContext(int(self.effectiveDPSList[i][7]))
-            tb.AppendContext(int(self.effectiveDPSList[i][8]))
-            tb.AppendContext(int(self.effectiveDPSList[i][9]))
+            tb.AppendContext(int(line[7]))
+            tb.AppendContext(int(line[8]))
+            tb.AppendContext(int(line[9]))
 
             # 心法复盘
-            if self.effectiveDPSList[i][0] in self.occResult:
-                tb.GenerateXinFaReplayButton(self.occResult[self.effectiveDPSList[i][0]], self.effectiveDPSList[i][0])
+            if line[0] in self.occResult:
+                tb.GenerateXinFaReplayButton(self.occResult[line[0]], line[0])
             else:
                 tb.AppendContext("")
             tb.EndOfLine()
@@ -132,20 +103,10 @@ class XidaLuomoWindow(SpecificBossWindow):
                 tb.AppendContext(record["vanish"])
                 tb.EndOfLine()
 
-        frame3 = tk.Frame(window)
-        frame3.pack()
-        buttonPrev = tk.Button(frame3, text='<<', width=2, height=1, command=self.openPrev)
-        submitButton = tk.Button(frame3, text='战斗事件记录', command=self.openPot)
-        buttonNext = tk.Button(frame3, text='>>', width=2, height=1, command=self.openNext)
-        buttonPrev.grid(row=0, column=0)
-        submitButton.grid(row=0, column=1)
-        buttonNext.grid(row=0, column=2)
+        self.constructNavigator()
 
-        self.window = window
-        window.protocol('WM_DELETE_WINDOW', self.final)
-
-    def __init__(self, config, effectiveDPSList, detail, occResult):
-        super().__init__(config, effectiveDPSList, detail, occResult)
+    def __init__(self, config, effectiveDPSList, detail, occResult, analysedBattleData):
+        super().__init__(config, effectiveDPSList, detail, occResult, analysedBattleData)
 
 class XidaLuomoReplayer(SpecificReplayerPro):
 

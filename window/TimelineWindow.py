@@ -9,24 +9,12 @@ from tools.Functions import *
 import threading
 import pyperclip
 from tkinter import messagebox
+from window.Window import Window
 
-class TimelineWindow():
+class TimelineWindow(Window):
     '''
     时间轴窗口的展示类.
     '''
-
-    def final(self):
-        '''
-        收集分锅结果并关闭窗口。
-        '''
-        if self.windowAlive:
-            self.window.destroy()
-            self.windowAlive = False
-
-    def start(self):
-        self.windowAlive = True
-        self.windowThread = threading.Thread(target=self.loadWindow)
-        self.windowThread.start()
 
     def generateLinear(self):
         '''
@@ -177,4 +165,4 @@ class TimelineWindow():
         self.boss = boss
 
     def __init__(self):
-        pass
+        super().__init__()

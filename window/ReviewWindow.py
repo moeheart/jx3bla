@@ -3,31 +3,16 @@
 
 import tkinter as tk
 from tkinter import ttk
-import os
 import re
 from tools.Functions import *
 import threading
-import pyperclip
-from tkinter import messagebox
 from tools.StaticJson import *
+from window.Window import Window
 
-class ReviewerWindow():
+class ReviewerWindow(Window):
     '''
     专案组窗口的展示类.
     '''
-
-    def final(self):
-        '''
-        关闭窗口。
-        '''
-        if self.windowAlive:
-            self.window.destroy()
-            self.windowAlive = False
-
-    def start(self):
-        self.windowAlive = True
-        self.windowThread = threading.Thread(target=self.loadWindow)
-        self.windowThread.start()
 
     def renderText(self, review, text, array=0):
         '''
@@ -168,6 +153,7 @@ class ReviewerWindow():
         - result: 复盘结果dict.
         - color: 主题颜色.
         '''
+        super().__init__()
         self.result = result
         self.color = color
         self.preloadJson()

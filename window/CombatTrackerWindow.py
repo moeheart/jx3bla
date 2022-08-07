@@ -11,24 +11,12 @@ from tkinter import messagebox
 from tools.StaticJson import *
 from functools import partial
 from replayer.TableConstructor import ToolTip
+from window.Window import Window
 
-class CombatTrackerWindow():
+class CombatTrackerWindow(Window):
     '''
     专案组窗口的展示类.
     '''
-
-    def final(self):
-        '''
-        关闭窗口。
-        '''
-        if self.windowAlive:
-            self.window.destroy()
-            self.windowAlive = False
-
-    def start(self):
-        self.windowAlive = True
-        self.windowThread = threading.Thread(target=self.loadWindow)
-        self.windowThread.start()
 
     def handler_adaptor(self, fun,  **kwds):
         return lambda event, fun=fun, kwds=kwds: fun(event, **kwds)
@@ -242,5 +230,6 @@ class CombatTrackerWindow():
         '''
         构造方法.
         '''
+        super().__init__()
         self.act = act
         self.highlightPlayer = ""

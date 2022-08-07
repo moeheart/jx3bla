@@ -2,7 +2,8 @@
 # 通用BOSS的复盘库。
 # 主要是为未特化的BOSS提供复盘方法以及界面展示。
 
-from replayer.boss.Base import SpecificReplayerPro, SpecificBossWindow, ToolTip
+from window.SpecificBossWindow import SpecificBossWindow
+from replayer.boss.Base import SpecificReplayerPro
 from replayer.BattleHistory import BattleHistory
 from replayer.TableConstructorMeta import TableConstructorMeta
 from replayer.utils import CriticalHealCounter, DpsShiftWindow
@@ -19,10 +20,9 @@ class GeneralWindow(SpecificBossWindow):
         '''
         使用tkinter绘制详细复盘窗口。
         '''
-        window = tk.Toplevel()
-        #window = tk.Tk()
-        window.title('通用BOSS复盘')
-        window.geometry('1200x800')
+
+        self.constructWindow("通用BOSS", "1200x800")
+        window = self.window
         
         frame1 = tk.Frame(window)
         frame1.pack()
@@ -32,65 +32,25 @@ class GeneralWindow(SpecificBossWindow):
         
         tb = TableConstructorMeta(self.config, frame1)
         
-        tb.AppendHeader("玩家名", "", width=13)
-        tb.AppendHeader("有效DPS", "全程DPS。与游戏中不同的是，重伤时间也会被计算在内。")
-        tb.AppendHeader("团队-心法DPS", "综合考虑当前团队情况与对应心法的全局表现，计算的百分比。平均水平为100%。")
-        tb.AppendHeader("装分", "玩家的装分，可能会获取失败。")
-        tb.AppendHeader("详情", "装备详细描述，暂未完全实装。")
-        tb.AppendHeader("强化", "装备强化列表，表示[精炼满级装备数量]/[插8]-[插7]-[插6]/[五彩石等级]/[紫色附魔]-[蓝色附魔]/[大附魔：手腰脚头衣裤]")
-        tb.AppendHeader("被控", "受到影响无法正常输出的时间，以秒计。")
+        self.constructCommonHeader(tb, "")
         tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         tb.EndOfLine()
         
         for i in range(len(self.effectiveDPSList)):
-            name = self.getMaskName(self.effectiveDPSList[i][0])
-            color = getColor(self.effectiveDPSList[i][1])
-            tb.AppendContext(name, color=color, width=13)
-            tb.AppendContext(int(self.effectiveDPSList[i][2]))
-
-            if getOccType(self.effectiveDPSList[i][1]) != "healer":
-                text3 = str(self.effectiveDPSList[i][3]) + '%'
-                color3 = "#000000"
-            else:
-                text3 = self.effectiveDPSList[i][3]
-                color3 = "#00ff00"
-            tb.AppendContext(text3, color=color3)
-            
-            text4 = "-"
-            if self.effectiveDPSList[i][4] != -1:
-                text4 = int(self.effectiveDPSList[i][4])
-            color4 = "#000000"
-            if "大橙武" in self.effectiveDPSList[i][5]:
-                color4 = "#ffcc00"
-            tb.AppendContext(text4, color=color4)
-            
-            tb.AppendContext(self.effectiveDPSList[i][5].split('|')[0])
-            tb.AppendContext(self.effectiveDPSList[i][5].split('|')[1])
-            tb.AppendContext(int(self.effectiveDPSList[i][6]))
+            line = self.effectiveDPSList[i]
+            self.constructCommonLine(tb, line)
 
             # 心法复盘
-            if self.effectiveDPSList[i][0] in self.occResult:
-                tb.GenerateXinFaReplayButton(self.occResult[self.effectiveDPSList[i][0]], self.effectiveDPSList[i][0])
+            if line[0] in self.occResult:
+                tb.GenerateXinFaReplayButton(self.occResult[line[0]], line[0])
             else:
                 tb.AppendContext("")
             tb.EndOfLine()
 
-        frame2 = tk.Frame(window)
-        frame2.pack()
-        buttonPrev = tk.Button(frame2, text='<<', width=2, height=1, command=self.openPrev)
-        submitButton = tk.Button(frame2, text='战斗事件记录', command=self.openPot)
-        buttonNext = tk.Button(frame2, text='>>', width=2, height=1, command=self.openNext)
-        buttonPrev.grid(row=0, column=0)
-        submitButton.grid(row=0, column=1)
-        buttonNext.grid(row=0, column=2)
-
-        self.window = window
-        window.protocol('WM_DELETE_WINDOW', self.final)
+        self.constructNavigator()
 
     def __init__(self, config, effectiveDPSList, detail, occResult, analysedBattleData):
-        super().__init__(config, effectiveDPSList, detail, occResult)
-        self.analysedBattleData = analysedBattleData
-        self.act = self.analysedBattleData["act"]
+        super().__init__(config, effectiveDPSList, detail, occResult, analysedBattleData)
 
 class GeneralReplayer(SpecificReplayerPro):
 
@@ -98,8 +58,10 @@ class GeneralReplayer(SpecificReplayerPro):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
-        for line in self.bh.log["environment"]:
-            print(line)
+        pass
+
+        # for line in self.bh.log["environment"]:
+        #     print(line)
 
     def getResult(self):
         '''

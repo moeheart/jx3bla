@@ -2,7 +2,8 @@
 # 常宿的定制复盘库。
 # 功能待定。
 
-from replayer.boss.Base import SpecificReplayerPro, SpecificBossWindow, ToolTip
+from window.SpecificBossWindow import SpecificBossWindow
+from replayer.boss.Base import SpecificReplayerPro
 from replayer.BattleHistory import BattleHistory
 from replayer.TableConstructorMeta import TableConstructorMeta
 from replayer.utils import CriticalHealCounter, DpsShiftWindow
@@ -19,13 +20,8 @@ class ChangXiuWindow(SpecificBossWindow):
         '''
         使用tkinter绘制详细复盘窗口。
         '''
-
-        self.setTimelineWindow(self.bh, "常宿")
-        self.setCombatTrackerWindow(self.act)
-
-        window = tk.Toplevel()
-        window.title('常宿复盘')
-        window.geometry('1200x800')
+        self.constructWindow("常宿", "1200x800")
+        window = self.window
         
         frame1 = tk.Frame(window)
         frame1.pack()
@@ -34,14 +30,8 @@ class ChangXiuWindow(SpecificBossWindow):
         #0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
         
         tb = TableConstructorMeta(self.config, frame1)
-        
-        tb.AppendHeader("玩家名", "", width=13)
-        tb.AppendHeader("有效DPS", "全程DPS。与游戏中不同的是，重伤时间也会被计算在内。")
-        tb.AppendHeader("团队-心法DPS", "综合考虑当前团队情况与对应心法的全局表现，计算的百分比。平均水平为100%。")
-        tb.AppendHeader("装分", "玩家的装分，可能会获取失败。")
-        tb.AppendHeader("详情", "装备详细描述，暂未完全实装。")
-        tb.AppendHeader("强化", "装备强化列表，表示[精炼满级装备数量]/[插8]-[插7]-[插6]/[五彩石等级]/[紫色附魔]-[蓝色附魔]/[大附魔：手腰脚头衣裤]")
-        tb.AppendHeader("被控", "受到影响无法正常输出的时间，以秒计。\n伐逆点名只计3秒，伐乱点名只计4秒，奉天伐恶会全程记录。")
+
+        self.constructCommonHeader(tb, "伐逆点名只计3秒，伐乱点名只计4秒，奉天伐恶会全程记录。")
         tb.AppendHeader("P1DPS", "在P1阶段，也即70%%以上的输出。\nP1时间：%s，这个时间不包括第一次内场。" % parseTime(self.detail["P1Time"]))
         tb.AppendHeader("P2DPS", "在P2阶段，也即70%%以下的输出。\nP2时间：%s，这个时间包括第二次内场。" % parseTime(self.detail["P2Time"]))
         tb.AppendHeader("黑字次数", "踩到黑字的次数。\n虽然不会死，但是作者就是这么无聊。")
@@ -49,63 +39,22 @@ class ChangXiuWindow(SpecificBossWindow):
         tb.EndOfLine()
         
         for i in range(len(self.effectiveDPSList)):
-            name = self.getMaskName(self.effectiveDPSList[i][0])
-            color = getColor(self.effectiveDPSList[i][1])
-            tb.AppendContext(name, color=color, width=13)
-            tb.AppendContext(int(self.effectiveDPSList[i][2]))
-
-            if getOccType(self.effectiveDPSList[i][1]) != "healer":
-                text3 = str(self.effectiveDPSList[i][3]) + '%'
-                color3 = "#000000"
-            else:
-                text3 = self.effectiveDPSList[i][3]
-                color3 = "#00ff00"
-            tb.AppendContext(text3, color=color3)
-            
-            text4 = "-"
-            if self.effectiveDPSList[i][4] != -1:
-                text4 = int(self.effectiveDPSList[i][4])
-            color4 = "#000000"
-            if "大橙武" in self.effectiveDPSList[i][5]:
-                color4 = "#ffcc00"
-            tb.AppendContext(text4, color=color4)
-            
-            tb.AppendContext(self.effectiveDPSList[i][5].split('|')[0])
-            tb.AppendContext(self.effectiveDPSList[i][5].split('|')[1])
-            tb.AppendContext(int(self.effectiveDPSList[i][6]))
-
-            tb.AppendContext(int(self.effectiveDPSList[i][7]))
-            tb.AppendContext(int(self.effectiveDPSList[i][8]))
-            tb.AppendContext(int(self.effectiveDPSList[i][9]))
-
+            line = self.effectiveDPSList[i]
+            self.constructCommonLine(tb, line)
+            tb.AppendContext(int(line[7]))
+            tb.AppendContext(int(line[8]))
+            tb.AppendContext(int(line[9]))
             # 心法复盘
-            if self.effectiveDPSList[i][0] in self.occResult:
-                tb.GenerateXinFaReplayButton(self.occResult[self.effectiveDPSList[i][0]], self.effectiveDPSList[i][0])
+            if line[0] in self.occResult:
+                tb.GenerateXinFaReplayButton(self.occResult[line[0]], line[0])
             else:
                 tb.AppendContext("")
             tb.EndOfLine()
 
-        frame2 = tk.Frame(window)
-        frame2.pack()
-        buttonPrev = tk.Button(frame2, text='<<', width=2, height=1, command=self.openPrev)
-        submitButton = tk.Button(frame2, text='战斗事件记录', command=self.openPot)
-        actButton = tk.Button(frame2, text='数值统计', command=self.openCombatTrackerWindow, bg='#777777')
-        timelineButton = tk.Button(frame2, text='时间轴', command=self.openTimelineWindow)
-        buttonNext = tk.Button(frame2, text='>>', width=2, height=1, command=self.openNext)
-        buttonPrev.grid(row=0, column=0)
-        submitButton.grid(row=0, column=1)
-        actButton.grid(row=0, column=2)
-        timelineButton.grid(row=0, column=3)
-        buttonNext.grid(row=0, column=4)
-
-        self.window = window
-        window.protocol('WM_DELETE_WINDOW', self.final)
+        self.constructNavigator()
 
     def __init__(self, config, effectiveDPSList, detail, occResult, analysedBattleData):
-        super().__init__(config, effectiveDPSList, detail, occResult)
-        self.analysedBattleData = analysedBattleData
-        self.bh = self.analysedBattleData["bossBh"]
-        self.act = self.analysedBattleData["act"]
+        super().__init__(config, effectiveDPSList, detail, occResult, analysedBattleData)
 
 class ChangXiuReplayer(SpecificReplayerPro):
 
