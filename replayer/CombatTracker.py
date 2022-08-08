@@ -474,6 +474,10 @@ class CombatTracker():
                 self.hpStatus[event.caster]["estimateHP"] = 0
                 self.hpStatus[event.caster]["healFull"] = event.time
 
+        # 记录蛊惑
+        if event.id in ["2231"]:  # 蛊惑众生
+            self.guHuoTarget[event.caster] = event.target
+
     def __init__(self, info):
         '''
         构造方法，需要读取角色或玩家信息。

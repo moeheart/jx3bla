@@ -672,6 +672,13 @@ class BuTianJueReplayer(HealerReplay):
                     if event.caster in self.bld.info.player:
                         battleStat[event.caster][0] += event.damageEff
 
+                # 统计蛊惑
+                if event.id in ["2231"]:  # 蛊惑众生
+                    if ghzsDict.log != [] and ghzsDict.log[-1][0] > event.time:
+                        del ghzsDict.log[-1]
+                    ghzsDict.setState(event.time, 1)
+                    ghzsDict.setState(event.time + 30000, 0)
+
             elif event.dataType == "Buff":
                 if event.id == "需要处理的buff！现在还没有":
                     if event.target not in self.criticalHealCounter:
@@ -689,6 +696,8 @@ class BuTianJueReplayer(HealerReplay):
                 if event.id in ["2315"] and event.target == self.mykey:  # 沐风
                     nvwaDict.setState(event.time, event.stack)
                 if event.id in ["2316"] and event.caster == self.mykey:  # 蛊惑
+                    if ghzsDict.log != [] and ghzsDict.log[-1][0] > event.time:
+                        del ghzsDict.log[-1]
                     ghzsDict.setState(event.time, event.stack)
                 if event.id in ["2844"] and event.target == self.mykey:  # 蚕引
                     prevStack = cyDict.checkState(event.time)
