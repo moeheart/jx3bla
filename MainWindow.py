@@ -12,7 +12,10 @@ import json
 import webbrowser
 
 from FileLookUp import FileLookUp, FileSelector
-from ConfigTools import Config, ConfigWindow, LicenseWindow, AnnounceWindow
+from ConfigTools import Config
+from window.ConfigWindow import ConfigWindow
+from window.LicenseWindow import LicenseWindow
+from window.AnnounceWindow import AnnounceWindow
 from LiveBase import LiveListener, LiveActorAnalysis
 from window.AllStatWindow import AllStatWindow
 from window.SingleBossWindow import SingleBossWindow

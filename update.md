@@ -22,11 +22,11 @@
 
 - (TODO)重构垃圾代码
   - (TODO)文件及文件夹整合
-    - (TODO)窗口类整理到window中
+    - 窗口类整理到window中
       - SpecificBossWindow
       - HealerDisplayWindow
       - CommentWindow, PotExtendWindow, SingleBossWindow, AllStatWindow
-      - (TODO)设置类中的窗口
+      - 设置类中的窗口
   
   - (TODO)复用代码
     - BOSS复盘窗口类合并
