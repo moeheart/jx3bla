@@ -693,7 +693,7 @@ class BuTianJueReplayer(HealerReplay):
                     cwDict.setState(event.time, event.stack)
                 if event.id in ["3067"] and event.target == self.mykey:  # 沐风
                     mufengDict.setState(event.time, event.stack)
-                if event.id in ["2315"] and event.target == self.mykey:  # 沐风
+                if event.id in ["2315"] and event.target == self.mykey:  # 女娲
                     nvwaDict.setState(event.time, event.stack)
                 if event.id in ["2316"] and event.caster == self.mykey:  # 蛊惑
                     if ghzsDict.log != [] and ghzsDict.log[-1][0] > event.time:
@@ -903,6 +903,8 @@ class BuTianJueReplayer(HealerReplay):
         self.result["replay"]["mxym"] = mxymDict.log
         self.result["replay"]["xwgd"] = xwgdDict.log
         self.result["replay"]["ghzs"] = ghzsDict.log
+        # print("[ButianDebug]", self.result["replay"]["ghzs"])
+        # print("[ButianDebug]", self.finalTime)
         self.result["replay"]["zwjt"] = zwjtDict.log
         # 统计治疗相关
         self.result["skill"]["healer"] = {}
