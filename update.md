@@ -24,8 +24,9 @@
   - (TODO)文件及文件夹整合
     - (TODO)窗口类整理到window中
       - SpecificBossWindow
-      - (TODO)HealerDisplayWindow
-      - (TODO)CommentWindow, PotExtendWindow, SingleBossWindow, AllStatWindow
+      - HealerDisplayWindow
+      - CommentWindow, PotExtendWindow, SingleBossWindow, AllStatWindow
+      - (TODO)设置类中的窗口
   
   - (TODO)复用代码
     - BOSS复盘窗口类合并
@@ -110,7 +111,6 @@
 - 修复疏影横斜统计会错误计入同队其它长歌并且数值*2的问题。
 - 修复专案组部分文案未正确隐藏的问题。
 
-
 # 8.0.1
 
 ## 修复
@@ -146,16 +146,6 @@
 - 修复复盘中部分NPC喊话错乱会使复盘崩溃的问题。
 - 修复有重复心法时编号冲突的问题。
 - 修复武器没打五彩石时会使复盘报错的问题。
-
-## checklist
-  
-- (TODO)数据迁移到新服务器
-  - (TODO)服务器搭建
-  - (TODO)数据库迁移
-  - (TODO)上传地址迁移
-  - (TODO)
-
-- (TODO)明尊复盘的外壳
 
 ## 7.9.1
 

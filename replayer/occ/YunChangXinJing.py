@@ -10,7 +10,7 @@ from tools.Functions import *
 from equip.AttributeDisplayRemote import AttributeDisplayRemote
 from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
 from replayer.Name import *
-from replayer.occ.Display import HealerDisplayWindow, SingleSkillDisplayer
+from window.HealerDisplayWindow import HealerDisplayWindow, SingleSkillDisplayer
 
 import os
 import time

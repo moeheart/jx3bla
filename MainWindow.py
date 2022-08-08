@@ -13,9 +13,10 @@ import webbrowser
 
 from FileLookUp import FileLookUp, FileSelector
 from ConfigTools import Config, ConfigWindow, LicenseWindow, AnnounceWindow
-from LiveBase import LiveListener, AllStatWindow, LiveActorAnalysis, SingleBossWindow
+from LiveBase import LiveListener, LiveActorAnalysis
+from window.AllStatWindow import AllStatWindow
+from window.SingleBossWindow import SingleBossWindow
 from Constants import *
-from data.DataController import DataController
 from tools.Functions import *
 from GenerateFiles import *
 

@@ -1,21 +1,17 @@
-# Created by moeheart at 06/08/2022
-# 展示界面，用于复盘结果展示窗口中部分共有功能的实现。
+# Created by moeheart at 08/08/2022
+# 治疗复盘窗口展示类。
 
 import threading
 import tkinter as tk
 from tkinter import messagebox
-from PIL import Image
-from PIL import ImageTk
-import json
 import webbrowser
 import pyperclip
 
-from replayer.TableConstructor import TableConstructor, ToolTip
-from replayer.Percent import *
+from replayer.TableConstructor import TableConstructor
 from tools.Functions import *
-from tools.Names import getIDFromMap
-from tools.StaticJson import *
 from window.ReviewWindow import ReviewerWindow
+from window.Window import Window
+from window.ToolTip import ToolTip
 
 def getDirection(key):
     if "delay" in key:
@@ -235,8 +231,7 @@ class SingleSkillDisplayer():
         self.skill = skill
         self.rank = rank
 
-
-class HealerDisplayWindow():
+class HealerDisplayWindow(Window):
     '''
     治疗复盘窗口基类，实现部分通用功能.
     '''
@@ -523,29 +518,6 @@ class HealerDisplayWindow():
         '''
         self.themeColor = color
 
-    def final(self):
-        '''
-        关闭窗口。
-        '''
-        self.windowAlive = False
-        self.window.destroy()
-
-    def start(self):
-        '''
-        创建并展示窗口.
-        '''
-        self.windowAlive = True
-        self.windowThread = threading.Thread(target=self.loadWindow)
-        self.windowThread.start()
-
-    def alive(self):
-        '''
-        返回窗口是否仍生存.
-        returns:
-        - res: 布尔类型，窗口是否仍生存.
-        '''
-        return self.windowAlive
-
     def __init__(self, config, result):
         '''
         初始化.
@@ -553,6 +525,7 @@ class HealerDisplayWindow():
         - config: 设置类.
         - result: 复盘逻辑返回的结果.
         '''
+        super().__init__()
         self.config = config
         self.mask = self.config.item["general"]["mask"]
         self.result = result["result"]
@@ -560,5 +533,3 @@ class HealerDisplayWindow():
         if "mask" in self.result["overall"]:
             self.mask = self.result["overall"]["mask"]  # 使用数据中的mask选项顶掉框架中现场读取的判定
         self.themeColor = "#000000"  # 默认为黑色
-
-
