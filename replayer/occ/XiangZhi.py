@@ -366,11 +366,9 @@ class XiangZhiProReplayer(HealerReplay):
 
         self.window.setNotice({"t2": "加载奶歌复盘...", "c2": "#64fab4"})
 
-        self.getOverallInfo()
-        self.result["overall"]["calTank"] = self.config.item["xiangzhi"]["caltank"]
-
         self.initFirstState()
 
+        self.result["overall"]["calTank"] = self.config.item["xiangzhi"]["caltank"]
         self.shieldCountersNew = {}
         for key in self.bld.info.player:
             self.shieldCountersNew[key] = ShieldCounterNew("16911", self.startTime, self.finalTime)
@@ -385,7 +383,6 @@ class XiangZhiProReplayer(HealerReplay):
                 continue
 
             self.eventInFirstState(event)
-
             if event.dataType == "Skill":
 
                 # 记录主动贴盾，主要是为了防止复盘记录中的数据丢失。
@@ -1310,14 +1307,9 @@ class XiangZhiProReplayer(HealerReplay):
         - actorData: 演员复盘得到的统计记录.
         '''
         super().__init__(config, fileNameInfo, path, bldDict, window, myname, actorData)
-        # self.myname = myname
-        # self.failThreshold = config.item["actor"]["failthreshold"]
-        # self.mask = config.item["general"]["mask"]
-        # self.public = config.item["xiangzhi"]["public"]
-        # self.config = config
-        # self.bld = bldDict[fileNameInfo[0]]
-        # self.result = {}
         self.haste = config.item["xiangzhi"]["speed"]
+        self.public = config.item["xiangzhi"]["public"]
         self.occ = "xiangzhi"
         self.occCode = "22h"
+        self.occPrint = "奶歌"
 

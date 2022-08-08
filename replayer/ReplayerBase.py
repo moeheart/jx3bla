@@ -201,7 +201,6 @@ class ReplayerBase():
         # self.myname = myname
         self.failThreshold = config.item["actor"]["failthreshold"]
         self.mask = config.item["general"]["mask"]
-        self.public = config.item["xiangzhi"]["public"]
         self.config = config
         self.bld = bldDict[fileNameInfo[0]]
         self.result = {}

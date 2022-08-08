@@ -22,13 +22,19 @@ from PIL import ImageTk
 
 class HealerReplay(ReplayerBase):
 
+    def initSecondState(self):
+        '''
+        第二阶段初始化.
+        '''
+        pass
+
     def getOverallInfo(self):
         '''
         获取全局信息.
         '''
         # 大部分全局信息都可以在第一阶段直接获得
         self.result["overall"] = {}
-        self.result["overall"]["edition"] = "奶歌复盘pro v%s"%EDITION
+        self.result["overall"]["edition"] = "%s复盘pro v%s" % (self.occPrint, EDITION)
         self.result["overall"]["playerID"] = "未知"
         self.result["overall"]["server"] = self.bld.info.server
         self.result["overall"]["battleTime"] = self.bld.info.battleTime
@@ -144,6 +150,8 @@ class HealerReplay(ReplayerBase):
         '''
         第一阶段初始化.
         '''
+
+        self.getOverallInfo()
 
         # 记录盾的存在情况与减疗
         self.jianLiaoLog = {}
