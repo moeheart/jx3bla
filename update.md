@@ -1,11 +1,5 @@
 #更新日志
 
-## 长期更新
-
-- (TODO)个位数级别属性对齐
-- (TODO)尝试判定交互物件
-- (TODO)修复有时记录会上传失败的问题
-
 ## 版本checklist
 
 - 排行榜更新
@@ -21,12 +15,14 @@
 ## todolist
 
 - (TODO)重构垃圾代码
-  - (TODO)文件及文件夹整合
+  - 文件及文件夹整合
     - 窗口类整理到window中
       - SpecificBossWindow
       - HealerDisplayWindow
       - CommentWindow, PotExtendWindow, SingleBossWindow, AllStatWindow
       - 设置类中的窗口
+  - (TODO)优化ActorReplay
+  - (TODO)优化治疗类
   
   - (TODO)复用代码
     - BOSS复盘窗口类合并
@@ -49,6 +45,10 @@
     - (TODO)为全局评分添加一个悬空流程，并在每天结束时更新
       - (TODO)修复数据库并增加扩展项
     - (TODO)为前端准备新的返回值
+  
+  - (TODO)上天阶段判定
+  
+  - (TODO)设置面板优化
 
 ## 功能
 

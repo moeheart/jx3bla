@@ -3,13 +3,14 @@
 
 from replayer.ReplayerBase import ReplayerBase
 from replayer.BattleHistory import BattleHistory, SingleSkill
-from replayer.TableConstructor import TableConstructor, ToolTip
+from replayer.TableConstructor import TableConstructor
 from tools.Names import *
 from Constants import *
 from tools.Functions import *
 from equip.AttributeDisplayRemote import AttributeDisplayRemote
 from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
 from replayer.Name import *
+from replayer.occ.Healer import HealerReplay
 from window.HealerDisplayWindow import HealerDisplayWindow, SingleSkillDisplayer
 
 import os
@@ -351,7 +352,7 @@ class XiangZhiProWindow(HealerDisplayWindow):
         self.title = '奶歌复盘pro'
         self.occ = "xiangzhi"
 
-class XiangZhiProReplayer(ReplayerBase):
+class XiangZhiProReplayer(HealerReplay):
     '''
     奶歌复盘pro类.
     分析战斗记录并生成json格式的结果，对结果的解析在其他类中完成。
@@ -365,73 +366,14 @@ class XiangZhiProReplayer(ReplayerBase):
 
         self.window.setNotice({"t2": "加载奶歌复盘...", "c2": "#64fab4"})
 
-        # 大部分全局信息都可以在第一阶段直接获得
-        self.result["overall"] = {}
-        self.result["overall"]["edition"] = "奶歌复盘pro v%s"%EDITION
-        self.result["overall"]["playerID"] = "未知"
-        self.result["overall"]["server"] = self.bld.info.server
-        self.result["overall"]["battleTime"] = self.bld.info.battleTime
-        self.result["overall"]["battleTimePrint"] = time.strftime("%Y-%m-%d %H:%M", time.localtime(self.result["overall"]["battleTime"]))
-        self.result["overall"]["generateTime"] = int(time.time())
-        self.result["overall"]["generateTimePrint"] = time.strftime("%Y-%m-%d %H:%M", time.localtime(self.result["overall"]["generateTime"]))
-        self.result["overall"]["map"] = self.bld.info.map
-        self.result["overall"]["boss"] = getNickToBoss(self.bld.info.boss)
-        self.result["overall"]["sumTime"] = self.bld.info.sumTime
-        self.result["overall"]["sumTimePrint"] = parseTime(self.bld.info.sumTime / 1000)
-        self.result["overall"]["dataType"] = self.bld.dataType
+        self.getOverallInfo()
         self.result["overall"]["calTank"] = self.config.item["xiangzhi"]["caltank"]
-        self.result["overall"]["mask"] = self.config.item["general"]["mask"]
-        self.result["overall"]["win"] = self.win
 
-        # 需要记录特定治疗量的BOSS
-        self.npcName = ""
-        self.npcKey = 0
-        for key in self.bld.info.npc:
-            if self.bld.info.npc[key].name in ['"宓桃"',
-                                  '"毗留博叉"'] or self.bld.info.npc[key].name == self.npcName:
-                self.npcKey = key
-                break
-
-        # 记录盾的存在情况与减疗
-        jianLiaoLog = {}
-
-        # 记录战斗中断的时间，通常用于P2为垃圾时间的BOSS.
-        self.interrupt = 0
-
-        # 不知道有什么用
-        self.activeBoss = ""
-
-        # 记录战斗开始时间与结束时间
-        if self.startTime == 0:
-            self.startTime = self.bld.log[0].time
-        if self.finalTime == 0:
-            self.finalTime = self.bld.log[-1].time
-
-        # 如果时间被大幅度修剪过，则修正战斗时间
-        if abs(self.finalTime - self.startTime - self.result["overall"]["sumTime"]) > 6000:
-            actualTime = self.finalTime - self.startTime
-            self.result["overall"]["sumTime"] = actualTime
-            self.result["overall"]["sumTimePrint"] = parseTime(actualTime / 1000)
-
-        # 记录所有治疗的key，首先尝试直接使用心法列表获取.
-        self.healerDict = {}
-
-        # 记录具体心法的表.
-        occDetailList = {}
-        for key in self.bld.info.player:
-            occDetailList[key] = self.bld.info.player[key].occ
+        self.initFirstState()
 
         self.shieldCountersNew = {}
         for key in self.bld.info.player:
             self.shieldCountersNew[key] = ShieldCounterNew("16911", self.startTime, self.finalTime)
-
-        # 自动推导奶歌角色名与ID，在连接场景中会被指定，这一步可跳过
-        if self.myname == "":
-            raise Exception("奶歌名暂时不可自动推导，需要通过前序分析来手动指定")
-        else:
-            for key in self.bld.info.player:
-                if self.bld.info.player[key].name == self.myname:
-                    self.mykey = key
 
         for event in self.bld.log:
 
@@ -442,107 +384,26 @@ class XiangZhiProReplayer(ReplayerBase):
             if self.interrupt != 0:
                 continue
 
+            self.eventInFirstState(event)
+
             if event.dataType == "Skill":
-                # 记录治疗心法的出现情况.
-                if event.caster not in self.healerDict and event.id in ["14231", "14140", "14301", "565", "554", "555", "2232", "6662", "2233", "6675",
-                                                                  "2231", "101", "142", "138", "16852", "18864", "27621", "27623", "28083"]:  # 治疗的特征技能
-                    self.healerDict[event.caster] = 0
 
                 # 记录主动贴盾，主要是为了防止复盘记录中的数据丢失。
                 if event.id == "14231" and event.caster == self.mykey:
                     jianLiaoStack = 0
-                    if event.target in jianLiaoLog:
-                        jianLiaoStack = jianLiaoLog[event.target].checkState(event.time)
+                    if event.target in self.jianLiaoLog:
+                        jianLiaoStack = self.jianLiaoLog[event.target].checkState(event.time)
                     if jianLiaoStack < 20:
                         self.shieldCountersNew[event.target].setState(event.time, 1)
-
-                if event.caster in occDetailList and occDetailList[event.caster] in ['1', '2', '3', '4', '5', '6', '7', '10',
-                                                                           '21', '22', '212']:
-                    occDetailList[event.caster] = checkOccDetailBySkill(occDetailList[event.caster], event.id, event.damageEff)
-
-                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == '"宓桃"':
-                    self.activeBoss = "宓桃"
-                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == '"毗留博叉"':
-                    self.activeBoss = "哑头陀"
 
             elif event.dataType == "Buff":
                 if event.id in ["9334", "16911"] and event.caster == self.mykey:  # buff梅花三弄
                     self.shieldCountersNew[event.target].setState(event.time, event.stack)
-                if event.id in ["15774", "17200"]:  # buff精神匮乏
-                    if event.target not in jianLiaoLog:
-                        jianLiaoLog[event.target] = BuffCounter("17200", self.startTime, self.finalTime)
-                    jianLiaoLog[event.target].setState(event.time, event.stack)
-                if event.caster in occDetailList and occDetailList[event.caster] in ['21']:
-                    occDetailList[event.caster] = checkOccDetailByBuff(occDetailList[event.caster], event.id)
-
-            elif event.dataType == "Shout":
-                # 为未来需要统计喊话时备用.
-                pass
-
-        if self.interrupt != 0:
-            self.result["overall"]["sumTime"] -= (self.finalTime - self.interrupt)
-            self.result["overall"]["sumTimePrint"] = parseTime(self.result["overall"]["sumTime"] / 1000)
-            self.finalTime = self.interrupt
 
         for key in self.bld.info.player:
             self.shieldCountersNew[key].inferFirst()
 
-        self.result["overall"]["playerID"] = self.myname
-
-        self.occDetailList = occDetailList
-
-        # 获取到玩家信息，继续全局信息的推断
-        self.result["overall"]["mykey"] = self.mykey
-        self.result["overall"]["name"] = self.myname
-
-        # 获取玩家装备和奇穴，即使获取失败也存档
-        self.result["equip"] = {"available": 0}
-        if self.bld.info.player[self.mykey].equip != {} and "beta" not in EDITION:
-            self.result["equip"]["available"] = 1
-            ea = EquipmentAnalyser()
-            jsonEquip = ea.convert2(self.bld.info.player[self.mykey].equip, self.bld.info.player[self.mykey].equipScore)
-            eee = ExcelExportEquipment()
-            strEquip = eee.export(jsonEquip)
-            adr = AttributeDisplayRemote()
-            res = adr.Display(strEquip, "22h")
-            self.result["equip"]["score"] = int(self.bld.info.player[self.mykey].equipScore)
-            self.result["equip"]["sketch"] = jsonEquip["sketch"]
-            self.result["equip"]["forge"] = jsonEquip["forge"]
-            self.result["equip"]["spirit"] = res["根骨"]
-            self.result["equip"]["heal"] = res["治疗"]
-            self.result["equip"]["healBase"] = res["基础治疗"]
-            self.result["equip"]["critPercent"] = res["会心"]
-            self.result["equip"]["crit"] = res["会心等级"]
-            self.result["equip"]["critpowPercent"] = res["会效"]
-            self.result["equip"]["critpow"] = res["会效等级"]
-            self.result["equip"]["hastePercent"] = res["加速"]
-            self.result["equip"]["haste"] = res["加速等级"]
-            if not self.config.item["xiangzhi"]["speedforce"]:
-                self.haste = self.result["equip"]["haste"]
-            self.result["equip"]["raw"] = strEquip
-
-        self.result["qixue"] = {"available": 0}
-        if self.bld.info.player[self.mykey].qx != {}:
-            self.result["qixue"]["available"] = 1
-            for key in self.bld.info.player[self.mykey].qx:
-                qxKey = "1,%s,1" % self.bld.info.player[self.mykey].qx[key]["2"]
-                qxKey0 = "1,%s,0" % self.bld.info.player[self.mykey].qx[key]["2"]
-                if qxKey in SKILL_NAME:
-                    self.result["qixue"][key] = SKILL_NAME[qxKey]
-                elif qxKey0 in SKILL_NAME:
-                    self.result["qixue"][key] = SKILL_NAME[qxKey0]
-                elif self.bld.info.player[self.mykey].qx[key]["2"] == "0":
-                    self.result["qixue"]["available"] = 0
-                    break
-                else:
-                    self.result["qixue"][key] = self.bld.info.player[self.mykey].qx[key]["2"]
-
-        # print(self.result["overall"])
-        # print(self.result["equip"])
-        # print(self.result["qixue"])
-
-        self.result["overall"]["hasteReal"] = self.haste
-
+        self.completeFirstState()
         return 0
 
     def SecondStageAnalysis(self):
@@ -560,18 +421,6 @@ class XiangZhiProReplayer(ReplayerBase):
         self.criticalHealCounter = {}
         hpsActive = 0
 
-        # 以治疗者记录的关键治疗
-        if self.activeBoss in ["宓桃", "哑头陀"]:
-            hpsActive = 0
-            hpsTime = 0
-            hpsSumTime = 0
-            # numSmall = 0
-
-        numHeal = 0
-        numEffHeal = 0
-        # numAbsorb1 = 0  # jx3dat推测的化解
-        # numAbsorb2 = 0  # 战斗记录推测的化解
-        npcHealStat = {}
         numPurge = 0 # 驱散次数
         battleStat = {}  # 伤害占比统计，[无盾伤害，有盾伤害，桑柔伤害，玉简伤害]
         damageDict = {}  # 伤害统计
@@ -852,37 +701,6 @@ class XiangZhiProReplayer(ReplayerBase):
                         elif event.id in ["9463", "9464", "9465", "9466"]:  # 角
                             jueBuff.recordSkill(event.time, event.heal, event.healEff, lastSkillTime)
 
-                    # 统计对NPC的治疗情况.
-                    if event.healEff > 0 and event.target == self.npcKey:
-                        if event.caster not in npcHealStat:
-                            npcHealStat[event.caster] = 0
-                        npcHealStat[event.caster] += event.healEff
-
-                    # 统计以承疗者计算的关键治疗
-                    if event.healEff > 0 and self.npcKey != 0:
-                        if event.target in self.criticalHealCounter and self.criticalHealCounter[event.target].checkState(event.time):
-                            if event.caster not in npcHealStat:
-                                npcHealStat[event.caster] = event.healEff
-                            else:
-                                npcHealStat[event.caster] += event.healEff
-
-                    # 统计以治疗者计算的关键治疗
-                    if self.activeBoss in ["宓桃", "哑头陀"]:
-                        if event.healEff > 0 and self.npcKey != 0 and hpsActive:
-                            if event.caster not in npcHealStat:
-                                npcHealStat[event.caster] = 0
-                            npcHealStat[event.caster] += event.healEff
-
-                    # # 尝试统计化解
-                    # if event.target in self.bld.info.player:
-                    #     absorb = int(event.fullResult.get("9", 0))
-                    #     if absorb > 0:
-                    #         meihua = self.shieldCountersNew[event.target].checkState(event.time - 100)
-                    #         nongmei = nongmeiDict[event.target].checkState(event.time - 100)
-                    #         longkui = longkuiDict[event.target].checkState(event.time - 300)
-                    #         if (meihua or nongmei) and not longkui:
-                    #             numAbsorb2 += absorb
-
                 # 统计伤害技能
                 if event.damageEff > 0 and event.id not in ["24710", "24730", "25426", "25445"]:  # 技能黑名单
                     if event.caster in self.shieldCountersNew:
@@ -1022,11 +840,6 @@ class XiangZhiProReplayer(ReplayerBase):
         else:
             numdam2 = 0
         # numdam = numdam1 + numdam2
-
-        # 关键治疗量统计
-        if self.activeBoss in ["宓桃", "哑头陀"]:
-            for line in npcHealStat:
-                npcHealStat[line] /= (hpsSumTime + 1e-10)
 
         # 计算团队治疗区(Part 3)
         self.result["healer"] = {"table": [], "numHealer": 0}
@@ -1496,15 +1309,15 @@ class XiangZhiProReplayer(ReplayerBase):
         - myname: 需要复盘的奶歌名.
         - actorData: 演员复盘得到的统计记录.
         '''
-        super().__init__(config, fileNameInfo, path, bldDict, window, actorData)
-
-        self.myname = myname
-        self.failThreshold = config.item["actor"]["failthreshold"]
-        self.mask = config.item["general"]["mask"]
-        self.public = config.item["xiangzhi"]["public"]
-        self.config = config
-        self.bld = bldDict[fileNameInfo[0]]
-        self.result = {}
+        super().__init__(config, fileNameInfo, path, bldDict, window, myname, actorData)
+        # self.myname = myname
+        # self.failThreshold = config.item["actor"]["failthreshold"]
+        # self.mask = config.item["general"]["mask"]
+        # self.public = config.item["xiangzhi"]["public"]
+        # self.config = config
+        # self.bld = bldDict[fileNameInfo[0]]
+        # self.result = {}
         self.haste = config.item["xiangzhi"]["speed"]
         self.occ = "xiangzhi"
+        self.occCode = "22h"
 
