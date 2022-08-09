@@ -799,7 +799,7 @@ class LiJingYiDaoReplayer(HealerReplay):
         damageList.sort(key=lambda x: -x[1])
 
         # 计算DPS的盾指标
-        for key in self.peiwuCounter:
+        for key in self.bld.info.player:
             liveCount = battleDict[key].buffTimeIntegral()  # 存活时间比例
             if battleDict[key].sumTime() - liveCount < 8000:  # 脱战缓冲时间
                 liveCount = battleDict[key].sumTime()

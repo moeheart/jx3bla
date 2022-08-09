@@ -22,11 +22,365 @@ from PIL import ImageTk
 
 class HealerReplay(ReplayerBase):
 
+    def calculateSkillInfo(self, name, id):
+        '''
+        根据技能名和ID统计对应技能的基本信息.
+        注意更复杂的信息依然需要在派生类中手动统计.
+        params:
+        - name: 技能的简称. 会存储在result中.
+        - id: 技能的ID，用于在skillInfo中查找.
+        returns:
+        - skillObj: 查找到的技能对象，用于进一步的手动统计.
+        '''
+        skillObj = self.skillInfo[self.gcdSkillIndex[id]][0]
+        self.result["skill"][name] = {}
+        self.result["skill"][name]["num"] = skillObj.getNum()
+        self.result["skill"][name]["numPerSec"] = roundCent(self.result["skill"][name]["num"] / self.result["overall"]["sumTime"] * 1000, 2)
+        self.result["skill"][name]["delay"] = int(skillObj.getAverageDelay())
+        effHeal = skillObj.getHealEff()
+        self.result["skill"][name]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"][name]["effRate"] = roundCent(effHeal / (skillObj.getHeal() + 1e-10))
+
+    def calculateSkillFinal(self):
+        '''
+        第二阶段结束时最后计算评分的部分.
+        '''
+
+        # 排序
+        self.result["review"]["content"].sort(key=lambda x: -x["status"] * 1000 + x["rate"])
+        num = 0
+        for line in self.result["review"]["content"]:
+            if line["status"] > 0:
+                num += 1
+                self.reviewScore -= [0, 1, 3, 10][line["status"]]
+        self.result["review"]["num"] = num
+        if self.reviewScore < 0:
+            self.reviewScore = 0
+        self.result["review"]["score"] = self.reviewScore
+        self.result["skill"]["general"]["score"] = self.reviewScore
+
+
+    def calculateSkillOverall(self):
+        '''
+        第二阶段结束时共有的技能统计部分.
+        '''
+
+        # 统计治疗相关
+        # TODO 改为整体统计
+        self.result["skill"]["general"]["efficiency"] = self.bh.getNormalEfficiency()
+
+        self.result["skill"]["healer"] = {}
+        self.result["skill"]["healer"]["heal"] = self.myHealStat.get("ohps", 0)
+        self.result["skill"]["healer"]["healEff"] = self.myHealStat.get("hps", 0)
+        self.result["skill"]["healer"]["ohps"] = self.myHealStat.get("ohps", 0)
+        self.result["skill"]["healer"]["hps"] = self.myHealStat.get("hps", 0)
+        self.result["skill"]["healer"]["rhps"] = self.myHealStat.get("rhps", 0)
+        self.result["skill"]["healer"]["ahps"] = self.myHealStat.get("ahps", 0)
+
+        self.getRankFromStat(self.occ)
+        self.result["rank"] = self.rank
+        sumWeight = 0
+        sumScore = 0
+        for key1 in self.result["rank"]:
+            for key2 in self.result["rank"][key1]:
+                key = "%s-%s" % (key1, key2)
+                weight = 1
+                if key in self.specialKey:
+                    weight = self.specialKey[key]
+                sumScore += self.result["rank"][key1][key2]["percent"] * weight
+                sumWeight += weight
+
+        self.reviewScore = roundCent((sumScore / sumWeight) ** 0.5 * 10, 2)
+
+
+        # 计算专案组的公有部分.
+
+        self.result["review"] = {"available": 1, "content": []}
+
+        # code 1 不要死
+        num = self.deathDict[self.mykey]["num"]
+        if num > 0:
+            time = roundCent(((self.finalTime - self.startTime) - self.battleDict[self.mykey].buffTimeIntegral()) / 1000, 2)
+            self.result["review"]["content"].append({"code": 1, "num": num, "duration": time, "rate": 0, "status": 3})
+        else:
+            self.result["review"]["content"].append({"code": 1, "num": num, "duration": 0, "rate": 1, "status": 0})
+
+        # code 10 不要放生队友
+        num = 0
+        log = []
+        time = []
+        id = []
+        damage = []
+        for key in self.unusualDeathDict:
+            if self.unusualDeathDict[key]["num"] > 0:
+                for line in self.unusualDeathDict[key]["log"]:
+                    num += 1
+                    log.append([(int(line[0]) - self.startTime) / 1000, self.bld.info.player[key].name, "%s:%d/%d" % (line[1], line[2], line[6])])
+        log.sort(key=lambda x: x[0])
+        for line in log:
+            time.append(parseTime(line[0]))
+            id.append(line[1])
+            damage.append(line[2])
+        if num > 0:
+            self.result["review"]["content"].append({"code": 10, "num": num, "time": time, "id": id, "damage": damage, "rate": 0, "status": 3})
+        else:
+            self.result["review"]["content"].append({"code": 10, "num": num, "time": time, "id": id, "damage": damage, "rate": 1, "status": 0})
+
+        # code 11 保持gcd不要空转
+        gcd = self.result["skill"]["general"]["efficiency"]
+        gcdRank = self.result["rank"]["general"]["efficiency"]["percent"]
+        res = {"code": 11, "cover": gcd, "rank": gcdRank, "rate": roundCent(gcdRank / 100)}
+        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
+        self.result["review"]["content"].append(res)
+
+        # code 12 提高HPS或者虚条HPS
+        hps = 0
+        ohps = 0
+        for record in self.result["healer"]["table"]:
+            if record["name"] == self.result["overall"]["playerID"]:
+                # 当前玩家
+                hps = record["healEff"]
+                ohps = record["heal"]
+        hpsRank = self.result["rank"]["healer"]["healEff"]["percent"]
+        ohpsRank = self.result["rank"]["healer"]["heal"]["percent"]
+        rate = max(hpsRank, ohpsRank)
+        res = {"code": 12, "hps": hps, "ohps": ohps, "hpsRank": hpsRank, "ohpsRank": ohpsRank, "rate": roundCent(rate / 100)}
+        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
+        self.result["review"]["content"].append(res)
+
+        # code 13 使用有cd的技能
+
+        scCandidate = []
+        for id in self.markedSkill:
+            scCandidate.append(self.skillInfo[self.nonGcdSkillIndex[id]][0])
+        scCandidate.append(self.yzSkill)
+
+        rateSum = 0
+        rateNum = 0
+        numAll = []
+        sumAll = []
+        skillAll = []
+        for skillObj in scCandidate:
+            num = skillObj.getNum()
+            sum = skillObj.getMaxPossible()
+            # if sum < num:
+            #     sum = num
+            skill = skillObj.name
+            if skill in ["特效腰坠"] and num == 0:
+                continue
+            rateNum += 1
+            rateSum += min(num / (sum + 1e-10), 1)
+            numAll.append(num)
+            sumAll.append(sum)
+            skillAll.append(skill)
+        rate = roundCent(rateSum / (rateNum + 1e-10), 4)
+        res = {"code": 13, "skill": skillAll, "num": numAll, "sum": sumAll, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 50, 25, 0)
+        self.result["review"]["content"].append(res)
+
+    def completeTeamDetect(self):
+        '''
+        小队聚类的结束流程.
+        '''
+
+        # 计算组队聚类信息
+        self.teamCluster, self.numCluster = finalCluster(self.teamLog)
+
+    def eventInTeamDetect(self, event):
+        '''
+        小队聚类在循环中的主体.
+        params:
+        - event: 处理的事件.
+        '''
+
+        if event.dataType == "Buff":
+            if event.id in ["9459", "9460", "9461", "9462"] and event.caster == self.mykey:  # 商
+                self.teamLog, self.teamLastTime = countCluster(self.teamLog, self.teamLastTime, event)
+            if event.id in ["9463", "9464", "9465", "9466"] and event.caster == self.mykey:  # 角
+                self.teamLog, self.teamLastTime = countCluster(self.teamLog, self.teamLastTime, event)
+
+    def initTeamDetect(self):
+        '''
+        小队聚类初始化.
+        用于推测哪些队友处于一个小队，出现在奶花和奶歌的复盘中.
+        '''
+        self.teamLog = {}  # 小队聚类数量统计
+        self.teamLastTime = {}  # 小队聚类时间
+        for line in self.bld.info.player:
+            self.teamLog[line] = {}
+            self.teamLastTime[line] = 0
+
+    def completeSecondState(self):
+        '''
+        第二阶段扫描完成后的公共流程.
+        '''
+        ss = self.ss
+        bh = self.bh
+        # 记录最后一个技能
+        if ss.skill != "0":
+            index = self.gcdSkillIndex[ss.skill]
+            line = self.skillInfo[index]
+            bh.setNormalSkill(ss.skill, line[1], line[3],
+                              ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
+                              roundCent(ss.healEff / (ss.heal + 1e-10)),
+                              int(ss.delay / (ss.delayNum + 1e-10)), ss.busy, "")
+
+        # 同步BOSS的技能信息
+        if self.bossBh is not None:
+            bh.log["environment"] = self.bossBh.log["environment"]
+            bh.log["call"] = self.bossBh.log["call"]
+
+        # 计算团队治疗区(Part 3)
+        self.result["healer"] = {"table": [], "numHealer": 0}
+
+        self.myHealStat = {}
+        for player in self.act.rhps["player"]:
+            if player in self.healerDict:
+                self.result["healer"]["numHealer"] += 1
+                res = {"rhps": int(self.act.rhps["player"][player]["hps"]),
+                       "name": self.act.rhps["player"][player]["name"],
+                       "occ": self.bld.info.player[player].occ}
+                if player in self.act.hps["player"]:
+                    res["hps"] = int(self.act.hps["player"][player]["hps"])
+                else:
+                    res["hps"] = 0
+                if player in self.act.ahps["player"]:
+                    res["ahps"] = int(self.act.ahps["player"][player]["hps"])
+                else:
+                    res["ahps"] = 0
+                if player in self.act.ohps["player"]:
+                    res["ohps"] = int(self.act.ohps["player"][player]["hps"])
+                else:
+                    res["ohps"] = 0
+                res["heal"] = res.get("ohps", 0)
+                res["healEff"] = res.get("hps", 0)
+                if player == self.mykey:
+                    self.myHealStat = res
+                self.result["healer"]["table"].append(res)
+        self.result["healer"]["table"].sort(key=lambda x: -x["rhps"])
+
+
+    def handleGcdSkill(self, event):
+        '''
+        处理gcd技能, 这是第二阶段主循环的子功能.
+        params:
+        - event: 处理的事件.
+        '''
+        ss = self.ss
+        bh = self.bh
+        ss.initSkill(event)
+        index = self.gcdSkillIndex[event.id]
+        line = self.skillInfo[index]
+        ss.analyseSkill(event, line[5], line[0], tunnel=line[6], hasteAffected=line[7])
+        targetName = "Unknown"
+        if event.target in self.bld.info.player:
+            targetName = self.bld.info.player[event.target].name
+        elif event.target in self.bld.info.npc:
+            targetName = self.bld.info.npc[event.target].name
+        lastSkillID, lastTime = bh.getLastNormalSkill()
+        if self.gcdSkillIndex[lastSkillID] == self.gcdSkillIndex[ss.skill] and ss.timeStart - lastTime < 100:
+            # 相同技能，原地更新
+            bh.updateNormalSkill(ss.skill, line[1], line[3],
+                                 ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
+                                 ss.healEff, 0, ss.busy, "", "", targetName)
+        else:
+            # 不同技能，新建条目
+            bh.setNormalSkill(ss.skill, line[1], line[3],
+                              ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
+                              ss.healEff, 0, ss.busy, "", "", targetName)
+        ss.reset()
+
+    def eventInSecondState(self, event):
+        '''
+        第二阶段处理事件的公共流程.
+        params:
+        - event: 处理的事件.
+        '''
+
+        if event.dataType == "Skill":
+            # 统计化解(暂时只能统计jx3dat的，因为jcl里压根没有)
+            if event.effect == 7:
+                return
+            # 统计自身技能使用情况.
+            # if event.caster == self.mykey and event.scheme == 1 and event.id in self.unimportantSkill and event.heal != 0:
+            #     print(event.id, event.time)
+
+            if event.scheme == 1 and event.heal != 0 and event.caster == self.mykey:
+                # 打印所有有治疗量的技能，以进行整理
+                # print("[Heal]", event.id, event.heal)
+                pass
+
+            if event.caster == self.mykey and event.scheme == 1:
+                # 根据技能表进行自动处理
+                if event.id in self.gcdSkillIndex:
+                    self.handleGcdSkill(event)
+                # 处理特殊技能
+                elif event.id in self.nonGcdSkillIndex:  # 特殊技能
+                    pass
+                # 无法分析的技能
+                elif event.id not in self.unimportantSkill:
+                    pass
+                    # print("[XiangzhiNonRec]", event.time, event.id, event.heal, event.healEff)
+
+        elif event.dataType == "Buff":
+            if event.id in ["6360"] and event.level in [66, 76, 86] and event.stack == 1 and event.target == self.mykey:  # 特效腰坠:
+                self.bh.setSpecialSkill(event.id, "特效腰坠", "3414",
+                                   event.time, 0, "开启特效腰坠")
+                self.yzSkill.recordSkill(event.time, 0, 0, self.ss.timeEnd, delta=-1)
+            if event.id in ["3067"] and event.target == self.mykey:  # 沐风
+                self.mufengDict.setState(event.time, event.stack)
+
+
     def initSecondState(self):
         '''
         第二阶段初始化.
         '''
-        pass
+        self.numPurge = 0  # 驱散次数
+        self.battleTimeDict = {}  # 进战时间
+        self.sumPlayer = 0  # 平均玩家数
+
+        # 技能初始化
+        self.gcdSkillIndex = {}
+        self.nonGcdSkillIndex = {}
+        for i in range(len(self.skillInfo)):
+            line = self.skillInfo[i]
+            if line[0] is None:
+                self.skillInfo[i][0] = SkillCounterAdvance(line, self.startTime, self.finalTime, self.haste)
+            for id in line[2]:
+                if line[4]:
+                    self.gcdSkillIndex[id] = i
+                else:
+                    self.nonGcdSkillIndex[id] = i
+
+        self.yzSkill = self.skillInfo[self.nonGcdSkillIndex["yaozhui"]][0]
+        self.mufengDict = BuffCounter("412", self.startTime, self.finalTime)  # 沐风
+
+        # 未解明技能
+        self.unimportantSkill = ["4877",  # 水特效作用
+                               "25682", "25683", "25684", "25685", "25686", "24787", "24788", "24789", "24790", # 破招
+                               "22155", "22207", "22211", "22201", "22208",  # 大附魔
+                               "3071", "18274", "14646", "604",  # 治疗套装，寒清，书离，春泥
+                               "23951",  # 贯体通用
+                               "14536", "14537",  # 盾填充, 盾移除
+                               "3584", "2448",  # 蛊惑
+                               "6800",  # 风特效
+                               "25231",  # 桑柔判定
+                               "21832",  # 绝唱触发
+                               "9007", "9004", "9005", "9006",  # 后跳，小轻功
+                               "29532", "29541",  # 飘黄
+                               "4697", "13237",  # 明教阵眼
+                               "13332",  # 锋凌横绝阵
+                               "14427", "14426",  # 浮生清脉阵
+                               "26128", "26116", "26129", "26087",  # 龙门飞剑
+                               "28982",  # 药宗阵
+                               "742",  # T阵
+                               "14358",  # 删除羽减伤
+                            ]
+
+        # 战斗回放初始化
+        self.bh = BattleHistory(self.startTime, self.finalTime)
+        self.ss = SingleSkill(self.startTime, self.haste)
+
 
     def getOverallInfo(self):
         '''
