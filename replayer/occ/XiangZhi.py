@@ -852,7 +852,9 @@ class XiangZhiProReplayer(HealerReplay):
             # 非争簇（真的会有人不点争簇？）
             perfectTime = num[2]
             fullTime = num[3]
-        perfectRate= roundCent(perfectTime / (sum + 1e-10), 4)
+        perfectRate = roundCent(perfectTime / (sum + 1e-10), 4)
+        if self.result["qixue"]["available"] == 1 and self.result["qixue"]["5"] != "谪仙":
+            perfectRate = 1
         res = {"code": 103, "time": sum, "perfectTime": perfectTime, "fullTime": fullTime, "rate": perfectRate}
         res["status"] = getRateStatus(res["rate"], 50, 0, 0)
         self.result["review"]["content"].append(res)
