@@ -752,14 +752,9 @@ class XiangZhiProReplayer(HealerReplay):
         # 队伍HOT统计初始化
         hotHeat = [[], [], [], [], []]
         # 商，注意Buff与Skill统计不同
+        self.calculateSkillInfoDirect("shang", shangBuff)
         shangSkill = self.skillInfo[self.gcdSkillIndex["14138"]][0]
-        self.result["skill"]["shang"] = {}
-        self.result["skill"]["shang"]["num"] = shangBuff.getNum()
-        self.result["skill"]["shang"]["numPerSec"] = roundCent(
-            self.result["skill"]["shang"]["num"] / self.result["overall"]["sumTime"] * 1000, 2)
         self.result["skill"]["shang"]["delay"] = int(shangSkill.getAverageDelay())
-        effHeal = shangBuff.getHealEff()
-        self.result["skill"]["shang"]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
         num = 0
         sum = 0
         for key in shangBuffDict:
@@ -777,14 +772,9 @@ class XiangZhiProReplayer(HealerReplay):
         self.result["skill"]["shang"]["cover"] = roundCent(sum / (num + 1e-10))
 
         # 角
+        self.calculateSkillInfoDirect("jue", jueBuff)
         jueSkill = self.skillInfo[self.gcdSkillIndex["14139"]][0]
-        self.result["skill"]["jue"] = {}
-        self.result["skill"]["jue"]["num"] = jueBuff.getNum()
-        self.result["skill"]["jue"]["numPerSec"] = roundCent(
-            self.result["skill"]["jue"]["num"] / self.result["overall"]["sumTime"] * 1000, 2)
         self.result["skill"]["jue"]["delay"] = int(jueSkill.getAverageDelay())
-        effHeal = jueBuff.getHealEff()
-        self.result["skill"]["jue"]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
         num = 0
         sum = 0
         for key in jueBuffDict:
@@ -810,16 +800,7 @@ class XiangZhiProReplayer(HealerReplay):
         # print("[HotHeat]", hotHeat)
         # print("[HotHeat0]", hotHeat[0])
         # 杂项
-        self.result["skill"]["xiangyi"] = {}
-        self.result["skill"]["xiangyi"]["num"] = xySkill.getNum()
-        effHeal = xySkill.getHealEff()
-        self.result["skill"]["xiangyi"]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
-        self.result["skill"]["xiangyi"]["effRate"] = roundCent(effHeal / (xySkill.getHeal() + 1e-10))
-
-        self.result["skill"]["mufeng"] = {}
-        num = self.battleTimeDict[self.mykey]
-        sum = self.mufengDict.buffTimeIntegral()
-        self.result["skill"]["mufeng"]["cover"] = roundCent(sum / (num + 1e-10))
+        self.calculateSkillInfoDirect("xiangyi", xySkill)
         # 整体
         self.result["skill"]["general"] = {}
         self.result["skill"]["general"]["SangrouDPS"] = int(numdam2 / self.result["overall"]["sumTime"] * 1000)
@@ -840,6 +821,7 @@ class XiangZhiProReplayer(HealerReplay):
         self.specialKey = {"meihua-num": 20, "general-efficiency": 20, "zhi-numPerSec": 10, "general-APS": 10,
                            "healer-healEff": 10}
         self.markedSkill = ["14082"]
+        self.outstandingSkill = []
         self.calculateSkillOverall()
 
         # 计算专案组的心法部分.
@@ -904,14 +886,6 @@ class XiangZhiProReplayer(HealerReplay):
         # self.result["review"]["content"].append(res)
 
         self.calculateSkillFinal()
-
-    def replay(self):
-        '''
-        开始奶歌复盘pro分析.
-        '''
-        self.FirstStageAnalysis()
-        self.SecondStageAnalysis()
-        self.prepareUpload()
 
     def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", actorData={}):
         '''

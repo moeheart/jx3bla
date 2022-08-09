@@ -4,23 +4,34 @@
 from replayer.ReplayerBase import ReplayerBase
 
 from replayer.BattleHistory import BattleHistory, SingleSkill
-from replayer.TableConstructor import TableConstructor
 from tools.Names import *
 from Constants import *
 from tools.Functions import *
 from equip.AttributeDisplayRemote import AttributeDisplayRemote
 from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
 from replayer.Name import *
-from window.HealerDisplayWindow import HealerDisplayWindow, SingleSkillDisplayer
 
-import os
 import time
-import tkinter as tk
-from tkinter import messagebox
-from PIL import Image
-from PIL import ImageTk
 
 class HealerReplay(ReplayerBase):
+
+    def calculateSkillInfoDirect(self, name, skillObj):
+        '''
+        根据技能名和对象统计对应技能的基本信息.
+        注意更复杂的信息依然需要在派生类中手动统计.
+        params:
+        - name: 技能的简称. 会存储在result中.
+        - skillObj: skillInfo中定义的技能对象.
+        returns:
+        - skillObj: 查找到的技能对象，用于进一步的手动统计.
+        '''
+        self.result["skill"][name] = {}
+        self.result["skill"][name]["num"] = skillObj.getNum()
+        self.result["skill"][name]["numPerSec"] = roundCent(self.result["skill"][name]["num"] / self.result["overall"]["sumTime"] * 1000, 2)
+        self.result["skill"][name]["delay"] = int(skillObj.getAverageDelay())
+        effHeal = skillObj.getHealEff()
+        self.result["skill"][name]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"][name]["effRate"] = roundCent(effHeal / (skillObj.getHeal() + 1e-10))
 
     def calculateSkillInfo(self, name, id):
         '''
@@ -64,11 +75,13 @@ class HealerReplay(ReplayerBase):
         '''
         第二阶段结束时共有的技能统计部分.
         '''
-
-        # 统计治疗相关
-        # TODO 改为整体统计
+        self.result["skill"]["mufeng"] = {}
+        num = self.battleTimeDict[self.mykey]
+        sum = self.mufengDict.buffTimeIntegral()
+        self.result["skill"]["mufeng"]["cover"] = roundCent(sum / (num + 1e-10))
         self.result["skill"]["general"]["efficiency"] = self.bh.getNormalEfficiency()
 
+        # 统计治疗相关
         self.result["skill"]["healer"] = {}
         self.result["skill"]["healer"]["heal"] = self.myHealStat.get("ohps", 0)
         self.result["skill"]["healer"]["healEff"] = self.myHealStat.get("hps", 0)
@@ -152,8 +165,13 @@ class HealerReplay(ReplayerBase):
 
         scCandidate = []
         for id in self.markedSkill:
-            scCandidate.append(self.skillInfo[self.nonGcdSkillIndex[id]][0])
+            if id in self.nonGcdSkillIndex:
+                scCandidate.append(self.skillInfo[self.nonGcdSkillIndex[id]][0])
+            else:
+                scCandidate.append(self.skillInfo[self.gcdSkillIndex[id]][0])
         scCandidate.append(self.yzSkill)
+        for line in self.outstandingSkill:
+            scCandidate.append(line)
 
         rateSum = 0
         rateNum = 0
@@ -166,7 +184,7 @@ class HealerReplay(ReplayerBase):
             # if sum < num:
             #     sum = num
             skill = skillObj.name
-            if skill in ["特效腰坠"] and num == 0:
+            if skill in ["特效腰坠", "百药宣时", "青圃着尘", "余寒映日", "九微飞花", "折叶笼花", "大针"] and num == 0:
                 continue
             rateNum += 1
             rateSum += min(num / (sum + 1e-10), 1)
@@ -197,6 +215,9 @@ class HealerReplay(ReplayerBase):
             if event.id in ["9459", "9460", "9461", "9462"] and event.caster == self.mykey:  # 商
                 self.teamLog, self.teamLastTime = countCluster(self.teamLog, self.teamLastTime, event)
             if event.id in ["9463", "9464", "9465", "9466"] and event.caster == self.mykey:  # 角
+                self.teamLog, self.teamLastTime = countCluster(self.teamLog, self.teamLastTime, event)
+        elif event.dataType == "Skill":
+            if event.id in ["14660", "14665"]:  # 微潮/零落
                 self.teamLog, self.teamLastTime = countCluster(self.teamLog, self.teamLastTime, event)
 
     def initTeamDetect(self):
@@ -271,24 +292,68 @@ class HealerReplay(ReplayerBase):
         ss.initSkill(event)
         index = self.gcdSkillIndex[event.id]
         line = self.skillInfo[index]
-        ss.analyseSkill(event, line[5], line[0], tunnel=line[6], hasteAffected=line[7])
-        targetName = "Unknown"
-        if event.target in self.bld.info.player:
-            targetName = self.bld.info.player[event.target].name
-        elif event.target in self.bld.info.npc:
-            targetName = self.bld.info.npc[event.target].name
-        lastSkillID, lastTime = bh.getLastNormalSkill()
-        if self.gcdSkillIndex[lastSkillID] == self.gcdSkillIndex[ss.skill] and ss.timeStart - lastTime < 100:
-            # 相同技能，原地更新
-            bh.updateNormalSkill(ss.skill, line[1], line[3],
-                                 ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
-                                 ss.healEff, 0, ss.busy, "", "", targetName)
-        else:
-            # 不同技能，新建条目
-            bh.setNormalSkill(ss.skill, line[1], line[3],
-                              ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
-                              ss.healEff, 0, ss.busy, "", "", targetName)
-        ss.reset()
+        castTime = line[5]
+        skip = 0
+        target = ""
+
+        # 奶毒特殊判定
+        if self.occ == "butianjue":
+            if event.id in ["2526", "27391", "6662"]:
+                # 检查冰蚕诀
+                sf = self.cyDict.checkState(event.time - 200)
+                if sf:
+                    castTime = 0
+                    if self.bh.log["normal"] == [] or self.bh.log["normal"][-1]["skillname"] != "冰蚕牵丝" or event.time - \
+                            self.bh.log["normal"][-1]["start"] - self.bh.log["normal"][-1]["duration"] > 100:
+                        self.instantNum += 1
+            if event.id in ["2965"]:
+                # 检查碧蝶引
+                skip = self.xjDict.checkState(event.time - 200)
+                if skip:
+                    self.bh.setSpecialSkill(event.id, 0, 0, event.time, 0, "瞬发碧蝶引")
+        elif self.occ == "lijingyidao":
+            sfFlag = 0
+            if event.id in ["22792", "22886", "3038", "26666", "26667", "26668"]:
+                # 检查水月
+                sf = self.shuiyueDict.checkState(event.time - 200)
+                if sf:
+                    sfFlag = 1
+            if not sfFlag and event.id in ["3038", "26666", "26667", "26668"]:
+                # 检查行气血、cw
+                sf2 = self.xqxDict.checkState(event.time - 200)
+                sf3 = self.cwDict.checkState(event.time - 200)
+                if sf2 or sf3:
+                    sfFlag = 1
+            if sfFlag:
+                castTime = 0
+                if event.time - self.lastInstant > 100:
+                    self.instantNum += 1
+                self.lastInstant = event.time
+                if event.id in ["3038"]:
+                    self.instantChangzhenNum += 1
+            if event.id in ["101", "3038", "26666", "26667", "26668"]:
+                target = event.target
+
+
+        if not skip:
+            ss.analyseSkill(event, castTime, line[0], tunnel=line[6], hasteAffected=line[7])
+            targetName = "Unknown"
+            if event.target in self.bld.info.player:
+                targetName = self.bld.info.player[event.target].name
+            elif event.target in self.bld.info.npc:
+                targetName = self.bld.info.npc[event.target].name
+            lastSkillID, lastTime = bh.getLastNormalSkill()
+            if self.gcdSkillIndex[lastSkillID] == self.gcdSkillIndex[ss.skill] and ss.timeStart - lastTime < 100:
+                # 相同技能，原地更新
+                bh.updateNormalSkill(ss.skill, line[1], line[3],
+                                     ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
+                                     ss.healEff, 0, ss.busy, "", target, targetName)
+            else:
+                # 不同技能，新建条目
+                bh.setNormalSkill(ss.skill, line[1], line[3],
+                                  ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
+                                  ss.healEff, 0, ss.busy, "", target, targetName)
+            ss.reset()
 
     def eventInSecondState(self, event):
         '''
@@ -538,6 +603,13 @@ class HealerReplay(ReplayerBase):
             if self.bld.info.player[key].name == self.myname:
                 self.mykey = key
 
+    def replay(self):
+        '''
+        开始复盘分析.
+        '''
+        self.FirstStageAnalysis()
+        self.SecondStageAnalysis()
+        self.prepareUpload()
 
     def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", actorData={}):
         '''
