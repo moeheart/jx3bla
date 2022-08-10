@@ -54,6 +54,8 @@ class ConfigWindow(Window):
                 res = self.frameInfo[frameKey][itemKey]
                 if res["type"] == "Entry":
                     self.config.item[res["configGroup"]][res["configKey"]] = res["entry"].get()
+                elif res["type"] == "Combobox":
+                    self.config.item[res["configGroup"]][res["configKey"]] = res["entry"].get()
                 elif res["type"] == "Check":
                     self.config.item[res["configGroup"]][res["configKey"]] = res["var"].get()
                 elif res["type"] == "Radio":
@@ -118,6 +120,36 @@ class ConfigWindow(Window):
             messagebox.showinfo(title='错误', message='升级失败！')
         elif res["result"] == "success":
             messagebox.showinfo(title='成功', message='升级成功！\n%s' % res["info"])
+
+    def constructComboBox(self, frame, f, description, detail, configGroup, configKey, choices):
+        '''
+        建立下拉菜单的设置.
+        params:
+        - frame: 所在面板的名字.
+        - f: 所在面板的tkinter类.
+        - description: 文字描述的键名.
+        - detail: 键名的展开说明.
+        - configGroup: 在Config中的类别.
+        - configKey: 在Config中的键.
+        - choices: 选项
+        '''
+        num = self.frameInfo[frame]["num"]
+        res = {}
+        label = tk.Label(f, text=description)
+        entry = ttk.Combobox(f)
+        label.grid(row=num, column=0)
+        entry.grid(row=num, column=1)
+        ToolTip(label, detail)
+        #entry.insert(0, self.config.item[configGroup][configKey])
+        entry.set(self.config.item[configGroup][configKey])
+        entry["value"] = choices
+        res["type"] = "Combobox"
+        res["label"] = label
+        res["entry"] = entry
+        res["configGroup"] = configGroup
+        res["configKey"] = configKey
+        self.frameInfo[frame][configKey] = res
+        self.frameInfo[frame]["num"] += 1
 
     def constructEntry(self, frame, f, description, detail, configGroup, configKey):
         '''
@@ -222,6 +254,11 @@ class ConfigWindow(Window):
         self.config = Config("config.ini", skipUser=0)
         config = self.config
 
+        fileLookUp = FileLookUp()
+        fileLookUp.initFromConfig(config)
+        playerIDList = fileLookUp.getAllPlayers()
+        # print("[Config]", res)
+
         window = tk.Toplevel(self.mainWindow)
         # window = tk.Tk()
         window.title('设置')
@@ -234,9 +271,10 @@ class ConfigWindow(Window):
         # 全局页面
         self.frameInfo["Frame1"] = {"num": 0}
         frame1 = tk.Frame(notebook)
-        self.constructEntry("Frame1", frame1, "玩家ID",
+
+        self.constructComboBox("Frame1", frame1, "玩家ID",
                             "在当前电脑上线的角色的ID，同时也是记录者。\n通常情况下，只需要指定此项。\n如果指定了基准路径，则无需指定此项。",
-                            "general", "playername")
+                            "general", "playername", playerIDList)
         self.constructEntry("Frame1", frame1, "剑三路径",
                             "剑三路径，一般是名为JX3的文件夹，一般可以右键剑三的快捷方式找到，例如C:\\JX3。\n有时客户端并非标准安装方式（如体服），这时也可以使用MY#DATA的任意上层文件夹代替，例如C:\\SeasunGame\\Game\\JX3_EXP\\bin\\zhcn_exp。\n此项会尝试自动从注册表获取，如果获取失败，才需要手动指定。\n指定此项时，必须指定角色名。\n如果指定了基准路径，则无需指定此项。",
                             "general", "jx3path")
@@ -265,6 +303,7 @@ class ConfigWindow(Window):
         self.frameInfo["Frame1"]["datatype"]["rb"][0].bind('<Button-1>', self.clear_basepath)
         self.frameInfo["Frame1"]["datatype"]["rb"][1].bind('<Button-1>', self.clear_basepath)
 
+        ToolTip(self.frameInfo["Frame1"]["playername"]["entry"], "自动显示最近登录过的角色。注意，如果修改了剑三路径，那么需要重新打开设置面板才能正确加载。")
         tk.Button(frame1, text='自动获取', command=self.get_path).grid(row=2, column=2)
 
         # 演员复盘页面

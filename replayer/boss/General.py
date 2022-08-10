@@ -74,24 +74,8 @@ class GeneralReplayer(SpecificReplayerPro):
         for id in self.bld.info.player:
             if id in self.stat:
                 line = self.stat[id]
-                if id in self.equipmentDict:
-                    line[4] = self.equipmentDict[id]["score"]
-                    line[5] = "%s|%s"%(self.equipmentDict[id]["sketch"], self.equipmentDict[id]["forge"])
-                else:
-                    line[5] = "|"
-                
-                if getOccType(self.occDetailList[id]) == "healer":
-                    line[3] = int(self.hps[id] / self.battleTime * 1000)
-
-                dps = int(line[2] / self.battleTime * 1000)
-                bossResult.append([line[0],
-                                   line[1],
-                                   dps, 
-                                   line[3],
-                                   line[4],
-                                   line[5],
-                                   line[6],
-                                   ])
+                res = self.getBaseList(id)
+                bossResult.append(res)
         bossResult.sort(key = lambda x:-x[2])
         self.effectiveDPSList = bossResult
 
@@ -179,25 +163,8 @@ class GeneralReplayer(SpecificReplayerPro):
         '''
         在战斗开始时的初始化流程，当第二阶段复盘开始时运行。
         '''
+        self.initBattleBase()
         self.activeBoss = "通用"
-        
-        #通用格式：
-        #0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
-        
-        self.stat = {}
-        self.hps = {}
-        self.detail["boss"] = self.bossNamePrint
-        self.win = 0
-        self.bh = BattleHistory(self.startTime, self.finalTime)
-        self.hasBh = True
-
-        self.bhTime = {}
-        self.bhBlackList = ["b17200", "c15076"]
-        
-        for line in self.bld.info.player:
-            self.hps[line] = 0
-            self.stat[line] = [self.bld.info.player[line].name, self.occDetailList[line], 0, 0, -1, "", 0] + \
-                []
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
         '''

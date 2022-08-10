@@ -10,8 +10,6 @@ import threading
 import tkinter as tk
 
 class FileLookUp():
-    jx3path = ""
-    basepath = "."
     # mode = ""
     specifiedFiles = []
 
@@ -47,19 +45,12 @@ class FileLookUp():
             self.basepath = "自动获取目录失败，请手动指定剑三目录"
         self.jx3path = pathres
 
-    def getBasePath(self, playerName):
+    def getDataFolder(self):
         '''
-        通过剑三目录与玩家角色名，获取对应的战斗复盘路径。
-        params
-        - playerName 玩家名。
+        由剑三路径获取MY_DATA数据文件夹路径.
         '''
-        # l1 = os.listdir(self.jx3path)
-        # datapath = "%s\\Game\\JX3\\bin\\zhcn_hd\\interface\\MY#DATA" % self.jx3path
-        # l = os.listdir(datapath)
-
         resDir = ""
         pathList = ['Game', 'JX3', 'bin', 'zhcn_hd', 'interface', 'MY#DATA']
-        pathList2 = ['Game', 'JX3', 'bin', 'zhcn_exp', 'interface', 'MY#DATA']
 
         datapath = ""
         self.jx3path = self.jx3path.strip('/').replace('/', '\\')
@@ -76,11 +67,27 @@ class FileLookUp():
             self.basepath = "自动读取剑三路径失败，请尝试手动输入剑三路径。"
             return
 
-        datapath = datapath.strip('/').replace('/', '\\')
+        self.datapath = datapath.strip('/').replace('/', '\\')
+
+    def getBasePath(self, playerName):
+        '''
+        通过剑三目录与玩家角色名，获取对应的战斗复盘路径。
+        params
+        - playerName 玩家名。
+        '''
+        # l1 = os.listdir(self.jx3path)
+        # datapath = "%s\\Game\\JX3\\bin\\zhcn_hd\\interface\\MY#DATA" % self.jx3path
+        # l = os.listdir(datapath)
+
+        self.getDataFolder()
+        datapath = self.datapath
+        if not os.path.exists(datapath):
+            self.basepath = ""
+            return
         l = os.listdir(datapath)
 
         resTime = 0
-        
+
         for name in l:
             path2 = "%s\\%s" % (datapath, name)
             if os.path.isdir(path2):
@@ -98,6 +105,42 @@ class FileLookUp():
         if resDir == "":
             print("查找角色失败，请检查记录者角色名是否正确。")
             self.basepath = "查找角色失败，请检查记录者角色名是否正确。"
+
+    def getAllPlayers(self):
+        '''
+        尝试通过当前的剑三路径查找所有可能的角色名.
+        '''
+        self.getDataFolder()
+        datapath = self.datapath
+        if datapath == "":
+            return []
+
+        l = os.listdir(datapath)
+
+        res = []
+
+        for name in l:
+            path2 = "%s\\%s" % (datapath, name)
+            if os.path.isdir(path2):
+                l2 = os.listdir(path2)
+                resTime = 0
+                bestPlayer = ""
+                bestTime = 0
+                for playerName in l2:
+                    if playerName not in ['audio', 'cache', 'config', 'export', 'font', 'info.jx3dat', 'manifest.jx3dat', 'temporary', 'userdata', 'logs', 'decode', 'curl']:
+                        newresTime = os.path.getmtime("%s\\%s" % (path2, playerName))
+                        if newresTime > resTime:
+                            resTime = newresTime
+                            bestPlayer = playerName
+                if os.path.exists("%s\\manifest.jx3dat" % path2):
+                    bestTime = os.path.getmtime("%s\\manifest.jx3dat" % path2)
+                if bestPlayer != "":
+                    res.append([bestPlayer, bestTime])
+        res.sort(key=lambda x: -x[1])
+        result = []
+        for line in res:
+            result.append(line[0])
+        return result
 
     def getLocalFile(self):
         '''
@@ -211,6 +254,9 @@ class FileLookUp():
             
     def __init__(self):
         self.dataType = "jx3dat"
+        self.jx3path = ""
+        self.datapath = ""
+        self.basepath = "."
 
 class FileSelector():
     '''

@@ -86,29 +86,11 @@ class ChangXiuReplayer(SpecificReplayerPro):
         for id in self.bld.info.player:
             if id in self.stat:
                 line = self.stat[id]
-                if id in self.equipmentDict:
-                    line[4] = self.equipmentDict[id]["score"]
-                    line[5] = "%s|%s" % (self.equipmentDict[id]["sketch"], self.equipmentDict[id]["forge"])
-                else:
-                    line[5] = "|"
-
-                line[6] = self.stunCounter[id].buffTimeIntegral() / 1000
-
-                if getOccType(self.occDetailList[id]) == "healer":
-                    line[3] = int(self.hps[id] / self.battleTime * 1000)
-
-                dps = int(line[2] / self.battleTime * 1000)
-                bossResult.append([line[0],
-                                   line[1],
-                                   dps,
-                                   line[3],
-                                   line[4],
-                                   line[5],
-                                   line[6],
-                                   int(line[7] / (self.detail["P1Time"] + 1e-10)),
-                                   int(line[8] / (self.detail["P2Time"] + 1e-10)),
-                                   line[9],
-                                   ])
+                res = self.getBaseList(id)
+                res.extend([int(line[7] / (self.detail["P1Time"] + 1e-10)),
+                            int(line[8] / (self.detail["P2Time"] + 1e-10)),
+                            line[9]])
+                bossResult.append(res)
         bossResult.sort(key=lambda x: -x[2])
         self.effectiveDPSList = bossResult
 
@@ -268,26 +250,14 @@ class ChangXiuReplayer(SpecificReplayerPro):
         '''
         在战斗开始时的初始化流程，当第二阶段复盘开始时运行。
         '''
-        self.activeBoss = "通用"
-        
-        # 通用格式：
-        # 0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
+        self.initBattleBase()
+        self.activeBoss = "常宿"
 
-        # 常宿数据格式：
-        # 7 P1DPS, 8 P2DPS, 9 黑字次数
-        
-        self.stat = {}
-        self.hps = {}
-        self.detail["boss"] = self.bossNamePrint
-        self.win = 0
-        self.bh = BattleHistory(self.startTime, self.finalTime)
-        self.hasBh = True
         self.stunCounter = {}
         self.phase = 1
         self.phaseStart = self.startTime
         self.phaseTime = [0, 0, 0]
 
-        self.bhTime = {}
         self.bhBlackList.extend(["n108727", "n108738",
                                  "s30044", "s30055", "b22228", "b22660", "b22197", "n108264", "s30048", "c30051", "s30056",
                                  "n108121", "n108257", "b22192", "s30158", "s30157", "c30157", "c30158", "b22199", "b22229",
@@ -314,11 +284,11 @@ class ChangXiuReplayer(SpecificReplayerPro):
                        "b22331": ["12451", "#ff0077"],  # 奉天伐恶
                        }
 
+        # 常宿数据格式：
+        # 7 P1DPS, 8 P2DPS, 9 黑字次数
+
         for line in self.bld.info.player:
-            self.hps[line] = 0
-            self.stat[line] = [self.bld.info.player[line].name, self.occDetailList[line], 0, 0, -1, "", 0] + \
-                [0, 0, 0]
-            self.stunCounter[line] = BuffCounter(0, self.startTime, self.finalTime)
+            self.stat[line].extend([0, 0, 0])
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''

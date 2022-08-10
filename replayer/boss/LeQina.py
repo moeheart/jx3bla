@@ -91,26 +91,8 @@ class LeQinaReplayer(SpecificReplayerPro):
         for id in self.bld.info.player:
             if id in self.stat:
                 line = self.stat[id]
-                if id in self.equipmentDict:
-                    line[4] = self.equipmentDict[id]["score"]
-                    line[5] = "%s|%s"%(self.equipmentDict[id]["sketch"], self.equipmentDict[id]["forge"])
-                else:
-                    line[5] = "|"
-                
-                if getOccType(self.occDetailList[id]) == "healer":
-                    line[3] = int(self.hps[id] / self.battleTime * 1000)
-
-                line[6] = self.stunCounter[id].buffTimeIntegral() / 1000
-
-                dps = int(line[2] / self.battleTime * 1000)
-                bossResult.append([line[0],
-                                   line[1],
-                                   dps, 
-                                   line[3],
-                                   line[4],
-                                   line[5],
-                                   line[6],
-                                   ])
+                res = self.getBaseList(id)
+                bossResult.append(res)
         bossResult.sort(key=lambda x:-x[2])
         self.effectiveDPSList = bossResult
 
@@ -244,22 +226,11 @@ class LeQinaReplayer(SpecificReplayerPro):
         '''
         在战斗开始时的初始化流程，当第二阶段复盘开始时运行。
         '''
-        self.activeBoss = "通用"
-        
-        #通用格式：
-        #0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
-        
-        self.stat = {}
-        self.hps = {}
-        self.detail["boss"] = self.bossNamePrint
-        self.win = 0
-        self.bh = BattleHistory(self.startTime, self.finalTime)
-        self.hasBh = True
-        self.stunCounter = {}
+        self.initBattleBase()
+        self.activeBoss = "勒齐那"
 
         self.detail["zhadan"] = []  # 搬炸弹复盘
 
-        self.bhTime = {}
         self.bhBlackList.extend(["s30500", "s30461", "s30275", "c3365", "b22615", "b22614", "s6746", "b17933", "b6131",
                                  "s30335", "s30334", "b22400", "s30462", "s30333", "b22402", "b22401",
                                  "b22478", "s30370", "s30368", "s30369"])
@@ -273,10 +244,7 @@ class LeQinaReplayer(SpecificReplayerPro):
                        }
         
         for line in self.bld.info.player:
-            self.hps[line] = 0
-            self.stat[line] = [self.bld.info.player[line].name, self.occDetailList[line], 0, 0, -1, "", 0] + \
-                []
-            self.stunCounter[line] = BuffCounter(0, self.startTime, self.finalTime)
+            pass
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''

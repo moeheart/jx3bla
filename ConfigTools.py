@@ -156,7 +156,6 @@ class Config():
             text += '\n'
         g.write(text)
         g.close()
-        pass
 
     def loadSettings(self, cf, nameInFile, nameInConfig):
         '''
