@@ -397,8 +397,6 @@ class ActorProReplayer(ReplayerBase):
         qteStat = []
         qteTime = 0
 
-        combatTracker = CombatTracker(self.bld.info)
-
         XLS_ACTIVE = 0
 
         if XLS_ACTIVE:
@@ -451,8 +449,6 @@ class ActorProReplayer(ReplayerBase):
             self.bossAnalyser.analyseSecondStage(event)
 
             if event.dataType == "Skill":
-
-                combatTracker.recordSkill(event)
 
                 if event.target in self.bld.info.player:
                 #if occdict[item[5]][0] != '0':
@@ -544,8 +540,6 @@ class ActorProReplayer(ReplayerBase):
                     self.battleDict[event.caster].setState(event.time, 1)
 
             elif event.dataType == "Buff":
-
-                combatTracker.recordBuff(event)
 
                 # if occdict[item[5]][0] == '0':
                 #     continue
@@ -642,7 +636,7 @@ class ActorProReplayer(ReplayerBase):
                             deathSourceDetail.append("-%s, %s:%s%s(%d)"%(parseTime((int(line[0]) - self.startTime) / 1000), name, line[1], resultStr, line[2]))
                         elif line[4] == 1:
                             deathSourceDetail.append("+%s, %s:%s%s(%d)"%(parseTime((int(line[0]) - self.startTime) / 1000), name, line[1], resultStr, line[2]))
-                        if line[2] > line[6] and line[4] == -1 and line[1] not in ["湍流", "溺水"]:
+                        if line[2] > line[6] and line[4] == -1 and line[1] not in ["湍流", "溺水", '1,31067,1']:
                             lastFatal = 1
                         else:
                             lastFatal = 0
@@ -705,9 +699,6 @@ class ActorProReplayer(ReplayerBase):
         # 调整战斗时间
         self.startTime, self.finalTime, self.battleTime = self.bossAnalyser.trimTime()
         self.battleTime += 1e-10  # 防止0战斗时间导致错误
-
-        combatTracker.export(self.battleTime)
-        self.combatTracker = combatTracker
 
         if XLS_ACTIVE:
             # 修罗统计3
@@ -911,7 +902,28 @@ class ActorProReplayer(ReplayerBase):
     def ThirdStageAnalysis(self):
         '''
         第三阶段复盘.
-        主要是心法复盘的实现.
+        目前实现了战斗的数值统计.
+        '''
+
+        combatTracker = CombatTracker(self.bld.info)
+
+        for event in self.bld.log:
+            if event.time < self.startTime:
+                continue
+            if event.time > self.finalTime:
+                continue
+            if event.dataType == "Skill":
+                combatTracker.recordSkill(event)
+            elif event.dataType == "Buff":
+                combatTracker.recordBuff(event)
+
+        combatTracker.export(self.battleTime)
+        self.combatTracker = combatTracker
+
+    def OccAnalysis(self):
+        '''
+        心法复盘实现.
+        每个心法都会再独立扫一次战斗记录.
         '''
         self.occResult = {}
         actorData = {}
@@ -960,6 +972,7 @@ class ActorProReplayer(ReplayerBase):
         self.FirstStageAnalysis()
         self.SecondStageAnalysis()
         self.ThirdStageAnalysis()
+        self.OccAnalysis()
         if self.upload:
             self.prepareUpload()
 

@@ -322,6 +322,7 @@ class LiveListener():
                 self.mainWindow.lastBld = actorRep.bld
                 return actorRep
             actorRep.ThirdStageAnalysis()
+            actorRep.OccAnalysis()
             
             self.analyser.setServer(actorRep.bld.info.server)
             self.analyser.setMapDetail(actorRep.bld.info.map)
@@ -434,7 +435,7 @@ class LiveListener():
         '''
         self.listenFlag = True
         self.listenThread = threading.Thread(target=self.listenPath, args = (self.basepath,))
-        self.listenThread.setDaemon(True);
+        self.listenThread.setDaemon(True)
         self.listenThread.start()
     
     def __init__(self, basepath, config, analyser, mainWindow):

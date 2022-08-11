@@ -139,6 +139,10 @@ class SpecificReplayerPro():
                               []
             self.stunCounter[line] = BuffCounter(0, self.startTime, self.finalTime)
 
+        # 对DPS和治疗分别给出无效区间
+        self.badPeriodDps = IntervalCounter(self.startTime, self.finalTime)
+        self.badPeriodHealer = IntervalCounter(self.startTime, self.finalTime)
+
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
         '''
         对类本身进行初始化。

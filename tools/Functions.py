@@ -262,6 +262,53 @@ class SkillHealCounter(SkillCounter):
         '''
         super().__init__(skillid, startTime, finalTime, haste, delta=-1)
 
+class IntervalCounter():
+    '''
+    区间统计类，用于在时间先后顺序可能错乱的情况下取代BuffCounter，其在结束时可以安全转化为log格式.
+    '''
+
+    def recordInterval(self, start, end):
+        '''
+        记录一个区间.
+        '''
+        self.intervals.append([start, end])
+
+    def export(self):
+        '''
+        导出为log格式.
+        returns
+        - res: logs格式的结果，按覆盖为1，未覆盖为0判定.
+        '''
+        self.intervals.sort(key=lambda x: x[0])
+        effIntervals = []
+        for line in self.intervals:
+            if effIntervals == [] or line[0] > effIntervals[-1][1]:
+                effIntervals.append(line)
+            else:
+                effIntervals[-1][1] = line[1]
+
+        res = [[self.startTime, 0]]
+        if effIntervals != []:
+            if effIntervals[0][0] <= self.startTime:
+                del res[0]
+            for line in effIntervals:
+                if line[0] < self.finalTime:
+                    res.append([line[0], 1])
+                if line[1] < self.finalTime:
+                    res.append([line[1], 0])
+        return res
+
+    def __init__(self, startTime, finalTime):
+        '''
+        构造函数.
+        params:
+        - startTime: 战斗开始时间.
+        - finalTime: 战斗结束时间.
+        '''
+        self.startTime = startTime
+        self.finalTime = finalTime
+        self.intervals = []
+
 class BuffCounter():
     '''
     通用的buff统计类，记录buff的获取、消亡、层数，并给出覆盖率、存在时间等指标.

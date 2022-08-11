@@ -280,7 +280,6 @@ class HealerReplay(ReplayerBase):
                 self.result["healer"]["table"].append(res)
         self.result["healer"]["table"].sort(key=lambda x: -x["rhps"])
 
-
     def handleGcdSkill(self, event):
         '''
         处理gcd技能, 这是第二阶段主循环的子功能.
