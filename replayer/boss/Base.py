@@ -9,6 +9,12 @@ class SpecificReplayerPro():
     BOSS复盘通用类.
     '''
 
+    def countFinalOverall(self):
+        '''
+        战斗结束时所有BOSS的通用处理流程.
+        '''
+        self.bh.calBadPeriod()
+
     def getResult(self):
         '''
         生成复盘结果的流程。需要维护effectiveDPSList, potList与detail。
@@ -138,10 +144,6 @@ class SpecificReplayerPro():
             self.stat[line] = [self.bld.info.player[line].name, self.occDetailList[line], 0, 0, -1, "", 0] + \
                               []
             self.stunCounter[line] = BuffCounter(0, self.startTime, self.finalTime)
-
-        # 对DPS和治疗分别给出无效区间
-        self.badPeriodDps = IntervalCounter(self.startTime, self.finalTime)
-        self.badPeriodHealer = IntervalCounter(self.startTime, self.finalTime)
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
         '''

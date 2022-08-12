@@ -62,7 +62,7 @@ class ChangXiuReplayer(SpecificReplayerPro):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
-
+        self.countFinalOverall()
         if self.phase != 0 and self.phaseTime[self.phase] == 0:
             self.phaseTime[self.phase] = self.finalTime - self.phaseStart
 

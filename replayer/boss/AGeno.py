@@ -58,6 +58,7 @@ class AGenoReplayer(SpecificReplayerPro):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
+        self.countFinalOverall()
         self.bh.setEnvironmentInfo(self.bhInfo)
 
         for player in self.toushiPlayer:
@@ -161,9 +162,10 @@ class AGenoReplayer(SpecificReplayerPro):
             elif event.content in ['"不好，火船就要靠近浮桥了！得赶紧推动机关！"']:
                 pass
             elif event.content in ['"喝！都给我下去喂鱼吧！"']:
-                pass
+                self.bh.setBadPeriod(event.time - 5000, event.time + 5000, True, True)
             elif event.content in ['"妈的！你们给我等着！"']:
                 self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             else:
                 # self.bh.setEnvironment("0", event.content, "13", event.time, 0, 1, "喊话", "shout")
                 pass

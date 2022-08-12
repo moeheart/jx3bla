@@ -78,8 +78,10 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
-
+        self.countFinalOverall()
         self.bh.setEnvironmentInfo(self.bhInfo)
+        for line in self.detail["toushi"]:
+            self.bh.setBadPeriod(line["start"], line["log"][-1][2] + 2000, True, False)
 
         # for line in self.bh.log["environment"]:
         #     timePrint = "%.1f" % ((line["start"] - self.startTime) / 1000)
@@ -187,8 +189,10 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"啊……！糟……了……"']:
                 self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             elif event.content in ['"狼牙守将已亡，众将士！随我杀！"']:
                 self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
             return

@@ -250,6 +250,8 @@ class HealerReplay(ReplayerBase):
         if self.bossBh is not None:
             bh.log["environment"] = self.bossBh.log["environment"]
             bh.log["call"] = self.bossBh.log["call"]
+            bh.badPeriodDpsLog = self.bossBh.badPeriodDpsLog
+            bh.badPeriodHealerLog = self.bossBh.badPeriodHealerLog
 
         # 计算团队治疗区(Part 3)
         self.result["healer"] = {"table": [], "numHealer": 0}

@@ -81,6 +81,7 @@ class ZhouZhiReplayer(SpecificReplayerPro):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
+        self.countFinalOverall()
         if self.phase != 0 and self.phaseTime[self.phase] == 0:
             self.phaseTime[self.phase] = self.finalTime - self.phaseStart
 
@@ -214,11 +215,13 @@ class ZhouZhiReplayer(SpecificReplayerPro):
                             if self.phase == 0:
                                 self.phase = 1
                                 self.phaseStart = event.time
+                                self.bh.setBadPeriod(self.startTime, event.time - 1, True, True)
                         elif self.bld.info.npc[event.target].name in ["李秦授"]:
                             self.stat[event.caster][8] += event.damageEff
                             if self.phase == 1:
                                 self.phase = 2
                                 self.phaseStart = event.time
+                                self.bh.setBadPeriod(self.phaseEnd - 2000, event.time - 1, True, True)
                         elif self.bld.info.npc[event.target].name in ["狼牙铁骑"]:
                             self.stat[event.caster][9] += event.damageEff
                         elif self.bld.info.npc[event.target].name in ["周贽"]:
@@ -226,7 +229,7 @@ class ZhouZhiReplayer(SpecificReplayerPro):
                             if self.phase == 2:
                                 self.phase = 3
                                 self.phaseStart = event.time
-
+                                self.bh.setBadPeriod(self.phaseEnd - 2000, event.time - 1, True, True)
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
                 return
@@ -267,10 +270,12 @@ class ZhouZhiReplayer(SpecificReplayerPro):
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
                 if self.phase == 1:
                     self.phaseTime[1] = event.time - self.phaseStart
+                self.phaseEnd = event.time
             elif event.content in ['"已降服敌将！"']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
                 if self.phase == 2:
                     self.phaseTime[2] = event.time - self.phaseStart
+                self.phaseEnd = event.time
             elif event.content in ['"好！敌将被俘，士气大减。"']:
                 pass
             elif event.content in ['"骑兵听令，出城助战！"']:
@@ -283,6 +288,7 @@ class ZhouZhiReplayer(SpecificReplayerPro):
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
                 self.win = 1
                 self.phaseTime[3] = event.time - self.phaseStart
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             elif event.content in ['"撤！"']:
                 pass
             elif event.content in ['"乘胜追击！"']:
@@ -308,8 +314,7 @@ class ZhouZhiReplayer(SpecificReplayerPro):
             pass
 
         elif event.dataType == "Alert":  # 系统警告框
-            if event.content in ['"黄河水位即将上涨！"']:
-                self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "系统警告", "Alert")
+            pass
 
         elif event.dataType == "Cast":  # 施放技能事件，jcl专属
             if event.caster in self.bld.info.npc:  # 记录非玩家施放的技能
@@ -342,6 +347,7 @@ class ZhouZhiReplayer(SpecificReplayerPro):
         self.stunCounter = {}
         self.phase = 0
         self.phaseStart = self.startTime
+        self.phaseEnd = self.startTime
         self.phaseTime = [0, 0, 0, 0]
 
         self.detail["junzhen"] = []  # 军阵复盘

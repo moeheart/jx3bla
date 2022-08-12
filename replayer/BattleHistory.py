@@ -25,7 +25,30 @@ class BattleHistory():
             res["call"] = self.log["call"][key]
         else:
             res["call"] = []
+        res["badPeriodDps"] = self.badPeriodDpsLog
+        res["badPeriodHealer"] = self.badPeriodHealerLog
         return res
+
+    def calBadPeriod(self):
+        '''
+        在战斗结束时结算所有的无效时间段.
+        '''
+        self.badPeriodDpsLog = self.badPeriodDps.export()
+        self.badPeriodHealerLog = self.badPeriodHealer.export()
+
+    def setBadPeriod(self, start, end, affectDps=True, affectHealer=True):
+        '''
+        设置战斗中的无效时间段.
+        params:
+        - start: 开始时间点.
+        - end: 结束时间点.
+        - affectDps: 这个时间段是否影响dps.
+        - affectHealer: 这个时间段是否影响治疗.
+        '''
+        if affectDps:
+            self.badPeriodDps.recordInterval(start, end)
+        if affectHealer:
+            self.badPeriodHealer.recordInterval(start, end)
 
     def setEnvironmentInfo(self, infoDict):
         '''
@@ -255,7 +278,11 @@ class BattleHistory():
         self.log = {"environment": [], "normal": [], "special": [], "call": {}, "nongcd": []}
         self.startTime = startTime
         self.finalTime = finalTime
-
+        # 对DPS和治疗分别给出无效区间
+        self.badPeriodDps = IntervalCounter(self.startTime, self.finalTime)
+        self.badPeriodHealer = IntervalCounter(self.startTime, self.finalTime)
+        self.badPeriodDpsLog = []
+        self.badPeriodHealerLog = []
 
 class SingleSkill():
     '''

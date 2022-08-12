@@ -74,6 +74,7 @@ class LeQinaReplayer(SpecificReplayerPro):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
+        self.countFinalOverall()
         self.bh.setEnvironmentInfo(self.bhInfo)
 
         # for line in self.bh.log["environment"]:
@@ -172,7 +173,7 @@ class LeQinaReplayer(SpecificReplayerPro):
                     
         elif event.dataType == "Shout":
             if event.content in ['"皆成灰烬！"']:
-                pass
+                self.bh.setBadPeriod(event.time, event.time + 10000, True, False)
             elif event.content in ['"无处可逃！"']:
                 pass
             elif event.content in ['"燃起来吧！"']:
@@ -181,6 +182,7 @@ class LeQinaReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"火，怎么熄灭了……"']:
                 self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             else:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
 
