@@ -108,6 +108,7 @@ class GeneralReplayer(SpecificReplayerPro):
                     if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 3000:
                         self.bhTime[name] = event.time
                         skillName = self.bld.info.getSkillName(event.full_id)
+                        print("[Skill]", skillName, event.time)
                         if "," not in skillName:
                             self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式命中玩家", "skill")
                     
@@ -125,6 +126,7 @@ class GeneralReplayer(SpecificReplayerPro):
                 if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 3000:
                     self.bhTime[name] = event.time
                     skillName = self.bld.info.getSkillName(event.full_id)
+                    print("[Buff]", skillName, event.time)
                     if "," not in skillName:
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "玩家获得气劲", "buff")
                     
