@@ -715,7 +715,7 @@ def parseTime(time):
         if time % 60 == 0:
             return "%dm" % (time / 60)
         else:
-            return "%dm%ds" % (time / 60, time % 60)
+            return "%dm%.1fs" % (time / 60, time % 60)
 
 def roundCent(num, digit=4):
     '''

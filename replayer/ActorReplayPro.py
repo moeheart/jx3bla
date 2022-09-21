@@ -6,6 +6,8 @@ import urllib.request
 import hashlib
 import time
 
+import os
+
 #from ReplayBase import StatGeneratorBase
 from tools.Functions import *
 from Constants import *
@@ -357,7 +359,7 @@ class ActorProReplayer(ReplayerBase):
                                            self.finalTime, self.battleTime, self.bossNamePrint, self.config)
         else:
             bossAnalyser = GeneralReplayer(self.bld, occDetailList, self.startTime,
-                                           self.finalTime, self.battleTime, self.bossNamePrint)
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
             
         self.bossAnalyser = bossAnalyser
         
@@ -397,7 +399,7 @@ class ActorProReplayer(ReplayerBase):
         qteStat = []
         qteTime = 0
 
-        XLS_ACTIVE = 0
+        XLS_ACTIVE = 1
 
         if XLS_ACTIVE:
             # 修罗统计1
@@ -415,6 +417,14 @@ class ActorProReplayer(ReplayerBase):
                               "27023,0": "拉人",
                               "26071,1": "多罗叶指",
                               "26088,0": "出30尺",
+                              "25973,-2": "一指禅功",
+                              "25972,-2": "横扫六合",
+                              "25975,-2": "小夜叉",
+                              "25976,-2": "小夜叉",
+                              "25979,0": "大韦陀",
+                              "27372,-2": "普门一段",
+                              "25983,0": "普门二段",
+                              "18752,-3": "伏魔铲法",
                               }
             skillUpperLimit = {"27310,1": 1000,
                                "27310,-1": 1000,
@@ -430,6 +440,14 @@ class ActorProReplayer(ReplayerBase):
                                "27023,0": 8,
                                "26071,1": 1000,
                                "26088,0": 1000,
+                               "25973,-2": 6,
+                               "25972,-2": 8,
+                               "25975,-2": 4,
+                               "25976,-2": 4,
+                               "25979,0": 4,
+                               "27372,-2": 4,
+                               "25983,0": 4,
+                               "18752,-3": 12,
                               }
             jimieLastTime = 1
             playerSkillLog = {}
@@ -439,6 +457,24 @@ class ActorProReplayer(ReplayerBase):
                 for name in skillCheckDict:
                     playerSkillLog[playername][skillCheckDict[name]] = 0
 
+            playerEventLog = {}
+            stackNum = {}
+            stackTime = {}
+            for line in self.bld.info.player:
+                playerEventLog[line] = []
+                stackNum[line] = 0
+                stackTime[line] = 0
+
+        damageCountActive = 0
+        damageCloseTime = 0
+        damageStartTime = 0
+        damageDict = {}
+        activeTime = 0
+        castDict = {}
+        P3active = 0
+        zahActiveTime = 0
+        dwtActiveTime = 0
+
         for event in self.bld.log:
 
             if event.time < self.startTime:
@@ -447,6 +483,18 @@ class ActorProReplayer(ReplayerBase):
                 continue
                 
             self.bossAnalyser.analyseSecondStage(event)
+
+            if (event.time - damageCloseTime > 5000) and damageCountActive:
+                damageCountActive = 0
+                damageCloseTime = 0
+            if damageCountActive:
+                t = int((event.time - self.startTime) / 100) * 100
+                while str(t) not in damageDict:
+                    damageDict[str(t)] = 0
+                    if t - 100 >= damageStartTime:
+                        t -= 100
+                    else:
+                        break
 
             if event.dataType == "Skill":
 
@@ -463,10 +511,14 @@ class ActorProReplayer(ReplayerBase):
                         if playername in playerSkillLog:
                             skillIDSpecific = "%s,%s" % (event.id, event.level)
                             skillIDGeneral = "%s,0" % event.id
+                            skillIDOverDamage = "%s,-2" % event.id
                             if skillIDSpecific in skillCheckDict:
                                 playerSkillLog[playername][skillCheckDict[skillIDSpecific]] += 1
-                            if skillIDGeneral in skillCheckDict:
+                            if skillIDGeneral in skillCheckDict and skillIDOverDamage not in skillCheckDict:
                                 playerSkillLog[playername][skillCheckDict[skillIDGeneral]] += 1
+                            if skillIDOverDamage in skillCheckDict and event.damage > event.damageEff:
+                                playerSkillLog[playername][skillCheckDict[skillIDOverDamage]] += 1
+                                print(event.time, self.bld.info.getSkillName(event.full_id), self.bld.info.getName(event.target), event.damage, event.damageEff)
                             if skillIDGeneral == "27041,0":
                                 if event.time - jimieLastTime > 2000:
                                     jimieLastTime = event.time
@@ -477,6 +529,9 @@ class ActorProReplayer(ReplayerBase):
                                             playerSkillLog[playername2][skillCheckDict["27310,-1"]] += 0
                                         else:
                                             playerSkillLog[playername2][skillCheckDict["27310,-1"]] += 4
+                        if P3active:
+                            if event.damageEff > 0 and self.bld.info.getSkillName(event.full_id) != "灭":
+                                playerEventLog[event.target].append("%s 受到伤害：%s，%d" % (parseTime((event.time - self.startTime) / 1000), self.bld.info.getSkillName(event.full_id), event.damageEff))
 
                     # 过量伤害
                     if event.damage > event.damageEff:
@@ -534,10 +589,49 @@ class ActorProReplayer(ReplayerBase):
                             self.dps[event.caster] = [0]
                         self.dps[event.caster][0] += event.damageEff
 
+                # for i in ["5", "8", "9", "10", "11", "12", "15", "16"]:
+                #     if i in event.fullResult:
+                #         print(self.bld.info.getSkillName(event.full_id), self.bld.info.getName(event.caster), self.bld.info.getName(event.target), parseTime((event.time - self.startTime) / 1000), event.fullResult)
+
                 # 根据战斗信息推测进战状态
                 if event.caster in self.bld.info.player and event.scheme == 1 and firstHitDict[event.caster] == 0 and (event.damageEff > 0 or event.healEff > 0):
                     firstHitDict[event.caster] = 1
                     self.battleDict[event.caster].setState(event.time, 1)
+
+                if P3active:
+                    if event.id in ["27087"]:
+                        timediff = 5000 - (event.time - stackTime[event.caster])
+                        if timediff > 3500:
+                            timediff = 5000
+                        if timediff < 0:
+                            timediff = 0
+                        value = int(timediff / 5000 * stackNum[event.caster] * 10)
+                        playerEventLog[event.caster].append("%s 按吐纳，估算聚集点数为：%d" % (parseTime((event.time - self.startTime) / 1000),
+                                                    value))
+                        stackNum[event.caster] = 0
+                    if event.id in ["27363", "27364", "27365", "27366", "27483"]:
+                        value = event.level * 20
+                        if event.caster in playerEventLog:
+                            playerEventLog[event.caster].append("%s 内力爆发目标[%s]，点数为%d" % (parseTime((event.time - self.startTime) / 1000),
+                                                        self.bld.info.getName(event.target), value))
+                        else:
+                            print("%s 内力爆发目标[%s]，点数为%d" % (parseTime((event.time - self.startTime) / 1000),
+                                                        self.bld.info.getName(event.target), value))
+
+                    name = self.bld.info.getName(event.target)
+                    if name == "夜叉法相":
+                        print(parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.caster), self.bld.info.getSkillName(event.full_id), event.damageEff)
+                    elif name == "修罗僧":
+                        if damageCountActive:
+                            timegroup = str(int((event.time - self.startTime) / 100) * 100)
+                            damageDict[timegroup] += event.damageEff
+                        if event.time - zahActiveTime < 5000 and event.scheme == 1:
+                            print("[zah]", parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.caster), self.bld.info.getSkillName(event.full_id), event.damageEff)
+                        if event.time - dwtActiveTime < 5000 and self.bld.info.getSkillName(event.full_id) in ["剑破虚空", "厥阴指", "灵蛊", "抢珠式"]:
+                            print("[dwt]", parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.caster), self.bld.info.getSkillName(event.full_id), event.damageEff)
+                    elif event.damageEff > 0 and event.target in self.bld.info.npc:
+                        print("[ExtraTarget]", name, self.bld.info.npc[event.target].templateID)
+
 
             elif event.dataType == "Buff":
 
@@ -545,6 +639,22 @@ class ActorProReplayer(ReplayerBase):
                 #     continue
                 if event.target not in self.bld.info.player:
                     continue
+
+                if event.id == "16877":
+                    print(parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.target), event.level)
+
+                name = self.bld.info.getSkillName(event.target)
+                if event.id == "18752":
+                    print("[Fumo]", parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.target), event.level)
+
+
+                if XLS_ACTIVE:
+                    # 修罗统计4
+                    playername = self.bld.info.player[event.target].name
+                    if playername in playerSkillLog and event.stack == 1:
+                        skillIDSpecific = "%s,-3" % (event.id)
+                        if skillIDSpecific in skillCheckDict:
+                            playerSkillLog[playername][skillCheckDict[skillIDSpecific]] += 1
 
                 # data = self.checkFirst(item[5], data, occdict)
                 # if item[6] in self.actorBuffList and int(item[10]) == 1:
@@ -577,6 +687,17 @@ class ActorProReplayer(ReplayerBase):
                     if len(deathHitDetail[event.target]) >= 20:
                         del deathHitDetail[event.target][0]
                     deathHitDetail[event.target].append([event.time, "禅语消失", 0, event.caster, -1, 0, 0])
+
+                if event.id in ["19724"]:
+                    name = self.bld.info.player[event.target].name
+                    print(event.time, name)
+
+                if P3active:
+                    if event.target in playerEventLog and event.id in ["19689", "19826"] and event.stack != 0:
+                        playerEventLog[event.target].append("%s 获得吐纳buff：%d层" % (parseTime((event.time - self.startTime) / 1000),
+                                                    event.stack))
+                        stackNum[event.target] = event.stack
+                        stackTime[event.target] = event.time
 
             elif event.dataType == "Death":  # 重伤记录
                 
@@ -670,13 +791,18 @@ class ActorProReplayer(ReplayerBase):
                         self.unusualDeathDict[event.id]["num"] += 1
                         self.unusualDeathDict[event.id]["log"].append(lastLine)
 
-                    # 对有重伤统计的BOSS进行记录
-                    if self.bossAnalyser.activeBoss in []:
-                        self.bossAnalyser.recordDeath(item, deathSource)
+                    # # 对有重伤统计的BOSS进行记录
+                    # if self.bossAnalyser.activeBoss in []:
+                    #     self.bossAnalyser.recordDeath(item, deathSource)
+
+                if P3active:
+                    if event.id in playerEventLog:
+                        playerEventLog[event.id].append("%s 重伤" % parseTime((event.time - self.startTime) / 1000))
 
             elif event.dataType == "Shout":  # 喊话
-                pass
-                # print("[Shout]", event.time, event.content)
+                if "喝哈" in event.content:
+                    P3active = 1
+                print("[Shout]", event.time, event.content)
                     
             elif event.dataType == "Battle":  # 战斗状态变化
                 if event.id in self.bld.info.player:
@@ -692,6 +818,26 @@ class ActorProReplayer(ReplayerBase):
                 pass
                 # if event.caster in self.bld.info.npc:
                 #     print("[Cast]", event.time, event.id, self.bld.info.getSkillName(event.full_id))
+                if P3active:
+                    if self.bld.info.getName(event.caster) in ["修罗僧", "夜叉法相"]:
+                        for line in playerEventLog:
+                            playerEventLog[line].append("%s [%s]读条：%s" % (parseTime((event.time - self.startTime) / 1000),
+                                                        self.bld.info.getName(event.caster), self.bld.info.getSkillName(event.full_id)))
+                        castDict[parseTime((event.time - self.startTime) / 1000)] = [self.bld.info.getSkillName(event.full_id), str(activeTime)]
+                        skillName = self.bld.info.getSkillName(event.full_id)
+                        if "罗汉醉棍" in skillName:
+                            damageCountActive = 1
+                            damageStartTime = event.time - self.startTime
+                            damageCloseTime = 999999999999
+                            activeTime += 1
+                        if "佛光普照" in skillName:
+                            damageCloseTime = event.time
+                        if "杂阿含神功" in skillName:
+                            zahActiveTime = event.time
+                        if "大韦陀献杵" in skillName:
+                            dwtActiveTime = event.time
+                    if event.id in ["27073"]:
+                        playerEventLog[event.caster].append("%s 读条内力爆发" % parseTime((event.time - self.startTime) / 1000))
 
 
             num += 1
@@ -714,6 +860,27 @@ class ActorProReplayer(ReplayerBase):
                 fileName = "xlsCount/%d.txt"%self.startTime
                 f = open(fileName, "w")
                 f.write(str(playerSkillLog))
+                f.close()
+
+            if P3active:
+                for player in playerEventLog:
+                    name = self.bld.info.getName(player)
+                    path = "xlsCount/detail/%s" % name
+                    if not os.path.exists(path):
+                        os.mkdir(path)
+                    file = "xlsCount/detail/%s/%d.txt" % (name, self.startTime)
+                    f = open(file, "w")
+                    for line in playerEventLog[player]:
+                        f.write(line + "\n")
+                    f.close()
+
+                f = open("xlsCount/detail/%d.txt" % self.startTime, "w")
+                for key in damageDict:
+                    name = ["无", "-"]
+                    timeStr = parseTime(int(key) / 1000)
+                    if timeStr in castDict:
+                        name = castDict[timeStr]
+                    f.write("%s\t%s\t%s\t%d\n" % (timeStr, name[0], name[1], damageDict[key]))
                 f.close()
 
         recordGORate = 0

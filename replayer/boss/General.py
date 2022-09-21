@@ -58,10 +58,10 @@ class GeneralReplayer(SpecificReplayerPro):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
-        pass
 
-        # for line in self.bh.log["environment"]:
-        #     print(line)
+        self.bh.setEnvironmentInfo(self.bhInfo)
+        for line in self.bh.log["environment"]:
+            print(line)
 
     def getResult(self):
         '''
@@ -165,10 +165,13 @@ class GeneralReplayer(SpecificReplayerPro):
         '''
         self.initBattleBase()
         self.activeBoss = "通用"
+        self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
+        self.bhInfo = {}
 
-    def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
+    def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''
         对类本身进行初始化。
         '''
         super().__init__(bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint)
+        self.config = config
 
