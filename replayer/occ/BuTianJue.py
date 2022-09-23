@@ -183,6 +183,16 @@ class BuTianJueWindow(HealerDisplayWindow):
             if zwjt == 1:
                 canvas6.create_rectangle(posStart, 61, posEnd, 70, fill="#957ded", width=0)
 
+        if "badPeriodHealer" in self.result["replay"]:
+            # 绘制无效时间段
+            for i in range(1, len(self.result["replay"]["badPeriodHealer"])):
+                posStart = int((self.result["replay"]["badPeriodHealer"][i - 1][0] - startTime) / 100)
+                posStart = max(posStart, 1)
+                posEnd = int((self.result["replay"]["badPeriodHealer"][i][0] - startTime) / 100)
+                zwjt = self.result["replay"]["badPeriodHealer"][i - 1][1]
+                if zwjt == 1:
+                    canvas6.create_rectangle(posStart, 31, posEnd, 70, fill="#bbbbbb", width=0)
+
         nowt = 0
         while nowt < battleTime:
             nowt += 10000
@@ -692,7 +702,7 @@ class BuTianJueReplayer(HealerReplay):
         # 整体
         self.result["skill"]["general"] = {}
         # self.result["skill"]["general"]["efficiency"] = self.bh.getNormalEfficiency()
-        self.result["skill"]["general"]["efficiencyNonGcd"] = self.bh.getNonGcdEfficiency(zwjtDict.log)
+        self.result["skill"]["general"]["efficiencyNonGcd"] = self.bh.getNormalEfficiency("healer", zwjtDict.log)
         # 计算战斗回放
         self.result["replay"] = self.bh.getJsonReplay(self.mykey)
         self.result["replay"]["mxym"] = mxymDict.log

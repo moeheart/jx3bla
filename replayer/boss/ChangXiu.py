@@ -165,6 +165,13 @@ class ChangXiuReplayer(SpecificReplayerPro):
             if event.id == "22331":  # 奉天伐恶
                 if event.stack == 1:
                     self.bh.setCall("22331", "奉天伐恶", "12451", event.time, 0, event.target, "奉天伐恶点名，沉默")
+                    if event.time - self.ftfeStartTime > 2000:  # 记录开始
+                        self.ftfeStartTime = event.time
+                if event.stack == 0:
+                    if self.ftfeStartTime != 0:  # 记录结束
+                        self.bh.setBadPeriod(self.ftfeStartTime, event.time, True, False)
+                        self.bh.setBadPeriod(self.ftfeStartTime, event.time + 6000, False, True)  # 奶妈按照承伤计算，无效时间延后
+                        self.ftfeStartTime = 0
                 self.stunCounter[event.target].setState(event.time, event.stack)
 
             if event.caster in self.bld.info.npc and event.stack > 0:
@@ -196,9 +203,11 @@ class ChangXiuReplayer(SpecificReplayerPro):
             elif event.content in ['"哼！"']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
                 self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             elif event.content in ['"你我……再会……"']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
                 self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             else:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
             return
@@ -217,7 +226,10 @@ class ChangXiuReplayer(SpecificReplayerPro):
             pass
 
         elif event.dataType == "Battle":  # 战斗状态变化
-            pass
+            if self.bld.info.getName(event.id) in ["常宿"]:
+                self.firstBattle = 0
+                if event.time - self.startTime > 500 and self.firstBattle:  # 预留500ms的空白时间
+                    self.bh.setBadPeriod(self.startTime, event.time - 500, True, True)
 
         elif event.dataType == "Alert":  # 系统警告框
             pass
@@ -231,10 +243,12 @@ class ChangXiuReplayer(SpecificReplayerPro):
                     if "," not in skillName:
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式开始运功", "cast")
 
-            if event.id == "30456" and self.phase == 1:  # 墨言可畏
-                self.phaseTime[1] = event.time - self.phaseStart
-                self.phase = 2
-                self.phaseStart = 0
+            if event.id == "30456":  # 墨言可畏
+                if self.phase == 1:
+                    self.phaseTime[1] = event.time - self.phaseStart
+                    self.phase = 2
+                    self.phaseStart = 0
+                self.bh.setBadPeriod(event.time, event.time + 75000, True, True)
 
                     
     def analyseFirstStage(self, item):
@@ -253,7 +267,7 @@ class ChangXiuReplayer(SpecificReplayerPro):
         self.initBattleBase()
         self.activeBoss = "常宿"
 
-        self.stunCounter = {}
+        # self.stunCounter = {}
         self.phase = 1
         self.phaseStart = self.startTime
         self.phaseTime = [0, 0, 0]
@@ -289,6 +303,10 @@ class ChangXiuReplayer(SpecificReplayerPro):
 
         for line in self.bld.info.player:
             self.stat[line].extend([0, 0, 0])
+
+        self.firstBattle = 1
+
+        self.ftfeStartTime = 0  # 奉天伐恶记录
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''

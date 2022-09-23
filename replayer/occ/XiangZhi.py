@@ -191,6 +191,17 @@ class XiangZhiProWindow(HealerDisplayWindow):
                         nowTimePixel += 5
                 # canvas6.create_image(10, 40, image=canvas6.im["7172"])
                 # canvas6.create_image(30, 40, image=canvas6.im["7176"])
+
+        if "badPeriodHealer" in self.result["replay"]:
+            # 绘制无效时间段
+            for i in range(1, len(self.result["replay"]["badPeriodHealer"])):
+                posStart = int((self.result["replay"]["badPeriodHealer"][i - 1][0] - startTime) / 100)
+                posStart = max(posStart, 1)
+                posEnd = int((self.result["replay"]["badPeriodHealer"][i][0] - startTime) / 100)
+                zwjt = self.result["replay"]["badPeriodHealer"][i - 1][1]
+                if zwjt == 1:
+                    canvas6.create_rectangle(posStart, 31, posEnd, 70, fill="#bbbbbb", width=0)
+
         nowt = 0
         while nowt < battleTime:
             nowt += 10000

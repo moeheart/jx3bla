@@ -267,11 +267,20 @@ class IntervalCounter():
     区间统计类，用于在时间先后顺序可能错乱的情况下取代BuffCounter，其在结束时可以安全转化为log格式.
     '''
 
-    def recordInterval(self, start, end):
+    def recordInterval(self, start, end, exclude=0):
         '''
         记录一个区间.
+        - start: 区间开始时间.
+        - end: 区间结束时间.
+        - exclude: 是否为排除的区间.
         '''
-        self.intervals.append([start, end])
+        if start >= end:
+            return
+        if start < self.startTime:
+            start = self.startTime
+        if end > self.finalTime:
+            end = self.finalTime
+        self.intervals.append([start, end, exclude])
 
     def export(self):
         '''
@@ -281,21 +290,46 @@ class IntervalCounter():
         '''
         self.intervals.sort(key=lambda x: x[0])
         effIntervals = []
+        excludeTime = 0
         for line in self.intervals:
-            if effIntervals == [] or line[0] > effIntervals[-1][1]:
-                effIntervals.append(line)
+            if line[2] == 0:
+                if effIntervals == [] or line[0] > effIntervals[-1][1]:
+                    if line[0] > excludeTime:
+                        effIntervals.append([line[0], line[1]])
+                    elif line[1] > excludeTime:
+                        effIntervals.append([excludeTime, line[1]])
+                    else:
+                        pass  # 被删除部分完全覆盖，不记录
+                elif line[1] > effIntervals[-1][1]:
+                    effIntervals[-1][1] = line[1]
             else:
-                effIntervals[-1][1] = line[1]
+                # 是排除形式的区间
+                if effIntervals != []:
+                    if effIntervals[-1][1] < line[0]:
+                        excludeTime = max(excludeTime, line[1])
+                    elif effIntervals[-1][1] < line[1]:
+                        effIntervals[-1][1] = line[0]
+                        excludeTime = max(excludeTime, line[1])
+                    else:
+                        prevEnd = effIntervals[-1][1]
+                        effIntervals[-1][1] = line[0]
+                        effIntervals.append([line[1], prevEnd])
+                        excludeTime = 0
+                else:
+                    excludeTime = max(excludeTime, line[1])
 
         res = [[self.startTime, 0]]
         if effIntervals != []:
-            if effIntervals[0][0] <= self.startTime:
+            if effIntervals[0][0] == self.startTime:
                 del res[0]
             for line in effIntervals:
-                if line[0] < self.finalTime:
-                    res.append([line[0], 1])
-                if line[1] < self.finalTime:
-                    res.append([line[1], 0])
+                res.append([line[0], 1])
+                res.append([line[1], 0])
+                assert line[0] <= line[1]
+                assert line[1] >= self.startTime
+                assert line[1] <= self.finalTime
+        if res[-1][1] == 1:
+            res.append([self.finalTime, 0])
         return res
 
     def __init__(self, startTime, finalTime):
@@ -709,11 +743,17 @@ def dictToPairs(dict):
     return pairs
 
 def parseTime(time):
-    if time < 60:
-        return "%ds" % time
+    if time - int(time) == 0:
+        if time < 60:
+            return "%ds" % time
+        else:
+            if time % 60 == 0:
+                return "%dm" % (time / 60)
+            else:
+                return "%dm%ds" % (time / 60, time % 60)
     else:
-        if time % 60 == 0:
-            return "%dm" % (time / 60)
+        if time < 60:
+            return "%.1fs" % time
         else:
             return "%dm%.1fs" % (time / 60, time % 60)
 

@@ -81,7 +81,7 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
         self.countFinalOverall()
         self.bh.setEnvironmentInfo(self.bhInfo)
         for line in self.detail["toushi"]:
-            self.bh.setBadPeriod(line["start"], line["log"][-1][2] + 2000, True, False)
+            self.bh.setBadPeriod(line["start"], line["log"][-1][4] + 2000, True, False)
 
         # for line in self.bh.log["environment"]:
         #     timePrint = "%.1f" % ((line["start"] - self.startTime) / 1000)
@@ -216,7 +216,10 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
                 self.win = 1
 
         elif event.dataType == "Battle":  # 战斗状态变化
-            pass
+            if self.bld.info.getName(event.id) in ["周通忌"]:
+                self.firstBattle = 0
+                if event.time - self.startTime > 500 and self.firstBattle:  # 预留500ms的空白时间
+                    self.bh.setBadPeriod(self.startTime, event.time - 500, True, True)
 
         elif event.dataType == "Alert":  # 系统警告框
             if event.content in ['"黄河水位即将上涨！"']:
@@ -227,7 +230,8 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
                     if self.bld.info.player[id].name == name:
                         self.detail["toushi"][-1]["log"].append([id, self.bld.info.player[id].name,
                                                              self.bld.info.player[id].occ,
-                                                             parseTime((event.time - self.startTime) / 1000)])
+                                                             parseTime((event.time - self.startTime) / 1000),
+                                                             event.time])
 
         elif event.dataType == "Cast":  # 施放技能事件，jcl专属
             if event.caster in self.bld.info.npc:  # 记录非玩家施放的技能
@@ -273,6 +277,8 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
 
         for line in self.bld.info.player:
             self.stat[line].extend([0, 0])
+
+        self.firstBattle = 1
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''

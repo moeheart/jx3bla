@@ -344,7 +344,7 @@ class ZhouZhiReplayer(SpecificReplayerPro):
 
         self.junzhenPlayer = {}  # 军阵
         self.junzhenNum = 0
-        self.stunCounter = {}
+        # self.stunCounter = {}
         self.phase = 0
         self.phaseStart = self.startTime
         self.phaseEnd = self.startTime
@@ -380,6 +380,8 @@ class ZhouZhiReplayer(SpecificReplayerPro):
 
         for line in self.bld.info.player:
             self.stat[line].extend([0, 0, 0, 0])
+
+        self.firstBattle = 1
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''

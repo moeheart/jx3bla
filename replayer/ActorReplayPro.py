@@ -41,6 +41,12 @@ from replayer.occ.BuTianJue import BuTianJueReplayer
 
 from replayer.CombatTracker import CombatTracker
 
+def addSkillOrder(s, prevS):
+    if prevS == "" or prevS[-1] != s:
+        return prevS + s
+    else:
+        return prevS
+
 class ActorProReplayer(ReplayerBase):
 
     occDetailList = {}
@@ -403,6 +409,41 @@ class ActorProReplayer(ReplayerBase):
 
         if XLS_ACTIVE:
             # 修罗统计1
+            skillNameDict = {"一掌": ["26026,1", "26026,5"],
+                             "二掌": ["26026,2", "26026,6"],
+                             "三掌": ["26026,3", "26026,7"],
+                             "四掌": ["26026,4", "26026,8"],
+                             "寂灭": [],
+                             "承伤扇形": ["26068,1"],
+                             "承伤少人": ["27077,1"],
+                             "驱散爆炸": ["26065,1"],
+                             "散花次数": [],
+                             "散花平均时间": [],
+                             "背对失败": ["26073,2", "26073,4"],
+                             "背对扇形": ["27022,1", "27022,2"],
+                             "多罗叶指": ["26071,1"],
+                             "石头路径伤害": ["27118,1"],
+                             "石头爆炸": ["27023,1"],
+                             "拉人范围": ["26114,1"],
+                             "龙爪手": ["26088,1"],
+                            }
+            skillNameDictR = {}
+            skillTotal = {}
+            for name in skillNameDict:
+                skillTotal[name] = 0
+                for line in skillNameDict[name]:
+                    skillNameDictR[line] = name
+            skillOrderStr = ""
+            sanhuaNum = 0
+            sanhuaActive = 0
+            sanhuaFinal = 0
+            sanhuaSum = 0
+            sanhuaCount = 0
+            sanhuaPlayer = {}
+            sanhuaLastTime = 0
+            damoActive = 0
+            chengshangCD = 0
+
             skillCheckDict = {"27310,1": "寂灭成功格挡",
                               "27310,-1": "寂灭总计次数",
                               "26026,3": "分散",
@@ -506,6 +547,15 @@ class ActorProReplayer(ReplayerBase):
                     #     data.hitCount[item[5]]["s" + item[7]] += 1
 
                     if XLS_ACTIVE:
+                        if event.time > sanhuaFinal + 2000 and sanhuaActive:
+                            if sanhuaCount < 4:
+                                sanhuaSum += 99999999
+                            else:
+                                sanhuaSum += (sanhuaFinal - sanhuaLastTime)
+                            sanhuaActive = 0
+                            sanhuaCount = 0
+                            sanhuaNum += 1
+                            sanhuaPlayer = {}
                         # 修罗统计2
                         playername = self.bld.info.player[event.target].name
                         if playername in playerSkillLog:
@@ -529,6 +579,29 @@ class ActorProReplayer(ReplayerBase):
                                             playerSkillLog[playername2][skillCheckDict["27310,-1"]] += 0
                                         else:
                                             playerSkillLog[playername2][skillCheckDict["27310,-1"]] += 4
+                                            skillTotal["寂灭"] += 4
+
+                            # 次数统计
+                            if skillIDSpecific in skillNameDictR:
+                                skillTotal[skillNameDictR[skillIDSpecific]] += 1
+                            if skillIDSpecific == "27310,1":
+                                skillTotal["寂灭"] -= 1
+                            if skillIDGeneral == "27077,0" and event.level < 20 and event.time - chengshangCD > 5000:
+                                skillTotal["承伤少人"] += 1
+                                chengshangCD = event.time
+                            if skillIDSpecific in ["27161,1", "27161,2"]:
+                                print("[SanhuaSkill]", event.time)
+                                if event.target not in sanhuaPlayer:
+                                    sanhuaCount += 1
+                                    sanhuaPlayer[event.target] = 1
+                                    sanhuaLastTime = event.time
+                                # if sanhuaCount == 4:
+                                #     sanhuaActive = 0
+                                #     sanhuaCount = 0
+                                #     sanhuaNum += 1
+                                #     sanhuaSum += (sanhuaFinal - event.time)
+                                #     sanhuaPlayer = {}
+
                         if P3active:
                             if event.damageEff > 0 and self.bld.info.getSkillName(event.full_id) != "灭":
                                 playerEventLog[event.target].append("%s 受到伤害：%s，%d" % (parseTime((event.time - self.startTime) / 1000), self.bld.info.getSkillName(event.full_id), event.damageEff))
@@ -688,9 +761,20 @@ class ActorProReplayer(ReplayerBase):
                         del deathHitDetail[event.target][0]
                     deathHitDetail[event.target].append([event.time, "禅语消失", 0, event.caster, -1, 0, 0])
 
-                if event.id in ["19724"]:
-                    name = self.bld.info.player[event.target].name
-                    print(event.time, name)
+                # if event.id in ["19724"]:  # 大佛狮子吼
+                #     name = self.bld.info.player[event.target].name
+                #     print(event.time, name)
+
+                if event.id == "19758" and event.stack == 0:
+                    if event.target not in sanhuaPlayer:
+                        sanhuaCount += 1
+                        sanhuaPlayer[event.target] = 1
+                        sanhuaLastTime = event.time - 1100
+                if event.id == "19917" and event.stack == 1:
+                    if event.target not in sanhuaPlayer:
+                        sanhuaCount += 1
+                        sanhuaPlayer[event.target] = 1
+                        sanhuaLastTime = event.time - 300
 
                 if P3active:
                     if event.target in playerEventLog and event.id in ["19689", "19826"] and event.stack != 0:
@@ -757,7 +841,7 @@ class ActorProReplayer(ReplayerBase):
                             deathSourceDetail.append("-%s, %s:%s%s(%d)"%(parseTime((int(line[0]) - self.startTime) / 1000), name, line[1], resultStr, line[2]))
                         elif line[4] == 1:
                             deathSourceDetail.append("+%s, %s:%s%s(%d)"%(parseTime((int(line[0]) - self.startTime) / 1000), name, line[1], resultStr, line[2]))
-                        if line[2] > line[6] and line[4] == -1 and line[1] not in ["湍流", "溺水", '1,31067,1']:
+                        if line[2] > line[6] and line[4] == -1 and line[1] not in ["湍流", "溺水", '1,31067,1', '野火焚天']:
                             lastFatal = 1
                         else:
                             lastFatal = 0
@@ -802,8 +886,8 @@ class ActorProReplayer(ReplayerBase):
             elif event.dataType == "Shout":  # 喊话
                 if "喝哈" in event.content:
                     P3active = 1
-                print("[Shout]", event.time, event.content)
-                    
+                # print("[Shout]", event.time, event.content)
+
             elif event.dataType == "Battle":  # 战斗状态变化
                 if event.id in self.bld.info.player:
                     self.battleDict[event.id].setState(event.time, event.fight)
@@ -838,7 +922,43 @@ class ActorProReplayer(ReplayerBase):
                             dwtActiveTime = event.time
                     if event.id in ["27073"]:
                         playerEventLog[event.caster].append("%s 读条内力爆发" % parseTime((event.time - self.startTime) / 1000))
-
+                if XLS_ACTIVE:
+                    if self.bld.info.getName(event.caster) in ["修罗僧"]:
+                        skillName = self.bld.info.getSkillName(event.full_id)
+                        # print(event.time, skillName)
+                        if skillName in ["般若", "罗汉", "达摩", "戒律", "金钟罩"]:
+                            if damoActive:
+                                skillOrderStr = addSkillOrder("多", skillOrderStr)
+                                damoActive = 0
+                        if skillName in ["般若·绝境千手掌", "般若·千手掌"]:
+                            skillOrderStr = addSkillOrder("千", skillOrderStr)
+                        if skillName in ["罗汉·绝境波罗蜜手", "罗汉·波罗蜜手"]:
+                            skillOrderStr = addSkillOrder("蜜", skillOrderStr)
+                        if skillName in ["达摩·绝境无相劫指", "达摩·无相劫指"]:
+                            skillOrderStr = addSkillOrder("劫", skillOrderStr)
+                            damoActive = 0
+                        if skillName in ["戒律·绝境擒龙聚气", "戒律·擒龙聚气"]:
+                            skillOrderStr = addSkillOrder("擒", skillOrderStr)
+                        if skillName in ["金钟罩"]:
+                            skillOrderStr = addSkillOrder("|", skillOrderStr)
+                        if skillName in ["般若·寂灭爪法"]:
+                            skillOrderStr = addSkillOrder("寂", skillOrderStr)
+                        if skillName in ["散花·偏花七星拳"]:
+                            skillOrderStr = addSkillOrder("偏", skillOrderStr)
+                        if skillName in ["?"]:
+                            skillOrderStr = addSkillOrder("多", skillOrderStr)
+                        if skillName in ["戒律·龙爪手十二式"]:
+                            skillOrderStr = addSkillOrder("龙", skillOrderStr)
+                        if skillName in ["罗汉·偏花七星掌"]:
+                            skillOrderStr = addSkillOrder("散", skillOrderStr)
+                            sanhuaActive = 1
+                            sanhuaFinal = event.time + 12000
+                            print("[SanhuaCount]", event.time)
+                        if skillName in ["达摩·拈花指法"]:
+                            skillOrderStr = addSkillOrder("拈", skillOrderStr)
+                            damoActive = 0
+                        if skillName in ["达摩"]:
+                            damoActive = 1
 
             num += 1
 
@@ -861,6 +981,17 @@ class ActorProReplayer(ReplayerBase):
                 f = open(fileName, "w")
                 f.write(str(playerSkillLog))
                 f.close()
+
+            fs = "xlsCount/wu/%s.txt" % time.strftime("%Y%m%d-%H%M", time.localtime(self.bld.info.battleTime))
+            f = open(fs, "w")
+            skillTotal["技能顺序"] = skillOrderStr
+            skillTotal["散花次数"] = sanhuaNum
+            if sanhuaNum == 0:
+                skillTotal["散花平均时间"] = 0
+            else:
+                skillTotal["散花平均时间"] = int(sanhuaSum / sanhuaNum)
+            f.write(str(skillTotal))
+            f.close()
 
             if P3active:
                 for player in playerEventLog:

@@ -203,7 +203,10 @@ class LeQinaReplayer(SpecificReplayerPro):
                 self.win = 1
             
         elif event.dataType == "Battle":  # 战斗状态变化
-            pass
+            if self.bld.info.getName(event.id) in ["勒齐那"]:
+                self.firstBattle = 0
+                if event.time - self.startTime > 500 and self.firstBattle:  # 预留500ms的空白时间
+                    self.bh.setBadPeriod(self.startTime, event.time - 500, True, True)
 
         elif event.dataType == "Cast":  # 施放技能事件，jcl专属
             if event.caster in self.bld.info.npc:  # 记录非玩家施放的技能
@@ -247,6 +250,8 @@ class LeQinaReplayer(SpecificReplayerPro):
         
         for line in self.bld.info.player:
             pass
+
+        self.firstBattle = 1
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''

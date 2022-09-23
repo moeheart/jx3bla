@@ -181,6 +181,16 @@ class LingSuWindow(HealerDisplayWindow):
             if qingchuan == 1:
                 canvas6.create_rectangle(posStart, 61, posEnd, 70, fill="#00ff77", width=0)
 
+        if "badPeriodHealer" in self.result["replay"]:
+            # 绘制无效时间段
+            for i in range(1, len(self.result["replay"]["badPeriodHealer"])):
+                posStart = int((self.result["replay"]["badPeriodHealer"][i - 1][0] - startTime) / 100)
+                posStart = max(posStart, 1)
+                posEnd = int((self.result["replay"]["badPeriodHealer"][i][0] - startTime) / 100)
+                zwjt = self.result["replay"]["badPeriodHealer"][i - 1][1]
+                if zwjt == 1:
+                    canvas6.create_rectangle(posStart, 31, posEnd, 70, fill="#bbbbbb", width=0)
+
         nowt = 0
         while nowt < battleTime:
             nowt += 10000
