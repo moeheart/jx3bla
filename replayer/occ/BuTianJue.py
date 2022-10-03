@@ -715,7 +715,7 @@ class BuTianJueReplayer(HealerReplay):
         self.result["replay"]["ghzs"] = ghzsDict.log
         self.result["replay"]["zwjt"] = zwjtDict.log
 
-        self.specialKey = {"bcqs-numPerSec": 10, "zwjt-numPerSec": 10, "general-efficiencyNonGcd": 20, "healer-healEff": 20}
+        self.specialKey = {"bcqs-numPerSec": 10, "zwjt-numPerSec": 10, "general-efficiencyNonGcd": 20, "healer-rhps": 20}
 
         self.markedSkill = ["2226", "2230"]
         self.outstandingSkill = [qdtrWatchSkill]

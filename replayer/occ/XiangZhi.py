@@ -831,8 +831,7 @@ class XiangZhiProReplayer(HealerReplay):
             self.result["replay"]["heatType"] = "meihua"
             self.result["replay"]["heat"] = overallShieldHeat
 
-        self.specialKey = {"meihua-num": 20, "general-efficiency": 20, "zhi-numPerSec": 10, "general-APS": 10,
-                           "healer-healEff": 10}
+        self.specialKey = {"meihua-num": 20, "general-efficiency": 20, "zhi-numPerSec": 10, "healer-rhps": 20}
         self.markedSkill = ["14082"]
         self.outstandingSkill = []
         self.calculateSkillOverall()

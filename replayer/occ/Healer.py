@@ -103,7 +103,7 @@ class HealerReplay(ReplayerBase):
                 sumScore += self.result["rank"][key1][key2]["percent"] * weight
                 sumWeight += weight
 
-        self.reviewScore = roundCent((sumScore / sumWeight) ** 0.5 * 10, 2)
+        self.reviewScore = int((sumScore / sumWeight) ** 0.5 * 1000)
 
 
         # 计算专案组的公有部分.

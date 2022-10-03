@@ -780,7 +780,7 @@ class LingSuReplayer(HealerReplay):
         self.result["replay"]["qingchuan"] = qingchuanDict.log
         self.result["replay"]["yaoxing"] = yaoxingInfer
 
-        self.specialKey = {"lszh-numPerSec": 20, "general-efficiency": 20, "healer-healEff": 20}
+        self.specialKey = {"lszh-numPerSec": 20, "general-efficiency": 20, "healer-rhps": 20}
         self.markedSkill = ["28620", "27531", "28756", "28533"]
         self.outstandingSkill = [qczlWatchSkill, dgsnWatchSkill]
         self.calculateSkillOverall()

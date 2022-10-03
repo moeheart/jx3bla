@@ -732,7 +732,7 @@ class YunChangXinJingReplayer(HealerReplay):
         self.result["replay"]["hxpy"] = hxpyDict.log
         self.result["replay"]["heat"] = {"interval": 500, "timeline": [xiangwuHeat, shangyuanHeat]}
 
-        self.specialKey = {"hxpy-numPerSec": 20, "general-efficiencyNonGcd": 20, "healer-healEff": 20, "xlwl-cover": 10, "sydh-cover": 10}
+        self.specialKey = {"hxpy-numPerSec": 20, "general-efficiencyNonGcd": 20, "healer-rhps": 20, "xlwl-cover": 10, "sydh-cover": 10}
         self.markedSkill = ["555", "568", "18221"]
         self.outstandingSkill = [jwfhWatchSkill]
         self.calculateSkillOverall()

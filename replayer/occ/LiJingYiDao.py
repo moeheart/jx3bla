@@ -723,7 +723,7 @@ class LiJingYiDaoReplayer(HealerReplay):
         # 计算战斗回放
         self.result["replay"] = self.bh.getJsonReplay(self.mykey)
         self.result["replay"]["heat"] = {"interval": 500, "timeline": hotHeat}
-        self.specialKey = {"wozhen-numPerSec": 20, "general-efficiency": 20, "healer-healEff": 20, "qiusu-cover": 20}
+        self.specialKey = {"wozhen-numPerSec": 20, "general-efficiency": 20, "healer-rhps": 20, "qiusu-cover": 20}
         self.markedSkill = ["132", "136", "2663", "14963", "24911"]
         self.outstandingSkill = []
         self.calculateSkillOverall()
