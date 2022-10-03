@@ -772,7 +772,7 @@ class YunChangXinJingReplayer(HealerReplay):
         wrongTime = sydhWrong
         perfectTime = sum - sydhWrong
         rate = roundCent(perfectTime / (sum + 1e-10))
-        res = {"code": 504, "time": time, "wrongTime": wrongTime, "perfectTime": perfectTime, "rate": rate}
+        res = {"code": 504, "time": sum, "wrongTime": wrongTime, "perfectTime": perfectTime, "rate": rate}
         res["status"] = getRateStatus(res["rate"], 95, 90, 0)
         self.result["review"]["content"].append(res)
 

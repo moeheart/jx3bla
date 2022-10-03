@@ -84,16 +84,24 @@ class MainWindow():
         '''
         执行数据上传.
         '''
+
+        if "beta" in EDITION:
+            return
+
         actualData = {"data": []}
         for line in self.uploadData:
             singleData = {"type": line["type"], "data": line["data"], "id": line["id"]}
             actualData["data"].append(singleData)
+
+        self.setNotice({"t1": "正在上传数据……", "c1": "#000000"})
 
         Jdata = json.dumps(actualData)
         jpost = {'jdata': Jdata}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
         resp = urllib.request.urlopen('http://%s:8009/uploadCombinedData' % IP, data=jparse)
         res = json.load(resp)
+
+        # print("[res]", res)
 
         # 解析返回的数据
 
@@ -104,23 +112,23 @@ class MainWindow():
                 if self.uploadData[i]["type"] == "replay":
                     # 复盘. 需要更新复盘编号.
                     if res["data"][i]["result"] != "fail":
-                        self.uploadData[i]["type"]["anchor"]["overall"]["shortID"] = res["data"][i]["shortID"]
+                        self.uploadData[i]["anchor"]["overall"]["shortID"] = res["data"][i]["shortID"]
                     else:
-                        self.uploadData[i]["type"]["anchor"]["overall"]["shortID"] = "数据保存出错"
+                        self.uploadData[i]["anchor"]["overall"]["shortID"] = "数据保存出错"
                 elif self.uploadData[i]["type"] == "battle":
                     # 战斗信息. 需要在主界面显示内容.
                     if res["data"][i]["scoreStatus"] == "illegal":
-                        self.window.setNotice({"t2": "未增加荣誉值，原因：非指定地图", "c2": "#ff0000"})
+                        self.setNotice({"t2": "未增加荣誉值，原因：非指定地图", "c2": "#ff0000"})
                     elif res["data"][i]["scoreStatus"] == "notwin":
-                        self.window.setNotice({"t2": "未增加荣誉值，原因：未击败BOSS", "c2": "#ff0000"})
+                        self.setNotice({"t2": "未增加荣誉值，原因：未击败BOSS", "c2": "#ff0000"})
                     elif res["data"][i]["scoreStatus"] == "expire":
-                        self.window.setNotice({"t2": "未增加荣誉值，原因：数据已被他人上传", "c2": "#ff0000"})
+                        self.setNotice({"t2": "未增加荣誉值，原因：数据已被他人上传", "c2": "#ff0000"})
                     elif res["data"][i]["scoreStatus"] == "dupid":
-                        self.window.setNotice({"t2": "未增加荣誉值，原因：数据已被自己上传", "c2": "#ff0000"})
+                        self.setNotice({"t2": "未增加荣誉值，原因：数据已被自己上传", "c2": "#ff0000"})
                     elif res["data"][i]["scoreStatus"] == "nologin":
-                        self.window.setNotice({"t2": "未增加荣誉值，原因：未注册用户名", "c2": "#ff0000"})
+                        self.setNotice({"t2": "未增加荣誉值，原因：未注册用户名", "c2": "#ff0000"})
                     elif res["data"][i]["scoreStatus"] == "success":
-                        self.window.setNotice({"t2": "数据上传成功，荣誉值增加：%d" % res["data"][i]["scoreAdd"], "c2": "#00ff00"})
+                        self.setNotice({"t2": "数据上传成功，荣誉值增加：%d" % res["data"][i]["scoreAdd"], "c2": "#00ff00"})
 
         # 清空上传数据
         self.uploadData = []
@@ -137,16 +145,6 @@ class MainWindow():
         向主窗体类中加入Rawdata，用于在复盘模式与实时模式中共享数据。
         '''
         self.bldDict[filename] = bld
-                
-    # def NoticeXiangZhi(self):
-    #     '''
-    #     在关底BOSS打完后提醒进行奶歌复盘。由BOSS复盘窗口调用。
-    #     '''
-    #     ans = messagebox.askyesno(title='提示', message='副本的关底BOSS已复盘完毕，要进行奶歌复盘吗？')
-    #     if ans:
-    #         self.start_replay()
-    #     else:
-    #         return
             
     def setBattleLogData(self, bldDict):
         '''
@@ -164,25 +162,23 @@ class MainWindow():
             self.liveListener.getAllBattleLog(self.fileLookUp.basepath, self.bldDict)
             self.hasReplayed = True
 
-    '''
-    def checkAttendence(self):
-        rawList = self.rawData
-        mapDict = {}
-        for key in rawList:
-            mapDict[key] = []
-            raw = rawList[key]
-            name = raw['9'][0]
-            occ = raw['10'][0]
-            for line in raw['12'][0]['4'][0].keys():
-                if line in name and line in occ and occ[line][0] != '0':
-                    finalName = name[line][0].strip('"')
-                    mapDict[key].append(finalName)
-        
-        #print(mapDict)
-        #g = open("result.txt", "w")
-        #g.write(str(mapDict))
-        #g.close()
-    '''
+    # def checkAttendence(self):
+    #     rawList = self.rawData
+    #     mapDict = {}
+    #     for key in rawList:
+    #         mapDict[key] = []
+    #         raw = rawList[key]
+    #         name = raw['9'][0]
+    #         occ = raw['10'][0]
+    #         for line in raw['12'][0]['4'][0].keys():
+    #             if line in name and line in occ and occ[line][0] != '0':
+    #                 finalName = name[line][0].strip('"')
+    #                 mapDict[key].append(finalName)
+    #
+    #     #print(mapDict)
+    #     #g = open("result.txt", "w")
+    #     #g.write(str(mapDict))
+    #     #g.close()
 
     def replay(self, selectionFileList=[]):
         replayFileList = []

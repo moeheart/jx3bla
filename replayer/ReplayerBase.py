@@ -88,7 +88,7 @@ class RankCalculator():
                 num, percent = self.getSkillPercent(occ, map, boss, "healer", "heal", record["heal"])
                 self.rank["healer"]["heal"] = {"num": num, "percent": percent}
                 for stat in ["hps", "rhps", "ahps", "ohps"]:
-                    num, percent = self.getSkillPercent(occ, map, boss, "healer", stat, record[stat])
+                    num, percent = self.getSkillPercent(occ, map, boss, "healer", stat, record.get(stat, 0))
                     self.rank["healer"][stat] = {"num": num, "percent": percent}
         # print("[Rank]", self.rank)
         return self.rank
@@ -134,8 +134,8 @@ class ReplayerBase():
         '''
         准备上传复盘结果，并向服务器上传.
         '''
-        if "beta" in EDITION:
-            return
+        # if "beta" in EDITION:
+        #     return
         upload = {}
         upload["server"] = self.result["overall"]["server"]
         upload["id"] = self.result["overall"]["playerID"]

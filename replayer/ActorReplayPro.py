@@ -108,8 +108,8 @@ class ActorProReplayer(ReplayerBase):
         '''
         上传复盘结果.
         '''
-        if "beta" in EDITION:
-            return
+        # if "beta" in EDITION:
+        #     return
         result = {}
         server = self.bld.info.server
         result["server"] = server
