@@ -24,7 +24,10 @@ def getSingleStat(record):
         return {}
     if key3 not in BOSS_RAW:
         return {}
-    s = record[9].decode().replace("'", '"').replace('\n', '\\n').replace('\t', '\\t')
+
+    with open("database/ReplayProStat/%d" % record[9], "r") as f:
+        s = f.read().replace('\n', '\\n').replace('\t', '\\t').replace("'", '"')
+
     d = json.loads(s)
     skillStat = d["skill"]
     for skillName in skillStat:
