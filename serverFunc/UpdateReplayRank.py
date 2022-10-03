@@ -45,6 +45,8 @@ def getSingleStat(record):
         if line["name"] == record[1]:
             key4 = "healer"
             for key5 in ["heal", "healEff", "rhps", "hps", "ahps", "ohps"]:
+                if key5 not in line:
+                    continue
                 key = "%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5)
                 value = line[key5] * getDirection(key)
                 res[key] = value
