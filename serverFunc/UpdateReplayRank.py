@@ -25,7 +25,7 @@ def getSingleStat(record):
     if key3 not in BOSS_RAW:
         return {}
 
-    with open("database/ReplayProStat/%d" % record[9], "r") as f:
+    with open("database/ReplayProStat/%d" % record[8], "r") as f:
         s = f.read().replace('\n', '\\n').replace('\t', '\\t').replace("'", '"')
 
     d = json.loads(s)
@@ -34,7 +34,7 @@ def getSingleStat(record):
         for item in skillStat[skillName]:
             key4 = skillName
             key5 = item
-            if key4 == "qczl" and key5 in ["num", "numPerSec"] and record[12] < parseEdition("8.1.0"):
+            if key4 == "qczl" and key5 in ["num", "numPerSec"] and record[11] < parseEdition("8.1.0"):
                 continue
             key = "%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5)
             value = skillStat[skillName][item] * getDirection(key)
