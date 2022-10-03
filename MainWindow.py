@@ -71,6 +71,60 @@ class MainWindow():
             self.var1.set("")
         if self.var2.get()[-1] == '.':
             self.var2.set("")
+
+    def addUploadData(self, uploadData):
+        '''
+        增加一个需要上传的数据.
+        '''
+        n = len(self.uploadData)
+        uploadData["id"] = n
+        self.uploadData.append(uploadData)
+
+    def executeUploadData(self):
+        '''
+        执行数据上传.
+        '''
+        actualData = {"data": []}
+        for line in self.uploadData:
+            singleData = {"type": line["type"], "data": line["data"], "id": line["id"]}
+            actualData["data"].append(singleData)
+
+        Jdata = json.dumps(actualData)
+        jpost = {'jdata': Jdata}
+        jparse = urllib.parse.urlencode(jpost).encode('utf-8')
+        resp = urllib.request.urlopen('http://%s:8009/uploadCombinedData' % IP, data=jparse)
+        res = json.load(resp)
+
+        # 解析返回的数据
+
+        if res["status"] == "fail":
+            self.window.setNotice({"t2": "上传数据失败！", "c2": "#ff0000"})
+        else:
+            for i in range(len(self.uploadData)):
+                if self.uploadData[i]["type"] == "replay":
+                    # 复盘. 需要更新复盘编号.
+                    if res["data"][i]["result"] != "fail":
+                        self.uploadData[i]["type"]["anchor"]["overall"]["shortID"] = res["data"][i]["shortID"]
+                    else:
+                        self.uploadData[i]["type"]["anchor"]["overall"]["shortID"] = "数据保存出错"
+                elif self.uploadData[i]["type"] == "battle":
+                    # 战斗信息. 需要在主界面显示内容.
+                    if res["data"][i]["scoreStatus"] == "illegal":
+                        self.window.setNotice({"t2": "未增加荣誉值，原因：非指定地图", "c2": "#ff0000"})
+                    elif res["data"][i]["scoreStatus"] == "notwin":
+                        self.window.setNotice({"t2": "未增加荣誉值，原因：未击败BOSS", "c2": "#ff0000"})
+                    elif res["data"][i]["scoreStatus"] == "expire":
+                        self.window.setNotice({"t2": "未增加荣誉值，原因：数据已被他人上传", "c2": "#ff0000"})
+                    elif res["data"][i]["scoreStatus"] == "dupid":
+                        self.window.setNotice({"t2": "未增加荣誉值，原因：数据已被自己上传", "c2": "#ff0000"})
+                    elif res["data"][i]["scoreStatus"] == "nologin":
+                        self.window.setNotice({"t2": "未增加荣誉值，原因：未注册用户名", "c2": "#ff0000"})
+                    elif res["data"][i]["scoreStatus"] == "success":
+                        self.window.setNotice({"t2": "数据上传成功，荣誉值增加：%d" % res["data"][i]["scoreAdd"], "c2": "#00ff00"})
+
+        # 清空上传数据
+        self.uploadData = []
+
             
     def setTianwangInfo(self, playerIDList, server):
         self.server = server
@@ -410,6 +464,7 @@ class MainWindow():
         self.dataType = "jx3dat"  # 数据种类，jx3dat为茗伊战斗统计的结果，jcl为茗伊团队工具的子功能
         self.liveListener = None  # 实时模式数据存储，初始时默认为空
         self.lastBld = None  # 中断的战斗记录，默认为空
+        self.uploadData = []  # 上传的数据列表，初始为空
         
 if __name__ == "__main__":
     mainWindow = MainWindow()

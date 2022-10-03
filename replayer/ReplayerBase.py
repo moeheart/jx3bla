@@ -155,18 +155,21 @@ class ReplayerBase():
         upload["hash"] = self.getHash()
         upload["battleID"] = self.battleID
 
-        Jdata = json.dumps(upload)
-        jpost = {'jdata': Jdata}
-        jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        # print(jparse)
-        resp = urllib.request.urlopen('http://%s:8009/uploadReplayPro' % IP, data=jparse)
-        res = json.load(resp)
-        # print(res)
-        if res["result"] != "fail":
-            self.result["overall"]["shortID"] = res["shortID"]
-        else:
-            self.result["overall"]["shortID"] = "数据保存出错"
-        return res
+        uploadData = {"type": "replay", "data": upload, "anchor": self.result}
+        self.window.addUploadData(uploadData)
+
+        # Jdata = json.dumps(upload)
+        # jpost = {'jdata': Jdata}
+        # jparse = urllib.parse.urlencode(jpost).encode('utf-8')
+        # # print(jparse)
+        # resp = urllib.request.urlopen('http://%s:8009/uploadReplayPro' % IP, data=jparse)
+        # res = json.load(resp)
+        # # print(res)
+        # if res["result"] != "fail":
+        #     self.result["overall"]["shortID"] = res["shortID"]
+        # else:
+        #     self.result["overall"]["shortID"] = "数据保存出错"
+        # return res
 
     def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, actorData={}):
         '''

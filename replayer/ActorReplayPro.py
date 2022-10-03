@@ -123,49 +123,39 @@ class ActorProReplayer(ReplayerBase):
         result["time"] = int(time.time())
         result["begintime"] = self.beginTime
         result["userid"] = self.config.item["user"]["uuid"]
-        #result["instancecd"] = self.instanceCD
-        
-        #print(result["begintime"])
-        #print(result["time"])
-        #print(result["userid"])
-        #print(result["instancecd"])
         
         allInfo = {}
         allInfo["effectiveDPSList"] = self.effectiveDPSList
         allInfo["potList"] = self.potList
         allInfo["battleTime"] = self.battleTime
         allInfo["act"] = self.combatTracker.generateJson()
-        # for i in range(len(allInfo["effectiveDPSList"])):
-        #     allInfo["effectiveDPSList"][i][0] = allInfo["effectiveDPSList"][i][0]
-        # for i in range(len(allInfo["potList"])):
-        #     allInfo["potList"][i][0] = allInfo["potList"][i][0]
         allInfo["mask"] = self.config.item["general"]["mask"]
 
         result["statistics"] = allInfo
 
-        Jdata = json.dumps(result)
+        uploadData = {"type": "battle", "data": result, "anchor": None}
+        self.window.addUploadData(uploadData)
 
-        jpost = {'jdata': Jdata}
-        jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        resp = urllib.request.urlopen('http://%s:8009/uploadActorData' % IP, data=jparse)
-        
-        res = json.load(resp)
-        
-        #print(res)
-        
-        if self.window is not None:
-            if res["scoreStatus"] == "illegal":
-                self.window.setNotice({"t2": "未增加荣誉值，原因：非指定地图", "c2": "#ff0000"})
-            elif res["scoreStatus"] == "notwin":
-                self.window.setNotice({"t2": "未增加荣誉值，原因：未击败BOSS", "c2": "#ff0000"})
-            elif res["scoreStatus"] == "expire":
-                self.window.setNotice({"t2": "未增加荣誉值，原因：数据已被他人上传", "c2": "#ff0000"})
-            elif res["scoreStatus"] == "dupid":
-                self.window.setNotice({"t2": "未增加荣誉值，原因：数据已被自己上传", "c2": "#ff0000"})
-            elif res["scoreStatus"] == "nologin":
-                self.window.setNotice({"t2": "未增加荣誉值，原因：未注册用户名", "c2": "#ff0000"})
-            elif res["scoreStatus"] == "success":
-                self.window.setNotice({"t2": "数据上传成功，荣誉值增加：%d"%res["scoreAdd"], "c2": "#00ff00"})
+        # Jdata = json.dumps(result)
+        # jpost = {'jdata': Jdata}
+        # jparse = urllib.parse.urlencode(jpost).encode('utf-8')
+        # resp = urllib.request.urlopen('http://%s:8009/uploadActorData' % IP, data=jparse)
+        #
+        # res = json.load(resp)
+        #
+        # if self.window is not None:
+        #     if res["scoreStatus"] == "illegal":
+        #         self.window.setNotice({"t2": "未增加荣誉值，原因：非指定地图", "c2": "#ff0000"})
+        #     elif res["scoreStatus"] == "notwin":
+        #         self.window.setNotice({"t2": "未增加荣誉值，原因：未击败BOSS", "c2": "#ff0000"})
+        #     elif res["scoreStatus"] == "expire":
+        #         self.window.setNotice({"t2": "未增加荣誉值，原因：数据已被他人上传", "c2": "#ff0000"})
+        #     elif res["scoreStatus"] == "dupid":
+        #         self.window.setNotice({"t2": "未增加荣誉值，原因：数据已被自己上传", "c2": "#ff0000"})
+        #     elif res["scoreStatus"] == "nologin":
+        #         self.window.setNotice({"t2": "未增加荣誉值，原因：未注册用户名", "c2": "#ff0000"})
+        #     elif res["scoreStatus"] == "success":
+        #         self.window.setNotice({"t2": "数据上传成功，荣誉值增加：%d" % res["scoreAdd"], "c2": "#00ff00"})
 
     def FirstStageAnalysis(self):
         '''

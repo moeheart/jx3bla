@@ -561,53 +561,50 @@ def uploadComment():
     db.close()
     return jsonify({'result': 'success'})
 
-
-@app.route('/uploadActorData', methods=['POST'])
-def uploadActorData():
-    jdata = json.loads(request.form.get('jdata'))
-    print(jdata)
+def receiveBattle(jdata, cursor):
+    '''
+    接收battle的json信息并进行入库处理.
+    params:
+    - jdata: json格式的battle信息.
+    - cursor: 数据库操作的指针.
+    '''
     server = jdata["server"]
     boss = jdata["boss"]
     battleDate = jdata["battledate"]
     mapName = jdata["mapdetail"]
-    #mapDetail = jdata["mapdetail"]
     edition = jdata["edition"]
     hash = jdata["hash"]
     statistics = str(jdata["statistics"]).replace('"', '`')
-    
+
     response = {}
-    
+
     if "win" not in jdata:
         jdata["win"] = 1
-        
+
     win = int(jdata["win"])
-    
+
     if "time" not in jdata:
         jdata["time"] = 0
     if "begintime" not in jdata:
         jdata["begintime"] = 0
     if "userid" not in jdata:
         jdata["userid"] = "unknown"
-        
+
     submitTime = jdata["time"]
     battleTime = jdata["begintime"]
     userID = jdata["userid"]
     editionFull = parseEdition(edition)
-    
-    #增加五个字段：editionfull INT, userid VARCHAR(32), battletime INT, submittime INT, instanceid VARCHAR(32)
-    
-    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
-    cursor = db.cursor()
-    
-    sql = '''SELECT * from ActorStat WHERE hash = "%s"'''%hash
+
+    # 增加五个字段：editionfull INT, userid VARCHAR(32), battletime INT, submittime INT, instanceid VARCHAR(32)
+    sql = '''SELECT * from ActorStat WHERE hash = "%s"''' % hash
     cursor.execute(sql)
     result = cursor.fetchall()
-    
+
     scoreSuccess = 1
     scoreAdd = 0
-    
+
     dupID = 0
-    
+
     if mapName == "25人英雄达摩洞":
         scoreAdd = 2
         mapDetail = '484'
@@ -633,13 +630,13 @@ def uploadActorData():
         scoreSuccess = 0
         response['scoreStatus'] = 'illegal'
         mapDetail = '0'
-        
+
     if win == 0:
         scoreSuccess = 0
         response['scoreStatus'] = 'notwin'
-    
+
     if result and result[0][6] == 1:
-        sql = '''SELECT * from ScoreInfo WHERE reason LIKE "%%%s%%"'''%(hash)
+        sql = '''SELECT * from ScoreInfo WHERE reason LIKE "%%%s%%"''' % (hash)
         cursor.execute(sql)
         result2 = cursor.fetchall()
         if result2:
@@ -650,57 +647,68 @@ def uploadActorData():
             if submitTime - lastTime > 180:
                 scoreSuccess = 0
                 response['scoreStatus'] = 'expire'
-            
+
         if parseEdition(result[0][4]) >= parseEdition(edition):
             dupID = 1
         else:
             print("Update edition")
-            
-    sql = '''SELECT * from UserInfo WHERE uuid = "%s"'''%(userID)
+
+    sql = '''SELECT * from UserInfo WHERE uuid = "%s"''' % (userID)
     cursor.execute(sql)
     result = cursor.fetchall()
     if not result or result[0][1] == "":
         scoreSuccess = 0
         response['scoreStatus'] = 'nologin'
-        
+
     if scoreSuccess and scoreAdd > 0:
-        sql = """UPDATE UserInfo SET score=%d, exp=%d WHERE uuid="%s";"""%(result[0][5]+scoreAdd, result[0][6]+scoreAdd, userID)
+        sql = """UPDATE UserInfo SET score=%d, exp=%d WHERE uuid="%s";""" % (
+        result[0][5] + scoreAdd, result[0][6] + scoreAdd, userID)
         cursor.execute(sql)
-        
-        sql = """INSERT INTO ScoreInfo VALUES ("", "%s", %d, "%s", %d)"""%(
-            userID, int(time.time()), "提交战斗记录：%s"%hash, scoreAdd)
+
+        sql = """INSERT INTO ScoreInfo VALUES ("", "%s", %d, "%s", %d)""" % (
+            userID, int(time.time()), "提交战斗记录：%s" % hash, scoreAdd)
         cursor.execute(sql)
-        
+
         response['scoreStatus'] = 'success'
         response['scoreAdd'] = scoreAdd
-        
+
     if dupID:
         print("Find Duplicated")
-        db.commit()
-        db.close()
         response['result'] = 'dupid'
-        return jsonify(response)
-            
+        return response
+
     sql = '''DELETE FROM ActorStat WHERE hash = "%s"''' % hash
     cursor.execute(sql)
 
     with open("database/ActorStat/%s" % hash, "w") as f:
         f.write(str(statistics))
-        
-    sql = """INSERT INTO ActorStat VALUES ("%s", "%s", "%s", "%s", "%s", "%s", %d, %d, "%s", %d, %d, "")"""%(
+
+    sql = """INSERT INTO ActorStat VALUES ("%s", "%s", "%s", "%s", "%s", "%s", %d, %d, "%s", %d, %d, "")""" % (
         server, boss, battleDate, mapDetail, edition, hash, win, editionFull, userID, battleTime, submitTime)
     cursor.execute(sql)
-    db.commit()
-    db.close()
-   
+
     response['result'] = 'success'
-    return jsonify(response)
+    return response
 
-@app.route('/uploadReplayPro', methods=['POST'])
-def uploadReplayPro():
+
+@app.route('/uploadActorData', methods=['POST'])
+def uploadActorData():
     jdata = json.loads(request.form.get('jdata'))
-    #print(jdata)
+    # print(jdata)
 
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
+    cursor = db.cursor()
+
+    res = receiveBattle(jdata, cursor)
+    return jsonify(res)
+
+def receiveReplay(jdata, cursor):
+    '''
+    接收replay的json信息并进行入库处理.
+    params:
+    - jdata: json格式的replay信息.
+    - cursor: 数据库操作的指针.
+    '''
     server = jdata["server"]
     id = jdata["id"]
     score = jdata["score"]
@@ -719,66 +727,99 @@ def uploadReplayPro():
     replayedition = jdata["replayedition"]
     battleID = jdata.get("battleID", "")
 
+    sql = '''SELECT score from ReplayProStat WHERE mapdetail = "%s" and boss = "%s" and occ = "%s"''' % (mapDetail, boss, occ)
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    num = 0
+    numOver = 0
+    for line in result:
+        if line[0] == 0:
+            continue
+        num += 1
+        if score > line[0]:
+            numOver += 1
+
+    print(num, numOver)
+
+    sql = '''SELECT shortID, public, editionfull from ReplayProStat WHERE hash = "%s"''' % hash
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    if result:
+        if result[0][2] >= editionFull and (result[0][1] == 1 or public == 0):
+            print("Find Duplicated")
+            shortID = result[0][0]
+            return {'result': 'dupid', 'num': num, 'numOver': numOver, 'shortID': shortID}
+        else:
+            print("Update edition")
+
+    sql = '''DELETE FROM ReplayProStat WHERE hash = "%s"''' % hash
+    cursor.execute(sql)
+
+    # 更新数量
+    sql = '''SELECT * from ReplayProInfo WHERE dataname = "num"'''
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    num = result[0][2]
+    shortID = num + 1
+    sql = """UPDATE ReplayProInfo SET datavalueint=%d WHERE dataname = "num";""" % shortID
+    cursor.execute(sql)
+
+    statistics["overall"]["shortID"] = shortID
+
+    with open("database/ReplayProStat/%d" % shortID, "w") as f:
+        f.write(str(statistics))
+
+    sql = """INSERT INTO ReplayProStat VALUES ("%s", "%s", "%s", %.2f, "%s", "%s", "%s", "%s", %d, %d, "%s", %d, "%s", "%s", %d, %d, "%s")""" % (
+        server, id, occ, score, battleDate, mapDetail, boss, hash, shortID, public, edition, editionFull, replayedition, userID, battleTime,
+        submitTime, battleID)
+    cursor.execute(sql)
+
+    return {'result': 'success', 'num': num, 'numOver': numOver, 'shortID': shortID}
+
+
+@app.route('/uploadReplayPro', methods=['POST'])
+def uploadReplayPro():
+    jdata = json.loads(request.form.get('jdata'))
+    #print(jdata)
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
-
     try:
-        sql = '''SELECT score from ReplayProStat WHERE mapdetail = "%s" and boss = "%s" and occ = "%s"''' % (mapDetail, boss, occ)
-        cursor.execute(sql)
-        result = cursor.fetchall()
-        num = 0
-        numOver = 0
-        for line in result:
-            if line[0] == 0:
-                continue
-            num += 1
-            if score > line[0]:
-                numOver += 1
-
-        print(num, numOver)
-
-        sql = '''SELECT shortID, public, editionfull from ReplayProStat WHERE hash = "%s"''' % hash
-        cursor.execute(sql)
-        result = cursor.fetchall()
-        if result:
-            if result[0][2] >= editionFull and (result[0][1] == 1 or public == 0):
-                print("Find Duplicated")
-                db.close()
-                shortID = result[0][0]
-                return jsonify({'result': 'dupid', 'num': num, 'numOver': numOver, 'shortID': shortID})
-            else:
-                print("Update edition")
-
-        sql = '''DELETE FROM ReplayProStat WHERE hash = "%s"''' % hash
-        cursor.execute(sql)
-
-        # 更新数量
-        sql = '''SELECT * from ReplayProInfo WHERE dataname = "num"'''
-        cursor.execute(sql)
-        result = cursor.fetchall()
-        num = result[0][2]
-        shortID = num + 1
-        sql = """UPDATE ReplayProInfo SET datavalueint=%d WHERE dataname = "num";""" % shortID
-        cursor.execute(sql)
-
-        statistics["overall"]["shortID"] = shortID
-
-        with open("database/ReplayProStat/%d" % shortID, "w") as f:
-            f.write(str(statistics))
-
-        sql = """INSERT INTO ReplayProStat VALUES ("%s", "%s", "%s", %.2f, "%s", "%s", "%s", "%s", %d, %d, "%s", %d, "%s", "%s", %d, %d, "%s")""" % (
-            server, id, occ, score, battleDate, mapDetail, boss, hash, shortID, public, edition, editionFull, replayedition, userID, battleTime,
-            submitTime, battleID)
-        cursor.execute(sql)
+        res = receiveReplay(jdata, cursor)
         db.commit()
         db.close()
-
     except Exception as e:
         traceback.print_exc()
         db.close()
         return jsonify({'result': 'fail', 'num': 0, 'numOver': 0, 'shortID': 0})
+    return jsonify(res)
 
-    return jsonify({'result': 'success', 'num': num, 'numOver': numOver, 'shortID': shortID})
+@app.route('/uploadCombinedData', methods=['POST'])
+def uploadCombinedData():
+    jdata = json.loads(request.form.get('jdata'))
+    groupRes = {"data": [], "status": "success"}
+
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
+    cursor = db.cursor()
+    try:
+        for line in jdata["data"]:
+            if line["type"] == "replay":
+                # 单个复盘
+                res = receiveReplay(line["data"], cursor)
+                res["id"] = line["id"]
+                groupRes["data"].append(res)
+            elif line["type"] == "battle":
+                # 整场战斗的数据
+                res = receiveBattle(line["data"], cursor)
+                res["id"] = line["id"]
+                groupRes["data"].append(res)
+        db.commit()
+        db.close()
+    except Exception as e:
+        traceback.print_exc()
+        db.close()
+        groupRes["status"] = "fail"
+    return jsonify(groupRes)
+
 
 @app.route('/showReplayPro.html', methods=['GET'])
 def showReplayPro():

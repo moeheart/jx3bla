@@ -330,6 +330,8 @@ class LiveListener():
             
             if actorRep.upload:
                 actorRep.prepareUpload()
+
+            self.window.executeUploadData()
             # if liveGenerator.win:  # TODO 移除失败的复盘
             #     self.mainwindow.addRawData(fileName, liveGenerator.getRawData())
             # else:

@@ -473,9 +473,9 @@ class HealerDisplayWindow(Window):
 
         if "review" in self.result:
             # 支持专案组模块
-            tk.Label(frame8, text="AI评分：").place(x=30, y=20)
+            tk.Label(frame8, text="综合评分：").place(x=30, y=20)
             score = self.result["review"]["score"]
-            tk.Label(frame8, text="%.2f" % score).place(x=100, y=20)
+            tk.Label(frame8, text="%d" % score).place(x=100, y=20)
             numReview = self.result["review"]["num"]
             tk.Label(frame8, text="共有%d条手法建议。" % numReview).place(x=30, y=50)
             b2 = tk.Button(frame8, text='在[专案组]中查看', height=1, command=self.openReviewerWindow)
