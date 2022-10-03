@@ -27,10 +27,10 @@ class HealerReplay(ReplayerBase):
         '''
         self.result["skill"][name] = {}
         self.result["skill"][name]["num"] = skillObj.getNum()
-        self.result["skill"][name]["numPerSec"] = roundCent(self.result["skill"][name]["num"] / self.result["overall"]["sumTime"] * 1000, 2)
+        self.result["skill"][name]["numPerSec"] = roundCent(self.result["skill"][name]["num"] / self.result["overall"]["sumTimeEff"] * 1000, 2)
         self.result["skill"][name]["delay"] = int(skillObj.getAverageDelay())
         effHeal = skillObj.getHealEff()
-        self.result["skill"][name]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"][name]["HPS"] = int(effHeal / self.result["overall"]["sumTimeEff"] * 1000)
         self.result["skill"][name]["effRate"] = roundCent(effHeal / (skillObj.getHeal() + 1e-10))
 
     def calculateSkillInfo(self, name, id):
@@ -46,10 +46,10 @@ class HealerReplay(ReplayerBase):
         skillObj = self.skillInfo[self.gcdSkillIndex[id]][0]
         self.result["skill"][name] = {}
         self.result["skill"][name]["num"] = skillObj.getNum()
-        self.result["skill"][name]["numPerSec"] = roundCent(self.result["skill"][name]["num"] / self.result["overall"]["sumTime"] * 1000, 2)
+        self.result["skill"][name]["numPerSec"] = roundCent(self.result["skill"][name]["num"] / self.result["overall"]["sumTimeEff"] * 1000, 2)
         self.result["skill"][name]["delay"] = int(skillObj.getAverageDelay())
         effHeal = skillObj.getHealEff()
-        self.result["skill"][name]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"][name]["HPS"] = int(effHeal / self.result["overall"]["sumTimeEff"] * 1000)
         self.result["skill"][name]["effRate"] = roundCent(effHeal / (skillObj.getHeal() + 1e-10))
 
     def calculateSkillFinal(self):
@@ -77,7 +77,7 @@ class HealerReplay(ReplayerBase):
         '''
         self.result["skill"]["mufeng"] = {}
         num = self.battleTimeDict[self.mykey]
-        sum = self.mufengDict.buffTimeIntegral()
+        sum = self.mufengDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
         self.result["skill"]["mufeng"]["cover"] = roundCent(sum / (num + 1e-10))
         self.result["skill"]["general"]["efficiency"] = self.bh.getNormalEfficiency()
 
@@ -113,7 +113,7 @@ class HealerReplay(ReplayerBase):
         # code 1 不要死
         num = self.deathDict[self.mykey]["num"]
         if num > 0:
-            time = roundCent(((self.finalTime - self.startTime) - self.battleDict[self.mykey].buffTimeIntegral()) / 1000, 2)
+            time = roundCent((self.result["overall"]["sumTimeEff"] - self.battleDict[self.mykey].buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)) / 1000, 2)
             self.result["review"]["content"].append({"code": 1, "num": num, "duration": time, "rate": 0, "status": 3})
         else:
             self.result["review"]["content"].append({"code": 1, "num": num, "duration": 0, "rate": 1, "status": 0})
@@ -411,7 +411,7 @@ class HealerReplay(ReplayerBase):
         for i in range(len(self.skillInfo)):
             line = self.skillInfo[i]
             if line[0] is None:
-                self.skillInfo[i][0] = SkillCounterAdvance(line, self.startTime, self.finalTime, self.haste)
+                self.skillInfo[i][0] = SkillCounterAdvance(line, self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)
             for id in line[2]:
                 if line[4]:
                     self.gcdSkillIndex[id] = i
@@ -465,6 +465,9 @@ class HealerReplay(ReplayerBase):
         self.result["overall"]["boss"] = getNickToBoss(self.bld.info.boss)
         self.result["overall"]["sumTime"] = self.bld.info.sumTime
         self.result["overall"]["sumTimePrint"] = parseTime(self.bld.info.sumTime / 1000)
+        self.result["overall"]["sumTimeEff"] = self.bossBh.sumTime("healer")
+        self.result["overall"]["sumTimeEffPrint"] = parseTime(self.result["overall"]["sumTimeEff"] / 1000)
+        self.result["overall"]["sumTimeDpsEff"] = self.bossBh.sumTime("dps")
         self.result["overall"]["dataType"] = self.bld.dataType
         self.result["overall"]["calTank"] = self.config.item["xiangzhi"]["caltank"]
         self.result["overall"]["mask"] = self.config.item["general"]["mask"]

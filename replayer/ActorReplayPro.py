@@ -506,6 +506,8 @@ class ActorProReplayer(ReplayerBase):
                 stackNum[line] = 0
                 stackTime[line] = 0
 
+            immuneLog = []
+
         damageCountActive = 0
         damageCloseTime = 0
         damageStartTime = 0
@@ -595,6 +597,7 @@ class ActorProReplayer(ReplayerBase):
                                     sanhuaCount += 1
                                     sanhuaPlayer[event.target] = 1
                                     sanhuaLastTime = event.time
+                                    print("[Sanhua3]", self.bld.info.getName(event.target))
                                 # if sanhuaCount == 4:
                                 #     sanhuaActive = 0
                                 #     sanhuaCount = 0
@@ -661,6 +664,17 @@ class ActorProReplayer(ReplayerBase):
                         if event.caster not in self.dps:
                             self.dps[event.caster] = [0]
                         self.dps[event.caster][0] += event.damageEff
+
+                    # if self.bld.info.getName(event.target) == "修罗僧" and event.damageEff < event.damage:
+                    #     s = "%s: %d/%d, %s, %s" % (parseTime((event.time - self.startTime) / 1000), event.damageEff, event.damage,
+                    #                                self.bld.info.getName(event.caster), self.bld.info.getSkillName(event.full_id))
+                    #     if P3active:
+                    #         immuneLog.append(s)
+
+                if event.damageEff < event.damage:
+                    s = "%s: %d/%d, %s, %s" % (parseTime((event.time - self.startTime) / 1000), event.damageEff, event.damage,
+                                               self.bld.info.getName(event.target), self.bld.info.getSkillName(event.full_id))
+                    immuneLog.append(s)
 
                 # for i in ["5", "8", "9", "10", "11", "12", "15", "16"]:
                 #     if i in event.fullResult:
@@ -769,12 +783,17 @@ class ActorProReplayer(ReplayerBase):
                     if event.target not in sanhuaPlayer:
                         sanhuaCount += 1
                         sanhuaPlayer[event.target] = 1
+                        print("[Sanhua2]", self.bld.info.getName(event.target))
                         sanhuaLastTime = event.time - 1100
                 if event.id == "19917" and event.stack == 1:
                     if event.target not in sanhuaPlayer:
                         sanhuaCount += 1
                         sanhuaPlayer[event.target] = 1
+                        print("[Sanhua1]", self.bld.info.getName(event.target))
                         sanhuaLastTime = event.time - 300
+                if event.id == "19938":
+                    if event.target not in sanhuaPlayer:
+                        print("[Sanhua0]", parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.target), event.stack)
 
                 if P3active:
                     if event.target in playerEventLog and event.id in ["19689", "19826"] and event.stack != 0:
@@ -953,7 +972,7 @@ class ActorProReplayer(ReplayerBase):
                             skillOrderStr = addSkillOrder("散", skillOrderStr)
                             sanhuaActive = 1
                             sanhuaFinal = event.time + 12000
-                            print("[SanhuaCount]", event.time)
+                            print("[SanhuaCount]", event.time, parseTime((event.time - self.startTime) / 1000))
                         if skillName in ["达摩·拈花指法"]:
                             skillOrderStr = addSkillOrder("拈", skillOrderStr)
                             damoActive = 0
@@ -1013,6 +1032,10 @@ class ActorProReplayer(ReplayerBase):
                         name = castDict[timeStr]
                     f.write("%s\t%s\t%s\t%d\n" % (timeStr, name[0], name[1], damageDict[key]))
                 f.close()
+
+            # print("=========")
+            # for line in immuneLog:
+            #     print(line)
 
         recordGORate = 0
 
@@ -1203,7 +1226,7 @@ class ActorProReplayer(ReplayerBase):
         目前实现了战斗的数值统计.
         '''
 
-        combatTracker = CombatTracker(self.bld.info)
+        combatTracker = CombatTracker(self.bld.info, self.bh)
 
         for event in self.bld.log:
             if event.time < self.startTime:
@@ -1215,7 +1238,7 @@ class ActorProReplayer(ReplayerBase):
             elif event.dataType == "Buff":
                 combatTracker.recordBuff(event)
 
-        combatTracker.export(self.battleTime)
+        combatTracker.export(self.battleTime, self.bh.sumTime("dps"), self.bh.sumTime("healer"))
         self.combatTracker = combatTracker
 
     def OccAnalysis(self):

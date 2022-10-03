@@ -126,9 +126,9 @@ class SkillCounter():
         else:
             self.delta = delta
 
-class SkillCounterAdvance(SkillCounter):
+class SkillHealCounter(SkillCounter):
     '''
-    扩展技能统计类，在基类的基础上支持最大可能数量统计.
+    治疗技能的统计类，在基类的基础上支持统计治疗量、有效治疗量等数据.
     '''
 
     def getHeal(self):
@@ -137,7 +137,8 @@ class SkillCounterAdvance(SkillCounter):
         '''
         sum = 0
         for line in self.log:
-            sum += line[3]
+            if not line[5]:
+                sum += line[3]
         return sum
 
     def getHealEff(self):
@@ -146,7 +147,18 @@ class SkillCounterAdvance(SkillCounter):
         '''
         sum = 0
         for line in self.log:
-            sum += line[4]
+            if not line[5]:
+                sum += line[4]
+        return sum
+
+    def getNum(self):
+        '''
+        获取技能施放数量.
+        '''
+        sum = 0
+        for line in self.log:
+            if not line[5]:
+                sum += 1
         return sum
 
     def recordSkill(self, time, heal, healEff, lastTime=0, delta=-1):
@@ -161,6 +173,10 @@ class SkillCounterAdvance(SkillCounter):
         returns:
         - res: 推测的减去读条时间的技能位置.
         '''
+        while self.excludePos < len(self.exclude) and time > self.exclude[self.excludePos][0]:
+            self.excludeStatus = self.exclude[self.excludePos][1]
+            self.excludePos += 1
+
         if delta == -1:
             delta = self.delta
         if lastTime == 0:
@@ -168,7 +184,84 @@ class SkillCounterAdvance(SkillCounter):
                 lastTime = self.log[-1][0]
             else:
                 lastTime = self.startTime
-        self.log.append([time, lastTime, delta, heal, healEff])
+        self.log.append([time, lastTime, delta, heal, healEff, self.excludeStatus])
+        return time - delta
+
+    def __init__(self, skillid, startTime, finalTime, haste, delta=-1, exclude=[]):
+        '''
+        构造函数.
+        params:
+        - skillid: 统计的技能id.
+        - startTime: 战斗开始时间.
+        - finalTime: 战斗结束时间.
+        - haste: 加速.
+        - delta: 指定的技能读条时间.
+        - exclude: 不占统计的时间段，以log格式表示.
+        '''
+        super().__init__(skillid, startTime, finalTime, haste, delta=-1)
+        self.exclude = exclude
+        self.excludePos = 0
+        self.excludeStatus = 0
+
+class SkillCounterAdvance(SkillHealCounter):
+    '''
+    扩展技能统计类，在基类的基础上支持最大可能数量统计.
+    '''
+
+    def getHeal(self):
+        '''
+        获取这个技能的总治疗量.
+        '''
+        sum = 0
+        for line in self.log:
+            if not line[5]:
+                sum += line[3]
+        return sum
+
+    def getHealEff(self):
+        '''
+        获取这个技能的总有效治疗量.
+        '''
+        sum = 0
+        for line in self.log:
+            if not line[5]:
+                sum += line[4]
+        return sum
+
+    def getNum(self):
+        '''
+        获取技能施放数量.
+        '''
+        sum = 0
+        for line in self.log:
+            if not line[5]:
+                sum += 1
+        return sum
+
+    def recordSkill(self, time, heal, healEff, lastTime=0, delta=-1):
+        '''
+        记录技能施放的事件.
+        params:
+        - time: 技能施放的时间点.
+        - heal: 治疗量.
+        - healEff: 有效治疗量.
+        - lastTime: 上一个技能施放的时间点. 如果未提供则自动推断. 技能的施放以开始读条的时间为准。
+        - delta: 所记录技能的读条时间.
+        returns:
+        - res: 推测的减去读条时间的技能位置.
+        '''
+        while self.excludePos < len(self.exclude) and time > self.exclude[self.excludePos][0]:
+            self.excludeStatus = self.exclude[self.excludePos][1]
+            self.excludePos += 1
+
+        if delta == -1:
+            delta = self.delta
+        if lastTime == 0:
+            if len(self.log) != 0:
+                lastTime = self.log[-1][0]
+            else:
+                lastTime = self.startTime
+        self.log.append([time, lastTime, delta, heal, healEff, self.excludeStatus])
         return time - delta
 
     def getMaxPossible(self):
@@ -180,7 +273,7 @@ class SkillCounterAdvance(SkillCounter):
         else:
             return int((self.finalTime - self.startTime) / self.cd) + self.stack
 
-    def __init__(self, skillInfoSingle, startTime, finalTime, haste, delta=-1):
+    def __init__(self, skillInfoSingle, startTime, finalTime, haste, delta=-1, exclude=[]):
         '''
         构造函数.
         params:
@@ -189,6 +282,7 @@ class SkillCounterAdvance(SkillCounter):
         - finalTime: 战斗结束时间.
         - haste: 加速.
         - delta: 指定的技能读条时间.
+        - exclude: 不占统计的时间段，以log格式表示.
         '''
         self.skillid = skillInfoSingle[2][0]
         self.startTime = startTime
@@ -203,64 +297,9 @@ class SkillCounterAdvance(SkillCounter):
         self.cd = skillInfoSingle[8] * 1000
         self.stack = skillInfoSingle[9]
         self.name = skillInfoSingle[1]
-
-class SkillHealCounter(SkillCounter):
-    '''
-    治疗技能的统计类，在基类的基础上支持统计治疗量、有效治疗量等数据.
-    '''
-
-    def getHeal(self):
-        '''
-        获取这个技能的总治疗量.
-        '''
-        sum = 0
-        for line in self.log:
-            sum += line[3]
-        return sum
-
-    def getHealEff(self):
-        '''
-        获取这个技能的总有效治疗量.
-        '''
-        sum = 0
-        for line in self.log:
-            sum += line[4]
-        return sum
-
-    def recordSkill(self, time, heal, healEff, lastTime=0, delta=-1):
-        '''
-        记录技能施放的事件.
-        params:
-        - time: 技能施放的时间点.
-        - heal: 治疗量.
-        - healEff: 有效治疗量.
-        - lastTime: 上一个技能施放的时间点. 如果未提供则自动推断. 技能的施放以开始读条的时间为准。
-        - delta: 所记录技能的读条时间.
-        returns:
-        - res: 推测的减去读条时间的技能位置.
-        '''
-        if delta == -1:
-            delta = self.delta
-        if lastTime == 0:
-            if len(self.log) != 0:
-                lastTime = self.log[-1][0]
-            else:
-                lastTime = self.startTime
-        self.log.append([time, lastTime, delta, heal, healEff])
-        return time - delta
-
-
-    def __init__(self, skillid, startTime, finalTime, haste, delta=-1):
-        '''
-        构造函数.
-        params:
-        - skillid: 统计的技能id.
-        - startTime: 战斗开始时间.
-        - finalTime: 战斗结束时间.
-        - haste: 加速.
-        - delta: 指定的技能读条时间.
-        '''
-        super().__init__(skillid, startTime, finalTime, haste, delta=-1)
+        self.exclude = exclude
+        self.excludePos = 0
+        self.excludeStatus = 0
 
 class IntervalCounter():
     '''
@@ -358,6 +397,10 @@ class BuffCounter():
         '''
         if self.log != [] and self.log[-1][0] > time:
             del self.log[-1]
+        if time < self.startTime:
+            time = self.startTime
+        if time > self.finalTime:
+            time = self.finalTime
         self.log.append([int(time), int(stack)])
 
     def setState(self, time, stack):
@@ -389,19 +432,58 @@ class BuffCounter():
             res = self.log[-1][1]
         return res
 
-    def buffTimeIntegral(self):
+    def buffTimeIntegral(self, exclude=[]):
         '''
         获取全程buff层数对时间的积分.
         这个方法可以用于计算覆盖率、平均层数等.
+        params:
+        - exclude: 不参与记录的时间段，同样用log形式表示.
         returns:
         - time: 积分结果.
         '''
-        time = 0
-        for i in range(len(self.log) - 1):
-            time += self.log[i][1] * (self.log[i+1][0] - self.log[i][0])
-        if len(self.log) > 0:
-            time += self.log[-1][1] * (self.finalTime - self.log[-1][0])
-        return time
+
+        lastTime = self.startTime
+        lastStack = 0
+        excluding = 0
+        sumTime = 0
+        i = 0
+        j = 0
+        while i < len(self.log) or j < len(exclude):
+            if i < len(self.log):
+                timeX = self.log[i][0]
+                valueX = self.log[i][1]
+            else:
+                timeX = self.finalTime + 999999999
+                valueX = 0
+            if j < len(exclude):
+                timeY = exclude[j][0]
+                valueY = exclude[j][1]
+            else:
+                timeY = self.finalTime + 999999999
+                valueY = 0
+            if timeX < timeY:
+                if not excluding:
+                    sumTime += lastStack * (timeX - lastTime)
+                lastTime = timeX
+                lastStack = valueX
+                i += 1
+            else:
+                if not excluding:
+                    sumTime += lastStack * (timeY - lastTime)
+                lastTime = timeY
+                excluding = valueY
+                j += 1
+        if lastTime < self.finalTime:
+            if not excluding:
+                sumTime += lastStack * (self.finalTime - lastTime)
+        return sumTime
+
+        # sumTime = 0
+        # for i in range(len(self.log) - 1):
+        #     sumTime += self.log[i][1] * (self.log[i+1][0] - self.log[i][0])
+        # if len(self.log) > 0:
+        #     sumTime += self.log[-1][1] * (self.finalTime - self.log[-1][0])
+        # return sumTime
 
     def shrink(self, threshold=100):
         '''
@@ -418,13 +500,24 @@ class BuffCounter():
                 i -= 1
             i += 1
 
-    def sumTime(self):
+    def sumTime(self, exclude=[]):
         '''
         获取战斗总时间.
         returns:
         - res: 战斗总时间.
         '''
-        return self.finalTime - self.startTime
+
+        lastTime = self.startTime
+        lastStack = 1
+        sumTime = 0
+        for line in exclude:
+            sumTime += lastStack * (line[0] - lastTime)
+            lastTime = line[0]
+            lastStack = 1 - line[1]
+        sumTime += lastStack * (self.finalTime - lastTime)
+        return sumTime
+
+        # return self.finalTime - self.startTime
 
     def __init__(self, buffid, startTime, finalTime):
         '''

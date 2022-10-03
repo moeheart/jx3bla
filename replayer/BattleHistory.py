@@ -325,6 +325,25 @@ class BattleHistory():
 
         return efficiency
 
+    def sumTime(self, exclude="none"):
+        '''
+        获取战斗总时间（考虑排除时间）.
+        '''
+        target = []
+        if exclude == "healer":
+            target = self.badPeriodHealerLog
+        elif exclude == "dps":
+            target = self.badPeriodDpsLog
+        lastTime = self.startTime
+        lastStack = 1
+        sumTime = 0
+        for line in target:
+            sumTime += lastStack * (line[0] - lastTime)
+            lastTime = line[0]
+            lastStack = 1 - line[1]
+        sumTime += lastStack * (self.finalTime - lastTime)
+        return sumTime
+
     def __init__(self, startTime, finalTime):
         '''
         构造函数.

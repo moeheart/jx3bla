@@ -107,6 +107,7 @@ class BuTianJueWindow(HealerDisplayWindow):
 
         info2Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         info2Displayer.setSingle("percent", "绮栊覆盖率", "qilong", "cover")
+        info2Displayer.setSingle("int", "蛊惑HPS", "ghzs", "hps")
         info2Displayer.setSingle("percent", "gcd效率", "general", "efficiency")
         info2Displayer.setSingle("percent", "战斗效率", "general", "efficiencyNonGcd")
         info2Displayer.export_text(frame5, 7)
@@ -426,13 +427,13 @@ class BuTianJueReplayer(HealerReplay):
         qilongRateDict = {}  # 绮栊覆盖率
 
         # 技能统计
-        dxSkill = SkillHealCounter("3051", self.startTime, self.finalTime, self.haste)  # 蝶旋
-        dcSkill = SkillHealCounter("?", self.startTime, self.finalTime, self.haste)  # 蝶池
+        dxSkill = SkillHealCounter("3051", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 蝶旋
+        dcSkill = SkillHealCounter("?", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 蝶池
         # bcqsSkill = SkillHealCounter("2232", self.startTime, self.finalTime, self.haste)  # 冰蚕牵丝
-        zwjtSkill = SkillHealCounter("6252", self.startTime, self.finalTime, self.haste)  # 醉舞九天
+        zwjtSkill = SkillHealCounter("6252", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 醉舞九天
         # ssztSkill = SkillHealCounter("?", self.startTime, self.finalTime, self.haste)  # 圣手织天
         # qdtrSkill = SkillHealCounter("?", self.startTime, self.finalTime, self.haste)  # 千蝶吐瑞
-        mxymSkill = SkillHealCounter("?", self.startTime, self.finalTime, self.haste)  # 迷仙引梦
+        mxymSkill = SkillHealCounter("?", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 迷仙引梦
 
         zwjtDict = BuffCounter("?", self.startTime, self.finalTime)  # 用buff类型来记录醉舞九天的具体时间
         mxymDict = BuffCounter("?", self.startTime, self.finalTime)  # 迷仙引梦记录
@@ -468,9 +469,9 @@ class BuTianJueReplayer(HealerReplay):
         zwjtTime = getLength(16, self.haste)
 
         qdtrWatchSkill = SkillCounterAdvance(self.skillInfo[self.gcdSkillIndex["2449"]], self.startTime, self.finalTime,
-                                             self.haste)
+                                             self.haste, exclude=self.bossBh.badPeriodHealerLog)
         mxymWatchSkill = SkillCounterAdvance(self.skillInfo[self.gcdSkillIndex["15132"]], self.startTime, self.finalTime,
-                                             self.haste)
+                                             self.haste, exclude=self.bossBh.badPeriodHealerLog)
 
         self.unimportantSkill += ["3051", "3644", "3473",  # 蝶旋
                                "2957",  # 圣手织天壳
@@ -636,13 +637,13 @@ class BuTianJueReplayer(HealerReplay):
 
         # 计算DPS的盾指标
         for key in self.bld.info.player:
-            liveCount = self.battleDict[key].buffTimeIntegral()  # 存活时间比例
-            if self.battleDict[key].sumTime() - liveCount < 8000:  # 脱战缓冲时间
-                liveCount = self.battleDict[key].sumTime()
+            liveCount = self.battleDict[key].buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)  # 存活时间比例
+            if self.battleDict[key].sumTime(exclude=self.bh.badPeriodHealerLog) - liveCount < 8000:  # 脱战缓冲时间
+                liveCount = self.battleDict[key].sumTime(exclude=self.bh.badPeriodHealerLog)
             self.battleTimeDict[key] = liveCount
-            self.sumPlayer += liveCount / self.battleDict[key].sumTime()
+            self.sumPlayer += liveCount / self.battleDict[key].sumTime(exclude=self.bh.badPeriodHealerLog)
 
-            time1 = self.qilongCounter[key].buffTimeIntegral()
+            time1 = self.qilongCounter[key].buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
             timeAll = liveCount
             qilongRateDict[key] = time1 / (timeAll + 1e-10)
 
@@ -650,7 +651,7 @@ class BuTianJueReplayer(HealerReplay):
             self.result["dps"]["numDPS"] += 1
             res = {"name": self.bld.info.player[line[0]].name,
                    "occ": self.bld.info.player[line[0]].occ,
-                   "damage": int(line[1] / self.result["overall"]["sumTime"] * 1000),
+                   "damage": int(line[1] / self.result["overall"]["sumTimeDpsEff"] * 1000),
                    "xwgdNum": xwgdNumDict[line[0]],
                    "qilongRate": roundCent(qilongRateDict[line[0]]),
                    }
@@ -685,18 +686,22 @@ class BuTianJueReplayer(HealerReplay):
         # 迷仙引梦
         self.calculateSkillInfoDirect("mxym", mxymSkill)
         num = self.battleTimeDict[self.mykey]
-        sum = mxymDict.buffTimeIntegral()
+        sum = mxymDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
         self.result["skill"]["mxym"]["cover"] = roundCent(sum / (num + 1e-10))
         # 蝶旋
         self.calculateSkillInfoDirect("dx", dxSkill)
         # 杂项
         self.result["skill"]["nvwa"] = {}
-        sum = nvwaDict.buffTimeIntegral()
+        sum = nvwaDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
         self.result["skill"]["nvwa"]["cover"] = roundCent(sum / (num + 1e-10))
         self.result["skill"]["ghzs"] = {}
         num = self.battleTimeDict[self.mykey]
-        sum = ghzsDict.buffTimeIntegral()
+        sum = ghzsDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
         self.result["skill"]["ghzs"]["cover"] = roundCent(sum / (num + 1e-10))
+        ghzsHps = 0
+        if self.mykey in self.act.hps["player"] and "蛊惑众生" in self.act.hps["player"][self.mykey]["namedSkill"]:
+            ghzsHps = int(self.act.hps["player"][self.mykey]["namedSkill"]["蛊惑众生"]["sum"] / self.result["overall"]["sumTimeEff"] * 1000)
+        self.result["skill"]["ghzs"]["hps"] = ghzsHps
         self.result["skill"]["qilong"] = {}
         self.result["skill"]["qilong"]["cover"] = roundCent(overallRate)
         # 整体
@@ -710,7 +715,7 @@ class BuTianJueReplayer(HealerReplay):
         self.result["replay"]["ghzs"] = ghzsDict.log
         self.result["replay"]["zwjt"] = zwjtDict.log
 
-        self.specialKey = {"bcqs-numPerSec": 10, "zwjt-numPerSec": 10, "general-efficiency": 20, "healer-healEff": 20}
+        self.specialKey = {"bcqs-numPerSec": 10, "zwjt-numPerSec": 10, "general-efficiencyNonGcd": 20, "healer-healEff": 20}
 
         self.markedSkill = ["2226", "2230"]
         self.outstandingSkill = [qdtrWatchSkill]

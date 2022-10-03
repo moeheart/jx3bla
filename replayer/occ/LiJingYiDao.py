@@ -372,11 +372,11 @@ class LiJingYiDaoReplayer(HealerReplay):
         主要处理技能统计，战斗细节等.
         '''
 
-        wozhenSkill = SkillHealCounter("101", self.startTime, self.finalTime, self.haste)  # 握针
-        tizhenSkill = SkillHealCounter("138", self.startTime, self.finalTime, self.haste)  # 提针
-        changzhenSkill = SkillHealCounter("142", self.startTime, self.finalTime, self.haste)  # 长针
-        bizhenSkill = SkillHealCounter("140", self.startTime, self.finalTime, self.haste)  # 彼针
-        longwuSkill = SkillHealCounter("28541", self.startTime, self.finalTime, self.haste)  # 泷雾
+        wozhenSkill = SkillHealCounter("101", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 握针
+        # tizhenSkill = SkillHealCounter("138", self.startTime, self.finalTime, self.haste)  # 提针
+        # changzhenSkill = SkillHealCounter("142", self.startTime, self.finalTime, self.haste)  # 长针
+        # bizhenSkill = SkillHealCounter("140", self.startTime, self.finalTime, self.haste)  # 彼针
+        # longwuSkill = SkillHealCounter("28541", self.startTime, self.finalTime, self.haste)  # 泷雾
 
         # 技能信息
         # [技能统计对象, 技能名, [所有技能ID], 图标ID, 是否为gcd技能, 运功时长, 是否倒读条, 是否吃加速, cd时间, 充能数量]
@@ -414,8 +414,8 @@ class LiJingYiDaoReplayer(HealerReplay):
         hanqingNumDict = {}  # 寒清触发次数
 
         # 技能统计
-        wozhenBuff = SkillHealCounter("631", self.startTime, self.finalTime, self.haste)  # 握针
-        shuhuaiBuff = SkillHealCounter("5693", self.startTime, self.finalTime, self.haste)  # 述怀
+        wozhenBuff = SkillHealCounter("631", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 握针
+        shuhuaiBuff = SkillHealCounter("5693", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 述怀
 
         self.xqxDict = BuffCounter("6266", self.startTime, self.finalTime)  # 行气血
         self.cwDict = BuffCounter("12770", self.startTime, self.finalTime)  # cw特效
@@ -624,17 +624,17 @@ class LiJingYiDaoReplayer(HealerReplay):
 
         # 计算DPS的盾指标
         for key in self.bld.info.player:
-            liveCount = self.battleDict[key].buffTimeIntegral()  # 存活时间比例
-            if self.battleDict[key].sumTime() - liveCount < 8000:  # 脱战缓冲时间
-                liveCount = self.battleDict[key].sumTime()
+            liveCount = self.battleDict[key].buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)  # 存活时间比例
+            if self.battleDict[key].sumTime(exclude=self.bh.badPeriodHealerLog) - liveCount < 8000:  # 脱战缓冲时间
+                liveCount = self.battleDict[key].sumTime(exclude=self.bh.badPeriodHealerLog)
             self.battleTimeDict[key] = liveCount
-            self.sumPlayer += liveCount / self.battleDict[key].sumTime()
+            self.sumPlayer += liveCount / self.battleDict[key].sumTime(exclude=self.bh.badPeriodHealerLog)
 
         for line in damageList:
             self.result["dps"]["numDPS"] += 1
             res = {"name": self.bld.info.player[line[0]].name,
                    "occ": self.bld.info.player[line[0]].occ,
-                   "damage": int(line[1] / self.result["overall"]["sumTime"] * 1000),
+                   "damage": int(line[1] / self.result["overall"]["sumTimeDpsEff"] * 1000),
                    "HanQingNum": hanqingNumDict[line[0]],
                    }
             self.result["dps"]["table"].append(res)
@@ -658,14 +658,14 @@ class LiJingYiDaoReplayer(HealerReplay):
         #     self.result["skill"]["wozhen"]["num"] / self.result["overall"]["sumTime"] * 1000, 2)
         # effHeal = wozhenBuff.getHealEff()
         # self.result["skill"]["wozhen"]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
-        self.result["skill"]["wozhen"]["shengxiHPS"] = int(wozhenDirectHeal / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"]["wozhen"]["shengxiHPS"] = int(wozhenDirectHeal / self.result["overall"]["sumTimeEff"] * 1000)
         self.result["skill"]["wozhen"]["delay"] = int(wozhenSkill.getAverageDelay())
         num = 0
         sum = 0
         for key in wozhenDict:
             singleDict = wozhenDict[key]
             num += self.battleTimeDict[key]
-            sum += singleDict.buffTimeIntegral()
+            sum += singleDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
             singleHeat = singleDict.getHeatTable()
             if self.teamCluster[key] <= 5:
                 if len(hotHeat[self.teamCluster[key] - 1]) == 0:
@@ -686,11 +686,11 @@ class LiJingYiDaoReplayer(HealerReplay):
         # print("[HotHeat0]", hotHeat[0])
         # 提针
         tizhenSkill = self.calculateSkillInfo("tizhen", "22792")
-        self.result["skill"]["tizhen"]["hzDirectHPS"] = int(haozhenDirectHeal / self.result["overall"]["sumTime"] * 1000)
-        self.result["skill"]["tizhen"]["hzPercentHPS"] = int(haozhenPercentHeal / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"]["tizhen"]["hzDirectHPS"] = int(haozhenDirectHeal / self.result["overall"]["sumTimeEff"] * 1000)
+        self.result["skill"]["tizhen"]["hzPercentHPS"] = int(haozhenPercentHeal / self.result["overall"]["sumTimeEff"] * 1000)
         # 长针
         changzhenSkill = self.calculateSkillInfo("changzhen", "3038")
-        self.result["skill"]["changzhen"]["yuehuaHPS"] = int(changzhenAOEHeal / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"]["changzhen"]["yuehuaHPS"] = int(changzhenAOEHeal / self.result["overall"]["sumTimeEff"] * 1000)
         # 彼针
         bizhenSkill = self.calculateSkillInfo("bizhen", "26666")
         num = 0
@@ -698,35 +698,35 @@ class LiJingYiDaoReplayer(HealerReplay):
         for key in shuhuaiDict:
             singleDict = shuhuaiDict[key]
             num += self.battleTimeDict[key]
-            sum += singleDict.buffTimeIntegral()
+            sum += singleDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
         self.result["skill"]["bizhen"]["shCover"] = roundCent(sum / (num + 1e-10))
+
         # 春泥护花
         chunniSkill = self.calculateSkillInfo("chunni", "132")
         # 泷雾
         longwuSkill = self.calculateSkillInfo("longwu", "28541")
+
         # 秋肃
         self.result["skill"]["qiusu"] = {}
         num = self.battleTimeDict[self.mykey]
-        sum = qiusuCounter.buffTimeIntegral()
+        sum = qiusuCounter.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
         self.result["skill"]["qiusu"]["cover"] = roundCent(sum / (num + 1e-10))
-        self.result["skill"]["qiusu"]["dps"] = int(numdam1 / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"]["qiusu"]["dps"] = int(numdam1 / self.result["overall"]["sumTimeDpsEff"] * 1000)
         # 杂项
         self.result["skill"]["qingshu"] = {}
-        self.result["skill"]["qingshu"]["HPS"] = int(qingshuHeal / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"]["qingshu"]["HPS"] = int(qingshuHeal / self.result["overall"]["sumTimeEff"] * 1000)
+
         # 整体
         self.result["skill"]["general"] = {}
         self.result["skill"]["general"]["HanQingNum"] = numHanQing
         # self.result["skill"]["general"]["efficiency"] = self.bh.getNormalEfficiency()
-
         # 计算战斗回放
         self.result["replay"] = self.bh.getJsonReplay(self.mykey)
         self.result["replay"]["heat"] = {"interval": 500, "timeline": hotHeat}
-
         self.specialKey = {"wozhen-numPerSec": 20, "general-efficiency": 20, "healer-healEff": 20, "qiusu-cover": 20}
         self.markedSkill = ["132", "136", "2663", "14963", "24911"]
         self.outstandingSkill = []
         self.calculateSkillOverall()
-
         # 计算专案组的心法部分.
         # code 201 保证`秋肃`的覆盖率
         cover = self.result["skill"]["qiusu"]["cover"]

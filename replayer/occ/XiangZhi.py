@@ -446,11 +446,11 @@ class XiangZhiProReplayer(HealerReplay):
         breakDict = {}  # 破盾次数
 
         # 技能统计
-        shangBuff = SkillHealCounter("9459", self.startTime, self.finalTime, self.haste)  # 商
-        jueBuff = SkillHealCounter("9463", self.startTime, self.finalTime, self.haste)  # 角
+        shangBuff = SkillHealCounter("9459", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 商
+        jueBuff = SkillHealCounter("9463", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 角
         shangBuffDict = {}
         jueBuffDict = {}
-        xySkill = SkillHealCounter("21321", self.startTime, self.finalTime, self.haste)  # 相依
+        xySkill = SkillHealCounter("21321", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 相依
         jueOverallCounter = BuffCounter("9463", self.startTime, self.finalTime)  # 角的全局覆盖
         for line in self.bld.info.player:
             shangBuffDict[line] = HotCounter("9459", self.startTime, self.finalTime)  # 商，9460=殊曲，9461=洞天
@@ -694,15 +694,17 @@ class XiangZhiProReplayer(HealerReplay):
         damageList.sort(key=lambda x: -x[1])
 
         # 计算DPS的盾指标
+        badPeriod = self.bh
+
         overallShieldHeat = {"interval": 500, "timeline": []}
         for key in self.shieldCountersNew:
-            liveCount = self.battleDict[key].buffTimeIntegral()  # 存活时间比例
-            if self.battleDict[key].sumTime() - liveCount < 8000:  # 脱战缓冲时间
-                liveCount = self.battleDict[key].sumTime()
+            liveCount = self.battleDict[key].buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)  # 存活时间比例
+            if self.battleDict[key].sumTime(exclude=self.bh.badPeriodHealerLog) - liveCount < 8000:  # 脱战缓冲时间
+                liveCount = self.battleDict[key].sumTime(exclude=self.bh.badPeriodHealerLog)
             self.battleTimeDict[key] = liveCount
-            self.sumPlayer += liveCount / self.battleDict[key].sumTime()
+            self.sumPlayer += liveCount / self.battleDict[key].sumTime(exclude=self.bh.badPeriodHealerLog)
             # 过滤老板，T奶，自己
-            if key not in damageDict or damageDict[key] / self.result["overall"]["sumTime"] * 1000 < 10000:
+            if key not in damageDict or damageDict[key] / self.result["overall"]["sumTimeEff"] * 1000 < 10000:
                 continue
             if getOccType(self.occDetailList[key]) == "healer":
                 continue
@@ -710,7 +712,7 @@ class XiangZhiProReplayer(HealerReplay):
                 continue
             if key == self.mykey:
                 continue
-            time1 = self.shieldCountersNew[key].buffTimeIntegral()
+            time1 = self.shieldCountersNew[key].buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
             timeAll = liveCount
             rateDict[key] = time1 / (timeAll + 1e-10)
             breakDict[key] = self.shieldCountersNew[key].countBreak()
@@ -729,7 +731,7 @@ class XiangZhiProReplayer(HealerReplay):
             self.result["dps"]["numDPS"] += 1
             res = {"name": self.bld.info.player[line[0]].name,
                    "occ": self.bld.info.player[line[0]].occ,
-                   "damage": int(line[1] / self.result["overall"]["sumTime"] * 1000),
+                   "damage": int(line[1] / self.result["overall"]["sumTimeDpsEff"] * 1000),
                    "shieldRate": roundCent(rateDict[line[0]]),
                    "shieldBreak": breakDict[line[0]]}
             self.result["dps"]["table"].append(res)
@@ -749,14 +751,14 @@ class XiangZhiProReplayer(HealerReplay):
         # 梅花三弄
         mhsnSkill = self.calculateSkillInfo("meihua", "14231")
         self.result["skill"]["meihua"]["cover"] = roundCent(overallRate)
-        self.result["skill"]["meihua"]["youxiangHPS"] = int(youxiangHeal / self.result["overall"]["sumTime"] * 1000)
-        self.result["skill"]["meihua"]["pingyinHPS"] = int(pingyinHeal / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"]["meihua"]["youxiangHPS"] = int(youxiangHeal / self.result["overall"]["sumTimeEff"] * 1000)
+        self.result["skill"]["meihua"]["pingyinHPS"] = int(pingyinHeal / self.result["overall"]["sumTimeEff"] * 1000)
         # 宫
         gongSkill = self.calculateSkillInfo("gong", "18864")
-        self.result["skill"]["gong"]["zhenliuHPS"] = int(zhenliuHeal / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"]["gong"]["zhenliuHPS"] = int(zhenliuHeal / self.result["overall"]["sumTimeEff"] * 1000)
         # 徵
         zhiSkill = self.calculateSkillInfo("zhi", "14362")
-        self.result["skill"]["zhi"]["gudaoHPS"] = int(gudaoHeal / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"]["zhi"]["gudaoHPS"] = int(gudaoHeal / self.result["overall"]["sumTimeEff"] * 1000)
         # 羽
         yuSkill = self.calculateSkillInfo("yu", "14141")
 
@@ -771,7 +773,7 @@ class XiangZhiProReplayer(HealerReplay):
         for key in shangBuffDict:
             singleDict = shangBuffDict[key]
             num += self.battleTimeDict[key]
-            sum += singleDict.buffTimeIntegral()
+            sum += singleDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
             singleHeat = singleDict.getHeatTable()
             if self.teamCluster[key] <= 5:
                 if len(hotHeat[self.teamCluster[key] - 1]) == 0:
@@ -791,7 +793,7 @@ class XiangZhiProReplayer(HealerReplay):
         for key in jueBuffDict:
             singleDict = jueBuffDict[key]
             num += self.battleTimeDict[key]
-            sum += singleDict.buffTimeIntegral()
+            sum += singleDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
             singleHeat = singleDict.getHeatTable()
             if self.teamCluster[key] <= 5:
                 if len(hotHeat[self.teamCluster[key] - 1]) == 0:
@@ -814,9 +816,9 @@ class XiangZhiProReplayer(HealerReplay):
         self.calculateSkillInfoDirect("xiangyi", xySkill)
         # 整体
         self.result["skill"]["general"] = {}
-        self.result["skill"]["general"]["SangrouDPS"] = int(numdam2 / self.result["overall"]["sumTime"] * 1000)
-        self.result["skill"]["general"]["ZhuangzhouDPS"] = int(numdam1 / self.result["overall"]["sumTime"] * 1000)
-        self.result["skill"]["general"]["YujianDPS"] = int(numdam3 / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"]["general"]["SangrouDPS"] = int(numdam2 / self.result["overall"]["sumTimeDpsEff"] * 1000)
+        self.result["skill"]["general"]["ZhuangzhouDPS"] = int(numdam1 / self.result["overall"]["sumTimeDpsEff"] * 1000)
+        self.result["skill"]["general"]["YujianDPS"] = int(numdam3 / self.result["overall"]["sumTimeDpsEff"] * 1000)
 
         # 计算战斗回放
         self.result["replay"] = self.bh.getJsonReplay(self.mykey)

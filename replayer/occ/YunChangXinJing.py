@@ -379,10 +379,10 @@ class YunChangXinJingReplayer(HealerReplay):
         主要处理技能统计，战斗细节等.
         '''
 
-        xlwlSkill = SkillHealCounter("554", self.startTime, self.finalTime, self.haste)  # 翔鸾舞柳
-        sydhSkill = SkillHealCounter("556", self.startTime, self.finalTime, self.haste)  # 上元点鬟
-        tzhySkill = SkillHealCounter("566", self.startTime, self.finalTime, self.haste)  # 跳珠憾玉
-        wmhmSkill = SkillHealCounter("2976", self.startTime, self.finalTime, self.haste)  # 王母挥袂
+        xlwlSkill = SkillHealCounter("554", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 翔鸾舞柳
+        sydhSkill = SkillHealCounter("556", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 上元点鬟
+        tzhySkill = SkillHealCounter("566", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 跳珠憾玉
+        wmhmSkill = SkillHealCounter("2976", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 王母挥袂
 
         # 技能信息
         # [技能统计对象, 技能名, [所有技能ID], 图标ID, 是否为gcd技能, 运功时长, 是否倒读条, 是否吃加速, cd时间, 充能数量]
@@ -449,7 +449,7 @@ class YunChangXinJingReplayer(HealerReplay):
         hxpyTime = getLength(13, self.haste)  # TODO 判断瑰姿
 
         jwfhWatchSkill = SkillCounterAdvance(self.skillInfo[self.gcdSkillIndex["24990"]], self.startTime, self.finalTime,
-                                             self.haste)
+                                             self.haste, exclude=self.bossBh.badPeriodHealerLog)
 
         self.unimportantSkill += ["6633", "6634", "6635",  # 翔舞判定
                                "24987", "3776",  # 上元判定
@@ -631,17 +631,17 @@ class YunChangXinJingReplayer(HealerReplay):
 
         # 计算DPS的盾指标
         for key in self.bld.info.player:
-            liveCount = self.battleDict[key].buffTimeIntegral()  # 存活时间比例
-            if self.battleDict[key].sumTime() - liveCount < 8000:  # 脱战缓冲时间
-                liveCount = self.battleDict[key].sumTime()
+            liveCount = self.battleDict[key].buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)  # 存活时间比例
+            if self.battleDict[key].sumTime(exclude=self.bh.badPeriodHealerLog) - liveCount < 8000:  # 脱战缓冲时间
+                liveCount = self.battleDict[key].sumTime(exclude=self.bh.badPeriodHealerLog)
             self.battleTimeDict[key] = liveCount
-            self.sumPlayer += liveCount / self.battleDict[key].sumTime()
+            self.sumPlayer += liveCount / self.battleDict[key].sumTime(exclude=self.bh.badPeriodHealerLog)
 
         for line in damageList:
             self.result["dps"]["numDPS"] += 1
             res = {"name": self.bld.info.player[line[0]].name,
                    "occ": self.bld.info.player[line[0]].occ,
-                   "damage": int(line[1] / self.result["overall"]["sumTime"] * 1000),
+                   "damage": int(line[1] / self.result["overall"]["sumTimeDpsEff"] * 1000),
                    }
             self.result["dps"]["table"].append(res)
 
@@ -658,7 +658,7 @@ class YunChangXinJingReplayer(HealerReplay):
         # 翔鸾舞柳
         self.calculateSkillInfoDirect("xlwl", xiangwuBuff)
         xlwlSkill = self.skillInfo[self.gcdSkillIndex["554"]][0]
-        self.result["skill"]["xlwl"]["shuangluanHPS"] = int(shuangluanHeal1 / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"]["xlwl"]["shuangluanHPS"] = int(shuangluanHeal1 / self.result["overall"]["sumTimeEff"] * 1000)
         self.result["skill"]["xlwl"]["delay"] = int(xlwlSkill.getAverageDelay())
         num = 0
         sum = 0
@@ -666,7 +666,7 @@ class YunChangXinJingReplayer(HealerReplay):
         for key in xiangwuDict:
             singleDict = xiangwuDict[key]
             num += self.battleTimeDict[key]
-            sum += singleDict.buffTimeIntegral()
+            sum += singleDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
             singleHeat = singleDict.getHeatTable(decay=0)
             if xiangwuHeat == []:
                 for line in singleHeat["timeline"]:
@@ -683,7 +683,7 @@ class YunChangXinJingReplayer(HealerReplay):
         # 上元点鬟
         self.calculateSkillInfoDirect("sydh", shangyuanBuff)
         sydhSkill = self.skillInfo[self.gcdSkillIndex["556"]][0]
-        self.result["skill"]["sydh"]["shuangluanHPS"] = int(shuangluanHeal3 / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"]["sydh"]["shuangluanHPS"] = int(shuangluanHeal3 / self.result["overall"]["sumTimeEff"] * 1000)
         self.result["skill"]["sydh"]["delay"] = int(sydhSkill.getAverageDelay())
         num = 0
         sum = 0
@@ -691,7 +691,7 @@ class YunChangXinJingReplayer(HealerReplay):
         for key in shangyuanDict:
             singleDict = shangyuanDict[key]
             num += self.battleTimeDict[key]
-            sum += singleDict.buffTimeIntegral()
+            sum += singleDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
             singleHeat = singleDict.getHeatTable(decay=0)
             if shangyuanHeat == []:
                 for line in singleHeat["timeline"]:
@@ -707,22 +707,22 @@ class YunChangXinJingReplayer(HealerReplay):
 
         # 王母
         wmhmSkill = self.calculateSkillInfo("wmhm", "2976")
-        self.result["skill"]["wmhm"]["cizhiHPS"] = int(cizhiHeal / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"]["wmhm"]["cizhiHPS"] = int(cizhiHeal / self.result["overall"]["sumTimeEff"] * 1000)
 
         # 风袖
         fxdaSkill = self.calculateSkillInfo("fxda", "555")
-        self.result["skill"]["fxda"]["wanqingHPS"] = int(wanqingHeal / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"]["fxda"]["wanqingHPS"] = int(wanqingHeal / self.result["overall"]["sumTimeEff"] * 1000)
         # 九微飞花
         jwfhSkill = self.calculateSkillInfo("jwfh", "24990")
         # 杂项
-        self.result["skill"]["xlwl"]["chuimeiHPS"] = int(chuimeiHeal / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"]["xlwl"]["chuimeiHPS"] = int(chuimeiHeal / self.result["overall"]["sumTimeEff"] * 1000)
         self.result["skill"]["xlwl"]["shuangluanNum"] = xlwlSkill.getNum() + sydhSkill.getNum()  # 注意这两个放在翔舞底下，但是实际上是翔舞+上元的数据
         self.result["skill"]["tzhy"] = {}
         self.result["skill"]["tzhy"]["num"] = tzhySkill.getNum()
         self.result["skill"]["tzhy"]["numPerSec"] = roundCent(
-            self.result["skill"]["tzhy"]["num"] / self.result["overall"]["sumTime"] * 1000, 2)
+            self.result["skill"]["tzhy"]["num"] / self.result["overall"]["sumTimeEff"] * 1000, 2)
         effHeal = tzhySkill.getHealEff()
-        self.result["skill"]["tzhy"]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"]["tzhy"]["HPS"] = int(effHeal / self.result["overall"]["sumTimeEff"] * 1000)
 
         # 整体
         self.result["skill"]["general"] = {}
@@ -732,7 +732,7 @@ class YunChangXinJingReplayer(HealerReplay):
         self.result["replay"]["hxpy"] = hxpyDict.log
         self.result["replay"]["heat"] = {"interval": 500, "timeline": [xiangwuHeat, shangyuanHeat]}
 
-        self.specialKey = {"hxpy-numPerSec": 20, "general-efficiency": 20, "healer-healEff": 20, "xlwl-cover": 10, "sydh-cover": 10}
+        self.specialKey = {"hxpy-numPerSec": 20, "general-efficiencyNonGcd": 20, "healer-healEff": 20, "xlwl-cover": 10, "sydh-cover": 10}
         self.markedSkill = ["555", "568", "18221"]
         self.outstandingSkill = [jwfhWatchSkill]
         self.calculateSkillOverall()

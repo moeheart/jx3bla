@@ -390,24 +390,31 @@ class HealerDisplayWindow(Window):
             else:
                 # 当前玩家
                 hpsDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
-                # rHPS
-                tb.AppendContext(record.get("rhps", 0))
-                # HPS
-                num, percent, color = hpsDisplayer.getSkillPercent("healer", "healEff")
-                if num > 0:
-                    descText = "排名：%d%%\n数量：%d" % (percent, num)
-                else:
-                    descText = "排名未知"
-                tb.AppendHeader(record.get("hps", record.get("healEff", 0)), descText, color=color)
-                # aHPS
-                tb.AppendContext(record.get("ahps", 0))
-                # oHPS
-                num, percent, color = hpsDisplayer.getSkillPercent("healer", "heal")
-                if num > 0:
-                    descText = "排名：%d%%\n数量：%d" % (percent, num)
-                else:
-                    descText = "排名未知"
-                tb.AppendHeader(record.get("ohps", record.get("heal", 0)), descText, color=color)
+                # # rHPS
+                # tb.AppendContext(record.get("rhps", 0))
+                # # HPS
+                # num, percent, color = hpsDisplayer.getSkillPercent("healer", "healEff")
+                # if num > 0:
+                #     descText = "排名：%d%%\n数量：%d" % (percent, num)
+                # else:
+                #     descText = "排名未知"
+                # tb.AppendHeader(record.get("hps", record.get("healEff", 0)), descText, color=color)
+                # # aHPS
+                # tb.AppendContext(record.get("ahps", 0))
+                # # oHPS
+                # num, percent, color = hpsDisplayer.getSkillPercent("healer", "heal")
+                # if num > 0:
+                #     descText = "排名：%d%%\n数量：%d" % (percent, num)
+                # else:
+                #     descText = "排名未知"
+                # tb.AppendHeader(record.get("ohps", record.get("heal", 0)), descText, color=color)
+                for stat in ["rhps", "hps", "ahps", "ohps"]:
+                    num, percent, color = hpsDisplayer.getSkillPercent("healer", stat)
+                    if num > 0:
+                        descText = "排名：%d%%\n数量：%d" % (percent, num)
+                    else:
+                        descText = "排名未知"
+                    tb.AppendHeader(record.get(stat, 0), descText, color=color)
             tb.EndOfLine()
 
     def renderQx(self):

@@ -81,7 +81,7 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
         self.countFinalOverall()
         self.bh.setEnvironmentInfo(self.bhInfo)
         for line in self.detail["toushi"]:
-            self.bh.setBadPeriod(line["start"], line["log"][-1][4] + 2000, True, False)
+            self.bh.setBadPeriod(line["startTime"], line["log"][-1][4] + 2000, True, False)
 
         # for line in self.bh.log["environment"]:
         #     timePrint = "%.1f" % ((line["start"] - self.startTime) / 1000)
@@ -182,7 +182,7 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
             elif event.content in ['"呀啊！！！！！！！！！"']:
                 pass
             elif event.content in ['"让我看看你们的能耐！"', '"不痛不痒！哈哈哈哈哈！"', '"用点力！哼哈哈哈哈哈！"']:
-                self.detail["toushi"].append({"start": parseTime((event.time - self.startTime) / 1000), "log": []})
+                self.detail["toushi"].append({"start": parseTime((event.time - self.startTime) / 1000), "startTime": event.time, "log": []})
             elif event.content in ['"今日就让你们见识见识，本将这副巨象铠甲的厉害！"']:
                 pass
             elif event.content in ['"呕！"']:

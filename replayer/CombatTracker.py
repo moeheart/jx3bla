@@ -188,14 +188,18 @@ class CombatTracker():
                 del res[t]["player"][p]["skill"]
         return res
 
-    def export(self, time):
+    def export(self, time, timeDps, timeHealer):
         '''
         统计结束时的后处理.
         params:
         - time: 战斗时间.
+        - timeDps: dps的有效战斗时间.
+        - timeHealer: 治疗的有效战斗时间.
         '''
 
         self.time = time
+        self.timeDps = timeDps
+        self.timeHealer = timeHealer
 
         # 脱战时对缓冲区的结算.
         for player in self.hpStatus:
@@ -204,7 +208,7 @@ class CombatTracker():
         # hps
         hps = {"sum": 0, "player": {}}
         for player in self.hpsCast:
-            self.hpsCast[player].export(time, self.info)
+            self.hpsCast[player].export(timeHealer, self.info)
             if self.hpsCast[player].hps > 0:
                 hps["player"][player] = {"sum": self.hpsCast[player].sum,
                                          "hps": self.hpsCast[player].hps,
@@ -218,7 +222,7 @@ class CombatTracker():
         # ohps
         ohps = {"sum": 0, "player": {}}
         for player in self.ohpsCast:
-            self.ohpsCast[player].export(time, self.info)
+            self.ohpsCast[player].export(timeHealer, self.info)
             if self.ohpsCast[player].hps > 0:
                 ohps["player"][player] = {"sum": self.ohpsCast[player].sum,
                                           "hps": self.ohpsCast[player].hps,
@@ -232,7 +236,7 @@ class CombatTracker():
         # ahps
         ahps = {"sum": 0, "player": {}}
         for player in self.ahpsCast:
-            self.ahpsCast[player].export(time, self.info)
+            self.ahpsCast[player].export(timeHealer, self.info)
             if self.ahpsCast[player].hps > 0:
                 ahps["player"][player] = {"sum": self.ahpsCast[player].sum,
                                           "hps": self.ahpsCast[player].hps,
@@ -246,7 +250,7 @@ class CombatTracker():
         # rhps
         rhps = {"sum": 0, "player": {}}
         for player in self.rhpsCast:
-            self.rhpsCast[player].export(time, self.info)
+            self.rhpsCast[player].export(timeHealer, self.info)
             if self.rhpsCast[player].hps > 0:
                 rhps["player"][player] = {"sum": self.rhpsCast[player].sum,
                                           "hps": self.rhpsCast[player].hps,
@@ -339,6 +343,14 @@ class CombatTracker():
         记录技能事件.
         '''
 
+        # 先判断是否进入了无效区间
+        while self.excludePosDps < len(self.badPeriodDpsLog) and event.time > self.badPeriodDpsLog[self.excludePosDps][0]:
+            self.excludeStatusDps = self.badPeriodDpsLog[self.excludePosDps][1]
+            self.excludePosDps += 1
+        while self.excludePosHealer < len(self.badPeriodHealerLog) and event.time > self.badPeriodHealerLog[self.excludePosDps][0]:
+            self.excludeStatusHealer = self.badPeriodHealerLog[self.excludePosHealer][1]
+            self.excludePosHealer += 1
+
         if event.target not in self.hpStatus:
             self.hpStatus[event.target] = {"damage": 0, "healNotFull": 0, "healFull": 0, "estimateHP": 0, "status": 0,
                                            "fullTime": 0}
@@ -347,7 +359,7 @@ class CombatTracker():
         self.checkRemoveBuff(event.time, event.target)
 
         # 治疗事件
-        if event.heal > 0 and event.effect != 7 and event.caster in self.hpsCast:
+        if event.heal > 0 and event.effect != 7 and event.caster in self.hpsCast and not self.excludePosHealer:
             hanQingFlag = 0
             if event.full_id == '"2,631,29"':  # 特殊处理寒清
                 if event.target in self.hanQingTime and event.time - self.hanQingTime[event.target] < 500:
@@ -423,7 +435,7 @@ class CombatTracker():
 
         # 来源于化解的aps
         absorb = int(event.fullResult.get("9", 0))
-        if absorb > 0 and event.target in self.absorbBuff:
+        if absorb > 0 and event.target in self.absorbBuff and not self.excludePosHealer:
             # print("[RawAbsorb]", event.time, event.target, absorb)
             # 目前只记录一个化解的buff，如果单次击破了某个化解盾导致有两个buff都参与了化解，那么其实无法统计到具体的化解量
             calcBuff = ["0", "0", 0]
@@ -440,7 +452,7 @@ class CombatTracker():
 
         # 来自于减伤的aps
         sumDamage = event.damage + absorb
-        if sumDamage > 0 and event.target in self.resistBuff:
+        if sumDamage > 0 and event.target in self.resistBuff and not self.excludePosHealer:
             # print("[Damage]", event.time, event.target, sumDamage)
             # 考虑所有减伤，如果减伤之和大于100%，则不做统计，这种情况一般不可能发生.
             resistSum = 0
@@ -459,7 +471,7 @@ class CombatTracker():
 
         # 从吸血推测HPS
         xixue = int(event.fullResult.get("7", 0))
-        if xixue > 0 and event.caster in self.hpStatus:
+        if xixue > 0 and event.caster in self.hpStatus and not self.excludePosHealer:
             # print("[Xixue]", event.time, event.caster, xixue)
             self.ohpsCast[event.caster].record(event.caster, "3," + event.full_id, xixue)
             # if self.hpStatus[event.caster]["damage"] > self.hpStatus[event.caster]["healFull"] or \
@@ -478,11 +490,12 @@ class CombatTracker():
         if event.id in ["2231"]:  # 蛊惑众生
             self.guHuoTarget[event.caster] = event.target
 
-    def __init__(self, info):
+    def __init__(self, info, bh):
         '''
         构造方法，需要读取角色或玩家信息。
         params:
         - info: bld读取的玩家信息.
+        - bh: BOSS复盘得到的战斗记录基本信息，用于计算无效时间.
         '''
         self.hpsCast = {}
         self.ohpsCast = {}
@@ -497,6 +510,14 @@ class CombatTracker():
 
         self.rhpsRecorder = RHpsRecorder(info)
         self.hpStatus = {}
+
+        # 无效时间相关
+        self.badPeriodDpsLog = bh.badPeriodDpsLog
+        self.badPeriodHealerLog = bh.badPeriodHealerLog
+        self.excludePosDps = 0
+        self.excludeStatusDps = 0
+        self.excludePosHealer = 0
+        self.excludeStatusHealer = 0
 
         self.cbyCaster = "0"  # 记录慈悲愿
         self.guHuoTarget = {}  # 记录蛊惑

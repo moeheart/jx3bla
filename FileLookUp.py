@@ -52,6 +52,9 @@ class FileLookUp():
         resDir = ""
         pathList = ['Game', 'JX3', 'bin', 'zhcn_hd', 'interface', 'MY#DATA']
 
+        if self.jx3path == "":
+            self.getPathFromWinreg()
+
         datapath = ""
         self.jx3path = self.jx3path.strip('/').replace('/', '\\')
 
@@ -293,6 +296,12 @@ class FileSelector():
             self.replayThread = threading.Thread(target=self.mainWindow.replay, args=(self.selectionList,))
             self.replayThread.start()
 
+    def open_folder(self):
+        '''
+        打开对应的目录.
+        '''
+        dir = self.basepath.replace('/', '\\')
+        os.startfile(dir)
 
     def loadWindow(self):
         '''
@@ -329,8 +338,11 @@ class FileSelector():
             self.buttons.append(button)
             button.grid(row=numFile-i, column=0, sticky='w')
 
+        buttonOpen = tk.Button(window, text='打开目录', width=10, height=1, command=self.open_folder)
+        buttonOpen.place(x=180, y=570)
+
         buttonFinal = tk.Button(window, text='选择完成', width=10, height=1, command=self.final)
-        buttonFinal.place(x=220, y=570)
+        buttonFinal.place(x=260, y=570)
 
         self.window = window
         # window.protocol('WM_DELETE_WINDOW', self.final)

@@ -422,10 +422,10 @@ class LingSuReplayer(HealerReplay):
         piaohuangNumDict = {}  # 飘黄触发次数
 
         # 技能统计
-        lszhSkill = SkillHealCounter("28083", self.startTime, self.finalTime, self.haste)  # 灵素中和
-        qczlSkill = SkillHealCounter("27669", self.startTime, self.finalTime, self.haste)  # 青川濯莲
-        ygzxSkill = SkillHealCounter("27531", self.startTime, self.finalTime, self.haste)  # 银光照雪
-        cshxBuff = SkillHealCounter("20070", self.startTime, self.finalTime, self.haste)  # 赤芍寒香  (20819素柯)
+        lszhSkill = SkillHealCounter("28083", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 灵素中和
+        qczlSkill = SkillHealCounter("27669", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 青川濯莲
+        ygzxSkill = SkillHealCounter("27531", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 银光照雪
+        cshxBuff = SkillHealCounter("20070", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 赤芍寒香  (20819素柯)
         qianzhiDict = BuffCounter("20075", self.startTime, self.finalTime)  # 千枝buff
         qingchuanDict = BuffCounter("20800", self.startTime, self.finalTime)  # 青川buff
 
@@ -447,9 +447,9 @@ class LingSuReplayer(HealerReplay):
         yaoxingLog = [[0, 0, 0, 0]]  # 药性记录: (时间，中和次数，变化，技能ID)
 
         # 监控cd用的类
-        qczlWatchSkill = SkillCounterAdvance(self.skillInfo[self.gcdSkillIndex["27669"]], self.startTime, self.finalTime, self.haste)
+        qczlWatchSkill = SkillCounterAdvance(self.skillInfo[self.gcdSkillIndex["27669"]], self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)
         dgsnWatchSkill = SkillCounterAdvance(self.skillInfo[self.gcdSkillIndex["27624"]], self.startTime, self.finalTime,
-                                             self.haste)
+                                             self.haste, exclude=self.bossBh.badPeriodHealerLog)
 
         self.unimportantSkill += ["28083", "28602", "28734", "28733", "28082", "28757",  # 灵素中和
                                "27621",  # 白芷本体
@@ -697,11 +697,11 @@ class LingSuReplayer(HealerReplay):
         # 计算DPS的盾指标
         overallShieldHeat = {"interval": 500, "timeline": []}
         for key in self.peiwuCounter:
-            liveCount = self.battleDict[key].buffTimeIntegral()  # 存活时间比例
-            if self.battleDict[key].sumTime() - liveCount < 8000:  # 脱战缓冲时间
-                liveCount = self.battleDict[key].sumTime()
+            liveCount = self.battleDict[key].buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)  # 存活时间比例
+            if self.battleDict[key].sumTime(exclude=self.bh.badPeriodHealerLog) - liveCount < 8000:  # 脱战缓冲时间
+                liveCount = self.battleDict[key].sumTime(exclude=self.bh.badPeriodHealerLog)
             self.battleTimeDict[key] = liveCount
-            self.sumPlayer += liveCount / self.battleDict[key].sumTime()
+            self.sumPlayer += liveCount / self.battleDict[key].sumTime(exclude=self.bh.badPeriodHealerLog)
             # # 过滤老板，T奶，自己
             # if key not in damageDict or damageDict[key] / self.result["overall"]["sumTime"] * 1000 < 10000:
             #     continue
@@ -711,7 +711,7 @@ class LingSuReplayer(HealerReplay):
             #     continue
             # if key == self.mykey:
             #     continue
-            time1 = self.peiwuCounter[key].buffTimeIntegral()
+            time1 = self.peiwuCounter[key].buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
             timeAll = liveCount
             peiwuRateDict[key] = time1 / (timeAll + 1e-10)
 
@@ -721,7 +721,7 @@ class LingSuReplayer(HealerReplay):
             self.result["dps"]["numDPS"] += 1
             res = {"name": self.bld.info.player[line[0]].name,
                    "occ": self.bld.info.player[line[0]].occ,
-                   "damage": int(line[1] / self.result["overall"]["sumTime"] * 1000),
+                   "damage": int(line[1] / self.result["overall"]["sumTimeDpsEff"] * 1000),
                    "PeiwuRate": roundCent(peiwuRateDict[line[0]]),
                    "PiaohuangNum": piaohuangNumDict[line[0]],
                    }
@@ -753,13 +753,13 @@ class LingSuReplayer(HealerReplay):
         self.result["skill"]["cshx"] = {}
         self.result["skill"]["cshx"]["num"] = cshxBuff.getNum()
         self.result["skill"]["cshx"]["numPerSec"] = roundCent(
-            self.result["skill"]["cshx"]["num"] / self.result["overall"]["sumTime"] * 1000, 2)
+            self.result["skill"]["cshx"]["num"] / self.result["overall"]["sumTimeEff"] * 1000, 2)
         effHeal = cshxBuff.getHealEff()
-        self.result["skill"]["cshx"]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"]["cshx"]["HPS"] = int(effHeal / self.result["overall"]["sumTimeEff"] * 1000)
         self.result["skill"]["cshx"]["skillNum"] = cshxSkill.getNum()
         self.result["skill"]["cshx"]["delay"] = int(cshxSkill.getAverageDelay())
         effHeal = cshxSkill.getHealEff()
-        self.result["skill"]["cshx"]["skillHPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"]["cshx"]["skillHPS"] = int(effHeal / self.result["overall"]["sumTimeEff"] * 1000)
         # 当归四逆
         dgsnSkill = self.calculateSkillInfo("dgsn", "27624")
         # 银光照雪
@@ -772,8 +772,8 @@ class LingSuReplayer(HealerReplay):
         self.result["skill"]["general"] = {}
         self.result["skill"]["general"]["PeiwuRate"] = overallRate
         self.result["skill"]["general"]["PiaohuangNum"] = numPiaoHuang
-        self.result["skill"]["general"]["PeiwuDPS"] = int(numdam1 / self.result["overall"]["sumTime"] * 1000)
-        self.result["skill"]["general"]["PiaohuangDPS"] = int(numdam2 / self.result["overall"]["sumTime"] * 1000)
+        self.result["skill"]["general"]["PeiwuDPS"] = int(numdam1 / self.result["overall"]["sumTimeEff"] * 1000)
+        self.result["skill"]["general"]["PiaohuangDPS"] = int(numdam2 / self.result["overall"]["sumTimeEff"] * 1000)
         # 计算战斗回放
         self.result["replay"] = self.bh.getJsonReplay(self.mykey)
         self.result["replay"]["qianzhi"] = qianzhiDict.log
@@ -819,7 +819,7 @@ class LingSuReplayer(HealerReplay):
         self.result["review"]["content"].append(res)
 
         # code 305 充分使用`千枝绽蕊`
-        time = roundCent(qianzhiDict.buffTimeIntegral() / 1000)
+        time = roundCent(qianzhiDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog) / 1000)
         num = roundCent(zhongheInQianzhi / 5)
         efficiency = min(1, roundCent(num / (time + 1e-10) * 1.75))
         rate = min(100, efficiency)
