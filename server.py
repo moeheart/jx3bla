@@ -727,6 +727,9 @@ def receiveReplay(jdata, cursor):
     replayedition = jdata["replayedition"]
     battleID = jdata.get("battleID", "")
 
+    if editionFull <= parseEdition("8.1.1"):
+        score *= 100
+
     sql = '''SELECT score from ReplayProStat WHERE mapdetail = "%s" and boss = "%s" and occ = "%s"''' % (mapDetail, boss, occ)
     cursor.execute(sql)
     result = cursor.fetchall()
