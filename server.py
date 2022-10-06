@@ -41,12 +41,16 @@ def getAnnouncement():
     sql = '''SELECT * FROM PreloadInfo;'''
     cursor.execute(sql)
     result = cursor.fetchall()
-    version = result[0][0]
-    announcement = result[0][1]
-    updateurl = result[0][2]
+    dataDict = {}
+    for line in result:
+        dataDict[line[0]] = line[1]
+
+    # version = result[0][0]
+    # announcement = result[0][1]
+    # updateurl = result[0][2]
     
     db.close()
-    return jsonify({'version': version, 'announcement': announcement, 'url': updateurl})
+    return jsonify(dataDict)
 
 @app.route('/setAnnouncement', methods=['POST'])
 def setAnnouncement():
@@ -55,14 +59,22 @@ def setAnnouncement():
     version = jdata["version"]
     announcement = jdata["announcement"]
     updateurl = jdata["updateurl"]
+    dataDict = {"version": version,
+                "announcement": announcement,
+                "updateurl": updateurl}
+
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
-    
-    sql = '''DELETE FROM PreloadInfo;'''
-    cursor.execute(sql)
-    sql = '''INSERT INTO PreloadInfo VALUES ("%s", "%s", "%s");'''%(version, announcement, updateurl)
-    cursor.execute(sql)
-    
+
+    for key in dataDict:
+        sql = '''DELETE FROM PreloadInfo WHERE datakey = "%s";''' % key
+        cursor.execute(sql)
+        sql = '''INSERT INTO PreloadInfo VALUES ("%s", "%s");''' % (key, dataDict[key])
+        cursor.execute(sql)
+    # sql = '''DELETE FROM PreloadInfo;'''
+    # cursor.execute(sql)
+    # sql = '''INSERT INTO PreloadInfo VALUES ("%s", "%s", "%s");'''%(version, announcement, updateurl)
+    # cursor.execute(sql)
     db.commit()
     db.close()
     

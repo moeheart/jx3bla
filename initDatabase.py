@@ -85,10 +85,18 @@ cursor.execute(sql)
 
 #在ActorStat最后增加五个字段：editionfull INT, userid VARCHAR(32), battletime INT, submittime INT, instanceid VARCHAR(32)
 
+# sql = """CREATE TABLE PreloadInfo(
+#          edition VARCHAR(32),
+#          announcement VARCHAR(1024),
+#          updateurl VARCHAR(1024),
+#          ) DEFAULT CHARSET utf8mb4"""
+# cursor.execute(sql)
+
+# 修改为更通用的格式
+
 sql = """CREATE TABLE PreloadInfo(
-         edition VARCHAR(32),
-         announcement VARCHAR(1024), 
-         updateurl VARCHAR(1024),
+         datakey VARCHAR(32),
+         datavalue VARCHAR(1024), 
          ) DEFAULT CHARSET utf8mb4"""
 cursor.execute(sql)
 
