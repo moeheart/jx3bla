@@ -110,6 +110,17 @@ def RefreshStat():
     except:
         print(res[key])
 
+    dataDict = {"rateEdition": str(int(time.time()))}
+
+    try:
+        for key in dataDict:
+            sql = '''DELETE FROM PreloadInfo WHERE datakey = "%s";''' % key
+            cursor.execute(sql)
+            sql = '''INSERT INTO PreloadInfo VALUES ("%s", "%s");''' % (key, dataDict[key])
+            cursor.execute(sql)
+    except:
+        print("fail!")
+
     db.commit()
     db.close()
     
