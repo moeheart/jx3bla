@@ -44,6 +44,7 @@ def getAnnouncement():
     dataDict = {}
     for line in result:
         dataDict[line[0]] = line[1]
+    dataDict["url"] = dataDict["updateurl"]
 
     # version = result[0][0]
     # announcement = result[0][1]
