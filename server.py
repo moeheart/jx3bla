@@ -93,7 +93,7 @@ def getAttribute():
     res = app.ad.Display(equipStr, occ)
     return jsonify(res)
 
-@app.route('/getPercentInfo', methods=['POST'])
+@app.route('/getPercentInfo', methods=['GET'])
 def getPercentInfo():
     '''
     获取百分位排名信息.
