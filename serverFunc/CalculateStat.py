@@ -1,6 +1,15 @@
 # Created by moeheart at 10/13/2022
 # 从数据库的result计算其rhps、hps，只在8.2版本更新时使用一次，但其中的逻辑可以复用.
 
+import numpy as np
+import pymysql
+import configparser
+import json
+import time
+import urllib.request
+from tools.Names import *
+from tools.Functions import parseEdition
+
 def getSingleStat(record, cursor):
     '''
     处理单条数据.
