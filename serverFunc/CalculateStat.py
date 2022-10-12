@@ -16,6 +16,8 @@ def getSingleStat(record, cursor):
     '''
     
     shortID = record[8]
+    
+    print("Start %d" % shortID)
 
     with open("database/ReplayProStat/%d" % shortID, "r") as f:
         s = f.read().replace('\n', '\\n').replace('\t', '\\t').replace("'", '"')
@@ -27,18 +29,15 @@ def getSingleStat(record, cursor):
     rhps = d["skill"]["healer"].get("rhps", None)
     hps = d["skill"]["healer"].get("hps", None)
     
-    rhpsData = "NULL"
     if rhps is not None:
         rhpsData = "%.2f" % rhps
-    
-    hpsData = "NULL"
+        sql = """UPDATE ReplayProStat SET rhps = %s WHERE shortID = %d""" % (rhpsData, shortID)
+        cursor.execute(sql)
+        
     if hps is not None:
         hpsData = "%.2f" % hps
-    
-    sql = """UPDATE ReplayProStat SET rhps = %s WHERE shortID = %d""" % (rhpsData, shortID)
-    cursor.execute(sql)
-    sql = """UPDATE ReplayProStat SET hps = %s WHERE shortID = %d""" % (hpsData, shortID)
-    cursor.execute(sql)
+        sql = """UPDATE ReplayProStat SET hps = %s WHERE shortID = %d""" % (hpsData, shortID)
+        cursor.execute(sql)
     
 
 def calculate():

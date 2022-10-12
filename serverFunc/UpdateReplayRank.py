@@ -10,6 +10,10 @@ import urllib.request
 from tools.Names import *
 from tools.Functions import parseEdition
 
+# 数据库的屎山
+STAT_ID = {"score": 3, "rhps": 18, "hps": 20, "rdps": 22, "ndps": 24, "mrdps": 26, "mndps": 28}
+RANK_ID = {"score": 17, "rhps": 19, "hps": 21, "rdps": 23, "ndps": 25, "mrdps": 27, "mndps": 29}
+
 def getDirection(key):
     if "delay" in key:
         return -1
@@ -51,6 +55,14 @@ def getSingleStat(record):
                 key = "%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5)
                 value = line[key5] * getDirection(key)
                 res[key] = value
+    for id in STAT_ID:
+        key4 = "stat"
+        key5 = id
+        value = record[STAT_ID[id]]
+        if value is None:
+            continue
+        key = "%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5)
+        res[key] = value
     return res
 
 def getAllStat(records):
@@ -76,6 +88,50 @@ def getPercent(records):
             res_percent.append(num)
         percentResults[key] = {"num": len(allResults[key]), "value": str(res_percent)}
     return percentResults
+    
+def getRank(value, table):
+    '''
+    获取单个数值的百分位排名.
+    '''
+    l = 0
+    r = 100
+    while r > l + 1:
+        m = (l + r + 1) // 2
+        if value >= table[m]:
+            l = m
+        else:
+            r = m
+    percent = m
+    return percent
+    
+def updatePercent(raw_rank, cursor):
+    '''
+    直接使用计算的结果更新数据库大项的百分位排名.
+    '''
+    
+    edition = "7.8.0"
+    
+    sql = """SELECT * FROM ReplayProStat WHERE editionFull>=%d AND hold=1""" % parseEdition(edition)
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    
+    for record in result:
+        key1 = record[2]
+        key2 = getIDFromMap(record[5])
+        key3 = record[6]
+        for id in STAT_ID:
+            key4 = "stat"
+            key5 = id
+            key = "%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5)
+            if key not in raw_rank:
+                continue
+            order = raw_rank[key]["value"]
+            value = record[STAT_ID[id]]
+            shortID = record[8]
+            rank = getRank(value, order)
+            sql = """UPDATE ReplayProStat SET %sRank = %d WHERE shortID = %d""" % (id, rank, shortID)
+            cursor.execute(sql)
+
 
 def RefreshStat():
     ip = "127.0.0.1"
@@ -112,6 +168,8 @@ def RefreshStat():
         print(res[key])
 
     dataDict = {"rateEdition": str(int(time.time()))}
+    
+    updatePercent(res, cursor)
 
     try:
         for key in dataDict:
