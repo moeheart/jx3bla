@@ -101,6 +101,30 @@ def getPercentInfo():
     res = app.percent_data
     return jsonify({'result': 'success', 'data': res})
     
+@app.route('/refreshRateData', methods=['GET', 'POST'])
+def refreshRateData():
+    '''
+    刷新服务器上的百分位排名数据.
+    '''
+    print("Updating rank data...")
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
+    cursor = db.cursor()
+
+    sql = """SELECT * FROM ReplayProStatRank"""
+    cursor.execute(sql)
+    result = cursor.fetchall()
+
+    db.close()
+    
+    percent_data = {}
+    for line in result:
+        percent_data[line[0]] = {"num": line[1], "value": line[2]}
+    
+    app.percent_data = percent_data
+    
+    print("Rank data updated!")
+    return jsonify({'result': 'success'})
+    
     
 @app.route('/getUuid', methods=['POST'])
 def getUuid():

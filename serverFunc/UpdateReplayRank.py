@@ -120,6 +120,10 @@ def RefreshStat():
             cursor.execute(sql)
     except:
         print("fail!")
+        
+    # 通知主线程更新完毕
+    
+    resp = urllib.request.urlopen('http://%s:8009/refreshRateData' % "localhost")
 
     db.commit()
     db.close()
