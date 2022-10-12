@@ -817,10 +817,26 @@ def receiveReplay(jdata, cursor):
 
     with open("database/ReplayProStat/%d" % shortID, "w") as f:
         f.write(str(statistics))
+        
+    scoreRank = 0
+    rhps = 0
+    rhpsRank = 0
+    hps = 0
+    hpsRank = 0
+    rdps = 0
+    rdpsRank = 0
+    ndps = 0
+    ndpsRank = 0
+    mrdps = 0
+    mrdpsRank = 0
+    mndps = 0
+    mndpsRank = 0
+    hold = 1
 
-    sql = """INSERT INTO ReplayProStat VALUES ("%s", "%s", "%s", %.2f, "%s", "%s", "%s", "%s", %d, %d, "%s", %d, "%s", "%s", %d, %d, "%s")""" % (
+    sql = """INSERT INTO ReplayProStat VALUES ("%s", "%s", "%s", %.2f, "%s", "%s", "%s", "%s", %d, %d, "%s", %d, "%s", "%s", %d, %d, "%s",
+%d, %.2f, %d, %.2f, %d, %.2f, %d, %.2f, %d, %.2f, %d, %.2f, %d, %d)""" % (
         server, id, occ, score, battleDate, mapDetail, boss, hash, shortID, public, edition, editionFull, replayedition, userID, battleTime,
-        submitTime, battleID)
+        submitTime, battleID, scoreRank, rhps, rhpsRank, hps, hpsRank, rdps, rdpsRank, ndps, ndpsRank, mrdps, mrdpsRank, mndps, mndpsRank, hold)
     cursor.execute(sql)
 
     return {'result': 'success', 'num': num, 'numOver': numOver, 'shortID': shortID}

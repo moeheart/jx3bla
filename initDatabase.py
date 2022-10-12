@@ -59,6 +59,8 @@ cursor.execute(sql)
 
 # ReplayProStat表，支持更广泛形式的复盘数据
 # 加一个数据battleID VARCHAR(32), 链接到ActorStat中.
+# 扩展ReplayProStat, 加13个数据 scoreRank INT, rhps DOUBLE, rhpsRank INT, hps DOUBLE, hpsRank INT, 
+# rdps DOUBLE, rdpsRank INT, ndps DOUBLE, ndpsRank INT, mrdps DOUBLE, mrdpsRank INT, mndps DOUBLE, mndpsRank INT, hold INT
 
 sql = """CREATE TABLE ReplayProInfo(
          dataname VARCHAR(32),

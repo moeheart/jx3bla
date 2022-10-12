@@ -6,7 +6,7 @@ import pymysql
 import configparser
 import json
 import time
-import urllib
+import urllib.request
 from tools.Names import *
 from tools.Functions import parseEdition
 
