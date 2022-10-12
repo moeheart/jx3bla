@@ -4,6 +4,7 @@
 import tkinter as tk
 from tkinter import messagebox
 
+from ConfigTools import Config
 from window.Window import Window
 
 class LicenseWindow(Window):

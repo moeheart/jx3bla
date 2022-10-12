@@ -98,7 +98,9 @@ def getPercentInfo():
     '''
     获取百分位排名信息.
     '''
-    pass
+    res = app.percent_data
+    return jsonify({'result': 'success', 'data': res})
+    
     
 @app.route('/getUuid', methods=['POST'])
 def getUuid():
@@ -865,7 +867,7 @@ def showReplayPro():
         # text = result[0][0].decode().replace('\n', '\\n').replace('\t', '\\t')
         text1 = text.replace("'", '"')
         jResult = json.loads(text1)
-        rc = RankCalculator(jResult)
+        rc = RankCalculator(jResult, app.percent_data)
         rank = rc.getRankFromStat(occ)
         rankStr = json.dumps(rank)
         return render_template("HealerReplay.html", raw=text, rank=rankStr, occ=occ, edition=EDITION)
@@ -893,7 +895,7 @@ def getReplayPro():
             text = f.read().replace('\n', '\\n').replace('\t', '\\t').replace("'", '"')
         text1 = text
         jResult = json.loads(text1)
-        rc = RankCalculator(jResult)
+        rc = RankCalculator(jResult, app.percent_data)
         rank = rc.getRankFromStat(occ)
         rankStr = json.dumps(rank)
         battleID = result[0][4]
@@ -1131,6 +1133,29 @@ def uploadXiangZhiData():
     
     return jsonify({'result': 'success', 'num': num, 'numOver': numOver})
     
+def initializePercent():
+    '''
+    初始化服务器上的排名信息.
+    '''
+    print("Initializing rank data...")
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
+    cursor = db.cursor()
+
+    sql = """SELECT * FROM ReplayProStatRank"""
+    cursor.execute(sql)
+    result = cursor.fetchall()
+
+    db.close()
+    
+    percent_data = {}
+    for line in reslt:
+        percent_data[line[0]] = {"num": line[1], "value": line[2]}
+    
+    app.percent_data = percent_data
+    
+    print("Rank data initialized!")
+    
+    
 if __name__ == '__main__':
     import signal
     
@@ -1140,6 +1165,8 @@ if __name__ == '__main__':
     app.dbname = config.get('jx3bla', 'username')
     app.dbpwd = config.get('jx3bla', 'password')
     app.debug = config.getboolean('jx3bla', 'debug')
+    
+    initializePercent()
     
     app.run(host='0.0.0.0', port=8009, debug=app.debug, threaded=True)
 

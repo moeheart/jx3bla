@@ -41,9 +41,9 @@ class RankCalculator():
         '''
         value = getDirection(key) * value
         percent_key = "%s-%s-%s-%s-%s" % (occ, map, boss, name, key)
-        if percent_key in STAT_PERCENT:
+        if percent_key in self.percent_data:
             # 计算百分位数流程
-            result = STAT_PERCENT[percent_key]
+            result = self.percent_data[percent_key]
             num = result["num"]
             table = json.loads(result["value"])
             l = 0
@@ -93,13 +93,17 @@ class RankCalculator():
         # print("[Rank]", self.rank)
         return self.rank
 
-    def __init__(self, result):
+    def __init__(self, result, percent_data={}):
         '''
         初始化.
         params:
         - result: 复盘类中的result.
+        - percent_data: 百分位排名数据.
         '''
         self.result = result
+        self.percent_data = STAT_PERCENT
+        if percent_data != {}:
+            self.percent_data = percent_data
 
 
 class ReplayerBase():

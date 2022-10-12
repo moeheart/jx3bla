@@ -30,7 +30,7 @@ def checkRateEdition(serverEdition):
     else:
         requireUpdate = True
 
-    requireUpdate = False
+    # requireUpdate = False
 
     if requireUpdate:
         # 从服务器重新读取排名
