@@ -1148,7 +1148,7 @@ def initializePercent():
     db.close()
     
     percent_data = {}
-    for line in reslt:
+    for line in result:
         percent_data[line[0]] = {"num": line[1], "value": line[2]}
     
     app.percent_data = percent_data
