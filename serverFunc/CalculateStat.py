@@ -21,6 +21,9 @@ def getSingleStat(record, cursor):
         s = f.read().replace('\n', '\\n').replace('\t', '\\t').replace("'", '"')
     d = json.loads(s)
     
+    if "healer" not in d["skill"]:
+        return
+    
     rhps = d["skill"]["healer"].get("rhps", None)
     hps = d["skill"]["healer"].get("hps", None)
     
