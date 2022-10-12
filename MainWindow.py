@@ -22,6 +22,7 @@ from window.SingleBossWindow import SingleBossWindow
 from Constants import *
 from tools.Functions import *
 from GenerateFiles import *
+from tools.Preload import *
 
 class SingleBlockLocker():
     '''
@@ -384,7 +385,9 @@ class MainWindow():
         self.announcement = res["announcement"]
         self.newestEdition = res["version"]
         self.updateurl = res["url"]
+        self.rateEdition = res["rateEdition"]
         checkAndWriteFiles()
+        checkRateEdition(self.rateEdition)
 
         self.var1 = tk.StringVar()
         self.var2 = tk.StringVar()

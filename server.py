@@ -92,6 +92,13 @@ def getAttribute():
     occ = jdata["occ"]
     res = app.ad.Display(equipStr, occ)
     return jsonify(res)
+
+@app.route('/getPercentInfo', methods=['POST'])
+def getPercentInfo():
+    '''
+    获取百分位排名信息.
+    '''
+    pass
     
 @app.route('/getUuid', methods=['POST'])
 def getUuid():
