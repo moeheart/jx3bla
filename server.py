@@ -1189,9 +1189,8 @@ def getRank():
         if parseEdition(line[10]) < parseEdition("8.1.0") and occ in ["lingsu", "butianjue", "yunchangxinjing"]:
             line_var[3] -= 10000
         if line_var[order_id] is None:
-            line_var.append(line_var[order_id])
-        else:
-            line_var[-1] = 0
+            continue
+        line_var.append(line_var[order_id])
         result_var.append(line_var)
     result_var.sort(key=lambda x:-x[-1])
 
