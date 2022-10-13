@@ -121,13 +121,13 @@ def updatePercent(raw_rank, cursor, db):
         key1 = record[2]
         key2 = getIDFromMap(record[5])
         key3 = record[6]
+        shortID = record[8]
 
         # 新赛季更新时删除，后续再进行改动
         try:
             if int(key2) > 575:
                 continue
         except:
-            shortID = record[8]
             sql = """UPDATE ReplayProStat SET hold=0 WHERE shortID = %d""" % shortID
             cursor.execute(sql)
             continue
@@ -140,11 +140,12 @@ def updatePercent(raw_rank, cursor, db):
                 continue
             order = json.loads(raw_rank[key]["value"])
             value = record[STAT_ID[id]]
-            shortID = record[8]
             rank = getRank(value, order)
+            print("updating database")
             if rank is not None:
                 sql = """UPDATE ReplayProStat SET %sRank = %d WHERE shortID = %d""" % (id, rank, shortID)
                 cursor.execute(sql)
+            print("updated!")
         sql = """UPDATE ReplayProStat SET hold=0 WHERE shortID = %d""" % shortID
         cursor.execute(sql)
 
