@@ -822,14 +822,15 @@ def receiveReplay(jdata, cursor):
 
     print(num, numOver)
 
-    sql = '''SELECT shortID, public, editionfull from ReplayProStat WHERE hash = "%s"''' % hash
+    sql = '''SELECT shortID, public, editionfull, scoreRank from ReplayProStat WHERE hash = "%s"''' % hash
     cursor.execute(sql)
     result = cursor.fetchall()
     if result:
         if result[0][2] >= editionFull and (result[0][1] == 1 or public == 0):
             print("Find Duplicated")
             shortID = result[0][0]
-            return {'result': 'dupid', 'num': num, 'numOver': numOver, 'shortID': shortID}
+            scoreRank = result[0][3]
+            return {'result': 'dupid', 'num': num, 'numOver': numOver, 'shortID': shortID, 'scoreRank': scoreRank}
         else:
             print("Update edition")
 
@@ -878,7 +879,7 @@ def receiveReplay(jdata, cursor):
 @app.route('/uploadReplayPro', methods=['POST'])
 def uploadReplayPro():
     jdata = json.loads(request.form.get('jdata'))
-    #print(jdata)
+    print("Starting uploadReplay...")
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     try:
@@ -888,7 +889,8 @@ def uploadReplayPro():
     except Exception as e:
         traceback.print_exc()
         db.close()
-        return jsonify({'result': 'fail', 'num': 0, 'numOver': 0, 'shortID': 0})
+        return jsonify({'result': 'fail', 'num': 0, 'numOver': 0, 'shortID': 0, 'scoreRank': 0})
+    print("UploadReplay complete!")
     return jsonify(res)
 
 @app.route('/uploadCombinedData', methods=['POST'])

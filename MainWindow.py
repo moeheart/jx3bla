@@ -113,6 +113,7 @@ class MainWindow():
                 if self.uploadData[i]["type"] == "replay":
                     # 复盘. 需要更新复盘编号.
                     if res["data"][i]["result"] != "fail":
+                        print(res["data"][i])
                         self.uploadData[i]["anchor"]["overall"]["shortID"] = res["data"][i]["shortID"]
                         self.uploadData[i]["anchor"]["overall"]["numReplays"] = res["data"][i]["num"]
                         self.uploadData[i]["anchor"]["overall"]["scoreRank"] = res["data"][i]["scoreRank"]
