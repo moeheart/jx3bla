@@ -1154,19 +1154,25 @@ def getRank():
     occ = request.args.get("occ")
     page = request.args.get("page")
     orderby = request.args.get("orderby")
+    alltime = request.args.get("orderby")
     if page is None:
         page = 1
     else:
         page = int(page)
     if orderby is None:
         orderby = "score"
+    if alltime is None:
+        alltime = 1
     if orderby not in ["score", "rhps", "hps", "rdps", "ndps", "mrdps", "mndps", "battletime"]:
         return jsonify({'available': 0, 'text': "排序方式不合法"})
 
     if orderby == "battletime":
         order_id = 4
     else:
-        order_id = STAT_ID[orderby]
+        if alltime:
+            order_id = STAT_ID[orderby]
+        else:
+            order_id = RANK_ID[orderby]
 
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()

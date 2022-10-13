@@ -70,7 +70,6 @@ class HealerReplay(ReplayerBase):
         self.result["review"]["score"] = self.reviewScore
         self.result["skill"]["general"]["score"] = self.reviewScore
 
-
     def calculateSkillOverall(self):
         '''
         第二阶段结束时共有的技能统计部分.
@@ -333,7 +332,6 @@ class HealerReplay(ReplayerBase):
                     self.instantChangzhenNum += 1
             if event.id in ["101", "3038", "26666", "26667", "26668"]:
                 target = event.target
-
 
         if not skip:
             ss.analyseSkill(event, castTime, line[0], tunnel=line[6], hasteAffected=line[7])
