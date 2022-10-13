@@ -1003,33 +1003,70 @@ def getMultiPlayer():
     overallResJson = {}
     overallResJson["server"] = server
     for id in ids_split:
-        sql = '''SELECT score, boss FROM ReplayProStat WHERE server = "%s" AND id = "%s" AND mapdetail = "%s" AND public = 1''' % (server, id, map)
+        sql = '''SELECT * FROM ReplayProStat WHERE server = "%s" AND id = "%s" AND mapdetail = "%s" AND public = 1''' % (server, id, map)
         cursor.execute(sql)
         result = cursor.fetchall()
-        resJson = {}
+        resJson = {"stat": {}}
         highestScore = {}
         sumScore = {}
         numRecord = {}
         avgScore = {}
+
+        rankStat = {}
+        for stat_item in RANK_ID:
+            rankStat[stat_item] = {"overallSum": 0, "overallAverage": 0}
+
+        allResults = {}
         for record in result:
-            score = record[0]
-            boss = record[1]
+            score = record[3]
+            boss = record[6]
+            occ = record[2]
+            edition = record[11]
+            battleTime = record[15]
+            submitTime = record[16]
+            shortID = record[8]
             if score > highestScore.get(boss, -1):
                 highestScore[boss] = score
             numRecord[boss] = numRecord.get(boss, 0) + 1
             sumScore[boss] = sumScore.get(boss, 0) + score
+            if boss not in allResults:
+                allResults[boss] = []
+            res = {"score": score, "occ": occ, "edition": edition, "battleTime": battleTime, "submitTime": submitTime,
+                   "shortID": shortID}
+            for stat_item in STAT_ID:
+                res[stat_item] = record[STAT_ID[stat_item]]
+            for stat_item in RANK_ID:
+                rank = record[RANK_ID[stat_item]]
+                res[stat_item + "Rank"] = rank
+                if boss not in rankStat[stat_item]:
+                    rankStat[stat_item][boss] = {"num": 0, "sum": 0, "highest": 0}
+                if rank is not None:
+                    rankStat[stat_item][boss]["num"] += 1
+                    rankStat[stat_item][boss]["sum"] += rank
+                    rankStat[stat_item][boss]["highest"] = max(rankStat[id][boss]["highest"], rank)
+            allResults[boss].append(res)
         numBoss = 0
         sumHighestScore = 0
         sumAverageScore = 0
         for boss in sumScore:
             numBoss += 1
-            avgScore[boss] = roundCent(sumScore[boss] / numRecord[boss])
+            avgScore[boss] = roundCent(sumScore[boss] / (numRecord[boss] + 1e-10))
             sumHighestScore += highestScore[boss]
             sumAverageScore += avgScore[boss]
-            resJson[boss] = {"highest": highestScore[boss], "average": avgScore[boss], "num": numRecord[boss]}
+            resJson["stat"][boss] = {"highest": highestScore[boss], "average": avgScore[boss], "num": numRecord[boss]}
+            for stat_item in RANK_ID:
+                rankStat[stat_item][boss]["average"] = rankStat[stat_item][boss]["sum"] / rankStat[stat_item][boss]["num"]
+                rankStat[stat_item]["overallSum"] += rankStat[stat_item][boss]["average"]
+
         overallAverageScore = roundCent(sumAverageScore / (numBoss + 1e-10))
         overallHighestScore = roundCent(sumHighestScore / (numBoss + 1e-10))
-        resJson["overall"] = {"highest": overallHighestScore, "average": overallAverageScore, "num": numBoss}
+        for stat_item in RANK_ID:
+            rankStat[stat_item]["overallAverage"] += roundCent(rankStat[stat_item]["overallSum"] / (numBoss + 1e-10))
+
+        resJson["stat"]["overall"] = {"highest": overallHighestScore, "average": overallAverageScore, "num": numBoss}
+        resJson["rank"] = rankStat
+        resJson["table"] = allResults
+
         overallResJson[id] = resJson
     db.close()
     return jsonify({'available': 1, 'text': "请求成功", 'result': overallResJson})
@@ -1042,7 +1079,8 @@ def getSinglePlayer():
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
 
-    sql = '''SELECT score, boss, occ, edition, battletime, submittime, shortID FROM ReplayProStat WHERE server = "%s" AND id = "%s" AND mapdetail = "%s" AND public = 1''' % (server, id, map)
+    # sql = '''SELECT score, boss, occ, edition, battletime, submittime, shortID FROM ReplayProStat WHERE server = "%s" AND id = "%s" AND mapdetail = "%s" AND public = 1''' % (server, id, map)
+    sql = '''SELECT * FROM ReplayProStat WHERE server = "%s" AND id = "%s" AND mapdetail = "%s" AND public = 1''' % (server, id, map)
     cursor.execute(sql)
     result = cursor.fetchall()
     resJson = {"stat": {}}
@@ -1050,22 +1088,39 @@ def getSinglePlayer():
     sumScore = {}
     numRecord = {}
     avgScore = {}
+
+    rankStat = {}
+    for stat_item in RANK_ID:
+        rankStat[stat_item] = {"overallSum": 0, "overallAverage": 0}
+
     allResults = {}
     for record in result:
-        score = record[0]
-        boss = record[1]
+        score = record[3]
+        boss = record[6]
         occ = record[2]
-        edition = record[3]
-        battleTime = record[4]
-        submitTime = record[5]
-        shortID = record[6]
+        edition = record[11]
+        battleTime = record[15]
+        submitTime = record[16]
+        shortID = record[8]
         if score > highestScore.get(boss, -1):
             highestScore[boss] = score
         numRecord[boss] = numRecord.get(boss, 0) + 1
         sumScore[boss] = sumScore.get(boss, 0) + score
         if boss not in allResults:
             allResults[boss] = []
-        allResults[boss].append({"score": score, "occ": occ, "edition": edition, "battleTime": battleTime, "submitTime": submitTime, "shortID": shortID})
+        res = {"score": score, "occ": occ, "edition": edition, "battleTime": battleTime, "submitTime": submitTime, "shortID": shortID}
+        for stat_item in STAT_ID:
+            res[stat_item] = record[STAT_ID[stat_item]]
+        for stat_item in RANK_ID:
+            rank = record[RANK_ID[stat_item]]
+            res[stat_item + "Rank"] = rank
+            if boss not in rankStat[stat_item]:
+                rankStat[stat_item][boss] = {"num": 0, "sum": 0, "highest": 0}
+            if rank is not None:
+                rankStat[stat_item][boss]["num"] += 1
+                rankStat[stat_item][boss]["sum"] += rank
+                rankStat[stat_item][boss]["highest"] = max(rankStat[stat_item][boss]["highest"], rank)
+        allResults[boss].append(res)
     numBoss = 0
     sumHighestScore = 0
     sumAverageScore = 0
@@ -1075,9 +1130,17 @@ def getSinglePlayer():
         sumHighestScore += highestScore[boss]
         sumAverageScore += avgScore[boss]
         resJson["stat"][boss] = {"highest": highestScore[boss], "average": avgScore[boss], "num": numRecord[boss]}
+        for stat_item in RANK_ID:
+            rankStat[stat_item][boss]["average"] = rankStat[stat_item][boss]["sum"] / rankStat[stat_item][boss]["num"]
+            rankStat[stat_item]["overallSum"] += rankStat[stat_item][boss]["average"]
+
     overallAverageScore = roundCent(sumAverageScore / (numBoss + 1e-10))
     overallHighestScore = roundCent(sumHighestScore / (numBoss + 1e-10))
+    for stat_item in RANK_ID:
+        rankStat[stat_item]["overallAverage"] += roundCent(rankStat[stat_item]["overallSum"] / (numBoss + 1e-10))
+
     resJson["stat"]["overall"] = {"highest": overallHighestScore, "average": overallAverageScore, "num": numBoss}
+    resJson["rank"] = rankStat
     resJson["table"] = allResults
 
     db.close()
@@ -1089,16 +1152,31 @@ def getRank():
     boss = request.args.get("boss")
     occ = request.args.get("occ")
     page = request.args.get("page")
+    orderby = request.args.get("orderby")
     if page is None:
         page = 1
     else:
         page = int(page)
+    if orderby is None:
+        orderby = "score"
+    if orderby not in ["score", "rhps", "hps", "rdps", "ndps", "mrdps", "mndps", "battletime"]:
+        return jsonify({'available': 0, 'text': "排序方式不合法"})
+
+    if orderby == "battletime":
+        order_id = 4
+    else:
+        order_id = STAT_ID[orderby]
+
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
 
     numPerPage = 50
 
-    sql = '''SELECT server, id, score, edition, battletime, submittime, shortID FROM ReplayProStat WHERE mapdetail = "%s" AND boss = "%s" AND occ = "%s" AND public = 1''' % (map, boss, occ)
+#     sql = '''SELECT server, id, score, edition, battletime, submittime, shortID, scoreRank, rhps, rhpsRank,
+# hps, hpsRank, rdps, rdpsRank, ndps, ndpsRank, mrdps, mrdpsRank, mndps, mndpsRank
+# FROM ReplayProStat WHERE mapdetail = "%s" AND boss = "%s" AND occ = "%s" AND public = 1''' % (map, boss, occ)
+
+    sql = '''SELECT * FROM ReplayProStat WHERE mapdetail = "%s" AND boss = "%s" AND occ = "%s" AND public = 1''' % (map, boss, occ)
     cursor.execute(sql)
     result = cursor.fetchall()
     resJson = {"table": []}
@@ -1108,25 +1186,29 @@ def getRank():
     for line in result:
         line_var = list(line)
         if parseEdition(line[3]) < parseEdition("8.1.0") and occ in ["lingsu", "butianjue", "yunchangxinjing"]:
-            line_var[2] -= 100
+            line_var[3] -= 10000
+        line_var.append(line_var[order_id])
         result_var.append(line_var)
-    result_var.sort(key=lambda x:-x[2])
+    result_var.sort(key=lambda x:-x[-1])
 
     for i in range((page-1)*numPerPage, page*numPerPage):
         if i < len(result_var):
             record = result_var[i]
             if parseEdition(record[3]) < parseEdition("8.1.0") and occ in ["lingsu", "butianjue", "yunchangxinjing"]:
-                record[2] += 100
+                record[3] += 10000
             server = record[0]
             id = record[1]
-            score = record[2]
-            # boss = record[1]
-            # occ = record[2]
-            edition = record[3]
-            battleTime = record[4]
-            submitTime = record[5]
-            shortID = record[6]
-            resJson["table"].append({"score": score, "server": server, "edition": edition, "id": id, "battleTime": battleTime, "submitTime": submitTime, "shortID": shortID})
+            score = record[3]
+            edition = record[11]
+            battleTime = record[15]
+            submitTime = record[16]
+            shortID = record[8]
+            res = {"score": score, "server": server, "edition": edition, "id": id, "battleTime": battleTime, "submitTime": submitTime, "shortID": shortID}
+            for id in STAT_ID:
+                res[id] = record[STAT_ID[id]]
+            for id in RANK_ID:
+                res[id+"Rank"] = record[RANK_ID[id]]
+            resJson["table"].append(res)
 
     resJson["num"] = len(result)
     db.close()

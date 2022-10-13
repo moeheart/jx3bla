@@ -106,7 +106,7 @@ def getRank(value, table):
     percent = m
     return percent
     
-def updatePercent(raw_rank, cursor):
+def updatePercent(raw_rank, cursor, db):
     '''
     直接使用计算的结果更新数据库大项的百分位排名.
     '''
@@ -121,6 +121,11 @@ def updatePercent(raw_rank, cursor):
         key1 = record[2]
         key2 = getIDFromMap(record[5])
         key3 = record[6]
+
+        # 新赛季更新时删除，后续再进行改动
+        if int(key2) > 575:
+            continue
+
         for id in STAT_ID:
             key4 = "stat"
             key5 = id
@@ -137,6 +142,8 @@ def updatePercent(raw_rank, cursor):
         sql = """UPDATE ReplayProStat SET hold=0 WHERE shortID = %d""" % shortID
         cursor.execute(sql)
 
+        print("Complete: ", shortID)
+        db.commit()
 
 def RefreshStat():
     ip = "127.0.0.1"
@@ -174,7 +181,7 @@ def RefreshStat():
 
     dataDict = {"rateEdition": str(int(time.time()))}
     
-    updatePercent(res, cursor)
+    updatePercent(res, cursor, db)
 
     try:
         for key in dataDict:
