@@ -103,7 +103,7 @@ def getRank(value, table):
             l = m
         else:
             r = m
-    percent = m
+    percent = l
     return percent
     
 def updatePercent(raw_rank, cursor, db):

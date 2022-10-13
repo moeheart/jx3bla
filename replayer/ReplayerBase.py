@@ -54,7 +54,7 @@ class RankCalculator():
                     l = m
                 else:
                     r = m
-            percent = m
+            percent = l
             return num, percent
         else:
             # 缺省值流程
