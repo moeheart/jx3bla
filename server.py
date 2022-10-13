@@ -1044,7 +1044,7 @@ def getMultiPlayer():
                 if rank is not None:
                     rankStat[stat_item][boss]["num"] += 1
                     rankStat[stat_item][boss]["sum"] += rank
-                    rankStat[stat_item][boss]["highest"] = max(rankStat[id][boss]["highest"], rank)
+                    rankStat[stat_item][boss]["highest"] = max(rankStat[stat_item][boss]["highest"], rank)
             allResults[boss].append(res)
         numBoss = 0
         sumHighestScore = 0

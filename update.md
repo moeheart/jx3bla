@@ -80,9 +80,9 @@
     - (TODO)为前端准备新的返回值
 	  - 增加返回项目
 	  - 增加请求的方式，可以要求用不同的方式排序
-      - (TODO)增加使用实时数据的尝试  
+      - 增加使用实时数据的尝试  
       - 测试getRank
-      - (TODO)测试getSinglePlayer
+      - 测试getSinglePlayer
       - (TODO)测试getMultiPlayer
       - (TODO)连接前端
       - (TODO)返回数值里直接加入分数的排名
