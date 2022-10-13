@@ -772,7 +772,7 @@ def getRankFromKeys(value, occ, map, boss, name, key):
     '''
     按key的格式，从数据库中找到对应的百分比排名.
     '''
-    percentKey = "%s-%s-%s-%s-%s" % (occ, map, boss, name, key)
+    percent_key = "%s-%s-%s-%s-%s" % (occ, map, boss, name, key)
     if percent_key in app.percent_data:
         table = json.loads(app.percent_data[percent_key]["value"])
         rank = getRank(value, table)
