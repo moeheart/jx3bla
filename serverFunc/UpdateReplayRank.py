@@ -96,7 +96,7 @@ def getRank(value, table):
     if value is None:
         return None
     l = 0
-    r = 100
+    r = 101
     while r > l + 1:
         m = (l + r + 1) // 2
         if value >= table[m]:

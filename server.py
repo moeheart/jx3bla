@@ -758,7 +758,7 @@ def getRank(value, table):
     获取单个数值的百分位排名.
     '''
     l = 0
-    r = 100
+    r = 101
     while r > l + 1:
         m = (l + r + 1) // 2
         if value >= table[m]:
