@@ -414,13 +414,18 @@ class YunChangXinJingReplayer(HealerReplay):
         # 技能统计
 
         # fxdaSkill = SkillHealCounter("555", self.startTime, self.finalTime, self.haste)  # 风袖低昂
-        hxpySkill = SkillHealCounter("6250", self.startTime, self.finalTime, self.haste)  # 回雪飘摇
-        jwfhSkill = SkillHealCounter("24990", self.startTime, self.finalTime, self.haste)  # 九微飞花
-        xiangwuBuff = SkillHealCounter("680", self.startTime, self.finalTime, self.haste)  # 翔舞
-        shangyuanBuff = SkillHealCounter("681", self.startTime, self.finalTime, self.haste)  # 上元
+        hxpySkill = SkillHealCounter("6250", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 回雪飘摇
+        jwfhSkill = SkillHealCounter("24990", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 九微飞花
+        xiangwuBuff = SkillHealCounter("680", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 翔舞
+        shangyuanBuff = SkillHealCounter("681", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 上元
         hxpyDict = BuffCounter("?", self.startTime, self.finalTime)  # 用buff类型来记录回雪飘摇的具体时间
         xiangwuDict = {}  # 翔舞
         shangyuanDict = {}  # 上元
+
+        # self.allSkillObjs.append(hxpySkill)
+        # self.allSkillObjs.append(jwfhSkill)
+        # self.allSkillObjs.append(xiangwuBuff)
+        # self.allSkillObjs.append(shangyuanBuff)
 
         for line in self.bld.info.player:
             xiangwuDict[line] = HotCounter("20070", self.startTime, self.finalTime)  # 翔舞
@@ -713,7 +718,7 @@ class YunChangXinJingReplayer(HealerReplay):
         fxdaSkill = self.calculateSkillInfo("fxda", "555")
         self.result["skill"]["fxda"]["wanqingHPS"] = int(wanqingHeal / self.result["overall"]["sumTimeEff"] * 1000)
         # 九微飞花
-        jwfhSkill = self.calculateSkillInfo("jwfh", "24990")
+        self.calculateSkillInfoDirect("jwfh", jwfhSkill)
         # 杂项
         self.result["skill"]["xlwl"]["chuimeiHPS"] = int(chuimeiHeal / self.result["overall"]["sumTimeEff"] * 1000)
         self.result["skill"]["xlwl"]["shuangluanNum"] = xlwlSkill.getNum() + sydhSkill.getNum()  # 注意这两个放在翔舞底下，但是实际上是翔舞+上元的数据

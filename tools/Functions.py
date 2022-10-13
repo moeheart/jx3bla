@@ -369,6 +369,8 @@ class IntervalCounter():
                 assert line[1] <= self.finalTime
         if res[-1][1] == 1:
             res.append([self.finalTime, 0])
+        if res[-1][0] != self.finalTime:
+            res.append([self.finalTime, 0])
         return res
 
     def __init__(self, startTime, finalTime):

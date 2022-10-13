@@ -195,6 +195,7 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
+            # print("[Shout]", parseTime((event.time - self.startTime) / 1000), event.content)
             return
 
         elif event.dataType == "Scene":  # 进入、离开场景
@@ -213,6 +214,7 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
 
         elif event.dataType == "Death":  # 重伤记录
             if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["周通忌"]:
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
                 self.win = 1
 
         elif event.dataType == "Battle":  # 战斗状态变化

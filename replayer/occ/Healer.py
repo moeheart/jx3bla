@@ -360,6 +360,17 @@ class HealerReplay(ReplayerBase):
         - event: 处理的事件.
         '''
 
+        # prevStatus = self.excludeStatusHealer
+        #
+        # while self.excludePosHealer < len(self.badPeriodHealerLog) and event.time > self.badPeriodHealerLog[self.excludePosHealer][0]:
+        #     self.excludeStatusHealer = self.badPeriodHealerLog[self.excludePosHealer][1]
+        #     self.excludePosHealer += 1
+        #
+        # if self.excludeStatusHealer != prevStatus:
+        #     # 排除状态变化
+        #     for obj in self.allSkillObjs:
+        #         obj.setExclude(self.excludeStatusHealer)
+
         if event.dataType == "Skill":
             # 统计化解(暂时只能统计jx3dat的，因为jcl里压根没有)
             if event.effect == 7:
@@ -403,12 +414,14 @@ class HealerReplay(ReplayerBase):
         self.sumPlayer = 0  # 平均玩家数
 
         # 技能初始化
+        # self.allSkillObjs = []
         self.gcdSkillIndex = {}
         self.nonGcdSkillIndex = {}
         for i in range(len(self.skillInfo)):
             line = self.skillInfo[i]
             if line[0] is None:
                 self.skillInfo[i][0] = SkillCounterAdvance(line, self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)
+                # self.allSkillObjs.append(self.skillInfo[i][0])
             for id in line[2]:
                 if line[4]:
                     self.gcdSkillIndex[id] = i
@@ -417,6 +430,7 @@ class HealerReplay(ReplayerBase):
 
         self.yzSkill = self.skillInfo[self.nonGcdSkillIndex["yaozhui"]][0]
         self.mufengDict = BuffCounter("412", self.startTime, self.finalTime)  # 沐风
+        # self.allSkillObjs.append(self.yzSkill)
 
         # 未解明技能
         self.unimportantSkill = ["4877",  # 水特效作用
@@ -444,6 +458,9 @@ class HealerReplay(ReplayerBase):
         self.bh = BattleHistory(self.startTime, self.finalTime)
         self.ss = SingleSkill(self.startTime, self.haste)
 
+        # self.excludePosHealer = 0
+        # self.badPeriodHealerLog = self.bossBh.badPeriodHealerLog
+        # self.excludeStatusHealer = 0
 
     def getOverallInfo(self):
         '''
