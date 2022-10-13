@@ -1185,7 +1185,6 @@ def getRank():
     result = list(result)
     result_var = []
     for line in result:
-        print(line)
         line_var = list(line)
         if parseEdition(line[10]) < parseEdition("8.1.0") and occ in ["lingsu", "butianjue", "yunchangxinjing"]:
             line_var[3] -= 10000
@@ -1196,7 +1195,7 @@ def getRank():
     for i in range((page-1)*numPerPage, page*numPerPage):
         if i < len(result_var):
             record = result_var[i]
-            if parseEdition(record[3]) < parseEdition("8.1.0") and occ in ["lingsu", "butianjue", "yunchangxinjing"]:
+            if parseEdition(record[10]) < parseEdition("8.1.0") and occ in ["lingsu", "butianjue", "yunchangxinjing"]:
                 record[3] += 10000
             server = record[0]
             id = record[1]
