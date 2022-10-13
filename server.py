@@ -17,6 +17,7 @@ import traceback
 from Constants import *
 
 from tools.Functions import *
+from tools.Names import *
 from equip.AttributeDisplay import AttributeDisplay
 from tools.painter import XiangZhiPainter
 from replayer.ReplayerBase import RankCalculator
@@ -1098,9 +1099,9 @@ def getSinglePlayer():
         score = record[3]
         boss = record[6]
         occ = record[2]
-        edition = record[11]
-        battleTime = record[15]
-        submitTime = record[16]
+        edition = record[10]
+        battleTime = record[14]
+        submitTime = record[15]
         shortID = record[8]
         if score > highestScore.get(boss, -1):
             highestScore[boss] = score
@@ -1186,7 +1187,7 @@ def getRank():
     for line in result:
         print(line)
         line_var = list(line)
-        if parseEdition(line[11]) < parseEdition("8.1.0") and occ in ["lingsu", "butianjue", "yunchangxinjing"]:
+        if parseEdition(line[10]) < parseEdition("8.1.0") and occ in ["lingsu", "butianjue", "yunchangxinjing"]:
             line_var[3] -= 10000
         line_var.append(line_var[order_id])
         result_var.append(line_var)
@@ -1200,9 +1201,9 @@ def getRank():
             server = record[0]
             id = record[1]
             score = record[3]
-            edition = record[11]
-            battleTime = record[15]
-            submitTime = record[16]
+            edition = record[10]
+            battleTime = record[14]
+            submitTime = record[15]
             shortID = record[8]
             res = {"score": score, "server": server, "edition": edition, "id": id, "battleTime": battleTime, "submitTime": submitTime, "shortID": shortID}
             for id in STAT_ID:
