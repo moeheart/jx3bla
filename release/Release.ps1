@@ -2,7 +2,7 @@ python -m release.GeneratorGenerator
 python -m release.EquipmentTypeGenerator
 python -m release.JsonGenerator
 python -m release.NameGenerator
-python -m release.PercentGenerator
+# python -m release.PercentGenerator
 git add *.py *.md
 git commit -m "[Auto]Update as the log"
 git push origin

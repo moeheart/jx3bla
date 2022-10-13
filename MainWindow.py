@@ -390,7 +390,7 @@ class MainWindow():
         self.updateurl = res["url"]
         self.rateEdition = res["rateEdition"]
         checkAndWriteFiles()
-        checkRateEdition(self.rateEdition)
+        self.stat_percent = checkRateEdition(self.rateEdition)
 
         self.var1 = tk.StringVar()
         self.var2 = tk.StringVar()

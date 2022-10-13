@@ -484,13 +484,12 @@ class HealerDisplayWindow(Window):
             score = self.result["review"]["score"]
             descText = "排名未知"
             color = "#aaaaaa"
-            print(self.result["overall"])
             if "numReplays" in self.result["overall"]:
                 numReplays = self.result["overall"]["numReplays"]
                 scoreRank = self.result["overall"]["scoreRank"]
                 descText = "排名：%d%%\n数量：%d" % (scoreRank, numReplays)
                 color = getRankColor(scoreRank)
-            scoreLabel = tk.Label(frame8, text="%d" % score, color=color)
+            scoreLabel = tk.Label(frame8, text="%d" % score, fg=color)
             scoreLabel.place(x=100, y=20)
             ToolTip(scoreLabel, descText)
 

@@ -5,7 +5,7 @@ from tools.Functions import *
 from tools.LoadData import *
 from tools.Names import *
 from data.BattleLogData import RawDataLoader
-from replayer.Percent import *
+# from replayer.Percent import *
 from Constants import *
 
 import time
@@ -93,7 +93,7 @@ class RankCalculator():
         # print("[Rank]", self.rank)
         return self.rank
 
-    def __init__(self, result, percent_data={}):
+    def __init__(self, result, percent_data):
         '''
         初始化.
         params:
@@ -101,9 +101,7 @@ class RankCalculator():
         - percent_data: 百分位排名数据.
         '''
         self.result = result
-        self.percent_data = STAT_PERCENT
-        if percent_data != {}:
-            self.percent_data = percent_data
+        self.percent_data = percent_data
 
 
 class ReplayerBase():
@@ -117,7 +115,7 @@ class ReplayerBase():
         params:
         - occ: 复盘心法.
         '''
-        rc = RankCalculator(self.result)
+        rc = RankCalculator(self.result, self.window.stat_percent)
         self.rank = rc.getRankFromStat(occ)
 
     def getHash(self):

@@ -36,6 +36,7 @@ def checkRateEdition(serverEdition):
         # 从服务器重新读取排名
         if parseEdition(EDITION) == 0:  # 非联机版本跳过加载步骤
             res = {"announcement": "", "version": "0.0.0", "url": ""}
+            STAT_PERCENT = {}
         else:
             resp = urllib.request.urlopen('http://%s:8009/getPercentInfo' % IP)
             res = json.load(resp)
@@ -44,6 +45,8 @@ def checkRateEdition(serverEdition):
             s = json.dumps(j)
             with open('icons/rate.dat', 'w') as f:
                 f.write(s)
+
+    return STAT_PERCENT
 
     # 待测试
 
