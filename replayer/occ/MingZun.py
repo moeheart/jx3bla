@@ -215,6 +215,8 @@ class MingZunReplayer(ReplayerBase):
         # print(res)
         if res["result"] != "fail":
             self.result["overall"]["shortID"] = res["shortID"]
+            self.result["overall"]["numBattles"] = res["num"]
+            self.result["overall"]["scoreRank"] = res["scoreRank"]
         else:
             self.result["overall"]["shortID"] = "数据保存出错"
         return res

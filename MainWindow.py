@@ -114,6 +114,8 @@ class MainWindow():
                     # 复盘. 需要更新复盘编号.
                     if res["data"][i]["result"] != "fail":
                         self.uploadData[i]["anchor"]["overall"]["shortID"] = res["data"][i]["shortID"]
+                        self.uploadData[i]["anchor"]["overall"]["numReplays"] = res["data"][i]["num"]
+                        self.uploadData[i]["anchor"]["overall"]["scoreRank"] = res["data"][i]["scoreRank"]
                     else:
                         self.uploadData[i]["anchor"]["overall"]["shortID"] = "数据保存出错"
                 elif self.uploadData[i]["type"] == "battle":

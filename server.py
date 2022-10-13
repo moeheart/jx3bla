@@ -872,7 +872,7 @@ def receiveReplay(jdata, cursor):
         submitTime, battleID, scoreRank, rhps, rhpsRank, hps, hpsRank, rdps, rdpsRank, ndps, ndpsRank, mrdps, mrdpsRank, mndps, mndpsRank, hold)
     cursor.execute(sql)
 
-    return {'result': 'success', 'num': num, 'numOver': numOver, 'shortID': shortID}
+    return {'result': 'success', 'num': num, 'numOver': numOver, 'shortID': shortID, 'scoreRank': scoreRank}
 
 
 @app.route('/uploadReplayPro', methods=['POST'])

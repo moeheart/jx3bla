@@ -19,6 +19,26 @@ def getDirection(key):
     else:
         return 1
 
+def getRankColor(percent):
+    '''
+    根据排名获取对应的颜色.
+    '''
+    if percent == 100:
+        color = "#e5cc80"
+    elif percent == 99:
+        color = "#e268a8"
+    elif percent >= 95:
+        color = "#ff7700"
+    elif percent >= 75:
+        color = "#330077"
+    elif percent >= 50:
+        color = "#0000ff"
+    elif percent >= 25:
+        color = "#007700"
+    else:
+        color = "#aaaaaa"
+    return color
+
 class SingleSkillDisplayer():
     '''
     单个技能展示类，用于整理并显示单独的技能。
@@ -39,20 +59,7 @@ class SingleSkillDisplayer():
             # 查找成功
             num = self.rank[name][key]["num"]
             percent = self.rank[name][key]["percent"]
-            if percent == 100:
-                color = "#e5cc80"
-            elif percent == 99:
-                color = "#e268a8"
-            elif percent >= 95:
-                color = "#ff7700"
-            elif percent >= 75:
-                color = "#330077"
-            elif percent >= 50:
-                color = "#0000ff"
-            elif percent >= 25:
-                color = "#007700"
-            else:
-                color = "#aaaaaa"
+            color = getRankColor(percent)
             return num, percent, color
         else:
             # 查找失败
@@ -475,14 +482,16 @@ class HealerDisplayWindow(Window):
             # 支持专案组模块
             tk.Label(frame8, text="综合评分：").place(x=30, y=20)
             score = self.result["review"]["score"]
-            scoreLabel = tk.Label(frame8, text="%d" % score)
+            descText = "排名未知"
+            color = "#aaaaaa"
+            print(self.result["overall"])
+            if "numReplays" in self.result["overall"]:
+                numReplays = self.result["overall"]["numReplays"]
+                scoreRank = self.result["overall"]["scoreRank"]
+                descText = "排名：%d%%\n数量：%d" % (scoreRank, numReplays)
+                color = getRankColor(scoreRank)
+            scoreLabel = tk.Label(frame8, text="%d" % score, color=color)
             scoreLabel.place(x=100, y=20)
-            hpsDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
-            num, percent, color = hpsDisplayer.getSkillPercent("general", "score")
-            if num > 0:
-                descText = "排名：%d%%\n数量：%d" % (percent, num)
-            else:
-                descText = "排名未知"
             ToolTip(scoreLabel, descText)
 
             numReview = self.result["review"]["num"]
