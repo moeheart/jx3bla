@@ -29,6 +29,10 @@ CORS(app)
 app.config['JSON_AS_ASCII'] = False
 app.ad = AttributeDisplay()
 
+# 数据库的屎山
+STAT_ID = {"score": 3, "rhps": 18, "hps": 20, "rdps": 22, "ndps": 24, "mrdps": 26, "mndps": 28}
+RANK_ID = {"score": 17, "rhps": 19, "hps": 21, "rdps": 23, "ndps": 25, "mrdps": 27, "mndps": 29}
+
 def Response_headers(content):
     resp = Response(content)    
     resp.headers['Access-Control-Allow-Origin'] = '*'    
@@ -747,6 +751,33 @@ def uploadActorData():
 
     res = receiveBattle(jdata, cursor)
     return jsonify(res)
+    
+def getRank(value, table):
+    '''
+    获取单个数值的百分位排名.
+    '''
+    l = 0
+    r = 100
+    while r > l + 1:
+        m = (l + r + 1) // 2
+        if value >= table[m]:
+            l = m
+        else:
+            r = m
+    percent = m
+    return percent
+    
+def getRankFromKeys(value, occ, map, boss, name, key):
+    '''
+    按key的格式，从数据库中找到对应的百分比排名.
+    '''
+    percentKey = "%s-%s-%s-%s-%s" % (occ, map, boss, name, key)
+    if percent_key in app.percent_data:
+        table = json.loads(app.percent_data[percent_key]["value"])
+        rank = getRank(value, table)
+        return rank
+    else:
+        return None
 
 def receiveReplay(jdata, cursor):
     '''
@@ -818,11 +849,12 @@ def receiveReplay(jdata, cursor):
     with open("database/ReplayProStat/%d" % shortID, "w") as f:
         f.write(str(statistics))
         
-    scoreRank = 0
-    rhps = 0
-    rhpsRank = 0
-    hps = 0
-    hpsRank = 0
+    map = getIDFromMap(mapDetail)
+    scoreRank = getRankFromKeys(score, occ, map, boss, "stat", "score")
+    rhps = statistics["skill"]["healer"].get("rhps", None)
+    rhpsRank = getRankFromKeys(score, occ, map, boss, "stat", "rhps")
+    hps = statistics["skill"]["healer"].get("hps", None)
+    hpsRank = getRankFromKeys(score, occ, map, boss, "stat", "hps")
     rdps = 0
     rdpsRank = 0
     ndps = 0

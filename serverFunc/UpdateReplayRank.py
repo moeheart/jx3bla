@@ -125,12 +125,14 @@ def updatePercent(raw_rank, cursor):
             key = "%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5)
             if key not in raw_rank:
                 continue
-            order = raw_rank[key]["value"]
+            order = json.loads(raw_rank[key]["value"])
             value = record[STAT_ID[id]]
             shortID = record[8]
             rank = getRank(value, order)
             sql = """UPDATE ReplayProStat SET %sRank = %d WHERE shortID = %d""" % (id, rank, shortID)
             cursor.execute(sql)
+        sql = """UPDATE ReplayProStat SET hold=0 WHERE shortID = %d""" % shortID
+        cursor.execute(sql)
 
 
 def RefreshStat():
