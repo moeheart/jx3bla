@@ -107,7 +107,7 @@ class MainWindow():
         # 解析返回的数据
 
         if res["status"] == "fail":
-            self.window.setNotice({"t2": "上传数据失败！", "c2": "#ff0000"})
+            self.setNotice({"t2": "上传数据失败！", "c2": "#ff0000"})
         else:
             for i in range(len(self.uploadData)):
                 if self.uploadData[i]["type"] == "replay":

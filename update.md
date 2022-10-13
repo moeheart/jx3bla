@@ -83,7 +83,7 @@
       - 增加使用实时数据的尝试  
       - 测试getRank
       - 测试getSinglePlayer
-      - (TODO)测试getMultiPlayer
+      - 测试getMultiPlayer
       - (TODO)连接前端
       - (TODO)返回数值里直接加入分数的排名
         - (TODO)并显示

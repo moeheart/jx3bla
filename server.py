@@ -1150,7 +1150,7 @@ def getSinglePlayer():
     return jsonify({'available': 1, 'text': "请求成功", 'result': resJson})
 
 @app.route('/getRank', methods=['GET'])
-def getRank():
+def getRankfunc():
     map = request.args.get('map')
     boss = request.args.get("boss")
     occ = request.args.get("occ")

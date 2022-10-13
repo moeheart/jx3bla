@@ -484,6 +484,8 @@ class HealerDisplayWindow(Window):
             else:
                 descText = "排名未知"
             ToolTip(scoreLabel, descText)
+
+            numReview = self.result["review"]["num"]
             tk.Label(frame8, text="共有%d条手法建议。" % numReview).place(x=30, y=50)
             b2 = tk.Button(frame8, text='在[专案组]中查看', height=1, command=self.openReviewerWindow)
             b2.place(x=60, y=80)
