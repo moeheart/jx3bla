@@ -150,10 +150,10 @@ class HealerReplay(ReplayerBase):
         for record in self.result["healer"]["table"]:
             if record["name"] == self.result["overall"]["playerID"]:
                 # 当前玩家
-                hps = record["healEff"]
-                ohps = record["heal"]
-        hpsRank = self.result["rank"]["healer"]["healEff"]["percent"]
-        ohpsRank = self.result["rank"]["healer"]["heal"]["percent"]
+                hps = record["hps"]
+                ohps = record["ohps"]
+        hpsRank = self.result["rank"]["healer"]["hps"]["percent"]
+        ohpsRank = self.result["rank"]["healer"]["ohps"]["percent"]
         rate = max(hpsRank, ohpsRank)
         res = {"code": 12, "hps": hps, "ohps": ohps, "hpsRank": hpsRank, "ohpsRank": ohpsRank, "rate": roundCent(rate / 100)}
         res["status"] = getRateStatus(res["rate"], 75, 50, 25)

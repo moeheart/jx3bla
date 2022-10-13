@@ -175,7 +175,7 @@ class LeQinaReplayer(SpecificReplayerPro):
             if event.content in ['"皆成灰烬！"']:
                 self.bh.setBadPeriod(event.time, event.time + 10000, True, False)
             elif event.content in ['"无处可逃！"']:
-                pass
+                self.bh.setBadPeriod(event.time, event.time + 10000, True, False)
             elif event.content in ['"燃起来吧！"']:
                 pass
             elif event.content in ['"幸而即时，都已经灭了。不过……河阳戒备森严，此人却能轻易闯入……"']:
@@ -185,7 +185,6 @@ class LeQinaReplayer(SpecificReplayerPro):
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             else:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
-
 
         elif event.dataType == "Scene":  # 进入、离开场景
             # if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":

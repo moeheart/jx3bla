@@ -392,122 +392,6 @@ class ActorProReplayer(ReplayerBase):
         for line in self.bld.info.player:
             ycfx[line] = {"name": self.bld.info.player[line].name, "log": [], "sumStack": 0, "sumCollect": 0, "nowStack": 0, "nowTime": 0}
 
-        qteStat = []
-        qteTime = 0
-
-        XLS_ACTIVE = 1
-
-        if XLS_ACTIVE:
-            # 修罗统计1
-            skillNameDict = {"一掌": ["26026,1", "26026,5"],
-                             "二掌": ["26026,2", "26026,6"],
-                             "三掌": ["26026,3", "26026,7"],
-                             "四掌": ["26026,4", "26026,8"],
-                             "寂灭": [],
-                             "承伤扇形": ["26068,1"],
-                             "承伤少人": ["27077,1"],
-                             "驱散爆炸": ["26065,1"],
-                             "散花次数": [],
-                             "散花平均时间": [],
-                             "背对失败": ["26073,2", "26073,4"],
-                             "背对扇形": ["27022,1", "27022,2"],
-                             "多罗叶指": ["26071,1"],
-                             "石头路径伤害": ["27118,1"],
-                             "石头爆炸": ["27023,1"],
-                             "拉人范围": ["26114,1"],
-                             "龙爪手": ["26088,1"],
-                            }
-            skillNameDictR = {}
-            skillTotal = {}
-            for name in skillNameDict:
-                skillTotal[name] = 0
-                for line in skillNameDict[name]:
-                    skillNameDictR[line] = name
-            skillOrderStr = ""
-            sanhuaNum = 0
-            sanhuaActive = 0
-            sanhuaFinal = 0
-            sanhuaSum = 0
-            sanhuaCount = 0
-            sanhuaPlayer = {}
-            sanhuaLastTime = 0
-            damoActive = 0
-            chengshangCD = 0
-
-            skillCheckDict = {"27310,1": "寂灭成功格挡",
-                              "27310,-1": "寂灭总计次数",
-                              "26026,3": "分散",
-                              "26026,4": "分散",
-                              "26026,6": "分散",
-                              "26026,7": "分散",
-                              "26026,8": "分散",
-                              "26073,2": "背对",
-                              "26073,4": "背对",
-                              "26114,0": "拉人",
-                              "27118,0": "拉人",
-                              "27023,0": "拉人",
-                              "26071,1": "多罗叶指",
-                              "26088,0": "出30尺",
-                              "25973,-2": "一指禅功",
-                              "25972,-2": "横扫六合",
-                              "25975,-2": "小夜叉",
-                              "25976,-2": "小夜叉",
-                              "25979,0": "大韦陀",
-                              "27372,-2": "普门一段",
-                              "25983,0": "普门二段",
-                              "18752,-3": "伏魔铲法",
-                              }
-            skillUpperLimit = {"27310,1": 1000,
-                               "27310,-1": 1000,
-                               "26026,3": 4,
-                               "26026,4": 4,
-                               "26026,6": 4,
-                               "26026,7": 4,
-                               "26026,8": 4,
-                               "26073,2": 4,
-                               "26073,4": 4,
-                               "26114,0": 8,
-                               "27118,0": 8,
-                               "27023,0": 8,
-                               "26071,1": 1000,
-                               "26088,0": 1000,
-                               "25973,-2": 6,
-                               "25972,-2": 8,
-                               "25975,-2": 4,
-                               "25976,-2": 4,
-                               "25979,0": 4,
-                               "27372,-2": 4,
-                               "25983,0": 4,
-                               "18752,-3": 12,
-                              }
-            jimieLastTime = 1
-            playerSkillLog = {}
-            for line in self.bld.info.player:
-                playername = self.bld.info.player[line].name
-                playerSkillLog[playername] = {}
-                for name in skillCheckDict:
-                    playerSkillLog[playername][skillCheckDict[name]] = 0
-
-            playerEventLog = {}
-            stackNum = {}
-            stackTime = {}
-            for line in self.bld.info.player:
-                playerEventLog[line] = []
-                stackNum[line] = 0
-                stackTime[line] = 0
-
-            immuneLog = []
-
-        damageCountActive = 0
-        damageCloseTime = 0
-        damageStartTime = 0
-        damageDict = {}
-        activeTime = 0
-        castDict = {}
-        P3active = 0
-        zahActiveTime = 0
-        dwtActiveTime = 0
-
         for event in self.bld.log:
 
             if event.time < self.startTime:
@@ -517,18 +401,6 @@ class ActorProReplayer(ReplayerBase):
                 
             self.bossAnalyser.analyseSecondStage(event)
 
-            if (event.time - damageCloseTime > 5000) and damageCountActive:
-                damageCountActive = 0
-                damageCloseTime = 0
-            if damageCountActive:
-                t = int((event.time - self.startTime) / 100) * 100
-                while str(t) not in damageDict:
-                    damageDict[str(t)] = 0
-                    if t - 100 >= damageStartTime:
-                        t -= 100
-                    else:
-                        break
-
             if event.dataType == "Skill":
 
                 if event.target in self.bld.info.player:
@@ -537,67 +409,6 @@ class ActorProReplayer(ReplayerBase):
                     # data = self.checkFirst(item[5], data, occdict)
                     # if item[7] in self.actorSkillList and int(item[10]) != 2:
                     #     data.hitCount[item[5]]["s" + item[7]] += 1
-
-                    if XLS_ACTIVE:
-                        if event.time > sanhuaFinal + 2000 and sanhuaActive:
-                            if sanhuaCount < 4:
-                                sanhuaSum += 99999999
-                            else:
-                                sanhuaSum += (sanhuaFinal - sanhuaLastTime)
-                            sanhuaActive = 0
-                            sanhuaCount = 0
-                            sanhuaNum += 1
-                            sanhuaPlayer = {}
-                        # 修罗统计2
-                        playername = self.bld.info.player[event.target].name
-                        if playername in playerSkillLog:
-                            skillIDSpecific = "%s,%s" % (event.id, event.level)
-                            skillIDGeneral = "%s,0" % event.id
-                            skillIDOverDamage = "%s,-2" % event.id
-                            if skillIDSpecific in skillCheckDict:
-                                playerSkillLog[playername][skillCheckDict[skillIDSpecific]] += 1
-                            if skillIDGeneral in skillCheckDict and skillIDOverDamage not in skillCheckDict:
-                                playerSkillLog[playername][skillCheckDict[skillIDGeneral]] += 1
-                            if skillIDOverDamage in skillCheckDict and event.damage > event.damageEff:
-                                playerSkillLog[playername][skillCheckDict[skillIDOverDamage]] += 1
-                                print(event.time, self.bld.info.getSkillName(event.full_id), self.bld.info.getName(event.target), event.damage, event.damageEff)
-                            if skillIDGeneral == "27041,0":
-                                if event.time - jimieLastTime > 2000:
-                                    jimieLastTime = event.time
-                                    for line in self.bld.info.player:
-                                        playername2 = self.bld.info.player[line].name
-                                        live = self.battleDict[line].checkState(event.time)
-                                        if not live:
-                                            playerSkillLog[playername2][skillCheckDict["27310,-1"]] += 0
-                                        else:
-                                            playerSkillLog[playername2][skillCheckDict["27310,-1"]] += 4
-                                            skillTotal["寂灭"] += 4
-
-                            # 次数统计
-                            if skillIDSpecific in skillNameDictR:
-                                skillTotal[skillNameDictR[skillIDSpecific]] += 1
-                            if skillIDSpecific == "27310,1":
-                                skillTotal["寂灭"] -= 1
-                            if skillIDGeneral == "27077,0" and event.level < 20 and event.time - chengshangCD > 5000:
-                                skillTotal["承伤少人"] += 1
-                                chengshangCD = event.time
-                            if skillIDSpecific in ["27161,1", "27161,2"]:
-                                print("[SanhuaSkill]", event.time)
-                                if event.target not in sanhuaPlayer:
-                                    sanhuaCount += 1
-                                    sanhuaPlayer[event.target] = 1
-                                    sanhuaLastTime = event.time
-                                    print("[Sanhua3]", self.bld.info.getName(event.target))
-                                # if sanhuaCount == 4:
-                                #     sanhuaActive = 0
-                                #     sanhuaCount = 0
-                                #     sanhuaNum += 1
-                                #     sanhuaSum += (sanhuaFinal - event.time)
-                                #     sanhuaPlayer = {}
-
-                        if P3active:
-                            if event.damageEff > 0 and self.bld.info.getSkillName(event.full_id) != "灭":
-                                playerEventLog[event.target].append("%s 受到伤害：%s，%d" % (parseTime((event.time - self.startTime) / 1000), self.bld.info.getSkillName(event.full_id), event.damageEff))
 
                     # 过量伤害
                     if event.damage > event.damageEff:
@@ -664,7 +475,6 @@ class ActorProReplayer(ReplayerBase):
                 if event.damageEff < event.damage:
                     s = "%s: %d/%d, %s, %s" % (parseTime((event.time - self.startTime) / 1000), event.damageEff, event.damage,
                                                self.bld.info.getName(event.target), self.bld.info.getSkillName(event.full_id))
-                    immuneLog.append(s)
 
                 # for i in ["5", "8", "9", "10", "11", "12", "15", "16"]:
                 #     if i in event.fullResult:
@@ -674,41 +484,6 @@ class ActorProReplayer(ReplayerBase):
                 if event.caster in self.bld.info.player and event.scheme == 1 and firstHitDict[event.caster] == 0 and (event.damageEff > 0 or event.healEff > 0):
                     firstHitDict[event.caster] = 1
                     self.battleDict[event.caster].setState(event.time, 1)
-
-                if P3active:
-                    if event.id in ["27087"]:
-                        timediff = 5000 - (event.time - stackTime[event.caster])
-                        if timediff > 3500:
-                            timediff = 5000
-                        if timediff < 0:
-                            timediff = 0
-                        value = int(timediff / 5000 * stackNum[event.caster] * 10)
-                        playerEventLog[event.caster].append("%s 按吐纳，估算聚集点数为：%d" % (parseTime((event.time - self.startTime) / 1000),
-                                                    value))
-                        stackNum[event.caster] = 0
-                    if event.id in ["27363", "27364", "27365", "27366", "27483"]:
-                        value = event.level * 20
-                        if event.caster in playerEventLog:
-                            playerEventLog[event.caster].append("%s 内力爆发目标[%s]，点数为%d" % (parseTime((event.time - self.startTime) / 1000),
-                                                        self.bld.info.getName(event.target), value))
-                        else:
-                            print("%s 内力爆发目标[%s]，点数为%d" % (parseTime((event.time - self.startTime) / 1000),
-                                                        self.bld.info.getName(event.target), value))
-
-                    name = self.bld.info.getName(event.target)
-                    if name == "夜叉法相":
-                        print(parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.caster), self.bld.info.getSkillName(event.full_id), event.damageEff)
-                    elif name == "修罗僧":
-                        if damageCountActive:
-                            timegroup = str(int((event.time - self.startTime) / 100) * 100)
-                            damageDict[timegroup] += event.damageEff
-                        if event.time - zahActiveTime < 5000 and event.scheme == 1:
-                            print("[zah]", parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.caster), self.bld.info.getSkillName(event.full_id), event.damageEff)
-                        if event.time - dwtActiveTime < 5000 and self.bld.info.getSkillName(event.full_id) in ["剑破虚空", "厥阴指", "灵蛊", "抢珠式"]:
-                            print("[dwt]", parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.caster), self.bld.info.getSkillName(event.full_id), event.damageEff)
-                    elif event.damageEff > 0 and event.target in self.bld.info.npc:
-                        print("[ExtraTarget]", name, self.bld.info.npc[event.target].templateID)
-
 
             elif event.dataType == "Buff":
 
@@ -723,15 +498,6 @@ class ActorProReplayer(ReplayerBase):
                 name = self.bld.info.getSkillName(event.target)
                 if event.id == "18752":
                     print("[Fumo]", parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.target), event.level)
-
-
-                if XLS_ACTIVE:
-                    # 修罗统计4
-                    playername = self.bld.info.player[event.target].name
-                    if playername in playerSkillLog and event.stack == 1:
-                        skillIDSpecific = "%s,-3" % (event.id)
-                        if skillIDSpecific in skillCheckDict:
-                            playerSkillLog[playername][skillCheckDict[skillIDSpecific]] += 1
 
                 # data = self.checkFirst(item[5], data, occdict)
                 # if item[6] in self.actorBuffList and int(item[10]) == 1:
@@ -764,33 +530,6 @@ class ActorProReplayer(ReplayerBase):
                     if len(deathHitDetail[event.target]) >= 20:
                         del deathHitDetail[event.target][0]
                     deathHitDetail[event.target].append([event.time, "禅语消失", 0, event.caster, -1, 0, 0])
-
-                # if event.id in ["19724"]:  # 大佛狮子吼
-                #     name = self.bld.info.player[event.target].name
-                #     print(event.time, name)
-
-                if event.id == "19758" and event.stack == 0:
-                    if event.target not in sanhuaPlayer:
-                        sanhuaCount += 1
-                        sanhuaPlayer[event.target] = 1
-                        print("[Sanhua2]", self.bld.info.getName(event.target))
-                        sanhuaLastTime = event.time - 1100
-                if event.id == "19917" and event.stack == 1:
-                    if event.target not in sanhuaPlayer:
-                        sanhuaCount += 1
-                        sanhuaPlayer[event.target] = 1
-                        print("[Sanhua1]", self.bld.info.getName(event.target))
-                        sanhuaLastTime = event.time - 300
-                if event.id == "19938":
-                    if event.target not in sanhuaPlayer:
-                        print("[Sanhua0]", parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.target), event.stack)
-
-                if P3active:
-                    if event.target in playerEventLog and event.id in ["19689", "19826"] and event.stack != 0:
-                        playerEventLog[event.target].append("%s 获得吐纳buff：%d层" % (parseTime((event.time - self.startTime) / 1000),
-                                                    event.stack))
-                        stackNum[event.target] = event.stack
-                        stackTime[event.target] = event.time
 
             elif event.dataType == "Death":  # 重伤记录
                 
@@ -888,10 +627,6 @@ class ActorProReplayer(ReplayerBase):
                     # if self.bossAnalyser.activeBoss in []:
                     #     self.bossAnalyser.recordDeath(item, deathSource)
 
-                if P3active:
-                    if event.id in playerEventLog:
-                        playerEventLog[event.id].append("%s 重伤" % parseTime((event.time - self.startTime) / 1000))
-
             elif event.dataType == "Shout":  # 喊话
                 if "喝哈" in event.content:
                     P3active = 1
@@ -911,121 +646,12 @@ class ActorProReplayer(ReplayerBase):
                 pass
                 # if event.caster in self.bld.info.npc:
                 #     print("[Cast]", event.time, event.id, self.bld.info.getSkillName(event.full_id))
-                if P3active:
-                    if self.bld.info.getName(event.caster) in ["修罗僧", "夜叉法相"]:
-                        for line in playerEventLog:
-                            playerEventLog[line].append("%s [%s]读条：%s" % (parseTime((event.time - self.startTime) / 1000),
-                                                        self.bld.info.getName(event.caster), self.bld.info.getSkillName(event.full_id)))
-                        castDict[parseTime((event.time - self.startTime) / 1000)] = [self.bld.info.getSkillName(event.full_id), str(activeTime)]
-                        skillName = self.bld.info.getSkillName(event.full_id)
-                        if "罗汉醉棍" in skillName:
-                            damageCountActive = 1
-                            damageStartTime = event.time - self.startTime
-                            damageCloseTime = 999999999999
-                            activeTime += 1
-                        if "佛光普照" in skillName:
-                            damageCloseTime = event.time
-                        if "杂阿含神功" in skillName:
-                            zahActiveTime = event.time
-                        if "大韦陀献杵" in skillName:
-                            dwtActiveTime = event.time
-                    if event.id in ["27073"]:
-                        playerEventLog[event.caster].append("%s 读条内力爆发" % parseTime((event.time - self.startTime) / 1000))
-                if XLS_ACTIVE:
-                    if self.bld.info.getName(event.caster) in ["修罗僧"]:
-                        skillName = self.bld.info.getSkillName(event.full_id)
-                        # print(event.time, skillName)
-                        if skillName in ["般若", "罗汉", "达摩", "戒律", "金钟罩"]:
-                            if damoActive:
-                                skillOrderStr = addSkillOrder("多", skillOrderStr)
-                                damoActive = 0
-                        if skillName in ["般若·绝境千手掌", "般若·千手掌"]:
-                            skillOrderStr = addSkillOrder("千", skillOrderStr)
-                        if skillName in ["罗汉·绝境波罗蜜手", "罗汉·波罗蜜手"]:
-                            skillOrderStr = addSkillOrder("蜜", skillOrderStr)
-                        if skillName in ["达摩·绝境无相劫指", "达摩·无相劫指"]:
-                            skillOrderStr = addSkillOrder("劫", skillOrderStr)
-                            damoActive = 0
-                        if skillName in ["戒律·绝境擒龙聚气", "戒律·擒龙聚气"]:
-                            skillOrderStr = addSkillOrder("擒", skillOrderStr)
-                        if skillName in ["金钟罩"]:
-                            skillOrderStr = addSkillOrder("|", skillOrderStr)
-                        if skillName in ["般若·寂灭爪法"]:
-                            skillOrderStr = addSkillOrder("寂", skillOrderStr)
-                        if skillName in ["散花·偏花七星拳"]:
-                            skillOrderStr = addSkillOrder("偏", skillOrderStr)
-                        if skillName in ["?"]:
-                            skillOrderStr = addSkillOrder("多", skillOrderStr)
-                        if skillName in ["戒律·龙爪手十二式"]:
-                            skillOrderStr = addSkillOrder("龙", skillOrderStr)
-                        if skillName in ["罗汉·偏花七星掌"]:
-                            skillOrderStr = addSkillOrder("散", skillOrderStr)
-                            sanhuaActive = 1
-                            sanhuaFinal = event.time + 12000
-                            print("[SanhuaCount]", event.time, parseTime((event.time - self.startTime) / 1000))
-                        if skillName in ["达摩·拈花指法"]:
-                            skillOrderStr = addSkillOrder("拈", skillOrderStr)
-                            damoActive = 0
-                        if skillName in ["达摩"]:
-                            damoActive = 1
 
             num += 1
 
         # 调整战斗时间
         self.startTime, self.finalTime, self.battleTime = self.bossAnalyser.trimTime()
         self.battleTime += 1e-10  # 防止0战斗时间导致错误
-
-        if XLS_ACTIVE:
-            # 修罗统计3
-            for line in skillCheckDict:
-                num = 0
-                skillName = skillCheckDict[line]
-                for player in playerSkillLog:
-                    num += playerSkillLog[player][skillName]
-                if num >= skillUpperLimit[line]:
-                    for player in playerSkillLog:
-                        playerSkillLog[player][skillName] = 0
-            for line in playerSkillLog:
-                fileName = "xlsCount/%d.txt"%self.startTime
-                f = open(fileName, "w")
-                f.write(str(playerSkillLog))
-                f.close()
-
-            fs = "xlsCount/wu/%s.txt" % time.strftime("%Y%m%d-%H%M", time.localtime(self.bld.info.battleTime))
-            f = open(fs, "w")
-            skillTotal["技能顺序"] = skillOrderStr
-            skillTotal["散花次数"] = sanhuaNum
-            if sanhuaNum == 0:
-                skillTotal["散花平均时间"] = 0
-            else:
-                skillTotal["散花平均时间"] = int(sanhuaSum / sanhuaNum)
-            f.write(str(skillTotal))
-            f.close()
-
-            if P3active:
-                for player in playerEventLog:
-                    name = self.bld.info.getName(player)
-                    path = "xlsCount/detail/%s" % name
-                    if not os.path.exists(path):
-                        os.mkdir(path)
-                    file = "xlsCount/detail/%s/%d.txt" % (name, self.startTime)
-                    f = open(file, "w")
-                    for line in playerEventLog[player]:
-                        f.write(line + "\n")
-                    f.close()
-
-                f = open("xlsCount/detail/%d.txt" % self.startTime, "w")
-                for key in damageDict:
-                    name = ["无", "-"]
-                    timeStr = parseTime(int(key) / 1000)
-                    if timeStr in castDict:
-                        name = castDict[timeStr]
-                    f.write("%s\t%s\t%s\t%d\n" % (timeStr, name[0], name[1], damageDict[key]))
-                f.close()
-
-            # print("=========")
-            # for line in immuneLog:
-            #     print(line)
 
         recordGORate = 0
 

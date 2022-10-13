@@ -347,7 +347,7 @@ class CombatTracker():
         while self.excludePosDps < len(self.badPeriodDpsLog) and event.time > self.badPeriodDpsLog[self.excludePosDps][0]:
             self.excludeStatusDps = self.badPeriodDpsLog[self.excludePosDps][1]
             self.excludePosDps += 1
-        while self.excludePosHealer < len(self.badPeriodHealerLog) and event.time > self.badPeriodHealerLog[self.excludePosDps][0]:
+        while self.excludePosHealer < len(self.badPeriodHealerLog) and event.time > self.badPeriodHealerLog[self.excludePosHealer][0]:
             self.excludeStatusHealer = self.badPeriodHealerLog[self.excludePosHealer][1]
             self.excludePosHealer += 1
 
@@ -359,7 +359,7 @@ class CombatTracker():
         self.checkRemoveBuff(event.time, event.target)
 
         # 治疗事件
-        if event.heal > 0 and event.effect != 7 and event.caster in self.hpsCast and not self.excludePosHealer:
+        if event.heal > 0 and event.effect != 7 and event.caster in self.hpsCast and not self.excludeStatusHealer:
             hanQingFlag = 0
             if event.full_id == '"2,631,29"':  # 特殊处理寒清
                 if event.target in self.hanQingTime and event.time - self.hanQingTime[event.target] < 500:
@@ -435,7 +435,7 @@ class CombatTracker():
 
         # 来源于化解的aps
         absorb = int(event.fullResult.get("9", 0))
-        if absorb > 0 and event.target in self.absorbBuff and not self.excludePosHealer:
+        if absorb > 0 and event.target in self.absorbBuff and not self.excludeStatusHealer:
             # print("[RawAbsorb]", event.time, event.target, absorb)
             # 目前只记录一个化解的buff，如果单次击破了某个化解盾导致有两个buff都参与了化解，那么其实无法统计到具体的化解量
             calcBuff = ["0", "0", 0]
@@ -452,7 +452,7 @@ class CombatTracker():
 
         # 来自于减伤的aps
         sumDamage = event.damage + absorb
-        if sumDamage > 0 and event.target in self.resistBuff and not self.excludePosHealer:
+        if sumDamage > 0 and event.target in self.resistBuff and not self.excludeStatusHealer:
             # print("[Damage]", event.time, event.target, sumDamage)
             # 考虑所有减伤，如果减伤之和大于100%，则不做统计，这种情况一般不可能发生.
             resistSum = 0
@@ -471,7 +471,7 @@ class CombatTracker():
 
         # 从吸血推测HPS
         xixue = int(event.fullResult.get("7", 0))
-        if xixue > 0 and event.caster in self.hpStatus and not self.excludePosHealer:
+        if xixue > 0 and event.caster in self.hpStatus and not self.excludeStatusHealer:
             # print("[Xixue]", event.time, event.caster, xixue)
             self.ohpsCast[event.caster].record(event.caster, "3," + event.full_id, xixue)
             # if self.hpStatus[event.caster]["damage"] > self.hpStatus[event.caster]["healFull"] or \
