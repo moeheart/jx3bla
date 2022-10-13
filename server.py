@@ -1211,6 +1211,7 @@ def getRank():
                 res[id] = record[STAT_ID[id]]
             for id in RANK_ID:
                 res[id+"Rank"] = record[RANK_ID[id]]
+            res["hold"] = record[30]
             resJson["table"].append(res)
 
     resJson["num"] = len(result)
