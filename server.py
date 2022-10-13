@@ -1092,7 +1092,7 @@ def getSinglePlayer():
 
     rankStat = {}
     for stat_item in RANK_ID:
-        rankStat[stat_item] = {"overallSum": 0, "overallAverage": 0}
+        rankStat[stat_item] = {"overallSum": 0, "overallAverage": 0, "overallMaxSum": 0, "overallMaxAverage": 0}
 
     allResults = {}
     for record in result:
@@ -1134,11 +1134,13 @@ def getSinglePlayer():
         for stat_item in RANK_ID:
             rankStat[stat_item][boss]["average"] = rankStat[stat_item][boss]["sum"] / (rankStat[stat_item][boss]["num"] + 1e-10)
             rankStat[stat_item]["overallSum"] += rankStat[stat_item][boss]["average"]
+            rankStat[stat_item]["overallMaxSum"] += rankStat[stat_item][boss]["highest"]
 
     overallAverageScore = roundCent(sumAverageScore / (numBoss + 1e-10))
     overallHighestScore = roundCent(sumHighestScore / (numBoss + 1e-10))
     for stat_item in RANK_ID:
         rankStat[stat_item]["overallAverage"] += roundCent(rankStat[stat_item]["overallSum"] / (numBoss + 1e-10))
+        rankStat[stat_item]["overallMaxAverage"] += roundCent(rankStat[stat_item]["overallMaxSum"] / (numBoss + 1e-10))
 
     resJson["stat"]["overall"] = {"highest": overallHighestScore, "average": overallAverageScore, "num": numBoss}
     resJson["rank"] = rankStat
