@@ -1056,7 +1056,7 @@ def getMultiPlayer():
             sumAverageScore += avgScore[boss]
             resJson["stat"][boss] = {"highest": highestScore[boss], "average": avgScore[boss], "num": numRecord[boss]}
             for stat_item in RANK_ID:
-                rankStat[stat_item][boss]["average"] = rankStat[stat_item][boss]["sum"] / rankStat[stat_item][boss]["num"]
+                rankStat[stat_item][boss]["average"] = rankStat[stat_item][boss]["sum"] / (rankStat[stat_item][boss]["num"] + 1e-10)
                 rankStat[stat_item]["overallSum"] += rankStat[stat_item][boss]["average"]
 
         overallAverageScore = roundCent(sumAverageScore / (numBoss + 1e-10))
@@ -1132,7 +1132,7 @@ def getSinglePlayer():
         sumAverageScore += avgScore[boss]
         resJson["stat"][boss] = {"highest": highestScore[boss], "average": avgScore[boss], "num": numRecord[boss]}
         for stat_item in RANK_ID:
-            rankStat[stat_item][boss]["average"] = rankStat[stat_item][boss]["sum"] / rankStat[stat_item][boss]["num"]
+            rankStat[stat_item][boss]["average"] = rankStat[stat_item][boss]["sum"] / (rankStat[stat_item][boss]["num"] + 1e-10)
             rankStat[stat_item]["overallSum"] += rankStat[stat_item][boss]["average"]
 
     overallAverageScore = roundCent(sumAverageScore / (numBoss + 1e-10))
