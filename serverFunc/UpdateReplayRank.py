@@ -123,7 +123,13 @@ def updatePercent(raw_rank, cursor, db):
         key3 = record[6]
 
         # 新赛季更新时删除，后续再进行改动
-        if int(key2) > 575:
+        try:
+            if int(key2) > 575:
+                continue
+        except:
+            shortID = record[8]
+            sql = """UPDATE ReplayProStat SET hold=0 WHERE shortID = %d""" % shortID
+            cursor.execute(sql)
             continue
 
         for id in STAT_ID:
