@@ -93,6 +93,8 @@ def getRank(value, table):
     '''
     获取单个数值的百分位排名.
     '''
+    if value is None:
+        return None
     l = 0
     r = 100
     while r > l + 1:
@@ -129,8 +131,9 @@ def updatePercent(raw_rank, cursor):
             value = record[STAT_ID[id]]
             shortID = record[8]
             rank = getRank(value, order)
-            sql = """UPDATE ReplayProStat SET %sRank = %d WHERE shortID = %d""" % (id, rank, shortID)
-            cursor.execute(sql)
+            if rank is not None:
+                sql = """UPDATE ReplayProStat SET %sRank = %d WHERE shortID = %d""" % (id, rank, shortID)
+                cursor.execute(sql)
         sql = """UPDATE ReplayProStat SET hold=0 WHERE shortID = %d""" % shortID
         cursor.execute(sql)
 
