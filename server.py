@@ -1184,6 +1184,7 @@ def getRank():
     result = list(result)
     result_var = []
     for line in result:
+        print(line)
         line_var = list(line)
         if parseEdition(line[11]) < parseEdition("8.1.0") and occ in ["lingsu", "butianjue", "yunchangxinjing"]:
             line_var[3] -= 10000
