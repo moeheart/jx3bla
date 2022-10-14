@@ -52,7 +52,7 @@ REVIEW_JSON = {
     },
     {
       "code": 12,
-      "title": "提高HPS或者虚条HPS",
+      "title": "【已废弃】提高HPS或者虚条HPS",
       "hps": "HPS",
       "ohps": "虚条HPS",
       "hpsRank": "HPS的排名",
@@ -79,6 +79,18 @@ REVIEW_JSON = {
       "add": "技能使用情况：",
       "addArrayCondition": [0, 1, 2],
       "addArray": "`skill`：(`num`/`sum`)"
+    },
+    {
+      "code": 14,
+      "title": "提高rHPS",
+      "rhps": "rHPS",
+      "rhpsRank": "rHPS的排名",
+      "rate": "为`rhpsRank",
+      "threshold": [75, 50, 25, 0],
+      "descCondition": [1, 2, 3],
+      "desc": "rHPS代表你对团队血量的综合贡献，是对治疗端的一个全局衡量方式。与游戏中HPS相比，化解、减伤等方式都可以提高rHPS，并且抢治疗量不会对rHPS有太多帮助。为了提高rHPS，最好的方式是熟悉基本循环；而当手法都合格的时候，调整团队治疗配置也可以进一步提高rHPS。",
+      "addCondition": [0, 1, 2, 3],
+      "add": "你的rHPS为`rhps`，超过了`rhpsRank`%的玩家。"
     },
     {
       "code": 90,
