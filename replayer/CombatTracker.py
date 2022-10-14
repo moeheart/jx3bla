@@ -4,12 +4,23 @@
 from tools.Functions import *
 from replayer.Name import *
 
-class HealCastRecorder():
+class StatRecorder():
     '''
-    治疗量统计类.
-    记录为"A用B技能治疗C，值为D效果为E"，按A-(此类)-B-D的顺序逐层封装.
+    统计类的基类，实现分类统计、获取名称相关的方法.
     '''
-
+    SPECIAL_NAME_DICT = {
+        "6209": "王母挥袂(辞致)",
+        "6211": "风袖低昂(晚晴)",
+        '"1,6249,3"': "上元点鬟(双鸾)",
+        '"1,6249,1"': "翔鸾舞柳(双鸾)",
+        "15181": "宫(疏影横斜)",
+        "8571": "心法减伤",
+        "21112": "凌然天风", 
+        "3307": "田螺阵",
+        "15914": "斩无常",
+    }
+    
+    
     def specificName(self, id, full_id):
         '''
         根据full_id做大量特殊判定，从而实现类似于合并的效果。
@@ -17,28 +28,12 @@ class HealCastRecorder():
         - id: 技能或buff的ID.
         - full_id: 三名ID表示法.
         '''
-        res = ""
-        if id == "6209":
-            res = "王母挥袂(辞致)"
-        elif id == "6211":
-            res = "风袖低昂(晚晴)"
-        elif full_id == '"1,6249,3"':
-            res = "上元点鬟(双鸾)"
-        elif full_id == '"1,6249,1"':
-            res = "翔鸾舞柳(双鸾)"
-        elif full_id == '"1,6249,1"':
-            res = "翔鸾舞柳(双鸾)"
-        elif id == "15181":
-            res = "宫(疏影横斜)"
-        elif id == "8571":
-            res = "心法减伤"
-        elif id == "21112":
-            res = "凌然天风"
-        elif id == "3307":
-            res = "田螺阵"
-        elif id == "15914":
-            res = "斩无常"
-        return res
+        if id in self.SPECIAL_NAME_DICT:
+            return self.SPECIAL_NAME_DICT[id]
+        elif full_id in self.SPECIAL_NAME_DICT:
+            return self.SPECIAL_NAME_DICT[full_id]
+        else:
+            return ""
 
     def getSkillName(self, full_id, info):
         '''
@@ -51,6 +46,9 @@ class HealCastRecorder():
             resNew = self.specificName(id, full_id)
             if resNew != "":
                 res = resNew
+            area = full_id.split(',')[0]
+            if area == '"2':
+                res = res + "(持续)"
         elif l == 4:
             real_id = ','.join(full_id.split(',')[1:])
             area = full_id.split(',')[0]
@@ -67,6 +65,11 @@ class HealCastRecorder():
                 res = "蛊惑众生"
         return res
 
+class HealCastRecorder(StatRecorder):
+    '''
+    治疗量统计类.
+    记录为"A用B技能治疗C，值为D效果为E"，按A-(此类)-B-D的顺序逐层封装.
+    '''
 
     def export(self, time, info):
         '''
@@ -166,6 +169,63 @@ class RHpsRecorder():
             self.records[player] = []
             self.effHps[player] = 0
             self.sumHps[player] = 0
+            
+class DpsCastRecorder(StatRecorder):
+    '''
+    伤害统计类.
+    记录为"A用B技能攻击C，值为D效果为E"，按A-(此类)-B-D的顺序逐层封装.
+    '''
+
+    def export(self, time, info):
+        '''
+        统计结束时的后处理.
+        params:
+        - time: 战斗时间.
+        - info: bld的info类
+        '''
+        self.sum = 0
+        for skill in self.skill:
+            self.sum += self.skill[skill]["sum"]
+        for skill in self.skill:
+            self.skill[skill]["percent"] = safe_divide(self.skill[skill]["sum"], self.sum)
+            self.skill[skill]["name"] = self.getSkillName(skill, info)
+        self.dps = self.sum / time * 1000
+        for skill in self.skill:
+            if self.skill[skill]["name"] not in self.namedSkill:
+                self.namedSkill[self.skill[skill]["name"]] = {"sum": self.skill[skill]["sum"],
+                                                              "num": self.skill[skill]["num"],
+                                                              "percent": self.skill[skill]["percent"]}
+            else:
+                for key in ["sum", "num", "percent"]:
+                    self.namedSkill[self.skill[skill]["name"]][key] += self.skill[skill][key]
+    
+    def record(self, target, skill, value):
+        '''
+        记录一次伤害事件.
+        params:
+        - target: 目标ID(可以是数字或文字).
+        - skill: 技能ID(可以是数字或文字).
+        - value: 数值.
+        '''
+        if skill not in self.skill:
+            self.skill[skill] = {"sum": 0, "num": 0}  # , "targets": {}}，暂时不记录目标
+        # if target not in self.skill[skill]["targets"]:
+        #     self.skill[skill]["targets"][target] = 0
+        # self.skill[skill]["targets"][target] += value
+        self.skill[skill]["sum"] += value
+        self.skill[skill]["num"] += 1
+    
+    def __init__(self, allied):
+        '''
+        构造方法.
+        params:
+        - allied: 是否为友方.
+        '''
+        self.skill = {}
+        self.namedSkill = {}
+        self.sum = 0
+        self.dps = 0
+    
 
 class CombatTracker():
     '''
@@ -181,12 +241,46 @@ class CombatTracker():
         res["ahps"] = self.ahps
         res["ohps"] = self.ohps
         res["rhps"] = self.rhps
+        res["ndps"] = self.ndps
+        res["rdps"] = self.rdps
+        res["mndps"] = self.mndps
+        res["mndps"] = self.mrdps
 
         # 精简技能表，不再记录ID。
         for t in res:
             for p in res[t]["player"]:
                 del res[t]["player"][p]["skill"]
         return res
+        
+    def getStatInHps(self, objSource, objTarget):
+        '''
+        以dict的形式整理统计治疗结果.
+        '''
+        for player in objSource:
+            objSource[player].export(self.timeHealer, self.info)
+            if objSource[player].hps > 0:
+                objTarget["player"][player] = {"sum": objSource[player].sum,
+                                         "hps": objSource[player].hps,
+                                         "skill": objSource[player].skill,
+                                         "namedSkill": objSource[player].namedSkill,
+                                         "name": self.info.getName(player),
+                                         "occ": self.info.getOcc(player)}
+                objTarget["sum"] += objTarget["player"][player]["hps"]
+                
+    def getStatInDps(self, objSource, objTarget):
+        '''
+        以dict的形式整理统计伤害结果.
+        '''
+        for player in objSource:
+            objSource[player].export(self.timeDps, self.info)
+            if objSource[player].dps > 0:
+                objTarget["player"][player] = {"sum": objSource[player].sum,
+                                         "dps": objSource[player].dps,
+                                         "skill": objSource[player].skill,
+                                         "namedSkill": objSource[player].namedSkill,
+                                         "name": self.info.getName(player),
+                                         "occ": self.info.getOcc(player)}
+                objTarget["sum"] += objTarget["player"][player]["dps"]
 
     def export(self, time, timeDps, timeHealer):
         '''
@@ -207,59 +301,45 @@ class CombatTracker():
 
         # hps
         hps = {"sum": 0, "player": {}}
-        for player in self.hpsCast:
-            self.hpsCast[player].export(timeHealer, self.info)
-            if self.hpsCast[player].hps > 0:
-                hps["player"][player] = {"sum": self.hpsCast[player].sum,
-                                         "hps": self.hpsCast[player].hps,
-                                         "skill": self.hpsCast[player].skill,
-                                         "namedSkill": self.hpsCast[player].namedSkill,
-                                         "name": self.info.getName(player),
-                                         "occ": self.info.getOcc(player)}
-                hps["sum"] += hps["player"][player]["hps"]
+        self.getStatInHps(self.hpsCast, hps)
         self.hps = hps
 
         # ohps
         ohps = {"sum": 0, "player": {}}
-        for player in self.ohpsCast:
-            self.ohpsCast[player].export(timeHealer, self.info)
-            if self.ohpsCast[player].hps > 0:
-                ohps["player"][player] = {"sum": self.ohpsCast[player].sum,
-                                          "hps": self.ohpsCast[player].hps,
-                                          "skill": self.ohpsCast[player].skill,
-                                          "namedSkill": self.ohpsCast[player].namedSkill,
-                                          "name": self.info.getName(player),
-                                          "occ": self.info.getOcc(player)}
-                ohps["sum"] += ohps["player"][player]["hps"]
+        self.getStatInHps(self.ohpsCast, ohps)
         self.ohps = ohps
 
         # ahps
         ahps = {"sum": 0, "player": {}}
-        for player in self.ahpsCast:
-            self.ahpsCast[player].export(timeHealer, self.info)
-            if self.ahpsCast[player].hps > 0:
-                ahps["player"][player] = {"sum": self.ahpsCast[player].sum,
-                                          "hps": self.ahpsCast[player].hps,
-                                          "skill": self.ahpsCast[player].skill,
-                                          "namedSkill": self.ahpsCast[player].namedSkill,
-                                          "name": self.info.getName(player),
-                                          "occ": self.info.getOcc(player)}
-                ahps["sum"] += ahps["player"][player]["hps"]
+        self.getStatInHps(self.ahpsCast, ahps)
         self.ahps = ahps
 
         # rhps
         rhps = {"sum": 0, "player": {}}
-        for player in self.rhpsCast:
-            self.rhpsCast[player].export(timeHealer, self.info)
-            if self.rhpsCast[player].hps > 0:
-                rhps["player"][player] = {"sum": self.rhpsCast[player].sum,
-                                          "hps": self.rhpsCast[player].hps,
-                                          "skill": self.rhpsCast[player].skill,
-                                          "namedSkill": self.rhpsCast[player].namedSkill,
-                                          "name": self.info.getName(player),
-                                          "occ": self.info.getOcc(player)}
-                rhps["sum"] += rhps["player"][player]["hps"]
+        self.getStatInHps(self.rhpsCast, rhps)
         self.rhps = rhps
+        
+        # ndps
+        ndps = {"sum": 0, "player": {}}
+        self.getStatInDps(self.ndpsCast, ndps)
+        self.ndps = ndps
+        
+        # mndps
+        mndps = {"sum": 0, "player": {}}
+        self.getStatInDps(self.mndpsCast, mndps)
+        self.mndps = mndps
+        
+        # rdps
+        rdps = {"sum": 0, "player": {}}
+        self.getStatInDps(self.rdpsCast, rdps)
+        self.rdps = rdps
+        
+        # mrdps
+        mrdps = {"sum": 0, "player": {}}
+        self.getStatInDps(self.mrdpsCast, mrdps)
+        self.mrdps = mrdps
+        
+        # print("[nDps]", self.ndps)
 
     def recordBuff(self, event):
         '''
@@ -498,6 +578,13 @@ class CombatTracker():
         # 记录蛊惑
         if event.id in ["2231"]:  # 蛊惑众生
             self.guHuoTarget[event.caster] = event.target
+            
+        # 记录DPS
+        if event.damageEff > 0 and event.caster in self.ndpsCast and not self.excludeStatusDps:
+            self.ndpsCast[event.caster].record(event.target, event.full_id, event.damageEff)
+            # print("[DpsRecord]", event.time, event.damageEff)
+        
+        
 
     def __init__(self, info, bh):
         '''
@@ -511,6 +598,11 @@ class CombatTracker():
         self.ahpsCast = {}
         self.rhpsCast = {}
         self.info = info
+        
+        self.ndpsCast = {}
+        self.rdpsCast = {}
+        self.mndpsCast = {}
+        self.mrdpsCast = {}
 
         self.absorbBuff = {}
         self.resistBuff = {}
@@ -533,6 +625,7 @@ class CombatTracker():
         self.hanQingTime = {}  # 记录寒清时间
 
         for player in info.player:
+            # 治疗
             self.hpsCast[player] = HealCastRecorder(1)
             self.ohpsCast[player] = HealCastRecorder(1)
             self.ahpsCast[player] = HealCastRecorder(1)
@@ -544,9 +637,20 @@ class CombatTracker():
             self.hpStatus[player] = {"damage": 0, "healNotFull": 0, "healFull": 0, "estimateHP": 0, "status": 0, "fullTime": 0}
             self.guHuoTarget[player] = "0"
             self.hanQingTime[player] = 0
+            # 输出
+            self.ndpsCast[player] = DpsCastRecorder(1)
+            self.mndpsCast[player] = DpsCastRecorder(1)
+            self.rdpsCast[player] = DpsCastRecorder(1)
+            self.mrdpsCast[player] = DpsCastRecorder(1)
+            
         for player in info.npc:
             self.hpsCast[player] = HealCastRecorder(0)
             self.ohpsCast[player] = HealCastRecorder(0)
             self.ahpsCast[player] = HealCastRecorder(0)
             self.hpStatus[player] = {"damage": 0, "healNotFull": 0, "healFull": 0, "estimateHP": 0, "status": 0,
                                      "fullTime": 0}
+            # 输出
+            self.ndpsCast[player] = DpsCastRecorder(0)
+            
+            
+            

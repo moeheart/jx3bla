@@ -30,7 +30,7 @@ class CombatTrackerWindow(Window):
         使上半部分显示指定的统计类型.
         '''
         self.stat = stat
-        assert stat in ["rhps", "hps", "ahps", "ohps"]
+        assert stat in ["rhps", "hps", "ahps", "ohps", "rdps", "ndps", "mrdps", "mndps"]
         if stat == "rhps":
             data = self.act.rhps
         elif stat == "hps":
@@ -39,6 +39,14 @@ class CombatTrackerWindow(Window):
             data = self.act.ahps
         elif stat == "ohps":
             data = self.act.ohps
+        elif stat == "rdps":
+            data = self.act.rdps
+        elif stat == "ndps":
+            data = self.act.ndps
+        elif stat == "mrdps":
+            data = self.act.mrdps
+        elif stat == "mndps":
+            data = self.act.mndps
         self.data = data
         dataT = []
         for key in data["player"]:
@@ -52,7 +60,10 @@ class CombatTrackerWindow(Window):
             if i < len(dataT):
                 name = dataT[i][1]["name"]
                 self.bars[i][0].configure(text=name)
-                value = dataT[i][1]["hps"]
+                if "hps" in dataT[i][1]:
+                    value = dataT[i][1]["hps"]
+                else:
+                    value = dataT[i][1]["dps"]
                 self.bars[i][2].configure(text="%d" % value)
                 if max == 0:
                     max = value
@@ -148,6 +159,22 @@ class CombatTrackerWindow(Window):
         b4 = tk.Button(frameButtons, text='oHPS', height=1, command=f, bg='#00ff77')
         ToolTip(b4, "全称over HPS，指包含溢出的治疗量，也即游戏中的虚条。oHPS与aHPS之和决定了承伤的上限。")
         b4.place(x=180, y=20)
+        f = partial(self.setStat, "rdps")
+        b5 = tk.Button(frameButtons, text='rDPS', height=1, command=f, bg='#ff7777')
+        ToolTip(b5, "全称raid DPS，是将伤害值中的增益部分转移给增益来源后得到的值。\nrDPS可以反映各种增益的强度，并且适用于对比不同战斗中的表现。")
+        b5.place(x=230, y=20)
+        f = partial(self.setStat, "ndps")
+        b6 = tk.Button(frameButtons, text='nDPS', height=1, command=f, bg='#ff7777')
+        ToolTip(b6, "全称natrual DPS，指自然计算所有伤害的值。\nnDPS会受到各种增益的影响，且不能反映自身对团队的增益，因此只能用来计算全团伤害与BOSS血量的比较。")
+        b6.place(x=280, y=20)
+        f = partial(self.setStat, "mrdps")
+        b7 = tk.Button(frameButtons, text='mrDPS', height=1, command=f, bg='#ff7777')
+        ToolTip(b7, "全称main-target raid DPS，是只考虑主目标的rDPS。\n用于衡量单体与群攻的差别。")
+        b7.place(x=330, y=20)
+        f = partial(self.setStat, "mndps")
+        b8 = tk.Button(frameButtons, text='mnDPS', height=1, command=f, bg='#ff7777')
+        ToolTip(b8, "全称main-target natrual DPS，是只考虑主目标的nDPS。\n用于衡量单体与群攻的差别。")
+        b8.place(x=380, y=20)
 
         canvas = tk.Canvas(frameUp, width=560, height=250, scrollregion=(0, 0, 540, 25*25)) #创建canvas
         canvas.place(x=0, y=50)  # 放置canvas的位置
