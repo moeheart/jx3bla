@@ -116,10 +116,10 @@ class ZhouZhiReplayer(SpecificReplayerPro):
             if id in self.stat:
                 line = self.stat[id]
                 res = self.getBaseList(id)
-                res.extend([int(line[7] / (self.detail["P1Time"] + 1e-10)),
-                            int(line[8] / (self.detail["P2Time"] + 1e-10)),
-                            int(line[9] / (self.detail["P1Time"] + self.detail["P2Time"] + 1e-10)),
-                            int(line[10] / (self.detail["P3Time"] + 1e-10))])
+                res.extend([int(safe_divide(line[7], self.detail["P1Time"])),
+                            int(safe_divide(line[8], self.detail["P2Time"])),
+                            int(safe_divide(line[9], self.detail["P1Time"] + self.detail["P2Time"])),
+                            int(safe_divide(line[10], self.detail["P3Time"]))])
                 bossResult.append(res)
         bossResult.sort(key=lambda x: -x[2])
         self.effectiveDPSList = bossResult

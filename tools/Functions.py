@@ -1,6 +1,9 @@
 # Created by moeheart at 10/11/2020
 # 部分简单python对象操作的方法库。
 
+from Constants import *
+from tools.Attribute import *
+
 def calculFramesAfterHaste(haste, origin):
     '''
     计算加速过后的帧数.
@@ -11,7 +14,8 @@ def calculFramesAfterHaste(haste, origin):
     - res: 加速过后的帧数
     '''
     #tmp = int(haste / 188.309 * 10.24)   # 100赛季数值
-    tmp = int(haste / 438.5625 * 10.24)   # 110赛季数值
+    #tmp = int(haste / 438.5625 * 10.24)   # 110赛季数值
+    tmp = int(haste / getCoefficient("加速") * 1024)
     res = int(origin * 1024 / (tmp + 1024))
     return res
 
@@ -26,6 +30,20 @@ def getLength(length, haste):
     '''
     flames = calculFramesAfterHaste(haste, length)
     return flames * 0.0625 * 1000
+
+def safe_divide(x, y):
+    '''
+    计算x/y的值，并防止出现0/0的错误.
+    如果x=y=0, 返回0; 如果x!=0, y=0, 返回1e+10或-1e+10.
+    '''
+    if y != 0:
+        return x / y
+    elif x == 0:
+        return 0
+    elif x > 0:
+        return 1e+10
+    else:
+        return -1e+10
 
 class SkillCounter():
     '''
@@ -97,7 +115,7 @@ class SkillCounter():
             sumDelay += max(line[0] - line[1] - line[2], 0)
             # print("[Delay]", line[0] - line[1] - line[2])
         # print("=======")
-        return sumDelay / (num + 1e-10)
+        return safe_divide(sumDelay, num)
 
     def getNum(self):
         '''
@@ -557,7 +575,7 @@ class HotCounter(BuffCounter):
                 nowi += 1
             if len(self.log) > 0 and nowi > 0 and self.log[nowi-1][1] > 0:
                 if decay:
-                    single = max((self.log[nowi-1][2] + self.log[nowi-1][0] - nowTime) / (self.log[nowi-1][2] + 1e-10), 0)
+                    single = max(safe_divide(self.log[nowi-1][2] + self.log[nowi-1][0] - nowTime, self.log[nowi-1][2]), 0)
                 else:
                     single = self.log[nowi - 1][1]
             result["timeline"].append(single)
@@ -946,7 +964,7 @@ def finalCluster(teamLog):
             singleRes.append([playerT, teamLog[player][playerT]])
         singleRes.sort(key=lambda x: -x[1])
         j = 4  # 最多选5人
-        while len(singleRes) <= j or (j >= 1 and singleRes[j-1][1] / (singleRes[j][1] + 1e-10) >= 3):
+        while len(singleRes) <= j or (j >= 1 and safe_divide(singleRes[j-1][1], singleRes[j][1]) >= 3):
             j -= 1
         # print(singleRes)
         # print(j)
@@ -976,6 +994,15 @@ def finalCluster(teamLog):
     # print(numCluster)
 
     return teamCluster, numCluster
+
+def getCoefficient(coeff):
+    '''
+    获取对应变量的等级系数.
+    '''
+    if CHAPTER == 110:
+        return COEFF110[coeff]
+    elif CHAPTER == 120:
+        return COEFF120[coeff]
         
 def checkOccDetailBySkill(default, skillID, damage):
     '''

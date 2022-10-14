@@ -645,7 +645,7 @@ class BuTianJueReplayer(HealerReplay):
 
             time1 = self.qilongCounter[key].buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
             timeAll = liveCount
-            qilongRateDict[key] = time1 / (timeAll + 1e-10)
+            qilongRateDict[key] = safe_divide(time1, timeAll)
 
         for line in damageList:
             self.result["dps"]["numDPS"] += 1
@@ -663,7 +663,7 @@ class BuTianJueReplayer(HealerReplay):
         for key in qilongRateDict:
             numRate += self.battleTimeDict[key]
             sumRate += qilongRateDict[key] * self.battleTimeDict[key]
-        overallRate = sumRate / (numRate + 1e-10)
+        overallRate = safe_divide(sumRate, numRate)
 
         mxymDict.shrink(100)
         ghzsDict.shrink(100)
@@ -687,17 +687,17 @@ class BuTianJueReplayer(HealerReplay):
         self.calculateSkillInfoDirect("mxym", mxymSkill)
         num = self.battleTimeDict[self.mykey]
         sum = mxymDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
-        self.result["skill"]["mxym"]["cover"] = roundCent(sum / (num + 1e-10))
+        self.result["skill"]["mxym"]["cover"] = roundCent(safe_divide(sum, num))
         # 蝶旋
         self.calculateSkillInfoDirect("dx", dxSkill)
         # 杂项
         self.result["skill"]["nvwa"] = {}
         sum = nvwaDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
-        self.result["skill"]["nvwa"]["cover"] = roundCent(sum / (num + 1e-10))
+        self.result["skill"]["nvwa"]["cover"] = roundCent(safe_divide(sum, num))
         self.result["skill"]["ghzs"] = {}
         num = self.battleTimeDict[self.mykey]
         sum = ghzsDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
-        self.result["skill"]["ghzs"]["cover"] = roundCent(sum / (num + 1e-10))
+        self.result["skill"]["ghzs"]["cover"] = roundCent(safe_divide(sum, num))
         ghzsHps = 0
         if self.mykey in self.act.hps["player"] and "蛊惑众生" in self.act.hps["player"][self.mykey]["namedSkill"]:
             ghzsHps = int(self.act.hps["player"][self.mykey]["namedSkill"]["蛊惑众生"]["sum"] / self.result["overall"]["sumTimeEff"] * 1000)
@@ -759,11 +759,11 @@ class BuTianJueReplayer(HealerReplay):
             if skill in ["特效腰坠"] and num == 0:
                 continue
             rateNum += 1
-            rateSum += min(num / (sum + 1e-10), 1)
+            rateSum += min(safe_divide(num, sum), 1)
             numAll.append(num)
             sumAll.append(sum)
             skillAll.append(skill)
-        rate = roundCent(rateSum / (rateNum + 1e-10), 4)
+        rate = roundCent(safe_divide(rateSum, rateNum), 4)
         res = {"code": 403, "skill": skillAll, "num": numAll, "sum": sumAll, "rate": rate}
         res["status"] = getRateStatus(res["rate"], 80, 60, 40)
         self.result["review"]["content"].append(res)
@@ -771,19 +771,19 @@ class BuTianJueReplayer(HealerReplay):
         # code 404 不要回收`迷仙引梦`
         timeAll = mxymWatchSkill.getNum()
         timeCast = self.skillInfo[self.nonGcdSkillIndex["21825"]][0].getNum()
-        rate = roundCent(1 - timeCast / (timeAll + 1e-10))
+        rate = roundCent(1 - safe_divide(timeCast, timeAll))
         res = {"code": 404, "timeAll": timeAll, "timeCast": timeCast, "rate": rate}
         res["status"] = getRateStatus(res["rate"], 90, 0, 0)
         self.result["review"]["content"].append(res)
 
         # code 405 使用`蚕引`层数
-        rate = roundCent(self.instantNum / (canyinNum + 1e-10))
+        rate = roundCent(safe_divide(self.instantNum, canyinNum))
         res = {"code": 405, "sumAll": canyinNum, "timeCast": self.instantNum, "rate": rate}
         res["status"] = getRateStatus(res["rate"], 90, 50, 0)
         self.result["review"]["content"].append(res)
 
         # code 406 保留`碧蝶献祭`的会心增益到`蝶池`
-        rate = roundCent(diechiCorrect / (diechiNum + 1e-10))
+        rate = roundCent(safe_divide(diechiCorrect, diechiNum))
         res = {"code": 406, "sumAll": diechiNum, "rightTime": diechiCorrect, "rate": rate}
         res["status"] = getRateStatus(res["rate"], 90, 50, 0)
         self.result["review"]["content"].append(res)

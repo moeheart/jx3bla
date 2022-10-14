@@ -229,7 +229,7 @@ class XiangZhiPainter():
                 maxRateName = line[0]
             sumRate += line[1]
             numRate += 1
-        overallrate = sumRate / (numRate + 1e-10)
+        overallrate = safe_divide(sumRate, numRate)
         
         sumDrawer = 0
         sumInner = 0
@@ -252,7 +252,7 @@ class XiangZhiPainter():
         for line in stat["spareRateList"]:
             sumSpare += line[1]
             numSpare += 1
-        spareRate = sumSpare / (numSpare + 1e-10)
+        spareRate = safe_divide(sumSpare, numSpare)
         
         self.getScoreInfo(info["score"], self.map)
         

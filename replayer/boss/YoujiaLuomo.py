@@ -107,11 +107,11 @@ class YoujiaLuomoReplayer(SpecificReplayerPro):
                                    line[4],
                                    line[5],
                                    line[6],
-                                   line[7] / (self.detail["P1Time"] + 1e-10),
-                                   line[8] / (self.detail["P1Time"] + 1e-10),
-                                   line[9] / (self.detail["P1Time"] + 1e-10),
-                                   line[10] / (self.detail["P1Time"] + 1e-10),
-                                   line[11] / (self.detail["P2Time"] + 1e-10),
+                                   safe_divide(line[7], self.detail["P1Time"]),
+                                   safe_divide(line[8], self.detail["P1Time"]),
+                                   safe_divide(line[9], self.detail["P1Time"]),
+                                   safe_divide(line[10], self.detail["P1Time"]),
+                                   safe_divide(line[11], self.detail["P2Time"]),
                                    ])
         bossResult.sort(key=lambda x:-x[2])
         self.effectiveDPSList = bossResult

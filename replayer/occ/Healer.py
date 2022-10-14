@@ -31,7 +31,7 @@ class HealerReplay(ReplayerBase):
         self.result["skill"][name]["delay"] = int(skillObj.getAverageDelay())
         effHeal = skillObj.getHealEff()
         self.result["skill"][name]["HPS"] = int(effHeal / self.result["overall"]["sumTimeEff"] * 1000)
-        self.result["skill"][name]["effRate"] = roundCent(effHeal / (skillObj.getHeal() + 1e-10))
+        self.result["skill"][name]["effRate"] = roundCent(safe_divide(effHeal, skillObj.getHeal()))
 
     def calculateSkillInfo(self, name, id):
         '''
@@ -50,7 +50,7 @@ class HealerReplay(ReplayerBase):
         self.result["skill"][name]["delay"] = int(skillObj.getAverageDelay())
         effHeal = skillObj.getHealEff()
         self.result["skill"][name]["HPS"] = int(effHeal / self.result["overall"]["sumTimeEff"] * 1000)
-        self.result["skill"][name]["effRate"] = roundCent(effHeal / (skillObj.getHeal() + 1e-10))
+        self.result["skill"][name]["effRate"] = roundCent(safe_divide(effHeal, skillObj.getHeal()))
 
     def calculateSkillFinal(self):
         '''
@@ -77,7 +77,7 @@ class HealerReplay(ReplayerBase):
         self.result["skill"]["mufeng"] = {}
         num = self.battleTimeDict[self.mykey]
         sum = self.mufengDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
-        self.result["skill"]["mufeng"]["cover"] = roundCent(sum / (num + 1e-10))
+        self.result["skill"]["mufeng"]["cover"] = roundCent(safe_divide(sum, num))
         self.result["skill"]["general"]["efficiency"] = self.bh.getNormalEfficiency()
 
         # 统计治疗相关
@@ -198,11 +198,11 @@ class HealerReplay(ReplayerBase):
             if skill in ["特效腰坠", "百药宣时", "青圃着尘", "余寒映日", "九微飞花", "折叶笼花", "大针"] and num == 0:
                 continue
             rateNum += 1
-            rateSum += min(num / (sum + 1e-10), 1)
+            rateSum += min(safe_divide(num, sum), 1)
             numAll.append(num)
             sumAll.append(sum)
             skillAll.append(skill)
-        rate = roundCent(rateSum / (rateNum + 1e-10), 4)
+        rate = roundCent(safe_divide(rateSum, rateNum), 4)
         res = {"code": 13, "skill": skillAll, "num": numAll, "sum": sumAll, "rate": rate}
         res["status"] = getRateStatus(res["rate"], 50, 25, 0)
         self.result["review"]["content"].append(res)
@@ -254,8 +254,8 @@ class HealerReplay(ReplayerBase):
             line = self.skillInfo[index]
             bh.setNormalSkill(ss.skill, line[1], line[3],
                               ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
-                              roundCent(ss.healEff / (ss.heal + 1e-10)),
-                              int(ss.delay / (ss.delayNum + 1e-10)), ss.busy, "")
+                              roundCent(safe_divide(ss.healEff, ss.heal)),
+                              int(safe_divide(ss.delay, ss.delayNum)), ss.busy, "")
 
         # 同步BOSS的技能信息
         if self.bossBh is not None:

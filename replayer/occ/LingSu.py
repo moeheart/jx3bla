@@ -713,7 +713,7 @@ class LingSuReplayer(HealerReplay):
             #     continue
             time1 = self.peiwuCounter[key].buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
             timeAll = liveCount
-            peiwuRateDict[key] = time1 / (timeAll + 1e-10)
+            peiwuRateDict[key] = safe_divide(time1, timeAll)
 
         for line in damageList:
             if line[0] not in peiwuRateDict:
@@ -733,7 +733,7 @@ class LingSuReplayer(HealerReplay):
         for key in peiwuRateDict:
             numRate += self.battleTimeDict[key]
             sumRate += peiwuRateDict[key] * self.battleTimeDict[key]
-        overallRate = sumRate / (numRate + 1e-10)
+        overallRate = safe_divide(sumRate, numRate)
 
         # 计算飘黄次数
         numPiaoHuang = 0
@@ -794,7 +794,7 @@ class LingSuReplayer(HealerReplay):
         self.result["review"]["content"].append(res)
 
         # code 302 避免药性溢出
-        rate = roundCent(1 - yaoxingWaste / (yaoxingSum + 1e-10))
+        rate = roundCent(1 - safe_divide(yaoxingWaste, yaoxingSum))
         res = {"code": 302, "numOver": yaoxingWaste, "numAll": yaoxingSum, "rate": rate}
         res["status"] = getRateStatus(res["rate"], 95, 90, 0)
         self.result["review"]["content"].append(res)
@@ -805,8 +805,8 @@ class LingSuReplayer(HealerReplay):
         for line in zyhrNum:
             num += 1
             sum += line
-        zyhrAverage = roundCent(sum / (num + 1e-10))
-        rate = roundCent(zyhrAverage / (self.result["overall"]["numPlayer"] + 1e-10))
+        zyhrAverage = roundCent(safe_divide(sum, num))
+        rate = roundCent(safe_divide(zyhrAverage, self.result["overall"]["numPlayer"]))
         res = {"code": 303, "numCover": zyhrAverage, "numAll": self.result["overall"]["numPlayer"], "rate": rate}
         res["status"] = getRateStatus(res["rate"], 90, 50, 10)
         self.result["review"]["content"].append(res)
@@ -821,7 +821,7 @@ class LingSuReplayer(HealerReplay):
         # code 305 充分使用`千枝绽蕊`
         time = roundCent(qianzhiDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog) / 1000)
         num = roundCent(zhongheInQianzhi / 5)
-        efficiency = min(1, roundCent(num / (time + 1e-10) * 1.75))
+        efficiency = min(1, roundCent(safe_divide(num, time) * 1.75))
         rate = min(100, efficiency)
         res = {"code": 305, "time": time, "num": num, "efficiency": efficiency, "rate": rate}
         res["status"] = getRateStatus(res["rate"], 50, 30, 0)

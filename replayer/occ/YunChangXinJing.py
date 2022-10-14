@@ -680,7 +680,7 @@ class YunChangXinJingReplayer(HealerReplay):
                 for i in range(len(singleHeat["timeline"])):
                     xiangwuHeat[i] += singleHeat["timeline"][i]
 
-        self.result["skill"]["xlwl"]["cover"] = roundCent(sum / (num + 1e-10))
+        self.result["skill"]["xlwl"]["cover"] = roundCent(safe_divide(sum, num))
         # 计算HOT统计
         for i in range(len(xiangwuHeat)):
             xiangwuHeat[i] = int(xiangwuHeat[i] * 4)
@@ -705,7 +705,7 @@ class YunChangXinJingReplayer(HealerReplay):
                 for i in range(len(singleHeat["timeline"])):
                     shangyuanHeat[i] += singleHeat["timeline"][i]
 
-        self.result["skill"]["sydh"]["cover"] = roundCent(sum / (num + 1e-10))
+        self.result["skill"]["sydh"]["cover"] = roundCent(safe_divide(sum, num))
         # 计算HOT统计
         for i in range(len(shangyuanHeat)):
             shangyuanHeat[i] = int(shangyuanHeat[i] * 4)
@@ -767,7 +767,7 @@ class YunChangXinJingReplayer(HealerReplay):
             num[min(i, 3)] += 1
         perfectTime = num[2]
         earlyTime = num[1]
-        perfectRate = roundCent(perfectTime / (sum + 1e-10), 4)
+        perfectRate = roundCent(safe_divide(perfectTime, sum), 4)
         res = {"code": 503, "time": sum, "perfectTime": perfectTime, "earlyTime": earlyTime, "rate": perfectRate}
         res["status"] = getRateStatus(res["rate"], 85, 50, 0)
         self.result["review"]["content"].append(res)
@@ -776,7 +776,7 @@ class YunChangXinJingReplayer(HealerReplay):
         sum = sydhSkill.getNum()
         wrongTime = sydhWrong
         perfectTime = sum - sydhWrong
-        rate = roundCent(perfectTime / (sum + 1e-10))
+        rate = roundCent(safe_divide(perfectTime, sum))
         res = {"code": 504, "time": sum, "wrongTime": wrongTime, "perfectTime": perfectTime, "rate": rate}
         res["status"] = getRateStatus(res["rate"], 95, 90, 0)
         self.result["review"]["content"].append(res)

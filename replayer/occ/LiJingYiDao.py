@@ -685,7 +685,7 @@ class LiJingYiDaoReplayer(HealerReplay):
                 else:
                     for i in range(len(singleHeat["timeline"])):
                         hotHeat[self.teamCluster[key] - 1][i] += singleHeat["timeline"][i]
-        self.result["skill"]["wozhen"]["cover"] = roundCent(sum / (num + 1e-10))
+        self.result["skill"]["wozhen"]["cover"] = roundCent(safe_divide(sum, num))
         # 计算HOT统计
         for i in range(len(hotHeat)):
             if i+1 >= len(self.numCluster) or self.numCluster[i+1] == 0:
@@ -710,7 +710,7 @@ class LiJingYiDaoReplayer(HealerReplay):
             singleDict = shuhuaiDict[key]
             num += self.battleTimeDict[key]
             sum += singleDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
-        self.result["skill"]["bizhen"]["shCover"] = roundCent(sum / (num + 1e-10))
+        self.result["skill"]["bizhen"]["shCover"] = roundCent(safe_divide(sum, num))
 
         # 春泥护花
         chunniSkill = self.calculateSkillInfo("chunni", "132")
@@ -721,7 +721,7 @@ class LiJingYiDaoReplayer(HealerReplay):
         self.result["skill"]["qiusu"] = {}
         num = self.battleTimeDict[self.mykey]
         sum = qiusuCounter.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
-        self.result["skill"]["qiusu"]["cover"] = roundCent(sum / (num + 1e-10))
+        self.result["skill"]["qiusu"]["cover"] = roundCent(safe_divide(sum, num))
         self.result["skill"]["qiusu"]["dps"] = int(numdam1 / self.result["overall"]["sumTimeDpsEff"] * 1000)
         # 杂项
         self.result["skill"]["qingshu"] = {}
@@ -754,13 +754,13 @@ class LiJingYiDaoReplayer(HealerReplay):
         self.result["review"]["content"].append(res)
 
         # code 203 不要浪费瞬发次数
-        rate = roundCent(self.instantNum / (shuiyueNum + xqxNum + 1e-10))
+        rate = roundCent(safe_divide(self.instantNum, shuiyueNum + xqxNum))
         res = {"code": 203, "timeShuiyue": shuiyueNum, "timeXqx": xqxNum, "timeCast": self.instantNum, "rate": rate}
         res["status"] = getRateStatus(res["rate"], 75, 0, 0)
         self.result["review"]["content"].append(res)
 
         # code 204 优先瞬发`长针`
-        rate = roundCent(self.instantChangzhenNum / (self.instantNum + 1e-10))
+        rate = roundCent(safe_divide(self.instantChangzhenNum, self.instantNum))
         res = {"code": 204, "timeCast": self.instantNum, "timeChangzhen": self.instantChangzhenNum, "rate": rate}
         res["status"] = getRateStatus(res["rate"], 75, 0, 0)
         self.result["review"]["content"].append(res)
@@ -772,7 +772,7 @@ class LiJingYiDaoReplayer(HealerReplay):
             sum += 1
             if i >= 4:
                 num += 1
-        coverRate = roundCent(num / (sum + 1e-10))
+        coverRate = roundCent(safe_divide(num, sum))
         res = {"code": 205, "time": sum, "coverTime": num, "rate": coverRate}
         res["status"] = getRateStatus(res["rate"], 75, 0, 0)
         self.result["review"]["content"].append(res)
@@ -783,8 +783,8 @@ class LiJingYiDaoReplayer(HealerReplay):
         for i in weichaoEffList:
             sum += 1
             num += i
-        cover = roundCent(num / (sum + 1e-10))
-        rate = roundCent(num / (sum + 1e-10) / 4)
+        cover = roundCent(safe_divide(num, sum))
+        rate = roundCent(safe_divide(num, sum) / 4)
         res = {"code": 206, "cover": cover, "rate": rate}
         res["status"] = getRateStatus(res["rate"], 75, 0, 0)
         self.result["review"]["content"].append(res)

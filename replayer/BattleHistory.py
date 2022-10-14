@@ -244,7 +244,7 @@ class BattleHistory():
     #     #         pass
     #     #     # print(spare, busy, lastTime, record["start"], record["duration"])
     #     # spare += self.finalTime - lastTime
-    #     # efficiency1 = busy / (spare + busy + 1e-10)
+    #     # efficiency1 = safe_divide(busy, spare + busy)
     #     # print("[NongcdEfficiency1]", efficiency1)
     #
     #     intervals = IntervalCounter(self.startTime, self.finalTime)
@@ -264,7 +264,7 @@ class BattleHistory():
     #         sum += line[0] - lastTime
     #         lastStack = line[1]
     #         lastTime = line[0]
-    #     efficiency = busy / (sum + 1e-10)
+    #     efficiency = safe_divide(busy, sum)
     #
     #     return efficiency
 
@@ -290,7 +290,7 @@ class BattleHistory():
         #     else:
         #         pass
         # spare += self.finalTime - lastTime
-        # efficiency1 = busy / (spare + busy + 1e-10)
+        # efficiency1 = safe_divide(busy, spare + busy)
         # print("[Efficiency1]", efficiency1)
 
         intervals = IntervalCounter(self.startTime, self.finalTime)
@@ -321,7 +321,7 @@ class BattleHistory():
             lastStack = line[1]
             lastTime = line[0]
             # print("[busy]", busy, lastStack, lastTime, line)
-        efficiency = busy / (sum + 1e-10)
+        efficiency = safe_divide(busy, sum)
 
         return efficiency
 

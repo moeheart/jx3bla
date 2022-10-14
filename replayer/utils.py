@@ -1,6 +1,8 @@
 # Created by moeheart at 1/24/2021
 # 复盘的常用函数库。
 
+from tools.Functions import *
+
 class DpsShiftWindow():
     '''
     DPS滑动窗口类，用于在战斗记录中识别出停手的时间点，并统计对应的DPS。
@@ -53,7 +55,7 @@ class DpsShiftWindow():
             
         #判断是否出现停手
         self.stopped = 0
-        if self.initialized and self.damageA / (self.damageB + 1e-10) < self.rate:
+        if self.initialized and safe_divide(self.damageA, self.damageB) < self.rate:
             self.stopped = 1
         
         return self.stopped

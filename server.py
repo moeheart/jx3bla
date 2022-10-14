@@ -398,7 +398,7 @@ def Tianwang():
                 elif pot[2] == 0:
                     d["potSum"] += 1
             d["numRecord"] = playerNum[id][line]
-            d["potRate"] = d["potSevere"] / (d["numRecord"] + 1e-10)
+            d["potRate"] = safe_divide(d["potSevere"], d["numRecord"])
             d["comments"] = playerComment[id]
             d["numComments"] = len(d["comments"])
             
@@ -1053,18 +1053,18 @@ def getMultiPlayer():
         sumAverageScore = 0
         for boss in sumScore:
             numBoss += 1
-            avgScore[boss] = roundCent(sumScore[boss] / (numRecord[boss] + 1e-10))
+            avgScore[boss] = roundCent(safe_divide(sumScore[boss], numRecord[boss]))
             sumHighestScore += highestScore[boss]
             sumAverageScore += avgScore[boss]
             resJson["stat"][boss] = {"highest": highestScore[boss], "average": avgScore[boss], "num": numRecord[boss]}
             for stat_item in RANK_ID:
-                rankStat[stat_item][boss]["average"] = rankStat[stat_item][boss]["sum"] / (rankStat[stat_item][boss]["num"] + 1e-10)
+                rankStat[stat_item][boss]["average"] = safe_divide(rankStat[stat_item][boss]["sum"], rankStat[stat_item][boss]["num"])
                 rankStat[stat_item]["overallSum"] += rankStat[stat_item][boss]["average"]
 
-        overallAverageScore = roundCent(sumAverageScore / (numBoss + 1e-10))
-        overallHighestScore = roundCent(sumHighestScore / (numBoss + 1e-10))
+        overallAverageScore = roundCent(safe_divide(sumAverageScore, numBoss))
+        overallHighestScore = roundCent(safe_divide(sumHighestScore, numBoss))
         for stat_item in RANK_ID:
-            rankStat[stat_item]["overallAverage"] += roundCent(rankStat[stat_item]["overallSum"] / (numBoss + 1e-10))
+            rankStat[stat_item]["overallAverage"] += roundCent(safe_divide(rankStat[stat_item]["overallSum"], numBoss))
 
         resJson["stat"]["overall"] = {"highest": overallHighestScore, "average": overallAverageScore, "num": numBoss}
         resJson["rank"] = rankStat
@@ -1129,20 +1129,20 @@ def getSinglePlayer():
     sumAverageScore = 0
     for boss in sumScore:
         numBoss += 1
-        avgScore[boss] = roundCent(sumScore[boss] / (numRecord[boss] + 1e-10))
+        avgScore[boss] = roundCent(safe_divide(sumScore[boss], numRecord[boss]))
         sumHighestScore += highestScore[boss]
         sumAverageScore += avgScore[boss]
         resJson["stat"][boss] = {"highest": highestScore[boss], "average": avgScore[boss], "num": numRecord[boss]}
         for stat_item in RANK_ID:
-            rankStat[stat_item][boss]["average"] = rankStat[stat_item][boss]["sum"] / (rankStat[stat_item][boss]["num"] + 1e-10)
+            rankStat[stat_item][boss]["average"] = safe_divide(rankStat[stat_item][boss]["sum"], rankStat[stat_item][boss]["num"])
             rankStat[stat_item]["overallSum"] += rankStat[stat_item][boss]["average"]
             rankStat[stat_item]["overallMaxSum"] += rankStat[stat_item][boss]["highest"]
 
-    overallAverageScore = roundCent(sumAverageScore / (numBoss + 1e-10))
-    overallHighestScore = roundCent(sumHighestScore / (numBoss + 1e-10))
+    overallAverageScore = roundCent(safe_divide(sumAverageScore, numBoss))
+    overallHighestScore = roundCent(safe_divide(sumHighestScore, numBoss))
     for stat_item in RANK_ID:
-        rankStat[stat_item]["overallAverage"] += roundCent(rankStat[stat_item]["overallSum"] / (numBoss + 1e-10))
-        rankStat[stat_item]["overallMaxAverage"] += roundCent(rankStat[stat_item]["overallMaxSum"] / (numBoss + 1e-10))
+        rankStat[stat_item]["overallAverage"] += roundCent(safe_divide(rankStat[stat_item]["overallSum"], numBoss))
+        rankStat[stat_item]["overallMaxAverage"] += roundCent(safe_divide(rankStat[stat_item]["overallMaxSum"], numBoss))
 
     resJson["stat"]["overall"] = {"highest": overallHighestScore, "average": overallAverageScore, "num": numBoss}
     resJson["rank"] = rankStat

@@ -79,7 +79,7 @@ class HealCastRecorder():
         for skill in self.skill:
             self.sum += self.skill[skill]["sum"]
         for skill in self.skill:
-            self.skill[skill]["percent"] = self.skill[skill]["sum"] / (self.sum + 1e-10)
+            self.skill[skill]["percent"] = safe_divide(self.skill[skill]["sum"], self.sum)
             self.skill[skill]["name"] = self.getSkillName(skill, info)
         self.hps = self.sum / time * 1000
         for skill in self.skill:
@@ -133,7 +133,7 @@ class RHpsRecorder():
         - recorder: HealCastRecorder类的数组.
         '''
         if target in self.records:
-            rate = self.effHps[target] / (self.sumHps[target] + 1e-10)
+            rate = safe_divide(self.effHps[target], self.sumHps[target])
             for line in self.records[target]:
                 if line["caster"] in recorder:
                     recorder[line["caster"]].record(target, line["full_id"], line["heal"] * rate)

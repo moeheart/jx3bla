@@ -714,7 +714,7 @@ class XiangZhiProReplayer(HealerReplay):
                 continue
             time1 = self.shieldCountersNew[key].buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
             timeAll = liveCount
-            rateDict[key] = time1 / (timeAll + 1e-10)
+            rateDict[key] = safe_divide(time1, timeAll)
             breakDict[key] = self.shieldCountersNew[key].countBreak()
 
             shieldHeat = self.shieldCountersNew[key].getHeatTable(500)
@@ -742,7 +742,7 @@ class XiangZhiProReplayer(HealerReplay):
         for key in rateDict:
             numRate += self.battleTimeDict[key]
             sumRate += rateDict[key] * self.battleTimeDict[key]
-        overallRate = sumRate / (numRate + 1e-10)
+        overallRate = safe_divide(sumRate, numRate)
 
         # 计算技能统计
         self.result["overall"]["numPlayer"] = int(self.sumPlayer * 100) / 100
@@ -782,7 +782,7 @@ class XiangZhiProReplayer(HealerReplay):
                 else:
                     for i in range(len(singleHeat["timeline"])):
                         hotHeat[self.teamCluster[key] - 1][i] += singleHeat["timeline"][i]
-        self.result["skill"]["shang"]["cover"] = roundCent(sum / (num + 1e-10))
+        self.result["skill"]["shang"]["cover"] = roundCent(safe_divide(sum, num))
 
         # 角
         self.calculateSkillInfoDirect("jue", jueBuff)
@@ -802,7 +802,7 @@ class XiangZhiProReplayer(HealerReplay):
                 else:
                     for i in range(len(singleHeat["timeline"])):
                         hotHeat[self.teamCluster[key] - 1][i] += singleHeat["timeline"][i]
-        self.result["skill"]["jue"]["cover"] = roundCent(sum / (num + 1e-10))
+        self.result["skill"]["jue"]["cover"] = roundCent(safe_divide(sum, num))
         # 计算HOT统计
         for i in range(len(hotHeat)):
             if i+1 >= len(self.numCluster) or self.numCluster[i+1] == 0:
@@ -864,7 +864,7 @@ class XiangZhiProReplayer(HealerReplay):
             # 非争簇（真的会有人不点争簇？）
             perfectTime = num[2]
             fullTime = num[3]
-        perfectRate = roundCent(perfectTime / (sum + 1e-10), 4)
+        perfectRate = roundCent(safe_divide(perfectTime, sum), 4)
         if self.result["qixue"]["available"] == 1 and self.result["qixue"]["5"] != "谪仙":
             perfectRate = 1
         res = {"code": 103, "time": sum, "perfectTime": perfectTime, "fullTime": fullTime, "rate": perfectRate}
@@ -878,7 +878,7 @@ class XiangZhiProReplayer(HealerReplay):
             sum += 1
             if i >= 4:
                 num += 1
-        coverRate = roundCent(num / (sum + 1e-10))
+        coverRate = roundCent(safe_divide(num, sum))
         res = {"code": 104, "time": sum, "coverTime": num, "rate": coverRate}
         res["status"] = getRateStatus(res["rate"], 75, 0, 0)
         self.result["review"]["content"].append(res)
@@ -886,7 +886,7 @@ class XiangZhiProReplayer(HealerReplay):
         # code 105 使用`移形换影`
         sum = self.skillInfo[self.nonGcdSkillIndex["14082"]][0].getNum()
         num = self.skillInfo[self.nonGcdSkillIndex["15039"]][0].getNum()
-        rate = roundCent(num / (sum + 1e-10))
+        rate = roundCent(safe_divide(num, sum))
         res = {"code": 105, "time": sum, "coverTime": num, "wasteTime": sum - num, "rate": rate}
         res["status"] = getRateStatus(res["rate"], 75, 0, 0)
         self.result["review"]["content"].append(res)
@@ -894,7 +894,7 @@ class XiangZhiProReplayer(HealerReplay):
         # # code 106 使用`角`  (移除这个统计)
         # sum = self.battleTimeDict[self.mykey]
         # num = jueOverallCounter.buffTimeIntegral()
-        # cover = roundCent(num / (sum + 1e-10))
+        # cover = roundCent(safe_divide(num, sum))
         # res = {"code": 106, "cover": cover, "rate": cover}
         # res["status"] = getRateStatus(res["rate"], 50, 0, 0)
         # self.result["review"]["content"].append(res)

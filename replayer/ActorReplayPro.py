@@ -666,7 +666,7 @@ class ActorProReplayer(ReplayerBase):
             sumDPS += line[2]
             numDPS += 1
 
-        averageDPS = sumDPS / (numDPS + 1e-10)
+        averageDPS = safe_divide(sumDPS, numDPS)
 
         # 在DPS过于离谱的BOSS跳过DPS统计
         skipDPS = 0
@@ -701,10 +701,10 @@ class ActorProReplayer(ReplayerBase):
                     occ = str(line[1])
                     if occ not in resultDict:
                         resultDict[occ] = ["xx", "xx", 50000]
-                    GORate = line[2] / (sumDPS + 1e-10) * sumStandardDPS / (resultDict[occ][2] + 1e-10)
+                    GORate = safe_divide(line[2], sumDPS) * safe_divide(sumStandardDPS, resultDict[occ][2])
                     
                     occDPS = resultDict[occ][2]
-                    GODPS = sumDPS / (sumStandardDPS + 1e-10) * occDPS
+                    GODPS = safe_divide(sumDPS, sumStandardDPS) * occDPS
                     DPSDetail = ["实际DPS：%d"%line[2], "心法平均DPS：%d"%occDPS, "团队-心法平均DPS：%d"%GODPS]
                 
                     if GORate < self.qualifiedRate:
