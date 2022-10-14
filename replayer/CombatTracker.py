@@ -435,21 +435,29 @@ class CombatTracker():
 
         # 来源于化解的aps
         absorb = int(event.fullResult.get("9", 0))
-        if absorb > 0 and event.target in self.absorbBuff and not self.excludeStatusHealer:
+        if absorb > 0 and event.target in self.absorbBuff:
             # print("[RawAbsorb]", event.time, event.target, absorb)
+
+            # 根据化解更新血量状态
+            if self.hpStatus[event.target]["status"] == 0:  # 满血状态产生化解
+                self.hpStatus[event.target]["status"] = 3
+                self.hpStatus[event.target]["fullTime"] = event.time
+                self.hpStatus[event.target]["healFull"] = event.time
+
             # 目前只记录一个化解的buff，如果单次击破了某个化解盾导致有两个buff都参与了化解，那么其实无法统计到具体的化解量
-            calcBuff = ["0", "0", 0]
-            for key in self.absorbBuff[event.target]:
-                res = self.absorbBuff[event.target][key]
-                if calcBuff[1] == "0" or "9334" in calcBuff[0] or ("9334" not in key and res[1] > calcBuff[2]):
-                    calcBuff = [key, res[0], res[1]]
-            # TODO 2,2542,1 这种npc来源的buff也可以统计一下，但是现在占比不高先无限期延期吧
-            if calcBuff[1] != "0":
-                # 记录化解
-                self.ahpsCast[calcBuff[1]].record(event.target, "1," + calcBuff[0], absorb)
-                # print("[复盘aHPS]", self.info.getSkillName(calcBuff[0]), event.time, event.target, absorb, calcBuff[0])
-                self.rhpsRecorder.record(calcBuff[1], event.target, absorb, absorb, "1," + calcBuff[0],
-                                         self.hpStatus[event.target]["status"])
+            if not self.excludeStatusHealer:
+                calcBuff = ["0", "0", 0]
+                for key in self.absorbBuff[event.target]:
+                    res = self.absorbBuff[event.target][key]
+                    if calcBuff[1] == "0" or "9334" in calcBuff[0] or ("9334" not in key and res[1] > calcBuff[2]):
+                        calcBuff = [key, res[0], res[1]]
+                # TODO 2,2542,1 这种npc来源的buff也可以统计一下，但是现在占比不高先无限期延期吧
+                if calcBuff[1] != "0":
+                    # 记录化解
+                    self.ahpsCast[calcBuff[1]].record(event.target, "1," + calcBuff[0], absorb)
+                    # print("[复盘aHPS]", self.info.getSkillName(calcBuff[0]), event.time, event.target, absorb, calcBuff[0])
+                    self.rhpsRecorder.record(calcBuff[1], event.target, absorb, absorb, "1," + calcBuff[0],
+                                             self.hpStatus[event.target]["status"])
 
         # 来自于减伤的aps
         sumDamage = event.damage + absorb

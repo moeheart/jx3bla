@@ -504,6 +504,17 @@ class LiJingYiDaoReplayer(HealerReplay):
                     continue
 
                 if event.caster == self.mykey and event.scheme == 1:
+                    if event.id in self.gcdSkillIndex:
+                        pass
+                    elif event.id in self.nonGcdSkillIndex:  # 特殊技能
+                        desc = ""
+                        index = self.nonGcdSkillIndex[event.id]
+                        line = self.skillInfo[index]
+                        self.bh.setSpecialSkill(event.id, line[1], line[3], event.time, 0, desc)
+                        skillObj = line[0]
+                        if skillObj is not None:
+                            skillObj.recordSkill(event.time, event.heal, event.healEff, self.ss.timeEnd, delta=-1)
+
                     # 统计不计入时间轴的治疗量
                     if event.id in ["6112"]:  # 清疏
                         qingshuHeal += event.healEff

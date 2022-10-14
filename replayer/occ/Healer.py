@@ -145,22 +145,21 @@ class HealerReplay(ReplayerBase):
         self.result["review"]["content"].append(res)
 
         # code 12 提高HPS或者虚条HPS
-        hps = 0
-        ohps = 0
-        for record in self.result["healer"]["table"]:
-            if record["name"] == self.result["overall"]["playerID"]:
-                # 当前玩家
-                hps = record["hps"]
-                ohps = record["ohps"]
-        hpsRank = self.result["rank"]["healer"]["hps"]["percent"]
-        ohpsRank = self.result["rank"]["healer"]["ohps"]["percent"]
-        rate = max(hpsRank, ohpsRank)
-        res = {"code": 12, "hps": hps, "ohps": ohps, "hpsRank": hpsRank, "ohpsRank": ohpsRank, "rate": roundCent(rate / 100)}
-        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
-        self.result["review"]["content"].append(res)
+        # hps = 0
+        # ohps = 0
+        # for record in self.result["healer"]["table"]:
+        #     if record["name"] == self.result["overall"]["playerID"]:
+        #         # 当前玩家
+        #         hps = record["hps"]
+        #         ohps = record["ohps"]
+        # hpsRank = self.result["rank"]["healer"]["hps"]["percent"]
+        # ohpsRank = self.result["rank"]["healer"]["ohps"]["percent"]
+        # rate = max(hpsRank, ohpsRank)
+        # res = {"code": 12, "hps": hps, "ohps": ohps, "hpsRank": hpsRank, "ohpsRank": ohpsRank, "rate": roundCent(rate / 100)}
+        # res["status"] = getRateStatus(res["rate"], 75, 50, 25)
+        # self.result["review"]["content"].append(res)
 
         # code 13 使用有cd的技能
-
         scCandidate = []
         for id in self.markedSkill:
             if id in self.nonGcdSkillIndex:
@@ -170,6 +169,17 @@ class HealerReplay(ReplayerBase):
         scCandidate.append(self.yzSkill)
         for line in self.outstandingSkill:
             scCandidate.append(line)
+
+        # code 14 提高rHPS
+        rhps = 0
+        for record in self.result["healer"]["table"]:
+            if record["name"] == self.result["overall"]["playerID"]:
+                # 当前玩家
+                rhps = record["rhps"]
+        rhpsRank = self.result["rank"]["healer"]["rhps"]["percent"]
+        res = {"code": 14, "rhps": rhps, "rhpsRank": rhpsRank, "rate": roundCent(rhpsRank / 100)}
+        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
+        self.result["review"]["content"].append(res)
 
         rateSum = 0
         rateNum = 0
@@ -182,6 +192,9 @@ class HealerReplay(ReplayerBase):
             # if sum < num:
             #     sum = num
             skill = skillObj.name
+            # print(skill, num, sum)
+            # if skill == "春泥护花":
+            #     print(skillObj.log)
             if skill in ["特效腰坠", "百药宣时", "青圃着尘", "余寒映日", "九微飞花", "折叶笼花", "大针"] and num == 0:
                 continue
             rateNum += 1
