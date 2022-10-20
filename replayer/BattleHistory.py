@@ -9,6 +9,14 @@ class BattleHistory():
     技能回放以json的形式存储.
     '''
 
+    def setMainTarget(self, target):
+        '''
+        记录主目标.
+        params:
+        - target: 目标的key
+        '''
+        self.mainTargets[target] = 0
+
     def getJsonReplay(self, key=""):
         '''
         获取json格式的数据.
@@ -359,6 +367,8 @@ class BattleHistory():
         self.badPeriodHealer = IntervalCounter(self.startTime, self.finalTime)
         self.badPeriodDpsLog = []
         self.badPeriodHealerLog = []
+        # 记录主目标
+        self.mainTargets = {}
 
 class SingleSkill():
     '''

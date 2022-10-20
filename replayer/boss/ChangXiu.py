@@ -230,6 +230,7 @@ class ChangXiuReplayer(SpecificReplayerPro):
                 self.firstBattle = 0
                 if event.time - self.startTime > 500 and self.firstBattle:  # 预留500ms的空白时间
                     self.bh.setBadPeriod(self.startTime, event.time - 500, True, True)
+                self.bh.setMainTarget(event.target)
 
         elif event.dataType == "Alert":  # 系统警告框
             pass

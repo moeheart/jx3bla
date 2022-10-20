@@ -206,6 +206,7 @@ class LeQinaReplayer(SpecificReplayerPro):
                 self.firstBattle = 0
                 if event.time - self.startTime > 500 and self.firstBattle:  # 预留500ms的空白时间
                     self.bh.setBadPeriod(self.startTime, event.time - 500, True, True)
+                self.bh.setMainTarget(event.id)
 
         elif event.dataType == "Cast":  # 施放技能事件，jcl专属
             if event.caster in self.bld.info.npc:  # 记录非玩家施放的技能

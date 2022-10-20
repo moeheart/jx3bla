@@ -211,12 +211,14 @@ class ZhouZhiReplayer(SpecificReplayerPro):
 
                     if event.target in self.bld.info.npc:
                         if self.bld.info.npc[event.target].name in ["狼牙精锐"]:
+                            self.bh.setMainTarget(event.target)
                             self.stat[event.caster][7] += event.damageEff
                             if self.phase == 0:
                                 self.phase = 1
                                 self.phaseStart = event.time
                                 self.bh.setBadPeriod(self.startTime, event.time - 1, True, True)
                         elif self.bld.info.npc[event.target].name in ["李秦授"]:
+                            self.bh.setMainTarget(event.target)
                             self.stat[event.caster][8] += event.damageEff
                             if self.phase == 1:
                                 self.phase = 2
@@ -225,6 +227,7 @@ class ZhouZhiReplayer(SpecificReplayerPro):
                         elif self.bld.info.npc[event.target].name in ["狼牙铁骑"]:
                             self.stat[event.caster][9] += event.damageEff
                         elif self.bld.info.npc[event.target].name in ["周贽"]:
+                            self.bh.setMainTarget(event.target)
                             self.stat[event.caster][10] += event.damageEff
                             if self.phase == 2:
                                 self.phase = 3

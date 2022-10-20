@@ -583,8 +583,8 @@ class CombatTracker():
         if event.damageEff > 0 and event.caster in self.ndpsCast and not self.excludeStatusDps:
             self.ndpsCast[event.caster].record(event.target, event.full_id, event.damageEff)
             # print("[DpsRecord]", event.time, event.damageEff)
-        
-        
+            if event.target in self.mainTargets and event.caster in self.mndpsCast:
+                self.mndpsCast[event.caster].record(event.target, event.full_id, event.damageEff)
 
     def __init__(self, info, bh):
         '''
@@ -620,9 +620,13 @@ class CombatTracker():
         self.excludePosHealer = 0
         self.excludeStatusHealer = 0
 
+        # 等效治疗相关
         self.cbyCaster = "0"  # 记录慈悲愿
         self.guHuoTarget = {}  # 记录蛊惑
         self.hanQingTime = {}  # 记录寒清时间
+
+        # dps相关
+        self.mainTargets = bh.mainTargets
 
         for player in info.player:
             # 治疗
