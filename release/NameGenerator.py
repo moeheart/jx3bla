@@ -4,6 +4,8 @@
 import os
 import csv
 
+from tools.Attribute import *
+
 if __name__ == "__main__":
     # 数据准备
     resultDict = {}
@@ -30,9 +32,10 @@ if __name__ == "__main__":
             s = "1,%s,%s"%(row[0], row[1])
             resultDict[s] = row[10]
 
-    # 读取buff是否有化解和减伤属性
+    # 读取buff是否有化解/减伤/各种增益
     absorbDict = {}
     resistDict = {}
+    boostDict = {}
     with open('equip/resources/buff.tab')as f:
 
         f_csv = csv.reader(f, delimiter='\t')
@@ -43,6 +46,7 @@ if __name__ == "__main__":
             s = "2,%s,%s" % (row[0], row[9])
             hasAbsorb = 0
             resistValue = 0
+            boost = {}
             for i in range(27, 82, 3):
                 if i > len(row):
                     break
@@ -52,18 +56,25 @@ if __name__ == "__main__":
                     resistValue = int(float(row[i+1]))
                 if "DamageCoefficient" in row[i] and int(float(row[i+1])) < 0 and row[i+1] != "":
                     resistValue = -int(float(row[i+1]))
+                try:
+                    if row[i] in ATTRIB_TYPE:
+                        boost[row[i]] = int(float(row[i+1]))
+                except:
+                    print(row[i], row[i+1])
             if hasAbsorb:
                 absorbDict[s] = 1
             if resistValue != 0:
                 resistDict[s] = resistValue
-                # print(s)
+            if boost != {}:
+                boostDict[s] = boost
 
     # 输出python文件
     g = open("replayer/Name.py", "w", encoding='utf-8')
     text = """# [Auto-Generated File]
 SKILL_NAME = %s
 ABSORB_DICT = %s
-RESIST_DICT = %s""" % (str(resultDict), str(absorbDict), str(resistDict))
+RESIST_DICT = %s
+BOOST_DICT = %s""" % (str(resultDict), str(absorbDict), str(resistDict), str(boostDict))
     g.write(text)
     g.close()
 

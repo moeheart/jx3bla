@@ -13,7 +13,10 @@ COEFF110 = {
     '闪避': 17355,
     '御劲': 35737.5,
     '御劲减会伤': 9588.75,
-    '化劲': 5175
+    '化劲': 5175,
+    # '攻击': 1,
+    # '治疗': 1,
+    # '破招': 1,
 }
 
 # 120级系数
@@ -28,7 +31,9 @@ COEFF120 = {
     '闪避': 30549.75,
     '御劲': 78622.5,
     '御劲减会伤': 21095.25,
-    '化劲': 11385
+    '化劲': 11385,
+    # '攻击': 1,
+    # '治疗': 1,
 }
 
 # 各种属性词条的实际作用方式，尽量记录全
@@ -112,17 +117,17 @@ ATTRIB_TYPE = {
     "atSurplusValueBase": ["破招", 1, 1, 1, 1, 1, 1, 0],
     # 防御
     "atPhysicsShieldBase": ["防御", 1, 1, 0, 0, 0, 0, 0],
-    "atSolarShieldBase": ["防御", 1, 0, 1, 0, 0, 0, 0],
-    "atLunarShieldBase": ["防御", 1, 0, 0, 1, 0, 0, 0],
-    "atNeutralShieldBase": ["防御", 1, 0, 0, 0, 1, 0, 0],
-    "atPoisonShieldBase": ["防御", 1, 0, 0, 0, 0, 1, 0],
+    "atSolarShieldBase": ["防御", 1, 1, 1, 0, 0, 0, 0],
+    "atLunarShieldBase": ["防御", 1, 1, 0, 1, 0, 0, 0],
+    "atNeutralShieldBase": ["防御", 1, 1, 0, 0, 1, 0, 0],
+    "atPoisonShieldBase": ["防御", 1, 1, 0, 0, 0, 1, 0],
     "atPhysicsShieldAdditional": ["防御", 0, 1, 0, 0, 0, 0, 0],
     "atMagicShield": ["防御", 0, 0, 1, 1, 1, 1, 0],
-    "atPhysicsShieldPercent": ["防御", 0, 1, 0, 0, 0, 0, 0],
-    "atSolarMagicShieldPercent": ["防御", 0, 0, 1, 0, 0, 0, 0],
-    "atLunarMagicShieldPercent": ["防御", 0, 0, 0, 1, 0, 0, 0],
-    "atNeutralMagicShieldPercent": ["防御", 0, 0, 0, 0, 1, 0, 0],
-    "atPoisonMagicShieldPercent": ["防御", 0, 0, 0, 0, 0, 1, 0],
+    "atPhysicsShieldPercent": ["防御%", 0, 1, 0, 0, 0, 0, 1/1024],
+    "atSolarMagicShieldPercent": ["防御%", 0, 0, 1, 0, 0, 0, 1/1024],
+    "atLunarMagicShieldPercent": ["防御%", 0, 0, 0, 1, 0, 0, 1/1024],
+    "atNeutralMagicShieldPercent": ["防御%", 0, 0, 0, 0, 1, 0, 1/1024],
+    "atPoisonMagicShieldPercent": ["防御%", 0, 0, 0, 0, 0, 1, 1/1024],
     # 招架
     "atParryBase": ["招架", 1, 1, 1, 1, 1, 1, 0],
     "atParryBaseRate": ["招架", 0, 1, 1, 1, 1, 1, 0.0001],
@@ -138,5 +143,16 @@ ATTRIB_TYPE = {
     # 化劲
     "atDecriticalDamagePowerBase": ["化劲", 1, 1, 1, 1, 1, 1, 0],
     "atDecriticalDamagePowerPercent": ["化劲", 0, 1, 1, 1, 1, 1, 1/1024],
+
+    #### 不属于属性的增益
+    "atAllDamageAddPercent": ["伤害变化", 0, 1, 1, 1, 1, 1, 1/1024],
+    "atPhysicsDamageCoefficient": ["受伤增加", 0, 1, 0, 0, 0, 0, 1/1024],
+    "atSolarDamageCoefficient": ["受伤增加", 0, 0, 1, 0, 0, 0, 1/1024],
+    "atLunarDamageCoefficient": ["受伤增加", 0, 0, 0, 1, 0, 0, 1/1024],
+    "atNeutralDamageCoefficient": ["受伤增加", 0, 0, 0, 0, 1, 0, 1/1024],
+    "atPoisonDamageCoefficient": ["受伤增加", 0, 0, 0, 0, 0, 1, 1/1024],
+    "atAllShieldIgnorePercent": ["无视防御A", 0, 1, 1, 1, 1, 1, 1/1024],
 }
+
+
 

@@ -1000,9 +1000,15 @@ def getCoefficient(coeff):
     获取对应变量的等级系数.
     '''
     if CHAPTER == 110:
-        return COEFF110[coeff]
+        if coeff in COEFF110:
+            return COEFF110[coeff]
+        else:
+            return 1
     elif CHAPTER == 120:
-        return COEFF120[coeff]
+        if coeff in COEFF120:
+            return COEFF120[coeff]
+        else:
+            return 1
         
 def checkOccDetailBySkill(default, skillID, damage):
     '''

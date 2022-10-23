@@ -842,7 +842,7 @@ class ActorProReplayer(ReplayerBase):
         目前实现了战斗的数值统计.
         '''
 
-        combatTracker = CombatTracker(self.bld.info, self.bh)
+        combatTracker = CombatTracker(self.bld.info, self.bh, self.occDetailList)
 
         for event in self.bld.log:
             if event.time < self.startTime:
