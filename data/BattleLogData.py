@@ -142,7 +142,10 @@ class BattleLogData():
                     if flag:
                         self.info.player[jclItem[5]["1"]].xf = jclItem[5]["4"]
                         self.info.player[jclItem[5]["1"]].equipScore = jclItem[5]["5"]
-                        self.info.player[jclItem[5]["1"]].equip = jclItem[5]["6"]
+                        if "6" in jclItem[5]:
+                            self.info.player[jclItem[5]["1"]].equip = jclItem[5]["6"]
+                        else:
+                            self.info.player[jclItem[5]["1"]].equip = {}
                         if "7" in jclItem[5]:
                             self.info.player[jclItem[5]["1"]].qx = jclItem[5]["7"]
                     playerNameDict[self.info.player[jclItem[5]["1"]].name] = jclItem[5]["1"]

@@ -59,6 +59,7 @@ class GeneralReplayer(SpecificReplayerPro):
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
 
+        self.countFinalOverall()
         self.bh.setEnvironmentInfo(self.bhInfo)
 
     def getResult(self):

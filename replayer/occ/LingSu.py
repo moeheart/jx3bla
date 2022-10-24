@@ -565,6 +565,7 @@ class LingSuReplayer(HealerReplay):
                         if int(event.id) >= 29532 and int(event.id) <= 29537:  # 逐云寒蕊
                             battleStat[event.caster][2] += event.damageEff
                             piaohuangNumDict[event.caster] += 1
+                            # print("[LingsuZyhr]", event.caster, self.bld.info.getName(event.caster), event.damageEff)
                         else:
                             numStack = self.peiwuCounter[event.caster].checkState(event.time)
                             battleStat[event.caster][0] += event.damageEff / (1 + 0.0025 * numStack)

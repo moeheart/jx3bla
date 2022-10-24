@@ -213,69 +213,6 @@ class BattleHistory():
             res["team"] = target
         self.log["normal"].append(res)
 
-    # def getNonGcdEfficiency(self, nonGcdLog):
-    #     '''
-    #     计算考虑非gcd读条技能的战斗效率.
-    #     params:
-    #     - nonGcdLog: 需要考虑的非gcd技能记录，格式为BuffCounter中的log
-    #     returns:
-    #     - res: 战斗效率.
-    #     '''
-    #
-    #     # mergedLog = []
-    #     # for record in self.log["normal"]:
-    #     #     mergedLog.append(record)
-    #     # for i in range(len(nonGcdLog)):
-    #     #     if nonGcdLog[i][1] == 1 and i != len(nonGcdLog) - 1:
-    #     #         mergedLog.append({"start": nonGcdLog[i][0], "duration": nonGcdLog[i+1][0] - nonGcdLog[i][0]})
-    #     # mergedLog.sort(key=lambda x: x["start"])
-    #     #
-    #     # i = 0
-    #     # while i < len(mergedLog) - 1:
-    #     #     if mergedLog[i]["start"] + mergedLog[i]["duration"] > mergedLog[i+1]["start"] + mergedLog[i+1]["duration"]:
-    #     #         del mergedLog[i+1]
-    #     #         i -= 1
-    #     #     i += 1
-    #     #
-    #     # spare = 0
-    #     # busy = 0
-    #     # lastTime = self.startTime
-    #     # for record in mergedLog:
-    #     #     if record["start"] > lastTime:
-    #     #         spare += record["start"] - lastTime
-    #     #         busy += record["duration"]
-    #     #         lastTime = record["start"] + record["duration"]  # 这里暂存了spare的时间
-    #     #     elif record["start"] + record["duration"] > lastTime:
-    #     #         busy += record["duration"]
-    #     #         lastTime = record["start"] + record["duration"]
-    #     #     else:
-    #     #         pass
-    #     #     # print(spare, busy, lastTime, record["start"], record["duration"])
-    #     # spare += self.finalTime - lastTime
-    #     # efficiency1 = safe_divide(busy, spare + busy)
-    #     # print("[NongcdEfficiency1]", efficiency1)
-    #
-    #     intervals = IntervalCounter(self.startTime, self.finalTime)
-    #     for record in self.log["normal"]:
-    #         intervals.recordInterval(record["start"], record["start"] + record["duration"])
-    #     for i in range(len(nonGcdLog)):
-    #         if nonGcdLog[i][1] == 1 and i != len(nonGcdLog) - 1:
-    #             intervals.recordInterval(nonGcdLog[i][0], nonGcdLog[i+1][0])
-    #     intervalResult = intervals.export()
-    #     busy = 0
-    #     sum = 0
-    #     lastStack = 0
-    #     lastTime = self.startTime
-    #     for line in intervalResult:
-    #         if lastStack == 1:
-    #             busy += line[0] - lastTime
-    #         sum += line[0] - lastTime
-    #         lastStack = line[1]
-    #         lastTime = line[0]
-    #     efficiency = safe_divide(busy, sum)
-    #
-    #     return efficiency
-
     def getNormalEfficiency(self, base="healer", nonGcdLog=[]):
         '''
         计算常规技能的战斗效率.
@@ -284,22 +221,6 @@ class BattleHistory():
         - base: 所属的心法. 会影响所使用的无效时间段.
         - nonGcd: 非gcd技能统计. 会以log的形式加入最后的统计中.
         '''
-        # spare = 0
-        # busy = 0
-        # lastTime = self.startTime
-        # for record in self.log["normal"]:
-        #     if record["start"] > lastTime:
-        #         spare += record["start"] - lastTime
-        #         busy += record["duration"]
-        #         lastTime = record["start"] + record["duration"]  # 这里暂存了spare的时间
-        #     elif record["start"] + record["duration"] > lastTime:
-        #         busy += record["duration"]
-        #         lastTime = record["start"] + record["duration"]
-        #     else:
-        #         pass
-        # spare += self.finalTime - lastTime
-        # efficiency1 = safe_divide(busy, spare + busy)
-        # print("[Efficiency1]", efficiency1)
 
         intervals = IntervalCounter(self.startTime, self.finalTime)
         for record in self.log["normal"]:
@@ -330,6 +251,9 @@ class BattleHistory():
             lastTime = line[0]
             # print("[busy]", busy, lastStack, lastTime, line)
         efficiency = safe_divide(busy, sum)
+
+        # print("[BH-efficiency]", busy, sum)
+        # print(targetLog)
 
         return efficiency
 
