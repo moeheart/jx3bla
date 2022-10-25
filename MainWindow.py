@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
 import threading
-from PIL import Image
 import re
 import os
 import time
@@ -11,6 +10,7 @@ import urllib
 import json
 import webbrowser
 
+from GenerateFiles import *
 from FileLookUp import FileLookUp, FileSelector
 from ConfigTools import Config
 from window.ConfigWindow import ConfigWindow
@@ -21,7 +21,6 @@ from window.AllStatWindow import AllStatWindow
 from window.SingleBossWindow import SingleBossWindow
 from Constants import *
 from tools.Functions import *
-from GenerateFiles import *
 from tools.Preload import *
 
 class SingleBlockLocker():
@@ -379,7 +378,7 @@ class MainWindow():
         window.geometry('300x220')
 
         if parseEdition(EDITION) == 0:  # 非联机版本跳过加载步骤
-            res = {"announcement": "", "version": "0.0.0", "url": ""}
+            res = {"announcement": "", "version": "0.0.0", "url": "", "rateEdition": 0}
         else:
             resp = urllib.request.urlopen('http://%s:8009/getAnnouncement' % IP)
             res = json.load(resp)

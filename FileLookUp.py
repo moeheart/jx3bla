@@ -91,6 +91,7 @@ class FileLookUp():
 
         resTime = 0
 
+        resDir = ""
         for name in l:
             path2 = "%s\\%s" % (datapath, name)
             if os.path.isdir(path2):

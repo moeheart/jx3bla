@@ -38,9 +38,9 @@ def getDamageCoeff(occ, attrib, targetBoosts, lvl=114, isPoZhao=0):
         if boost in ATTRIB_TYPE:
             desc = ATTRIB_TYPE[boost]
             if desc[playerType+1] == 1:
-                availableBoostDict[desc[0]] = availableBoostDict.get(desc[0]) + targetBoostsDict[boost]
+                availableBoostDict[desc[0]] = availableBoostDict.get(desc[0], 0) + targetBoostsDict[boost]
 
-    damageAdd2 = 1 + availableBoostDict.get("受伤增加", 0)
+    damageAdd2 = 1 + availableBoostDict.get("受伤增加", 0) / 1024
     shieldBase += availableBoostDict.get("防御", 0)
     shieldBase += shieldBase * availableBoostDict.get("防御%", 0) / 1024
     shieldBase = max(shieldBase, 0)
@@ -140,7 +140,7 @@ class BoostCounter():
                 self.attributeData.setBoosts(boosts)
                 finalAttrib = self.attributeData.getFinalAttrib()
                 for baseBoost in self.targetBoost[target]:
-                    if self.self.targetBoost[target][baseBoost]["source"] == self.playerid:
+                    if self.targetBoost[target][baseBoost]["source"] == self.playerid:
                         continue
                     targetBoosts = []
                     for boost in self.targetBoost[target]:
@@ -202,9 +202,10 @@ class BoostCounter():
         '''
         if targetid not in self.targetBoost:
             self.targetBoost[targetid] = {}
-        del self.targetBoost[targetid][id]
-        if self.targetBoost[targetid] == {}:
-            del self.targetBoost[targetid]
+        elif id in self.targetBoost[targetid]:
+            del self.targetBoost[targetid][id]
+            if self.targetBoost[targetid] == {}:
+                del self.targetBoost[targetid]
         self.calculateCoeff()
 
     def addTargetBoost(self, targetid, id, effect, source, stack):
@@ -224,7 +225,7 @@ class BoostCounter():
         effectCopy = effect.copy()
         self.targetBoost[targetid][id] = {"effect": effectCopy, "source": source}
         for key in self.targetBoost[targetid][id]["effect"]:
-            self.targetBoost[targetid][id][key] *= stack
+            self.targetBoost[targetid][id]["effect"][key] *= stack
         self.calculateCoeff()
 
     def removeBoost(self, id):
@@ -648,14 +649,17 @@ class CombatTracker():
                 self.absorbBuff[event.target][full_id] = [event.caster, event.time]
                 if full_id in self.buffRemove[event.target]:
                     del self.buffRemove[event.target][full_id]
+                    self.updateRemoveTime()
 
                 # print("[GetAbsorbBuff]", event.id, event.time, event.target, event.caster)
             elif full_id in self.absorbBuff[event.target]:
                 # 进行延迟移除
                 if event.id != "9334":
                     self.buffRemove[event.target][full_id] = {"time": event.time + 50}
+                    self.updateRemoveTime()
                 else:  # 盾有更长的黏着时间
                     self.buffRemove[event.target][full_id] = {"time": event.time + 500}
+                    self.updateRemoveTime()
                 # del self.absorbBuff[event.target][full_id]
                 # print("[DelAbsorbBuff]", event.id, event.time, event.target, event.caster)
 
@@ -676,6 +680,7 @@ class CombatTracker():
             elif full_id in self.resistBuff[event.target]:
                 # 进行延迟移除
                 self.buffRemove[event.target][full_id] = {"time": event.time + 50}
+                self.updateRemoveTime()
             # if event.id == "9336":
             #     print("[Buff9336]", event.time, event.id, event.stack)
 
@@ -702,6 +707,20 @@ class CombatTracker():
             else:
                 self.boostCounter[event.target].removeBoost(effect_id)
 
+    def updateRemoveTime(self):
+        '''
+        更新最近的移除时间，一般在移除事项变化时调用.
+        '''
+        earliestTime = 9999999999
+        for target in self.buffRemove:
+            for id in self.buffRemove[target]:
+                if self.buffRemove[target][id]["time"] <= earliestTime:
+                    earliestTime = self.buffRemove[target][id]["time"]
+        for boost in self.boostRemove:
+            if self.boostRemove[boost]["time"] <= earliestTime:
+                earliestTime = self.boostRemove[boost]["time"]
+        self.removeTime = earliestTime
+
     def checkRemoveBuff(self, time, target):
         '''
         在事件开始前将待移除列表的buff尝试移除的方法.
@@ -709,6 +728,8 @@ class CombatTracker():
         - time: 本次事件的时间.
         - target: 目标玩家.
         '''
+        if time < self.removeTime:
+            return
 
         if target in self.buffRemove:
             toRemove = []
@@ -722,7 +743,18 @@ class CombatTracker():
                 if id in self.resistBuff[target]:
                     del self.resistBuff[target][id]
                 del self.buffRemove[target][id]
+                self.updateRemoveTime()
 
+        toRemove = []
+        for boost in self.boostRemove:
+            if self.boostRemove[boost]["time"] <= time:
+                # 执行移除
+                for player in self.boostCounter:
+                    self.boostCounter[player].removeTargetBoost(self.boostRemove[boost]["target"], boost)
+                toRemove.append(boost)
+        for boost in toRemove:
+            del self.boostRemove[boost]
+            self.updateRemoveTime()
 
     def recordSkill(self, event):
         '''
@@ -894,6 +926,15 @@ class CombatTracker():
         # 记录蛊惑
         if event.id in ["2231"]:  # 蛊惑众生
             self.guHuoTarget[event.caster] = event.target
+
+        # 记录主动增益技能
+        if event.id in ["3980"]:
+            for player in self.boostCounter:
+                effect_id = "2,4058,1"
+                boostValue = BOOST_DICT[effect_id]
+                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, event.caster, 1)
+                self.boostRemove[effect_id] = {"time": event.time + 15000, "target": event.target}
+                self.updateRemoveTime()
             
         # 记录DPS
         if event.damageEff > 0 and event.caster in self.ndpsCast and not self.excludeStatusDps:
@@ -945,6 +986,8 @@ class CombatTracker():
         self.buffRemove = {}  # buff延迟删除
         self.rhpsRecorder = RHpsRecorder(info)
         self.hpStatus = {}
+        self.boostRemove = {}
+        self.removeTime = 9999999999  # 下一次移除事件的时间
         
         self.ndpsCast = {}
         self.rdpsCast = {}
