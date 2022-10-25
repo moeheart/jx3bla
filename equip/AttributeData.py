@@ -2,6 +2,7 @@
 # 属性数据类.
 
 from tools.Functions import *
+import time
 
 OCC_ATTRIB = {
     '2h': {'类型': 4, '主属性': '根骨', '治疗': 1.65, '会心': 0.41},  # 奶花
@@ -21,7 +22,7 @@ def getExtraAttrib(occ, attrib):
     returns:
     - res: 计算结果.
     '''
-    attribDict = {'类型': 2, '主属性': '元气', '攻击': 1.95, '破防': 0.19}
+    attribDict = {'类型': 1, '主属性': '元气', '攻击': 1.95, '破防': 0.19}
     if occ in OCC_ATTRIB:
         attribDict = OCC_ATTRIB[occ]
     res = {}
@@ -50,7 +51,7 @@ class AttributeData():
         res = {}
         for attrib in self.baseAttrib:
             res[attrib] = self.baseAttrib[attrib]
-        attribDict = {'类型': 2, '主属性': '元气', '攻击': 1.95, '破防': 0.19}
+        attribDict = {'类型': 1, '主属性': '元气', '攻击': 1.95, '破防': 0.19}
         if self.occ in OCC_ATTRIB:
             attribDict = OCC_ATTRIB[self.occ]
         # 计算增益
@@ -89,6 +90,7 @@ class AttributeData():
         mainAttribExtra = getExtraAttrib(self.occ, res)
         for attrib in mainAttribExtra:
             res[attrib] += mainAttribExtra[attrib] / getCoefficient(attrib)
+
         return res
 
     def setBoosts(self, boosts):
