@@ -41,7 +41,7 @@ class AttributeData():
 
     def getFinalAttrib(self):
         '''
-        获取最终属性.
+        根据增益列表，从零开始计算最终属性.
         returns:
         - res: 最终属性列表.
         '''
@@ -68,7 +68,11 @@ class AttributeData():
                 affectedAttrib = boostDetail[0]
                 if affectedAttrib not in res:
                     res[affectedAttrib] = 0
-                res[affectedAttrib] += boost[key] / getCoefficient(affectedAttrib)
+                if boostDetail[7] == 0:
+                    res[affectedAttrib] += boost[key] / getCoefficient(affectedAttrib)
+                else:
+                    res[affectedAttrib] += boost[key] * boostDetail[7]
+        self.baseAttribute = res.copy()
         # 第二次扫描非基础值
         extra = {}
         for boost in self.boosts:
@@ -83,14 +87,121 @@ class AttributeData():
                     extra[affectedAttrib] = 0
                 # print("[Extra]", key, boost, res.get(affectedAttrib, 0), affectedAttrib)
                 extra[affectedAttrib] += boost[key] * boostDetail[7] * res.get(affectedAttrib, 0)
+        self.extraAttribute = extra.copy()
         for key in extra:
             res[key] = res.get(key, 0) + extra[key]
-
         # 计算主属性加成
         mainAttribExtra = getExtraAttrib(self.occ, res)
         for attrib in mainAttribExtra:
             res[attrib] += mainAttribExtra[attrib] / getCoefficient(attrib)
+        return res
 
+    def addBoostAndGetAttrib(self, boost):
+        '''
+        根据当前暂存的属性结果, 计算添加某个增益之后的属性.
+        params:
+        - boost: 待添加的增益.
+        '''
+        attribDict = {'类型': 1, '主属性': '元气', '攻击': 1.95, '破防': 0.19}
+        if self.occ in OCC_ATTRIB:
+            attribDict = OCC_ATTRIB[self.occ]
+        # 计算增益
+        playerType = attribDict["类型"]
+
+        # 第一次扫描基础值
+        for key in boost:
+            boostDetail = ATTRIB_TYPE[key]
+            if boostDetail[playerType + 1] == 0:
+                continue
+            if boostDetail[1] == 0:
+                continue
+            affectedAttrib = boostDetail[0]
+            if affectedAttrib not in self.baseAttribute:
+                self.baseAttribute[affectedAttrib] = 0
+            if affectedAttrib not in self.extraAttribute:
+                self.extraAttribute[affectedAttrib] = 0
+            prev = self.baseAttribute[affectedAttrib]
+            #self.baseAttribute[affectedAttrib] += boost[key] / getCoefficient(affectedAttrib)
+            if boostDetail[7] == 0:
+                self.baseAttribute[affectedAttrib] += boost[key] / getCoefficient(affectedAttrib)
+            else:
+                self.baseAttribute[affectedAttrib] += boost[key] * boostDetail[7]
+            self.extraAttribute[affectedAttrib] = safe_divide(self.extraAttribute[affectedAttrib] * self.baseAttribute[affectedAttrib], prev)
+        # 第二次扫描非基础值
+        for key in boost:
+            boostDetail = ATTRIB_TYPE[key]
+            if boostDetail[playerType+1] == 0:
+                continue
+            if boostDetail[1] == 1:
+                continue
+            affectedAttrib = boostDetail[0]
+            if affectedAttrib not in self.baseAttribute:
+                self.baseAttribute[affectedAttrib] = 0
+            if affectedAttrib not in self.extraAttribute:
+                self.extraAttribute[affectedAttrib] = 0
+            self.extraAttribute[affectedAttrib] += boost[key] * boostDetail[7] * self.baseAttribute.get(affectedAttrib, 0)
+        # 计算最终结果
+        res = self.baseAttribute.copy()
+        for key in self.extraAttribute:
+            res[key] = res.get(key, 0) + self.extraAttribute[key]
+        # 计算主属性加成
+        mainAttribExtra = getExtraAttrib(self.occ, res)
+        for attrib in mainAttribExtra:
+            res[attrib] += mainAttribExtra[attrib] / getCoefficient(attrib)
+        return res
+
+    def removeBoostAndGetAttrib(self, boost):
+        '''
+        根据当前暂存的属性结果, 计算移除某个增益之后的属性.
+        params:
+        - boost: 待添加的增益.
+        '''
+        attribDict = {'类型': 1, '主属性': '元气', '攻击': 1.95, '破防': 0.19}
+        if self.occ in OCC_ATTRIB:
+            attribDict = OCC_ATTRIB[self.occ]
+        # 计算增益
+        playerType = attribDict["类型"]
+
+        # 第二次扫描非基础值
+        for key in boost:
+            boostDetail = ATTRIB_TYPE[key]
+            if boostDetail[playerType+1] == 0:
+                continue
+            if boostDetail[1] == 1:
+                continue
+            affectedAttrib = boostDetail[0]
+            if affectedAttrib not in self.baseAttribute:
+                self.baseAttribute[affectedAttrib] = 0
+            if affectedAttrib not in self.extraAttribute:
+                self.extraAttribute[affectedAttrib] = 0
+            self.extraAttribute[affectedAttrib] -= boost[key] * boostDetail[7] * self.baseAttribute.get(affectedAttrib, 0)
+        # 第一次扫描基础值
+        for key in boost:
+            boostDetail = ATTRIB_TYPE[key]
+            if boostDetail[playerType + 1] == 0:
+                continue
+            if boostDetail[1] == 0:
+                continue
+            affectedAttrib = boostDetail[0]
+            if affectedAttrib not in self.baseAttribute:
+                self.baseAttribute[affectedAttrib] = 0
+            if affectedAttrib not in self.extraAttribute:
+                self.extraAttribute[affectedAttrib] = 0
+            prev = self.baseAttribute[affectedAttrib]
+            #self.baseAttribute[affectedAttrib] -= boost[key] / getCoefficient(affectedAttrib)
+            if boostDetail[7] == 0:
+                self.baseAttribute[affectedAttrib] -= boost[key] / getCoefficient(affectedAttrib)
+            else:
+                self.baseAttribute[affectedAttrib] -= boost[key] * boostDetail[7]
+            self.extraAttribute[affectedAttrib] = safe_divide(self.extraAttribute[affectedAttrib] * self.baseAttribute[affectedAttrib], prev)
+        # 计算最终结果
+        res = self.baseAttribute.copy()
+        for key in self.extraAttribute:
+            res[key] = res.get(key, 0) + self.extraAttribute[key]
+        # 计算主属性加成
+        mainAttribExtra = getExtraAttrib(self.occ, res)
+        for attrib in mainAttribExtra:
+            res[attrib] += mainAttribExtra[attrib] / getCoefficient(attrib)
         return res
 
     def setBoosts(self, boosts):
@@ -136,6 +247,9 @@ class AttributeData():
             '无视防御A': 0,
         }
         self.occ = occ
+
+        self.baseAttribute = {}  # 基础属性
+        self.extraAttribute = {}  # 额外属性
 
 if __name__ == "__main__":
     pass
