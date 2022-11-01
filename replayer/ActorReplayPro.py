@@ -40,6 +40,7 @@ from replayer.occ.YunChangXinJing import YunChangXinJingReplayer
 from replayer.occ.BuTianJue import BuTianJueReplayer
 
 from replayer.CombatTracker import CombatTracker
+from replayer.ZhenyanRecord import ZhenyanRecord
 
 def addSkillOrder(s, prevS):
     if prevS == "" or prevS[-1] != s:
@@ -388,9 +389,14 @@ class ActorProReplayer(ReplayerBase):
             if self.bld.info.npc[key].templateID in ["105143", "105308", "105309", "105310", "105311", "105312"]:
                 print(self.bld.info.npc[key].templateID, self.bld.info.npc[key].name, self.bld.info.npc[key].x, self.bld.info.npc[key].y, self.bld.info.npc[key].z)
 
-        ycfx = {}
-        for line in self.bld.info.player:
-            ycfx[line] = {"name": self.bld.info.player[line].name, "log": [], "sumStack": 0, "sumCollect": 0, "nowStack": 0, "nowTime": 0}
+        # 阵眼记录
+        self.zhenyanInfer = {}
+        zhenyanSymbol = {}
+        for player in self.bld.info.player:
+            self.zhenyanInfer[player] = ZhenyanRecord(self.startTime, self.finalTime)
+        for baseid in ZHENYAN_DICT:
+            for symbolid in ZHENYAN_DICT[baseid][2]:
+                zhenyanSymbol[symbolid] = baseid
 
         for event in self.bld.log:
 
@@ -530,6 +536,18 @@ class ActorProReplayer(ReplayerBase):
                     if len(deathHitDetail[event.target]) >= 20:
                         del deathHitDetail[event.target][0]
                     deathHitDetail[event.target].append([event.time, "禅语消失", 0, event.caster, -1, 0, 0])
+
+                # 推测阵眼。
+                if event.target in self.zhenyanInfer and event.stack == 1:
+                    if event.id in zhenyanSymbol:
+                        # 获取到小队阵眼记录. 推测这里附近都是这个阵眼.
+                        self.zhenyanInfer[event.target].recordPresent(event.time, zhenyanSymbol[event.id])
+                if event.target in ZHENYAN_DICT:
+                    # 阵眼本身的获得与消失.
+                    if event.stack == 1:
+                        self.zhenyanInfer[event.target].recordPost(event.time, zhenyanSymbol[event.id])
+                    else:
+                        self.zhenyanInfer[event.target].recordPrev(event.time, zhenyanSymbol[event.id])
 
             elif event.dataType == "Death":  # 重伤记录
                 

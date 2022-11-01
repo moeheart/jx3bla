@@ -33,7 +33,7 @@ def getDamageCoeff(occ, attrib, targetBoosts, lvl=114, isPoZhao=0):
     crit = 1 + min(attrib.get("会心", 0), 1) * min(attrib.get("会心效果", 0), 3)
     over = 1 + attrib.get("破防", 0)
     strain = 1 + attrib.get("无双", 0)
-    damageAdd1 = 1 + attrib.get("伤害变化", 0)
+    damageAdd1 = 1 + attrib.get("伤害变化", 0) / 1024
     targetBoostsDict = {}
     for boost in targetBoosts:
         for key in boost:
