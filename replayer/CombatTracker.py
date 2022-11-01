@@ -55,7 +55,7 @@ def getDamageCoeff(occ, attrib, targetBoosts, lvl=114, isPoZhao=0):
     shieldBase += availableBoostDict.get("防御", 0)
     shieldBase += shieldBase * availableBoostDict.get("防御%", 0) / 1024
     shieldBase = max(shieldBase, 0)
-    shieldBase -= shieldBase * availableBoostDict.get("无视防御A", 0) / 1024
+    shieldBase -= shieldBase * attrib.get("无视防御A", 0) / 1024
     shieldRate = 1 - min(shieldBase / (shieldBase + shieldParam), 0.75)
 
     endTime = time.time()
@@ -69,158 +69,125 @@ class BoostCounter():
     统计增益，计算增益的来源的贡献占比.
     '''
 
-    def calculateCoeff(self):
+    def calculateCoeff(self, target, skill):
         '''
         重新计算所有的增益系数. 一般在buff变动的时候进行计算.
+        params:
+        - target: 需要计算的目标.
+        - skill: 需要计算的技能.
         '''
 
-        global SUM1, SUM2, SUM3, SUM4, SUM5
-        startTime = time.time()
+        isPoZhao = 0
+        if skill == "破招":
+            isPoZhao = 1
 
-        # 对每个目标分别计算
-        for target in self.targetBoost:
-            self.rdpsRate[target] = {"all": {}}
+        if target not in self.rdpsRate:
+            self.rdpsRate[target] = {}
+        self.rdpsRate[target][skill] = {}
+        rdpsSeparateRate = {}
 
-            # 对每个技能分别计算
-            for skill in ["all", "相知玉简", "逐云寒蕊", "破招"]:   # 后续优化成“需要什么算什么”
-                start2 = time.time()
+        # 计算仅自身增益的伤害
+        boosts = []
+        for boost in self.boost:
+            if self.boost[boost]["source"] == self.playerid:
+                boosts.append(self.boost[boost]["effect"])
+        self.attributeData.setBoosts(boosts)
+        finalAttrib = self.attributeData.getFinalAttrib()
+        targetBoosts = []
+        for boost in self.targetBoost[target]:
+            if self.targetBoost[target][boost]["source"] == self.playerid:
+                targetBoosts.append(self.targetBoost[target][boost]["effect"])
+        coeffSelf = getDamageCoeff(self.occ, finalAttrib, targetBoosts, isPoZhao=isPoZhao)
 
-                isPoZhao = 0
-                if skill == "破招":
-                    isPoZhao = 1
-                self.rdpsRate[target][skill] = {}
-                rdpsSeparateRate = {}
+        sumCoeff = 0
 
-                # 计算仅自身增益的伤害
-                boosts = []
-                for boost in self.boost:
-                    if self.boost[boost]["source"] == self.playerid:
-                        boosts.append(self.boost[boost]["effect"])
-                self.attributeData.setBoosts(boosts)
-                finalAttrib = self.attributeData.getFinalAttrib()
-                targetBoosts = []
-                for boost in self.targetBoost[target]:
-                    if self.targetBoost[target][boost]["source"] == self.playerid:
-                        targetBoosts.append(self.targetBoost[target][boost]["effect"])
-                coeffSelf = getDamageCoeff(self.occ, finalAttrib, targetBoosts, isPoZhao=isPoZhao)
+        # 计算全增益的伤害
+        boosts = []
+        for boost in self.boost:
+            boosts.append(self.boost[boost]["effect"])
+        self.attributeData.setBoosts(boosts)
+        # print("[Boosts]", boosts)
+        finalAttrib = self.attributeData.getFinalAttrib()
+        targetBoosts = []
+        for boost in self.targetBoost[target]:
+            targetBoosts.append(self.targetBoost[target][boost]["effect"])
+        coeffAll = getDamageCoeff(self.occ, finalAttrib, targetBoosts, isPoZhao=isPoZhao)
 
-                sumCoeff = 0
+        self.attributeData2.setBoosts(boosts)
+        self.attributeData2.getFinalAttrib()
 
-                start3 = time.time()
+        # 计算特殊情况，转移全部来源.
+        if skill == "相知玉简" and self.mhsn != "0":
+            coeffSelf = 0
+            baseBoost = "1,21827,1"
+            rdpsSeparateRate[baseBoost] = {"source": self.mhsn,
+                                           "amount": coeffAll}
+            sumCoeff += rdpsSeparateRate[baseBoost]["amount"]
+        if skill == "逐云寒蕊" and self.zyhr != "0":
+            coeffSelf = 0
+            baseBoost = "1,29532,1"
+            rdpsSeparateRate[baseBoost] = {"source": self.zyhr,
+                                           "amount": coeffAll}
+            sumCoeff += rdpsSeparateRate[baseBoost]["amount"]
 
-                # 计算全增益的伤害
-                boosts = []
-                for boost in self.boost:
+        # 计算排除某个增益的伤害，并记录
+        targetBoosts = []
+        for boost in self.targetBoost[target]:
+            targetBoosts.append(self.targetBoost[target][boost]["effect"])
+        for baseBoost in self.boost:
+            if self.boost[baseBoost]["source"] == self.playerid:
+                continue
+            boosts = []
+            for boost in self.boost:
+                if boost != baseBoost:
                     boosts.append(self.boost[boost]["effect"])
-                self.attributeData.setBoosts(boosts)
-                # print("[Boosts]", boosts)
-                finalAttrib = self.attributeData.getFinalAttrib()
-                targetBoosts = []
-                for boost in self.targetBoost[target]:
+            self.attributeData.setBoosts(boosts)
+            finalAttrib = self.attributeData.getFinalAttrib()
+            coeffSpecific = getDamageCoeff(self.occ, finalAttrib, targetBoosts, isPoZhao=isPoZhao)
+
+            finalAttrib2 = self.attributeData2.removeBoostAndGetAttrib(self.boost[baseBoost]["effect"])
+            self.attributeData2.addBoostAndGetAttrib(self.boost[baseBoost]["effect"])
+            coeffSpecific2 = getDamageCoeff(self.occ, finalAttrib2, targetBoosts, isPoZhao=isPoZhao)
+
+            # print("[Test]", self.boost[baseBoost])
+
+            diff = coeffSpecific - coeffSpecific2
+            if abs(diff) > 1e-5:
+                print("[DifferentA]", coeffSpecific, coeffSpecific2)
+                print(finalAttrib)
+                print(finalAttrib2)
+
+            rdpsSeparateRate[baseBoost] = {"source": self.boost[baseBoost]["source"],
+                                           "amount": coeffAll - coeffSpecific}
+            sumCoeff += rdpsSeparateRate[baseBoost]["amount"]
+
+        # 计算排除某个目标增益的伤害，并记录
+        boosts = []
+        for boost in self.boost:
+            boosts.append(self.boost[boost]["effect"])
+        self.attributeData.setBoosts(boosts)
+        finalAttrib = self.attributeData.getFinalAttrib()
+        for baseBoost in self.targetBoost[target]:
+            if self.targetBoost[target][baseBoost]["source"] == self.playerid:
+                continue
+            targetBoosts = []
+            for boost in self.targetBoost[target]:
+                if boost != baseBoost:
                     targetBoosts.append(self.targetBoost[target][boost]["effect"])
-                coeffAll = getDamageCoeff(self.occ, finalAttrib, targetBoosts, isPoZhao=isPoZhao)
+            coeffSpecific = getDamageCoeff(self.occ, finalAttrib, targetBoosts, isPoZhao=isPoZhao)
 
-                self.attributeData2.setBoosts(boosts)
-                self.attributeData2.getFinalAttrib()
+            rdpsSeparateRate[baseBoost] = {"source": self.targetBoost[target][baseBoost]["source"],
+                                           "amount": coeffAll - coeffSpecific}
+            sumCoeff += rdpsSeparateRate[baseBoost]["amount"]
 
-                # 计算特殊情况，转移全部来源.
-                if skill == "相知玉简" and self.mhsn != "0":
-                    coeffSelf = 0
-                    baseBoost = "1,21827,1"
-                    rdpsSeparateRate[baseBoost] = {"source": self.mhsn,
-                                                   "amount": coeffAll}
-                    sumCoeff += rdpsSeparateRate[baseBoost]["amount"]
-                if skill == "逐云寒蕊" and self.zyhr != "0":
-                    coeffSelf = 0
-                    baseBoost = "1,29532,1"
-                    rdpsSeparateRate[baseBoost] = {"source": self.zyhr,
-                                                   "amount": coeffAll}
-                    sumCoeff += rdpsSeparateRate[baseBoost]["amount"]
-
-                start4 = time.time()
-
-                # print("=====================")
-
-                # 计算排除某个增益的伤害，并记录
-                targetBoosts = []
-                for boost in self.targetBoost[target]:
-                    targetBoosts.append(self.targetBoost[target][boost]["effect"])
-                for baseBoost in self.boost:
-                    if self.boost[baseBoost]["source"] == self.playerid:
-                        continue
-                    boosts = []
-                    for boost in self.boost:
-                        if boost != baseBoost:
-                            boosts.append(self.boost[boost]["effect"])
-                    self.attributeData.setBoosts(boosts)
-                    finalAttrib = self.attributeData.getFinalAttrib()
-                    coeffSpecific = getDamageCoeff(self.occ, finalAttrib, targetBoosts, isPoZhao=isPoZhao)
-
-                    finalAttrib2 = self.attributeData2.removeBoostAndGetAttrib(self.boost[baseBoost]["effect"])
-                    self.attributeData2.addBoostAndGetAttrib(self.boost[baseBoost]["effect"])
-                    coeffSpecific2 = getDamageCoeff(self.occ, finalAttrib2, targetBoosts, isPoZhao=isPoZhao)
-
-                    # print("[Test]", self.boost[baseBoost])
-
-                    diff = coeffSpecific - coeffSpecific2
-                    if abs(diff) > 1e-5:
-                        print("[DifferentA]", coeffSpecific, coeffSpecific2)
-                        print(finalAttrib)
-                        print(finalAttrib2)
-
-                    rdpsSeparateRate[baseBoost] = {"source": self.boost[baseBoost]["source"],
-                                                   "amount": coeffAll - coeffSpecific}
-                    sumCoeff += rdpsSeparateRate[baseBoost]["amount"]
-
-                start5 = time.time()
-
-                # 计算排除某个目标增益的伤害，并记录
-                boosts = []
-                for boost in self.boost:
-                    boosts.append(self.boost[boost]["effect"])
-                self.attributeData.setBoosts(boosts)
-                finalAttrib = self.attributeData.getFinalAttrib()
-                for baseBoost in self.targetBoost[target]:
-                    if self.targetBoost[target][baseBoost]["source"] == self.playerid:
-                        continue
-                    targetBoosts = []
-                    for boost in self.targetBoost[target]:
-                        if boost != baseBoost:
-                            targetBoosts.append(self.targetBoost[target][boost]["effect"])
-                    coeffSpecific = getDamageCoeff(self.occ, finalAttrib, targetBoosts, isPoZhao=isPoZhao)
-
-                    rdpsSeparateRate[baseBoost] = {"source": self.targetBoost[target][baseBoost]["source"],
-                                                   "amount": coeffAll - coeffSpecific}
-                    sumCoeff += rdpsSeparateRate[baseBoost]["amount"]
-
-                start6 = time.time()
-
-                # 计算结果
-                for boost in rdpsSeparateRate:
-                    rate = safe_divide(rdpsSeparateRate[boost]["amount"], sumCoeff) * safe_divide(coeffAll - coeffSelf, coeffAll)
-                    if rate > 0:
-                        self.rdpsRate[target][skill][boost] = {"source": rdpsSeparateRate[boost]["source"],
-                                                               "rate": rate}
-                self.rdpsRate[target][skill]["self"] = {"source": self.playerid,
-                                                        "rate": safe_divide(coeffSelf, coeffAll)}
-
-                SUM2 += start3 -start2
-                SUM3 += start4 - start3
-                SUM4 += start5 - start4
-                SUM5 += start6 - start5
-
-                # print("[rdpsRate]", coeffSelf, coeffAll)
-                # if abs(calFlag - 1) > 0.01:
-                #     print("[rdpsRate]", coeffSelf, coeffAll)
-                #     print(self.rdpsRate[target]["all"])
-                #     for boost in rdpsSeparateRate:
-                #         print(boost, rdpsSeparateRate[boost]["amount"])
-                #     exit(0)
-
-        endTime = time.time()
-        global SUM_TIME
-        SUM_TIME += endTime - startTime
-        # print("[CalculCoeff]", endTime - startTime, SUM_TIME)
+        # 计算结果
+        for boost in rdpsSeparateRate:
+            rate = safe_divide(rdpsSeparateRate[boost]["amount"], sumCoeff) * safe_divide(coeffAll - coeffSelf, coeffAll)
+            if rate > 0:
+                self.rdpsRate[target][skill][boost] = {"source": rdpsSeparateRate[boost]["source"],
+                                                       "rate": rate}
+        self.rdpsRate[target][skill]["self"] = {"source": self.playerid,
+                                                "rate": safe_divide(coeffSelf, coeffAll)}
 
 
     def getRate(self, target, skill, skillName):
@@ -232,28 +199,45 @@ class BoostCounter():
         - skillName: 技能名.
         '''
 
-        if self.needUpdate:
-            self.calculateCoeff()
-            self.needUpdate = 0
-
-        if target not in self.rdpsRate:
+        if target not in self.targetBoost:
             target = "all"
         if skillName in ["逐云寒蕊"]:
             skill = "逐云寒蕊"
         elif skillName in ["相知·玉简"]:
             skill = "相知玉简"
-        # elif skill in ["1,24836,1", "1,24837,1", "1,25682,1", "1,25683,1", "1,25684,1", "1,25685,1", "1,25686,1", "1,25687,1", "1,25714,1",
-        #                "1,32467,1", "1,32738,1", "1,32738,2", "1,32738,3", "1,32745,1", "1,32813,1", "1,32814,1", "1,32815,1", "1,32816,1",
-        #                "1,32818,1", "1,32820,1", "1,32821,1", "1,32822,1", "1,32823,1", "1,32841,1", "1,32884,1", "1,32885,1", "1,32886,1",
-        #                "1,32887,1", "1,32889,1", "1,32908,1", "1,32957,1", "1,33146,1"]:
         elif skillName in ["破", "破·虚空"]:
             skill = "破招"
-        if skill not in self.rdpsRate[target]:
+        else:
             skill = "all"
-        # if skill == "逐云寒蕊":
-        #     print("[zyhr]", self.rdpsRate[target][skill], target)
+
+        reCalFlag = False
+        if target not in self.rdpsRate or skill not in self.rdpsRate[target]:
+            reCalFlag = True
+        if target not in self.needUpdate or skill not in self.needUpdate[target] or self.needUpdate[target][skill]:
+            reCalFlag = True
+        if reCalFlag:
+            self.calculateCoeff(target, skill)
+            if target not in self.needUpdate:
+                self.needUpdate[target] = {}
+            self.needUpdate[target][skill] = False
 
         return self.rdpsRate[target][skill]
+
+    def SetUpdateFlag(self, target="all"):
+        '''
+        设定所有数值为需要更新的状态. 通常在增益变化时调用.
+        params:
+        - target: 增益变化的目标. 为"all"时影响所有目标.
+        '''
+
+        if target == "all":
+            for targetid in self.rdpsRate:
+                for skill in self.rdpsRate[targetid]:
+                    self.needUpdate[targetid][skill] = True
+        else:
+            if target in self.rdpsRate:
+                for skill in self.rdpsRate[target]:
+                    self.needUpdate[target][skill] = True
 
     def removeTargetBoost(self, targetid, id):
         '''
@@ -268,7 +252,7 @@ class BoostCounter():
             del self.targetBoost[targetid][id]
             if self.targetBoost[targetid] == {}:
                 del self.targetBoost[targetid]
-            self.needUpdate = 1
+            self.SetUpdateFlag(targetid)
 
     def addTargetBoost(self, targetid, id, effect, source, stack):
         '''
@@ -290,7 +274,7 @@ class BoostCounter():
             tmp["effect"][key] *= stack
         if id not in self.targetBoost[targetid] or tmp != self.targetBoost[targetid][id]:
             self.targetBoost[targetid][id] = tmp
-            self.needUpdate = 1
+            self.SetUpdateFlag(targetid)
 
     def removeBoost(self, id):
         '''
@@ -300,7 +284,7 @@ class BoostCounter():
         '''
         if id in self.boost:
             del self.boost[id]
-            self.needUpdate = 1
+            self.SetUpdateFlag()
 
     def addBoost(self, id, effect, source, stack):
         '''
@@ -311,17 +295,13 @@ class BoostCounter():
         - source: 增益来源.
         - stack: buff层数.
         '''
-        # print("[AddBoost]", id, effect, source, stack)
-        # print("[check]", BOOST_DICT["2,409,21"])
-        # if source == "0":
-        #     source = self.playerid
         effectCopy = effect.copy()
         tmp = {"effect": effectCopy, "source": source}
         for key in tmp["effect"]:
             tmp["effect"][key] *= stack
         if id not in self.boost or tmp != self.boost[id]:
             self.boost[id] = tmp
-            self.needUpdate = 1
+            self.SetUpdateFlag()
 
     def setSpecificSkill(self, name, source):
         '''
@@ -355,8 +335,7 @@ class BoostCounter():
         self.attributeData2 = AttributeData(occ)
         self.mhsn = "0"  # 梅花三弄
         self.zyhr = "0"  # 逐云寒蕊
-        self.calculateCoeff()
-        self.needUpdate = 0
+        self.needUpdate = {}
 
 
 class StatRecorder():
@@ -366,13 +345,14 @@ class StatRecorder():
     SPECIAL_NAME_DICT = {
         "6209": "王母挥袂(辞致)",
         "6211": "风袖低昂(晚晴)",
-        '"1,6249,3"': "上元点鬟(双鸾)",
-        '"1,6249,1"': "翔鸾舞柳(双鸾)",
+        '"1,6249,3"': "上元点鬟·双鸾",
+        '"1,6249,1"': "翔鸾舞柳·双鸾",
         "15181": "宫(疏影横斜)",
         "8571": "心法减伤",
         "21112": "凌然天风", 
         "3307": "田螺阵",
         "15914": "斩无常",
+        '2,23543,1': "庄周梦",
     }
     
     def specificName(self, id, full_id):
@@ -698,7 +678,8 @@ class CombatTracker():
         记录buff事件.
         '''
         # if "左旋右转" in self.info.getSkillName(event.full_id):
-        #     print("[NameBuff]", event.time, event.id, event.caster, event.target, event.full_id)
+        # if event.id == "23543":
+        #     print("[NameBuff]", event.time, event.id, event.caster, event.target, event.full_id, event.stack)
 
         full_id = event.full_id.strip('"')
         lvl0_id = ','.join(full_id.split(',')[0:2])+',0'
@@ -707,6 +688,15 @@ class CombatTracker():
         if event.id == "9334":  # 记录梅花三弄的来源
             self.shieldDict[event.target] = event.caster
             self.boostCounter[event.target].setSpecificSkill("mhsn", event.caster)
+            # 检查庄周梦效果，用独立的方式判定
+            # 这里是因为笙簧刷新会有盾的真空期，但是庄周梦在游戏里做了特殊判定，因此这里也要做特殊判定
+            if event.level in [2, 4]:
+                effect_id = "2,23543,1"
+                boostValue = BOOST_DICT[effect_id]
+                source = event.caster
+                self.boostCounter[event.target].addBoost(effect_id, boostValue, source, event.stack)
+                # print("[AddShield]", self.boostCounter[event.target].boost)
+
         # if event.id == "20854":
         #     self.zyhrDict[event.target] = event.caster
         #     self.boostCounter[event.target].setSpecificSkill("zyhr", event.caster)
@@ -815,6 +805,8 @@ class CombatTracker():
             for id in toRemove:
                 if id in self.absorbBuff[target]:
                     del self.absorbBuff[target][id]
+                    if id in ["2,9334,2", "2,9334,4"]:
+                        self.boostCounter[target].removeBoost("2,23543,1")
                 if id in self.resistBuff[target]:
                     del self.resistBuff[target][id]
                 del self.buffRemove[target][id]
@@ -1051,9 +1043,8 @@ class CombatTracker():
                 self.boostRemove[effect_id] = {"time": event.time + 14000, "target": event.target}
                 self.updateRemoveTime()
         elif event.id in ["211", "212", "213"]:  # 立地成佛
-            print("[YishangDetect]", event.time, event.id, event.caster, self.info.getName(event.caster))
-            global SUM_TIME, SUM1, SUM2, SUM3, SUM4, SUM5
-            print("[SUM_TIME]", SUM_TIME, SUM1, SUM2, SUM3, SUM4, SUM5)
+            # global SUM_TIME, SUM1, SUM2, SUM3, SUM4, SUM5
+            # print("[SUM_TIME]", SUM_TIME, SUM1, SUM2, SUM3, SUM4, SUM5)
             lvl = int(event.id) - 210
             postLvl = lvl
             postStack = 1

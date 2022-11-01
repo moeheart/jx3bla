@@ -140,13 +140,13 @@ ATTRIB_TYPE = {
     "atDecriticalDamagePowerPercent": ["化劲", 0, 1, 1, 1, 1, 1, 1/1024],
 
     #### 不属于属性的增益
-    "atAllDamageAddPercent": ["伤害变化", 0, 1, 1, 1, 1, 1, 1/1024],
+    "atAllDamageAddPercent": ["伤害变化", 1, 1, 1, 1, 1, 1, 0],
     "atPhysicsDamageCoefficient": ["受伤增加", 0, 1, 0, 0, 0, 0, 1/1024],
     "atSolarDamageCoefficient": ["受伤增加", 0, 0, 1, 0, 0, 0, 1/1024],
     "atLunarDamageCoefficient": ["受伤增加", 0, 0, 0, 1, 0, 0, 1/1024],
     "atNeutralDamageCoefficient": ["受伤增加", 0, 0, 0, 0, 1, 0, 1/1024],
     "atPoisonDamageCoefficient": ["受伤增加", 0, 0, 0, 0, 0, 1, 1/1024],
-    "atAllShieldIgnorePercent": ["无视防御A", 0, 1, 1, 1, 1, 1, 1/1024],
+    "atAllShieldIgnorePercent": ["无视防御A", 1, 1, 1, 1, 1, 1, 0],
 }
 
 

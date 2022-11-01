@@ -550,7 +550,7 @@ class LiJingYiDaoReplayer(HealerReplay):
                         if qiusuCounter.log != [] and qiusuCounter.log[-1][1] == 0 and qiusuCounter.log[-1][0] > event.time:
                             del qiusuCounter.log[-1]
                         qiusuCounter.setState(event.time, 1)
-                        qiusuCounter.setState(event.time + 18000, 0)
+                        qiusuCounter.setState(event.time + 40000, 0)
 
                 if event.caster == self.mykey and event.scheme == 2:
                     if event.id in ["631"]:  # 握针
@@ -562,7 +562,7 @@ class LiJingYiDaoReplayer(HealerReplay):
                 if event.damageEff > 0 and event.id not in ["24710", "24730", "25426", "25445"]:  # 技能黑名单
                     # 秋肃累计
                     if event.target in self.bld.info.npc and event.caster in self.bld.info.player:
-                        if event.target == qiusuTarget and event.time - qiusuTime < 18000:
+                        if event.target == qiusuTarget and event.time - qiusuTime < 40000:
                             battleStat[event.caster][1] += event.damageEff
                         else:
                             battleStat[event.caster][0] += event.damageEff
