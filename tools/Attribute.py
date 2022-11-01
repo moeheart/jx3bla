@@ -141,6 +141,8 @@ ATTRIB_TYPE = {
 
     #### 不属于属性的增益
     "atAllDamageAddPercent": ["伤害变化", 1, 1, 1, 1, 1, 1, 0],
+    "atAllPhysicsDamageAddPercent": ["伤害变化", 1, 1, 0, 0, 0, 0, 0],
+    "atAllMagicDamageAddPercent": ["伤害变化", 1, 0, 1, 1, 1, 1, 0],
     "atPhysicsDamageCoefficient": ["受伤增加", 0, 1, 0, 0, 0, 0, 1/1024],
     "atSolarDamageCoefficient": ["受伤增加", 0, 0, 1, 0, 0, 0, 1/1024],
     "atLunarDamageCoefficient": ["受伤增加", 0, 0, 0, 1, 0, 0, 1/1024],
