@@ -371,7 +371,7 @@ class StatRecorder():
 
     def getSkillName(self, full_id, info):
         '''
-        根据full_id做大量特殊判定，从而实现类似于合并的效果。
+        根据full_id做许多特殊判定，从而实现类似于合并的效果。
         '''
         l = len(full_id.split(','))
         if l == 3:
@@ -381,7 +381,9 @@ class StatRecorder():
             if resNew != "":
                 res = resNew
             area = full_id.split(',')[0]
-            if area == '"2':
+            if full_id in self.note:
+                res = res + "(%s)" % self.note[full_id]
+            elif area == '"2':
                 res = res + "(持续)"
         elif l == 4:
             real_id = ','.join(full_id.split(',')[1:])
@@ -391,13 +393,28 @@ class StatRecorder():
             resNew = self.specificName(id, real_id)
             if resNew != "":
                 res = resNew
-            nameArray = ["未知", "化解", "减伤", "吸血", "蛊惑", "响应", "增益"]
-            res = "%s(%s)" % (res, nameArray[int(area)])
-            if area == "3":
-                res = "吸血"
-            if area == "4":
-                res = "蛊惑众生"
+            if real_id in self.note:
+                res = res + "(%s)" % self.note[real_id]
+            else:
+                nameArray = ["未知", "化解", "减伤", "吸血", "蛊惑", "响应", "增益"]
+                res = "%s(%s)" % (res, nameArray[int(area)])
+                if area == "3":
+                    res = "吸血"
+                elif area == "4":
+                    res = "蛊惑众生"
         return res
+
+    def addNote(self, skill, note):
+        '''
+        为对应的技能人工指定一个备注. 用于阵眼增益等名称.
+        params:
+        - skill: 对应的技能全名.
+        - note: 需要添加的备注.
+        '''
+        self.note[skill] = note
+
+    def __init__(self):
+        self.note = {}
 
 class HealCastRecorder(StatRecorder):
     '''
@@ -450,6 +467,7 @@ class HealCastRecorder(StatRecorder):
         params:
         - allied: 是否为友方.
         '''
+        super().__init__()
         self.skill = {}
         self.namedSkill = {}
         self.sum = 0
@@ -555,6 +573,7 @@ class DpsCastRecorder(StatRecorder):
         params:
         - allied: 是否为友方.
         '''
+        super().__init__()
         self.skill = {}
         self.namedSkill = {}
         self.sum = 0
@@ -751,6 +770,7 @@ class CombatTracker():
 
         # 记录增益buff
         if (full_id in BOOST_DICT or lvl0_id in BOOST_DICT) and event.target in self.boostCounter:
+            skipFlag = False
             effect_id = full_id
             if full_id not in BOOST_DICT:
                 effect_id = lvl0_id
@@ -760,10 +780,22 @@ class CombatTracker():
                 source = event.target
             if effect_id == "2,20938,1":  # 左旋右转的特殊逻辑 (TODO)改成通用逻辑
                 source = self.zxyzCaster
-            if event.stack != 0:
-                self.boostCounter[event.target].addBoost(effect_id, boostValue, source, event.stack)
-            else:
-                self.boostCounter[event.target].removeBoost(effect_id)
+            # 不考虑一些全局增益的来源, 认为这些增益是玩家必须具有的
+            if event.id in ["362", "673"]:  # 雷、袖气
+                source = event.target
+            # 阵眼特殊判定
+            if event.id in self.zhenyanExclude:
+                source = "阵眼增益"
+                zhenyanName = "%s阵" % self.zhenyanExclude[event.id]
+                self.rdpsCast["阵眼增益"].addNote(full_id, zhenyanName)
+                self.mrdpsCast["阵眼增益"].addNote(full_id, zhenyanName)
+            elif event.id in ZHENYAN_DICT:
+                skipFlag = True
+            if not skipFlag:
+                if event.stack != 0:
+                    self.boostCounter[event.target].addBoost(effect_id, boostValue, source, event.stack)
+                else:
+                    self.boostCounter[event.target].removeBoost(effect_id)
 
     def updateRemoveTime(self):
         '''
@@ -833,14 +865,28 @@ class CombatTracker():
         '''
 
         # 一些全局事件
-        if event.id == "27674":
+        if event.id == "27674":  # 是否是逐云寒蕊
             self.zyhrCaster = event.caster
             for player in self.zyhrDict:
                 self.zyhrDict[player] = event.caster
                 self.boostCounter[player].setSpecificSkill("zyhr", event.caster)
 
-        if event.id == "6251":
+        if event.id == "6251":  # 左旋右转记录
             self.zxyzCaster = event.caster
+
+        # 判断施放者需不需要更新阵眼增益
+        if event.caster in self.zhenyanInfer:
+            minus, plus = self.zhenyanInfer[event.caster].scan(event.time)
+            if minus != "0":
+                full_id = "2,%s,%d" % (minus, ZHENYAN_DICT[minus][5])
+                self.boostCounter[event.caster].removeBoost(full_id)
+            if plus != "0":
+                full_id = "2,%s,%d" % (plus, ZHENYAN_DICT[plus][5])
+                boostValue = BOOST_DICT[full_id]
+                self.boostCounter[event.caster].addBoost(full_id, boostValue, "阵眼增益", 1)
+                zhenyanName = "%s阵" % ZHENYAN_DICT[plus][0]
+                self.rdpsCast["阵眼增益"].addNote(full_id, zhenyanName)
+                self.mrdpsCast["阵眼增益"].addNote(full_id, zhenyanName)
 
         # 先判断是否进入了无效区间
         while self.excludePosDps < len(self.badPeriodDpsLog) and event.time > self.badPeriodDpsLog[self.excludePosDps][0]:
@@ -1115,13 +1161,14 @@ class CombatTracker():
                             keyName = "6,%s" % key
                             self.mrdpsCast[rdpsRate[key]["source"]].record(event.target, keyName, event.damageEff * rdpsRate[key]["rate"])
 
-    def __init__(self, info, bh, occDetailList):
+    def __init__(self, info, bh, occDetailList, zhenyanInfer):
         '''
         构造方法，需要读取角色或玩家信息。
         params:
         - info: bld读取的玩家信息.
         - bh: BOSS复盘得到的战斗记录基本信息，用于计算无效时间.
         - occDetailList: 具体心法信息.
+        - zhenyanInfer: 阵眼的推测结果
         - TODO 还要扩充装备表，之后应该会整理成一个全的
         '''
         self.info = info
@@ -1167,6 +1214,17 @@ class CombatTracker():
 
         # dps相关
         self.mainTargets = bh.mainTargets
+        self.zhenyanInfer = zhenyanInfer
+        for player in self.zhenyanInfer:
+            self.zhenyanInfer[player].initScan()
+        self.zhenyanExclude = {}  # 需要单独计算的阵眼增益，并记录阵法名
+        for baseid in ZHENYAN_DICT:
+            for symbolid in ZHENYAN_DICT[baseid][2]:
+                self.zhenyanExclude[symbolid] = ZHENYAN_DICT[baseid][0]
+            for symbolid in ZHENYAN_DICT[baseid][3]:
+                self.zhenyanExclude[symbolid] = ZHENYAN_DICT[baseid][0]
+            for symbolid in ZHENYAN_DICT[baseid][4]:
+                self.zhenyanExclude[symbolid] = ZHENYAN_DICT[baseid][0]
 
         for player in info.player:
             # 治疗
@@ -1189,6 +1247,9 @@ class CombatTracker():
             self.boostCounter[player] = BoostCounter(player, self.occDetailList[player])
             self.shieldDict[player] = "0"
             self.zyhrDict[player] = "0"
+
+        self.rdpsCast["阵眼增益"] = DpsCastRecorder(1)
+        self.mrdpsCast["阵眼增益"] = DpsCastRecorder(1)
             
         for player in info.npc:
             self.hpsCast[player] = HealCastRecorder(0)

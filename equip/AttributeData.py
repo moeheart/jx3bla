@@ -95,6 +95,8 @@ class AttributeData():
                 if boostDetail[1] == 0:
                     continue
                 affectedAttrib = boostDetail[0]
+                if affectedAttrib == "全属性":
+                    affectedAttrib = attribDict["主属性"]
                 if affectedAttrib not in res:
                     res[affectedAttrib] = 0
                 if boostDetail[7] == 0:

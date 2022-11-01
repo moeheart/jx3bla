@@ -56,7 +56,7 @@ class CombatTrackerWindow(Window):
         max = 0
         maxID = ""
         highlightAppear = 0
-        for i in range(25):
+        for i in range(30):
             if i < len(dataT):
                 name = dataT[i][1]["name"]
                 self.bars[i][0].configure(text=name)
@@ -115,7 +115,7 @@ class CombatTrackerWindow(Window):
                 self.table[i][3].configure(text="")
                 self.table[i][4].configure(text="")
 
-        for i in range(25):
+        for i in range(30):
             if self.bars[i][3] == id:
                 self.bars[i][0].configure(bg='#777777')
                 self.bars[i][2].configure(bg='#777777')
@@ -176,7 +176,7 @@ class CombatTrackerWindow(Window):
         ToolTip(b8, "全称main-target natrual DPS，是只考虑主目标的nDPS。\n用于衡量单体与群攻的差别。")
         b8.place(x=380, y=20)
 
-        canvas = tk.Canvas(frameUp, width=560, height=250, scrollregion=(0, 0, 540, 25*25)) #创建canvas
+        canvas = tk.Canvas(frameUp, width=560, height=250, scrollregion=(0, 0, 540, 25*30)) #创建canvas
         canvas.place(x=0, y=50)  # 放置canvas的位置
         frameBar = tk.Frame(canvas)  # 把frame放在canvas里
         frameBar.place(width=540, height=250) #frame的长宽，和canvas差不多的
@@ -184,7 +184,7 @@ class CombatTrackerWindow(Window):
         vbar.place(x=540, width=20, height=250)
         vbar.configure(command=canvas.yview)
         canvas.config(yscrollcommand=vbar.set)  # 设置
-        canvas.create_window((270, 25*25*0.5), window=frameBar)  #create_window
+        canvas.create_window((270, 25*30*0.5), window=frameBar)  #create_window
 
         s = ttk.Style()
         s.theme_use('clam')
@@ -196,7 +196,7 @@ class CombatTrackerWindow(Window):
 
         self.frameBar = frameBar
         self.bars = []
-        for i in range(25):
+        for i in range(30):
             frameSingleBar = tk.Frame(frameBar)
             name = tk.Label(frameSingleBar, text="placeholder", width=20)
             name.grid(row=0, column=0)

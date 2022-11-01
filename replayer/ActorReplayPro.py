@@ -538,16 +538,16 @@ class ActorProReplayer(ReplayerBase):
                     deathHitDetail[event.target].append([event.time, "禅语消失", 0, event.caster, -1, 0, 0])
 
                 # 推测阵眼。
-                if event.target in self.zhenyanInfer and event.stack == 1:
-                    if event.id in zhenyanSymbol:
+                if event.target in self.zhenyanInfer:
+                    if event.id in zhenyanSymbol and event.stack == 1:
                         # 获取到小队阵眼记录. 推测这里附近都是这个阵眼.
                         self.zhenyanInfer[event.target].recordPresent(event.time, zhenyanSymbol[event.id])
-                if event.target in ZHENYAN_DICT:
-                    # 阵眼本身的获得与消失.
-                    if event.stack == 1:
-                        self.zhenyanInfer[event.target].recordPost(event.time, zhenyanSymbol[event.id])
-                    else:
-                        self.zhenyanInfer[event.target].recordPrev(event.time, zhenyanSymbol[event.id])
+                    if event.id in ZHENYAN_DICT:
+                        # 阵眼本身的获得与消失.
+                        if event.stack == 1:
+                            self.zhenyanInfer[event.target].recordPost(event.time, event.id)
+                        else:
+                            self.zhenyanInfer[event.target].recordPrev(event.time, event.id)
 
             elif event.dataType == "Death":  # 重伤记录
                 
@@ -666,6 +666,12 @@ class ActorProReplayer(ReplayerBase):
                 #     print("[Cast]", event.time, event.id, self.bld.info.getSkillName(event.full_id))
 
             num += 1
+
+
+        # 检验阵眼判断
+        # for player in self.zhenyanInfer:
+        #     res = self.zhenyanInfer[player].getSummary()
+        #     print("[Zhenyan]", player, self.bld.info.getName(player), res)
 
         # 调整战斗时间
         self.startTime, self.finalTime, self.battleTime = self.bossAnalyser.trimTime()
@@ -860,7 +866,7 @@ class ActorProReplayer(ReplayerBase):
         目前实现了战斗的数值统计.
         '''
 
-        combatTracker = CombatTracker(self.bld.info, self.bh, self.occDetailList)
+        combatTracker = CombatTracker(self.bld.info, self.bh, self.occDetailList, self.zhenyanInfer)
 
         for event in self.bld.log:
             if event.time < self.startTime:
@@ -893,6 +899,7 @@ class ActorProReplayer(ReplayerBase):
         actorData["act"] = self.combatTracker
         actorData["occDetailList"] = self.occDetailList
         actorData["hash"] = self.hashGroup()
+        # actorData["zhenyanInfer"] = self.zhenyanInfer
         for id in self.bld.info.player:
             if self.config.item["xiangzhi"]["active"] and self.occDetailList[id] == "22h":  # 奶歌
                 name = self.bld.info.player[id].name
