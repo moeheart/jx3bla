@@ -56,7 +56,7 @@ MAP_NAME_LIST = ["未知地图",  # 0
                  "西津渡"  # 8
                  ]
 
-# 地图ID, 是否记录logs, 别名
+# 地图ID, logs得分系数, 别名
 MAP_RAW = {"未知地图": [0, 0, []],
            "敖龙岛": [426, 0, []],
            "范阳夜变": [452, 0, []],
@@ -114,6 +114,7 @@ def getNickToBoss(nick):
 MAP_DICT = {}
 MAP_DICT_REVERSE = {}
 MAP_TRADITIONAL = {}
+MAP_DICT_RECORD_LOGS = {}
 
 for map in MAP_RAW:
     if MAP_RAW[map][0] != 0:
@@ -121,6 +122,10 @@ for map in MAP_RAW:
         MAP_DICT[str(mapid)] = "10人普通%s" % map
         MAP_DICT[str(mapid + 1)] = "25人普通%s" % map
         MAP_DICT[str(mapid + 2)] = "25人英雄%s" % map
+        if MAP_RAW[map][1]:
+            MAP_DICT_RECORD_LOGS[str(mapid)] = int(MAP_RAW[map][1])
+            MAP_DICT_RECORD_LOGS[str(mapid + 1)] = int(MAP_RAW[map][1] * 2)
+            MAP_DICT_RECORD_LOGS[str(mapid + 2)] = int(MAP_RAW[map][1] * 4)
         MAP_DICT_REVERSE[map] = str(mapid)
         MAP_DICT_REVERSE["10人普通%s" % map] = str(mapid)
         MAP_DICT_REVERSE["25人普通%s" % map] = str(mapid+1)

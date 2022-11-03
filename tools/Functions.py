@@ -780,16 +780,24 @@ def getOccType(occ):
     else:
         return "dps"
         
-def ConvertRgbToStr(res):
+# def ConvertRgbToStr(res):
+#     '''
+#     将数组形式的RGB代码转换为字符串形式
+#     params
+#     - res 数组形式的RGB代码
+#     '''
+#     return "#%s%s%s" % (str(hex(res[0]))[-2:].replace('x', '0'),
+#                         str(hex(res[1]))[-2:].replace('x', '0'),
+#                         str(hex(res[2]))[-2:].replace('x', '0'))
+
+def getColorHex(color):
     '''
-    将数组形式的RGB代码转换为字符串形式
-    params
-    - res 数组形式的RGB代码
+    根据数组形式的颜色获取16进制颜色代码.
     '''
-    return "#%s%s%s"%(str(hex(res[0]))[-2:].replace('x', '0'), 
-        str(hex(res[1]))[-2:].replace('x', '0'),
-        str(hex(res[2]))[-2:].replace('x', '0'))
-    
+    return "#%s%s%s"%(str(hex(color[0]))[-2:].replace('x', '0'),
+                      str(hex(color[1]))[-2:].replace('x', '0'),
+                      str(hex(color[2]))[-2:].replace('x', '0'))
+
 def getColor(occ):
     '''
     根据门派获取颜色。
@@ -800,39 +808,10 @@ def getColor(occ):
     '''
     if occ[-1] in ['d', 't', 'h', 'p', 'm']:
         occ = occ[:-1]
-    colorDict = {"0": (0, 0, 0), 
-                 "1": (210, 180, 0),#少林
-                 "2": (127, 31, 223),#万花
-                 "4": (56, 175, 255),#纯阳
-                 "5": (255, 127, 255),#七秀
-                 "3": (160, 0, 0),#天策
-                 "8": (220, 220, 0),#藏剑
-                 "9": (205, 133, 63),#丐帮
-                 "10": (253, 84, 0),#明教
-                 "6": (63, 31, 159),#五毒
-                 "7": (0, 133, 144),#唐门
-                 "21": (180, 60, 0),#苍云
-                 "22": (100, 250, 180),#长歌
-                 "23": (71, 73, 166),#霸刀
-                 "24": (195, 171, 227),#蓬莱
-                 "25": (161, 9, 34),#凌雪
-                 "211": (166, 83, 251),#衍天
-                 "212": (0, 172, 153),#药宗
-                }
     res = (0, 0, 0)
-    if occ in colorDict:
-        res = colorDict[occ]
-    return "#%s%s%s"%(str(hex(res[0]))[-2:].replace('x', '0'), 
-                      str(hex(res[1]))[-2:].replace('x', '0'),
-                      str(hex(res[2]))[-2:].replace('x', '0'))
-
-def getColorHex(color):
-    '''
-    根据数组形式的颜色获取16进制颜色代码.
-    '''
-    return "#%s%s%s"%(str(hex(color[0]))[-2:].replace('x', '0'),
-                      str(hex(color[1]))[-2:].replace('x', '0'),
-                      str(hex(color[2]))[-2:].replace('x', '0'))
+    if occ in COLOR_DICT:
+        res = COLOR_DICT[occ]
+    return getColorHex(res)
 
 def getPotColor(level):
     '''

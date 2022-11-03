@@ -103,9 +103,9 @@ class Config():
             self.item["actor"]["active"] = int(self.item["actor"].get("active", 1))
             self.item["actor"]["checkall"] = int(self.item["actor"].get("checkall", 0))
             self.item["actor"]["failthreshold"] = int(self.item["actor"].get("failthreshold", 10))
-            self.item["actor"]["qualifiedrate"] = float(self.item["actor"].get("qualifiedrate", 0.75))
-            self.item["actor"]["alertrate"] = float(self.item["actor"].get("alertrate", 0.85))
-            self.item["actor"]["bonusrate"] = float(self.item["actor"].get("bonusrate", 1.20))
+            # self.item["actor"]["qualifiedrate"] = float(self.item["actor"].get("qualifiedrate", 0.75))
+            # self.item["actor"]["alertrate"] = float(self.item["actor"].get("alertrate", 0.85))
+            # self.item["actor"]["bonusrate"] = float(self.item["actor"].get("bonusrate", 1.20))
             self.item["actor"]["filter"] = self.item["actor"].get("filter", "")
 
             self.item["user"]["uuid"] = self.item["user"].get("uuid", "")

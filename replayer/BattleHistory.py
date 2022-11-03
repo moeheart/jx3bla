@@ -58,6 +58,22 @@ class BattleHistory():
         if affectHealer:
             self.badPeriodHealer.recordInterval(start, end)
 
+    def printEnvironmentInfo(self):
+        '''
+        打印所有的bldinfo. 用于调试.
+        '''
+        for i in range(len(self.log["environment"])):
+            line = self.log["environment"][i]
+            time = line["start"]
+            formattedTime = parseTime((time - self.startTime) / 1000)
+            id = line["skillid"]
+            name = line["skillname"]
+            t = line["type"]
+            if line["iconid"] == "341":
+                print("[Unsolved]", formattedTime, t, id, name)
+            else:
+                print("[Env]", formattedTime, t, id, name)
+
     def setEnvironmentInfo(self, infoDict):
         '''
         通过对应表对场地轴的图片和颜色进行修正.

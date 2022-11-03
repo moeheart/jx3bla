@@ -50,11 +50,6 @@ def getAnnouncement():
     for line in result:
         dataDict[line[0]] = line[1]
     dataDict["url"] = dataDict["updateurl"]
-
-    # version = result[0][0]
-    # announcement = result[0][1]
-    # updateurl = result[0][2]
-    
     db.close()
     return jsonify(dataDict)
 
@@ -77,10 +72,6 @@ def setAnnouncement():
         cursor.execute(sql)
         sql = '''INSERT INTO PreloadInfo VALUES ("%s", "%s");''' % (key, dataDict[key])
         cursor.execute(sql)
-    # sql = '''DELETE FROM PreloadInfo;'''
-    # cursor.execute(sql)
-    # sql = '''INSERT INTO PreloadInfo VALUES ("%s", "%s", "%s");'''%(version, announcement, updateurl)
-    # cursor.execute(sql)
     db.commit()
     db.close()
     
@@ -230,36 +221,37 @@ def userLvlup():
         if exp >= LVLTABLE[lvl+1]:
             response["result"] = "success"
             item = [0, 0, 0, 0]
-            for i in range(4):
-                item[i] = result[0][7+i]
-            rewardTable = []
-            if lvl == 0:
-                rewardTable = [2,0,2,0]
-            elif lvl <= 3:
-                rewardTable = [4,2,4,2]
-            elif lvl <= 6:
-                rewardTable = [10,4,10,4]
-            elif lvl <= 9:
-                rewardTable = [15,6,15,6]
-            else:
-                rewardTable = [0,10,0,10]
-            
-            rewardTxt = "你获得了升级奖励："
-            rewardItem = ["中级点赞卡", "中级吐槽卡", "高级点赞卡", "高级吐槽卡"]
-            rewardContent = []
-            for i in range(4):
-                if rewardTable[i] > 0:
-                    rewardContent.append("[%s]*%d"%(rewardItem[i], rewardTable[i]))
-                    item[i] += rewardTable[i]
-            rewardTxt += ','.join(rewardContent)
-            
-            if lvl == 1:
-                rewardTxt += '\n你解锁了功能：使用高级能量'
-            
-            if lvl == 4:
-                rewardTxt += '\n你解锁了功能：使用超级避雷'
+
+            # for i in range(4):
+            #     item[i] = result[0][7+i]
+            # rewardTable = []
+            # if lvl == 0:
+            #     rewardTable = [2,0,2,0]
+            # elif lvl <= 3:
+            #     rewardTable = [4,2,4,2]
+            # elif lvl <= 6:
+            #     rewardTable = [10,4,10,4]
+            # elif lvl <= 9:
+            #     rewardTable = [15,6,15,6]
+            # else:
+            #     rewardTable = [0,10,0,10]
+            #
+            # rewardTxt = "你获得了升级奖励："
+            # rewardItem = ["中级点赞卡", "中级吐槽卡", "高级点赞卡", "高级吐槽卡"]
+            # rewardContent = []
+            # for i in range(4):
+            #     if rewardTable[i] > 0:
+            #         rewardContent.append("[%s]*%d"%(rewardItem[i], rewardTable[i]))
+            #         item[i] += rewardTable[i]
+            # rewardTxt += ','.join(rewardContent)
+            #
+            # if lvl == 1:
+            #     rewardTxt += '\n你解锁了功能：使用高级能量'
+            #
+            # if lvl == 4:
+            #     rewardTxt += '\n你解锁了功能：使用超级避雷'
                 
-            response["info"] = rewardTxt
+            response["info"] = ""
             
             sql = """UPDATE UserInfo SET item1=%d, item2=%d, item3=%d, item4=%d, lvl=%d WHERE uuid="%s";"""%(item[0], item[1], item[2], item[3], lvl+1, uuid)
             cursor.execute(sql)
@@ -268,349 +260,342 @@ def userLvlup():
     db.close()
     return jsonify(response)
     
-@app.route('/getDpsStat', methods=['POST'])
-def getDpsStat():
-    jdata = json.loads(request.form.get('jdata'))
-    print(jdata)
-    mapDetail = jdata["mapdetail"]
-    boss = jdata["boss"]
-    
-    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
-    cursor = db.cursor()
-    
-    sql = '''SELECT statistics from DpsStat WHERE mapdetail = "%s" and boss = "%s"'''%(mapDetail, boss)
-    cursor.execute(sql)
-    result = cursor.fetchall()
-    
-    if result:
-        J = result[0][0]
-        db.close()
-        return jsonify({'result': 'success', 'statistics': J})
-    else:
-        db.close()
-        return jsonify({'result': 'norecord'})
+# @app.route('/getDpsStat', methods=['POST'])
+# def getDpsStat():
+#     jdata = json.loads(request.form.get('jdata'))
+#     print(jdata)
+#     mapDetail = jdata["mapdetail"]
+#     boss = jdata["boss"]
+#
+#     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
+#     cursor = db.cursor()
+#
+#     sql = '''SELECT statistics from DpsStat WHERE mapdetail = "%s" and boss = "%s"'''%(mapDetail, boss)
+#     cursor.execute(sql)
+#     result = cursor.fetchall()
+#
+#     if result:
+#         J = result[0][0]
+#         db.close()
+#         return jsonify({'result': 'success', 'statistics': J})
+#     else:
+#         db.close()
+#         return jsonify({'result': 'norecord'})
         
-@app.route('/Tianwang.html', methods=['GET'])
-def Tianwang():
- 
-    server = request.args.get('server')
-    ids = request.args.get('ids')
-    
-    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
-    cursor = db.cursor()
-
-    playerDps = {}
-    playerPot = {}
-    playerNum = {}
-    playerComment = {}
-    
-    allInfo = {}
-    
-    stdMap = ["25人普通达摩洞", "25人英雄达摩洞", "25人普通白帝江关", "25人英雄白帝江关", "25人普通雷域大泽", "25人英雄雷域大泽"]
-    mapToBoss = {"25人普通达摩洞": 6, "25人英雄达摩洞": 6, "25人普通白帝江关": 7, "25人英雄白帝江关": 7, "25人普通雷域大泽": 6, "25人英雄雷域大泽": 6}
-    creditThreshold = [[0, 100], [6, 0.5], [12, 0.4], [18, 0.3], [24, 0.2], [30, 0.1]]
-
-    ids_split = ids.split(' ')
-    for id in ids_split:
-        sql = '''SELECT occ, map, boss, dps, num from HighestDps WHERE server = "%s" and player = "%s"'''%(server, id)
-        cursor.execute(sql)
-        result = cursor.fetchall()
-        playerDps[id] = {}
-        playerNum[id] = {}
-        playerPot[id] = {}
-        playerComment[id] = []
-        
-        credit = 75
-        
-        for map in stdMap:
-            playerDps[id][map] = [0] * mapToBoss[map]
-            playerNum[id][map] = 0
-            playerPot[id][map] = []
-            if "occ" not in playerDps[id]:
-                playerDps[id]["occ"] = 0
-        
-        for line in result:
-            playerDps[id]["occ"] = line[0]
-
-            if line[2] in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅", 
-                           "胡汤&罗芬", "赵八嫂", "海荼", "姜集苦", "宇文灭", "宫威", "宫傲",
-                           "巨型尖吻凤", "桑乔", "悉达罗摩", "尤珈罗摩", "月泉淮", "乌蒙贵"]:
-                bossNum = {"余晖": 0, "宓桃": 1, "武雪散": 2, "猿飞": 3, "哑头陀": 4, "岳琳&岳琅": 5, 
-                           "胡汤&罗芬": 0, "赵八嫂": 1, "海荼": 2, "姜集苦": 3, "宇文灭": 4, "宫威": 5, "宫傲": 6,
-                           "巨型尖吻凤": 0, "桑乔": 1, "悉达罗摩": 2, "尤珈罗摩": 3, "月泉淮": 4, "乌蒙贵": 5}[line[2]]
-                playerDps[id][line[1]][bossNum] = line[3]
-                playerNum[id][line[1]] += line[4]
-                
-        sql = '''SELECT occ, map, boss, battledate, severe, pot from PotHistory WHERE server = "%s" and player = "%s"'''%(server, id)
-        cursor.execute(sql)
-        result = cursor.fetchall()   
-        for line in result:
-            if line[2] in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅",
-                           "胡汤&罗芬", "赵八嫂", "海荼", "姜集苦", "宇文灭", "宫威", "宫傲",
-                           "巨型尖吻凤", "桑乔", "悉达罗摩", "尤珈罗摩", "月泉淮", "乌蒙贵"]:
-                playerPot[id][line[1]].append([line[2], line[3], line[4], line[5]])
-                
-        for map in playerPot[id]:
-            playerPot[id][map].sort(key=lambda x:x[1])
-            
-        #print(playerPot)
-                
-        sql = '''SELECT mapdetail, type, power, content, id FROM CommentInfo WHERE server = "%s" and player = "%s"'''%(server, id)
-        cursor.execute(sql)
-        result = cursor.fetchall()   
-        for line in result:
-            if line[0] in stdMap:
-                powerDes = ""
-                creditChange = 0
-                if line[2] == 1:
-                    powerDes = "初级"
-                    creditChange = 2
-                elif line[2] == 2:
-                    powerDes = "中级"
-                    creditChange = 8
-                else:
-                    powerDes = "高级"
-                    creditChange = 20
-                typeDes = ""
-                if line[1] == 1:
-                    typeDes = "点赞"
-                elif line[1] == 2:
-                    typeDes = "吐槽"
-                    creditChange *= -1
-                playerComment[id].append([line[0], typeDes, powerDes, line[3], line[4]])
-                credit += creditChange
-        
-        for line in stdMap:
-            d = {}
-            if line not in allInfo:
-                allInfo[line] = {}
-            allInfo[line][id] = d
-            d["numBoss"] = mapToBoss[line]
-            d["dps"] = playerDps[id][line]
-            d["occ"] = playerDps[id]["occ"]
-            d["pot"] = playerPot[id][line]
-            d["potSevere"] = 0
-            d["potSum"] = 0
-            for pot in d["pot"]:
-                if pot[2] == 1:
-                    d["potSevere"] += 1
-                    d["potSum"] += 1
-                elif pot[2] == 0:
-                    d["potSum"] += 1
-            d["numRecord"] = playerNum[id][line]
-            d["potRate"] = safe_divide(d["potSevere"], d["numRecord"])
-            d["comments"] = playerComment[id]
-            d["numComments"] = len(d["comments"])
-            
-            creditChange = 0
-            for i in range(len(creditThreshold)):
-                std = creditThreshold[i]
-                if d["numRecord"] >= std[0] and d["potRate"] <= std[1]:
-                    creditChange = i
-            
-            credit += creditChange
-            
-        if credit > 100:
-            credit = 100
-        if credit < 0:
-            credit = 0
-            
-        for line in stdMap:
-            allInfo[line][id]["credit"] = credit
-
-    db.close()
-
-    return render_template("Tianwang.html", allInfo=allInfo, edition=EDITION)
-    
-@app.route('/TianwangSearch.html', methods=['GET'])
-def TianwangSearch():
-
-    return render_template("TianwangSearch.html", edition=EDITION)
-        
-@app.route('/XiangZhiTable.html', methods=['GET'])
-def XiangZhiTable():
-    map = request.args.get('map')
-    page = request.args.get('page')
-    order = request.args.get('order')
-    
-    if map is None:
-        map = '25人普通达摩洞'
-    if page is None:
-        page = 1
-    if order is None:
-        order = "score"
-        
-    page = int(page)
-    
-    if map not in ['25人普通达摩洞', '25人英雄达摩洞']:
-        return jsonify({'result': '地图不正确'})
-    if order not in ['score', 'battledate']:
-        return jsonify({'result': '排序方式不正确'})
-    
-    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
-    cursor = db.cursor()
-    
-    edition = "5.1.0"
-    mapdetail = map
-
-    sql = """SELECT server, id, score, battledate, mapdetail, edition, hash FROM XiangZhiStat WHERE edition>='%s' AND mapdetail='%s' AND public=1"""%(edition, mapdetail)
-    cursor.execute(sql)
-    result = cursor.fetchall()
-    
-    db.close()
-    
-    result = list(result)
-    
-    pageNum = int((len(result) + 29) / 30)
-    
-    if order == "score":
-        result.sort(key=lambda x:-x[2])
-    elif order == "battledate":
-        result.sort(key=lambda x:x[3])
-        result = result[::-1]
-        
-        
-    start = (page-1)*30
-    end = page*30
-    if start >= len(result):
-        start = len(result)-1
-    if end >= len(result):
-        end = len(result)
-    result = result[start:end]
-
-
-    return render_template("XiangZhiTable.html", result=result, edition=EDITION, 
-                           order=order, map=map, page=page, pagenum=pageNum)
-    
-@app.route('/XiangZhiData/png', methods=['GET'])
-def XiangZhiDataPng():
-    key = request.args.get('key')
-    
-    if key != None:
-        db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
-        cursor = db.cursor()
-        
-        sql = '''SELECT * FROM XiangZhiStat WHERE hash = "%s"'''%key
-        cursor.execute(sql)
-        result = cursor.fetchall()
-        
-        db.close()
-        
-        if result:
-            line = result[0]
-            stat = json.loads(line[7].replace("'", '"'))
-            info = {"server": line[0],
-                    "id": line[1],
-                    "score": line[2],
-                    "battledate": line[3],
-                    "mapdetail": line[4],
-                    "edition": line[5],
-                    "hash": line[6],
-                    "statistics": stat}
-            fileList = os.listdir("static/png")
-            print(stat)
-            if "%s.png"%key not in fileList:
-                printint = 1
-                if len(key) < 16:
-                    printint = 0
-                painter = XiangZhiPainter(printint = printint)
-                painter.paint(info, "static/png/%s.png"%key)
-            return render_template("XiangZhiPng.html", key = key)
-        
-    return jsonify({'result': '记录不存在'})
-    
-@app.route('/uploadComment', methods=['POST'])
-def uploadComment():
-    jdata = json.loads(request.form.get('jdata'))
-    print(jdata) 
-
-    dtype = jdata["type"]
-    power = jdata["power"]
-    content = jdata["content"]
-    pot = jdata["pot"]
-    server = jdata["server"]
-    userid = jdata["userid"]
-    mapdetail = jdata["mapdetail"]
-    beginTime = jdata["time"]
-    player = jdata["player"]
-    hash = jdata["hash"]
-    
-    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
-    cursor = db.cursor()
-    
-    sql = '''SELECT time from CommentInfo WHERE server = "%s" AND player = "%s" and userid = "%s" and mapdetail = "%s"'''%(server, player, userid, mapdetail)
-    cursor.execute(sql)
-    result = cursor.fetchall()
-    
-    if result:
-        date1 = time.strftime("%Y-%m-%d", time.localtime(beginTime))
-        for line in result:
-            date2 = time.strftime("%Y-%m-%d", time.localtime(line[0]))
-            if date1 == date2:
-                db.close()
-                return jsonify({'result': 'duplicate'})
-                
-    # 检查能量是否合法
-    sql = '''SELECT item1, item2, item3, item4, score, lvl from UserInfo WHERE uuid = "%s"'''%(userid)
-    cursor.execute(sql)
-    result = cursor.fetchall()
-    
-    if not result:
-        db.close()
-        return jsonify({'result': 'lack'})
-        
-    if power == 3 and result[0][5] < 2:
-        db.close()
-        return jsonify({'result': 'denied'})
-        
-    deductItem = 0
-    deductScore = 0
-    if power == 2:
-        if dtype == 1:
-            if result[0][0] > 0:
-                deductItem = 1
-            else:
-                deductScore = 8
-        else:
-            if result[0][2] > 0:
-                deductItem = 3
-            else:
-                deductScore = 8
-    if power == 3:
-        if dtype == 1:
-            if result[0][1] > 0:
-                deductItem = 2
-            else:
-                deductScore = 20
-        else:
-            if result[0][3] > 0:
-                deductItem = 4
-            else:
-                deductScore = 20
-    
-    if deductScore > 0 and result[0][4] < deductScore:
-        db.close()
-        return jsonify({'result': 'lack'})
-
-    if deductScore > 0:
-        sql = """INSERT INTO ScoreInfo VALUES ("", "%s", %d, "%s", %d)"""%(
-            userid, int(time.time()), "进行评价：%s"%hash, -deductScore)
-        cursor.execute(sql)
-        
-        sql = """UPDATE UserInfo SET score=%d WHERE uuid="%s";"""%(result[0][4]-deductScore, userid)
-        cursor.execute(sql)
-        
-    elif deductItem > 0:
-        sql = """UPDATE UserInfo SET item%d=%d WHERE uuid="%s";"""%(deductItem, result[0][deductItem-1]-1, userid)
-        cursor.execute(sql)
-        
-    sql = """INSERT INTO CommentInfo VALUES("%s", "%s", "%s", "%s", "%s", "%s", %d, %d, %d, "%s", "%s")"""%(
-        hash, server, player, userid, mapdetail, "", beginTime, dtype, power, content, pot)
-    cursor.execute(sql)
-        
-    db.commit()
-    db.close()
-    return jsonify({'result': 'success'})
+# @app.route('/Tianwang.html', methods=['GET'])
+# def Tianwang():
+#
+#     server = request.args.get('server')
+#     ids = request.args.get('ids')
+#
+#     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
+#     cursor = db.cursor()
+#
+#     playerDps = {}
+#     playerPot = {}
+#     playerNum = {}
+#     playerComment = {}
+#
+#     allInfo = {}
+#
+#     stdMap = ["25人普通达摩洞", "25人英雄达摩洞", "25人普通白帝江关", "25人英雄白帝江关", "25人普通雷域大泽", "25人英雄雷域大泽"]
+#     mapToBoss = {"25人普通达摩洞": 6, "25人英雄达摩洞": 6, "25人普通白帝江关": 7, "25人英雄白帝江关": 7, "25人普通雷域大泽": 6, "25人英雄雷域大泽": 6}
+#     creditThreshold = [[0, 100], [6, 0.5], [12, 0.4], [18, 0.3], [24, 0.2], [30, 0.1]]
+#
+#     ids_split = ids.split(' ')
+#     for id in ids_split:
+#         sql = '''SELECT occ, map, boss, dps, num from HighestDps WHERE server = "%s" and player = "%s"'''%(server, id)
+#         cursor.execute(sql)
+#         result = cursor.fetchall()
+#         playerDps[id] = {}
+#         playerNum[id] = {}
+#         playerPot[id] = {}
+#         playerComment[id] = []
+#
+#         credit = 75
+#
+#         for map in stdMap:
+#             playerDps[id][map] = [0] * mapToBoss[map]
+#             playerNum[id][map] = 0
+#             playerPot[id][map] = []
+#             if "occ" not in playerDps[id]:
+#                 playerDps[id]["occ"] = 0
+#
+#         for line in result:
+#             playerDps[id]["occ"] = line[0]
+#
+#             if line[2] in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅",
+#                            "胡汤&罗芬", "赵八嫂", "海荼", "姜集苦", "宇文灭", "宫威", "宫傲",
+#                            "巨型尖吻凤", "桑乔", "悉达罗摩", "尤珈罗摩", "月泉淮", "乌蒙贵"]:
+#                 bossNum = {"余晖": 0, "宓桃": 1, "武雪散": 2, "猿飞": 3, "哑头陀": 4, "岳琳&岳琅": 5,
+#                            "胡汤&罗芬": 0, "赵八嫂": 1, "海荼": 2, "姜集苦": 3, "宇文灭": 4, "宫威": 5, "宫傲": 6,
+#                            "巨型尖吻凤": 0, "桑乔": 1, "悉达罗摩": 2, "尤珈罗摩": 3, "月泉淮": 4, "乌蒙贵": 5}[line[2]]
+#                 playerDps[id][line[1]][bossNum] = line[3]
+#                 playerNum[id][line[1]] += line[4]
+#
+#         sql = '''SELECT occ, map, boss, battledate, severe, pot from PotHistory WHERE server = "%s" and player = "%s"'''%(server, id)
+#         cursor.execute(sql)
+#         result = cursor.fetchall()
+#         for line in result:
+#             if line[2] in ["余晖", "宓桃", "武雪散", "猿飞", "哑头陀", "岳琳&岳琅",
+#                            "胡汤&罗芬", "赵八嫂", "海荼", "姜集苦", "宇文灭", "宫威", "宫傲",
+#                            "巨型尖吻凤", "桑乔", "悉达罗摩", "尤珈罗摩", "月泉淮", "乌蒙贵"]:
+#                 playerPot[id][line[1]].append([line[2], line[3], line[4], line[5]])
+#
+#         for map in playerPot[id]:
+#             playerPot[id][map].sort(key=lambda x:x[1])
+#
+#         #print(playerPot)
+#
+#         sql = '''SELECT mapdetail, type, power, content, id FROM CommentInfo WHERE server = "%s" and player = "%s"'''%(server, id)
+#         cursor.execute(sql)
+#         result = cursor.fetchall()
+#         for line in result:
+#             if line[0] in stdMap:
+#                 powerDes = ""
+#                 creditChange = 0
+#                 if line[2] == 1:
+#                     powerDes = "初级"
+#                     creditChange = 2
+#                 elif line[2] == 2:
+#                     powerDes = "中级"
+#                     creditChange = 8
+#                 else:
+#                     powerDes = "高级"
+#                     creditChange = 20
+#                 typeDes = ""
+#                 if line[1] == 1:
+#                     typeDes = "点赞"
+#                 elif line[1] == 2:
+#                     typeDes = "吐槽"
+#                     creditChange *= -1
+#                 playerComment[id].append([line[0], typeDes, powerDes, line[3], line[4]])
+#                 credit += creditChange
+#
+#         for line in stdMap:
+#             d = {}
+#             if line not in allInfo:
+#                 allInfo[line] = {}
+#             allInfo[line][id] = d
+#             d["numBoss"] = mapToBoss[line]
+#             d["dps"] = playerDps[id][line]
+#             d["occ"] = playerDps[id]["occ"]
+#             d["pot"] = playerPot[id][line]
+#             d["potSevere"] = 0
+#             d["potSum"] = 0
+#             for pot in d["pot"]:
+#                 if pot[2] == 1:
+#                     d["potSevere"] += 1
+#                     d["potSum"] += 1
+#                 elif pot[2] == 0:
+#                     d["potSum"] += 1
+#             d["numRecord"] = playerNum[id][line]
+#             d["potRate"] = safe_divide(d["potSevere"], d["numRecord"])
+#             d["comments"] = playerComment[id]
+#             d["numComments"] = len(d["comments"])
+#
+#             creditChange = 0
+#             for i in range(len(creditThreshold)):
+#                 std = creditThreshold[i]
+#                 if d["numRecord"] >= std[0] and d["potRate"] <= std[1]:
+#                     creditChange = i
+#             credit += creditChange
+#         if credit > 100:
+#             credit = 100
+#         if credit < 0:
+#             credit = 0
+#         for line in stdMap:
+#             allInfo[line][id]["credit"] = credit
+#     db.close()
+#     return render_template("Tianwang.html", allInfo=allInfo, edition=EDITION)
+#
+# @app.route('/TianwangSearch.html', methods=['GET'])
+# def TianwangSearch():
+#     return render_template("TianwangSearch.html", edition=EDITION)
+# @app.route('/XiangZhiTable.html', methods=['GET'])
+# def XiangZhiTable():
+#     map = request.args.get('map')
+#     page = request.args.get('page')
+#     order = request.args.get('order')
+#
+#     if map is None:
+#         map = '25人普通达摩洞'
+#     if page is None:
+#         page = 1
+#     if order is None:
+#         order = "score"
+#
+#     page = int(page)
+#
+#     if map not in ['25人普通达摩洞', '25人英雄达摩洞']:
+#         return jsonify({'result': '地图不正确'})
+#     if order not in ['score', 'battledate']:
+#         return jsonify({'result': '排序方式不正确'})
+#
+#     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
+#     cursor = db.cursor()
+#
+#     edition = "5.1.0"
+#     mapdetail = map
+#
+#     sql = """SELECT server, id, score, battledate, mapdetail, edition, hash FROM XiangZhiStat WHERE edition>='%s' AND mapdetail='%s' AND public=1"""%(edition, mapdetail)
+#     cursor.execute(sql)
+#     result = cursor.fetchall()
+#
+#     db.close()
+#
+#     result = list(result)
+#
+#     pageNum = int((len(result) + 29) / 30)
+#
+#     if order == "score":
+#         result.sort(key=lambda x:-x[2])
+#     elif order == "battledate":
+#         result.sort(key=lambda x:x[3])
+#         result = result[::-1]
+#
+#
+#     start = (page-1)*30
+#     end = page*30
+#     if start >= len(result):
+#         start = len(result)-1
+#     if end >= len(result):
+#         end = len(result)
+#     result = result[start:end]
+#
+#
+#     return render_template("XiangZhiTable.html", result=result, edition=EDITION,
+#                            order=order, map=map, page=page, pagenum=pageNum)
+#
+# @app.route('/XiangZhiData/png', methods=['GET'])
+# def XiangZhiDataPng():
+#     key = request.args.get('key')
+#
+#     if key != None:
+#         db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
+#         cursor = db.cursor()
+#
+#         sql = '''SELECT * FROM XiangZhiStat WHERE hash = "%s"'''%key
+#         cursor.execute(sql)
+#         result = cursor.fetchall()
+#
+#         db.close()
+#
+#         if result:
+#             line = result[0]
+#             stat = json.loads(line[7].replace("'", '"'))
+#             info = {"server": line[0],
+#                     "id": line[1],
+#                     "score": line[2],
+#                     "battledate": line[3],
+#                     "mapdetail": line[4],
+#                     "edition": line[5],
+#                     "hash": line[6],
+#                     "statistics": stat}
+#             fileList = os.listdir("static/png")
+#             print(stat)
+#             if "%s.png"%key not in fileList:
+#                 printint = 1
+#                 if len(key) < 16:
+#                     printint = 0
+#                 painter = XiangZhiPainter(printint = printint)
+#                 painter.paint(info, "static/png/%s.png"%key)
+#             return render_template("XiangZhiPng.html", key = key)
+#
+#     return jsonify({'result': '记录不存在'})
+#
+# @app.route('/uploadComment', methods=['POST'])
+# def uploadComment():
+#     jdata = json.loads(request.form.get('jdata'))
+#     print(jdata)
+#
+#     dtype = jdata["type"]
+#     power = jdata["power"]
+#     content = jdata["content"]
+#     pot = jdata["pot"]
+#     server = jdata["server"]
+#     userid = jdata["userid"]
+#     mapdetail = jdata["mapdetail"]
+#     beginTime = jdata["time"]
+#     player = jdata["player"]
+#     hash = jdata["hash"]
+#
+#     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
+#     cursor = db.cursor()
+#
+#     sql = '''SELECT time from CommentInfo WHERE server = "%s" AND player = "%s" and userid = "%s" and mapdetail = "%s"'''%(server, player, userid, mapdetail)
+#     cursor.execute(sql)
+#     result = cursor.fetchall()
+#
+#     if result:
+#         date1 = time.strftime("%Y-%m-%d", time.localtime(beginTime))
+#         for line in result:
+#             date2 = time.strftime("%Y-%m-%d", time.localtime(line[0]))
+#             if date1 == date2:
+#                 db.close()
+#                 return jsonify({'result': 'duplicate'})
+#
+#     # 检查能量是否合法
+#     sql = '''SELECT item1, item2, item3, item4, score, lvl from UserInfo WHERE uuid = "%s"'''%(userid)
+#     cursor.execute(sql)
+#     result = cursor.fetchall()
+#
+#     if not result:
+#         db.close()
+#         return jsonify({'result': 'lack'})
+#
+#     if power == 3 and result[0][5] < 2:
+#         db.close()
+#         return jsonify({'result': 'denied'})
+#
+#     deductItem = 0
+#     deductScore = 0
+#     if power == 2:
+#         if dtype == 1:
+#             if result[0][0] > 0:
+#                 deductItem = 1
+#             else:
+#                 deductScore = 8
+#         else:
+#             if result[0][2] > 0:
+#                 deductItem = 3
+#             else:
+#                 deductScore = 8
+#     if power == 3:
+#         if dtype == 1:
+#             if result[0][1] > 0:
+#                 deductItem = 2
+#             else:
+#                 deductScore = 20
+#         else:
+#             if result[0][3] > 0:
+#                 deductItem = 4
+#             else:
+#                 deductScore = 20
+#
+#     if deductScore > 0 and result[0][4] < deductScore:
+#         db.close()
+#         return jsonify({'result': 'lack'})
+#
+#     if deductScore > 0:
+#         sql = """INSERT INTO ScoreInfo VALUES ("", "%s", %d, "%s", %d)"""%(
+#             userid, int(time.time()), "进行评价：%s"%hash, -deductScore)
+#         cursor.execute(sql)
+#
+#         sql = """UPDATE UserInfo SET score=%d WHERE uuid="%s";"""%(result[0][4]-deductScore, userid)
+#         cursor.execute(sql)
+#
+#     elif deductItem > 0:
+#         sql = """UPDATE UserInfo SET item%d=%d WHERE uuid="%s";"""%(deductItem, result[0][deductItem-1]-1, userid)
+#         cursor.execute(sql)
+#
+#     sql = """INSERT INTO CommentInfo VALUES("%s", "%s", "%s", "%s", "%s", "%s", %d, %d, %d, "%s", "%s")"""%(
+#         hash, server, player, userid, mapdetail, "", beginTime, dtype, power, content, pot)
+#     cursor.execute(sql)
+#
+#     db.commit()
+#     db.close()
+#     return jsonify({'result': 'success'})
 
 def receiveBattle(jdata, cursor):
     '''
@@ -656,27 +641,10 @@ def receiveBattle(jdata, cursor):
 
     dupID = 0
 
-    if mapName == "25人英雄达摩洞":
-        scoreAdd = 2
-        mapDetail = '484'
-    elif mapName == '25人普通白帝江关':
-        scoreAdd = 1
-        mapDetail = '519'
-    elif mapName == '25人英雄白帝江关':
-        scoreAdd = 4
-        mapDetail = '520'
-    elif mapName == '25人普通雷域大泽':
-        scoreAdd = 1
-        mapDetail = '560'
-    elif mapName == '25人英雄雷域大泽':
-        scoreAdd = 4
-        mapDetail = '561'
-    elif mapName == '25人普通河阳之战':
-        scoreAdd = 4
-        mapDetail = '574'
-    elif mapName == '25人英雄河阳之战':
-        scoreAdd = 4
-        mapDetail = '575'
+    mapid = getIDFromMap(mapName)
+    if MAP_DICT_RECORD_LOGS[mapid]:
+        mapDetail = mapid
+        scoreAdd = MAP_DICT_RECORD_LOGS[mapid]
     else:
         scoreSuccess = 0
         response['scoreStatus'] = 'illegal'

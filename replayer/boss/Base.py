@@ -9,6 +9,62 @@ class SpecificReplayerPro():
     BOSS复盘通用类.
     '''
 
+    def checkTimer(self, time):
+        '''
+        检查计时器状态.
+        params:
+        - time: 当前时间.
+        '''
+        if self.timer != [] and time > self.timer[0][1]:
+            lastTimer = self.timer.pop(0)
+            if lastTimer[0] == "phase":
+                self.changePhase(lastTimer[1], lastTimer[2])
+
+    def setTimer(self, timerType, time, value):
+        '''
+        设置一个计时器，在时间到时触发一个事件.
+        params:
+        - timerType: 类型，包括phase(阶段切换).
+        - time: 触发的时间.
+        - value: 触发的值.
+        '''
+        self.timer.append([timerType, time, value])
+        self.timer.sort(key=lambda x:x[0])
+
+    def getPhase(self, time):
+        '''
+        获取某个时刻处于哪个阶段. 为了效率暂时只缓存一个.
+        '''
+        if time > self.phaseStart:
+            return self.phase
+        else:
+            return self.lastPhase
+
+    def changePhase(self, time, phase):
+        '''
+        进入某个阶段. 需要保证按时间顺序进行. 不按顺序进行的阶段切换会被忽略.
+        params:
+        - time: 进入阶段的时间.
+        - phase: 进入了哪个阶段.
+        '''
+        if time > self.phaseStart:
+            self.phaseTime[self.phase] += phase - self.phaseStart
+            self.lastPhase = self.phase
+            self.phase = phase
+            self.phaseStart = time
+
+    def initPhase(self, num, initPhase=0):
+        '''
+        阶段计时的初始化方法.
+        params:
+        - num: 总共有几个阶段.
+        - initPhase: 初始时是第几个阶段.
+        '''
+        self.phase = initPhase
+        self.lastPhase = initPhase
+        self.phaseTime = [0] * (num + 1)
+        self.phaseStart = self.startTime
+
     def countFinalOverall(self):
         '''
         战斗结束时所有BOSS的通用处理流程.
@@ -134,7 +190,9 @@ class SpecificReplayerPro():
         self.bhBlackList = ["b17200", "c15076", "c15082", "b20854", "b3447", "b14637", "s15082", "b789", "c3365",
                             "s15181", "s20763", "s28",
                             "n108263", "n108426", "n108754", "n108736", "n108217", "n108216", "b15775", "b17201",
-                            "s6746", "b17933", "b6131", "b20128", "b1242", "b2685", "s20764", "s3051"]
+                            "s6746", "b17933", "b6131", "b20128", "b1242", "b2685", "s20764", "s3051",
+                            "n20107", "n20108", "n20109", "n20110", "n20111", "s953", "b23898", "n110198",
+                            "n36781", "n36782", "n36783", "n36784", "n36785"]
 
         #通用格式：
         #0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
@@ -165,3 +223,5 @@ class SpecificReplayerPro():
         self.potList = []
         self.effectiveDPSList = []
         self.hasBh = False
+
+        self.timer = []

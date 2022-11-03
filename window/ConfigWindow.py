@@ -318,15 +318,15 @@ class ConfigWindow(Window):
         self.constructEntry("Frame2", frame3, "拉脱末尾的无效时间(s)",
                             "设置拉脱保护时间，在拉脱的数据中，最后若干秒的犯错记录将不再统计。",
                             "actor", "failthreshold")
-        self.constructEntry("Frame2", frame3, "DPS及格线",
-                            "团队-心法DPS的及格线。\n如果全程低于这个值，一般代表没有工资，或者需要转老板。\n以1为单位。",
-                            "actor", "qualifiedrate")
-        self.constructEntry("Frame2", frame3, "DPS预警线",
-                            "团队-心法DPS的预警线。\n如果有BOSS低于这个值，一般代表后续需要重点关注。\n以1为单位。",
-                            "actor", "alertrate")
-        self.constructEntry("Frame2", frame3, "DPS补贴线",
-                            "团队-心法DPS的补贴线。\n如果全程高于这个值，一般代表可以发DPS补贴。\n以1为单位。",
-                            "actor", "bonusrate")
+        # self.constructEntry("Frame2", frame3, "DPS及格线",
+        #                     "团队-心法DPS的及格线。\n如果全程低于这个值，一般代表没有工资，或者需要转老板。\n以1为单位。",
+        #                     "actor", "qualifiedrate")
+        # self.constructEntry("Frame2", frame3, "DPS预警线",
+        #                     "团队-心法DPS的预警线。\n如果有BOSS低于这个值，一般代表后续需要重点关注。\n以1为单位。",
+        #                     "actor", "alertrate")
+        # self.constructEntry("Frame2", frame3, "DPS补贴线",
+        #                     "团队-心法DPS的补贴线。\n如果全程高于这个值，一般代表可以发DPS补贴。\n以1为单位。",
+        #                     "actor", "bonusrate")
         self.constructEntry("Frame2", frame3, "过滤监控列表",
                             "在展示时间轴时人工指定需要过滤的技能或buff，由玩家指定，用逗号隔开，例如：\ns6746,b17933,b6131",
                             "actor", "filter")
@@ -357,24 +357,24 @@ class ConfigWindow(Window):
         self.label4_4_1.grid(row=0, column=0)
         self.label4_4_2.grid(row=0, column=1)
         self.label4_4_4.grid(row=0, column=2)
-        self.frame4_5 = tk.Frame(frame4)
-        self.label4_5_1 = tk.Label(frame4, text="道具数量")
-        self.label4_5_1a = tk.Label(self.frame4_5, text="中级点赞卡")
-        self.label4_5_1b = tk.Label(self.frame4_5, text=config.userItems[0])
-        self.label4_5_2a = tk.Label(self.frame4_5, text="高级点赞卡")
-        self.label4_5_2b = tk.Label(self.frame4_5, text=config.userItems[1])
-        self.label4_5_3a = tk.Label(self.frame4_5, text="中级吐槽卡")
-        self.label4_5_3b = tk.Label(self.frame4_5, text=config.userItems[2])
-        self.label4_5_4a = tk.Label(self.frame4_5, text="高级吐槽卡")
-        self.label4_5_4b = tk.Label(self.frame4_5, text=config.userItems[3])
-        self.label4_5_1a.grid(row=0, column=0)
-        self.label4_5_1b.grid(row=0, column=1)
-        self.label4_5_2a.grid(row=1, column=0)
-        self.label4_5_2b.grid(row=1, column=1)
-        self.label4_5_3a.grid(row=2, column=0)
-        self.label4_5_3b.grid(row=2, column=1)
-        self.label4_5_4a.grid(row=3, column=0)
-        self.label4_5_4b.grid(row=3, column=1)
+        # self.frame4_5 = tk.Frame(frame4)
+        # self.label4_5_1 = tk.Label(frame4, text="道具数量")
+        # self.label4_5_1a = tk.Label(self.frame4_5, text="中级点赞卡")
+        # self.label4_5_1b = tk.Label(self.frame4_5, text=config.userItems[0])
+        # self.label4_5_2a = tk.Label(self.frame4_5, text="高级点赞卡")
+        # self.label4_5_2b = tk.Label(self.frame4_5, text=config.userItems[1])
+        # self.label4_5_3a = tk.Label(self.frame4_5, text="中级吐槽卡")
+        # self.label4_5_3b = tk.Label(self.frame4_5, text=config.userItems[2])
+        # self.label4_5_4a = tk.Label(self.frame4_5, text="高级吐槽卡")
+        # self.label4_5_4b = tk.Label(self.frame4_5, text=config.userItems[3])
+        # self.label4_5_1a.grid(row=0, column=0)
+        # self.label4_5_1b.grid(row=0, column=1)
+        # self.label4_5_2a.grid(row=1, column=0)
+        # self.label4_5_2b.grid(row=1, column=1)
+        # self.label4_5_3a.grid(row=2, column=0)
+        # self.label4_5_3b.grid(row=2, column=1)
+        # self.label4_5_4a.grid(row=3, column=0)
+        # self.label4_5_4b.grid(row=3, column=1)
         self.label4_1.grid(row=0, column=0)
         self.label4_1_1.grid(row=0, column=1)
         self.label4_2.grid(row=1, column=0)
@@ -386,14 +386,14 @@ class ConfigWindow(Window):
         self.frame4_4.grid(row=3, column=1)
         if rankPercent >= 1:
             self.button4_4_5.grid(row=3, column=2)
-        self.label4_5_1.grid(row=4, column=0)
-        self.frame4_5.grid(row=4, column=1)
+        # self.label4_5_1.grid(row=4, column=0)
+        # self.frame4_5.grid(row=4, column=1)
         self.entry4_2.insert(0, self.config.item["user"]["id"])
         ToolTip(self.label4_1, "用来验证用户唯一性的字符串。")
         ToolTip(self.label4_2, "代表玩家ID的用户名，用于在社区中展示。\n第一次使用时，需要点击右方的注册，之后则不可修改。")
         ToolTip(self.label4_3, "玩家的积分。积分可用于中级、高级评价的消耗，或是在活动中兑换实物奖品。")
         ToolTip(self.label4_4, "玩家的经验值。当经验值满足升级条件时即可升级，升级后会获得一些道具奖励，并且解锁部分额外功能。")
-        ToolTip(self.label4_5_1, "玩家的道具数量。")
+        # ToolTip(self.label4_5_1, "玩家的道具数量。")
 
         # 治疗设置（包括奶歌/奶花/奶毒/奶秀/奶药)
         frame2 = tk.Frame(notebook)

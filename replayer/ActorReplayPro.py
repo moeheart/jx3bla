@@ -33,6 +33,13 @@ from replayer.boss.ZhouTongji import ZhouTongjiReplayer
 from replayer.boss.ZhouZhi import ZhouZhiReplayer
 from replayer.boss.ChangXiu import ChangXiuReplayer
 
+from replayer.boss.ZhangJingchao import ZhangJingchaoReplayer
+from replayer.boss.LiuZhan import LiuZhanReplayer
+from replayer.boss.SuFenglou import SuFenglouReplayer
+from replayer.boss.HanJingqing import HanJingqingReplayer
+from replayer.boss.TengyuanYouye import TengyuanYouyeReplayer
+from replayer.boss.LiChongmao import LiChongmaoReplayer
+
 from replayer.occ.XiangZhi import XiangZhiProReplayer
 from replayer.occ.LingSu import LingSuReplayer
 from replayer.occ.LiJingYiDao import LiJingYiDaoReplayer
@@ -49,48 +56,6 @@ def addSkillOrder(s, prevS):
         return prevS
 
 class ActorProReplayer(ReplayerBase):
-
-    occDetailList = {}
-    upload = 0
-    bossAnalyseName = "未知"
-
-    actorSkillList = [
-                      ]
-
-    actorBuffList = [
-                     ]
-
-    bossNameDict = {"胡汤&罗芬": 1,
-                    "胡汤": 1,
-                    "罗芬": 1,
-                    "赵八嫂": 2, 
-                    "海荼": 3,
-                    "天怒惊霆戟": 3,
-                    "姜集苦": 4, 
-                    "宇文灭": 5, 
-                    "宫威": 6, 
-                    "宫傲": 7,
-                    "巨型尖吻凤": 1,
-                    "桑乔": 2,
-                    "悉达罗摩": 3,
-                    "赐恩血瘤": 4,
-                    "血蛊巢心": 4,
-                    "月泉淮": 5,
-                    "乌蒙贵": 6}
-
-    # def makeEmptyHitList(self):
-    #     res = {}
-    #     for i in self.actorSkillList:
-    #         res["s" + i] = 0
-    #     for i in self.actorBuffList:
-    #         res["b" + i] = 0
-    #     return res
-    #
-    # def checkFirst(self, key, data, occdict):
-    #     if occdict[key][0] != '0' and key not in data.hitCount:
-    #         data.hitCount[key] = self.makeEmptyHitList()
-    #         data.hitCountP2[key] = self.makeEmptyHitList()
-    #     return data
 
     def hashGroup(self):
         nameList = []
@@ -126,8 +91,8 @@ class ActorProReplayer(ReplayerBase):
         result["userid"] = self.config.item["user"]["uuid"]
         
         allInfo = {}
-        allInfo["effectiveDPSList"] = self.effectiveDPSList
-        allInfo["potList"] = self.potList
+        # allInfo["effectiveDPSList"] = self.effectiveDPSList
+        # allInfo["potList"] = self.potList
         allInfo["battleTime"] = self.battleTime
         allInfo["act"] = self.combatTracker.generateJson()
         allInfo["mask"] = self.config.item["general"]["mask"]
@@ -136,27 +101,6 @@ class ActorProReplayer(ReplayerBase):
 
         uploadData = {"type": "battle", "data": result, "anchor": None}
         self.window.addUploadData(uploadData)
-
-        # Jdata = json.dumps(result)
-        # jpost = {'jdata': Jdata}
-        # jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        # resp = urllib.request.urlopen('http://%s:8009/uploadActorData' % IP, data=jparse)
-        #
-        # res = json.load(resp)
-        #
-        # if self.window is not None:
-        #     if res["scoreStatus"] == "illegal":
-        #         self.window.setNotice({"t2": "未增加荣誉值，原因：非指定地图", "c2": "#ff0000"})
-        #     elif res["scoreStatus"] == "notwin":
-        #         self.window.setNotice({"t2": "未增加荣誉值，原因：未击败BOSS", "c2": "#ff0000"})
-        #     elif res["scoreStatus"] == "expire":
-        #         self.window.setNotice({"t2": "未增加荣誉值，原因：数据已被他人上传", "c2": "#ff0000"})
-        #     elif res["scoreStatus"] == "dupid":
-        #         self.window.setNotice({"t2": "未增加荣誉值，原因：数据已被自己上传", "c2": "#ff0000"})
-        #     elif res["scoreStatus"] == "nologin":
-        #         self.window.setNotice({"t2": "未增加荣誉值，原因：未注册用户名", "c2": "#ff0000"})
-        #     elif res["scoreStatus"] == "success":
-        #         self.window.setNotice({"t2": "数据上传成功，荣誉值增加：%d" % res["scoreAdd"], "c2": "#00ff00"})
 
     def FirstStageAnalysis(self):
         '''
@@ -173,7 +117,6 @@ class ActorProReplayer(ReplayerBase):
         # TODO 为格式错误准备报错信息
         if len(self.bld.log) == 0:
             raise Exception('复盘信息格式错误，请确认设置是否正确。如果不清楚细节，请先使用实时模式。')
-            return 1  # 格式错误
 
         # self.namedict = namedict
         # self.occdict = occdict
@@ -212,33 +155,36 @@ class ActorProReplayer(ReplayerBase):
 
                 if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ['桑乔', "桑喬"]:
                     self.bossAnalyseName = "桑乔"
-
                 if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ['悉达罗摩', "悉達羅摩"]:
                     self.bossAnalyseName = "悉达罗摩"
-
                 if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ['赐恩血瘤', "賜恩血瘤"]:
                     self.bossAnalyseName = "尤珈罗摩"
-
                 if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == '月泉淮':
                     self.bossAnalyseName = "月泉淮"
-
                 if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ['乌蒙贵', "烏蒙貴", "黑条巨蛾", "黑條巨蛾"]:
                     self.bossAnalyseName = "乌蒙贵"
-
                 if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ['勒齐那', "勒齊那"]:
                     self.bossAnalyseName = "勒齐那"
-
                 if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ['阿阁诺', "阿閣諾"]:
                     self.bossAnalyseName = "阿阁诺"
-
                 if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ['周通忌']:
                     self.bossAnalyseName = "周通忌"
-
                 if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ['周贽', "周贄", "狼牙精锐", "狼牙精銳", "李秦授"]:
                     self.bossAnalyseName = "周贽"
-
                 if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ['常宿']:
                     self.bossAnalyseName = "常宿"
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ["张景超", "張景超", "张法雷", "張法雷"]:
+                    self.bossAnalyseName = "张景超"
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ["刘展", "劉展", "枪卫首领", "槍衛首領", "斧卫首领", "斧衛首領"]:
+                    self.bossAnalyseName = "刘展"
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ["苏凤楼", "蘇鳳樓"]:
+                    self.bossAnalyseName = "苏凤楼"
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ["韩敬青", "韓敬青"]:
+                    self.bossAnalyseName = "韩敬青"
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ["藤原佑野"]:
+                    self.bossAnalyseName = "藤原佑野"
+                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ["李重茂", "永王叛军长枪兵", "一刀流精锐武士", "永王叛军剑卫", "永王叛軍長槍兵", "一刀流精銳武士", "永王叛軍劍衛"]:
+                    self.bossAnalyseName = "李重茂"
 
                 # 通过技能确定具体心法
                 if event.caster in occDetailList and occDetailList[event.caster] in ['1', '2', '3', '4', '5', '6', '7', '10',
@@ -354,6 +300,24 @@ class ActorProReplayer(ReplayerBase):
         elif self.bossAnalyseName == "常宿":
             bossAnalyser = ChangXiuReplayer(self.bld, occDetailList, self.startTime,
                                            self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "张景超":
+            bossAnalyser = ZhangJingchaoReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "刘展":
+            bossAnalyser = LiuZhanReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "苏凤楼":
+            bossAnalyser = SuFenglouReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "韩敬青":
+            bossAnalyser = HanJingqingReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "藤原佑野":
+            bossAnalyser = TengyuanYouyeReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "李重茂":
+            bossAnalyser = LiChongmaoReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
         else:
             bossAnalyser = GeneralReplayer(self.bld, occDetailList, self.startTime,
                                            self.finalTime, self.battleTime, self.bossNamePrint, self.config)
@@ -455,7 +419,7 @@ class ActorProReplayer(ReplayerBase):
                             deathHitDetail[event.caster].append([event.time, self.bld.info.getSkillName(event.full_id), event.damage, event.caster, -1, event.effect, event.damageEff])
 
                     # 开怪统计，判断对本体的伤害
-                    if event.caster in self.bld.info.player and event.heal == 0:# and self.bld.info.npc[event.target].name in self.bossNameDict:
+                    if event.caster in self.bld.info.player and event.heal == 0:
                         if event.id in ["2516"]:
                             pass
                         elif self.firstHitList[event.caster] == 0:
@@ -493,23 +457,11 @@ class ActorProReplayer(ReplayerBase):
 
             elif event.dataType == "Buff":
 
-                # if occdict[item[5]][0] == '0':
-                #     continue
                 if event.target not in self.bld.info.player:
                     continue
 
                 if event.id == "16877":
                     print(parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.target), event.level)
-
-                name = self.bld.info.getSkillName(event.target)
-                if event.id == "18752":
-                    print("[Fumo]", parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.target), event.level)
-
-                # data = self.checkFirst(item[5], data, occdict)
-                # if item[6] in self.actorBuffList and int(item[10]) == 1:
-                #     if item[5] not in data.hitCount:
-                #         data.hitCount[item[5]] = self.makeEmptyHitList()
-                #     data.hitCount[item[5]]["b" + item[6]] += 1
 
                 if event.id in deathBuffDict:
                     if event.target not in deathBuff:
@@ -557,11 +509,7 @@ class ActorProReplayer(ReplayerBase):
                 if event.id not in self.bld.info.player:
                     continue
 
-                # data = self.checkFirst(item[4], data, occdict)
-                # if item[4] in occdict and int(occdict[item[4]][0]) != 0:
                 severe = 1
-                # if self.bossname in self.bossNameDict:
-                #     data.deathCount[item[4]][self.bossNameDict[self.bossname]] += 1
 
                 self.deathName[self.bld.info.player[event.id].name] = 1
 
@@ -598,8 +546,6 @@ class ActorProReplayer(ReplayerBase):
                             name = self.bld.info.player[line[3]].name
                         elif line[3] in self.bld.info.npc:
                             name = self.bld.info.npc[line[3]].name
-                        # if line[3] in namedict:
-                        #     name = namedict[line[3]][0].strip('"')
                         resultStr = ""
                         if line[5] > 0 and line[5] <= 7:
                             resultStr = ["", "(招架)", "(免疫)", "(偏离)", "(闪避)", "(会心)", "(识破)", "(化解)"][line[5]]
@@ -641,13 +587,9 @@ class ActorProReplayer(ReplayerBase):
                         self.unusualDeathDict[event.id]["num"] += 1
                         self.unusualDeathDict[event.id]["log"].append(lastLine)
 
-                    # # 对有重伤统计的BOSS进行记录
-                    # if self.bossAnalyser.activeBoss in []:
-                    #     self.bossAnalyser.recordDeath(item, deathSource)
 
             elif event.dataType == "Shout":  # 喊话
-                if "喝哈" in event.content:
-                    P3active = 1
+                pass
                 # print("[Shout]", event.time, event.content)
 
             elif event.dataType == "Battle":  # 战斗状态变化
@@ -656,9 +598,6 @@ class ActorProReplayer(ReplayerBase):
 
             elif event.dataType == "Scene":  # 进入、离开场景
                 pass
-                # if event.id in self.bld.info.npc and "的" not in self.bld.info.npc[event.id].name:
-                #     print("[Appear]", event.time, event.id, event.enter, self.bld.info.npc[event.id].templateID, self.bld.info.npc[event.id].name)
-                # print("[Appear]", event.time, event.id, event.enter, "xxx")
 
             elif event.dataType == "Cast":  # 施放技能事件，jcl专属
                 pass
@@ -677,96 +616,92 @@ class ActorProReplayer(ReplayerBase):
         self.startTime, self.finalTime, self.battleTime = self.bossAnalyser.trimTime()
         self.battleTime += 1e-10  # 防止0战斗时间导致错误
 
-        recordGORate = 0
-
         effectiveDPSList, potList, detail = self.bossAnalyser.getResult()
         self.potList = potList
         self.win = self.bossAnalyser.win
-        recordGORate = 1
 
-        sumDPS = 0
-        numDPS = 0
-        for line in effectiveDPSList:
-            sumDPS += line[2]
-            numDPS += 1
+        # recordGORate = 1
+        # sumDPS = 0
+        # numDPS = 0
+        # for line in effectiveDPSList:
+        #     sumDPS += line[2]
+        #     numDPS += 1
+        #
+        # averageDPS = safe_divide(sumDPS, numDPS)
+        #
+        # # 在DPS过于离谱的BOSS跳过DPS统计
+        # skipDPS = 0
+        #
+        # if True:
+        #     if parseEdition(EDITION) == 0:  # 非联机版本跳过加载步骤
+        #         result = None
+        #     else:
+        #         result = {"mapdetail": self.mapDetail, "boss": self.bossname}
+        #         Jdata = json.dumps(result)
+        #         jpost = {'jdata': Jdata}
+        #         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
+        #         resp = urllib.request.urlopen('http://%s:8009/getDpsStat' % IP, data=jparse)
+        #         res = json.load(resp)
+        #     if result is None:
+        #         print("连接服务器失败！")
+        #     elif res['result'] == 'success':
+        #         resultDict = json.loads(res['statistics'].replace("'", '"'))
+        #         sumStandardDPS = 0
+        #
+        #         for i in range(len(effectiveDPSList) - 1, -1, -1):
+        #             line = effectiveDPSList[i]
+        #             occ = str(line[1])
+        #             if occ not in resultDict:
+        #                 resultDict[occ] = ["xx", "xx", 50000]
+        #             #if occ[-1] in ["d", "h", "t", "p", "m"]:
+        #             #    occ = occ[:-1]
+        #             sumStandardDPS += resultDict[occ][2]
+        #
+        #         for i in range(len(effectiveDPSList) - 1, -1, -1):
+        #             line = effectiveDPSList[i]
+        #             occ = str(line[1])
+        #             if occ not in resultDict:
+        #                 resultDict[occ] = ["xx", "xx", 50000]
+        #             GORate = safe_divide(line[2], sumDPS) * safe_divide(sumStandardDPS, resultDict[occ][2])
+        #
+        #             occDPS = resultDict[occ][2]
+        #             GODPS = safe_divide(sumDPS, sumStandardDPS) * occDPS
+        #             DPSDetail = ["实际DPS：%d"%line[2], "心法平均DPS：%d"%occDPS, "团队-心法平均DPS：%d"%GODPS]
+        #
+        #             if GORate < self.qualifiedRate:
+        #                 sumDPS -= line[2]
+        #                 numDPS -= 1
+        #                 sumStandardDPS -= resultDict[occ][2]
+        #                 if GORate > 0.1 and not skipDPS:
+        #                     self.bossAnalyser.addPot([line[0],
+        #                                          line[1],
+        #                                          1,
+        #                                          self.bossNamePrint,
+        #                                          "团队-心法DPS未到及格线(%s%%/%s%%)" % (parseCent(GORate, 0), parseCent(self.qualifiedRate, 0)),
+        #                                          DPSDetail,
+        #                                          0])
+        #             elif GORate < self.alertRate and not skipDPS:
+        #                 self.bossAnalyser.addPot([line[0],
+        #                                      line[1],
+        #                                      0,
+        #                                      self.bossNamePrint,
+        #                                      "团队-心法DPS低于预警线(%s%%/%s%%)" % (parseCent(GORate, 0), parseCent(self.alertRate, 0)),
+        #                                      DPSDetail,
+        #                                      0])
+        #
+        #             elif GORate > self.bonusRate and not skipDPS:
+        #                 self.bossAnalyser.addPot([line[0],
+        #                                      line[1],
+        #                                      3,
+        #                                      self.bossNamePrint,
+        #                                      "团队-心法DPS达到补贴线(%s%%/%s%%)" % (parseCent(GORate, 0), parseCent(self.bonusRate, 0)),
+        #                                      DPSDetail,
+        #                                      0])
+        #
+        #             if recordGORate and getOccType(line[1]) != "healer":
+        #                 effectiveDPSList[i][3] = int(GORate * 100)
 
-        averageDPS = safe_divide(sumDPS, numDPS)
-
-        # 在DPS过于离谱的BOSS跳过DPS统计
-        skipDPS = 0
-        
-        if True:
-            if parseEdition(EDITION) == 0:  # 非联机版本跳过加载步骤
-                result = None
-            else:
-                result = {"mapdetail": self.mapDetail, "boss": self.bossname}
-                Jdata = json.dumps(result)
-                jpost = {'jdata': Jdata}
-                jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-                resp = urllib.request.urlopen('http://%s:8009/getDpsStat' % IP, data=jparse)
-                res = json.load(resp)
-            if result is None:
-                print("连接服务器失败！")
-            elif res['result'] == 'success':
-                resultDict = json.loads(res['statistics'].replace("'", '"'))
-                sumStandardDPS = 0
-                
-                for i in range(len(effectiveDPSList) - 1, -1, -1):
-                    line = effectiveDPSList[i]
-                    occ = str(line[1])
-                    if occ not in resultDict:
-                        resultDict[occ] = ["xx", "xx", 50000]
-                    #if occ[-1] in ["d", "h", "t", "p", "m"]:
-                    #    occ = occ[:-1]
-                    sumStandardDPS += resultDict[occ][2]
-                    
-                for i in range(len(effectiveDPSList) - 1, -1, -1):  
-                    line = effectiveDPSList[i]
-                    occ = str(line[1])
-                    if occ not in resultDict:
-                        resultDict[occ] = ["xx", "xx", 50000]
-                    GORate = safe_divide(line[2], sumDPS) * safe_divide(sumStandardDPS, resultDict[occ][2])
-                    
-                    occDPS = resultDict[occ][2]
-                    GODPS = safe_divide(sumDPS, sumStandardDPS) * occDPS
-                    DPSDetail = ["实际DPS：%d"%line[2], "心法平均DPS：%d"%occDPS, "团队-心法平均DPS：%d"%GODPS]
-                
-                    if GORate < self.qualifiedRate:
-                        sumDPS -= line[2]
-                        numDPS -= 1
-                        sumStandardDPS -= resultDict[occ][2]
-                        if GORate > 0.1 and not skipDPS:
-                            self.bossAnalyser.addPot([line[0],
-                                                 line[1],
-                                                 1,
-                                                 self.bossNamePrint,
-                                                 "团队-心法DPS未到及格线(%s%%/%s%%)" % (parseCent(GORate, 0), parseCent(self.qualifiedRate, 0)),
-                                                 DPSDetail,
-                                                 0])
-                    elif GORate < self.alertRate and not skipDPS:
-                        self.bossAnalyser.addPot([line[0],
-                                             line[1],
-                                             0,
-                                             self.bossNamePrint,
-                                             "团队-心法DPS低于预警线(%s%%/%s%%)" % (parseCent(GORate, 0), parseCent(self.alertRate, 0)),
-                                             DPSDetail,
-                                             0])
-                                             
-                    elif GORate > self.bonusRate and not skipDPS:
-                        self.bossAnalyser.addPot([line[0],
-                                             line[1],
-                                             3,
-                                             self.bossNamePrint,
-                                             "团队-心法DPS达到补贴线(%s%%/%s%%)" % (parseCent(GORate, 0), parseCent(self.bonusRate, 0)),
-                                             DPSDetail,
-                                             0])
-                                             
-                    if recordGORate and getOccType(line[1]) != "healer":
-                        effectiveDPSList[i][3] = int(GORate * 100)
-                            
         # 开怪统计
-        # print(self.firstHitList)
-
         if self.firstHitList != {}:
             earliestHit = 0
             earliestTankHit = 0
@@ -840,10 +775,8 @@ class ActorProReplayer(ReplayerBase):
 
         if self.win:
             self.upload = 1
-        if self.mapDetail in ["25人英雄雷域大泽"]:
-            self.upload = 1
 
-        # print("[Win]", self.win)
+        print("[Win]", self.win)
 
         if self.bossAnalyser.hasBh:
             self.bh = self.bossAnalyser.bh
@@ -899,33 +832,23 @@ class ActorProReplayer(ReplayerBase):
         actorData["act"] = self.combatTracker
         actorData["occDetailList"] = self.occDetailList
         actorData["hash"] = self.hashGroup()
-        # actorData["zhenyanInfer"] = self.zhenyanInfer
+        # actorData["zhenyanInfer"] = self.zhenyanInfer  # TODO 在dps统计中可能会用到
         for id in self.bld.info.player:
+            name = self.bld.info.player[id].name
+            replayer = None
             if self.config.item["xiangzhi"]["active"] and self.occDetailList[id] == "22h":  # 奶歌
-                name = self.bld.info.player[id].name
-                xiangzhiRep = XiangZhiProReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
-                xiangzhiRep.replay()
-                self.occResult[name] = {"occ": "22h", "result": xiangzhiRep.result, "rank": xiangzhiRep.rank}
+                replayer = XiangZhiProReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
             if self.config.item["lingsu"]["active"] and self.occDetailList[id] == "212h":  # 灵素
-                name = self.bld.info.player[id].name
-                lingsuRep = LingSuReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
-                lingsuRep.replay()
-                self.occResult[name] = {"occ": "212h", "result": lingsuRep.result, "rank": lingsuRep.rank}
+                replayer = LingSuReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
             if self.config.item["lijing"]["active"] and self.occDetailList[id] == "2h":  # 奶花
-                name = self.bld.info.player[id].name
-                lijingyidaoRep = LiJingYiDaoReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
-                lijingyidaoRep.replay()
-                self.occResult[name] = {"occ": "2h", "result": lijingyidaoRep.result, "rank": lijingyidaoRep.rank}
+                replayer = LiJingYiDaoReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
             if self.config.item["yunchang"]["active"] and self.occDetailList[id] == "5h":  # 奶秀
-                name = self.bld.info.player[id].name
-                yunchangxinjingRep = YunChangXinJingReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
-                yunchangxinjingRep.replay()
-                self.occResult[name] = {"occ": "5h", "result": yunchangxinjingRep.result, "rank": yunchangxinjingRep.rank}
+                replayer = YunChangXinJingReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
             if self.config.item["butian"]["active"] and self.occDetailList[id] == "6h":  # 奶毒
-                name = self.bld.info.player[id].name
-                butianjueRep = BuTianJueReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
-                butianjueRep.replay()
-                self.occResult[name] = {"occ": "6h", "result": butianjueRep.result, "rank": butianjueRep.rank}
+                replayer = BuTianJueReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
+            if replayer is not None:
+                replayer.replay()
+                self.occResult[name] = {"occ": self.occDetailList[id], "result": replayer.result, "rank": replayer.rank}
 
     def replay(self):
         '''
@@ -971,13 +894,14 @@ class ActorProReplayer(ReplayerBase):
         self.alertRate = config.item["actor"]["alertrate"]  # alertRate
         self.bonusRate = config.item["actor"]["bonusrate"]  # bonusRate
 
-        # self.getMap()
-        # self.lastTimeStamp = 0
-
         # 复盘结果信息
         self.potList = []
         self.detail = {"boss": "未知"}
         self.effectiveDPSList = []
         self.equipmentDict = {}
         self.available = True  # 暂时用来判定月泉淮中间分片
+        self.bossAnalyseName = "未知"
+        self.occDetailList = {}
+        self.upload = 0
+
 

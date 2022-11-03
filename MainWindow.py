@@ -213,6 +213,7 @@ class MainWindow():
             self.setNotice({"t1": "复盘完成！", "c1": "#000000"})
             self.show_history()
             self.clearIfRunning()
+            self.hasReplayed = True
 
         #self.checkAttendence()
 
@@ -318,22 +319,27 @@ class MainWindow():
             self.listenThread.setDaemon(True);
             self.listenThread.start()
             
-    def show_tianwang(self):
+    def show_logs(self):
         if self.lock.state():
             return
-        if self.playerIDs == []:
-            url = "http://%s:8009/TianwangSearch.html" % IP
+        if self.playerIDs == [] or True:
+            url = "http://%s" % IP
             webbrowser.open(url)
         else:
+            # TODO 等logs更新功能后加入
             ids = "+".join(self.playerIDs)
-            url = "http://%s:8009/Tianwang.html?server=%s&ids=%s"%(IP, self.server, ids)
+            url = "http://%s/getMultiRank.html?server=%s&ids=%s"%(IP, self.server, ids)
             webbrowser.open(url)
         
     def show_history(self):
         if self.lock.state():
             return
-        allStatWindow = AllStatWindow(self.analyser, self)
-        allStatWindow.start()
+        empty = self.analyser.checkEmpty()
+        if empty:
+            messagebox.showinfo(title='？', message='还没有成功复盘，请使用“复盘模式”进行记录。')
+        else:
+            allStatWindow = AllStatWindow(self.analyser, self)
+            allStatWindow.start()
         
     def show_last_replay(self):
         if self.lock.state():
@@ -341,6 +347,8 @@ class MainWindow():
         if self.startLive or self.hasReplayed:
             replayWindow = SingleBossWindow(self.liveListener.analyser, -1, self)
             replayWindow.constructReplayByNum(-1)
+        else:
+            messagebox.showinfo(title='？', message='还没有成功复盘，请使用“复盘模式”进行记录。')
         
     def show_config(self):
         if self.lock.state():
@@ -413,19 +421,19 @@ class MainWindow():
         self.text2 = text2
         
         b3 = tk.Button(window, text='总结', height=1, command=self.show_history)
-        b3.place(x = 180, y = 180)
+        b3.place(x=180, y=180)
         
         b32 = tk.Button(window, text='复盘', height=1, command=self.show_last_replay)
-        b32.place(x = 215, y = 180)
+        b32.place(x=215, y=180)
         
         b4 = tk.Button(window, text='设置', height=1, command=self.show_config)
-        b4.place(x = 250, y = 180)
+        b4.place(x=250, y=180)
         
         b5 = tk.Button(window, text='公告', height=1, command=self.show_announcement)
-        b5.place(x = 250, y = 20)
+        b5.place(x=250, y=20)
         
-        b6 = tk.Button(window, text='天网', height=1, command=self.show_tianwang)
-        b6.place(x = 20, y = 20)
+        b6 = tk.Button(window, text='logs', height=1, command=self.show_logs)
+        b6.place(x=20, y=20)
         
         b7 = tk.Button(window, text='+', bg='#ffcccc', width=1, height=1, command=self.live_once)
         b7.place(x=200, y=108)
