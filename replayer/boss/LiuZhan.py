@@ -125,6 +125,22 @@ class LiuZhanReplayer(SpecificReplayerPro):
                     if "," not in skillName:
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "玩家获得气劲", "buff")
 
+            if event.id == "23777":  # 飞挑·余劲
+                if event.stack == 1:
+                    self.xiazhuiStart[event.target] = event.time
+                    self.stunCounter[event.target].setState(event.time, 1)
+                else:
+                    self.bh.setCall("23777", "飞挑·余劲", "3428", self.xiazhuiStart[event.target], event.time - self.xiazhuiStart[event.target], event.target, "飞挑下坠")
+                    self.stunCounter[event.target].setState(event.time, 0)
+
+            if event.id == "23771":  # 利斧断躯
+                if event.stack == 1:
+                    self.lifuStart[event.target] = event.time
+                    self.stunCounter[event.target].setState(event.time, 1)
+                else:
+                    self.bh.setCall("23771", "利斧断躯", "2034", self.lifuStart[event.target], event.time - self.lifuStart[event.target], event.target, "利斧断躯点名承伤")
+                    self.stunCounter[event.target].setState(event.time, 0)
+
         elif event.dataType == "Shout":
             if event.content in ['"尔等必葬身于此！"']:
                 pass
@@ -145,11 +161,13 @@ class LiuZhanReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"呃……"']:
                 self.changePhase(event.time, 3)
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
             elif event.content in ['"将军……"']:
                 pass
             elif event.content in ['"唔……"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
             elif event.content in ['"剁碎你们！"']:
                 pass
             elif event.content in ['"将军……"']:
@@ -213,27 +231,32 @@ class LiuZhanReplayer(SpecificReplayerPro):
 
         self.bhBlackList.extend(["s31978", "n111991", "b23779", "s31998", "s31979", "b23370", "b23379", "s31982",
                                  "b24565", "n112050", "s31983", "s31987", "n110498", "s31984", "n112863", "s31986",
-                                 "s31989", "n111564", "n111966", "n112827", "b23769", "b23770", "n112051", "s32120",
-                                 "s31991", "n110496", "n112041", "b23778", "n112067", "n112830", "n112828", "n112017",
+                                 "s31989", "b23769", "b23770", "n112051", "s32120",
+                                 "s31991", "n110496", "n112041", "b23778", "n112067", "n112017",
                                  "n112032", "n110495", "s31995", "c32107"])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
-        self.bhInfo = {"c32002": ["2019", "#ff00ff", 6000],  # 山崩石碎斩
-                       "c31995": ["2019", "#ff00ff", 6000],  # 箭雨
-                       "c31981": ["2019", "#ff00ff", 18000],  # 飞挑
-                       "c31990": ["2019", "#ff00ff", 11000],  # 利斧断躯
-                       "c31992": ["2019", "#ff00ff", 0],  # 指挥·坠鸟
-                       "c31996": ["2019", "#ff00ff", 0],  # 枪气横扫
-                       "c31994": ["2019", "#ff00ff", 0],  # 指挥·万箭齐发
-                       "c31988": ["2019", "#ff00ff", 0],  # 重斧震地
-                       'c31985': ["2019", "#ff00ff", 0],  # 枪阵冲锋
+        self.bhInfo = {"c32002": ["3452", "#773333", 6000],  # 山崩石碎斩
+                       "c31995": ["3319", "#00ff00", 6000],  # 箭雨
+                       "c31981": ["3430", "#ff00ff", 18000],  # 飞挑
+                       "c31990": ["2034", "#ff7733", 11000],  # 利斧断躯
+                       "c31992": ["3293", "#7700ff", 0],  # 指挥·坠鸟
+                       "c31996": ["16", "#00ffff", 0],  # 枪气横扫
+                       "c31994": ["3319", "#00ff00", 0],  # 指挥·万箭齐发
+                       "c31988": ["3398", "#007700", 0],  # 重斧震地
+                       'c31985': ["2144", "#0000ff", 0],  # 枪阵冲锋
                        }
 
         # 刘展数据格式：
         # 7 ？
 
+        self.xiazhuiStart = {}
+        self.lifuStart = {}
+
         for line in self.bld.info.player:
             self.stat[line].extend([0, 0, 0])
+            self.xiazhuiStart[line] = 0
+            self.lifuStart[line] = 0
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''

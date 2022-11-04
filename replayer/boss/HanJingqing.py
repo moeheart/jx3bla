@@ -125,8 +125,59 @@ class HanJingqingReplayer(SpecificReplayerPro):
                     if "," not in skillName:
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "玩家获得气劲", "buff")
 
+            if event.id == "24760":  # 毒液缠身
+                if event.stack == 1:
+                    self.bh.setCall("24760", "毒液缠身", "16540", event.time, 5000, event.target, "毒液缠身接罐子")
+                    self.stunCounter[event.target].setState(event.time, 1)
+                    self.stunCounter[event.target].setState(event.time + 5000, 0)
+
+            if event.id == "23890":  # 毒技能点名标记
+                if event.stack == 1:
+                    self.bh.setCall("23890", "点名标记", "2027", event.time, 0, event.target, "点名去BOSS的另一侧排buff")
+                    self.stunCounter[event.target].setState(event.time, 1)
+                    self.stunCounter[event.target].setState(event.time + 3000, 0)
+
         elif event.dataType == "Shout":
-            if False:
+            if event.content in ['"好，好！就用你们来试试我的蛊毒..."']:
+                pass
+            elif event.content in ['"奔涌吧！"']:
+                pass
+            elif event.content in ['"号哭吧！"']:
+                pass
+            elif event.content in ['"嘿嘿嘿...蛊毒早已渗入泉眼，你们都要葬身于此！桑乔，我给你报仇了…….."']:
+                self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            elif event.content in ['"感受我的痛苦！"']:
+                pass
+            elif event.content in ['"怎么回事……刚才是我的记忆……还是幻觉？"']:
+                pass
+            elif event.content in ['"谢谢各位。"']:
+                pass
+            elif event.content in ['"如此……依计行事。"']:
+                pass
+            elif event.content in ['"是。"']:
+                pass
+            elif event.content in ['"什么人？"']:
+                pass
+            elif event.content in ['"啧……"']:
+                pass
+            elif event.content in ['"啊……"']:
+                pass
+            elif event.content in ['"啊！"']:
+                pass
+            elif event.content in ['"凤棠……是你……"']:
+                pass
+            elif event.content in ['"哥……你醒了。"']:
+                pass
+            elif event.content in ['"我清醒的时间有限……好多事……李重茂……我要告诉你们……"']:
+                pass
+            elif event.content in ['"哥，不要怕。我们先回万花谷去治你的伤，我们还有很多的时间。"']:
+                pass
+            elif event.content in ['"不，还不能走……现在必须立即前去阻止那个姓韩的怪人和那个东瀛人！不能让他们的蛊毒污染水源！"']:
+                pass
+            elif event.content in ['"那个怪人熔炼出的蛊毒虽然与江河相比如沧海一粟，但若以阴阳术催化毒性，就能在水源中快速扩散，污染大片的土地。"']:
+                pass
+            elif event.content in ['""']:
                 pass
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
@@ -176,14 +227,16 @@ class HanJingqingReplayer(SpecificReplayerPro):
         self.initBattleBase()
         self.activeBoss = "韩敬青"
 
-        self.phase = 1
-        self.phaseStart = self.startTime
-        self.phaseTime = [0, 0, 0]
+        self.initPhase(1, 1)
 
-        self.bhBlackList.extend([])
+        self.bhBlackList.extend(["n112021", "s32128", "b23868", "n113050", "n113050", "s32127", "b24758", "b23869",
+                                 "n112016", "s32827", "b24760", "s33241", "b24759", "s32828", "s33251", "b24770"])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
-        self.bhInfo = {"s30047": ["2019", "#ff00ff"],  # 罪笞
+        self.bhInfo = {"c32173": ["4519", "#007777", 0],  # 毒浪翻涌
+                       "c32183": ["16540", "#ff7700", 0],  # 雨倾蛊纵
+                       "c32172": ["4501", "#00ff33", 0],  # 毒风怒号
+                       "c32182": ["3434", "#ff7777", 0],  # 刀锋毒影
                        }
 
         # 韩敬青数据格式：

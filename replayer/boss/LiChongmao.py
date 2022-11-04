@@ -125,13 +125,74 @@ class LiChongmaoReplayer(SpecificReplayerPro):
                     if "," not in skillName:
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "玩家获得气劲", "buff")
 
+            if event.id == "24289":  # 枪兵目标
+                if event.stack == 1:
+                    self.qiangbingStart[event.target] = event.time
+                    self.stunCounter[event.target].setState(event.time, 1)
+                else:
+                    self.bh.setCall("24289", "枪兵目标", "3426", self.qiangbingStart[event.target], event.time - self.qiangbingStart[event.target], event.target, "被枪兵点名")
+                    self.stunCounter[event.target].setState(event.time, 0)
+
+            if event.id == "24078":  # 潜龙真气
+                if event.stack == 1:
+                    self.bh.setCall("24078", "潜龙真气", "3431", event.time, 12000, event.target, "潜龙真气点名")
+
+            if event.id == "24593":  # 雪风
+                if event.stack == 1:
+                    self.bh.setCall("24593", "雪风", "3414", event.time, 2500, event.target, "雪风点名")
+
         elif event.dataType == "Shout":
-            if False:
+            if event.content in ['"这就是乱臣贼子的下场！"']:
+                pass
+            elif event.content in ['"有刺客，快来人护驾！"']:
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
+            elif event.content in ['"御林军何在！"']:
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
+            elif event.content in ['"太平公主、临淄王……你们休想夺走朕的皇位！"']:
+                self.changePhase(event.time, 2)
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
+            elif event.content in ['"我忍辱负重至今，只为重夺皇位，我才是真命天子！"']:
+                self.changePhase(event.time, 3)
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
+            elif event.content in ['"救驾！人呢？救驾！"']:
+                self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
+            elif event.content in ['"护驾二字岂是你这贼子能喊的？"']:
+                pass
+            elif event.content in ['"如此……依计行事。"']:
+                pass
+            elif event.content in ['"是。"']:
+                pass
+            elif event.content in ['"什么人？"']:
+                pass
+            elif event.content in ['"啧……"']:
+                pass
+            elif event.content in ['"啊……"']:
+                pass
+            elif event.content in ['"啊！"']:
+                pass
+            elif event.content in ['"凤棠……是你……"']:
+                pass
+            elif event.content in ['"哥……你醒了。"']:
+                pass
+            elif event.content in ['"我清醒的时间有限……好多事……李重茂……我要告诉你们……"']:
+                pass
+            elif event.content in ['"哥，不要怕。我们先回万花谷去治你的伤，我们还有很多的时间。"']:
+                pass
+            elif event.content in ['"不，还不能走……现在必须立即前去阻止那个姓韩的怪人和那个东瀛人！不能让他们的蛊毒污染水源！"']:
+                pass
+            elif event.content in ['"那个怪人熔炼出的蛊毒虽然与江河相比如沧海一粟，但若以阴阳术催化毒性，就能在水源中快速扩散，污染大片的土地。"']:
+                pass
+            elif event.content in ['""']:
                 pass
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
         elif event.dataType == "Scene":  # 进入、离开场景
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["李重茂宝箱", "李重茂寶箱"]:
+                self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
                 name = "n%s" % self.bld.info.npc[event.id].templateID
                 skillName = self.bld.info.npc[event.id].name
@@ -176,21 +237,34 @@ class LiChongmaoReplayer(SpecificReplayerPro):
         self.initBattleBase()
         self.activeBoss = "李重茂"
 
-        self.phase = 1
-        self.phaseStart = self.startTime
-        self.phaseTime = [0, 0, 0]
+        self.initPhase(4, 1)
 
-        self.bhBlackList.extend([])
+        self.bhBlackList.extend(["n112037", "n112576", "s32339", "b24289", "c32634", "c33075", "s33076", "c32596",
+                                 "b24079", "n112030", "c32075", "b24338", "s32634", "s32596",  # P1
+                                 "b24085", "b24270", "s32331", "b24078", "s32340",  # P2
+                                 "b24589", "s33085", "s33086", "s33079", "s33080", "n112044", "s33078", "c33087",
+                                 "b24593", "b24591",  # P3
+                                 "n112856", "n112917", "n112829", "n112091", "n112578",  # 剧情
+                                 ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
-        self.bhInfo = {"s30047": ["2019", "#ff00ff"],  # 罪笞
+        self.bhInfo = {"c33076": ["2028", "#0000ff", 4000],  # 剑锋纵横
+                       "c32331": ["332", "#ff00ff", 3000],  # 一刀流·龙锤
+                       "c32332": ["3431", "#7777ff", 4000],  # 潜龙真气
+                       "c32333": ["3398", "#ff77cc", 0],  # 一刀流·秋水
+                       "c33085": ["3430", "#ff7777", 4500],  # 一刀流·天诛
+                       "c33078": ["2021", "#ff7700", 2500],  # 一刀流·雪风
+                       "c33079": ["327", "#ff0000", 2000],  # 一刀流·X日
                        }
 
         # 李重茂数据格式：
         # 7 ？
 
+        self.qiangbingStart = {}
+
         for line in self.bld.info.player:
             self.stat[line].extend([0, 0, 0])
+            self.qiangbingStart[line] = 0
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''

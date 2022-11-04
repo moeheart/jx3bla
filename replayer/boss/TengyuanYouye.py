@@ -125,8 +125,62 @@ class TengyuanYouyeReplayer(SpecificReplayerPro):
                     if "," not in skillName:
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "玩家获得气劲", "buff")
 
+            if event.id == "23366":  # 四方结界
+                if event.stack == 1:
+                    self.sifangStart[event.target] = event.time
+                    self.stunCounter[event.target].setState(event.time, 1)
+                else:
+                    self.bh.setCall("23366", "四方结界", "12457", self.sifangStart[event.target], event.time - self.sifangStart[event.target], event.target, "被四方结界点名")
+                    self.stunCounter[event.target].setState(event.time, 0)
+
+            if event.id == "23592":  # 无名之火
+                if event.stack == 1:
+                    self.sifangStart[event.target] = event.time
+                    self.stunCounter[event.target].setState(event.time, 1)
+                    self.stunCounter[event.target].setState(event.time + 3000, 0)
+                    self.bh.setCall("23592", "无名之火", "4549", event.time, 0, event.target, "被四方结界点名")
+
         elif event.dataType == "Shout":
-            if False:
+            if event.content in ['"术式——无名之火！"']:
+                pass
+            elif event.content in ['"术式——木牙飞舞！"']:
+                pass
+            elif event.content in ['"……"']:
+                pass
+            elif event.content in ['"看来，又要徒增业障了。"']:
+                pass
+            elif event.content in ['"术式——金刚不破！"']:
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
+            elif event.content in ['"廿尺方围，彼足定礎，术式——结！"']:
+                pass
+            elif event.content in ['"拟我之形，化我之态。玄灵听令，式神召来！"']:
+                pass
+            elif event.content in ['"好眼力……"']:
+                pass
+            elif event.content in ['"看来李重茂气运已尽，留在这里对藤原家已经没有意义了。"']:
+                self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            elif event.content in ['"什么人？"']:
+                pass
+            elif event.content in ['"啧……"']:
+                pass
+            elif event.content in ['"啊……"']:
+                pass
+            elif event.content in ['"啊！"']:
+                pass
+            elif event.content in ['"凤棠……是你……"']:
+                pass
+            elif event.content in ['"哥……你醒了。"']:
+                pass
+            elif event.content in ['"我清醒的时间有限……好多事……李重茂……我要告诉你们……"']:
+                pass
+            elif event.content in ['"哥，不要怕。我们先回万花谷去治你的伤，我们还有很多的时间。"']:
+                pass
+            elif event.content in ['"不，还不能走……现在必须立即前去阻止那个姓韩的怪人和那个东瀛人！不能让他们的蛊毒污染水源！"']:
+                pass
+            elif event.content in ['"那个怪人熔炼出的蛊毒虽然与江河相比如沧海一粟，但若以阴阳术催化毒性，就能在水源中快速扩散，污染大片的土地。"']:
+                pass
+            elif event.content in ['""']:
                 pass
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
@@ -176,21 +230,27 @@ class TengyuanYouyeReplayer(SpecificReplayerPro):
         self.initBattleBase()
         self.activeBoss = "藤原佑野"
 
-        self.phase = 1
-        self.phaseStart = self.startTime
-        self.phaseTime = [0, 0, 0]
+        self.initPhase(2, 1)
 
-        self.bhBlackList.extend([])
+        self.bhBlackList.extend(["s31229", "n109807", "s31235", "b23345", "s31263", "s31236", "b23592", "s31230",
+                                 "b24407", "n109808", "b23347", "n112010", "b23366", "n111992", "s31241", "b23350",
+                                 "s31231", "n111972", "c31264", "n113099"])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
-        self.bhInfo = {"s30047": ["2019", "#ff00ff"],  # 罪笞
+        self.bhInfo = {"c32662": ["4531", "#ff7777", 3000],  # 无名之火
+                       "c31576": ["4528", "#77ff77", 13000],  # 木龙牙
+                       "c31301": ["12457", "#ff00ff", 5000],  # 四方结界
+                       "c31300": ["3414", "#ff7700", 5000],  # 阴阳术·式神拟态
                        }
 
         # 藤原佑野数据格式：
         # 7 ？
 
+        self.sifangStart = {}
+
         for line in self.bld.info.player:
             self.stat[line].extend([0, 0, 0])
+            self.sifangStart[line] = 0
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''

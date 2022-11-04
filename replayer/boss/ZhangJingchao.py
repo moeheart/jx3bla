@@ -128,6 +128,22 @@ class ZhangJingchaoReplayer(SpecificReplayerPro):
                     if "," not in skillName:
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "玩家获得气劲", "buff")
 
+            if event.id == "23235":  # 疾雷·瞄准
+                if event.stack == 1:
+                    self.bh.setCall("23235", "疾雷·瞄准", "4224", event.time, 5000, event.target, "排枪点名")
+
+            if event.id == "23274":  # 绝风疾
+                if event.stack == 1:
+                    self.bh.setCall("23274", "绝风疾", "4564", event.time, 7000, event.target, "消枪点名")
+
+            if event.id == "23361":  # 万钧
+                if event.stack == 1:
+                    self.wanjunStart[event.target] = event.time
+                    self.stunCounter[event.target].setState(event.time, 1)
+                else:
+                    self.bh.setCall("23361", "万钧", "3426", self.wanjunStart[event.target], event.time - self.wanjunStart[event.target], event.target, "万钧点名定身")
+                    self.stunCounter[event.target].setState(event.time, 0)
+
         elif event.dataType == "Shout":
             if event.content in ['"到此为止了！"']:
                 pass
@@ -214,26 +230,29 @@ class ZhangJingchaoReplayer(SpecificReplayerPro):
 
         self.bhBlackList.extend(["s31089", "s32392", "s31146", "b23271", "s31253", "s31259", "s31152", "b23274",
                                  "b23360", "n112005", "b23361", "c31935", "s31294", "s31327", "s32943", "n111977",
-                                 "s31324", "s31297", "c31296", "n112915", "n112830", "b23235", "s31267", "s31150",
+                                 "s31324", "s31297", "c31296", "n112915", "b23235", "s31267", "s31150",
                                  "c31293", "c31326", "n112022", "n112029", "c31803", "s31803", "s31296", "n112061",
-                                 "s31325", "s31851", "n112875", "n112828",
+                                 "s31325", "s31851", "n112875",
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
-        self.bhInfo = {"c31145": ["2019", "#ff00ff", 2000],  # 迅风裂
-                       "c31102": ["2019", "#ff00ff", 5000],  # 疾雷
-                       "c31152": ["2019", "#ff00ff", 5000],  # 刀止横流
-                       "c31148": ["2019", "#ff00ff", 0],  # 绝风疾
-                       "c31260": ["2019", "#ff00ff", 5000],  # 万钧
-                       "c31328": ["2019", "#ff00ff", 7000],  # 逆闪
-                       "c31851": ["2019", "#ff00ff", 7000],  # 霆鸣
+        self.bhInfo = {"c31145": ["3452", "#773333", 2000],  # 迅风裂
+                       "c31102": ["4224", "#ff7700", 5000],  # 疾雷
+                       "c31152": ["3408", "#7700ff", 5000],  # 刀止横流
+                       "c31148": ["4564", "#00ffff", 0],  # 绝风疾
+                       "c31260": ["4222", "#ff7777", 5000],  # 万钧
+                       "c31328": ["2146", "#ff77cc", 7000],  # 逆闪
+                       "c31851": ["3434", "#ff77ff", 7000],  # 霆鸣
                        }
 
         # 张景超数据格式：
         # 7 ？
 
+        self.wanjunStart = {}
+
         for line in self.bld.info.player:
             self.stat[line].extend([0, 0, 0])
+            self.wanjunStart[line] = 0
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''

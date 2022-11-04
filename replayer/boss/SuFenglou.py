@@ -125,13 +125,27 @@ class SuFenglouReplayer(SpecificReplayerPro):
                     if "," not in skillName:
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "玩家获得气劲", "buff")
 
+            if event.id == "24540":  # 注视
+                if event.stack == 1:
+                    self.bh.setCall("24540", "注视", "2028", event.time, 0, event.target, "金戈回澜注视点名")
+                    self.stunCounter[event.target].setState(event.time, 1)
+                    self.stunCounter[event.target].setState(event.time + 1500, 0)
+
+            if event.id == "23846":  # 骤雨
+                if event.stack == 1:
+                    self.zhouyuStart[event.target] = event.time
+                    self.stunCounter[event.target].setState(event.time, 1)
+                else:
+                    self.bh.setCall("23846", "骤雨", "12455", self.zhouyuStart[event.target], event.time - self.zhouyuStart[event.target], event.target, "骤雨寒江点名沉默")
+                    self.stunCounter[event.target].setState(event.time, 0)
+
         elif event.dataType == "Shout":
             if event.content in ['"尝尝这招！"']:
                 pass
             elif event.content in ['"……（诡异的笛音传来。）"']:
                 pass
             elif event.content in ['"头好痛……发生了什么？"']:
-                pass
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
             elif event.content in ['"果然还有余孽。"']:
                 pass
             elif event.content in ['"暂时撤退……反正任务已经达成。"']:
@@ -225,19 +239,22 @@ class SuFenglouReplayer(SpecificReplayerPro):
                                  "n110586", "n112018"])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
-        self.bhInfo = {"c32036": ["2019", "#ff00ff", 3000],  # 寒霜剑·霜落斩
-                       "c32185": ["2019", "#ff00ff", 3000],  # 斩风波
-                       "c32031": ["2019", "#ff00ff", 0],  # 青冥曲
-                       "c32116": ["2019", "#ff00ff", 2000],  # 金戈回澜
-                       "c32032": ["2019", "#ff00ff", 0],  # 叹月调
-                       "c32033": ["2019", "#ff00ff", 0],  # 留阙引
+        self.bhInfo = {"c32036": ["3431", "#ff7700", 3000],  # 寒霜剑·霜落斩
+                       "c32185": ["335", "#ff00ff", 3000],  # 斩风波
+                       "c32031": ["4531", "#0000ff", 0],  # 青冥曲
+                       "c32116": ["2028", "#ff0077", 2000],  # 金戈回澜
+                       "c32032": ["4532", "#0000ff", 0],  # 叹月调
+                       "c32033": ["4534", "#0000ff", 0],  # 留阙引
                        }
 
         # 苏凤楼数据格式：
         # 7 ？
 
+        self.zhouyuStart = {}
+
         for line in self.bld.info.player:
             self.stat[line].extend([0, 0, 0])
+            self.zhouyuStart[line] = 0
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''
