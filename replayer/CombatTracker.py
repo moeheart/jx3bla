@@ -610,43 +610,61 @@ class CombatTracker():
         以dict的形式整理统计治疗结果.
         '''
         for player in objSource:
-            objSource[player].export(self.timeHealer, self.info)
+            if player in self.stunTime:
+                adjustedTime = self.timeHealer - self.stunTime[player].buffTimeIntegral()
+            else:
+                adjustedTime = self.timeHealer
+            objSource[player].export(adjustedTime, self.info)
             if objSource[player].hps > 0:
                 objTarget["player"][player] = {"sum": objSource[player].sum,
                                          "hps": objSource[player].hps,
+                                         "sumPerSec": objSource[player].hps,
                                          "skill": objSource[player].skill,
                                          "namedSkill": objSource[player].namedSkill,
                                          "name": self.info.getName(player),
-                                         "occ": self.info.getOcc(player)}
-                objTarget["sum"] += objTarget["player"][player]["hps"]
+                                         "occ": self.info.getOcc(player),
+                                         "sumTime": self.time,
+                                         "effectiveTime": self.timeHealer,
+                                         "adjustedTime": adjustedTime}
+                objTarget["sum"] += objTarget["player"][player]["sumPerSec"]
                 
     def getStatInDps(self, objSource, objTarget):
         '''
         以dict的形式整理统计伤害结果.
         '''
         for player in objSource:
-            objSource[player].export(self.timeDps, self.info)
+            if player in self.stunTime:
+                adjustedTime = self.timeDps - self.stunTime[player].buffTimeIntegral()
+            else:
+                adjustedTime = self.timeDps
+            objSource[player].export(adjustedTime, self.info)
             if objSource[player].dps > 0:
                 objTarget["player"][player] = {"sum": objSource[player].sum,
                                          "dps": objSource[player].dps,
+                                         "sumPerSec": objSource[player].dps,
                                          "skill": objSource[player].skill,
                                          "namedSkill": objSource[player].namedSkill,
                                          "name": self.info.getName(player),
-                                         "occ": self.info.getOcc(player)}
-                objTarget["sum"] += objTarget["player"][player]["dps"]
+                                         "occ": self.info.getOcc(player),
+                                         "sumTime": self.time,
+                                         "effectiveTime": self.timeDps,
+                                         "adjustedTime": adjustedTime}
+                objTarget["sum"] += objTarget["player"][player]["sumPerSec"]
 
-    def export(self, time, timeDps, timeHealer):
+    def export(self, time, timeDps, timeHealer, stunTime):
         '''
         统计结束时的后处理.
         params:
         - time: 战斗时间.
         - timeDps: dps的有效战斗时间.
         - timeHealer: 治疗的有效战斗时间.
+        - stunTime: 眩晕的额外调整时间.
         '''
 
         self.time = time
         self.timeDps = timeDps
         self.timeHealer = timeHealer
+        self.stunTime = stunTime
 
         # 脱战时对缓冲区的结算.
         for player in self.hpStatus:
@@ -1132,8 +1150,8 @@ class CombatTracker():
                 self.boostRemove[effect_id] = {"time": event.time + 12000, "target": event.target}
                 self.updateRemoveTime()
             
-        # 记录DPS
-        if event.damageEff > 0 and event.caster in self.ndpsCast and not self.excludeStatusDps:
+        # 记录DPS, 这里只记录对NPC的伤害（防止灭之类的技能被统计）
+        if event.damageEff > 0 and event.caster in self.ndpsCast and event.target in self.info.npc and not self.excludeStatusDps:
             self.ndpsCast[event.caster].record(event.target, event.full_id, event.damageEff)
             # print("[DpsRecord]", event.time, event.damageEff)
             # rDPS
@@ -1150,25 +1168,26 @@ class CombatTracker():
                         keyName = "6,%s" % key
                         self.rdpsCast[rdpsRate[key]["source"]].record(event.target, keyName, event.damageEff * rdpsRate[key]["rate"])
 
-            if event.target in self.mainTargets and event.caster in self.mndpsCast:
-                self.mndpsCast[event.caster].record(event.target, event.full_id, event.damageEff)
-                # mrDPS
-                if event.caster in self.boostCounter:
-                    for key in rdpsRate:
-                        if key == "self":
-                            self.mrdpsCast[event.caster].record(event.target, event.full_id, event.damageEff * rdpsRate[key]["rate"])
-                        elif rdpsRate[key]["source"] in self.mrdpsCast:
-                            keyName = "6,%s" % key
-                            self.mrdpsCast[rdpsRate[key]["source"]].record(event.target, keyName, event.damageEff * rdpsRate[key]["rate"])
+                if event.target in self.mainTargets and event.caster in self.mndpsCast:
+                    self.mndpsCast[event.caster].record(event.target, event.full_id, event.damageEff)
+                    # mrDPS
+                    if event.caster in self.boostCounter:
+                        for key in rdpsRate:
+                            if key == "self":
+                                self.mrdpsCast[event.caster].record(event.target, event.full_id, event.damageEff * rdpsRate[key]["rate"])
+                            elif rdpsRate[key]["source"] in self.mrdpsCast:
+                                keyName = "6,%s" % key
+                                self.mrdpsCast[rdpsRate[key]["source"]].record(event.target, keyName, event.damageEff * rdpsRate[key]["rate"])
 
-    def __init__(self, info, bh, occDetailList, zhenyanInfer):
+    def __init__(self, info, bh, occDetailList, zhenyanInfer, stunCounter):
         '''
         构造方法，需要读取角色或玩家信息。
         params:
         - info: bld读取的玩家信息.
         - bh: BOSS复盘得到的战斗记录基本信息，用于计算无效时间.
         - occDetailList: 具体心法信息.
-        - zhenyanInfer: 阵眼的推测结果
+        - zhenyanInfer: 阵眼的推测结果.
+        - stunCounter: 眩晕时间计数.
         - TODO 还要扩充装备表，之后应该会整理成一个全的
         '''
         self.info = info

@@ -76,7 +76,7 @@ class LiChongmaoReplayer(SpecificReplayerPro):
         bossResult.sort(key=lambda x: -x[2])
         self.effectiveDPSList = bossResult
 
-        return self.effectiveDPSList, self.potList, self.detail
+        return self.effectiveDPSList, self.potList, self.detail, self.stunCounter
 
     def recordDeath(self, item, deathSource):
         '''
@@ -111,6 +111,11 @@ class LiChongmaoReplayer(SpecificReplayerPro):
             else:
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
+                    if self.bld.info.getName(event.target) in ["李重茂"]:
+                        self.bh.setMainTarget(event.target)
+                        self.stat[event.caster][7] += event.damageEff
+                    elif self.bld.info.getName(event.target) in ["一刀流精锐武士", "一刀流精銳武士", "永王叛军长枪兵", "永王叛军剑卫", "永王叛軍長槍兵", "永王叛軍劍衛"]:
+                        self.stat[event.caster][8] += event.damageEff
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -128,10 +133,10 @@ class LiChongmaoReplayer(SpecificReplayerPro):
             if event.id == "24289":  # 枪兵目标
                 if event.stack == 1:
                     self.qiangbingStart[event.target] = event.time
-                    self.stunCounter[event.target].setState(event.time, 1)
+                    # self.stunCounter[event.target].setState(event.time, 1)
                 else:
                     self.bh.setCall("24289", "枪兵目标", "3426", self.qiangbingStart[event.target], event.time - self.qiangbingStart[event.target], event.target, "被枪兵点名")
-                    self.stunCounter[event.target].setState(event.time, 0)
+                    # self.stunCounter[event.target].setState(event.time, 0)
 
             if event.id == "24078":  # 潜龙真气
                 if event.stack == 1:

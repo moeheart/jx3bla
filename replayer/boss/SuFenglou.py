@@ -76,7 +76,7 @@ class SuFenglouReplayer(SpecificReplayerPro):
         bossResult.sort(key=lambda x: -x[2])
         self.effectiveDPSList = bossResult
 
-        return self.effectiveDPSList, self.potList, self.detail
+        return self.effectiveDPSList, self.potList, self.detail, self.stunCounter
 
     def recordDeath(self, item, deathSource):
         '''
@@ -111,6 +111,19 @@ class SuFenglouReplayer(SpecificReplayerPro):
             else:
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
+                    if self.bld.info.getName(event.target) in ["苏凤楼", "蘇鳳樓"]:
+                        if self.bld.info.npc[event.target].templateID == "112018":
+                            self.bh.setMainTarget(event.target)
+                            self.stat[event.caster][10] += event.damageEff
+                        else:
+                            self.bh.setMainTarget(event.target)
+                            self.stat[event.caster][7] += event.damageEff
+                    elif self.bld.info.getName(event.target) in ["凌雪阁杀手", "淩雪閣殺手"]:
+                        self.bh.setMainTarget(event.target)
+                        self.stat[event.caster][8] += event.damageEff
+                    elif self.bld.info.getName(event.target) in ["剧毒孢子", "劇毒孢子"]:
+                        self.bh.setMainTarget(event.target)
+                        self.stat[event.caster][9] += event.damageEff
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -128,8 +141,8 @@ class SuFenglouReplayer(SpecificReplayerPro):
             if event.id == "24540":  # 注视
                 if event.stack == 1:
                     self.bh.setCall("24540", "注视", "2028", event.time, 0, event.target, "金戈回澜注视点名")
-                    self.stunCounter[event.target].setState(event.time, 1)
-                    self.stunCounter[event.target].setState(event.time + 1500, 0)
+                    # self.stunCounter[event.target].setState(event.time, 1)
+                    # self.stunCounter[event.target].setState(event.time + 1500, 0)
 
             if event.id == "23846":  # 骤雨
                 if event.stack == 1:
@@ -146,6 +159,7 @@ class SuFenglouReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"头好痛……发生了什么？"']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
+                self.bh.setBadPeriod(event.time, event.time + 5000, True, True)
             elif event.content in ['"果然还有余孽。"']:
                 pass
             elif event.content in ['"暂时撤退……反正任务已经达成。"']:
@@ -165,10 +179,11 @@ class SuFenglouReplayer(SpecificReplayerPro):
             elif event.content in ['"啊……"']:
                 pass
             elif event.content in ['"啊！"']:
+                pass
+            elif event.content in ['"凤棠……是你……"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            elif event.content in ['"凤棠……是你……"']:
-                pass
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
             elif event.content in ['"哥……你醒了。"']:
                 pass
             elif event.content in ['"我清醒的时间有限……好多事……李重茂……我要告诉你们……"']:
@@ -253,7 +268,7 @@ class SuFenglouReplayer(SpecificReplayerPro):
         self.zhouyuStart = {}
 
         for line in self.bld.info.player:
-            self.stat[line].extend([0, 0, 0])
+            self.stat[line].extend([0, 0, 0, 0])
             self.zhouyuStart[line] = 0
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):

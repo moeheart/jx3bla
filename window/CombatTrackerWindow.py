@@ -51,7 +51,7 @@ class CombatTrackerWindow(Window):
         dataT = []
         for key in data["player"]:
             dataT.append([key, data["player"][key]])
-        dataT.sort(key=lambda x:-x[1]["sum"])
+        dataT.sort(key=lambda x:-x[1]["sumPerSec"])
 
         max = 0
         maxID = ""
@@ -124,6 +124,11 @@ class CombatTrackerWindow(Window):
                 self.bars[i][2].configure(bg='#f0f0f0')
         self.highlightPlayer = id
 
+        sumTime = parseTime(data["player"][id]["sumTime"] / 1000)
+        effectiveTime = parseTime(data["player"][id]["effectiveTime"] / 1000)
+        adjustedTime = parseTime(data["player"][id]["adjustedTime"] / 1000)
+        self.middleLabel.configure(text="总时间：%s  有效时间：%s  调整时间：%s" % (sumTime, effectiveTime, adjustedTime))
+
     def loadWindow(self):
         '''
         使用tkinter绘制窗口。
@@ -169,12 +174,12 @@ class CombatTrackerWindow(Window):
         b6.place(x=280, y=20)
         f = partial(self.setStat, "mrdps")
         b7 = tk.Button(frameButtons, text='mrDPS', height=1, command=f, bg='#ff7777')
-        ToolTip(b7, "全称main-target raid DPS，是只考虑主目标的rDPS。\n用于衡量单体与群攻的差别。")
+        ToolTip(b7, "全称main-target raid DPS，是只考虑主目标的rDPS。\n每个可以输出的阶段一定至少有一个主目标，并不限于BOSS本体。\n用于衡量单体与群攻的差别。")
         b7.place(x=330, y=20)
         f = partial(self.setStat, "mndps")
         b8 = tk.Button(frameButtons, text='mnDPS', height=1, command=f, bg='#ff7777')
-        ToolTip(b8, "全称main-target natrual DPS，是只考虑主目标的nDPS。\n用于衡量单体与群攻的差别。")
-        b8.place(x=380, y=20)
+        ToolTip(b8, "全称main-target natrual DPS，是只考虑主目标的nDPS。\n每个可以输出的阶段一定至少有一个主目标，并不限于BOSS本体。\n用于衡量单体与群攻的差别。")
+        b8.place(x=390, y=20)
 
         canvas = tk.Canvas(frameUp, width=560, height=250, scrollregion=(0, 0, 540, 25*30)) #创建canvas
         canvas.place(x=0, y=50)  # 放置canvas的位置
@@ -189,7 +194,7 @@ class CombatTrackerWindow(Window):
         s = ttk.Style()
         s.theme_use('clam')
         s.configure("TProgressbar", thickness=30)
-        for i in [0,1,2,3,4,5,6,7,8,9,10,21,22,23,24,25,211,212]:
+        for i in [0,1,2,3,4,5,6,7,8,9,10,21,22,23,24,25,211,212,213]:
             color = getColor(str(i))
             s.configure("bar%d.Horizontal.TProgressbar" % i, background=color, lightcolor=color,
                 darkcolor=color)
@@ -213,9 +218,15 @@ class CombatTrackerWindow(Window):
             frameSingleBar.grid(row=i, column=0)
             self.bars.append([name, progressBar, value, "", frameSingleBar])
 
+        # 中间部分
+        frameMiddle = tk.Frame(window, width=560, height=20)
+        frameMiddle.place(x=0, y=300)
+        self.middleLabel = tk.Label(frameMiddle, text="test")
+        self.middleLabel.place(x=100, y=0)
+
         # 下半部分
         frameDown = tk.Frame(window, width=560, height=350)
-        frameDown.place(x=0, y=300)
+        frameDown.place(x=0, y=320)
 
         canvas = tk.Canvas(frameDown, width=560, height=350, scrollregion=(0, 0, 540, 24*50)) #创建canvas
         canvas.place(x=0, y=50)  # 放置canvas的位置

@@ -106,7 +106,7 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
         bossResult.sort(key=lambda x: -x[2])
         self.effectiveDPSList = bossResult
 
-        return self.effectiveDPSList, self.potList, self.detail
+        return self.effectiveDPSList, self.potList, self.detail, self.stunCounter
 
     def recordDeath(self, item, deathSource):
         '''
@@ -142,10 +142,10 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.npc[event.target].name in ["周通忌"]:
+                        if self.bld.info.getName(event.target) in ["周通忌"]:
                             self.stat[event.caster][7] += event.damageEff
                             self.bh.setMainTarget(event.target)
-                        elif self.bld.info.npc[event.target].name in ["狼牙精锐士兵"]:
+                        elif self.bld.info.getName(event.target) in ["狼牙精锐士兵"]:
                             self.stat[event.caster][8] += event.damageEff
 
         elif event.dataType == "Buff":

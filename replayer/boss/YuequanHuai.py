@@ -151,7 +151,7 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
         bossResult.sort(key = lambda x:-x[2])
         self.effectiveDPSList = bossResult
 
-        return self.effectiveDPSList, self.potList, self.detail
+        return self.effectiveDPSList, self.potList, self.detail, self.stunCounter
         
     def recordDeath(self, item, deathSource):
         '''
@@ -206,18 +206,18 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.npc[event.target].name == "月泉淮":
+                        if self.bld.info.getName(event.target) == "月泉淮":
                             self.stat[event.caster][7] += event.damageEff
-                        elif self.bld.info.npc[event.target].name in ["蓄积的内力", "蓄積的內力"]:
+                        elif self.bld.info.getName(event.target) in ["蓄积的内力", "蓄積的內力"]:
                             self.stat[event.caster][8] += event.damageEff
-                        elif self.bld.info.npc[event.target].name in ["天锁", "天鎖"]:
+                        elif self.bld.info.getName(event.target) in ["天锁", "天鎖"]:
                             self.stat[event.caster][9] += event.damageEff
                             if self.yqhAppear:
                                 self.stat[event.caster][12] += event.damageEff
                             else:
                                 self.stat[event.caster][11] += event.damageEff
 
-                if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == "月泉淮" and event.id in INTERRUPT_DICT:
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) == "月泉淮" and event.id in INTERRUPT_DICT:
                     if self.qyqsLvl != 0 and event.time > self.qyqsStart and event.time < self.qyqsFinal:
                         t = (event.time - self.qyqsStart) / (self.qyqsFinal - self.qyqsStart)
                         castPercent = parseCent(t, 0) + '%'

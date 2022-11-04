@@ -353,7 +353,7 @@ class HealerReplay(ReplayerBase):
             if event.target in self.bld.info.player:
                 targetName = self.bld.info.player[event.target].name
             elif event.target in self.bld.info.npc:
-                targetName = self.bld.info.npc[event.target].name
+                targetName = self.bld.info.getName(event.target)
             lastSkillID, lastTime = bh.getLastNormalSkill()
             if self.gcdSkillIndex[lastSkillID] == self.gcdSkillIndex[ss.skill] and ss.timeStart - lastTime < 100:
                 # 相同技能，原地更新

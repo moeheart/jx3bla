@@ -76,7 +76,7 @@ class LiuZhanReplayer(SpecificReplayerPro):
         bossResult.sort(key=lambda x: -x[2])
         self.effectiveDPSList = bossResult
 
-        return self.effectiveDPSList, self.potList, self.detail
+        return self.effectiveDPSList, self.potList, self.detail, self.stunCounter
 
     def recordDeath(self, item, deathSource):
         '''
@@ -111,6 +111,12 @@ class LiuZhanReplayer(SpecificReplayerPro):
             else:
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
+                    if self.bld.info.getName(event.target) in ["刘展", "劉展"]:
+                        self.bh.setMainTarget(event.target)
+                        self.stat[event.caster][7] += event.damageEff
+                    elif self.bld.info.getName(event.target) in ["枪卫首领", "槍衛首領", "斧卫首领", "斧衛首領"]:
+                        self.bh.setMainTarget(event.target)
+                        self.stat[event.caster][8] += event.damageEff
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -128,10 +134,10 @@ class LiuZhanReplayer(SpecificReplayerPro):
             if event.id == "23777":  # 飞挑·余劲
                 if event.stack == 1:
                     self.xiazhuiStart[event.target] = event.time
-                    self.stunCounter[event.target].setState(event.time, 1)
+                    # self.stunCounter[event.target].setState(event.time, 1)
                 else:
                     self.bh.setCall("23777", "飞挑·余劲", "3428", self.xiazhuiStart[event.target], event.time - self.xiazhuiStart[event.target], event.target, "飞挑下坠")
-                    self.stunCounter[event.target].setState(event.time, 0)
+                    # self.stunCounter[event.target].setState(event.time, 0)
 
             if event.id == "23771":  # 利斧断躯
                 if event.stack == 1:

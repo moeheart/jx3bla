@@ -116,7 +116,7 @@ class YoujiaLuomoReplayer(SpecificReplayerPro):
         bossResult.sort(key=lambda x:-x[2])
         self.effectiveDPSList = bossResult
 
-        return self.effectiveDPSList, self.potList, self.detail
+        return self.effectiveDPSList, self.potList, self.detail, self.stunCounter
         
     def recordDeath(self, item, deathSource):
         '''
@@ -143,7 +143,7 @@ class YoujiaLuomoReplayer(SpecificReplayerPro):
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.npc[event.target].name in ["赐恩血瘤", "賜恩血瘤"]:
+                        if self.bld.info.getName(event.target) in ["赐恩血瘤", "賜恩血瘤"]:
                             self.stat[event.caster][7] += event.damageEff
                             # 瘤子的开怪检测
                             if event.target not in self.xueLiuFirstHit:
@@ -157,13 +157,13 @@ class YoujiaLuomoReplayer(SpecificReplayerPro):
                                                          "%s提前开对场瘤子" % (parseTime((event.time - self.startTime) / 1000)),
                                                          []])
 
-                        elif self.bld.info.npc[event.target].name in ["摄魂鬼虫", "攝魂鬼蟲"]:
+                        elif self.bld.info.getName(event.target) in ["摄魂鬼虫", "攝魂鬼蟲"]:
                             self.stat[event.caster][8] += event.damageEff
-                        elif self.bld.info.npc[event.target].name in ["秽血勇虫", "穢血勇蟲"]:
+                        elif self.bld.info.getName(event.target) in ["秽血勇虫", "穢血勇蟲"]:
                             self.stat[event.caster][9] += event.damageEff
-                        elif self.bld.info.npc[event.target].name in ["毒尸", "毒屍"]:
+                        elif self.bld.info.getName(event.target) in ["毒尸", "毒屍"]:
                             self.stat[event.caster][10] += event.damageEff
-                        elif self.bld.info.npc[event.target].name in ["血蛊巢心", "血蠱巢心"]:
+                        elif self.bld.info.getName(event.target) in ["血蛊巢心", "血蠱巢心"]:
                             if event.damageEff > 0 and self.phase != 2:
                                 self.phaseTime[1] = event.time - self.startTime
                                 self.phase = 2

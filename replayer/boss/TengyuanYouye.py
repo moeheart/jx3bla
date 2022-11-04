@@ -76,7 +76,7 @@ class TengyuanYouyeReplayer(SpecificReplayerPro):
         bossResult.sort(key=lambda x: -x[2])
         self.effectiveDPSList = bossResult
 
-        return self.effectiveDPSList, self.potList, self.detail
+        return self.effectiveDPSList, self.potList, self.detail, self.stunCounter
 
     def recordDeath(self, item, deathSource):
         '''
@@ -111,6 +111,9 @@ class TengyuanYouyeReplayer(SpecificReplayerPro):
             else:
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
+                    if self.bld.info.getName(event.target) in ["藤原佑野"]:
+                        self.bh.setMainTarget(event.target)
+                        self.stat[event.caster][7] += event.damageEff
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -136,8 +139,8 @@ class TengyuanYouyeReplayer(SpecificReplayerPro):
             if event.id == "23592":  # 无名之火
                 if event.stack == 1:
                     self.sifangStart[event.target] = event.time
-                    self.stunCounter[event.target].setState(event.time, 1)
-                    self.stunCounter[event.target].setState(event.time + 3000, 0)
+                    # self.stunCounter[event.target].setState(event.time, 1)
+                    # self.stunCounter[event.target].setState(event.time + 3000, 0)
                     self.bh.setCall("23592", "无名之火", "4549", event.time, 0, event.target, "被四方结界点名")
 
         elif event.dataType == "Shout":

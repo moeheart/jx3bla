@@ -77,7 +77,7 @@ class ZhangJingchaoReplayer(SpecificReplayerPro):
         bossResult.sort(key=lambda x: -x[2])
         self.effectiveDPSList = bossResult
 
-        return self.effectiveDPSList, self.potList, self.detail
+        return self.effectiveDPSList, self.potList, self.detail, self.stunCounter
 
     def recordDeath(self, item, deathSource):
         '''
@@ -114,6 +114,16 @@ class ZhangJingchaoReplayer(SpecificReplayerPro):
             else:
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
+                    if event.target in self.bld.info.npc:
+                        if self.bld.info.getName(event.target) in ["张景超", "張景超"]:
+                            self.bh.setMainTarget(event.target)
+                            self.stat[event.caster][7] += event.damageEff
+                        elif self.bld.info.getName(event.target) in ["张法雷", "張法雷"]:
+                            self.bh.setMainTarget(event.target)
+                            self.stat[event.caster][8] += event.damageEff
+                        elif self.bld.info.getName(event.target) in ["劲风", "勁風"]:
+                            self.bh.setMainTarget(event.target)
+                            self.stat[event.caster][9] += event.damageEff
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:

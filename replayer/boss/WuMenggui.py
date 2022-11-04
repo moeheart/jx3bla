@@ -143,7 +143,7 @@ class WuMengguiReplayer(SpecificReplayerPro):
         bossResult.sort(key=lambda x: -x[2])
         self.effectiveDPSList = bossResult
 
-        return self.effectiveDPSList, self.potList, self.detail
+        return self.effectiveDPSList, self.potList, self.detail, self.stunCounter
         
     def recordDeath(self, item, deathSource):
         '''
@@ -177,19 +177,19 @@ class WuMengguiReplayer(SpecificReplayerPro):
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.npc[event.target].name in ["乌蒙贵", "烏蒙貴"] and self.phase == 1:
+                        if self.bld.info.getName(event.target) in ["乌蒙贵", "烏蒙貴"] and self.phase == 1:
                                 self.stat[event.caster][7] += event.damageEff
-                        elif self.bld.info.npc[event.target].name in ["黑条巨蛾", "黑條巨蛾"]:
+                        elif self.bld.info.getName(event.target) in ["黑条巨蛾", "黑條巨蛾"]:
                             self.stat[event.caster][8] += event.damageEff
                             if event.damageEff > 0 and self.phase == 1:
                                 self.phaseTime[1] = event.time - self.phaseStart
                                 self.phase = 2
                                 self.phaseStart = event.time
-                        elif self.bld.info.npc[event.target].name in ["触手", "觸手"]:
+                        elif self.bld.info.getName(event.target) in ["触手", "觸手"]:
                             self.chushou[event.target]["dps"][event.caster] += event.damageEff
-                        elif self.bld.info.npc[event.target].name in ["蛾卵"]:
+                        elif self.bld.info.getName(event.target) in ["蛾卵"]:
                             self.stat[event.caster][11] += event.damageEff
-                        elif self.bld.info.npc[event.target].name in ["乌蒙贵", "烏蒙貴"] and self.phase == 3:
+                        elif self.bld.info.getName(event.target) in ["乌蒙贵", "烏蒙貴"] and self.phase == 3:
                             self.stat[event.caster][12] += int(event.fullResult.get("9", 0))
 
                     if (event.damageEff > 0 or event.healEff > 0) and event.scheme == 1:

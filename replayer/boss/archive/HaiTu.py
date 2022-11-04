@@ -236,7 +236,7 @@ class HaiTuReplayer(SpecificReplayerPro):
         
         #print(self.detail["suolian"])
             
-        return self.effectiveDPSList, self.potList, self.detail
+        return self.effectiveDPSList, self.potList, self.detail, self.stunCounter
         
     def recordDeath(self, item, deathSource):
         '''
@@ -397,7 +397,7 @@ class HaiTuReplayer(SpecificReplayerPro):
                 if event.caster in self.bld.info.player:
                     self.stat[event.caster][2] += event.damageEff
                     
-                    if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == "天怒惊霆戟":
+                    if event.target in self.bld.info.npc and self.bld.info.getName(event.target) == "天怒惊霆戟":
                         if self.phase == 2.5:
                             self.phase = 3
                             self.phaseStart[3] = event.time
@@ -406,13 +406,13 @@ class HaiTuReplayer(SpecificReplayerPro):
                         elif self.phase == 1:
                             self.stat[event.caster][7] += event.damageEff
                     
-                    if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == "海荼":
+                    if event.target in self.bld.info.npc and self.bld.info.getName(event.target) == "海荼":
                         if self.phase == 2:
                             self.stat[event.caster][8] += event.damageEff
                         elif self.phase == 3:
                             self.stat[event.caster][11] += event.damageEff
                     
-                    if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name == "水鬼":
+                    if event.target in self.bld.info.npc and self.bld.info.getName(event.target) == "水鬼":
                         if self.phase == 2:
                             self.stat[event.caster][9] += event.damageEff
                         elif self.phase == 3:

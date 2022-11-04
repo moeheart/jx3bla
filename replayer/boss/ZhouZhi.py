@@ -124,7 +124,7 @@ class ZhouZhiReplayer(SpecificReplayerPro):
         bossResult.sort(key=lambda x: -x[2])
         self.effectiveDPSList = bossResult
 
-        return self.effectiveDPSList, self.potList, self.detail
+        return self.effectiveDPSList, self.potList, self.detail, self.stunCounter
 
     def recordDeath(self, item, deathSource):
         '''
@@ -210,23 +210,23 @@ class ZhouZhiReplayer(SpecificReplayerPro):
                     self.stat[event.caster][2] += event.damageEff
 
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.npc[event.target].name in ["狼牙精锐"]:
+                        if self.bld.info.getName(event.target) in ["狼牙精锐"]:
                             self.bh.setMainTarget(event.target)
                             self.stat[event.caster][7] += event.damageEff
                             if self.phase == 0:
                                 self.phase = 1
                                 self.phaseStart = event.time
                                 self.bh.setBadPeriod(self.startTime, event.time - 1, True, True)
-                        elif self.bld.info.npc[event.target].name in ["李秦授"]:
+                        elif self.bld.info.getName(event.target) in ["李秦授"]:
                             self.bh.setMainTarget(event.target)
                             self.stat[event.caster][8] += event.damageEff
                             if self.phase == 1:
                                 self.phase = 2
                                 self.phaseStart = event.time
                                 self.bh.setBadPeriod(self.phaseEnd - 2000, event.time - 1, True, True)
-                        elif self.bld.info.npc[event.target].name in ["狼牙铁骑"]:
+                        elif self.bld.info.getName(event.target) in ["狼牙铁骑"]:
                             self.stat[event.caster][9] += event.damageEff
-                        elif self.bld.info.npc[event.target].name in ["周贽"]:
+                        elif self.bld.info.getName(event.target) in ["周贽"]:
                             self.bh.setMainTarget(event.target)
                             self.stat[event.caster][10] += event.damageEff
                             if self.phase == 2:

@@ -202,7 +202,7 @@ class YuwenMieReplayer(SpecificReplayerPro):
             self.detail["P2fire"].append([self.bld.info.player[line].name, self.occDetailList[line], self.P2fire[line]])
         self.detail["P2fire"].sort(key = lambda x:-x[2])
             
-        return self.effectiveDPSList, self.potList, self.detail
+        return self.effectiveDPSList, self.potList, self.detail, self.stunCounter
         
     def recordDeath(self, item, deathSource):
         '''

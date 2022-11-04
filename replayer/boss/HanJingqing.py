@@ -76,7 +76,7 @@ class HanJingqingReplayer(SpecificReplayerPro):
         bossResult.sort(key=lambda x: -x[2])
         self.effectiveDPSList = bossResult
 
-        return self.effectiveDPSList, self.potList, self.detail
+        return self.effectiveDPSList, self.potList, self.detail, self.stunCounter
 
     def recordDeath(self, item, deathSource):
         '''
@@ -111,6 +111,9 @@ class HanJingqingReplayer(SpecificReplayerPro):
             else:
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
+                    if self.bld.info.getName(event.target) in ["韩敬青", "韓敬青"]:
+                        self.bh.setMainTarget(event.target)
+                        self.stat[event.caster][7] += event.damageEff
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -134,8 +137,8 @@ class HanJingqingReplayer(SpecificReplayerPro):
             if event.id == "23890":  # 毒技能点名标记
                 if event.stack == 1:
                     self.bh.setCall("23890", "点名标记", "2027", event.time, 0, event.target, "点名去BOSS的另一侧排buff")
-                    self.stunCounter[event.target].setState(event.time, 1)
-                    self.stunCounter[event.target].setState(event.time + 3000, 0)
+                    # self.stunCounter[event.target].setState(event.time, 1)
+                    # self.stunCounter[event.target].setState(event.time + 3000, 0)
 
         elif event.dataType == "Shout":
             if event.content in ['"好，好！就用你们来试试我的蛊毒..."']:

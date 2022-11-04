@@ -118,7 +118,7 @@ class SangQiaoReplayer(SpecificReplayerPro):
         bossResult.sort(key=lambda x: -x[2])
         self.effectiveDPSList = bossResult
 
-        return self.effectiveDPSList, self.potList, self.detail
+        return self.effectiveDPSList, self.potList, self.detail, self.stunCounter
         
     def recordDeath(self, item, deathSource):
         '''
@@ -145,11 +145,11 @@ class SangQiaoReplayer(SpecificReplayerPro):
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.npc[event.target].name in ["桑乔""", "桑喬"]:
+                        if self.bld.info.getName(event.target) in ["桑乔""", "桑喬"]:
                             self.stat[event.caster][7] += event.damageEff
-                        elif self.bld.info.npc[event.target].name in ["蜘蛛网", "蜘蛛網"]:
+                        elif self.bld.info.getName(event.target) in ["蜘蛛网", "蜘蛛網"]:
                             self.stat[event.caster][8] += event.damageEff
-                        elif self.bld.info.npc[event.target].name in ["蜘蛛茧", "蜘蛛繭"]:
+                        elif self.bld.info.getName(event.target) in ["蜘蛛茧", "蜘蛛繭"]:
                             self.zzl[event.target]["dps"][event.caster] += event.damageEff
                 
         elif event.dataType == "Buff":

@@ -159,7 +159,7 @@ class XidaLuomoReplayer(SpecificReplayerPro):
         bossResult.sort(key = lambda x:-x[2])
         self.effectiveDPSList = bossResult
 
-        return self.effectiveDPSList, self.potList, self.detail
+        return self.effectiveDPSList, self.potList, self.detail, self.stunCounter
         
     def recordDeath(self, item, deathSource):
         '''
@@ -202,9 +202,9 @@ class XidaLuomoReplayer(SpecificReplayerPro):
             else:
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
-                    if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ["悉达罗摩", "悉達羅摩"]:
+                    if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["悉达罗摩", "悉達羅摩"]:
                         self.stat[event.caster][7] += event.damageEff
-                    if event.target in self.bld.info.npc and self.bld.info.npc[event.target].name in ["灵虫", "靈蟲"]:
+                    if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["灵虫", "靈蟲"]:
                         self.stat[event.caster][8] += event.damageEff
 
                 if event.target in self.lingchongIdDict and event.id in INTERRUPT_DICT:
