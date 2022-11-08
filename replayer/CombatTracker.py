@@ -585,6 +585,32 @@ class CombatTracker():
     战斗数据统计类.
     '''
 
+    def getRhps(self, player):
+        '''
+        获取对应角色的rhps. 用于解决rhps为0时的判定问题.
+        params:
+        - player: 角色数字ID.
+        returns:
+        - res: rhps. 找不到角色时返回0
+        '''
+        if player in self.rhps["player"]:
+            return self.rhps["player"][player]["hps"]
+        else:
+            return 0
+
+    def getRdps(self, player):
+        '''
+        获取对应角色的rdps. 用于解决rdps为0时的判定问题.
+        params:
+        - player: 角色数字ID.
+        returns:
+        - res: rdps. 找不到角色时返回0
+        '''
+        if player in self.rdps["player"]:
+            return self.rdps["player"][player]["dps"]
+        else:
+            return 0
+
     def generateJson(self):
         '''
         将结果导出为json.

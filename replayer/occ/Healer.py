@@ -79,6 +79,7 @@ class HealerReplay(ReplayerBase):
         sum = self.mufengDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
         self.result["skill"]["mufeng"]["cover"] = roundCent(safe_divide(sum, num))
         self.result["skill"]["general"]["efficiency"] = self.bh.getNormalEfficiency()
+        self.result["skill"]["general"]["rdps"] = self.myHealStat.get("rdps", 0)
 
         # 统计治疗相关
         self.result["skill"]["healer"] = {}
@@ -170,18 +171,6 @@ class HealerReplay(ReplayerBase):
         for line in self.outstandingSkill:
             scCandidate.append(line)
 
-        # code 14 提高rHPS
-        rhps = 0
-        for record in self.result["healer"]["table"]:
-            if record["name"] == self.result["overall"]["playerID"]:
-                # 当前玩家
-                rhps = record["rhps"]
-        # print("[Result]", self.result["rank"]["healer"])
-        rhpsRank = self.result["rank"]["healer"]["rhps"]["percent"]
-        res = {"code": 14, "rhps": rhps, "rhpsRank": rhpsRank, "rate": roundCent(rhpsRank / 100)}
-        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
-        self.result["review"]["content"].append(res)
-
         rateSum = 0
         rateNum = 0
         numAll = []
@@ -196,7 +185,7 @@ class HealerReplay(ReplayerBase):
             # print(skill, num, sum)
             # if skill == "春泥护花":
             #     print(skillObj.log)
-            if skill in ["特效腰坠", "百药宣时", "青圃着尘", "余寒映日", "九微飞花", "折叶笼花", "大针"] and num == 0:
+            if skill in ["特效腰坠", "百药宣时", "青圃着尘", "余寒映日", "九微飞花", "折叶笼花", "大针", "落子无悔", "泠风解怀"] and num == 0:
                 continue
             rateNum += 1
             rateSum += min(safe_divide(num, sum), 1)
@@ -206,6 +195,18 @@ class HealerReplay(ReplayerBase):
         rate = roundCent(safe_divide(rateSum, rateNum), 4)
         res = {"code": 13, "skill": skillAll, "num": numAll, "sum": sumAll, "rate": rate}
         res["status"] = getRateStatus(res["rate"], 50, 25, 0)
+        self.result["review"]["content"].append(res)
+
+        # code 14 提高rHPS
+        rhps = 0
+        for record in self.result["healer"]["table"]:
+            if record["name"] == self.result["overall"]["playerID"]:
+                # 当前玩家
+                rhps = record["rhps"]
+        # print("[Result]", self.result["rank"]["healer"])
+        rhpsRank = self.result["rank"]["healer"]["rhps"]["percent"]
+        res = {"code": 14, "rhps": rhps, "rhpsRank": rhpsRank, "rate": roundCent(rhpsRank / 100)}
+        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
         self.result["review"]["content"].append(res)
 
     def completeTeamDetect(self):
@@ -272,7 +273,8 @@ class HealerReplay(ReplayerBase):
         for player in self.act.rhps["player"]:
             if player in self.healerDict:
                 self.result["healer"]["numHealer"] += 1
-                res = {"rhps": int(self.act.rhps["player"][player]["hps"]),
+                res = {"rhps": int(self.act.getRhps(player)),
+                       "rdps": int(self.act.getRdps(player)),
                        "name": self.act.rhps["player"][player]["name"],
                        "occ": self.bld.info.player[player].occ}
                 if player in self.act.hps["player"]:
@@ -309,8 +311,8 @@ class HealerReplay(ReplayerBase):
         skip = 0
         target = ""
 
-        # 奶毒特殊判定
         if self.occ == "butianjue":
+            # 奶毒特殊判定
             if event.id in ["2526", "27391", "6662"]:
                 # 检查冰蚕诀
                 sf = self.cyDict.checkState(event.time - 200)
@@ -325,28 +327,58 @@ class HealerReplay(ReplayerBase):
                 if skip:
                     self.bh.setSpecialSkill(event.id, 0, 0, event.time, 0, "瞬发碧蝶引")
         elif self.occ == "lijingyidao":
+            # 奶花特殊判定
             sfFlag = 0
+            sf = 0
             if event.id in ["22792", "22886", "3038", "26666", "26667", "26668"]:
                 # 检查水月
                 sf = self.shuiyueDict.checkState(event.time - 200)
                 if sf:
                     sfFlag = 1
-            if not sfFlag and event.id in ["3038", "26666", "26667", "26668"]:
-                # 检查行气血、cw
+            if not sfFlag and event.id in ["3038"]:
+                # 检查行气血
                 sf2 = self.xqxDict.checkState(event.time - 200)
-                sf3 = self.cwDict.checkState(event.time - 200)
-                if sf2 or sf3:
+                if sf2:
                     sfFlag = 1
-            if sfFlag:
-                castTime = 0
+            if not sfFlag and event.id in ["3038", "26666", "26667", "26668"]:
+                # 检查cw
+                sf3 = self.cwDict.checkState(event.time - 200)
+                if sf3:
+                    sfFlag = 1
+            if sf and sfFlag:  # 使用水月瞬发
                 if event.time - self.lastInstant > 100:
                     self.instantNum += 1
                 self.lastInstant = event.time
                 if event.id in ["3038"]:
                     self.instantChangzhenNum += 1
+            if event.id == "3038" and not sfFlag:  # 用推测的墨意来调整长针的瞬发状态
+                lastMoyi = self.moyiInfer[-1][1]
+                if lastMoyi > 20:
+                    sfFlag = 1
+            if sfFlag:  # 瞬发修改技能
+                castTime = 0
+                # 消耗墨意推测
+                lastMoyi = self.moyiInfer[-1][1]
+                nowMoyi = lastMoyi - 20
+                if nowMoyi < 0:
+                    nowMoyi = 0
+                if lastMoyi > nowMoyi:
+                    self.usedMoyi += lastMoyi - nowMoyi
+                self.moyiInfer.append([event.time, nowMoyi])
             if event.id in ["101", "3038", "26666", "26667", "26668"]:
                 target = event.target
-
+            if event.id in ["22792", "22886"]:  # 提针
+                # 获得墨意推测
+                lastMoyi = self.moyiInfer[-1][1]
+                maxMoyi = 60
+                nowMoyi = lastMoyi + 10
+                if sf:
+                    maxMoyi = 100
+                    nowMoyi += 7
+                if nowMoyi > maxMoyi:
+                    self.wastedMoyi += nowMoyi - maxMoyi
+                    nowMoyi = maxMoyi
+                self.moyiInfer.append([event.time, nowMoyi])
         if not skip:
             ss.analyseSkill(event, castTime, line[0], tunnel=line[6], hasteAffected=line[7])
             targetName = "Unknown"

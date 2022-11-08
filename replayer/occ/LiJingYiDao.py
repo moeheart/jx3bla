@@ -87,28 +87,41 @@ class LiJingYiDaoWindow(HealerDisplayWindow):
         bizhenDisplayer.setSingle("percent", "述怀覆盖", "bizhen", "shCover")
         bizhenDisplayer.export_image(frame5, 3)
 
-        chunniDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
-        chunniDisplayer.setImage("413", "春泥护花")
-        chunniDisplayer.setDouble("rate", "数量", "chunni", "num", "numPerSec")
-        chunniDisplayer.export_image(frame5, 4)
+        lzwhDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        lzwhDisplayer.setImage("17705", "落子无悔")
+        lzwhDisplayer.setDouble("rate", "数量", "lzwh", "num", "numPerSec")
+        lzwhDisplayer.setSingle("int", "HPS", "lzwh", "HPS")
+        lzwhDisplayer.export_image(frame5, 4)
 
-        longwuDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
-        longwuDisplayer.setImage("16221", "泷雾")
-        longwuDisplayer.setDouble("rate", "数量", "longwu", "num", "numPerSec")
-        longwuDisplayer.setSingle("delay", "延迟", "longwu", "delay")
-        longwuDisplayer.setSingle("int", "HPS", "longwu", "HPS")
-        longwuDisplayer.setSingle("percent", "有效比例", "longwu", "effRate")
-        longwuDisplayer.export_image(frame5, 5)
+        suiyuDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        suiyuDisplayer.setImage("13441", "碎玉")
+        suiyuDisplayer.setDouble("rate", "数量", "suiyu", "num", "numPerSec")
+        suiyuDisplayer.setSingle("int", "HPS", "suiyu", "HPS")
+        suiyuDisplayer.export_image(frame5, 5)
+
+        # chunniDisplayer.setImage("413", "春泥护花")
+        # chunniDisplayer.setDouble("rate", "数量", "chunni", "num", "numPerSec")
+        # chunniDisplayer.export_image(frame5, 4)
+
+        # longwuDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        # longwuDisplayer.setImage("16221", "泷雾")
+        # longwuDisplayer.setDouble("rate", "数量", "longwu", "num", "numPerSec")
+        # longwuDisplayer.setSingle("delay", "延迟", "longwu", "delay")
+        # longwuDisplayer.setSingle("int", "HPS", "longwu", "HPS")
+        # longwuDisplayer.setSingle("percent", "有效比例", "longwu", "effRate")
+        # longwuDisplayer.export_image(frame5, 5)
 
         info1Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        info1Displayer.setDouble("int", "春泥次数", "chunni", "num", "numPerSec")
         info1Displayer.setSingle("int", "清疏HPS", "qingshu", "HPS")
         info1Displayer.setSingle("int", "寒清次数", "general", "HanQingNum")
         info1Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
         info1Displayer.export_text(frame5, 6)
 
         info2Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        info2Displayer.setSingle("int", "rDPS", "general", "rdps")
         info2Displayer.setSingle("percent", "秋肃覆盖率", "qiusu", "cover")
-        info2Displayer.setSingle("int", "秋肃DPS", "qiusu", "dps")
+        # info2Displayer.setSingle("int", "秋肃DPS", "qiusu", "dps")
         info2Displayer.setSingle("percent", "战斗效率", "general", "efficiency")
         info2Displayer.export_text(frame5, 7)
 
@@ -403,6 +416,7 @@ class LiJingYiDaoReplayer(HealerReplay):
 
                      [None, "水月无间", ["136"], "1522", False, 0, False, True, 60, 1],
                      [None, "听风吹雪", ["2663"], "2998", False, 0, False, True, 75, 1],
+                     [None, "落子无悔", ["32750"], "17705", False, 0, False, True, 70, 1],
                      [None, "特效腰坠", ["yaozhui"], "3414", False, 0, False, True, 180, 1]
                     ]
 
@@ -416,6 +430,8 @@ class LiJingYiDaoReplayer(HealerReplay):
         # 技能统计
         wozhenBuff = SkillHealCounter("631", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 握针
         shuhuaiBuff = SkillHealCounter("5693", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 述怀
+        lzwhSkill = SkillHealCounter("32750", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 落子无悔
+        sySkill = SkillHealCounter("28645", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 碎玉
 
         self.xqxDict = BuffCounter("6266", self.startTime, self.finalTime)  # 行气血
         self.cwDict = BuffCounter("12770", self.startTime, self.finalTime)  # cw特效
@@ -437,6 +453,20 @@ class LiJingYiDaoReplayer(HealerReplay):
         qiusuTime = 0
         qiusuCounter = BuffCounter("0", self.startTime, self.finalTime)
 
+        # 墨意、黑白子推测（这个实现逻辑非常简单，因为不需要回溯搜索）
+        self.moyiInfer = [[self.startTime, 0]]
+        self.usedMoyi = 0
+        self.wastedMoyi = 0
+        self.heiziInfer = [[self.startTime, 0]]
+        self.baiziInfer = [[self.startTime, 0]]
+        self.sumHeizi = 0
+        self.sumBaizi = 0
+
+        # 落子统计
+        self.luoziWhite = 0
+        self.luoziBlack = 0
+        self.luoziNone = 0
+
         # 杂项
         qingshuHeal = 0
         wozhenDirectHeal = 0
@@ -445,8 +475,8 @@ class LiJingYiDaoReplayer(HealerReplay):
         haozhenPercentHeal = 0  # 毫针贯体
         shuiyueStack = 0
         shuiyueNum = 0
-        xqxStack = 0
-        xqxNum = 0
+        # xqxStack = 0
+        # xqxNum = 0
         self.instantNum = 0
         self.instantChangzhenNum = 0
         self.lastInstant = 0
@@ -455,6 +485,9 @@ class LiJingYiDaoReplayer(HealerReplay):
         weichaoSkill = 0
         weichaoEff = 0
         weichaoEffList = []
+
+        # 监控cd用的类
+        # lzwhWatchSkill = SkillCounterAdvance(self.skillInfo[self.gcdSkillIndex["32750"]], self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)
 
         self.unimportantSkill += ["6112",  # 清疏
                                "6894",  # 握针直接治疗
@@ -508,12 +541,37 @@ class LiJingYiDaoReplayer(HealerReplay):
                         pass
                     elif event.id in self.nonGcdSkillIndex:  # 特殊技能
                         desc = ""
-                        index = self.nonGcdSkillIndex[event.id]
-                        line = self.skillInfo[index]
-                        self.bh.setSpecialSkill(event.id, line[1], line[3], event.time, 0, desc)
-                        skillObj = line[0]
-                        if skillObj is not None:
-                            skillObj.recordSkill(event.time, event.heal, event.healEff, self.ss.timeEnd, delta=-1)
+                        record = True
+                        if event.id in ["136"]:  # 水月
+                            # 获得墨意推测
+                            lastMoyi = self.moyiInfer[-1][1]
+                            maxMoyi = 100
+                            nowMoyi = lastMoyi + 60
+                            if nowMoyi > maxMoyi:
+                                self.wastedMoyi += nowMoyi - maxMoyi
+                                nowMoyi = maxMoyi
+                            self.moyiInfer.append([event.time, nowMoyi])
+                        if event.id in ["32750"]:  # 落子无悔
+                            # print("[lijing]Detect lozi")
+                            if self.bh.log["special"] != [] and self.bh.log["special"][-1]["skillid"] == "32750" and event.time - self.bh.log["special"][-1]["start"] < 100:
+                                record = False
+                            else:
+                                # lzwhWatchSkill.recordSkill(event.time, 0, 0, self.ss.timeEnd, delta=-1)
+                                heiziNum = self.heiziInfer[-1][1]
+                                baiziNum = self.baiziInfer[-1][1]
+                                if heiziNum > baiziNum:
+                                    self.luoziBlack += 1
+                                elif baiziNum > heiziNum:
+                                    self.luoziWhite += 1
+                                else:
+                                    self.luoziNone += 1
+                        if record:
+                            index = self.nonGcdSkillIndex[event.id]
+                            line = self.skillInfo[index]
+                            self.bh.setSpecialSkill(event.id, line[1], line[3], event.time, 0, desc)
+                            skillObj = line[0]
+                            if skillObj is not None:
+                                skillObj.recordSkill(event.time, event.heal, event.healEff, self.ss.timeEnd, delta=-1)
 
                     # 统计不计入时间轴的治疗量
                     if event.id in ["6112"]:  # 清疏
@@ -543,6 +601,10 @@ class LiJingYiDaoReplayer(HealerReplay):
                             weichaoNum += 1
                             weichaoEff += effFlag
                         weichaoSkill = event.time
+                    if event.id in ["32750"]:  # 落子无悔
+                        lzwhSkill.recordSkill(event.time, event.heal, event.healEff, event.time)
+                    if event.id in ["28645"]:  # 碎玉
+                        sySkill.recordSkill(event.time, event.heal, event.healEff, event.time)
                     if event.id in ["180"]:  # 商阳指
                         # 秋肃生成
                         qiusuTarget = event.target
@@ -579,9 +641,18 @@ class LiJingYiDaoReplayer(HealerReplay):
                     self.cwDict.setState(event.time, event.stack)
                 if event.id in ["6266"] and event.target == self.mykey:  # 行气血
                     self.xqxDict.setState(event.time, event.stack)
-                    if event.stack > xqxStack:
-                        xqxNum += event.stack
-                    xqxStack = event.stack
+                if event.id in ["6265"] and event.target == self.mykey:  # 行气血回复墨意
+                    # 获得墨意推测
+                    lastMoyi = self.moyiInfer[-1][1]
+                    maxMoyi = 60
+                    nowMoyi = lastMoyi + 10
+                    sf = self.shuiyueDict.checkState(event.time - 200)
+                    if sf:
+                        maxMoyi = 100
+                    if nowMoyi > maxMoyi:
+                        self.wastedMoyi += nowMoyi - maxMoyi
+                        nowMoyi = maxMoyi
+                    self.moyiInfer.append([event.time, nowMoyi])
                 if event.id in ["412"] and event.target == self.mykey:  # 水月无间
                     self.shuiyueDict.setState(event.time, event.stack)
                     if event.stack > shuiyueStack:
@@ -594,7 +665,20 @@ class LiJingYiDaoReplayer(HealerReplay):
                 if event.id in ["5693"] and event.caster == self.mykey and event.target in self.bld.info.player:  # 述怀
                     shuhuaiDict[event.target].setState(event.time, event.stack, int((event.end - event.frame + 3) * 62.5))
                     # teamLog, teamLastTime = countCluster(teamLog, teamLastTime, event)
-
+                if event.id in ["24143", "24144", "24145", "24146", "24147"] and event.target == self.mykey:  # 黑子buff
+                    heiziNum = self.heiziInfer[-1][1]
+                    if event.stack == 1:
+                        heiziNum += 1
+                    elif heiziNum > 0:
+                        heiziNum -= 1
+                    self.heiziInfer.append([event.time, heiziNum])
+                if event.id in ["24138", "24139", "24140", "24141", "24142"] and event.target == self.mykey:  # 白子buff
+                    baiziNum = self.baiziInfer[-1][1]
+                    if event.stack == 1:
+                        baiziNum += 1
+                    elif baiziNum > 0:
+                        baiziNum -= 1
+                    self.baiziInfer.append([event.time, baiziNum])
             elif event.dataType == "Shout":
                 pass
 
@@ -726,6 +810,10 @@ class LiJingYiDaoReplayer(HealerReplay):
         # 杂项
         self.result["skill"]["qingshu"] = {}
         self.result["skill"]["qingshu"]["HPS"] = int(qingshuHeal / self.result["overall"]["sumTimeEff"] * 1000)
+        self.result["skill"]["lzwh"] = {}
+        self.calculateSkillInfoDirect("lzwh", lzwhSkill)
+        self.result["skill"]["suiyu"] = {}
+        self.calculateSkillInfoDirect("suiyu", sySkill)
 
         # 整体
         self.result["skill"]["general"] = {}
@@ -734,17 +822,22 @@ class LiJingYiDaoReplayer(HealerReplay):
         # 计算战斗回放
         self.result["replay"] = self.bh.getJsonReplay(self.mykey)
         self.result["replay"]["heat"] = {"interval": 500, "timeline": hotHeat}
+        self.result["replay"]["moyi"] = self.moyiInfer
+        self.result["replay"]["heizi"] = self.heiziInfer
+        self.result["replay"]["baizi"] = self.baiziInfer
         self.specialKey = {"wozhen-numPerSec": 20, "general-efficiency": 20, "healer-rhps": 20, "qiusu-cover": 20}
-        self.markedSkill = ["132", "136", "2663", "14963", "24911"]
+        self.markedSkill = ["132", "136", "2663", "14963", "24911", "32750"]
         self.outstandingSkill = []
         self.calculateSkillOverall()
         # 计算专案组的心法部分.
-        # code 201 保证`秋肃`的覆盖率
-        cover = self.result["skill"]["qiusu"]["cover"]
-        coverRank = self.result["rank"]["qiusu"]["cover"]["percent"]
-        res = {"code": 201, "cover": cover, "rank": coverRank, "rate": roundCent(coverRank / 100)}
-        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
-        self.result["review"]["content"].append(res)
+
+        if self.actorData["boss"] not in ["苏凤楼"]:
+            # code 201 保证`秋肃`的覆盖率
+            cover = self.result["skill"]["qiusu"]["cover"]
+            coverRank = self.result["rank"]["qiusu"]["cover"]["percent"]
+            res = {"code": 201, "cover": cover, "rank": coverRank, "rate": roundCent(coverRank / 100)}
+            res["status"] = getRateStatus(res["rate"], 75, 50, 25)
+            self.result["review"]["content"].append(res)
 
         # code 202 保证`握针`的覆盖率
         cover = self.result["skill"]["wozhen"]["cover"]
@@ -753,17 +846,17 @@ class LiJingYiDaoReplayer(HealerReplay):
         res["status"] = getRateStatus(res["rate"], 75, 50, 25)
         self.result["review"]["content"].append(res)
 
-        # code 203 不要浪费瞬发次数
-        rate = roundCent(safe_divide(self.instantNum, shuiyueNum + xqxNum))
-        res = {"code": 203, "timeShuiyue": shuiyueNum, "timeXqx": xqxNum, "timeCast": self.instantNum, "rate": rate}
-        res["status"] = getRateStatus(res["rate"], 75, 0, 0)
-        self.result["review"]["content"].append(res)
-
-        # code 204 优先瞬发`长针`
-        rate = roundCent(safe_divide(self.instantChangzhenNum, self.instantNum))
-        res = {"code": 204, "timeCast": self.instantNum, "timeChangzhen": self.instantChangzhenNum, "rate": rate}
-        res["status"] = getRateStatus(res["rate"], 75, 0, 0)
-        self.result["review"]["content"].append(res)
+        # # code 203 不要浪费瞬发次数
+        # rate = roundCent(safe_divide(self.instantNum, shuiyueNum + xqxNum))
+        # res = {"code": 203, "timeShuiyue": shuiyueNum, "timeXqx": xqxNum, "timeCast": self.instantNum, "rate": rate}
+        # res["status"] = getRateStatus(res["rate"], 75, 0, 0)
+        # self.result["review"]["content"].append(res)
+        #
+        # # code 204 优先瞬发`长针`
+        # rate = roundCent(safe_divide(self.instantChangzhenNum, self.instantNum))
+        # res = {"code": 204, "timeCast": self.instantNum, "timeChangzhen": self.instantChangzhenNum, "rate": rate}
+        # res["status"] = getRateStatus(res["rate"], 75, 0, 0)
+        # self.result["review"]["content"].append(res)
 
         # code 205 选择合适的`长针`目标
         num = 0
@@ -786,10 +879,46 @@ class LiJingYiDaoReplayer(HealerReplay):
         cover = roundCent(safe_divide(num, sum))
         rate = roundCent(safe_divide(num, sum) / 4)
         res = {"code": 206, "cover": cover, "rate": rate}
-        res["status"] = getRateStatus(res["rate"], 75, 0, 0)
+        res["status"] = getRateStatus(res["rate"], 75, 50, 0)
+        self.result["review"]["content"].append(res)
+
+        # code 207 优先使用`水月无间`瞬发`长针`
+        rate = roundCent(safe_divide(self.instantChangzhenNum, self.instantNum))
+        res = {"code": 207, "timeCast": self.instantNum, "timeChangzhen": self.instantChangzhenNum, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 90, 70, 50)
+        self.result["review"]["content"].append(res)
+
+        # code 208 充分利用墨意
+        rate = roundCent(safe_divide(self.usedMoyi, self.usedMoyi + self.wastedMoyi))
+        res = {"code": 208, "sumMoyi": self.usedMoyi + self.wastedMoyi, "wastedMoyi": self.wastedMoyi, "usedMoyi": self.usedMoyi, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 90, 50, 0)
+        self.result["review"]["content"].append(res)
+
+        # code 208 使用`落子无悔`的buff效果
+        rate = roundCent(safe_divide(self.luoziBlack + self.luoziWhite, self.luoziBlack + self.luoziWhite + self.luoziNone))
+        if rate < 1e-10:
+            rate = 1.0
+        res = {"code": 209, "sumBlack": self.luoziBlack, "sumWhite": self.luoziWhite, "sumNone": self.luoziNone, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 90, 50, 0)
         self.result["review"]["content"].append(res)
 
         self.calculateSkillFinal()
+
+        # print("[LijingTest]")
+        # print(self.result["replay"]["moyi"])
+        # print(self.result["replay"]["heizi"])
+        # print(self.result["replay"]["baizi"])
+        # for line in self.result["review"]["content"]:
+        #     print(line)
+
+        # 横刀断浪更新整理
+        # (TODO)由于墨意产生瞬发的重新对齐
+        # 1墨意推测、浪费墨意的判定
+        # 1增加棋子判定与独立时间轴
+        # 1落子无悔的cd判定，独立的技能统计，专案组
+        # 1记录棋子相关的统计
+        # 1用rdps替换整体dps统计
+        # 1在特定BOSS取消秋肃的专案组
 
 
     def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", actorData={}):

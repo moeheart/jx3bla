@@ -783,6 +783,11 @@ class YunChangXinJingReplayer(HealerReplay):
 
         self.calculateSkillFinal()
 
+        # 横刀断浪更新整理
+        # - 左旋右转的复盘、影响人数、覆盖率、rdps统计、cd记录
+        # - 左旋右转的影响人数加入专案组，与飘黄同判定
+        # - 加一个泠风解怀的统计
+        # - 用rdps替换整体dps统计
 
     def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", actorData={}):
         '''

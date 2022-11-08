@@ -830,6 +830,13 @@ class LingSuReplayer(HealerReplay):
 
         self.calculateSkillFinal()
 
+        # 横刀断浪更新整理
+        # - 记录飘黄的总次数而不是触发次数
+        # - 专案组中单独分析飘黄次数
+        # - 用rdps替换整体dps统计
+        # - 修复药奶秒开关千枝会影响中和覆盖的问题。
+        # - 新的药奶群
+
     def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", actorData={}):
         '''
         初始化.

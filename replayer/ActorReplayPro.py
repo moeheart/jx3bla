@@ -833,6 +833,7 @@ class ActorProReplayer(ReplayerBase):
         actorData["act"] = self.combatTracker
         actorData["occDetailList"] = self.occDetailList
         actorData["hash"] = self.hashGroup()
+        actorData["boss"] = self.bossAnalyseName
         # actorData["zhenyanInfer"] = self.zhenyanInfer  # TODO 在dps统计中可能会用到
         for id in self.bld.info.player:
             name = self.bld.info.player[id].name

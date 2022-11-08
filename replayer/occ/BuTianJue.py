@@ -790,6 +790,11 @@ class BuTianJueReplayer(HealerReplay):
 
         self.calculateSkillFinal()
 
+        # 横刀断浪更新整理
+        # - 鼎的覆盖率、使用次数
+        # - 专案组中单独分析鼎的次数，和迷仙引梦拆开
+        # - 用rdps替换整体dps统计
+
 
     def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", actorData={}):
         '''

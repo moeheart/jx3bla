@@ -901,6 +901,12 @@ class XiangZhiProReplayer(HealerReplay):
 
         self.calculateSkillFinal()
 
+        # 横刀断浪更新整理
+        # - 分队HOT的判定移除，改为整体覆盖的HOT（显示方式也改为双排）
+        # - 专案组增加一个暗香下限判定
+        # - 专案组增加一个暗香目标是否有盾的判定
+        # - 用rdps替换整体dps统计
+
     def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", actorData={}):
         '''
         初始化.
