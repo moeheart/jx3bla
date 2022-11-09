@@ -411,7 +411,7 @@ class BuTianJueReplayer(HealerReplay):
                      [None, "蝶鸾", ["3054"], "2764", False, 0, False, True, 6, 1],
                      [None, "女娲补天", ["2230"], "2743", False, 0, False, True, 24, 1],
                      [None, "灵蛊", ["18584"], "2777", False, 0, False, True, 20, 3],
-                     [None, "迷仙引梦·收", ["21825"], "11310", False, 0, False, True, 0, 1],
+                     [None, "迷仙引梦·收", ["21824", "21825"], "11310", False, 0, False, True, 0, 1],
                      [None, "蛊惑众生", ["2231"], "2744", False, 0, False, True, 20, 1],
                      [None, "特效腰坠", ["yaozhui"], "3414", False, 0, False, True, 180, 1]
                     ]
@@ -489,6 +489,11 @@ class BuTianJueReplayer(HealerReplay):
                                "2232",  # 冰蚕壳
                                "3052",  # 驱散实际效果
                                "28643",  # 绮栊
+                               "33230",  # 锅增益
+                               "33444",  # 醉舞表现
+                               "32762",  # 千蝶子技能
+                               "15206",  # 删除必会心效果 #TODO 更精准的判定
+                               "21824",  # 收菜
                                ]
 
         for event in self.bld.log:

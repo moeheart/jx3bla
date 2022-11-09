@@ -368,6 +368,7 @@ class HealerReplay(ReplayerBase):
             if event.id in ["101", "3038", "26666", "26667", "26668"]:
                 target = event.target
             if event.id in ["22792", "22886"]:  # 提针
+                # print("[Tizhen]", event.time, event.id, event.heal, event.healEff, self.moyiInfer[-1])
                 # 获得墨意推测
                 lastMoyi = self.moyiInfer[-1][1]
                 maxMoyi = 60
@@ -421,9 +422,6 @@ class HealerReplay(ReplayerBase):
             # 统计化解(暂时只能统计jx3dat的，因为jcl里压根没有)
             if event.effect == 7:
                 return
-            # 统计自身技能使用情况.
-            # if event.caster == self.mykey and event.scheme == 1 and event.id in self.unimportantSkill and event.heal != 0:
-            #     print(event.id, event.time)
 
             if event.scheme == 1 and event.heal != 0 and event.caster == self.mykey:
                 # 打印所有有治疗量的技能，以进行整理
@@ -437,10 +435,10 @@ class HealerReplay(ReplayerBase):
                 # 处理特殊技能
                 elif event.id in self.nonGcdSkillIndex:  # 特殊技能
                     pass
-                # 无法分析的技能
-                elif event.id not in self.unimportantSkill:
-                    pass
-                    # print("[XiangzhiNonRec]", event.time, event.id, event.heal, event.healEff)
+                # 无法分析的技能，或者统计被隐藏的治疗量
+                # elif event.id not in self.unimportantSkill:  # and event.heal != 0:
+                #     print("[NonRec]", event.id, event.time, self.bld.info.getSkillName(event.full_id), event.healEff,
+                #           self.bld.info.getName(event.caster), self.bld.info.getName(event.target))
 
         elif event.dataType == "Buff":
             if event.id in ["6360"] and event.level in [66, 76, 86] and event.stack == 1 and event.target == self.mykey:  # 特效腰坠:
@@ -498,6 +496,8 @@ class HealerReplay(ReplayerBase):
                                "28982",  # 药宗阵
                                "742",  # T阵
                                "14358",  # 删除羽减伤
+                               "14250",  # 平吟删减伤
+                               "2918",  # 可能和天策技能有关的驱散
                             ]
 
         # 战斗回放初始化

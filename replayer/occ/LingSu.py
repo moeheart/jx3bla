@@ -470,6 +470,11 @@ class LingSuReplayer(HealerReplay):
                                "27649",  # 千枝伏藏
                                "28974",  # 药宗阵
                                "29995", "27700",  # 凌然天风表现
+                               "27782",  # 凌然天风起飞
+                               "29215",  # 枯木
+                               "29214",  # 枯木读条
+                               "28478",  # 降低目标加速
+                               "29535",  # 逐云寒蕊额外伤害
                                ]
 
         for event in self.bld.log:
@@ -809,7 +814,7 @@ class LingSuReplayer(HealerReplay):
         zyhrAverage = roundCent(safe_divide(sum, num))
         rate = roundCent(safe_divide(zyhrAverage, self.result["overall"]["numPlayer"]))
         res = {"code": 303, "numCover": zyhrAverage, "numAll": self.result["overall"]["numPlayer"], "rate": rate}
-        res["status"] = getRateStatus(res["rate"], 90, 50, 10)
+        res["status"] = getRateStatus(res["rate"], 90, 50, 0)
         self.result["review"]["content"].append(res)
 
         # code 304 注意控制`七情`状态

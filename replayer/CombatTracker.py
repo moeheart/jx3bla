@@ -1205,7 +1205,7 @@ class CombatTracker():
                                 keyName = "6,%s" % key
                                 self.mrdpsCast[rdpsRate[key]["source"]].record(event.target, keyName, event.damageEff * rdpsRate[key]["rate"])
 
-    def __init__(self, info, bh, occDetailList, zhenyanInfer, stunCounter):
+    def __init__(self, info, bh, occDetailList, zhenyanInfer, stunCounter, zxyzPrecastSource):
         '''
         构造方法，需要读取角色或玩家信息。
         params:
@@ -1214,6 +1214,7 @@ class CombatTracker():
         - occDetailList: 具体心法信息.
         - zhenyanInfer: 阵眼的推测结果.
         - stunCounter: 眩晕时间计数.
+        - zxyzPrecast: 是否在开怪之前施放过左旋右转, 若施放过则为玩家ID.
         - TODO 还要扩充装备表，之后应该会整理成一个全的
         '''
         self.info = info
@@ -1292,6 +1293,11 @@ class CombatTracker():
             self.boostCounter[player] = BoostCounter(player, self.occDetailList[player])
             self.shieldDict[player] = "0"
             self.zyhrDict[player] = "0"
+            if zxyzPrecastSource != "0":  # 计算第一次左旋右转
+                effect_id = "2,20938,1"
+                boostValue = BOOST_DICT[effect_id]
+                source = zxyzPrecastSource
+                self.boostCounter[player].addBoost(effect_id, boostValue, source, 1)
 
         self.rdpsCast["阵眼增益"] = DpsCastRecorder(1)
         self.mrdpsCast["阵眼增益"] = DpsCastRecorder(1)

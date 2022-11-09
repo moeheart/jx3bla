@@ -115,12 +115,12 @@ class LiJingYiDaoWindow(HealerDisplayWindow):
         info1Displayer.setDouble("int", "春泥次数", "chunni", "num", "numPerSec")
         info1Displayer.setSingle("int", "清疏HPS", "qingshu", "HPS")
         info1Displayer.setSingle("int", "寒清次数", "general", "HanQingNum")
-        info1Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
         info1Displayer.export_text(frame5, 6)
 
         info2Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         info2Displayer.setSingle("int", "rDPS", "general", "rdps")
         info2Displayer.setSingle("percent", "秋肃覆盖率", "qiusu", "cover")
+        info2Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
         # info2Displayer.setSingle("int", "秋肃DPS", "qiusu", "dps")
         info2Displayer.setSingle("percent", "战斗效率", "general", "efficiency")
         info2Displayer.export_text(frame5, 7)
@@ -461,6 +461,8 @@ class LiJingYiDaoReplayer(HealerReplay):
         self.baiziInfer = [[self.startTime, 0]]
         self.sumHeizi = 0
         self.sumBaizi = 0
+        self.moyiActiveTime = 0  # 墨意对齐生效的时间，在buff发生变化之后进行检测
+        self.moyiBuffNum = 0  # 墨意层数要求，有层数优先级高于0层
 
         # 落子统计
         self.luoziWhite = 0
@@ -519,6 +521,13 @@ class LiJingYiDaoReplayer(HealerReplay):
                                "2872", "2873",  # 利针实际作用
                                "6105",  # 彼针挂握针
                                "100",  # 星楼 TODO 可以加统计
+                               "28645",  # 碎玉
+                               "32923",  # 微潮新判定
+                               "32377",  # 白子触发
+                               "32376",  # 黑字触发
+                               "27144",  # 彼针范围
+                               "32381",  # 落子壳技能
+                               "26695",  # 碎玉检索
                                ]
 
         for event in self.bld.log:
@@ -529,6 +538,25 @@ class LiJingYiDaoReplayer(HealerReplay):
 
             self.eventInTeamDetect(event)
             self.eventInSecondState(event)
+
+            # 墨意推断
+            if event.time >= self.moyiActiveTime and self.moyiActiveTime != 0:
+                # 修正不合理的墨意值
+                lastMoyi = self.moyiInfer[-1][1]
+                # print("[MoyiCorrect]", event.time, self.moyiBuffNum, lastMoyi)
+                if int(lastMoyi / 20) != self.moyiBuffNum:
+                    correctNum = lastMoyi
+                    # 尝试向上修复
+                    while int(correctNum / 20) > self.moyiBuffNum:
+                        correctNum = max(correctNum - 10, 0)
+                    # 尝试向下修复
+                    while int(correctNum / 20) < self.moyiBuffNum:
+                        correctNum = min(correctNum + 10, 100)
+                    # print("[MoyiChange]", correctNum)
+                    self.moyiInfer.append([event.time, correctNum])
+                # 重置
+                self.moyiActiveTime = 0
+                self.moyiBuffNum = 0
 
             if event.dataType == "Skill":
                 # 统计化解(暂时只能统计jx3dat的，因为jcl里压根没有)
@@ -551,6 +579,7 @@ class LiJingYiDaoReplayer(HealerReplay):
                                 self.wastedMoyi += nowMoyi - maxMoyi
                                 nowMoyi = maxMoyi
                             self.moyiInfer.append([event.time, nowMoyi])
+                            self.moyiActiveTime = 0  # 取消这附近的墨意判定
                         if event.id in ["32750"]:  # 落子无悔
                             # print("[lijing]Detect lozi")
                             if self.bh.log["special"] != [] and self.bh.log["special"][-1]["skillid"] == "32750" and event.time - self.bh.log["special"][-1]["start"] < 100:
@@ -588,7 +617,7 @@ class LiJingYiDaoReplayer(HealerReplay):
                         # 根据微潮统计长针有效目标数
                         timeDiff = event.time - weichaoSkill
                         effFlag = 0
-                        if wozhenDict[event.target].checkState(event.time) == 0:
+                        if event.target in wozhenDict and wozhenDict[event.target].checkState(event.time) == 0:
                             effFlag = 1
                         if timeDiff > 100:
                             if weichaoNum != 0:
@@ -641,7 +670,12 @@ class LiJingYiDaoReplayer(HealerReplay):
                     self.cwDict.setState(event.time, event.stack)
                 if event.id in ["6266"] and event.target == self.mykey:  # 行气血
                     self.xqxDict.setState(event.time, event.stack)
-                if event.id in ["6265"] and event.target == self.mykey:  # 行气血回复墨意
+                    if event.time + 500 > self.moyiActiveTime and (self.moyiBuffNum == 0 or event.stack != 0):
+                        # 修正墨意推测
+                        self.moyiActiveTime = event.time + 500
+                        self.moyiBuffNum = event.stack
+
+                if event.id in ["6265"] and event.target == self.mykey and event.stack == 0:  # 行气血回复墨意，这里用0层推测，可能有不准确的地方
                     # 获得墨意推测
                     lastMoyi = self.moyiInfer[-1][1]
                     maxMoyi = 60
@@ -655,9 +689,13 @@ class LiJingYiDaoReplayer(HealerReplay):
                     self.moyiInfer.append([event.time, nowMoyi])
                 if event.id in ["412"] and event.target == self.mykey:  # 水月无间
                     self.shuiyueDict.setState(event.time, event.stack)
-                    if event.stack > shuiyueStack:
-                        shuiyueNum += event.stack
-                    shuiyueStack = event.stack
+                    # if event.stack > shuiyueStack:
+                    #     shuiyueNum += event.stack
+                    # shuiyueStack = event.stack
+                    if event.time + 500 > self.moyiActiveTime and (self.moyiBuffNum == 0 or event.stack != 0):
+                        # 修正墨意推测
+                        self.moyiActiveTime = event.time + 500
+                        self.moyiBuffNum = event.stack
                 if event.id in ["631"] and event.caster == self.mykey and event.target in self.bld.info.player:  # 握针
                     wozhenDict[event.target].setState(event.time, event.stack, int((event.end - event.frame + 3) * 62.5))
                     # teamLog, teamLastTime = countCluster(teamLog, teamLastTime, event)
@@ -825,6 +863,7 @@ class LiJingYiDaoReplayer(HealerReplay):
         self.result["replay"]["moyi"] = self.moyiInfer
         self.result["replay"]["heizi"] = self.heiziInfer
         self.result["replay"]["baizi"] = self.baiziInfer
+        self.result["replay"]["qiusu"] = qiusuCounter.log
         self.specialKey = {"wozhen-numPerSec": 20, "general-efficiency": 20, "healer-rhps": 20, "qiusu-cover": 20}
         self.markedSkill = ["132", "136", "2663", "14963", "24911", "32750"]
         self.outstandingSkill = []

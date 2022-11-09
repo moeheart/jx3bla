@@ -503,6 +503,7 @@ class XiangZhiProReplayer(HealerReplay):
                                "15090", "14344", "14070",  # 阳春白雪主动技能（无尽藏！）
                                "14243",  # 掷杯判定
                                "15091",  # 阳春添加状态切换buff
+                               "32684",  # 暗香判定
                                ]
 
         for event in self.bld.log:

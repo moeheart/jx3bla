@@ -94,22 +94,33 @@ class YunChangXinJingWindow(HealerDisplayWindow):
         fxdaDisplayer.setSingle("percent", "有效比例", "fxda", "effRate")
         fxdaDisplayer.export_image(frame5, 4)
 
-        jwfhDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
-        jwfhDisplayer.setImage("13417", "九微飞花")
-        jwfhDisplayer.setDouble("rate", "数量", "jwfh", "num", "numPerSec")
-        jwfhDisplayer.setSingle("int", "HPS", "jwfh", "HPS")
-        jwfhDisplayer.setSingle("percent", "有效比例", "jwfh", "effRate")
-        jwfhDisplayer.export_image(frame5, 5)
+        # jwfhDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        # jwfhDisplayer.setImage("13417", "九微飞花")
+        # jwfhDisplayer.setDouble("rate", "数量", "jwfh", "num", "numPerSec")
+        # jwfhDisplayer.setSingle("int", "HPS", "jwfh", "HPS")
+        # jwfhDisplayer.setSingle("percent", "有效比例", "jwfh", "effRate")
+        # jwfhDisplayer.export_image(frame5, 5)
+
+        zxyzDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        zxyzDisplayer.setImage("904", "左旋右转")
+        zxyzDisplayer.setSingle("int", "运功次数", "zxyz", "allNum")
+        zxyzDisplayer.setDouble("rate", "数量", "zxyz", "num", "numPerSec")
+        zxyzDisplayer.setSingle("int", "HPS", "zxyz", "HPS")
+        zxyzDisplayer.setSingle("percent", "覆盖率", "zxyz", "cover")
+        zxyzDisplayer.export_image(frame5, 5)
 
         info1Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         info1Displayer.setSingle("int", "垂眉HPS", "xlwl", "chuimeiHPS")
         info1Displayer.setSingle("int", "双鸾次数", "xlwl", "shuangluanNum")
         info1Displayer.setDouble("rate", "跳珠数量", "tzhy", "num", "numPerSec")
-        info1Displayer.setSingle("int", "跳珠HPS", "tzhy", "HPS")
-        info1Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
+        # info1Displayer.setSingle("int", "跳珠HPS", "tzhy", "HPS")
+        info1Displayer.setDouble("rate", "九微数量", "jwfh", "num", "numPerSec")
+        info1Displayer.setSingle("int", "九微HPS", "jwfh", "HPS")
         info1Displayer.export_text(frame5, 6)
 
         info2Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        info2Displayer.setSingle("int", "rDPS", "general", "rdps")
+        info2Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
         info2Displayer.setSingle("percent", "gcd效率", "general", "efficiency")
         info2Displayer.setSingle("percent", "战斗效率", "general", "efficiencyNonGcd")
         info2Displayer.export_text(frame5, 7)
@@ -398,6 +409,8 @@ class YunChangXinJingReplayer(HealerReplay):
                      [tzhySkill, "跳珠憾玉", ["566"], "1505", True, 0, False, True, 3, 1],
                      [None, "心鼓弦", ["551"], "898", True, 48, False, True, 660, 1],
                      [None, "天地低昂", ["557"], "1498", True, 0, False, True, 35, 1],
+                     [None, "左旋右转", ["6251"], "904", True, 16, True, True, 45, 1],
+                     [None, "泠风解怀", ["30851"], "17172", True, 0, False, True, 40, 1],
                      # [None, "回雪飘摇", ["6250"], "894", False, 16, True, True],
                      [None, "蝶弄足", ["574"], "915", False, 0, False, True, 75, 2],
                      [None, "鹊踏枝", ["550"], "912", False, 0, False, True, 60, 2],
@@ -416,11 +429,13 @@ class YunChangXinJingReplayer(HealerReplay):
         # fxdaSkill = SkillHealCounter("555", self.startTime, self.finalTime, self.haste)  # 风袖低昂
         hxpySkill = SkillHealCounter("6250", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 回雪飘摇
         jwfhSkill = SkillHealCounter("24990", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 九微飞花
+        zxyzSkill = SkillHealCounter("6251", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 左旋右转
         xiangwuBuff = SkillHealCounter("680", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 翔舞
         shangyuanBuff = SkillHealCounter("681", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 上元
         hxpyDict = BuffCounter("?", self.startTime, self.finalTime)  # 用buff类型来记录回雪飘摇的具体时间
         xiangwuDict = {}  # 翔舞
         shangyuanDict = {}  # 上元
+        zxyzDict = {}  # 左旋右转
 
         # self.allSkillObjs.append(hxpySkill)
         # self.allSkillObjs.append(jwfhSkill)
@@ -430,6 +445,7 @@ class YunChangXinJingReplayer(HealerReplay):
         for line in self.bld.info.player:
             xiangwuDict[line] = HotCounter("20070", self.startTime, self.finalTime)  # 翔舞
             shangyuanDict[line] = HotCounter("20070", self.startTime, self.finalTime)  # 上元
+            zxyzDict[line] = BuffCounter("20938", self.startTime, self.finalTime)  # 左旋右转
             battleStat[line] = [0]
 
         # 杂项
@@ -441,6 +457,10 @@ class YunChangXinJingReplayer(HealerReplay):
         jwfhLast = 0  # 九微飞花统计cd
         sydhNum = 0  # 上元施放
         sydhWrong = 0  # 上元错误施放
+        zxyzSumSkill = 0
+        zxyzLastSkill = 0
+        zxyzList = []
+        zxyzNum = []
 
         # 回雪的特殊统计
         hxpyLastSkill = 0
@@ -480,6 +500,9 @@ class YunChangXinJingReplayer(HealerReplay):
                                "1556",  # 婆罗门
                                "545",  # 婆罗门
                                "30729",  # 闪避减cd
+                               "6251", "567",  # 左旋右转
+                               "33327",  # 左旋右转检测人数
+                               "31888",  # 目标破绽产生
                                ]
 
         for event in self.bld.log:
@@ -574,6 +597,15 @@ class YunChangXinJingReplayer(HealerReplay):
                             hxpyCompleteNum += 1
                         hxpyLastSkill = event.time
                         # print("[HxpySkill]", event.time, event.id, event.heal, event.healEff)
+                    if event.id in ["6251"]:  # 左旋右转
+                        zxyzSkill.recordSkill(event.time, event.heal, event.healEff, event.time)
+                        if event.time - zxyzLastSkill > 10000:
+                            zxyzSumSkill += 1
+                            zxyzNum.append(len(zxyzList))
+                            zxyzList = []
+                            zxyzLastSkill = event.time
+                        if event.target not in zxyzList:
+                            zxyzList.append(event.target)
 
                 if event.caster == self.mykey and event.scheme == 2:
                     # 统计HOT
@@ -595,6 +627,10 @@ class YunChangXinJingReplayer(HealerReplay):
                     xiangwuDict[event.target].setState(event.time, event.stack, int((event.end - event.frame + 3) * 62.5))
                 if event.id in ["681"] and event.caster == self.mykey and event.target in self.bld.info.player:  # 上元
                     shangyuanDict[event.target].setState(event.time, event.stack, int((event.end - event.frame + 3) * 62.5))
+                if event.id in ["20938"] and event.target in self.bld.info.player:  # 左旋右转
+                    if len(zxyzDict[event.target].log) == 1 and event.time - self.startTime < 60000:  # 假设起始时有这个buff
+                        zxyzDict[event.target].log[0][1] = 1
+                    zxyzDict[event.target].setState(event.time, event.stack)
 
             elif event.dataType == "Shout":
                 pass
@@ -619,6 +655,9 @@ class YunChangXinJingReplayer(HealerReplay):
 
         # 记录最后一个技能
         self.completeSecondState()
+
+        zxyzNum.append(len(zxyzList))
+        zxyzNum = zxyzNum[1:]
         
         hxpyCastList.append(hxpyLocalNum)
         hxpySingleList.append(hxpySingleNum)
@@ -719,6 +758,20 @@ class YunChangXinJingReplayer(HealerReplay):
         self.result["skill"]["fxda"]["wanqingHPS"] = int(wanqingHeal / self.result["overall"]["sumTimeEff"] * 1000)
         # 九微飞花
         self.calculateSkillInfoDirect("jwfh", jwfhSkill)
+
+        # 左旋右转
+        self.calculateSkillInfoDirect("zxyz", zxyzSkill)
+        self.result["skill"]["zxyz"]["allNum"] = zxyzSumSkill
+        num = 0
+        sum = 0
+        for key in zxyzDict:
+            # print("[zxyz]", num, sum)
+            singleDict = zxyzDict[key]
+            num += self.battleTimeDict[key]
+            sum += singleDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
+        rate = roundCent(safe_divide(sum, num))
+        self.result["skill"]["zxyz"]["cover"] = rate
+
         # 杂项
         self.result["skill"]["xlwl"]["chuimeiHPS"] = int(chuimeiHeal / self.result["overall"]["sumTimeEff"] * 1000)
         self.result["skill"]["xlwl"]["shuangluanNum"] = xlwlSkill.getNum() + sydhSkill.getNum()  # 注意这两个放在翔舞底下，但是实际上是翔舞+上元的数据
@@ -737,7 +790,7 @@ class YunChangXinJingReplayer(HealerReplay):
         self.result["replay"]["hxpy"] = hxpyDict.log
         self.result["replay"]["heat"] = {"interval": 500, "timeline": [xiangwuHeat, shangyuanHeat]}
 
-        self.specialKey = {"hxpy-numPerSec": 20, "general-efficiencyNonGcd": 20, "healer-rhps": 20, "xlwl-cover": 10, "sydh-cover": 10}
+        self.specialKey = {"hxpy-numPerSec": 20, "general-efficiencyNonGcd": 20, "healer-rhps": 20, "xlwl-cover": 10, "sydh-cover": 10, "zxyz-cover": 20}
         self.markedSkill = ["555", "568", "18221"]
         self.outstandingSkill = [jwfhWatchSkill]
         self.calculateSkillOverall()
@@ -781,13 +834,35 @@ class YunChangXinJingReplayer(HealerReplay):
         res["status"] = getRateStatus(res["rate"], 95, 90, 0)
         self.result["review"]["content"].append(res)
 
+        # code 505 提高`左旋右转`的覆盖人数
+        num = 0
+        sum = 0
+        for line in zxyzNum:
+            num += 1
+            sum += line
+        zxyzAverage = max(roundCent(safe_divide(sum, num)), self.result["overall"]["numPlayer"])
+        rate = roundCent(safe_divide(zxyzAverage, self.result["overall"]["numPlayer"]))
+        res = {"code": 505, "numCover": zxyzAverage, "numAll": self.result["overall"]["numPlayer"], "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 90, 50, 10)
+        self.result["review"]["content"].append(res)
+
+        # code 506 保证`左旋右转`的覆盖率
+        cover = self.result["skill"]["zxyz"]["cover"]
+        coverRank = self.result["rank"]["zxyz"]["cover"]["percent"]
+        res = {"code": 506, "cover": cover, "rank": coverRank, "rate": roundCent(coverRank / 100)}
+        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
+        self.result["review"]["content"].append(res)
+
         self.calculateSkillFinal()
 
+        # for line in self.result["review"]["content"]:
+        #     print(line)
+
         # 横刀断浪更新整理
-        # - 左旋右转的复盘、影响人数、覆盖率、rdps统计、cd记录
-        # - 左旋右转的影响人数加入专案组，与飘黄同判定
-        # - 加一个泠风解怀的统计
-        # - 用rdps替换整体dps统计
+        # - 左旋右转的复盘1、影响人数1、覆盖率1、rdps统计1
+        # - 左旋右转的影响人数加入专案组1，与飘黄同判定1
+        # - 左旋右转和泠风解怀的技能统计1
+        # - 用rdps替换整体dps统计1
 
     def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", actorData={}):
         '''

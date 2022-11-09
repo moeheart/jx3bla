@@ -362,6 +362,10 @@ class ActorProReplayer(ReplayerBase):
             for symbolid in ZHENYAN_DICT[baseid][2]:
                 zhenyanSymbol[symbolid] = baseid
 
+        # 左旋右转提前记录（一个极特殊的逻辑，但是会很大程度影响结果，所以要记录）
+        self.zxyzPrecast = 0
+        self.zxyzPrecastSource = "0"
+
         for event in self.bld.log:
 
             if event.time < self.startTime:
@@ -455,6 +459,9 @@ class ActorProReplayer(ReplayerBase):
                     firstHitDict[event.caster] = 1
                     self.battleDict[event.caster].setState(event.time, 1)
 
+                if event.id == "6251":  # 记录左旋右转的施放者
+                    self.zxyzPrecastSource = event.caster
+
             elif event.dataType == "Buff":
 
                 if event.target not in self.bld.info.player:
@@ -500,6 +507,10 @@ class ActorProReplayer(ReplayerBase):
                             self.zhenyanInfer[event.target].recordPost(event.time, event.id)
                         else:
                             self.zhenyanInfer[event.target].recordPrev(event.time, event.id)
+
+                if event.id in ["20938"] and event.target in self.bld.info.player:  # 左旋右转
+                    if event.time - self.startTime < 60000:  # 假设起始时有这个buff
+                        self.zxyzPrecast = 1
 
             elif event.dataType == "Death":  # 重伤记录
                 
@@ -611,6 +622,10 @@ class ActorProReplayer(ReplayerBase):
         # for player in self.zhenyanInfer:
         #     res = self.zhenyanInfer[player].getSummary()
         #     print("[Zhenyan]", player, self.bld.info.getName(player), res)
+
+        # 左旋右转最终调整
+        if self.zxyzPrecast == 0:
+            self.zxyzPrecastSource = "0"
 
         # 调整战斗时间
         self.startTime, self.finalTime, self.battleTime = self.bossAnalyser.trimTime()
@@ -800,7 +815,7 @@ class ActorProReplayer(ReplayerBase):
         目前实现了战斗的数值统计.
         '''
 
-        combatTracker = CombatTracker(self.bld.info, self.bh, self.occDetailList, self.zhenyanInfer, self.stunCounter)
+        combatTracker = CombatTracker(self.bld.info, self.bh, self.occDetailList, self.zhenyanInfer, self.stunCounter, self.zxyzPrecastSource)
 
         for event in self.bld.log:
             if event.time < self.startTime:
