@@ -879,26 +879,26 @@ class XiangZhiProReplayer(HealerReplay):
         res["status"] = getRateStatus(res["rate"], 75, 50, 25)
         self.result["review"]["content"].append(res)
 
-        # code 103 中断`徵`的倒读条
-        num = [0] * 7
-        sum = zhiCastNum
-        # print(zhiCastList)
-        for i in zhiCastList:
-            num[min(i, 6)] += 1
-        if num[3] >= num[2]:
-            # 争簇
-            perfectTime = num[3]
-            fullTime = num[6]
-        else:
-            # 非争簇（真的会有人不点争簇？）
-            perfectTime = num[2]
-            fullTime = num[3]
-        perfectRate = roundCent(safe_divide(perfectTime, sum), 4)
-        if self.result["qixue"]["available"] == 1 and self.result["qixue"]["5"] != "谪仙":
-            perfectRate = 1
-        res = {"code": 103, "time": sum, "perfectTime": perfectTime, "fullTime": fullTime, "rate": perfectRate}
-        res["status"] = getRateStatus(res["rate"], 50, 0, 0)
-        self.result["review"]["content"].append(res)
+        # # code 103 中断`徵`的倒读条（因为有暗香，这个手法作废）
+        # num = [0] * 7
+        # sum = zhiCastNum
+        # # print(zhiCastList)
+        # for i in zhiCastList:
+        #     num[min(i, 6)] += 1
+        # if num[3] >= num[2]:
+        #     # 争簇
+        #     perfectTime = num[3]
+        #     fullTime = num[6]
+        # else:
+        #     # 非争簇（真的会有人不点争簇？）
+        #     perfectTime = num[2]
+        #     fullTime = num[3]
+        # perfectRate = roundCent(safe_divide(perfectTime, sum), 4)
+        # if self.result["qixue"]["available"] == 1 and self.result["qixue"]["5"] != "谪仙":
+        #     perfectRate = 1
+        # res = {"code": 103, "time": sum, "perfectTime": perfectTime, "fullTime": fullTime, "rate": perfectRate}
+        # res["status"] = getRateStatus(res["rate"], 50, 0, 0)
+        # self.result["review"]["content"].append(res)
 
         # code 104 选择合适的`徵`目标
         num = 0

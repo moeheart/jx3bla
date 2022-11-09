@@ -21,13 +21,13 @@ class CombatTrackerWindow(Window):
     def handler_adaptor(self, fun,  **kwds):
         return lambda event, fun=fun, kwds=kwds: fun(event, **kwds)
 
-    def handler(self, event, id):
+    def handler(self, event, id, stat):
         """事件处理函数"""
-        self.setPlayer(id)
+        self.setPlayer(id, stat)
 
     def setStat(self, stat):
         '''
-        使上半部分显示指定的统计类型.
+        使左半部分显示指定的统计类型.
         '''
         self.stat = stat
         assert stat in ["rhps", "hps", "ahps", "ohps", "rdps", "ndps", "mrdps", "mndps"]
@@ -72,7 +72,7 @@ class CombatTrackerWindow(Window):
                 self.bars[i][1]['value'] = rate
                 occ = dataT[i][1]["occ"]
                 self.bars[i][1].configure(style="bar%s.Horizontal.TProgressbar" % occ)
-                self.bars[i][1].bind('<Button-1>', self.handler_adaptor(self.handler, id=dataT[i][0]))
+                self.bars[i][1].bind('<Button-1>', self.handler_adaptor(self.handler, id=dataT[i][0], stat=stat))
                 self.bars[i][3] = dataT[i][0]
                 if dataT[i][0] == self.highlightPlayer:
                     highlightAppear = 1
@@ -83,13 +83,13 @@ class CombatTrackerWindow(Window):
                 self.bars[i][3] = ""
 
         if highlightAppear:
-            self.setPlayer(self.highlightPlayer)
+            self.setPlayer(self.highlightPlayer, stat)
         elif maxID != "":
-            self.setPlayer(maxID)
+            self.setPlayer(maxID, stat)
 
-    def setPlayer(self, id):
+    def setPlayer(self, id, stat):
         '''
-        使下半部分显示对应玩家的统计类型.
+        使右半部分显示对应玩家的统计类型.
         '''
         data = self.data
         dataT = []
@@ -115,6 +115,32 @@ class CombatTrackerWindow(Window):
                 self.table[i][3].configure(text="")
                 self.table[i][4].configure(text="")
 
+        dataT = []
+        show = "namedTarget"
+        if stat in ["rdps", "mrdps"]:
+            show = "namedSource"
+        for key in data["player"][id][show]:
+            dataT.append([key, data["player"][id][show][key]])
+        dataT.sort(key=lambda x: -x[1]["sum"])
+        for i in range(50):
+            if i < len(dataT):
+                name = dataT[i][0]
+                self.table2[i][0].configure(text=name)
+                num = dataT[i][1]["num"]
+                self.table2[i][1].configure(text="%d" % num)
+                sum = dataT[i][1]["sum"]
+                self.table2[i][2].configure(text="%d" % sum)
+                sumPerSec = int(sum / self.act.time * 1000)
+                self.table2[i][3].configure(text="%d" % sumPerSec)
+                percent = dataT[i][1]["percent"]
+                self.table2[i][4].configure(text=parseCent(percent) + '%')
+            else:
+                self.table2[i][0].configure(text="")
+                self.table2[i][1].configure(text="")
+                self.table2[i][2].configure(text="")
+                self.table2[i][3].configure(text="")
+                self.table2[i][4].configure(text="")
+
         for i in range(30):
             if self.bars[i][3] == id:
                 self.bars[i][0].configure(bg='#777777')
@@ -136,13 +162,13 @@ class CombatTrackerWindow(Window):
 
         window = tk.Toplevel()
         window.title('战斗统计')
-        window.geometry('580x700')
+        window.geometry('1140x750')
         window.protocol('WM_DELETE_WINDOW', self.final)
         self.window = window
 
-        # 上半部分
+        # 柱状图部分
 
-        frameUp = tk.Frame(window, width=560, height=300)
+        frameUp = tk.Frame(window, width=560, height=700)
         frameUp.place(x=0, y=0)
 
         frameButtons = tk.Frame(frameUp, width=560, height=50)
@@ -181,12 +207,12 @@ class CombatTrackerWindow(Window):
         ToolTip(b8, "全称main-target natrual DPS，是只考虑主目标的nDPS。\n每个可以输出的阶段一定至少有一个主目标，并不限于BOSS本体。\n用于衡量单体与群攻的差别。")
         b8.place(x=390, y=20)
 
-        canvas = tk.Canvas(frameUp, width=560, height=250, scrollregion=(0, 0, 540, 25*30)) #创建canvas
+        canvas = tk.Canvas(frameUp, width=560, height=650, scrollregion=(0, 0, 540, 25*30)) #创建canvas
         canvas.place(x=0, y=50)  # 放置canvas的位置
         frameBar = tk.Frame(canvas)  # 把frame放在canvas里
-        frameBar.place(width=540, height=250) #frame的长宽，和canvas差不多的
+        frameBar.place(width=540, height=650) #frame的长宽，和canvas差不多的
         vbar = tk.Scrollbar(canvas, orient=tk.VERTICAL) #竖直滚动条
-        vbar.place(x=540, width=20, height=250)
+        vbar.place(x=540, width=20, height=650)
         vbar.configure(command=canvas.yview)
         canvas.config(yscrollcommand=vbar.set)  # 设置
         canvas.create_window((270, 25*30*0.5), window=frameBar)  #create_window
@@ -218,15 +244,15 @@ class CombatTrackerWindow(Window):
             frameSingleBar.grid(row=i, column=0)
             self.bars.append([name, progressBar, value, "", frameSingleBar])
 
-        # 中间部分
+        # 时间部分
         frameMiddle = tk.Frame(window, width=560, height=20)
-        frameMiddle.place(x=0, y=300)
+        frameMiddle.place(x=0, y=700)
         self.middleLabel = tk.Label(frameMiddle, text="test")
         self.middleLabel.place(x=100, y=0)
 
-        # 下半部分
+        # 列表部分
         frameDown = tk.Frame(window, width=560, height=350)
-        frameDown.place(x=0, y=320)
+        frameDown.place(x=560, y=0)
 
         canvas = tk.Canvas(frameDown, width=560, height=350, scrollregion=(0, 0, 540, 24*50)) #创建canvas
         canvas.place(x=0, y=50)  # 放置canvas的位置
@@ -238,7 +264,7 @@ class CombatTrackerWindow(Window):
         canvas.config(yscrollcommand=vbar.set)  # 设置
         canvas.create_window((270, 24*50*0.5), window=frameTable)  #create_window
 
-        l = tk.Label(frameTable, text="技能")
+        l = tk.Label(frameTable, text="名称")
         l.grid(row=0, column=0)
         l = tk.Label(frameTable, text="次数")
         l.grid(row=0, column=1)
@@ -261,6 +287,43 @@ class CombatTrackerWindow(Window):
             l5 = tk.Label(frameTable, text="xxx", width=10)
             l5.grid(row=i+1, column=4)
             self.table.append([l1, l2, l3, l4, l5])
+
+        frameDown2 = tk.Frame(window, width=560, height=350)
+        frameDown2.place(x=560, y=350)
+
+        canvas = tk.Canvas(frameDown2, width=560, height=350, scrollregion=(0, 0, 540, 24*50)) #创建canvas
+        canvas.place(x=0, y=50)  # 放置canvas的位置
+        frameTable2 = tk.Frame(canvas)  # 把frame放在canvas里
+        frameTable2.place(width=540, height=350) #frame的长宽，和canvas差不多的
+        vbar = tk.Scrollbar(canvas, orient=tk.VERTICAL) #竖直滚动条
+        vbar.place(x=540, width=20, height=350)
+        vbar.configure(command=canvas.yview)
+        canvas.config(yscrollcommand=vbar.set)  # 设置
+        canvas.create_window((270, 24*50*0.5), window=frameTable2)  #create_window
+
+        l = tk.Label(frameTable2, text="技能")
+        l.grid(row=0, column=0)
+        l = tk.Label(frameTable2, text="次数")
+        l.grid(row=0, column=1)
+        l = tk.Label(frameTable2, text="数值")
+        l.grid(row=0, column=2)
+        l = tk.Label(frameTable2, text="每秒")
+        l.grid(row=0, column=3)
+        l = tk.Label(frameTable2, text="比例")
+        l.grid(row=0, column=4)
+        self.table2 = []
+        for i in range(50):
+            l1 = tk.Label(frameTable2, text="xxx", width=20)
+            l1.grid(row=i+1, column=0)
+            l2 = tk.Label(frameTable2, text="xxx", width=5)
+            l2.grid(row=i+1, column=1)
+            l3 = tk.Label(frameTable2, text="xxx", width=20)
+            l3.grid(row=i+1, column=2)
+            l4 = tk.Label(frameTable2, text="xxx", width=10)
+            l4.grid(row=i+1, column=3)
+            l5 = tk.Label(frameTable2, text="xxx", width=10)
+            l5.grid(row=i+1, column=4)
+            self.table2.append([l1, l2, l3, l4, l5])
 
         self.setStat("rhps")
 

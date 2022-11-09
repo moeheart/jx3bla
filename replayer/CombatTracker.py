@@ -406,7 +406,7 @@ class StatRecorder():
 
     def addNote(self, skill, note):
         '''
-        为对应的技能人工指定一个备注. 用于阵眼增益等名称.
+        为对应的技能人工指定一个备注. 用于*阵眼增益等名称.
         params:
         - skill: 对应的技能全名.
         - note: 需要添加的备注.
@@ -445,6 +445,12 @@ class HealCastRecorder(StatRecorder):
                 for key in ["sum", "num", "percent"]:
                     self.namedSkill[self.skill[skill]["name"]][key] += self.skill[skill][key]
 
+        for target in self.target:
+            self.target[target]["percent"] = safe_divide(self.target[target]["sum"], self.sum)
+            self.namedTarget[info.getName(target)] = {}
+            for key in ["sum", "num", "percent"]:
+                self.namedTarget[info.getName(target)][key] = self.target[target][key]
+
     def record(self, target, skill, value):
         '''
         记录一次治疗事件.
@@ -454,12 +460,18 @@ class HealCastRecorder(StatRecorder):
         - value: 数值.
         '''
         if skill not in self.skill:
-            self.skill[skill] = {"sum": 0, "num": 0}  # , "targets": {}}，暂时不记录目标
+            self.skill[skill] = {"sum": 0, "num": 0}
         # if target not in self.skill[skill]["targets"]:
         #     self.skill[skill]["targets"][target] = 0
         # self.skill[skill]["targets"][target] += value
         self.skill[skill]["sum"] += value
         self.skill[skill]["num"] += 1
+
+        # 目标和技能分成两种方式统计
+        if target not in self.target:
+            self.target[target] = {"sum": 0, "num": 0}
+        self.target[target]["sum"] += value
+        self.target[target]["num"] += 1
 
     def __init__(self, allied):
         '''
@@ -470,6 +482,8 @@ class HealCastRecorder(StatRecorder):
         super().__init__()
         self.skill = {}
         self.namedSkill = {}
+        self.target = {}
+        self.namedTarget = {}
         self.sum = 0
         self.hps = 0
 
@@ -550,6 +564,33 @@ class DpsCastRecorder(StatRecorder):
             else:
                 for key in ["sum", "num", "percent"]:
                     self.namedSkill[self.skill[skill]["name"]][key] += self.skill[skill][key]
+
+        for target in self.target:
+            self.target[target]["percent"] = safe_divide(self.target[target]["sum"], self.sum)
+            self.namedTarget[info.getName(target)] = {}
+            for key in ["sum", "num", "percent"]:
+                self.namedTarget[info.getName(target)][key] = self.target[target][key]
+
+        for source in self.source:
+            self.source[source]["percent"] = safe_divide(self.source[source]["sum"], self.sum)
+            self.namedSource[info.getName(source)] = {}
+            for key in ["sum", "num", "percent"]:
+                self.namedSource[info.getName(source)][key] = self.source[source][key]
+
+    def recordFromTeammates(self, source, skill, value):
+        '''
+        在rdps事件中计算每个伤害的队友来源.
+        '''
+        if skill not in self.skill:
+            self.skill[skill] = {"sum": 0, "num": 0}
+        self.skill[skill]["sum"] += value
+        self.skill[skill]["num"] += 1
+
+        # 目标和技能分成两种方式统计
+        if source not in self.source:
+            self.source[source] = {"sum": 0, "num": 0}
+        self.source[source]["sum"] += value
+        self.source[source]["num"] += 1
     
     def record(self, target, skill, value):
         '''
@@ -560,12 +601,15 @@ class DpsCastRecorder(StatRecorder):
         - value: 数值.
         '''
         if skill not in self.skill:
-            self.skill[skill] = {"sum": 0, "num": 0}  # , "targets": {}}，暂时不记录目标
-        # if target not in self.skill[skill]["targets"]:
-        #     self.skill[skill]["targets"][target] = 0
-        # self.skill[skill]["targets"][target] += value
+            self.skill[skill] = {"sum": 0, "num": 0}
         self.skill[skill]["sum"] += value
         self.skill[skill]["num"] += 1
+
+        # 目标和技能分成两种方式统计
+        if target not in self.target:
+            self.target[target] = {"sum": 0, "num": 0}
+        self.target[target]["sum"] += value
+        self.target[target]["num"] += 1
     
     def __init__(self, allied):
         '''
@@ -576,6 +620,10 @@ class DpsCastRecorder(StatRecorder):
         super().__init__()
         self.skill = {}
         self.namedSkill = {}
+        self.target = {}
+        self.namedTarget = {}
+        self.source = {}
+        self.namedSource = {}
         self.sum = 0
         self.dps = 0
     
@@ -647,6 +695,7 @@ class CombatTracker():
                                          "sumPerSec": objSource[player].hps,
                                          "skill": objSource[player].skill,
                                          "namedSkill": objSource[player].namedSkill,
+                                         "namedTarget": objSource[player].namedTarget,
                                          "name": self.info.getName(player),
                                          "occ": self.info.getOcc(player),
                                          "sumTime": self.time,
@@ -654,9 +703,13 @@ class CombatTracker():
                                          "adjustedTime": adjustedTime}
                 objTarget["sum"] += objTarget["player"][player]["sumPerSec"]
                 
-    def getStatInDps(self, objSource, objTarget):
+    def getStatInDps(self, objSource, objTarget, subType="target"):
         '''
         以dict的形式整理统计伤害结果.
+        params:
+        - objSource: 整理源对象.
+        - objTarget: 整理目标对象.
+        - subType: 整理时附带哪个信息. target为目标(通常用于ndps), source为队友(通常用于rdps)
         '''
         for player in objSource:
             if player in self.stunTime:
@@ -675,6 +728,10 @@ class CombatTracker():
                                          "sumTime": self.time,
                                          "effectiveTime": self.timeDps,
                                          "adjustedTime": adjustedTime}
+                if subType == "target":
+                    objTarget["player"][player]["namedTarget"] = objSource[player].namedTarget
+                else:
+                    objTarget["player"][player]["namedSource"] = objSource[player].namedSource
                 objTarget["sum"] += objTarget["player"][player]["sumPerSec"]
 
     def export(self, time, timeDps, timeHealer, stunTime):
@@ -718,22 +775,22 @@ class CombatTracker():
         
         # ndps
         ndps = {"sum": 0, "player": {}}
-        self.getStatInDps(self.ndpsCast, ndps)
+        self.getStatInDps(self.ndpsCast, ndps, "target")
         self.ndps = ndps
         
         # mndps
         mndps = {"sum": 0, "player": {}}
-        self.getStatInDps(self.mndpsCast, mndps)
+        self.getStatInDps(self.mndpsCast, mndps, "target")
         self.mndps = mndps
         
         # rdps
         rdps = {"sum": 0, "player": {}}
-        self.getStatInDps(self.rdpsCast, rdps)
+        self.getStatInDps(self.rdpsCast, rdps, "source")
         self.rdps = rdps
         
         # mrdps
         mrdps = {"sum": 0, "player": {}}
-        self.getStatInDps(self.mrdpsCast, mrdps)
+        self.getStatInDps(self.mrdpsCast, mrdps, "source")
         self.mrdps = mrdps
 
     def recordBuff(self, event):
@@ -829,10 +886,10 @@ class CombatTracker():
                 source = event.target
             # 阵眼特殊判定
             if event.id in self.zhenyanExclude:
-                source = "阵眼增益"
+                source = "*阵眼增益"
                 zhenyanName = "%s阵" % self.zhenyanExclude[event.id]
-                self.rdpsCast["阵眼增益"].addNote(full_id, zhenyanName)
-                self.mrdpsCast["阵眼增益"].addNote(full_id, zhenyanName)
+                self.rdpsCast["*阵眼增益"].addNote(full_id, zhenyanName)
+                self.mrdpsCast["*阵眼增益"].addNote(full_id, zhenyanName)
             elif event.id in ZHENYAN_DICT:
                 skipFlag = True
             if not skipFlag:
@@ -918,7 +975,7 @@ class CombatTracker():
         if event.id == "6251":  # 左旋右转记录
             self.zxyzCaster = event.caster
 
-        # 判断施放者需不需要更新阵眼增益
+        # 判断施放者需不需要更新*阵眼增益
         if event.caster in self.zhenyanInfer:
             minus, plus = self.zhenyanInfer[event.caster].scan(event.time)
             if minus != "0":
@@ -927,10 +984,10 @@ class CombatTracker():
             if plus != "0":
                 full_id = "2,%s,%d" % (plus, ZHENYAN_DICT[plus][5])
                 boostValue = BOOST_DICT[full_id]
-                self.boostCounter[event.caster].addBoost(full_id, boostValue, "阵眼增益", 1)
+                self.boostCounter[event.caster].addBoost(full_id, boostValue, "*阵眼增益", 1)
                 zhenyanName = "%s阵" % ZHENYAN_DICT[plus][0]
-                self.rdpsCast["阵眼增益"].addNote(full_id, zhenyanName)
-                self.mrdpsCast["阵眼增益"].addNote(full_id, zhenyanName)
+                self.rdpsCast["*阵眼增益"].addNote(full_id, zhenyanName)
+                self.mrdpsCast["*阵眼增益"].addNote(full_id, zhenyanName)
 
         # 先判断是否进入了无效区间
         while self.excludePosDps < len(self.badPeriodDpsLog) and event.time > self.badPeriodDpsLog[self.excludePosDps][0]:
@@ -1099,7 +1156,7 @@ class CombatTracker():
                     continue  # 在有秋肃时跳过结算
                 effect_id = "2,4058,1"
                 boostValue = BOOST_DICT[effect_id]
-                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, event.caster, 1)
+                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, "*低等级增益", 1)
                 self.boostRemove[effect_id] = {"time": event.time + 15000, "target": event.target}
                 self.updateRemoveTime()
         elif event.id in ["180"] and self.occDetailList.get(event.caster, "") == "2h":  # 秋肃
@@ -1119,7 +1176,7 @@ class CombatTracker():
                     continue  # 在有高等级时跳过结算
                 effect_id = "2,661,30"
                 boostValue = BOOST_DICT[effect_id]
-                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, event.caster, 1)
+                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, "*低等级增益", 1)
                 self.boostRemove[effect_id] = {"time": event.time + 14000, "target": event.target}
                 self.updateRemoveTime()
         elif event.id in ["403"] and self.occDetailList.get(event.caster, "") == "3t":  # 铁牢破风
@@ -1131,6 +1188,17 @@ class CombatTracker():
                 boostValue = BOOST_DICT[effect_id]
                 self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, event.caster, 1)
                 self.boostRemove[effect_id] = {"time": event.time + 14000, "target": event.target}
+                self.updateRemoveTime()
+        elif event.id in ["13778"]:  # 乘龙箭
+            #print("[YishangDetect1]", event.time, event.id, event.caster, self.info.getName(event.caster))
+            source = event.caster
+            if self.occDetailList.get(event.caster, "") == "10d":
+                source = "*低等级增益"
+            for player in self.boostCounter:
+                effect_id = "2,3465,1"
+                boostValue = BOOST_DICT[effect_id]
+                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, source, 1)
+                self.boostRemove[effect_id] = {"time": event.time + 10000, "target": event.target}
                 self.updateRemoveTime()
         elif event.id in ["211", "212", "213"]:  # 立地成佛
             # global SUM_TIME, SUM1, SUM2, SUM3, SUM4, SUM5
@@ -1161,18 +1229,24 @@ class CombatTracker():
                     self.updateRemoveTime()
         elif event.id in ["13050"]:  # 盾飞
             # print("[YishangDetect]", event.time, event.id, event.caster, self.info.getName(event.caster))
+            source = event.caster
+            if self.occDetailList.get(event.caster, "") == "21d":
+                source = "*低等级增益"
             for player in self.boostCounter:
                 effect_id = "2,8248,1"
                 boostValue = BOOST_DICT[effect_id]
-                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, event.caster, 1)
+                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, source, 1)
                 self.boostRemove[effect_id] = {"time": event.time + 25000, "target": event.target}
                 self.updateRemoveTime()
         elif event.id in ["3963"]:  # 烈日斩
             # print("[YishangDetect]", event.time, event.id, event.caster, self.info.getName(event.caster))
+            source = event.caster
+            if self.occDetailList.get(event.caster, "") == "10d":
+                source = "*低等级增益"
             for player in self.boostCounter:
                 effect_id = "2,4418,1"
                 boostValue = BOOST_DICT[effect_id]
-                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, event.caster, 1)
+                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, source, 1)
                 self.boostRemove[effect_id] = {"time": event.time + 12000, "target": event.target}
                 self.updateRemoveTime()
             
@@ -1189,10 +1263,10 @@ class CombatTracker():
 
                 for key in rdpsRate:
                     if key == "self":
-                        self.rdpsCast[event.caster].record(event.target, event.full_id, event.damageEff * rdpsRate[key]["rate"])
+                        self.rdpsCast[event.caster].recordFromTeammates(event.caster, event.full_id, event.damageEff * rdpsRate[key]["rate"])
                     elif rdpsRate[key]["source"] in self.rdpsCast:
                         keyName = "6,%s" % key
-                        self.rdpsCast[rdpsRate[key]["source"]].record(event.target, keyName, event.damageEff * rdpsRate[key]["rate"])
+                        self.rdpsCast[rdpsRate[key]["source"]].recordFromTeammates(rdpsRate[key]["source"], keyName, event.damageEff * rdpsRate[key]["rate"])
 
                 if event.target in self.mainTargets and event.caster in self.mndpsCast:
                     self.mndpsCast[event.caster].record(event.target, event.full_id, event.damageEff)
@@ -1200,10 +1274,10 @@ class CombatTracker():
                     if event.caster in self.boostCounter:
                         for key in rdpsRate:
                             if key == "self":
-                                self.mrdpsCast[event.caster].record(event.target, event.full_id, event.damageEff * rdpsRate[key]["rate"])
+                                self.mrdpsCast[event.caster].recordFromTeammates(event.caster, event.full_id, event.damageEff * rdpsRate[key]["rate"])
                             elif rdpsRate[key]["source"] in self.mrdpsCast:
                                 keyName = "6,%s" % key
-                                self.mrdpsCast[rdpsRate[key]["source"]].record(event.target, keyName, event.damageEff * rdpsRate[key]["rate"])
+                                self.mrdpsCast[rdpsRate[key]["source"]].recordFromTeammates(rdpsRate[key]["source"], keyName, event.damageEff * rdpsRate[key]["rate"])
 
     def __init__(self, info, bh, occDetailList, zhenyanInfer, stunCounter, zxyzPrecastSource):
         '''
@@ -1263,7 +1337,7 @@ class CombatTracker():
         self.zhenyanInfer = zhenyanInfer
         for player in self.zhenyanInfer:
             self.zhenyanInfer[player].initScan()
-        self.zhenyanExclude = {}  # 需要单独计算的阵眼增益，并记录阵法名
+        self.zhenyanExclude = {}  # 需要单独计算的*阵眼增益，并记录阵法名
         for baseid in ZHENYAN_DICT:
             for symbolid in ZHENYAN_DICT[baseid][2]:
                 self.zhenyanExclude[symbolid] = ZHENYAN_DICT[baseid][0]
@@ -1299,8 +1373,10 @@ class CombatTracker():
                 source = zxyzPrecastSource
                 self.boostCounter[player].addBoost(effect_id, boostValue, source, 1)
 
-        self.rdpsCast["阵眼增益"] = DpsCastRecorder(1)
-        self.mrdpsCast["阵眼增益"] = DpsCastRecorder(1)
+        self.rdpsCast["*阵眼增益"] = DpsCastRecorder(1)
+        self.mrdpsCast["*阵眼增益"] = DpsCastRecorder(1)
+        self.rdpsCast["*低等级增益"] = DpsCastRecorder(1)
+        self.mrdpsCast["*低等级增益"] = DpsCastRecorder(1)
             
         for player in info.npc:
             self.hpsCast[player] = HealCastRecorder(0)

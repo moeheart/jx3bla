@@ -864,7 +864,7 @@ class BuTianJueReplayer(HealerReplay):
             sumAll.append(sum)
             skillAll.append(skill)
         rate = roundCent(safe_divide(rateSum, rateNum), 4)
-        res = {"code": 403, "skill": skillAll[0], "num": numAll[0], "sum": sumAll[0], "rate": rate}
+        res = {"code": 409, "skill": skillAll[0], "num": numAll[0], "sum": sumAll[0], "rate": rate}
         res["status"] = getRateStatus(res["rate"], 80, 60, 40)
         self.result["review"]["content"].append(res)
 
