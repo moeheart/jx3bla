@@ -843,7 +843,7 @@ class YunChangXinJingReplayer(HealerReplay):
         zxyzAverage = max(roundCent(safe_divide(sum, num)), self.result["overall"]["numPlayer"])
         rate = roundCent(safe_divide(zxyzAverage, self.result["overall"]["numPlayer"]))
         res = {"code": 505, "numCover": zxyzAverage, "numAll": self.result["overall"]["numPlayer"], "rate": rate}
-        res["status"] = getRateStatus(res["rate"], 90, 50, 10)
+        res["status"] = getRateStatus(res["rate"], 90, 50, 0)
         self.result["review"]["content"].append(res)
 
         # code 506 保证`左旋右转`的覆盖率

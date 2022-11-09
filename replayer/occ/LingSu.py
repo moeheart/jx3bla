@@ -98,14 +98,13 @@ class LingSuWindow(HealerDisplayWindow):
         info1Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         info1Displayer.setSingle("int", "七情数量", "qqhh", "num")
         info1Displayer.setSingle("int", "七情HPS", "qqhh", "HPS")
-        info1Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
+        info1Displayer.setSingle("percent", "配伍比例", "general", "PeiwuRate")
+        info1Displayer.setSingle("int", "飘黄数量", "general", "PiaohuangAllNum")
         info1Displayer.export_text(frame5, 6)
 
         info2Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
-        info2Displayer.setSingle("percent", "配伍比例", "general", "PeiwuRate")
-        info2Displayer.setSingle("int", "飘黄数量", "general", "PiaohuangNum")
-        info2Displayer.setSingle("int", "配伍DPS", "general", "PeiwuDPS")
-        info2Displayer.setSingle("int", "飘黄DPS", "general", "PiaohuangDPS")
+        info2Displayer.setSingle("int", "rDPS", "general", "rdps")
+        info2Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
         info2Displayer.setSingle("percent", "战斗效率", "general", "efficiency")
         info2Displayer.export_text(frame5, 7)
 
@@ -323,7 +322,7 @@ class LingSuWindow(HealerDisplayWindow):
         frame9sub.place(x=0, y=0)
 
         tk.Label(frame9, text="科技&五奶群：418483739").place(x=20, y=20)
-        tk.Label(frame9, text="灵素PVE群：710451604").place(x=20, y=40)
+        tk.Label(frame9, text="灵素PVE群：862671657").place(x=20, y=40)
         if "shortID" in self.result["overall"]:
             tk.Label(frame9, text="复盘编号：%s"%self.result["overall"]["shortID"]).place(x=20, y=70)
             b2 = tk.Button(frame9, text='在网页中打开', height=1, command=self.OpenInWeb, bg='#777777')
@@ -746,6 +745,17 @@ class LingSuReplayer(HealerReplay):
         for key in piaohuangNumDict:
             numPiaoHuang += piaohuangNumDict[key]
 
+        # 千枝扩展
+        qianzhiExpandDict = BuffCounter("20075", self.startTime, self.finalTime)  # 千枝buff
+        lastPositiveTime = 0
+        for line in qianzhiDict.log:
+            if line[0] - lastPositiveTime < 1500 and line[1] == 0 and qianzhiExpandDict.log[-1][1] == 1:
+                qianzhiExpandDict.log.append([lastPositiveTime + 1500, 0])
+            elif line[0] < qianzhiExpandDict.log[-1][0] and line[1] == 1 and qianzhiExpandDict.log[-1][1] == 0:
+                qianzhiExpandDict.log.pop()
+            elif line[0] > qianzhiExpandDict.log[-1][0] and line[1] != qianzhiExpandDict.log[-1][1] == 0:
+                qianzhiExpandDict.log.append([line[0], line[1]])
+
         # 计算技能统计
         self.result["overall"]["numPlayer"] = int(self.sumPlayer * 100) / 100
 
@@ -778,6 +788,7 @@ class LingSuReplayer(HealerReplay):
         self.result["skill"]["general"] = {}
         self.result["skill"]["general"]["PeiwuRate"] = overallRate
         self.result["skill"]["general"]["PiaohuangNum"] = numPiaoHuang
+        self.result["skill"]["general"]["PiaohuangAllNum"] = len(zyhrNum)
         self.result["skill"]["general"]["PeiwuDPS"] = int(numdam1 / self.result["overall"]["sumTimeEff"] * 1000)
         self.result["skill"]["general"]["PiaohuangDPS"] = int(numdam2 / self.result["overall"]["sumTimeEff"] * 1000)
         # 计算战斗回放
@@ -836,11 +847,11 @@ class LingSuReplayer(HealerReplay):
         self.calculateSkillFinal()
 
         # 横刀断浪更新整理
-        # - 记录飘黄的总次数而不是触发次数
-        # - 专案组中单独分析飘黄次数
-        # - 用rdps替换整体dps统计
-        # - 修复药奶秒开关千枝会影响中和覆盖的问题。
-        # - 新的药奶群
+        # - 记录飘黄的总次数而不是触发次数11
+        # - 专案组中单独分析飘黄次数11
+        # - 用rdps替换整体dps统计111
+        # - 修复药奶秒开关千枝会影响中和覆盖的问题。111
+        # - 新的药奶群111
 
     def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", actorData={}):
         '''

@@ -462,6 +462,7 @@ class XiangZhiProReplayer(HealerReplay):
         pingyinHeal = 0
         gudaoHeal = 0
         zhenliuHeal = 0
+        gcsActive = 0  # 共潮生
 
         # 徵的特殊统计
         zhiLastCast = 0
@@ -906,7 +907,7 @@ class XiangZhiProReplayer(HealerReplay):
         # - 分队HOT的判定移除，改为整体覆盖的HOT（显示方式也改为双排）
         # - 专案组增加一个暗香下限判定
         # - 专案组增加一个暗香目标是否有盾的判定
-        # - 用rdps替换整体dps统计
+        # - 用rdps替换整体dps统计11
 
     def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", actorData={}):
         '''

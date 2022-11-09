@@ -98,15 +98,18 @@ class BuTianJueWindow(HealerDisplayWindow):
         mxymDisplayer.export_image(frame5, 5)
 
         info1Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
-        info1Displayer.setSingle("int", "蝶旋HPS", "dx", "HPS")
-        info1Displayer.setSingle("int", "蝶旋次数", "dx", "num")
-        info1Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
+        # info1Displayer.setSingle("int", "蝶旋HPS", "dx", "HPS")
+        # info1Displayer.setSingle("int", "蝶旋次数", "dx", "num")
+        info1Displayer.setSingle("percent", "锅覆盖率", "xwgd", "cover")
+        info1Displayer.setSingle("int", "锅次数", "xwgd", "num")
         info1Displayer.setSingle("percent", "蛊惑覆盖率", "ghzs", "cover")
         info1Displayer.setSingle("percent", "女娲覆盖率", "nvwa", "cover")
+        info1Displayer.setSingle("percent", "绮栊覆盖率", "qilong", "cover")
         info1Displayer.export_text(frame5, 6)
 
         info2Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
-        info2Displayer.setSingle("percent", "绮栊覆盖率", "qilong", "cover")
+        info2Displayer.setSingle("int", "rDPS", "general", "rdps")
+        info2Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
         info2Displayer.setSingle("int", "蛊惑HPS", "ghzs", "hps")
         info2Displayer.setSingle("percent", "gcd效率", "general", "efficiency")
         info2Displayer.setSingle("percent", "战斗效率", "general", "efficiencyNonGcd")
@@ -439,6 +442,7 @@ class BuTianJueReplayer(HealerReplay):
         mxymDict = BuffCounter("?", self.startTime, self.finalTime)  # 迷仙引梦记录
         xwgdDict = BuffCounter("?", self.startTime, self.finalTime)  # 锅记录
         ghzsDict = BuffCounter("?", self.startTime, self.finalTime)  # 蛊惑记录
+        xwgdBuffDict = {}
 
         self.cyDict = BuffCounter("2844", self.startTime, self.finalTime)  # 蚕引
         cwDict = BuffCounter("12770", self.startTime, self.finalTime)  # cw特效
@@ -449,6 +453,7 @@ class BuTianJueReplayer(HealerReplay):
         for line in self.bld.info.player:
             battleStat[line] = [0]
             xwgdNumDict[line] = 0
+            xwgdBuffDict[line] = BuffCounter("24742", self.startTime, self.finalTime)  # 仙王蛊鼎增益记录
 
         self.qilongCounter = {}
         for key in self.bld.info.player:
@@ -465,6 +470,10 @@ class BuTianJueReplayer(HealerReplay):
         diechiNum = 0  # 蝶池施放次数
         diechiCorrect = 0  # 蝶池正确施放次数
         diechiLast = 0  # 蝶池防止重复统计
+        xwgdList = []
+        xwgdNum = []
+        xwgdSumSkill = 0
+        xwgdLastSkill = 0  # 锅的施放人数统计
 
         zwjtTime = getLength(16, self.haste)
 
@@ -571,7 +580,7 @@ class BuTianJueReplayer(HealerReplay):
                                 xwgdDict.setState(self.startTime, 1)
                                 xwgdDict.setState(firstXwgdTaketime, 0)
                         xwgdDict.setState(event.time, 1)
-                        xwgdDict.setState(event.time + 60000, 0)
+                        xwgdDict.setState(event.time + 25000, 0)
                     if event.id in ["23951"] and event.level == 51:
                         xwgdNumDict[event.target] += 1
                         if firstXwgd == 0:
@@ -616,6 +625,16 @@ class BuTianJueReplayer(HealerReplay):
                     self.xjDict.setState(event.time, event.stack)
                 if event.id in ["10237"] and event.caster == self.mykey:  # 碧蝶
                     bdDict.setState(event.time, event.stack)
+                if event.id in ["24742"] and event.caster == self.mykey and event.target in xwgdBuffDict:  # 仙王蛊鼎
+                    xwgdBuffDict[event.target].setState(event.time, event.stack)
+                    if event.stack == 1:
+                        if event.time - xwgdLastSkill > 10000:
+                            xwgdNum.append(len(xwgdList))
+                            xwgdList = []
+                            xwgdLastSkill = event.time
+                            xwgdSumSkill += 1
+                        if event.target not in xwgdList:
+                            xwgdList.append(event.target)
 
             elif event.dataType == "Shout":
                 pass
@@ -628,7 +647,8 @@ class BuTianJueReplayer(HealerReplay):
 
         self.completeSecondState()
 
-        # 计算DPS列表(Part 7)
+        xwgdNum.append(len(xwgdList))
+        xwgdNum = xwgdNum[1:]
 
         # 计算伤害
         for key in battleStat:
@@ -693,9 +713,20 @@ class BuTianJueReplayer(HealerReplay):
         num = self.battleTimeDict[self.mykey]
         sum = mxymDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
         self.result["skill"]["mxym"]["cover"] = roundCent(safe_divide(sum, num))
-        # 蝶旋
-        self.calculateSkillInfoDirect("dx", dxSkill)
+        # 仙王蛊鼎
+        num = 0
+        sum = 0
+        for key in xwgdBuffDict:
+            # print("[zxyz]", num, sum)
+            singleDict = xwgdBuffDict[key]
+            num += self.battleTimeDict[key]
+            sum += singleDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
+        rate = roundCent(safe_divide(sum, num))
+        self.result["skill"]["xwgd"] = {}
+        self.result["skill"]["xwgd"]["num"] = xwgdSumSkill
+        self.result["skill"]["xwgd"]["cover"] = rate
         # 杂项
+        self.calculateSkillInfoDirect("dx", dxSkill)  # 蝶旋
         self.result["skill"]["nvwa"] = {}
         sum = nvwaDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
         self.result["skill"]["nvwa"]["cover"] = roundCent(safe_divide(sum, num))
@@ -743,35 +774,35 @@ class BuTianJueReplayer(HealerReplay):
         res["status"] = getRateStatus(res["rate"], 90, 50, 0)
         self.result["review"]["content"].append(res)
 
-        # code 403 保证回蓝技能的使用次数
-        scCandidate = []
-        for id in ["2234"]:
-            if id in self.nonGcdSkillIndex:
-                scCandidate.append(self.skillInfo[self.nonGcdSkillIndex[id]][0])
-            else:
-                scCandidate.append(self.skillInfo[self.gcdSkillIndex[id]][0])
-        scCandidate.append(mxymWatchSkill)
-
-        rateSum = 0
-        rateNum = 0
-        numAll = []
-        sumAll = []
-        skillAll = []
-        for skillObj in scCandidate:
-            num = skillObj.getNum()
-            sum = skillObj.getMaxPossible()
-            skill = skillObj.name
-            if skill in ["特效腰坠"] and num == 0:
-                continue
-            rateNum += 1
-            rateSum += min(safe_divide(num, sum), 1)
-            numAll.append(num)
-            sumAll.append(sum)
-            skillAll.append(skill)
-        rate = roundCent(safe_divide(rateSum, rateNum), 4)
-        res = {"code": 403, "skill": skillAll, "num": numAll, "sum": sumAll, "rate": rate}
-        res["status"] = getRateStatus(res["rate"], 80, 60, 40)
-        self.result["review"]["content"].append(res)
+        # # code 403 保证回蓝技能的使用次数
+        # scCandidate = []
+        # for id in ["2234"]:
+        #     if id in self.nonGcdSkillIndex:
+        #         scCandidate.append(self.skillInfo[self.nonGcdSkillIndex[id]][0])
+        #     else:
+        #         scCandidate.append(self.skillInfo[self.gcdSkillIndex[id]][0])
+        # scCandidate.append(mxymWatchSkill)
+        #
+        # rateSum = 0
+        # rateNum = 0
+        # numAll = []
+        # sumAll = []
+        # skillAll = []
+        # for skillObj in scCandidate:
+        #     num = skillObj.getNum()
+        #     sum = skillObj.getMaxPossible()
+        #     skill = skillObj.name
+        #     if skill in ["特效腰坠"] and num == 0:
+        #         continue
+        #     rateNum += 1
+        #     rateSum += min(safe_divide(num, sum), 1)
+        #     numAll.append(num)
+        #     sumAll.append(sum)
+        #     skillAll.append(skill)
+        # rate = roundCent(safe_divide(rateSum, rateNum), 4)
+        # res = {"code": 403, "skill": skillAll, "num": numAll, "sum": sumAll, "rate": rate}
+        # res["status"] = getRateStatus(res["rate"], 80, 60, 40)
+        # self.result["review"]["content"].append(res)
 
         # code 404 不要回收`迷仙引梦`
         timeAll = mxymWatchSkill.getNum()
@@ -793,12 +824,56 @@ class BuTianJueReplayer(HealerReplay):
         res["status"] = getRateStatus(res["rate"], 90, 50, 0)
         self.result["review"]["content"].append(res)
 
+        # code 407 提高`仙王蛊鼎`的覆盖人数
+        num = 0
+        sum = 0
+        for line in xwgdNum:
+            num += 1
+            sum += line
+        xwgdAverage = max(roundCent(safe_divide(sum, num)), self.result["overall"]["numPlayer"])
+        rate = roundCent(safe_divide(xwgdAverage, self.result["overall"]["numPlayer"]))
+        res = {"code": 407, "numCover": xwgdAverage, "numAll": self.result["overall"]["numPlayer"], "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 90, 50, 0)
+        self.result["review"]["content"].append(res)
+
+        # code 408 保证`仙王蛊鼎`的覆盖率
+        cover = self.result["skill"]["xwgd"]["cover"]
+        coverRank = self.result["rank"]["xwgd"]["cover"]["percent"]
+        res = {"code": 408, "cover": cover, "rank": coverRank, "rate": roundCent(coverRank / 100)}
+        res["status"] = getRateStatus(res["rate"], 25, 0, 0)
+        self.result["review"]["content"].append(res)
+
+        # code 409 保证`迷仙引梦`的使用次数
+        scCandidate = []
+        scCandidate.append(mxymWatchSkill)
+
+        rateSum = 0
+        rateNum = 0
+        numAll = []
+        sumAll = []
+        skillAll = []
+        for skillObj in scCandidate:
+            num = skillObj.getNum()
+            sum = skillObj.getMaxPossible()
+            skill = skillObj.name
+            if skill in ["特效腰坠"] and num == 0:
+                continue
+            rateNum += 1
+            rateSum += min(safe_divide(num, sum), 1)
+            numAll.append(num)
+            sumAll.append(sum)
+            skillAll.append(skill)
+        rate = roundCent(safe_divide(rateSum, rateNum), 4)
+        res = {"code": 403, "skill": skillAll[0], "num": numAll[0], "sum": sumAll[0], "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 80, 60, 40)
+        self.result["review"]["content"].append(res)
+
         self.calculateSkillFinal()
 
         # 横刀断浪更新整理
-        # - 鼎的覆盖率、使用次数
-        # - 专案组中单独分析鼎的次数，和迷仙引梦拆开
-        # - 用rdps替换整体dps统计
+        # - 鼎的覆盖率1、使用次数1、人数1
+        # - 专案组中单独分析鼎的次数1，和迷仙引梦拆开1
+        # - 用rdps替换整体dps统计1，界面1
 
 
     def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", actorData={}):
