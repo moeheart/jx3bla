@@ -49,9 +49,7 @@ class XiangZhiProWindow(HealerDisplayWindow):
         '''
         展示复盘窗口的帮助界面，用于解释对应心法的一些显示规则.
         '''
-        text = '''如果是盾歌，时间轴中表示梅花三弄的实时全团覆盖率。
-如果是血歌，时间轴中表示每个小队的双HOT剩余时间。注意，1-5队可能并不按顺序对应团队面板的1-5队。
-由于底层机制问题，APS统计在有两个或以上化解同时作用时无法准确计算，仅为推测值。'''
+        text = '''时间轴由上到下分别表示：盾实时覆盖，HOT实时覆盖。'''
         messagebox.showinfo(title='说明', message=text)
 
     def renderSkill(self):
@@ -118,14 +116,12 @@ class XiangZhiProWindow(HealerDisplayWindow):
         info1Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         info1Displayer.setSingle("int", "相依数量", "xiangyi", "num")
         info1Displayer.setSingle("int", "相依HPS", "xiangyi", "HPS")
-        info1Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
+        info1Displayer.setDouble("rate", "暗香次数", "meihua", "anxiangNum", "anxiangNumPerSec")
         info1Displayer.export_text(frame5, 6)
 
         info2Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
-        # info2Displayer.setSingle("int", "APS估算", "general", "APS")
-        info2Displayer.setSingle("int", "桑柔DPS", "general", "SangrouDPS")
-        info2Displayer.setSingle("int", "庄周梦DPS", "general", "ZhuangzhouDPS")
-        info2Displayer.setSingle("int", "玉简DPS", "general", "YujianDPS")
+        info2Displayer.setSingle("int", "rDPS", "general", "rdps")
+        info2Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
         info2Displayer.setSingle("percent", "战斗效率", "general", "efficiency")
         info2Displayer.export_text(frame5, 7)
 
@@ -189,8 +185,27 @@ class XiangZhiProWindow(HealerDisplayWindow):
                                                  int(255 - (255 - 180) * line / 100)))
                         canvas6.create_rectangle(nowTimePixel, yPos[j], nowTimePixel + 5, yPos[j+1], fill=color, width=0)
                         nowTimePixel += 5
-                # canvas6.create_image(10, 40, image=canvas6.im["7172"])
-                # canvas6.create_image(30, 40, image=canvas6.im["7176"])
+            else:
+                # 新的展示方式
+                # 盾
+                nowTimePixel = 0
+                for line in self.result["replay"]["heat"]["timeline"][0]:
+                    color = getColorHex((int(255 - (255 - 100) * line / 100),
+                                         int(255 - (255 - 250) * line / 100),
+                                         int(255 - (255 - 180) * line / 100)))
+                    canvas6.create_rectangle(nowTimePixel, 31, nowTimePixel + 5, 50, fill=color, width=0)
+                    nowTimePixel += 5
+
+                # 双HOT
+                nowTimePixel = 0
+                for line in self.result["replay"]["heat"]["timeline"][1]:
+                    color = getColorHex((int(255 - (255 - 128) * line / 100),
+                                         int(255 - (255 - 128) * line / 100),
+                                         int(255 - (255 - 255) * line / 100)))
+                    canvas6.create_rectangle(nowTimePixel, 51, nowTimePixel + 5, 70, fill=color, width=0)
+                    nowTimePixel += 5
+                    # canvas6.create_image(10, 40, image=canvas6.im["7172"])
+                    # canvas6.create_image(30, 40, image=canvas6.im["7176"])
 
         if "badPeriodHealer" in self.result["replay"]:
             # 绘制无效时间段
@@ -463,6 +478,8 @@ class XiangZhiProReplayer(HealerReplay):
         gudaoHeal = 0
         zhenliuHeal = 0
         gcsActive = 0  # 共潮生
+        numAnxiang = 0  # 暗香
+        numShield = 0  # 主动贴盾
 
         # 徵的特殊统计
         zhiLastCast = 0
@@ -618,6 +635,10 @@ class XiangZhiProReplayer(HealerReplay):
                         skillObj = self.skillInfo[self.nonGcdSkillIndex["14082"]][0]
                         skillObj.recordSkill(event.time, 0, 0, self.ss.timeEnd, delta=-1)
 
+                if event.caster == self.mykey and event.id in ["32684"] and event.target in self.bld.info.player:
+                    numAnxiang += 1
+                    #print("[xzAnXiang]", parseTime((event.time - self.startTime)/1000), self.bld.info.getName(event.caster), self.bld.info.getName(event.target) )
+
             elif event.dataType == "Buff":
                 if event.id in ["9459", "9460", "9461", "9462"] and event.caster == self.mykey:  # 商
                     shangBuffDict[event.target].setState(event.time, event.stack, int((event.end - event.frame + 3) * 62.5))
@@ -647,6 +668,10 @@ class XiangZhiProReplayer(HealerReplay):
                         # print("[xzRecord]", skillObj.getNum())
                     # print("[xzShadow]", event.time, event.id, event.stack)
                     shadowBuffDict[event.id].setState(event.time, event.stack)
+
+                if event.id in ["24153"] and event.target == self.mykey:
+                    # 共潮生激活
+                    gcsActive = 1
 
             elif event.dataType == "Shout":
                 pass
@@ -753,6 +778,8 @@ class XiangZhiProReplayer(HealerReplay):
         # 梅花三弄
         mhsnSkill = self.calculateSkillInfo("meihua", "14231")
         self.result["skill"]["meihua"]["cover"] = roundCent(overallRate)
+        self.result["skill"]["meihua"]["anxiangNum"] = numAnxiang
+        self.result["skill"]["meihua"]["anxiangNumPerSec"] = roundCent(safe_divide(numAnxiang, self.result["overall"]["sumTimeEff"] / 1000), 2)
         self.result["skill"]["meihua"]["youxiangHPS"] = int(youxiangHeal / self.result["overall"]["sumTimeEff"] * 1000)
         self.result["skill"]["meihua"]["pingyinHPS"] = int(pingyinHeal / self.result["overall"]["sumTimeEff"] * 1000)
         # 宫
@@ -765,7 +792,7 @@ class XiangZhiProReplayer(HealerReplay):
         yuSkill = self.calculateSkillInfo("yu", "14141")
 
         # 队伍HOT统计初始化
-        hotHeat = [[], [], [], [], []]
+        hotHeat = []
         # 商，注意Buff与Skill统计不同
         self.calculateSkillInfoDirect("shang", shangBuff)
         shangSkill = self.skillInfo[self.gcdSkillIndex["14138"]][0]
@@ -778,12 +805,12 @@ class XiangZhiProReplayer(HealerReplay):
             sum += singleDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
             singleHeat = singleDict.getHeatTable()
             if self.teamCluster[key] <= 5:
-                if len(hotHeat[self.teamCluster[key] - 1]) == 0:
+                if len(hotHeat) == 0:
                     for line in singleHeat["timeline"]:
-                        hotHeat[self.teamCluster[key] - 1].append(line)
+                        hotHeat.append(line)
                 else:
                     for i in range(len(singleHeat["timeline"])):
-                        hotHeat[self.teamCluster[key] - 1][i] += singleHeat["timeline"][i]
+                        hotHeat[i] += singleHeat["timeline"][i]
         self.result["skill"]["shang"]["cover"] = roundCent(safe_divide(sum, num))
 
         # 角
@@ -798,19 +825,16 @@ class XiangZhiProReplayer(HealerReplay):
             sum += singleDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
             singleHeat = singleDict.getHeatTable()
             if self.teamCluster[key] <= 5:
-                if len(hotHeat[self.teamCluster[key] - 1]) == 0:
+                if len(hotHeat) == 0:
                     for line in singleHeat["timeline"]:
-                        hotHeat[self.teamCluster[key] - 1].append(line)
+                        hotHeat.append(line)
                 else:
                     for i in range(len(singleHeat["timeline"])):
-                        hotHeat[self.teamCluster[key] - 1][i] += singleHeat["timeline"][i]
+                        hotHeat[i] += singleHeat["timeline"][i]
         self.result["skill"]["jue"]["cover"] = roundCent(safe_divide(sum, num))
         # 计算HOT统计
-        for i in range(len(hotHeat)):
-            if i+1 >= len(self.numCluster) or self.numCluster[i+1] == 0:
-                continue
-            for j in range(len(hotHeat[i])):
-                hotHeat[i][j] = int(hotHeat[i][j] / self.numCluster[i+1] * 50)
+        for j in range(len(hotHeat)):
+            hotHeat[j] = int(hotHeat[j] * 2)
         # print("[self.teamCluster]", self.teamCluster)
         # print("[HotHeat]", hotHeat)
         # print("[HotHeat0]", hotHeat[0])
@@ -824,14 +848,17 @@ class XiangZhiProReplayer(HealerReplay):
 
         # 计算战斗回放
         self.result["replay"] = self.bh.getJsonReplay(self.mykey)
-        xuegeFlag = 0
-        if self.result["skill"]["shang"]["cover"] > 0.1:  # HOT覆盖率大于10%，判定为血鸽
-            self.result["replay"]["heatType"] = "hot"
-            self.result["replay"]["heat"] = {"interval": 500, "timeline": hotHeat}
-            xuegeFlag = 1
-        else:  # 默认为盾鸽
-            self.result["replay"]["heatType"] = "meihua"
-            self.result["replay"]["heat"] = overallShieldHeat
+        # xuegeFlag = 0
+        # if self.result["skill"]["shang"]["cover"] > 0.1:  # HOT覆盖率大于10%，判定为血鸽
+        #     self.result["replay"]["heatType"] = "hot"
+        #     self.result["replay"]["heat"] = {"interval": 500, "timeline": hotHeat}
+        #     xuegeFlag = 1
+        # else:  # 默认为盾鸽
+        #     self.result["replay"]["heatType"] = "meihua"
+        #     self.result["replay"]["heat"] = overallShieldHeat
+
+        self.result["replay"]["heatType"] = "combined"
+        self.result["replay"]["heat"] = {"interval": 500, "timeline": [overallShieldHeat["timeline"], hotHeat]}
 
         self.specialKey = {"meihua-num": 20, "general-efficiency": 20, "zhi-numPerSec": 10, "healer-rhps": 20}
         self.markedSkill = ["14082"]
@@ -840,7 +867,7 @@ class XiangZhiProReplayer(HealerReplay):
 
         # 计算专案组的心法部分.
         # code 101 不要玩血歌
-        if xuegeFlag:
+        if gcsActive:
             self.result["review"]["content"].append({"code": 101, "num": 1, "rate": 0, "status": 3})
         else:
             self.result["review"]["content"].append({"code": 101, "num": 0, "rate": 1, "status": 0})
@@ -885,13 +912,13 @@ class XiangZhiProReplayer(HealerReplay):
         res["status"] = getRateStatus(res["rate"], 75, 0, 0)
         self.result["review"]["content"].append(res)
 
-        # code 105 使用`移形换影`
-        sum = self.skillInfo[self.nonGcdSkillIndex["14082"]][0].getNum()
-        num = self.skillInfo[self.nonGcdSkillIndex["15039"]][0].getNum()
-        rate = roundCent(safe_divide(num, sum))
-        res = {"code": 105, "time": sum, "coverTime": num, "wasteTime": sum - num, "rate": rate}
-        res["status"] = getRateStatus(res["rate"], 75, 0, 0)
-        self.result["review"]["content"].append(res)
+        # # code 105 使用`移形换影` (现在放影子就会立刻回蓝)
+        # sum = self.skillInfo[self.nonGcdSkillIndex["14082"]][0].getNum()
+        # num = self.skillInfo[self.nonGcdSkillIndex["15039"]][0].getNum()
+        # rate = roundCent(safe_divide(num, sum))
+        # res = {"code": 105, "time": sum, "coverTime": num, "wasteTime": sum - num, "rate": rate}
+        # res["status"] = getRateStatus(res["rate"], 75, 0, 0)
+        # self.result["review"]["content"].append(res)
 
         # # code 106 使用`角`  (移除这个统计)
         # sum = self.battleTimeDict[self.mykey]
@@ -901,12 +928,20 @@ class XiangZhiProReplayer(HealerReplay):
         # res["status"] = getRateStatus(res["rate"], 50, 0, 0)
         # self.result["review"]["content"].append(res)
 
+        # code 107 使用`暗香`提高刷盾的效率
+        timeMhsn = self.result["skill"]["meihua"]["num"]
+        timeAnxiang = self.result["skill"]["meihua"]["anxiangNum"]
+        timeAll = timeMhsn + timeAnxiang
+        rate = roundCent(safe_divide(timeAnxiang, timeAll))
+        res = {"code": 107, "timeMhsn": timeMhsn, "timeAnxiang": timeAnxiang, "timeAll": timeAll, "rate": rate}
+        res["status"] = getRateStatus(res["rate"], 50, 10, 0)
+        self.result["review"]["content"].append(res)
+
         self.calculateSkillFinal()
 
         # 横刀断浪更新整理
-        # - 分队HOT的判定移除，改为整体覆盖的HOT（显示方式也改为双排）
-        # - 专案组增加一个暗香下限判定
-        # - 专案组增加一个暗香目标是否有盾的判定
+        # - 分队HOT的判定移除，改为整体覆盖的HOT（显示方式也改为双排）11
+        # - 专案组增加一个暗香下限判定11
         # - 用rdps替换整体dps统计11
 
     def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", actorData={}):
