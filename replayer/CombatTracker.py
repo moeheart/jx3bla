@@ -30,7 +30,7 @@ def getDamageCoeff(occ, attrib, targetBoosts, lvl=114, isPoZhao=0):
     base = attrib.get("攻击", 0)
     if isPoZhao:
         base = attrib.get("破招", 0)
-    crit = 1 + min(attrib.get("会心", 0), 1) * min(attrib.get("会心效果", 0), 3)
+    crit = 1 + min(attrib.get("会心", 0), 1) * (min(attrib.get("会心效果", 0), 3) - 1)
     over = 1 + attrib.get("破防", 0)
     strain = 1 + attrib.get("无双", 0)
     damageAdd1 = 1 + attrib.get("伤害变化", 0) / 1024
@@ -107,11 +107,11 @@ class BoostCounter():
             boosts.append(self.boost[boost]["effect"])
         self.attributeData.setBoosts(boosts)
         # print("[Boosts]", boosts)
-        finalAttrib = self.attributeData.getFinalAttrib()
+        finalAttrib1 = self.attributeData.getFinalAttrib()
         targetBoosts = []
         for boost in self.targetBoost[target]:
             targetBoosts.append(self.targetBoost[target][boost]["effect"])
-        coeffAll = getDamageCoeff(self.occ, finalAttrib, targetBoosts, isPoZhao=isPoZhao)
+        coeffAll = getDamageCoeff(self.occ, finalAttrib1, targetBoosts, isPoZhao=isPoZhao)
 
         self.attributeData2.setBoosts(boosts)
         self.attributeData2.getFinalAttrib()
@@ -135,6 +135,10 @@ class BoostCounter():
         for boost in self.targetBoost[target]:
             targetBoosts.append(self.targetBoost[target][boost]["effect"])
         for baseBoost in self.boost:
+
+            # if baseBoost == "2,3310,1":
+            #     print("[qjbbStart]", coeffAll, finalAttrib1)
+
             if self.boost[baseBoost]["source"] == self.playerid:
                 continue
             boosts = []
@@ -144,6 +148,9 @@ class BoostCounter():
             self.attributeData.setBoosts(boosts)
             finalAttrib = self.attributeData.getFinalAttrib()
             coeffSpecific = getDamageCoeff(self.occ, finalAttrib, targetBoosts, isPoZhao=isPoZhao)
+
+            # if baseBoost == "2,3310,1":
+            #     print("[qjbbStart2]", coeffSpecific, finalAttrib)
 
             finalAttrib2 = self.attributeData2.removeBoostAndGetAttrib(self.boost[baseBoost]["effect"])
             self.attributeData2.addBoostAndGetAttrib(self.boost[baseBoost]["effect"])
@@ -373,6 +380,7 @@ class StatRecorder():
         '''
         根据full_id做许多特殊判定，从而实现类似于合并的效果。
         '''
+        res = full_id
         l = len(full_id.split(','))
         if l == 3:
             id = full_id.split(',')[1]
@@ -542,12 +550,13 @@ class DpsCastRecorder(StatRecorder):
     记录为"A用B技能攻击C，值为D效果为E"，按A-(此类)-B-D的顺序逐层封装.
     '''
 
-    def export(self, time, info):
+    def export(self, time, info, player):
         '''
         统计结束时的后处理.
         params:
         - time: 战斗时间.
         - info: bld的info类
+        - player: 统计对象的ID.
         '''
         self.sum = 0
         for skill in self.skill:
@@ -571,22 +580,31 @@ class DpsCastRecorder(StatRecorder):
             for key in ["sum", "num", "percent"]:
                 self.namedTarget[info.getName(target)][key] = self.target[target][key]
 
-        for source in self.source:
-            self.source[source]["percent"] = safe_divide(self.source[source]["sum"], self.sum)
-            self.namedSource[info.getName(source)] = {}
-            for key in ["sum", "num", "percent"]:
-                self.namedSource[info.getName(source)][key] = self.source[source][key]
+        self.sourceDamage = 0
+        if "自身伤害" in self.source:
+            self.sourceDamage = self.source["自身伤害"]["sum"]
 
-    def recordFromTeammates(self, source, skill, value):
+        for source in self.source:
+            self.source[source]["percent"] = safe_divide(self.source[source]["sum"], self.sourceDamage)
+            self.source[source]["name"] = self.getSkillName(source, info)
+            name = self.source[source]["name"]
+            self.namedSource[name] = {}
+            for key in ["sum", "num", "percent"]:
+                self.namedSource[name][key] = self.source[source][key]
+
+    def recordSimple(self, skill, value):
         '''
-        在rdps事件中计算每个伤害的队友来源.
+        在rdps事件中计算伤害数值.
         '''
         if skill not in self.skill:
             self.skill[skill] = {"sum": 0, "num": 0}
         self.skill[skill]["sum"] += value
         self.skill[skill]["num"] += 1
 
-        # 目标和技能分成两种方式统计
+    def recordSource(self, source, value):
+        '''
+        在rdps事件中计算自己的rdps去向.
+        '''
         if source not in self.source:
             self.source[source] = {"sum": 0, "num": 0}
         self.source[source]["sum"] += value
@@ -716,7 +734,7 @@ class CombatTracker():
                 adjustedTime = self.timeDps - self.stunTime[player].buffTimeIntegral()
             else:
                 adjustedTime = self.timeDps
-            objSource[player].export(adjustedTime, self.info)
+            objSource[player].export(adjustedTime, self.info, player)
             if objSource[player].dps > 0:
                 objTarget["player"][player] = {"sum": objSource[player].sum,
                                          "dps": objSource[player].dps,
@@ -890,6 +908,8 @@ class CombatTracker():
                 zhenyanName = "%s阵" % self.zhenyanExclude[event.id]
                 self.rdpsCast["*阵眼增益"].addNote(full_id, zhenyanName)
                 self.mrdpsCast["*阵眼增益"].addNote(full_id, zhenyanName)
+                self.rdpsCast[event.target].addNote(full_id, zhenyanName)
+                self.mrdpsCast[event.target].addNote(full_id, zhenyanName)
             elif event.id in ZHENYAN_DICT:
                 skipFlag = True
             if not skipFlag:
@@ -988,6 +1008,8 @@ class CombatTracker():
                 zhenyanName = "%s阵" % ZHENYAN_DICT[plus][0]
                 self.rdpsCast["*阵眼增益"].addNote(full_id, zhenyanName)
                 self.mrdpsCast["*阵眼增益"].addNote(full_id, zhenyanName)
+                self.rdpsCast[event.caster].addNote(full_id, zhenyanName)
+                self.mrdpsCast[event.caster].addNote(full_id, zhenyanName)
 
         # 先判断是否进入了无效区间
         while self.excludePosDps < len(self.badPeriodDpsLog) and event.time > self.badPeriodDpsLog[self.excludePosDps][0]:
@@ -1262,11 +1284,16 @@ class CombatTracker():
                 #     print("[PoZyhr]", rdpsRate, event.caster, self.info.getName(event.caster), event.damageEff)
 
                 for key in rdpsRate:
+                    # if key in ["2,3310,1", '"2,3310,1"']:
+                    #     print("[rdpsRate]", rdpsRate, key)
+
                     if key == "self":
-                        self.rdpsCast[event.caster].recordFromTeammates(event.caster, event.full_id, event.damageEff * rdpsRate[key]["rate"])
+                        self.rdpsCast[event.caster].recordSimple(event.full_id, event.damageEff * rdpsRate[key]["rate"])
+                        self.rdpsCast[event.caster].recordSource("自身伤害", event.damageEff * rdpsRate[key]["rate"])
                     elif rdpsRate[key]["source"] in self.rdpsCast:
                         keyName = "6,%s" % key
-                        self.rdpsCast[rdpsRate[key]["source"]].recordFromTeammates(rdpsRate[key]["source"], keyName, event.damageEff * rdpsRate[key]["rate"])
+                        self.rdpsCast[rdpsRate[key]["source"]].recordSimple(keyName, event.damageEff * rdpsRate[key]["rate"])
+                        self.rdpsCast[event.caster].recordSource(keyName, event.damageEff * rdpsRate[key]["rate"])
 
                 if event.target in self.mainTargets and event.caster in self.mndpsCast:
                     self.mndpsCast[event.caster].record(event.target, event.full_id, event.damageEff)
@@ -1274,10 +1301,12 @@ class CombatTracker():
                     if event.caster in self.boostCounter:
                         for key in rdpsRate:
                             if key == "self":
-                                self.mrdpsCast[event.caster].recordFromTeammates(event.caster, event.full_id, event.damageEff * rdpsRate[key]["rate"])
+                                self.mrdpsCast[event.caster].recordSimple(event.full_id, event.damageEff * rdpsRate[key]["rate"])
+                                self.mrdpsCast[event.caster].recordSource("自身伤害", event.damageEff * rdpsRate[key]["rate"])
                             elif rdpsRate[key]["source"] in self.mrdpsCast:
                                 keyName = "6,%s" % key
-                                self.mrdpsCast[rdpsRate[key]["source"]].recordFromTeammates(rdpsRate[key]["source"], keyName, event.damageEff * rdpsRate[key]["rate"])
+                                self.mrdpsCast[rdpsRate[key]["source"]].recordSimple(keyName, event.damageEff * rdpsRate[key]["rate"])
+                                self.mrdpsCast[event.caster].recordSource(keyName, event.damageEff * rdpsRate[key]["rate"])
 
     def __init__(self, info, bh, occDetailList, zhenyanInfer, stunCounter, zxyzPrecastSource):
         '''

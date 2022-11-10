@@ -55,6 +55,7 @@ class AttributeCal():
 
             #计算精炼
             refineLvl = int(equips[line]["star"])
+            refineLvl = 6  # 强制精6
             refineRate = [0, 0.005, 0.013, 0.024, 0.038, 0.055, 0.075, 0.098, 0.124][refineLvl]
             for attrib in singleAttrib:
                 singleAttrib[attrib] = int(singleAttrib[attrib] * (1 + refineRate) + 0.5)
@@ -69,6 +70,7 @@ class AttributeCal():
                 if plugLvl != 0:
                     sumPlug += 1
                     sumPlugLvl += plugLvl
+                plugLvl = 8  # 强制插8
                 # plugRate = [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.2, 1.55][plugLvl]
                 plugRate = [0, 0.19, 0.39, 0.585, 0.78, 0.975, 1.17, 1.75, 2.6][plugLvl]
                 plugID = feature['DiamondAttributeID%d'%i]
@@ -154,6 +156,9 @@ if __name__ == "__main__":
 50981	0	0	0	4	4		
 26782	0	0	0	4	4	4	25692"""
     str = "27891\t0\t0\t0\t4\t\t\t\n50103\t0\t0\t0\t\t\t\t\n50169\t0\t0\t0\t\t\t\t\n31668\t0\t0\t0\t4\t\t\t\n31680\t0\t0\t0\t\t\t\t\n31680\t0\t0\t0\t\t\t\t\n50079\t0\t0\t0\t\t\t\t\n31674\t0\t0\t0\t4\t\t\t\n55389\t0\t0\t0\t4\t4\t\t\n50157\t0\t0\t0\t\t\t\t\n55371\t0\t0\t0\t4\t4\t\t\n24995\t0\t0\t0\t\t\t\t"
+
+    
+
     ac = AttributeCal()
     ac.CalculateAll(str)
     # im = ImportExcelEquipment()
