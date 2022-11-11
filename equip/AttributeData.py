@@ -37,6 +37,39 @@ OCC_ATTRIB = {
     # TODO Tbuff
 }
 
+OCC_BASE = {  # 心法自带的基础值
+    '1d': {'atSolarAttackPowerBase': 4139},  # 易筋
+    '1t': {},  # 洗髓
+    '2d': {'atNeutralAttackPowerBase': 4139},  # 花间
+    '2h': {'atTherapyPowerBase': 5901},  # 奶花
+    '3d': {'atPhysicsAttackPowerBase': 3794},  # 傲血
+    '3t': {'atParryBase': 1207, 'atParryValueBase': 4651},  # 铁牢
+    '4p': {'atPhysicsAttackPowerBase': 3277, 'atPhysicsCriticalStrike': 2929},  # 剑纯
+    '4m': {'atNeutralAttackPowerBase': 3725, 'atNeutralCriticalStrike': 1788},  # 气纯
+    '5d': {'atLunarAttackPowerBase': 4222},  # 冰心
+    '5h': {'atTherapyPowerBase': 6323},  # 奶秀
+    '6d': {'atPoisonAttackPowerBase': 4139},  # 毒经
+    '6h': {'atTherapyPowerBase': 6112},  # 奶毒
+    '7p': {'atPhysicsAttackPowerBase': 3277, 'atPhysicsOvercomeBase': 2929},  # 惊羽
+    '7m': {'atPoisonAttackPowerBase': 3725, 'atPhysicsCriticalStrike': 1279},  # 田螺
+    '8': {'atPhysicsAttackPowerBase': 3449, 'atPhysicsCriticalStrike': 2544},  # 藏剑
+    '9': {'atPhysicsAttackPowerBase': 3621},  # 丐帮
+    '10d': {'atSolarAttackPowerBase': 4346, 'atLunarAttackPowerBase': 4346},  # 焚影
+    '10t': {},  # 明尊
+    '21d': {'atPhysicsAttackPowerBase': 3449, 'atPhysicsOvercomeBase': 1526, 'atParryBase': 1220},  # 分山
+    '21t': {'atParryBase': 2011, 'atParryValueBase': 4651},  # 铁骨
+    '22d': {'atLunarAttackPowerBase': 3725, 'atLunarCriticalStrike': 1279},  # 莫问
+    '22h': {'atTherapyPowerBase': 6535},  # 奶歌
+    '23': {'atPhysicsAttackPowerBase': 3725},  # 霸刀
+    '24': {'atPhysicsAttackPowerBase': 3621, 'atPhysicsCriticalStrike': 2158},  # 蓬莱
+    '25': {'atPhysicsAttackPowerBase': 3656, 'atPhysicsOvercomeBase': 2081},  # 凌雪
+    '211': {'atNeutralAttackPowerBase': 4222, 'atNeutralCriticalStrike': 2390},  # 衍天
+    '212d': {'atPoisonAttackPowerBase': 3808, 'atPoisonOvercomeBase': 1788},  # 无方
+    '212h': {'atTherapyPowerBase': 6533},  # 奶药
+    '213': {'atPhysicsAttackPowerBase': 3346, 'atPhysicsCriticalStrike': 2775},  # 刀宗
+}
+
+OVERALL_OCC_BASE = {'atStrengthBase': 38, 'atAgilityBase': 38, 'atSpunkBase': 38, 'atSpiritBase': 38, 'atVitalityBase': 38}
 
 def getExtraAttrib(occ, attrib):
     '''
@@ -60,6 +93,63 @@ def getExtraAttrib(occ, attrib):
             res[attrib] = attribDict[attrib] * value
     return res
 
+def getBoostAttrib(res, baseResult, attrib, playerType):
+    '''
+    根据属性列表获取其中的百分比类增益值，并累加到结果中（只包含百分比部分）.
+    params:
+    - res: 当前结果.
+    - baseResult: 基础值的计算结果.
+    - attrib: 属性列表.
+    - playerType: 玩家所属类型.
+    returns:
+    - newRes: 计算结果.
+    '''
+    newRes = res.copy()
+    for key in attrib:
+        if key not in ATTRIB_TYPE:
+            continue
+        boostDetail = ATTRIB_TYPE[key]
+        if boostDetail[playerType + 1] == 0:
+            continue
+        if boostDetail[1] == 1:
+            continue
+        affectedAttrib = boostDetail[0]
+        if affectedAttrib not in newRes:
+            newRes[affectedAttrib] = 0
+        # print("[Extra]", key, boost, res.get(affectedAttrib, 0), affectedAttrib)
+        newRes[affectedAttrib] += attrib[key] * boostDetail[7] * baseResult.get(affectedAttrib, 0)
+    return newRes
+
+def getBaseAttrib(res, attrib, playerType, attribDict):
+    '''
+    根据属性列表获取其中的基础值，并累加到结果中（只包含基础值部分）.
+    params:
+    - res: 当前结果.
+    - attrib: 属性列表.
+    - playerType: 玩家所属类型.
+    - attribDict: 心法的系数表.
+    returns:
+    - newRes: 计算结果.
+    '''
+    newRes = res.copy()
+    for key in attrib:
+        if key not in ATTRIB_TYPE:
+            continue
+        boostDetail = ATTRIB_TYPE[key]
+        if boostDetail[playerType + 1] == 0:
+            continue
+        if boostDetail[1] == 0:
+            continue
+        affectedAttrib = boostDetail[0]
+        if affectedAttrib == "全属性":
+            affectedAttrib = attribDict["主属性"]
+        if affectedAttrib not in newRes:
+            newRes[affectedAttrib] = 0
+        if boostDetail[7] == 0:
+            newRes[affectedAttrib] += attrib[key] / getCoefficient(affectedAttrib)
+        else:
+            newRes[affectedAttrib] += attrib[key] * boostDetail[7]
+    return newRes
 
 class AttributeData():
     '''
@@ -88,36 +178,38 @@ class AttributeData():
         res["类型"] = playerType
         # 第一次扫描基础值
         for boost in self.boosts:
-            for key in boost:
-                boostDetail = ATTRIB_TYPE[key]
-                if boostDetail[playerType+1] == 0:
-                    continue
-                if boostDetail[1] == 0:
-                    continue
-                affectedAttrib = boostDetail[0]
-                if affectedAttrib == "全属性":
-                    affectedAttrib = attribDict["主属性"]
-                if affectedAttrib not in res:
-                    res[affectedAttrib] = 0
-                if boostDetail[7] == 0:
-                    res[affectedAttrib] += boost[key] / getCoefficient(affectedAttrib)
-                else:
-                    res[affectedAttrib] += boost[key] * boostDetail[7]
+            res = getBaseAttrib(res, boost, playerType, attribDict)
+            # for key in boost:
+            #     boostDetail = ATTRIB_TYPE[key]
+            #     if boostDetail[playerType+1] == 0:
+            #         continue
+            #     if boostDetail[1] == 0:
+            #         continue
+            #     affectedAttrib = boostDetail[0]
+            #     if affectedAttrib == "全属性":
+            #         affectedAttrib = attribDict["主属性"]
+            #     if affectedAttrib not in res:
+            #         res[affectedAttrib] = 0
+            #     if boostDetail[7] == 0:
+            #         res[affectedAttrib] += boost[key] / getCoefficient(affectedAttrib)
+            #     else:
+            #         res[affectedAttrib] += boost[key] * boostDetail[7]
         self.baseAttribute = res.copy()
         # 第二次扫描非基础值
         extra = {}
         for boost in self.boosts:
-            for key in boost:
-                boostDetail = ATTRIB_TYPE[key]
-                if boostDetail[playerType+1] == 0:
-                    continue
-                if boostDetail[1] == 1:
-                    continue
-                affectedAttrib = boostDetail[0]
-                if affectedAttrib not in extra:
-                    extra[affectedAttrib] = 0
-                # print("[Extra]", key, boost, res.get(affectedAttrib, 0), affectedAttrib)
-                extra[affectedAttrib] += boost[key] * boostDetail[7] * res.get(affectedAttrib, 0)
+            extra = getBoostAttrib(extra, res, boost, playerType)
+            # for key in boost:
+            #     boostDetail = ATTRIB_TYPE[key]
+            #     if boostDetail[playerType+1] == 0:
+            #         continue
+            #     if boostDetail[1] == 1:
+            #         continue
+            #     affectedAttrib = boostDetail[0]
+            #     if affectedAttrib not in extra:
+            #         extra[affectedAttrib] = 0
+            #     # print("[Extra]", key, boost, res.get(affectedAttrib, 0), affectedAttrib)
+            #     extra[affectedAttrib] += boost[key] * boostDetail[7] * res.get(affectedAttrib, 0)
         self.extraAttribute = extra.copy()
         for key in extra:
             res[key] = res.get(key, 0) + extra[key]
@@ -130,6 +222,7 @@ class AttributeData():
     def addBoostAndGetAttrib(self, boost):
         '''
         根据当前暂存的属性结果, 计算添加某个增益之后的属性.
+        这个流程主要用来提高效率, 用了一些复杂的计算，尽量避免对其做优化.
         params:
         - boost: 待添加的增益.
         '''
@@ -152,7 +245,6 @@ class AttributeData():
             if affectedAttrib not in self.extraAttribute:
                 self.extraAttribute[affectedAttrib] = 0
             prev = self.baseAttribute[affectedAttrib]
-            #self.baseAttribute[affectedAttrib] += boost[key] / getCoefficient(affectedAttrib)
             if boostDetail[7] == 0:
                 self.baseAttribute[affectedAttrib] += boost[key] / getCoefficient(affectedAttrib)
             else:
@@ -184,6 +276,7 @@ class AttributeData():
     def removeBoostAndGetAttrib(self, boost):
         '''
         根据当前暂存的属性结果, 计算移除某个增益之后的属性.
+        这个流程主要用来提高效率, 用了一些复杂的计算，尽量避免对其做优化.
         params:
         - boost: 待添加的增益.
         '''

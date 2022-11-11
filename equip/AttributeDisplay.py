@@ -2,8 +2,97 @@
 # 维护属性展示类.
 
 from equip.AttributeCal import AttributeCal
+from equip.AttributeData import *
+
+# 枚举所有职业的基础属性 11
+# 合并三个来源的计算代码 11
+# 实现面板显示并对齐 11
+# 增加新的装备表并测试
+# 连接
+# 服务器逻辑
 
 class AttributeDisplay():
+
+    def GetBaseAttrib(self, str, occ):
+        '''
+        根据心法和装备列表，计算所属心法的基础属性.
+        这里计算了角色基础、心法基础、装备基础三种。如果要获取最终属性，需要用另外的方法.
+        这些输入用游戏中at开头的字段名表示，而输出用中文表示，以示区分.
+        params:
+        - str: 配装标准表示法.
+        - occ: 心法代码.
+        returns:
+        - res: 整理得到的基础属性.
+        '''
+
+        attrib = self.ac.CalculateAll(str)
+
+        # 全心法的基础属性
+        generalAttribute = OVERALL_OCC_BASE
+        attrib1 = self.ac.attribMerge(attrib, generalAttribute)
+
+        # 添加对应心法的基础属性
+        occAttribute = {}
+        if occ in OCC_BASE:
+            occAttribute = OCC_BASE[occ]
+        attrib2 = self.ac.attribMerge(attrib1, occAttribute)
+
+        # 转换为中文名称
+        attribDict = {'类型': 1, '主属性': '元气', '攻击': 1.95, '破防': 0.19}
+        if occ in OCC_ATTRIB:
+            attribDict = OCC_ATTRIB[occ]
+        else:
+            print("[Not in dict]", occ)
+
+        # 计算属性
+        playerType = attribDict["类型"]
+        attrib3 = {"类型": playerType}
+
+        attrib3 = getBaseAttrib(attrib3, attrib2, playerType, attribDict)
+
+        # 基础值到真实值的转化
+        attrib3["招架"] = attrib3.get("招架", 0) + 0.03
+        attrib3["会心效果"] = attrib3.get("会心效果", 0) + 1.75
+
+        print("[AttribRes0]", attrib)
+        print("[AttribRes1]", attrib1)
+        print("[AttribRes2]", attrib2)
+        print("[AttribRes3]", attrib3)
+        return attrib3
+
+    def GetPanelAttrib(self, str, occ):
+        '''
+        根据装备信息与心法，生成字典形式的面板属性结果.
+        不同心法的结果列表也应当不同.
+        params:
+        - str 字符串形式的装备信息.
+        - occ 心法.
+        returns:
+        - res 属性结果
+        '''
+
+        # 根据装备计算属性
+        baseAttrib = self.GetBaseAttrib(str, occ)
+        finalAttrib = baseAttrib.copy()
+        mainAttribExtra = getExtraAttrib(occ, finalAttrib)
+        for attrib in mainAttribExtra:
+            finalAttrib[attrib] += mainAttribExtra[attrib] / getCoefficient(attrib)
+        print("[FinalAttrib]", finalAttrib)
+
+        # 进行翻译
+        result = finalAttrib.copy()
+        result["会效"] = finalAttrib.get("会心效果", 0)
+        result["基础攻击"] = baseAttrib.get("攻击", 0)
+        result["基础治疗"] = baseAttrib.get("治疗", 0)
+        result["会心等级"] = int(finalAttrib.get("会心", 0) * getCoefficient("会心"))
+        result["会效等级"] = int(finalAttrib.get("会心效果", 0) * getCoefficient("会心效果"))
+        result["加速等级"] = int(finalAttrib.get("加速", 0) * getCoefficient("加速"))
+        result["破防等级"] = int(finalAttrib.get("破防", 0) * getCoefficient("破防"))
+        result["无双等级"] = int(finalAttrib.get("无双", 0) * getCoefficient("无双"))
+
+        print("[PanelResult]", result)
+        return result
+
 
     def Display(self, str, occ):
         '''
@@ -116,5 +205,6 @@ if __name__ == "__main__":
     str = "27221\t6\t11265\t0\t6\t\t\t\n54315\t6\t11189\t11274\t6\t6\t\t\n54150\t6\t11213\t11275\t6\t6\t\t\n31097\t6\t11248\t0\t6\t\t\t\n30999\t6\t11257\t0\t\t\t\t\n30981\t6\t11257\t0\t\t\t\t\n54098\t6\t11191\t11271\t6\t6\t\t\n31005\t4\t11250\t0\t6\t\t\t\n54303\t6\t11209\t0\t6\t6\t\t\n54124\t6\t11236\t11272\t6\t6\t\t\n54072\t6\t11232\t11273\t6\t6\t\t\n27278\t4\t11199\t0\t6\t6\t6\t15192"
     ad = AttributeDisplay()
     res = ad.Display(str, '22h')
+    res = ad.GetPanelAttrib(str, '22h')
     for line in res:
         print(line, res[line])

@@ -1,5 +1,6 @@
 # Created by moeheart at 08/31/2021
 # 维护属性计算类.
+# 这个属性计算只计算装备提供的属性，需要与AttributeDisplay配合计算心法的属性得到最终结果。这个命名逻辑以后再调整。
 
 from equip.EquipmentInfo import EquipmentInfo
 from equip.EquipmentExport import ImportExcelEquipment, getPlug
@@ -74,7 +75,7 @@ class AttributeCal():
                 # plugRate = [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.2, 1.55][plugLvl]
                 plugRate = [0, 0.19, 0.39, 0.585, 0.78, 0.975, 1.17, 1.75, 2.6][plugLvl]
                 plugID = feature['DiamondAttributeID%d'%i]
-                if plugID == 0 or plugLvl == 0:
+                if plugID == '' or plugLvl == 0:
                     continue
                 plugAttribInfo = self.equipmentInfo.attrib[plugID]
                 plugAttrib = {plugAttribInfo[0]: int(int(plugAttribInfo[1]) * plugRate)}
@@ -157,10 +158,22 @@ if __name__ == "__main__":
 26782	0	0	0	4	4	4	25692"""
     str = "27891\t0\t0\t0\t4\t\t\t\n50103\t0\t0\t0\t\t\t\t\n50169\t0\t0\t0\t\t\t\t\n31668\t0\t0\t0\t4\t\t\t\n31680\t0\t0\t0\t\t\t\t\n31680\t0\t0\t0\t\t\t\t\n50079\t0\t0\t0\t\t\t\t\n31674\t0\t0\t0\t4\t\t\t\n55389\t0\t0\t0\t4\t4\t\t\n50157\t0\t0\t0\t\t\t\t\n55371\t0\t0\t0\t4\t4\t\t\n24995\t0\t0\t0\t\t\t\t"
 
-    
+#     str = """好鱼 32774	0	11664	0
+# 90563	0	0	0
+# 90835	0	11531	11684
+# 34407	0	0	0
+# 36130	0	11662	0
+# 34443	0	11657	0
+# 90611	0	0	0
+# 34413	0	0	0
+# 90383	0	11547	0
+# 90545	0	11613	0
+# 90918	0	11579	11682
+# 32569	0	11568	0				12095"""
 
     ac = AttributeCal()
-    ac.CalculateAll(str)
+    res = ac.CalculateAll(str)
+    print(res)
     # im = ImportExcelEquipment()
     # equips = im.importData(str)
     # print(equips)

@@ -12,7 +12,7 @@ import os
 from tools.Functions import *
 from Constants import *
 from tools.Names import *
-from equip.EquipmentExport import EquipmentAnalyser
+from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
 
 from replayer.ReplayerBase import ReplayerBase
 
@@ -217,12 +217,23 @@ class ActorProReplayer(ReplayerBase):
 
         for id in self.bld.info.player:
             self.firstHitList[id] = 0
+
+        f = open("equiptest.txt", "w")
             
         equipmentAnalyser = EquipmentAnalyser()
         for id in self.bld.info.player:
             if id in self.window.playerEquipment and self.window.playerEquipment[id] != {}:
                 equips = equipmentAnalyser.convert2(self.window.playerEquipment[id], self.bld.info.player[id].equipScore)
                 self.equipmentDict[id] = equips
+
+                ea = EquipmentAnalyser()
+                jsonEquip = ea.convert2(self.window.playerEquipment[id], self.bld.info.player[id].equipScore)
+                eee = ExcelExportEquipment()
+                strEquip = eee.export(jsonEquip)
+
+                f.write("%s %s" % (self.bld.info.getName(id), strEquip))
+
+        f.close()
             
         self.occDetailList = occDetailList
         

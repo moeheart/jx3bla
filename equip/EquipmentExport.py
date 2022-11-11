@@ -856,57 +856,5 @@ class EquipmentAnalyser():
         equips["forge"] = self.getForge(equips)
         return equips
     
-    # def convert(self, s):
-    #     '''
-    #     进行转换。使用老格式，会在未来移除。
-    #     params
-    #     - s 茗伊复盘数据（处在[18]）
-    #     '''
-    #     a = s[0]['']
-    #     b = a[2]['']
-    #
-    #     equips = {}
-    #
-    #     equips["score"] = int(a[1])
-    #     equips["description"] = ""
-    #
-    #     for c in b:
-    #         d = c['']
-    #         equip = {}
-    #         equip["pos"] = d[0]
-    #         equip["id_cat"] = d[1]
-    #         equip["id"] = d[2]
-    #         equip["star"] = int(d[3])
-    #         if "" in d[4]:
-    #             f = d[4][""]
-    #             i = 0
-    #             for g in f:
-    #                 i += 1
-    #                 plugID = g[""][1]
-    #                 equip["plug%d"%i] = self.getPlug(plugID)
-    #         elif "2" in d[4]:
-    #             f = d[4]["2"]
-    #             i = 1
-    #             for g in f:
-    #                 i += 1
-    #                 plugID = g[""][1]
-    #                 equip["plug%d"%i] = self.getPlug(plugID)
-    #         elif "3" in d[4]:
-    #             f = d[4]["3"]
-    #             i = 2
-    #             for g in f:
-    #                 i += 1
-    #                 plugID = g[""][1]
-    #                 equip["plug%d"%i] = self.getPlug(plugID)
-    #         if "0" in d[4] or "1" in d[4]:
-    #             equip["plug0"] = d[4]["0"][0][""][1]
-    #         equip["magic1"] = d[5]
-    #         equip["magic2"] = d[6]
-    #         equips[equip["pos"]] = equip
-    #
-    #     equips["sketch"] = self.getSketch(equips)
-    #
-    #     return equips
-    
     def __init__(self):
         pass
