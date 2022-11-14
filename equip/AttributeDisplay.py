@@ -4,13 +4,6 @@
 from equip.AttributeCal import AttributeCal
 from equip.AttributeData import *
 
-# 枚举所有职业的基础属性 11
-# 合并三个来源的计算代码 11
-# 实现面板显示并对齐 11
-# 增加新的装备表并测试
-# 连接
-# 服务器逻辑
-
 class AttributeDisplay():
 
     def GetBaseAttrib(self, str, occ):
@@ -53,11 +46,6 @@ class AttributeDisplay():
         # 基础值到真实值的转化
         attrib3["招架"] = attrib3.get("招架", 0) + 0.03
         attrib3["会心效果"] = attrib3.get("会心效果", 0) + 1.75
-
-        print("[AttribRes0]", attrib)
-        print("[AttribRes1]", attrib1)
-        print("[AttribRes2]", attrib2)
-        print("[AttribRes3]", attrib3)
         return attrib3
 
     def GetPanelAttrib(self, str, occ):
@@ -76,8 +64,7 @@ class AttributeDisplay():
         finalAttrib = baseAttrib.copy()
         mainAttribExtra = getExtraAttrib(occ, finalAttrib)
         for attrib in mainAttribExtra:
-            finalAttrib[attrib] += mainAttribExtra[attrib] / getCoefficient(attrib)
-        print("[FinalAttrib]", finalAttrib)
+            finalAttrib[attrib] = finalAttrib.get(attrib, 0) + mainAttribExtra.get(attrib, 0) / getCoefficient(attrib)
 
         # 进行翻译
         result = finalAttrib.copy()
@@ -85,18 +72,17 @@ class AttributeDisplay():
         result["基础攻击"] = baseAttrib.get("攻击", 0)
         result["基础治疗"] = baseAttrib.get("治疗", 0)
         result["会心等级"] = int(finalAttrib.get("会心", 0) * getCoefficient("会心"))
-        result["会效等级"] = int(finalAttrib.get("会心效果", 0) * getCoefficient("会心效果"))
+        result["会效等级"] = int((finalAttrib.get("会心效果", 0) - 1.75) * getCoefficient("会心效果"))
         result["加速等级"] = int(finalAttrib.get("加速", 0) * getCoefficient("加速"))
         result["破防等级"] = int(finalAttrib.get("破防", 0) * getCoefficient("破防"))
         result["无双等级"] = int(finalAttrib.get("无双", 0) * getCoefficient("无双"))
 
-        print("[PanelResult]", result)
         return result
 
 
     def Display(self, str, occ):
         '''
-        根据装备信息与心法，生成字典形式的属性结果.
+        （即将废弃，被GetPanelAttrib取代）根据装备信息与心法，生成字典形式的属性结果.
         不同心法关注的结果也不同.
         params:
         - str 字符串形式的装备信息.
@@ -203,8 +189,21 @@ if __name__ == "__main__":
 50981	0	0	0	4	4		
 26782	0	0	0	4	4	4	25692"""
     str = "27221\t6\t11265\t0\t6\t\t\t\n54315\t6\t11189\t11274\t6\t6\t\t\n54150\t6\t11213\t11275\t6\t6\t\t\n31097\t6\t11248\t0\t6\t\t\t\n30999\t6\t11257\t0\t\t\t\t\n30981\t6\t11257\t0\t\t\t\t\n54098\t6\t11191\t11271\t6\t6\t\t\n31005\t4\t11250\t0\t6\t\t\t\n54303\t6\t11209\t0\t6\t6\t\t\n54124\t6\t11236\t11272\t6\t6\t\t\n54072\t6\t11232\t11273\t6\t6\t\t\n27278\t4\t11199\t0\t6\t6\t6\t15192"
+    str = """32774	0	11664	0				
+90563	0	0	0				
+90835	0	11531	11684				
+34407	0	0	0				
+36130	0	11662	0				
+34443	0	11657	0				
+90611	0	0	0				
+34413	0	0	0				
+90383	0	11547	0				
+90545	0	11613	0				
+90918	0	11579	11682				
+32569	0	11568	0				12095"""
+
     ad = AttributeDisplay()
-    res = ad.Display(str, '22h')
-    res = ad.GetPanelAttrib(str, '22h')
+    res = ad.Display(str, '7p')
+    res = ad.GetPanelAttrib(str, '7p')
     for line in res:
         print(line, res[line])

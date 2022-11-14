@@ -467,7 +467,8 @@ class MainWindow():
         self.playerIDs = []  # 存储玩家ID，用于总榜
         self.hasNoticeXiangzhi = 0  #
         self.bldDict = {}  # 存储处理后的数据，格式为{'文件名': 数据内容}。
-        self.playerEquipment = {}  # 存储角色装备，用于导出，将在未来删除
+        self.playerEquipment = {}  # 存储角色装备, 用于导出和在不同boss之间共享.
+        self.playerEquipmentAnalysed = {}  # 存储角色装备的分析结果, 用于属性分析和展示.
         self.notifier = Notifier()  # 用于win10的通知窗口
         self.dataType = "jx3dat"  # 数据种类，jx3dat为茗伊战斗统计的结果，jcl为茗伊团队工具的子功能
         self.liveListener = None  # 实时模式数据存储，初始时默认为空

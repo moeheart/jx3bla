@@ -74,8 +74,8 @@ class AttributeCal():
                 plugLvl = 8  # 强制插8
                 # plugRate = [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.2, 1.55][plugLvl]
                 plugRate = [0, 0.19, 0.39, 0.585, 0.78, 0.975, 1.17, 1.75, 2.6][plugLvl]
-                plugID = feature['DiamondAttributeID%d'%i]
-                if plugID == '' or plugLvl == 0:
+                plugID = feature['DiamondAttributeID%d' % i]
+                if plugID == '' or plugLvl == 0 or plugID == 0:
                     continue
                 plugAttribInfo = self.equipmentInfo.attrib[plugID]
                 plugAttrib = {plugAttribInfo[0]: int(int(plugAttribInfo[1]) * plugRate)}
@@ -99,15 +99,16 @@ class AttributeCal():
             sumAttrib = self.attribMerge(singleAttrib, sumAttrib)
 
         #计算五彩石
-        colorID = equips["0"]["plug0"]
-        if colorID in self.equipmentInfo.color:
-            colorAttrib = self.equipmentInfo.color[colorID]
-            for i in range(3):  # 按属性个数排序
-                if colorAttrib[i*4+2] == "" or colorAttrib[i*4+1] == "":
-                    continue
-                if sumPlug >= int(colorAttrib[i*4+2]) and sumPlugLvl >= int(colorAttrib[i*4+3]):
-                    colorSingleAttrib = {colorAttrib[i*4]: int(colorAttrib[i*4+1])}
-                    sumAttrib = self.attribMerge(colorSingleAttrib, sumAttrib)
+        if "0" in equips:
+            colorID = equips["0"]["plug0"]
+            if colorID in self.equipmentInfo.color:
+                colorAttrib = self.equipmentInfo.color[colorID]
+                for i in range(3):  # 按属性个数排序
+                    if colorAttrib[i*4+2] == "" or colorAttrib[i*4+1] == "":
+                        continue
+                    if sumPlug >= int(colorAttrib[i*4+2]) and sumPlugLvl >= int(colorAttrib[i*4+3]):
+                        colorSingleAttrib = {colorAttrib[i*4]: int(colorAttrib[i*4+1])}
+                        sumAttrib = self.attribMerge(colorSingleAttrib, sumAttrib)
 
         #计算套装
         for line in setCount:

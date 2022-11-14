@@ -43,10 +43,10 @@ class EquipmentInfo():
             if attribID in ["", "0", 0, "atInvalid"]:
                 break
             attribRes = self.attrib[attribID]
-            if attribRes[0] not in result:
-                result[attribRes[0]] = int(attribRes[1])
-            else:
-                result[attribRes[0]] += int(attribRes[1])
+            attribValue = 0
+            if attribRes[1] != '':
+                attribValue = int(attribRes[1])
+            result[attribRes[0]] = result.get(attribRes[0], 0) + attribValue
 
         for i in range(1, 11):
             attribName = "Base%dType"%i

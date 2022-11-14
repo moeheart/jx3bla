@@ -216,16 +216,18 @@ class AttributeData():
         # 计算主属性加成
         mainAttribExtra = getExtraAttrib(self.occ, res)
         for attrib in mainAttribExtra:
-            res[attrib] += mainAttribExtra[attrib] / getCoefficient(attrib)
+            res[attrib] = res.get(attrib, 0) + mainAttribExtra.get(attrib, 0) / getCoefficient(attrib)
+        # print("[TestA]", res)
         return res
 
     def addBoostAndGetAttrib(self, boost):
         '''
         根据当前暂存的属性结果, 计算添加某个增益之后的属性.
-        这个流程主要用来提高效率, 用了一些复杂的计算，尽量避免对其做优化.
+        这个流程主要用来提高效率, 用了一些复杂的计算，尽量避免对其做优化.  TODO 这里先减再加的逻辑，在无增益时为0的属性上会有问题（例如T职业+寒甲+寒啸），后续需要修复extra的存法（不过影响不大就是了）
         params:
         - boost: 待添加的增益.
         '''
+
         attribDict = {'类型': 1, '主属性': '元气', '攻击': 1.95, '破防': 0.19}
         if self.occ in OCC_ATTRIB:
             attribDict = OCC_ATTRIB[self.occ]
@@ -270,7 +272,8 @@ class AttributeData():
         # 计算主属性加成
         mainAttribExtra = getExtraAttrib(self.occ, res)
         for attrib in mainAttribExtra:
-            res[attrib] += mainAttribExtra[attrib] / getCoefficient(attrib)
+            res[attrib] = res.get(attrib, 0) + mainAttribExtra.get(attrib, 0) / getCoefficient(attrib)
+        # print("[TestB]", res)
         return res
 
     def removeBoostAndGetAttrib(self, boost):
@@ -325,7 +328,7 @@ class AttributeData():
         # 计算主属性加成
         mainAttribExtra = getExtraAttrib(self.occ, res)
         for attrib in mainAttribExtra:
-            res[attrib] += mainAttribExtra[attrib] / getCoefficient(attrib)
+            res[attrib] = res.get(attrib, 0) + mainAttribExtra.get(attrib, 0) / getCoefficient(attrib)
         return res
 
     def setBoosts(self, boosts):
@@ -348,30 +351,36 @@ class AttributeData():
         params:
         - occ: 心法代码
         '''
+        # self.baseAttrib = {
+        #     '气血': 500000,
+        #     '体质': 2249,
+        #     '元气': 2249,
+        #     '力道': 2249,
+        #     '身法': 2249,
+        #     '根骨': 2249,
+        #     '攻击': 23388,
+        #     '治疗': 21464,
+        #     '会心': 0.1556,
+        #     '会心效果': 1.9543,
+        #     '破防': 0.2147,
+        #     '加速': 4864,
+        #     '无双': 0.1713,
+        #     '破招': 1332,
+        #     '防御': 0.0444,
+        #     '招架': 0.03,
+        #     '拆招': 0,
+        #     '闪避': 0,
+        #     '御劲': 0,
+        #     '御劲减会伤': 0,
+        #     '化劲': 0.015,
+        #     '伤害变化': 0,
+        #     '无视防御A': 0,
+        # }
         self.baseAttrib = {
-            '气血': 500000,
-            '体质': 2249,
-            '元气': 2249,
-            '力道': 2249,
-            '身法': 2249,
-            '根骨': 2249,
-            '攻击': 23388,
-            '治疗': 21464,
-            '会心': 0.1556,
-            '会心效果': 1.9543,
-            '破防': 0.2147,
-            '加速': 4864,
-            '无双': 0.1713,
-            '破招': 1332,
-            '防御': 0.0444,
-            '招架': 0.03,
-            '拆招': 0,
-            '闪避': 0,
-            '御劲': 0,
-            '御劲减会伤': 0,
-            '化劲': 0.015,
-            '伤害变化': 0,
-            '无视防御A': 0,
+            '体质': 32919.0, '力道': 7445.0, '攻击': 27349.25, '破防': 0.3472542847149353, '无双': 0.30396026870071924,
+            '防御': 0.044046832497038745, '会心': 0.17937040923399789, '加速': 0.0037519271379895577, '破招': 8958.0,
+            '身法': 38.0, '元气': 38.0, '根骨': 38.0, '招架': 0.03, '会心效果': 1.75, '会效': 1.75, '基础攻击': 16554.0, '基础治疗': 0,
+            '会心等级': 14102, '会效等级': 0, '加速等级': 362, '破防等级': 27302, '无双等级': 23043,
         }
         self.occ = occ
 

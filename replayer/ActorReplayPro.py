@@ -14,6 +14,8 @@ from Constants import *
 from tools.Names import *
 from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
 
+from equip.AttributeDisplay import AttributeDisplay  # 以后需要改为从服务器实现
+
 from replayer.ReplayerBase import ReplayerBase
 
 from replayer.boss.Base import SpecificReplayerPro
@@ -107,10 +109,6 @@ class ActorProReplayer(ReplayerBase):
         第一阶段复盘.
         主要记录BOSS信息，NPC出现等状况.
         '''
-
-        # 向窗口类中存储装备信息，作为不同boss之间的缓存
-        for id in self.bld.info.player:
-            self.window.playerEquipment[id] = self.bld.info.player[id].equip
 
         self.window.setNotice({"t1": "正在分析[%s]..." % self.bossname, "c1": "#000000", "t2": "数据整体处理...", "c2": "#0000ff"})
 
@@ -218,24 +216,56 @@ class ActorProReplayer(ReplayerBase):
         for id in self.bld.info.player:
             self.firstHitList[id] = 0
 
-        f = open("equiptest.txt", "w")
-            
-        equipmentAnalyser = EquipmentAnalyser()
-        for id in self.bld.info.player:
-            if id in self.window.playerEquipment and self.window.playerEquipment[id] != {}:
-                equips = equipmentAnalyser.convert2(self.window.playerEquipment[id], self.bld.info.player[id].equipScore)
-                self.equipmentDict[id] = equips
-
-                ea = EquipmentAnalyser()
-                jsonEquip = ea.convert2(self.window.playerEquipment[id], self.bld.info.player[id].equipScore)
-                eee = ExcelExportEquipment()
-                strEquip = eee.export(jsonEquip)
-
-                f.write("%s %s" % (self.bld.info.getName(id), strEquip))
-
-        f.close()
-            
         self.occDetailList = occDetailList
+
+        # 整理一份装备表的请求. 如果没有缓存的结果，就准备向服务器发送.
+        requests = {"server": self.bld.info.server, "players": []}
+        ea = EquipmentAnalyser()
+        eee = ExcelExportEquipment()
+        for id in self.bld.info.player:
+            if self.bld.info.player[id].equip == {}:  # 跳过获取不到装备的玩家.
+                continue
+            flag = False  # 是否更新的标记
+            # equips = ea.convert2(self.bld.info.player[id].equip, self.bld.info.player[id].equipScore)
+            jsonEquip = ea.convert2(self.bld.info.player[id].equip, self.bld.info.player[id].equipScore)
+            strEquip = eee.export(jsonEquip)
+            self.equipmentDict[id] = jsonEquip
+            if id not in self.window.playerEquipment:
+                # 是否从未出现过
+                flag = True
+            else:
+                # 比较新旧装备是否一致
+                jsonEquip2 = ea.convert2(self.window.playerEquipment[id], self.bld.info.player[id].equipScore)
+                strEquip2 = eee.export(jsonEquip2)
+                if strEquip != strEquip2:
+                    flag = True
+            if flag:  # 需要向服务器请求
+                self.window.playerEquipment[id] = self.bld.info.player[id].equip
+                requests["players"].append({"equipStr": strEquip, "id": id, "name": self.bld.info.getName(id), "occ": occDetailList[id]})
+
+        # 向服务器请求. 这里先从本地计算，以后再改为服务器请求的逻辑. TODO
+        results = {}
+        ad = AttributeDisplay()
+        for playerEquip in requests["players"]:
+            results[playerEquip["id"]] = {}
+            # print("[Test1]", playerEquip["equipStr"])
+            results[playerEquip["id"]]["base"] = ad.GetBaseAttrib(playerEquip["equipStr"], playerEquip["occ"])
+            results[playerEquip["id"]]["panel"] = ad.GetPanelAttrib(playerEquip["equipStr"], playerEquip["occ"])
+        # 结束
+
+        # 记录服务器返回的结果
+        for id in results:
+            self.window.playerEquipmentAnalysed[id] = results[id]
+            # print("[TestResult]", id, self.bld.info.getName(id))
+            # print(self.window.playerEquipmentAnalysed[id])
+
+        # 记录基础属性分析的结果
+        self.baseAttribDict = {}
+        for id in self.bld.info.player:
+            if id in self.window.playerEquipmentAnalysed:
+                self.baseAttribDict[id] = self.window.playerEquipmentAnalysed[id]["base"]
+            else:
+                self.baseAttribDict[id] = None
         
         return 0  # 正确结束
 
@@ -826,7 +856,7 @@ class ActorProReplayer(ReplayerBase):
         目前实现了战斗的数值统计.
         '''
 
-        combatTracker = CombatTracker(self.bld.info, self.bh, self.occDetailList, self.zhenyanInfer, self.stunCounter, self.zxyzPrecastSource)
+        combatTracker = CombatTracker(self.bld.info, self.bh, self.occDetailList, self.zhenyanInfer, self.stunCounter, self.zxyzPrecastSource, self.baseAttribDict)
 
         for event in self.bld.log:
             if event.time < self.startTime:

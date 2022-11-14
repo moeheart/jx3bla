@@ -136,36 +136,30 @@ class BoostCounter():
             targetBoosts.append(self.targetBoost[target][boost]["effect"])
         for baseBoost in self.boost:
 
-            # if baseBoost == "2,3310,1":
-            #     print("[qjbbStart]", coeffAll, finalAttrib1)
+            # if baseBoost == "2,8504,1":
+            #     print("[pfStart]", coeffAll, finalAttrib1)
 
             if self.boost[baseBoost]["source"] == self.playerid:
                 continue
-            boosts = []
-            for boost in self.boost:
-                if boost != baseBoost:
-                    boosts.append(self.boost[boost]["effect"])
-            self.attributeData.setBoosts(boosts)
-            finalAttrib = self.attributeData.getFinalAttrib()
-            coeffSpecific = getDamageCoeff(self.occ, finalAttrib, targetBoosts, isPoZhao=isPoZhao)
 
-            # if baseBoost == "2,3310,1":
-            #     print("[qjbbStart2]", coeffSpecific, finalAttrib)
+            # boosts = []
+            # for boost in self.boost:
+            #     if boost != baseBoost:
+            #         boosts.append(self.boost[boost]["effect"])
+            # self.attributeData.setBoosts(boosts)
+            # finalAttrib = self.attributeData.getFinalAttrib()
+            # coeffSpecific = getDamageCoeff(self.occ, finalAttrib, targetBoosts, isPoZhao=isPoZhao)
 
             finalAttrib2 = self.attributeData2.removeBoostAndGetAttrib(self.boost[baseBoost]["effect"])
             self.attributeData2.addBoostAndGetAttrib(self.boost[baseBoost]["effect"])
             coeffSpecific2 = getDamageCoeff(self.occ, finalAttrib2, targetBoosts, isPoZhao=isPoZhao)
 
-            # print("[Test]", self.boost[baseBoost])
-
-            diff = coeffSpecific - coeffSpecific2
-            if abs(diff) > 1e-5:
-                print("[DifferentA]", coeffSpecific, coeffSpecific2)
-                print(finalAttrib)
-                print(finalAttrib2)
+            # diff = coeffSpecific - coeffSpecific2
+            # if abs(diff) > 1e-5:
+            #     print("[DifferentA]", coeffSpecific, coeffSpecific2)
 
             rdpsSeparateRate[baseBoost] = {"source": self.boost[baseBoost]["source"],
-                                           "amount": coeffAll - coeffSpecific}
+                                           "amount": coeffAll - coeffSpecific2}
             sumCoeff += rdpsSeparateRate[baseBoost]["amount"]
 
         # 计算排除某个目标增益的伤害，并记录
@@ -340,10 +334,12 @@ class BoostCounter():
         self.basicAttribute = {}
         self.attributeData = AttributeData(occ)
         self.attributeData2 = AttributeData(occ)
+        if baseAttribute is not None:
+            self.attributeData.baseAttrib = baseAttribute
+            self.attributeData2.baseAttrib = baseAttribute
         self.mhsn = "0"  # 梅花三弄
         self.zyhr = "0"  # 逐云寒蕊
         self.needUpdate = {}
-
 
 class StatRecorder():
     '''
@@ -1308,7 +1304,7 @@ class CombatTracker():
                                 self.mrdpsCast[rdpsRate[key]["source"]].recordSimple(keyName, event.damageEff * rdpsRate[key]["rate"])
                                 self.mrdpsCast[event.caster].recordSource(keyName, event.damageEff * rdpsRate[key]["rate"])
 
-    def __init__(self, info, bh, occDetailList, zhenyanInfer, stunCounter, zxyzPrecastSource):
+    def __init__(self, info, bh, occDetailList, zhenyanInfer, stunCounter, zxyzPrecastSource, baseAttribDict):
         '''
         构造方法，需要读取角色或玩家信息。
         params:
@@ -1318,6 +1314,7 @@ class CombatTracker():
         - zhenyanInfer: 阵眼的推测结果.
         - stunCounter: 眩晕时间计数.
         - zxyzPrecast: 是否在开怪之前施放过左旋右转, 若施放过则为玩家ID.
+        - baseAttribDict: 玩家的基础属性表. 一般是在ActorReplay中通过装备分析得到.
         - TODO 还要扩充装备表，之后应该会整理成一个全的
         '''
         self.info = info
@@ -1393,7 +1390,7 @@ class CombatTracker():
             self.rdpsCast[player] = DpsCastRecorder(1)
             self.mrdpsCast[player] = DpsCastRecorder(1)
             # 增益统计
-            self.boostCounter[player] = BoostCounter(player, self.occDetailList[player])
+            self.boostCounter[player] = BoostCounter(player, self.occDetailList[player], baseAttribDict[player])
             self.shieldDict[player] = "0"
             self.zyhrDict[player] = "0"
             if zxyzPrecastSource != "0":  # 计算第一次左旋右转
