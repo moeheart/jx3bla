@@ -119,10 +119,10 @@ class ZhangJingchaoReplayer(SpecificReplayerPro):
                             self.bh.setMainTarget(event.target)
                             self.stat[event.caster][7] += event.damageEff
                         elif self.bld.info.getName(event.target) in ["张法雷", "張法雷"]:
-                            self.bh.setMainTarget(event.target)
+                            # self.bh.setMainTarget(event.target)
                             self.stat[event.caster][8] += event.damageEff
                         elif self.bld.info.getName(event.target) in ["劲风", "勁風"]:
-                            self.bh.setMainTarget(event.target)
+                            # self.bh.setMainTarget(event.target)
                             self.stat[event.caster][9] += event.damageEff
 
         elif event.dataType == "Buff":
@@ -178,6 +178,7 @@ class ZhangJingchaoReplayer(SpecificReplayerPro):
                 self.setTimer("phase", event.time + 13000, 2)
                 self.bh.setBadPeriod(event.time, event.time + 13000, True, True)
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
+                # 外场球打完了之后本来就没东西打，所以不管了，看mrdps吧
             elif event.content in ['"都滚开！"']:
                 self.changePhase(event.time, 0)
                 self.setTimer("phase", event.time + 2000, 2)
@@ -186,6 +187,8 @@ class ZhangJingchaoReplayer(SpecificReplayerPro):
             elif event.content in ['"又一次……走错路了吗……"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            elif event.content in ['"都死在这吧！"']:
+                pass
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
@@ -242,7 +245,8 @@ class ZhangJingchaoReplayer(SpecificReplayerPro):
                                  "b23360", "n112005", "b23361", "c31935", "s31294", "s31327", "s32943", "n111977",
                                  "s31324", "s31297", "c31296", "n112915", "b23235", "s31267", "s31150",
                                  "c31293", "c31326", "n112022", "n112029", "c31803", "s31803", "s31296", "n112061",
-                                 "s31325", "s31851", "n112875",
+                                 "s31325", "s31851", "n112875", "n112464", "n112491", "n112501", "n112461", "c31936",
+                                 "n112524",
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
@@ -253,6 +257,7 @@ class ZhangJingchaoReplayer(SpecificReplayerPro):
                        "c31260": ["4222", "#ff7777", 5000],  # 万钧
                        "c31328": ["2146", "#ff77cc", 7000],  # 逆闪
                        "c31851": ["3434", "#ff77ff", 7000],  # 霆鸣
+                       "c33130": ["2028", "#ff0000", 20000],  # 风雷灭尽
                        }
 
         # 张景超数据格式：

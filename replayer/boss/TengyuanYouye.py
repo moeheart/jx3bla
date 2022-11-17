@@ -30,13 +30,18 @@ class TengyuanYouyeWindow(SpecificBossWindow):
         tb = TableConstructorMeta(self.config, frame1)
 
         self.constructCommonHeader(tb, "")
+        tb.AppendHeader("本体DPS", "对藤原佑野本体及式神拟态的DPS。\n常规阶段时间：%s" % parseTime(self.detail["P1Time"]))
+        tb.AppendHeader("符咒DPS", "对四方结界技能中符咒的DPS。时间按P1整体计算。")
+        tb.AppendHeader("泉眼DPS", "泉眼阶段中整体的DPS。\n泉眼阶段时间：%s" % parseTime(self.detail["P2Time"]))
         tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         tb.EndOfLine()
 
         for i in range(len(self.effectiveDPSList)):
             line = self.effectiveDPSList[i]
             self.constructCommonLine(tb, line)
-
+            tb.AppendContext(int(line[7]))
+            tb.AppendContext(int(line[8]))
+            tb.AppendContext(int(line[9]))
             # 心法复盘
             if line[0] in self.occResult:
                 tb.GenerateXinFaReplayButton(self.occResult[line[0]], line[0])
@@ -60,6 +65,9 @@ class TengyuanYouyeReplayer(SpecificReplayerPro):
         self.bh.setEnvironmentInfo(self.bhInfo)
         self.bh.printEnvironmentInfo()
 
+        self.detail["P1Time"] = int((self.phaseTime[1] + self.phaseTime[2]) / 1000)
+        self.detail["P2Time"] = int(self.phaseTime[3] / 1000)
+
     def getResult(self):
         '''
         生成复盘结果的流程。需要维护effectiveDPSList, potList与detail。
@@ -72,6 +80,9 @@ class TengyuanYouyeReplayer(SpecificReplayerPro):
             if id in self.stat:
                 line = self.stat[id]
                 res = self.getBaseList(id)
+                res.extend([int(safe_divide(line[7], self.detail["P1Time"])),
+                            int(safe_divide(line[8], self.detail["P1Time"])),
+                            int(safe_divide(line[9], self.detail["P2Time"]))])
                 bossResult.append(res)
         bossResult.sort(key=lambda x: -x[2])
         self.effectiveDPSList = bossResult
@@ -114,6 +125,13 @@ class TengyuanYouyeReplayer(SpecificReplayerPro):
                     if self.bld.info.getName(event.target) in ["藤原佑野"]:
                         self.bh.setMainTarget(event.target)
                         self.stat[event.caster][7] += event.damageEff
+                    if self.bld.info.getName(event.target) in ["结界符咒", "結界符咒"]:
+                        # self.bh.setMainTarget(event.target)
+                        self.stat[event.caster][8] += event.damageEff
+                    if self.bld.info.getName(event.target) in ["泉眼"]:
+                        # self.bh.setMainTarget(event.target)
+                        self.stat[event.caster][9] += int(event.fullResult.get("9", 0))
+                        self.quanyanDmg += int(event.fullResult.get("9", 0))
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -157,17 +175,25 @@ class TengyuanYouyeReplayer(SpecificReplayerPro):
             elif event.content in ['"廿尺方围，彼足定礎，术式——结！"']:
                 pass
             elif event.content in ['"拟我之形，化我之态。玄灵听令，式神召来！"']:
-                pass
+                # self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
+                self.setTimer("phase", event.time + 5000, 2)
             elif event.content in ['"好眼力……"']:
-                pass
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
+                self.changePhase(event.time, 1)
             elif event.content in ['"看来李重茂气运已尽，留在这里对藤原家已经没有意义了。"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            elif event.content in ['"什么人？"']:
+            elif event.content in ['"如此……泉眼现身！"']:
+                self.bh.setBadPeriod(event.time, event.time + 4000, True, False)
+                self.changePhase(event.time, 0)
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
+                self.quanyanDmg = 0
+            elif event.content in ['"术式——水封！"']:
+                self.changePhase(event.time, 3)
                 pass
-            elif event.content in ['"啧……"']:
-                pass
-            elif event.content in ['"啊……"']:
+            elif event.content in ['"啊……！泉眼收回！"']:
+                self.changePhase(event.time, 1)
+                # print("[QuanyanDmg]", self.quanyanDmg)
                 pass
             elif event.content in ['"啊！"']:
                 pass
@@ -233,11 +259,12 @@ class TengyuanYouyeReplayer(SpecificReplayerPro):
         self.initBattleBase()
         self.activeBoss = "藤原佑野"
 
-        self.initPhase(2, 1)
+        self.initPhase(3, 1)
 
         self.bhBlackList.extend(["s31229", "n109807", "s31235", "b23345", "s31263", "s31236", "b23592", "s31230",
                                  "b24407", "n109808", "b23347", "n112010", "b23366", "n111992", "s31241", "b23350",
-                                 "s31231", "n111972", "c31264", "n113099"])
+                                 "s31231", "n111972", "c31264", "n113099", "n112506", "n112469", "n112476", "s31332",
+                                 "c31590", "s31234", "n112460", "n112447", "n112502", "n112458", "n112455", "n112493"])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
         self.bhInfo = {"c32662": ["4531", "#ff7777", 3000],  # 无名之火
@@ -250,6 +277,7 @@ class TengyuanYouyeReplayer(SpecificReplayerPro):
         # 7 ？
 
         self.sifangStart = {}
+        self.quanyanDmg = 0
 
         for line in self.bld.info.player:
             self.stat[line].extend([0, 0, 0])

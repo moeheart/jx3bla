@@ -152,8 +152,8 @@ class HanJingqingReplayer(SpecificReplayerPro):
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             elif event.content in ['"感受我的痛苦！"']:
                 pass
-            elif event.content in ['"怎么回事……刚才是我的记忆……还是幻觉？"']:
-                pass
+            elif event.content in ['"为你们的罪行付出代价！"']:
+                self.bh.setBadPeriod(event.time, event.time + 18000, True, True)
             elif event.content in ['"谢谢各位。"']:
                 pass
             elif event.content in ['"如此……依计行事。"']:
@@ -233,13 +233,15 @@ class HanJingqingReplayer(SpecificReplayerPro):
         self.initPhase(1, 1)
 
         self.bhBlackList.extend(["n112021", "s32128", "b23868", "n113050", "n113050", "s32127", "b24758", "b23869",
-                                 "n112016", "s32827", "b24760", "s33241", "b24759", "s32828", "s33251", "b24770"])
+                                 "n112016", "s32827", "b24760", "s33241", "b24759", "s32828", "s33251", "b24770",
+                                 "s33139", "n112497", "n112487", "n112506", "s32129", "n112686"])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
         self.bhInfo = {"c32173": ["4519", "#007777", 0],  # 毒浪翻涌
                        "c32183": ["16540", "#ff7700", 0],  # 雨倾蛊纵
                        "c32172": ["4501", "#00ff33", 0],  # 毒风怒号
                        "c32182": ["3434", "#ff7777", 0],  # 刀锋毒影
+                       "c33154": ["4547", "#ff0000", 0],  # 黯蛊尘锋
                        }
 
         # 韩敬青数据格式：

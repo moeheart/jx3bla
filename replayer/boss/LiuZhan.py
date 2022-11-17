@@ -147,6 +147,9 @@ class LiuZhanReplayer(SpecificReplayerPro):
                     self.bh.setCall("23771", "利斧断躯", "2034", self.lifuStart[event.target], event.time - self.lifuStart[event.target], event.target, "利斧断躯点名承伤")
                     self.stunCounter[event.target].setState(event.time, 0)
 
+            if event.id == "24601":  # 神射协助 TODO 以后用来分锅
+                pass
+
         elif event.dataType == "Shout":
             if event.content in ['"尔等必葬身于此！"']:
                 pass
@@ -155,9 +158,9 @@ class LiuZhanReplayer(SpecificReplayerPro):
             elif event.content in ['"石碎！"']:
                 pass
             elif event.content in ['"枪斧卫出阵！速将这群狂徒拿下！"']:
-                self.changePhase(event.time, 0)
-                self.setTimer("phase", event.time + 6000, 2)
-                self.bh.setBadPeriod(event.time, event.time + 6000, True, True)
+                self.changePhase(event.time - 2000, 0)
+                self.setTimer("phase", event.time + 7000, 2)
+                self.bh.setBadPeriod(event.time - 2000, event.time + 7000, True, True)
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
             elif event.content in ['"是！"']:
                 pass
@@ -166,7 +169,9 @@ class LiuZhanReplayer(SpecificReplayerPro):
             elif event.content in ['"感受这大地的震颤"']:
                 pass
             elif event.content in ['"呃……"']:
-                self.changePhase(event.time, 3)
+                self.changePhase(event.time, 0)
+                self.setTimer("phase", event.time + 6000, 3)
+                self.bh.setBadPeriod(event.time, event.time + 6000, True, True)
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
             elif event.content in ['"将军……"']:
                 pass
@@ -239,7 +244,8 @@ class LiuZhanReplayer(SpecificReplayerPro):
                                  "b24565", "n112050", "s31983", "s31987", "n110498", "s31984", "n112863", "s31986",
                                  "s31989", "b23769", "b23770", "n112051", "s32120",
                                  "s31991", "n110496", "n112041", "b23778", "n112067", "n112017",
-                                 "n112032", "n110495", "s31995", "c32107"])
+                                 "n112032", "n110495", "s31995", "c32107", "n112472", "n112488", "n112505", "n112514",
+                                 "n112527", "s32392", "n112543", "n112533"])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
         self.bhInfo = {"c32002": ["3452", "#773333", 6000],  # 山崩石碎斩

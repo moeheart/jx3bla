@@ -47,8 +47,8 @@ class SpecificReplayerPro():
         - time: 进入阶段的时间.
         - phase: 进入了哪个阶段.
         '''
-        if time > self.phaseStart:
-            self.phaseTime[self.phase] += phase - self.phaseStart
+        if time >= self.phaseStart:
+            self.phaseTime[self.phase] += time - self.phaseStart
             self.lastPhase = self.phase
             self.phase = phase
             self.phaseStart = time
@@ -69,6 +69,7 @@ class SpecificReplayerPro():
         '''
         战斗结束时所有BOSS的通用处理流程.
         '''
+        self.changePhase(self.finalTime, 0)
         self.bh.calBadPeriod()
 
     def getResult(self):
@@ -193,7 +194,7 @@ class SpecificReplayerPro():
                             "s6746", "b17933", "b6131", "b20128", "b1242", "b2685", "s20764", "s3051",
                             "n20107", "n20108", "n20109", "n20110", "n20111", "s953", "b23898", "n110198",
                             "n36781", "n36782", "n36783", "n36784", "n36785", "n10636", "n112830", "n112828", "n112827",
-                            "n111564", "n111966", "n112054", "n10633", "n112052", "b15723"]
+                            "n111564", "n111966", "n112054", "n10633", "n112052", "b15723", "b377", "n10635"]
 
         #通用格式：
         #0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
