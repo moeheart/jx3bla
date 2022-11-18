@@ -25,7 +25,7 @@ def getSingleStat(record):
     key1 = record[2]
     key2 = getIDFromMap(record[5])
     key3 = record[6]
-    if key2 not in ["559", "560", "561", "573", "574", "575"]:
+    if key2 not in MAP_DICT_RECORD_LOGS:
         return {}
     if key3 not in BOSS_RAW:
         return {}
@@ -126,7 +126,7 @@ def updatePercent(raw_rank, cursor, db):
 
         # 新赛季更新时删除，后续再进行改动
         try:
-            if int(key2) > 575:
+            if int(key2) < 573:
                 continue
         except:
             sql = """UPDATE ReplayProStat SET hold=0 WHERE hash = '%s'""" % hash
