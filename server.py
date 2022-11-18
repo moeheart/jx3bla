@@ -821,9 +821,9 @@ def receiveReplay(jdata, cursor):
         
     map = getIDFromMap(mapDetail)
     scoreRank = getRankFromKeys(score, occ, map, boss, "stat", "score")
-    rhps = statistics["skill"]["healer"].get("rhps", None)
+    rhps = statistics["skill"]["healer"].get("rhps", 0)
     rhpsRank = getRankFromKeys(score, occ, map, boss, "stat", "rhps")
-    hps = statistics["skill"]["healer"].get("hps", None)
+    hps = statistics["skill"]["healer"].get("hps", 0)
     hpsRank = getRankFromKeys(score, occ, map, boss, "stat", "hps")
     rdps = 0
     rdpsRank = 0
@@ -834,6 +834,9 @@ def receiveReplay(jdata, cursor):
     mndps = 0
     mndpsRank = 0
     hold = 1
+    
+    print(server, id, occ, score, battleDate, mapDetail, boss, hash, shortID, public, edition, editionFull, replayedition, userID, battleTime,
+        submitTime, battleID, scoreRank, rhps, rhpsRank, hps, hpsRank, rdps, rdpsRank, ndps, ndpsRank, mrdps, mrdpsRank, mndps, mndpsRank, hold)
 
     sql = """INSERT INTO ReplayProStat VALUES ("%s", "%s", "%s", %.2f, "%s", "%s", "%s", "%s", %d, %d, "%s", %d, "%s", "%s", %d, %d, "%s",
 %d, %.2f, %d, %.2f, %d, %.2f, %d, %.2f, %d, %.2f, %d, %.2f, %d, %d)""" % (
