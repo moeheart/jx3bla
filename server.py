@@ -746,7 +746,7 @@ def getRankFromKeys(value, occ, map, boss, name, key):
         rank = getRank(value, table)
         return rank
     else:
-        return None
+        return -1
 
 def receiveReplay(jdata, cursor):
     '''
@@ -834,7 +834,7 @@ def receiveReplay(jdata, cursor):
     mndps = 0
     mndpsRank = 0
     hold = 1
-    
+
     print(server, id, occ, score, battleDate, mapDetail, boss, hash, shortID, public, edition, editionFull, replayedition, userID, battleTime,
         submitTime, battleID, scoreRank, rhps, rhpsRank, hps, hpsRank, rdps, rdpsRank, ndps, ndpsRank, mrdps, mrdpsRank, mndps, mndpsRank, hold)
 
