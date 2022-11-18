@@ -23,7 +23,6 @@ class AttributeDisplayRemote():
         Jdata = json.dumps(query)
         jpost = {'jdata': Jdata}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-
         for i in range(0, 5):
             resp = urllib.request.urlopen('http://%s:8009/getAttribute' % IP, data=jparse)
             if resp is None:
@@ -31,7 +30,29 @@ class AttributeDisplayRemote():
             else:
                 break
         result = json.load(resp)
+        return result
 
+    def GetGroupAttributeAttrib(self, request):
+        '''
+        尝试从服务器端获取全团的属性.
+        params:
+        - request: 打包好的请求.
+        returns:
+        - result: 返回的数据.
+        '''
+        Jdata = json.dumps(request)
+        jpost = {'jdata': Jdata}
+        jparse = urllib.parse.urlencode(jpost).encode('utf-8')
+        resp = None
+        for i in range(0, 5):
+            resp = urllib.request.urlopen('http://%s:8009/getGroupAttribute' % IP, data=jparse)
+            if resp is None:
+                print("连接失败，重试中...")
+            else:
+                break
+        if resp is None:
+            raise Exception("连接服务器失败！")
+        result = json.load(resp)
         return result
 
     def __init__(self):

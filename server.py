@@ -81,6 +81,7 @@ def setAnnouncement():
 def getAttribute():
     '''
     远程获取属性，通过传入配装来获取属性.
+    由于要一次获取多个玩家的配装，这个方法之后会废弃.
     '''
     jdata = json.loads(request.form.get('jdata'))
     print(jdata)
@@ -88,6 +89,24 @@ def getAttribute():
     occ = jdata["occ"]
     res = app.ad.Display(equipStr, occ)
     return jsonify(res)
+
+@app.route('/getGroupAttribute', methods=['POST'])
+def getGroupAttribute():
+    '''
+    远程获取全团属性，通过传入团队的配装信息来获取属性.
+    这个传入的方式与上面的方法不同.
+    之后要对这个方法进行扩展，从而支持装备的缓存或者远程读取，这样属性计算会更精确.
+    '''
+
+    jdata = json.loads(request.form.get('jdata'))
+    requests = jdata
+    results = []
+    ad = AttributeDisplay()
+    for playerEquip in requests["players"]:
+        results[playerEquip["id"]] = {}
+        results[playerEquip["id"]]["base"] = ad.GetBaseAttrib(playerEquip["equipStr"], playerEquip["occ"])
+        results[playerEquip["id"]]["panel"] = ad.GetPanelAttrib(playerEquip["equipStr"], playerEquip["occ"])
+    return jsonify(results)
 
 @app.route('/getPercentInfo', methods=['GET'])
 def getPercentInfo():

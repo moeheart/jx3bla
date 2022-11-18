@@ -138,6 +138,8 @@ class ReplayerBase():
         '''
         # if "beta" in EDITION:
         #     return
+        if self.win == 0:  # 未通关时不上传
+            return
         upload = {}
         upload["server"] = self.result["overall"]["server"]
         upload["id"] = self.result["overall"]["playerID"]

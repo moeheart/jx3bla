@@ -15,6 +15,7 @@ from tools.Names import *
 from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
 
 from equip.AttributeDisplay import AttributeDisplay  # 以后需要改为从服务器实现
+from equip.AttributeDisplayRemote import AttributeDisplayRemote
 
 from replayer.ReplayerBase import ReplayerBase
 
@@ -78,6 +79,8 @@ class ActorProReplayer(ReplayerBase):
         '''
         # if "beta" in EDITION:
         #     return
+        if self.win == 0:  # 未通关时不上传
+            return
         result = {}
         server = self.bld.info.server
         result["server"] = server
@@ -243,29 +246,31 @@ class ActorProReplayer(ReplayerBase):
                 self.window.playerEquipment[id] = self.bld.info.player[id].equip
                 requests["players"].append({"equipStr": strEquip, "id": id, "name": self.bld.info.getName(id), "occ": occDetailList[id]})
 
-        # 向服务器请求. 这里先从本地计算，以后再改为服务器请求的逻辑. TODO
-        results = {}
-        ad = AttributeDisplay()
-        for playerEquip in requests["players"]:
-            results[playerEquip["id"]] = {}
-            # print("[Test1]", playerEquip["equipStr"])
-            results[playerEquip["id"]]["base"] = ad.GetBaseAttrib(playerEquip["equipStr"], playerEquip["occ"])
-            results[playerEquip["id"]]["panel"] = ad.GetPanelAttrib(playerEquip["equipStr"], playerEquip["occ"])
-        # 结束
+                # 向服务器请求. 这里先从本地计算，以后再改为服务器请求的逻辑. TODO
+                # results = {}
+                # ad = AttributeDisplay()
+                # for playerEquip in requests["players"]:
+                #     results[playerEquip["id"]] = {}
+                #     results[playerEquip["id"]]["base"] = ad.GetBaseAttrib(playerEquip["equipStr"], playerEquip["occ"])
+                #     results[playerEquip["id"]]["panel"] = ad.GetPanelAttrib(playerEquip["equipStr"], playerEquip["occ"])
+                adr = AttributeDisplayRemote()
+                results = adr.GetGroupAttributeAttrib(requests)
+                # 结束
 
-        # 记录服务器返回的结果
-        for id in results:
-            self.window.playerEquipmentAnalysed[id] = results[id]
-            # print("[TestResult]", id, self.bld.info.getName(id))
-            # print(self.window.playerEquipmentAnalysed[id])
+                # 记录服务器返回的结果
+                for id in results:
+                    self.window.playerEquipmentAnalysed[id] = results[id]
 
-        # 记录基础属性分析的结果
+        # 记录属性分析的结果
         self.baseAttribDict = {}
+        self.panelAttribDict = {}
         for id in self.bld.info.player:
             if id in self.window.playerEquipmentAnalysed:
                 self.baseAttribDict[id] = self.window.playerEquipmentAnalysed[id]["base"]
+                self.panelAttribDict[id] = self.window.playerEquipmentAnalysed[id]["panel"]
             else:
                 self.baseAttribDict[id] = None
+                self.panelAttribDict[id] = None
         
         return 0  # 正确结束
 

@@ -552,6 +552,10 @@ class HealerReplay(ReplayerBase):
         # 获取玩家装备和奇穴，即使获取失败也存档
         self.result["equip"] = {"available": 0}
         if self.bld.info.player[self.mykey].equip != {} and "beta" not in EDITION:
+            # TODO 优化
+
+
+
             self.result["equip"]["available"] = 1
             ea = EquipmentAnalyser()
             jsonEquip = ea.convert2(self.bld.info.player[self.mykey].equip, self.bld.info.player[self.mykey].equipScore)

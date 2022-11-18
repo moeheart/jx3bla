@@ -38,6 +38,8 @@ class Config():
             self.exp = 0
             self.score = 0
             self.lvl = 0
+            self.item["user"]["uuid"] = uuid
+            self.printSettings()
         
         else:
             self.userItems = [res["item1"], res["item2"], res["item3"], res["item4"]]
