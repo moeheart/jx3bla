@@ -100,7 +100,7 @@ def getGroupAttribute():
 
     jdata = json.loads(request.form.get('jdata'))
     requests = jdata
-    results = []
+    results = {}
     ad = AttributeDisplay()
     for playerEquip in requests["players"]:
         results[playerEquip["id"]] = {}
