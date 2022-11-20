@@ -551,18 +551,33 @@ class HealerReplay(ReplayerBase):
 
         # 获取玩家装备和奇穴，即使获取失败也存档
         self.result["equip"] = {"available": 0}
-        if self.bld.info.player[self.mykey].equip != {} and "beta" not in EDITION:
-            # TODO 优化
 
-
-
+        if self.mykey in self.equip and self.equip[self.mykey] is not None:
+        # if self.bld.info.player[self.mykey].equip != {} and "beta" not in EDITION:
+            # TODO 验证
             self.result["equip"]["available"] = 1
             ea = EquipmentAnalyser()
             jsonEquip = ea.convert2(self.bld.info.player[self.mykey].equip, self.bld.info.player[self.mykey].equipScore)
             eee = ExcelExportEquipment()
             strEquip = eee.export(jsonEquip)
-            adr = AttributeDisplayRemote()
-            res = adr.Display(strEquip, self.occCode)
+            # adr = AttributeDisplayRemote()
+            # res = adr.Display(strEquip, self.occCode)
+            # self.result["equip"]["score"] = int(self.bld.info.player[self.mykey].equipScore)
+            # self.result["equip"]["sketch"] = jsonEquip["sketch"]
+            # self.result["equip"]["forge"] = jsonEquip["forge"]
+            # self.result["equip"]["spirit"] = res["根骨"]
+            # self.result["equip"]["heal"] = res["治疗"]
+            # self.result["equip"]["healBase"] = res["基础治疗"]
+            # self.result["equip"]["critPercent"] = res["会心"]
+            # self.result["equip"]["crit"] = res["会心等级"]
+            # self.result["equip"]["critpowPercent"] = res["会效"]
+            # self.result["equip"]["critpow"] = res["会效等级"]
+            # self.result["equip"]["hastePercent"] = res["加速"]
+            # self.result["equip"]["haste"] = res["加速等级"]
+            # if not self.config.item["xiangzhi"]["speedforce"]:
+            #     self.haste = self.result["equip"]["haste"]
+            # self.result["equip"]["raw"] = strEquip
+            res = self.equip[self.mykey]
             self.result["equip"]["score"] = int(self.bld.info.player[self.mykey].equipScore)
             self.result["equip"]["sketch"] = jsonEquip["sketch"]
             self.result["equip"]["forge"] = jsonEquip["forge"]
@@ -670,6 +685,18 @@ class HealerReplay(ReplayerBase):
         for key in self.bld.info.player:
             if self.bld.info.player[key].name == self.myname:
                 self.mykey = key
+
+    def FirstStageAnalysis(self):
+        '''
+        第一阶段复盘. 需要子类实现.
+        '''
+        pass
+
+    def SecondStageAnalysis(self):
+        '''
+        第二阶段复盘. 需要子类实现.
+        '''
+        pass
 
     def replay(self):
         '''

@@ -14,7 +14,7 @@ from Constants import *
 from tools.Names import *
 from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
 
-from equip.AttributeDisplay import AttributeDisplay  # 以后需要改为从服务器实现
+# from equip.AttributeDisplay import AttributeDisplay  # 以后需要改为从服务器实现
 from equip.AttributeDisplayRemote import AttributeDisplayRemote
 
 from replayer.ReplayerBase import ReplayerBase
@@ -222,11 +222,22 @@ class ActorProReplayer(ReplayerBase):
         self.occDetailList = occDetailList
 
         # 整理一份装备表的请求. 如果没有缓存的结果，就准备向服务器发送.
+
+        # 记录当前的装分及概览. 如果没有这个数据，就读取之前的缓存；如果还没有，就放弃.
+        self.jsonEquip = {}
+        self.strEquip = {}
+
         requests = {"server": self.bld.info.server, "players": []}
         ea = EquipmentAnalyser()
         eee = ExcelExportEquipment()
         for id in self.bld.info.player:
             if self.bld.info.player[id].equip == {}:  # 跳过获取不到装备的玩家.
+                # 仍然尝试获取json和str信息
+                if id in self.window.playerEquipment:
+                    jsonEquip2 = ea.convert2(self.window.playerEquipment[id], self.bld.info.player[id].equipScore)
+                    strEquip2 = eee.export(jsonEquip2)
+                    self.jsonEquip[id] = jsonEquip2
+                    self.strEquip[id] = strEquip2
                 continue
             flag = False  # 是否更新的标记
             # equips = ea.convert2(self.bld.info.player[id].equip, self.bld.info.player[id].equipScore)
@@ -242,24 +253,26 @@ class ActorProReplayer(ReplayerBase):
                 strEquip2 = eee.export(jsonEquip2)
                 if strEquip != strEquip2:
                     flag = True
+            self.jsonEquip[id] = jsonEquip
+            self.strEquip[id] = strEquip
             if flag:  # 需要向服务器请求
                 self.window.playerEquipment[id] = self.bld.info.player[id].equip
                 requests["players"].append({"equipStr": strEquip, "id": id, "name": self.bld.info.getName(id), "occ": occDetailList[id]})
 
-                # 向服务器请求. 这里先从本地计算，以后再改为服务器请求的逻辑. TODO
-                # results = {}
-                # ad = AttributeDisplay()
-                # for playerEquip in requests["players"]:
-                #     results[playerEquip["id"]] = {}
-                #     results[playerEquip["id"]]["base"] = ad.GetBaseAttrib(playerEquip["equipStr"], playerEquip["occ"])
-                #     results[playerEquip["id"]]["panel"] = ad.GetPanelAttrib(playerEquip["equipStr"], playerEquip["occ"])
-                adr = AttributeDisplayRemote()
-                results = adr.GetGroupAttributeAttrib(requests)
-                # 结束
+        # 向服务器请求. 这里先从本地计算，以后再改为服务器请求的逻辑. TODO
+        # results = {}
+        # ad = AttributeDisplay()
+        # for playerEquip in requests["players"]:
+        #     results[playerEquip["id"]] = {}
+        #     results[playerEquip["id"]]["base"] = ad.GetBaseAttrib(playerEquip["equipStr"], playerEquip["occ"])
+        #     results[playerEquip["id"]]["panel"] = ad.GetPanelAttrib(playerEquip["equipStr"], playerEquip["occ"])
+        adr = AttributeDisplayRemote()
+        results = adr.GetGroupAttributeAttrib(requests)
+        # 结束
 
-                # 记录服务器返回的结果
-                for id in results:
-                    self.window.playerEquipmentAnalysed[id] = results[id]
+        # 记录服务器返回的结果
+        for id in results:
+            self.window.playerEquipmentAnalysed[id] = results[id]
 
         # 记录属性分析的结果
         self.baseAttribDict = {}
@@ -895,6 +908,7 @@ class ActorProReplayer(ReplayerBase):
         actorData["occDetailList"] = self.occDetailList
         actorData["hash"] = self.hashGroup()
         actorData["boss"] = self.bossAnalyseName
+        actorData["equip"] = self.panelAttribDict
         # actorData["zhenyanInfer"] = self.zhenyanInfer  # TODO 在dps统计中可能会用到
         for id in self.bld.info.player:
             name = self.bld.info.player[id].name

@@ -192,6 +192,7 @@ class ReplayerBase():
         self.config = config
         self.window = window
         self.fileNameInfo = fileNameInfo[0]
+        self.equip = {}
         if fileNameInfo[0] not in bldDict:
             # self.parseFile(path)
             self.bldDict = RawDataLoader(config, [fileNameInfo], path, window).bldDict
@@ -209,6 +210,7 @@ class ReplayerBase():
             self.deathDict = actorData["deathDict"]
             self.act = actorData["act"]
             self.battleID = actorData["hash"]
+            self.equip = actorData["equip"]
         # self.myname = myname
         self.failThreshold = config.item["actor"]["failthreshold"]
         self.mask = config.item["general"]["mask"]
