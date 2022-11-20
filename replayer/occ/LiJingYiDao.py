@@ -974,7 +974,7 @@ class LiJingYiDaoReplayer(HealerReplay):
         '''
         super().__init__(config, fileNameInfo, path, bldDict, window, myname, actorData)
         self.haste = config.item["lijing"]["speed"]
-        self.public = config.item["lingsu"]["public"]
+        self.public = config.item["lijing"]["public"]
         self.occ = "lijingyidao"
         self.occCode = "2h"
         self.occPrint = "奶花"

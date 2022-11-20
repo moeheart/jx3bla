@@ -80,6 +80,9 @@ class HealerReplay(ReplayerBase):
         self.result["skill"]["mufeng"]["cover"] = roundCent(safe_divide(sum, num))
         self.result["skill"]["general"]["efficiency"] = self.bh.getNormalEfficiency()
         self.result["skill"]["general"]["rdps"] = self.myHealStat.get("rdps", 0)
+        self.result["skill"]["general"]["ndps"] = self.myHealStat.get("ndps", 0)
+        self.result["skill"]["general"]["mrdps"] = self.myHealStat.get("mrdps", 0)
+        self.result["skill"]["general"]["mndps"] = self.myHealStat.get("mndps", 0)
 
         # 统计治疗相关
         self.result["skill"]["healer"] = {}
@@ -275,6 +278,9 @@ class HealerReplay(ReplayerBase):
                 self.result["healer"]["numHealer"] += 1
                 res = {"rhps": int(self.act.getRhps(player)),
                        "rdps": int(self.act.getRdps(player)),
+                       "ndps": int(self.act.getRdps(player, "ndps")),
+                       "mrdps": int(self.act.getRdps(player, "mrdps")),
+                       "mndps": int(self.act.getRdps(player, "mndps")),
                        "name": self.act.rhps["player"][player]["name"],
                        "occ": self.bld.info.player[player].occ}
                 if player in self.act.hps["player"]:
@@ -584,11 +590,11 @@ class HealerReplay(ReplayerBase):
             self.result["equip"]["spirit"] = res["根骨"]
             self.result["equip"]["heal"] = res["治疗"]
             self.result["equip"]["healBase"] = res["基础治疗"]
-            self.result["equip"]["critPercent"] = res["会心"]
+            self.result["equip"]["critPercent"] = parseCent(res["会心"]) + "%"
             self.result["equip"]["crit"] = res["会心等级"]
-            self.result["equip"]["critpowPercent"] = res["会效"]
+            self.result["equip"]["critpowPercent"] = parseCent(res["会效"]) + "%"
             self.result["equip"]["critpow"] = res["会效等级"]
-            self.result["equip"]["hastePercent"] = res["加速"]
+            self.result["equip"]["hastePercent"] = parseCent(res["加速"]) + "%"
             self.result["equip"]["haste"] = res["加速等级"]
             if not self.config.item["xiangzhi"]["speedforce"]:
                 self.haste = self.result["equip"]["haste"]

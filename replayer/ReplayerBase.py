@@ -79,17 +79,18 @@ class RankCalculator():
                 num, percent = self.getSkillPercent(occ, map, boss, name, key, value)
                 self.rank[name][key] = {"num": num, "percent": percent}
         # 记录HPS
-        self.rank["healer"] = {}
-        for record in self.result["healer"]["table"]:
-            if record["name"] == self.result["overall"]["playerID"]:
-                # 当前玩家
-                num, percent = self.getSkillPercent(occ, map, boss, "healer", "healEff", record["healEff"])
-                self.rank["healer"]["healEff"] = {"num": num, "percent": percent}
-                num, percent = self.getSkillPercent(occ, map, boss, "healer", "heal", record["heal"])
-                self.rank["healer"]["heal"] = {"num": num, "percent": percent}
-                for stat in ["hps", "rhps", "ahps", "ohps"]:
-                    num, percent = self.getSkillPercent(occ, map, boss, "healer", stat, record.get(stat, 0))
-                    self.rank["healer"][stat] = {"num": num, "percent": percent}
+        if "healer" in self.result:
+            self.rank["healer"] = {}
+            for record in self.result["healer"]["table"]:
+                if record["name"] == self.result["overall"]["playerID"]:
+                    # 当前玩家
+                    num, percent = self.getSkillPercent(occ, map, boss, "healer", "healEff", record["healEff"])
+                    self.rank["healer"]["healEff"] = {"num": num, "percent": percent}
+                    num, percent = self.getSkillPercent(occ, map, boss, "healer", "heal", record["heal"])
+                    self.rank["healer"]["heal"] = {"num": num, "percent": percent}
+                    for stat in ["hps", "rhps", "ahps", "ohps"]:
+                        num, percent = self.getSkillPercent(occ, map, boss, "healer", stat, record.get(stat, 0))
+                        self.rank["healer"][stat] = {"num": num, "percent": percent}
         # print("[Rank]", self.rank)
         return self.rank
 

@@ -48,6 +48,7 @@ from replayer.occ.LingSu import LingSuReplayer
 from replayer.occ.LiJingYiDao import LiJingYiDaoReplayer
 from replayer.occ.YunChangXinJing import YunChangXinJingReplayer
 from replayer.occ.BuTianJue import BuTianJueReplayer
+from replayer.occ.Dps import DpsReplayer
 
 from replayer.CombatTracker import CombatTracker
 from replayer.ZhenyanRecord import ZhenyanRecord
@@ -623,7 +624,7 @@ class ActorProReplayer(ReplayerBase):
                             deathSourceDetail.append("-%s, %s:%s%s(%d)"%(parseTime((int(line[0]) - self.startTime) / 1000), name, line[1], resultStr, line[2]))
                         elif line[4] == 1:
                             deathSourceDetail.append("+%s, %s:%s%s(%d)"%(parseTime((int(line[0]) - self.startTime) / 1000), name, line[1], resultStr, line[2]))
-                        if line[2] > line[6] and line[4] == -1 and line[1] not in ["湍流", "溺水", '1,31067,1', '野火焚天'] and event.time - self.startTime > 10000:
+                        if line[2] > line[6] and line[4] == -1 and line[1] not in ["湍流", "溺水", '1,31067,1', '野火焚天', '一刀流·'] and event.time - self.startTime > 10000:
                             lastFatal = 1
                         else:
                             lastFatal = 0
@@ -923,6 +924,9 @@ class ActorProReplayer(ReplayerBase):
                 replayer = YunChangXinJingReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
             if self.config.item["butian"]["active"] and self.occDetailList[id] == "6h":  # 奶毒
                 replayer = BuTianJueReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
+            if self.occDetailList[id] in ["1d", "1t", "2d", "3d", "3t", "4p", "4m", "5d", "6d", "7p", "7m", "8", "9", "10d", "10t",
+                                          "21d", "21t", "22d", "23", "24", "25", "211", "212d", "213"]:
+                replayer = DpsReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData, self.occDetailList[id])
             if replayer is not None:
                 replayer.replay()
                 self.occResult[name] = {"occ": self.occDetailList[id], "result": replayer.result, "rank": replayer.rank}

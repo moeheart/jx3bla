@@ -13,7 +13,7 @@ SUM3 = 0
 SUM4 = 0
 SUM5 = 0
 
-def getDamageCoeff(occ, attrib, targetBoosts, lvl=114, isPoZhao=0):
+def getDamageCoeff(occ, attrib, targetBoosts, lvl=114, isPoZhao=0, debug=0):
     '''
     根据最终面板属性和目标增益获取伤害系数.
     params:
@@ -22,6 +22,7 @@ def getDamageCoeff(occ, attrib, targetBoosts, lvl=114, isPoZhao=0):
     - targetBoosts: 目标增益.
     - lvl: 目标等级. 会决定目标的防御，从而影响无视防御的结果.
     - isPoZhao: 是否是破招伤害.
+    - debug: 是否打印中间步骤，用于检查错误
     '''
 
     global SUM1
@@ -61,7 +62,8 @@ def getDamageCoeff(occ, attrib, targetBoosts, lvl=114, isPoZhao=0):
     endTime = time.time()
     SUM1 += endTime - startTime
 
-    # print("[Calculate]", base, crit, over, strain, damageAdd1, damageAdd2, shieldRate)
+    if debug:
+        print("[Calculate]", base, crit, over, strain, damageAdd1, damageAdd2, shieldRate)
     return base * crit * over * strain * damageAdd1 * damageAdd2 * shieldRate
 
 class BoostCounter():
@@ -97,7 +99,7 @@ class BoostCounter():
         for boost in self.targetBoost[target]:
             if self.targetBoost[target][boost]["source"] == self.playerid:
                 targetBoosts.append(self.targetBoost[target][boost]["effect"])
-        coeffSelf = getDamageCoeff(self.occ, finalAttrib, targetBoosts, isPoZhao=isPoZhao)
+        coeffSelf = getDamageCoeff(self.occ, finalAttrib, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao)
 
         sumCoeff = 0
 
@@ -111,7 +113,7 @@ class BoostCounter():
         targetBoosts = []
         for boost in self.targetBoost[target]:
             targetBoosts.append(self.targetBoost[target][boost]["effect"])
-        coeffAll = getDamageCoeff(self.occ, finalAttrib1, targetBoosts, isPoZhao=isPoZhao)
+        coeffAll = getDamageCoeff(self.occ, finalAttrib1, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao)
 
         self.attributeData2.setBoosts(boosts)
         self.attributeData2.getFinalAttrib()
@@ -136,8 +138,9 @@ class BoostCounter():
             targetBoosts.append(self.targetBoost[target][boost]["effect"])
         for baseBoost in self.boost:
 
-            # if baseBoost == "2,8504,1":
+            # if baseBoost == "2,9724,7":
             #     print("[pfStart]", coeffAll, finalAttrib1)
+            #     print("[boostValue]", self.boost[baseBoost])
 
             if self.boost[baseBoost]["source"] == self.playerid:
                 continue
@@ -152,7 +155,17 @@ class BoostCounter():
 
             finalAttrib2 = self.attributeData2.removeBoostAndGetAttrib(self.boost[baseBoost]["effect"])
             self.attributeData2.addBoostAndGetAttrib(self.boost[baseBoost]["effect"])
-            coeffSpecific2 = getDamageCoeff(self.occ, finalAttrib2, targetBoosts, isPoZhao=isPoZhao)
+            coeffSpecific2 = getDamageCoeff(self.occ, finalAttrib2, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao)
+
+            # if baseBoost == "2,9724,7":
+            #     print("[pfAfter]", coeffSpecific2, finalAttrib2)
+
+            # if baseBoost == "2,9724,7" and coeffAll != coeffSpecific2:
+            #     print("[pfStart]", coeffAll, finalAttrib1, targetBoosts)
+            #     print("[boostValue]", self.boost[baseBoost])
+            #     print("[pfAfter]", coeffSpecific2, finalAttrib2, targetBoosts)
+            #     getDamageCoeff(self.occ, finalAttrib1, targetBoosts, isPoZhao=isPoZhao, debug=1)
+            #     getDamageCoeff(self.occ, finalAttrib2, targetBoosts, isPoZhao=isPoZhao, debug=1)
 
             # diff = coeffSpecific - coeffSpecific2
             # if abs(diff) > 1e-5:
@@ -175,7 +188,7 @@ class BoostCounter():
             for boost in self.targetBoost[target]:
                 if boost != baseBoost:
                     targetBoosts.append(self.targetBoost[target][boost]["effect"])
-            coeffSpecific = getDamageCoeff(self.occ, finalAttrib, targetBoosts, isPoZhao=isPoZhao)
+            coeffSpecific = getDamageCoeff(self.occ, finalAttrib, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao)
 
             rdpsSeparateRate[baseBoost] = {"source": self.targetBoost[target][baseBoost]["source"],
                                            "amount": coeffAll - coeffSpecific}
@@ -316,13 +329,14 @@ class BoostCounter():
         if name == "zyhr":
             self.zyhr = source
 
-    def __init__(self, playerid, occ, baseAttribute=None):
+    def __init__(self, playerid, occ, baseAttribute=None, lvl=124):
         '''
         构造方法.
         params:
         - playerid: 玩家自身的ID.
         - occ: 玩家的心法.
         - baseAttribute: 玩家的基本属性. 留空时会按照默认属性进行计算.
+        - lvl: BOSS等级.
         '''
         self.playerid = playerid
         self.occ = occ
@@ -340,6 +354,8 @@ class BoostCounter():
         self.mhsn = "0"  # 梅花三弄
         self.zyhr = "0"  # 逐云寒蕊
         self.needUpdate = {}
+        self.lvl = lvl
+        # print("[Lvl]", lvl)
 
 class StatRecorder():
     '''
@@ -647,29 +663,65 @@ class CombatTracker():
     战斗数据统计类.
     '''
 
-    def getRhps(self, player):
+    def getRhps(self, player, type="rhps"):
         '''
         获取对应角色的rhps. 用于解决rhps为0时的判定问题.
         params:
         - player: 角色数字ID.
+        - type: 种类. 可以是"rhps", "hps", "ahps", "ohps".
         returns:
         - res: rhps. 找不到角色时返回0
         '''
-        if player in self.rhps["player"]:
-            return self.rhps["player"][player]["hps"]
-        else:
-            return 0
+        if type == "rhps":
+            if player in self.rhps["player"]:
+                return self.rhps["player"][player]["hps"]
+            else:
+                return 0
+        elif type == "hps":
+            if player in self.hps["player"]:
+                return self.hps["player"][player]["hps"]
+            else:
+                return 0
+        elif type == "ahps":
+            if player in self.ahps["player"]:
+                return self.ahps["player"][player]["hps"]
+            else:
+                return 0
+        elif type == "ohps":
+            if player in self.ohps["player"]:
+                return self.ohps["player"][player]["hps"]
+            else:
+                return 0
 
-    def getRdps(self, player):
+    def getRdps(self, player, type="rdps"):
         '''
-        获取对应角色的rdps. 用于解决rdps为0时的判定问题.
+        获取对应角色的dps(默认获取rdps，但也可以是其它类型). 用于解决rdps为0时的判定问题.
         params:
         - player: 角色数字ID.
+        - type: 种类. 可以是"rdps", "ndps", "mrdps", "mndps".
         returns:
         - res: rdps. 找不到角色时返回0
         '''
-        if player in self.rdps["player"]:
-            return self.rdps["player"][player]["dps"]
+        if type == "rdps":
+            if player in self.rdps["player"]:
+                return self.rdps["player"][player]["dps"]
+            else:
+                return 0
+        elif type == "ndps":
+            if player in self.ndps["player"]:
+                return self.ndps["player"][player]["dps"]
+            else:
+                return 0
+        elif type == "mrdps":
+            if player in self.mrdps["player"]:
+                return self.mrdps["player"][player]["dps"]
+            else:
+                return 0
+        elif type == "mndps":
+            if player in self.mndps["player"]:
+                return self.mndps["player"][player]["dps"]
+            else:
+                return 0
         else:
             return 0
 
@@ -1280,8 +1332,11 @@ class CombatTracker():
                 #     print("[PoZyhr]", rdpsRate, event.caster, self.info.getName(event.caster), event.damageEff)
 
                 for key in rdpsRate:
-                    # if key in ["2,3310,1", '"2,3310,1"']:
+                    # if key in ["2,9724,7", '"2,9724,7"']:
                     #     print("[rdpsRate]", rdpsRate, key)
+                    #
+                    # if self.info.getSkillName(key) == "毫针":
+                    #     print("[Haozhen]", rdpsRate, key)
 
                     if key == "self":
                         self.rdpsCast[event.caster].recordSimple(event.full_id, event.damageEff * rdpsRate[key]["rate"])
@@ -1371,6 +1426,11 @@ class CombatTracker():
                 self.zhenyanExclude[symbolid] = ZHENYAN_DICT[baseid][0]
             for symbolid in ZHENYAN_DICT[baseid][4]:
                 self.zhenyanExclude[symbolid] = ZHENYAN_DICT[baseid][0]
+        self.bosslvl = 123
+        if "10人" in info.map:
+            self.bosslvl = 122
+        elif "英雄" in info.map:
+            self.bosslvl = 124
 
         for player in info.player:
             # 治疗
@@ -1390,7 +1450,7 @@ class CombatTracker():
             self.rdpsCast[player] = DpsCastRecorder(1)
             self.mrdpsCast[player] = DpsCastRecorder(1)
             # 增益统计
-            self.boostCounter[player] = BoostCounter(player, self.occDetailList[player], baseAttribDict[player])
+            self.boostCounter[player] = BoostCounter(player, self.occDetailList[player], baseAttribDict[player], lvl=self.bosslvl)
             self.shieldDict[player] = "0"
             self.zyhrDict[player] = "0"
             if zxyzPrecastSource != "0":  # 计算第一次左旋右转

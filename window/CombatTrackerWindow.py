@@ -200,11 +200,11 @@ class CombatTrackerWindow(Window):
         b6.place(x=280, y=20)
         f = partial(self.setStat, "mrdps")
         b7 = tk.Button(frameButtons, text='mrDPS', height=1, command=f, bg='#ff7777')
-        ToolTip(b7, "全称main-target raid DPS，是只考虑主目标的rDPS。\n每个可以输出的阶段一定至少有一个主目标，并不限于BOSS本体。\n用于衡量单体与群攻的差别。")
+        ToolTip(b7, "全称main-target raid DPS，是只考虑主目标的rDPS。\n如果有些阶段只能转火、打分身、打双目标，则这个阶段没有主目标。\n用于衡量单体与群攻的差别。")
         b7.place(x=330, y=20)
         f = partial(self.setStat, "mndps")
         b8 = tk.Button(frameButtons, text='mnDPS', height=1, command=f, bg='#ff7777')
-        ToolTip(b8, "全称main-target natrual DPS，是只考虑主目标的nDPS。\n每个可以输出的阶段一定至少有一个主目标，并不限于BOSS本体。\n用于衡量单体与群攻的差别。")
+        ToolTip(b8, "全称main-target natrual DPS，是只考虑主目标的nDPS。\n如果有些阶段只能转火、打分身、打双目标，则这个阶段没有主目标。\n用于衡量单体与群攻的差别。")
         b8.place(x=390, y=20)
 
         canvas = tk.Canvas(frameUp, width=560, height=650, scrollregion=(0, 0, 540, 25*30)) #创建canvas
