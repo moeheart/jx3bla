@@ -627,7 +627,7 @@ class ActorProReplayer(ReplayerBase):
                             deathSourceDetail.append("-%s, %s:%s%s(%d)"%(parseTime((int(line[0]) - self.startTime) / 1000), name, line[1], resultStr, line[2]))
                         elif line[4] == 1:
                             deathSourceDetail.append("+%s, %s:%s%s(%d)"%(parseTime((int(line[0]) - self.startTime) / 1000), name, line[1], resultStr, line[2]))
-                        if line[2] > line[6] and line[4] == -1 and line[1] not in ["湍流", "溺水", '1,31067,1', '野火焚天', '一刀流·'] and event.time - self.startTime > 10000:
+                        if line[2] > line[6] and line[4] == -1 and line[1] not in ['一刀流·烈日', '一刀流·落日', '一刀流·旭日', '怯战'] and event.time - self.startTime > 10000:
                             lastFatal = 1
                         else:
                             lastFatal = 0
