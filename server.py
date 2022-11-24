@@ -989,7 +989,7 @@ def getBattle():
     hash = request.args.get('hash')
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
-    sql = """SELECT server, boss, battleDate, mapDetail, edition, battleTime, submitTime FROM ReplayProStat WHERE hash = "%s";"""%(hash)
+    sql = """SELECT server, boss, battleDate, mapDetail, edition, battleTime, submitTime FROM ActorStat WHERE hash = "%s";"""%(hash)
     cursor.execute(sql)
     result = cursor.fetchall()
     flag = 0
