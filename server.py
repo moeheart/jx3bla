@@ -894,16 +894,14 @@ def uploadCombinedData():
     # battleID = "0"
     try:
         for line in jdata["data"]:
-            if line["type"] == "battle":
-                # 整场战斗的数据
-                res = receiveBattle(line["data"], cursor)
-                res["id"] = line["id"]
-                groupRes["data"].append(res)
-                # battleID = res["hash"]
-        for line in jdata["data"]:
             if line["type"] == "replay":
                 # 单个复盘
                 res = receiveReplay(line["data"], cursor)
+                res["id"] = line["id"]
+                groupRes["data"].append(res)
+            elif line["type"] == "battle":
+                # 整场战斗的数据
+                res = receiveBattle(line["data"], cursor)
                 res["id"] = line["id"]
                 groupRes["data"].append(res)
         db.commit()

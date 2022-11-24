@@ -161,6 +161,7 @@ class ReplayerBase():
         upload["battleID"] = self.battleID
 
         uploadData = {"type": "replay", "data": upload, "anchor": self.result}
+        print("[UploadData]", uploadData)
         self.window.addUploadData(uploadData)
 
         # Jdata = json.dumps(upload)

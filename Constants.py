@@ -1,7 +1,7 @@
 # Created by moeheart at 10/11/2020
 # 全局用到的部分常量。
 
-EDITION = "8.3.0beta"
+EDITION = "8.3.0"
 ANNOUNCEMENT = "8.3版本即将发布，支持120等级的副本与心法复盘，以及更全面的logs排名，请及时更新！"
 IP = "120.48.95.56"
 # IP = "139.199.102.41"
@@ -58,7 +58,7 @@ COLOR_DICT = {"0": (0, 0, 0),  # 未知
              "213": (107, 183, 242),  # (64, 101, 169),  # 刀宗
              }
 
-OCC_PINYIN_DICT = {"0": "未知",
+OCC_NAME_DICT = {"0": "未知",
                     "1": "少林",
                     "1d": "易筋",
                     "1t": "洗髓",
@@ -101,7 +101,7 @@ OCC_PINYIN_DICT = {"0": "未知",
                     "213": "刀宗",
 }
 
-OCC_NAME_DICT = {"0": "unknown",
+OCC_PINYIN_DICT = {"0": "unknown",
                     "1": "unknown",
                     "1d": "yijinjing",
                     "1t": "xisuijing",

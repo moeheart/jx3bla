@@ -345,4 +345,4 @@ class DpsDisplayWindow(Window):
             self.mask = self.result["overall"]["mask"]  # 使用数据中的mask选项顶掉框架中现场读取的判定
         occ = result["occ"]
         self.themeColor = getColor(occ)
-        self.title = '%s复盘' % OCC_PINYIN_DICT[occ]
+        self.title = '%s复盘' % OCC_NAME_DICT[occ]

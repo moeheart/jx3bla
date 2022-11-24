@@ -51,7 +51,7 @@ class TableConstructorMeta(TableConstructor):
         elif xfResult["occ"] in ["1d", "1t", "2d", "3d", "3t", "4p", "4m", "5d", "6d", "7p", "7m", "8", "9", "10d", "10t",
                                           "21d", "21t", "22d", "23", "24", "25", "211", "212d", "213"]:  # 所有的DPS
             self.frame.occReplay[name] = DpsDisplayWindow(self.config, xfResult)
-            button = tk.Button(self.frame, text=OCC_PINYIN_DICT[xfResult["occ"]], height=1, command=self.frame.occReplay[name].start, bg="#aaaaaa")  #getColor(xfResult["occ"]))
+            button = tk.Button(self.frame, text=OCC_NAME_DICT[xfResult["occ"]], height=1, command=self.frame.occReplay[name].start, bg="#aaaaaa")  #getColor(xfResult["occ"]))
             button.grid(row=self.nowx, column=self.nowy)
             self.nowy += 1
 
