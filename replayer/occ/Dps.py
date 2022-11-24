@@ -73,17 +73,17 @@ class DpsReplayer(ReplayerBase):
         '''
 
         # self.result["skill"]["general"]["efficiency"] = self.bh.getNormalEfficiency()
-        self.result["skill"]["general"]["rdps"] = self.myHealStat.get("rdps", 0)
-        self.result["skill"]["general"]["ndps"] = self.myHealStat.get("ndps", 0)
-        self.result["skill"]["general"]["mrdps"] = self.myHealStat.get("mrdps", 0)
-        self.result["skill"]["general"]["mndps"] = self.myHealStat.get("mndps", 0)
+        self.result["skill"]["general"]["rdps"] = self.result["dps"]["stat"].get("rdps", 0)
+        self.result["skill"]["general"]["ndps"] = self.result["dps"]["stat"].get("ndps", 0)
+        self.result["skill"]["general"]["mrdps"] = self.result["dps"]["stat"].get("mrdps", 0)
+        self.result["skill"]["general"]["mndps"] = self.result["dps"]["stat"].get("mndps", 0)
 
         # 统计治疗相关
         self.result["skill"]["healer"] = {}
-        self.result["skill"]["healer"]["ohps"] = self.myHealStat.get("ohps", 0)
-        self.result["skill"]["healer"]["hps"] = self.myHealStat.get("hps", 0)
-        self.result["skill"]["healer"]["rhps"] = self.myHealStat.get("rhps", 0)
-        self.result["skill"]["healer"]["ahps"] = self.myHealStat.get("ahps", 0)
+        self.result["skill"]["healer"]["ohps"] = self.result["dps"]["stat"].get("ohps", 0)
+        self.result["skill"]["healer"]["hps"] = self.result["dps"]["stat"].get("hps", 0)
+        self.result["skill"]["healer"]["rhps"] = self.result["dps"]["stat"].get("rhps", 0)
+        self.result["skill"]["healer"]["ahps"] = self.result["dps"]["stat"].get("ahps", 0)
 
         self.getRankFromStat(self.occ)
         self.result["rank"] = self.rank
@@ -118,8 +118,6 @@ class DpsReplayer(ReplayerBase):
 
         # 计算团队伤害区(Part 3)
         self.result["dps"] = {"stat": {}}
-
-        self.myHealStat = {}
 
         player = self.mykey
         res = {"rhps": int(self.act.getRhps(player)),
@@ -382,7 +380,7 @@ class DpsReplayer(ReplayerBase):
         第一阶段复盘.
         '''
 
-        self.window.setNotice({"t2": "加载%s复盘..." % self.occ, "c2": self.occColor})
+        self.window.setNotice({"t2": "加载%s复盘..." % self.occPrint, "c2": self.occColor})
 
         self.initFirstState()
 
