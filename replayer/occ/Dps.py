@@ -117,7 +117,7 @@ class DpsReplayer(ReplayerBase):
             bh.badPeriodHealerLog = self.bossBh.badPeriodHealerLog
 
         # 计算团队伤害区(Part 3)
-        self.result["dps"] = {"stat": {}, "source": {}, "boostSource": {}}
+        self.result["dps"] = {"stat": {}}
 
         self.myHealStat = {}
 
@@ -131,6 +131,7 @@ class DpsReplayer(ReplayerBase):
                "mrdps": int(self.act.getRdps(player, "mrdps")),
                "mndps": int(self.act.getRdps(player, "mndps"))}
         self.result["dps"]["stat"] = res
+
         self.myDpsStat = res
 
 
@@ -445,6 +446,16 @@ class DpsReplayer(ReplayerBase):
         #
         #     elif event.dataType == "Battle":
         #         pass
+
+        self.sumPlayer = 0
+        for key in self.bld.info.player:
+            liveCount = self.battleDict[key].buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)  # 存活时间比例
+            if self.battleDict[key].sumTime(exclude=self.bh.badPeriodHealerLog) - liveCount < 8000:  # 脱战缓冲时间
+                liveCount = self.battleDict[key].sumTime(exclude=self.bh.badPeriodHealerLog)
+            self.battleTimeDict[key] = liveCount
+            self.sumPlayer += liveCount / self.battleDict[key].sumTime(exclude=self.bh.badPeriodHealerLog)
+
+        self.result["overall"]["numPlayer"] = int(self.sumPlayer * 100) / 100
 
         self.completeSecondState()
 

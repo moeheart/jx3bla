@@ -284,7 +284,7 @@ class DpsDisplayWindow(Window):
         frame9sub = tk.Frame(frame9)
         frame9sub.place(x=0, y=0)
 
-        # tk.Label(frame9, text="科技&五奶群：418483739").place(x=20, y=20)
+        tk.Label(frame9, text="当前心法详细复盘还未实现！").place(x=20, y=20)
         # tk.Label(frame9, text="奶花PVE群：294479046").place(x=20, y=40)
         if "shortID" in self.result["overall"]:
             tk.Label(frame9, text="复盘编号：%s"%self.result["overall"]["shortID"]).place(x=20, y=70)

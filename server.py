@@ -726,6 +726,7 @@ def receiveBattle(jdata, cursor):
     cursor.execute(sql)
 
     response['result'] = 'success'
+    response['hash'] = hash
     return response
 
 
@@ -807,7 +808,7 @@ def receiveReplay(jdata, cursor):
         if score > line[0]:
             numOver += 1
 
-    print(num, numOver)
+    # print(num, numOver)
 
     sql = '''SELECT shortID, public, editionfull, scoreRank from ReplayProStat WHERE hash = "%s"''' % hash
     cursor.execute(sql)
@@ -844,14 +845,14 @@ def receiveReplay(jdata, cursor):
     rhpsRank = getRankFromKeys(score, occ, map, boss, "stat", "rhps")
     hps = statistics["skill"]["healer"].get("hps", 0)
     hpsRank = getRankFromKeys(score, occ, map, boss, "stat", "hps")
-    rdps = 0
-    rdpsRank = 0
-    ndps = 0
-    ndpsRank = 0
-    mrdps = 0
-    mrdpsRank = 0
-    mndps = 0
-    mndpsRank = 0
+    rdps = statistics["skill"]["general"].get("rdps", 0)
+    rdpsRank = getRankFromKeys(score, occ, map, boss, "stat", "rdps")
+    ndps = statistics["skill"]["general"].get("ndps", 0)
+    ndpsRank = getRankFromKeys(score, occ, map, boss, "stat", "ndps")
+    mrdps = statistics["skill"]["general"].get("mrdps", 0)
+    mrdpsRank = getRankFromKeys(score, occ, map, boss, "stat", "mrdps")
+    mndps = statistics["skill"]["general"].get("mndps", 0)
+    mndpsRank = getRankFromKeys(score, occ, map, boss, "stat", "mndps")
     hold = 1
 
     print(server, id, occ, score, battleDate, mapDetail, boss, hash, shortID, public, edition, editionFull, replayedition, userID, battleTime,
@@ -873,7 +874,7 @@ def uploadReplayPro():
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     try:
-        res = receiveReplay(jdata, cursor)
+        res = receiveReplay(jdata, cursor, "-1")
         db.commit()
         db.close()
     except Exception as e:
@@ -890,16 +891,19 @@ def uploadCombinedData():
 
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
+    # battleID = "0"
     try:
+        for line in jdata["data"]:
+            if line["type"] == "battle":
+                # 整场战斗的数据
+                res = receiveBattle(line["data"], cursor)
+                res["id"] = line["id"]
+                groupRes["data"].append(res)
+                # battleID = res["hash"]
         for line in jdata["data"]:
             if line["type"] == "replay":
                 # 单个复盘
                 res = receiveReplay(line["data"], cursor)
-                res["id"] = line["id"]
-                groupRes["data"].append(res)
-            elif line["type"] == "battle":
-                # 整场战斗的数据
-                res = receiveBattle(line["data"], cursor)
                 res["id"] = line["id"]
                 groupRes["data"].append(res)
         db.commit()
@@ -924,7 +928,7 @@ def showReplayPro():
         text = "结果未找到."
     elif result[0][1] == 0:
         text = "数据未公开."
-    elif result[0][3] in ["xiangzhi", "lingsu", "lijingyidao", "butianjue", "yunchangxinjing"]:
+    elif result[0][3] != "unknown": #in ["xiangzhi", "lingsu", "lijingyidao", "butianjue", "yunchangxinjing"]:
         # 生成复盘页面
         occ = result[0][3]
         with open("database/ReplayProStat/%d" % result[0][0], "r") as f:
@@ -953,7 +957,7 @@ def getReplayPro():
     elif result[0][1] == 0:
         flag = 0
         text = "数据未公开."
-    elif result[0][3] in ["xiangzhi", "lingsu", "lijingyidao", "butianjue", "yunchangxinjing"]:
+    elif result[0][3] != "unknown":  # in ["xiangzhi", "lingsu", "lijingyidao", "butianjue", "yunchangxinjing"]:
         flag = 1
         occ = result[0][3]
         with open("database/ReplayProStat/%d" % result[0][0], "r") as f:
