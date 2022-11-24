@@ -84,7 +84,8 @@ def getExtraAttrib(occ, attrib):
     if occ in OCC_ATTRIB:
         attribDict = OCC_ATTRIB[occ]
     else:
-        print("[Not in dict]", occ)
+        pass
+        # print("心法判断失败3", occ)
     res = {}
     mainAttrib = attribDict["主属性"]
     value = attrib[mainAttrib]
@@ -172,7 +173,8 @@ class AttributeData():
         if self.occ in OCC_ATTRIB:
             attribDict = OCC_ATTRIB[self.occ]
         else:
-            print("[Not in dict]", self.occ)
+            pass
+            # print("心法判断失败", self.occ)
         # 计算增益
         playerType = attribDict["类型"]
         res["类型"] = playerType

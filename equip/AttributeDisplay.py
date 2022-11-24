@@ -35,7 +35,7 @@ class AttributeDisplay():
         if occ in OCC_ATTRIB:
             attribDict = OCC_ATTRIB[occ]
         else:
-            print("[Not in dict]", occ)
+            print("心法判断失败2", occ)
 
         # 计算属性
         playerType = attribDict["类型"]

@@ -1332,7 +1332,7 @@ class CombatTracker():
                 #     print("[PoZyhr]", rdpsRate, event.caster, self.info.getName(event.caster), event.damageEff)
 
                 for key in rdpsRate:
-                    # if key in ["2,9724,7", '"2,9724,7"']:
+                    # if key in ["2,10208,1", '"2,10208,1"']:
                     #     print("[rdpsRate]", rdpsRate, key)
                     #
                     # if self.info.getSkillName(key) == "毫针":

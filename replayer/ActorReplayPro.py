@@ -189,9 +189,12 @@ class ActorProReplayer(ReplayerBase):
                     self.bossAnalyseName = "李重茂"
 
                 # 通过技能确定具体心法
-                if event.caster in occDetailList and occDetailList[event.caster] in ['1', '2', '3', '4', '5', '6', '7', '10',
+                if event.caster in occDetailList and event.scheme == 1 and occDetailList[event.caster] in ['1', '2', '3', '4', '5', '6', '7', '10',
                                                                            '21', '22', '212']:
                     occDetailList[event.caster] = checkOccDetailBySkill(occDetailList[event.caster], event.id, event.damageEff)
+
+                # if (event.damageEff > 0 or event.healEff > 0 or True) and event.caster in occDetailList and occDetailList[event.caster] in ["3"]:
+                #     print("[Skill]", occDetailList[event.caster], event.id, self.bld.info.getSkillName(event.full_id), event.damageEff, event.healEff)
                     
             elif event.dataType == "Buff":
                 # 通过buff确定具体心法

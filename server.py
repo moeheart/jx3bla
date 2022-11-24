@@ -984,6 +984,36 @@ def getReplayPro():
     else:
         return jsonify({'available': 0, 'text': text})
 
+@app.route('/getBattle', methods=['GET'])
+def getBattle():
+    hash = request.args.get('hash')
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
+    cursor = db.cursor()
+    sql = """SELECT server, boss, battleDate, mapDetail, edition, battleTime, submitTime FROM ReplayProStat WHERE hash = "%s";"""%(hash)
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    flag = 0
+    if len(result) == 0:
+        flag = 0
+        text = "结果未找到."
+    else:
+        flag = 1
+        with open("database/ActorStat/%s" % hash, "r") as f:
+            text = f.read().replace('\n', '\\n').replace('\t', '\\t').replace("'", '"')
+        text1 = text
+        jResult = json.loads(text1)
+        act = {"available": 0}
+        if "act" in jResult:
+            act["available"] = 1
+            act = jResult["act"]
+    db.close()
+    if flag:
+        return jsonify({'available': 1, 'text': "请求成功", "act": act, "server": result[0][0], "boss": result[0][1],
+                        "battleDate": result[0][2], "mapDetail": result[0][3], "edition": result[0][4],
+                        "battleTime": result[0][5], "submitTime": result[0][6]})
+    else:
+        return jsonify({'available': 0, 'text': text})
+
 
 @app.route('/getMultiPlayer', methods=['GET'])
 def getMultiPlayer():

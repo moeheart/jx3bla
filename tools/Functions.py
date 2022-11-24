@@ -1003,9 +1003,9 @@ def checkOccDetailBySkill(default, skillID, damage):
         return '2d'
     elif skillID in ["101", "138", "14664", "28541"]:
         return '2h'
-    # elif skillID in ["444"]:
-    #     return '3d'
-    elif skillID in ["15115"]:
+    elif skillID in ["18740"]:
+        return '3d'
+    elif skillID in ["15115", "4094"]:
         return '3t'
     elif skillID in ["365", "2699"]:
         return '4p'
@@ -1023,13 +1023,13 @@ def checkOccDetailBySkill(default, skillID, damage):
         return '10d'
     elif skillID in ["3980", "3982", "3985"]:
         return '10t'
-    elif skillID in ["2210", "2211", "2227"]:
+    elif skillID in ["2210", "2211", "2227", "13472", "29573", "25019"]:
         return '6d'
     elif skillID in ["2232", "2233", "2957"]:
         return '6h'
-    elif skillID in ["3098", "3096", "18672"]:
+    elif skillID in ["3098", "3096", "18672", "3227"]:
         return '7p'
-    elif skillID in ["3357", "3111", "3109"]:
+    elif skillID in ["3357", "3111", "3109", "3401", "3228", "3105"]:
         return '7m'
     elif skillID in ["13391", "15072"]:
         return '21t'

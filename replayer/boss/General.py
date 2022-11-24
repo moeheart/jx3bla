@@ -165,6 +165,8 @@ class GeneralReplayer(SpecificReplayerPro):
         在战斗开始时的初始化流程，当第二阶段复盘开始时运行。
         '''
         self.initBattleBase()
+        self.initPhase(1, 1)
+
         self.activeBoss = "通用"
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
         self.bhInfo = {}

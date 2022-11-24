@@ -72,7 +72,8 @@ class BattleHistory():
             if line["iconid"] == "341":
                 print("[Unsolved]", formattedTime, t, id, name)
             else:
-                print("[Env]", formattedTime, t, id, name)
+                pass
+                # print("[Env]", formattedTime, t, id, name)
 
     def setEnvironmentInfo(self, infoDict):
         '''
