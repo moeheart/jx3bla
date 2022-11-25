@@ -160,8 +160,18 @@ sql = """CREATE TABLE InstanceInfo(
 sql = """CREATE TABLE ReplayProStatRank(
          name VARCHAR(128),
          number DOUBLE) DEFAULT CHARSET utf8mb4"""
-
 #ReplayProStatRank，记录统计的数据种类和值。
+
+sql = """CREATE TABLE EquipmentInfo(
+         id VARCHAR(32),
+         server VARCHAR(32),
+         uid VARCHAR(32),
+         occ VARCHAR(32),
+         equip VARCHAR(512),
+         time INT
+         ) DEFAULT CHARSET utf8mb4"""
+#EquipmentInfo，用于缓存玩家的装备表，这样在装备表读取失败时可以尝试补救
+# 注意id是玩家中文名（游戏ID），uid才是数字id
 
 db.commit()
 db.close()

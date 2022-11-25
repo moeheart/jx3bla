@@ -12,7 +12,7 @@ import os
 from tools.Functions import *
 from Constants import *
 from tools.Names import *
-from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
+from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment, ImportExcelEquipment
 
 # from equip.AttributeDisplay import AttributeDisplay  # 以后需要改为从服务器实现
 from equip.AttributeDisplayRemote import AttributeDisplayRemote
@@ -235,35 +235,39 @@ class ActorProReplayer(ReplayerBase):
         ea = EquipmentAnalyser()
         eee = ExcelExportEquipment()
         for id in self.bld.info.player:
+            flag = False  # 是否更新的标记
+            strEquip = ""
             if self.bld.info.player[id].equip == {}:  # 跳过获取不到装备的玩家.
-                # 仍然尝试获取json和str信息
                 if id in self.window.playerEquipment:
+                    # 从之前的战斗中直接读取缓存
                     jsonEquip2 = ea.convert2(self.window.playerEquipment[id], self.bld.info.player[id].equipScore)
                     strEquip2 = eee.export(jsonEquip2)
                     self.jsonEquip[id] = jsonEquip2
                     self.strEquip[id] = strEquip2
-                continue
-            flag = False  # 是否更新的标记
-            # equips = ea.convert2(self.bld.info.player[id].equip, self.bld.info.player[id].equipScore)
-            jsonEquip = ea.convert2(self.bld.info.player[id].equip, self.bld.info.player[id].equipScore)
-            strEquip = eee.export(jsonEquip)
-            self.equipmentDict[id] = jsonEquip
-            if id not in self.window.playerEquipment:
-                # 是否从未出现过
-                flag = True
-            else:
-                # 比较新旧装备是否一致
-                jsonEquip2 = ea.convert2(self.window.playerEquipment[id], self.bld.info.player[id].equipScore)
-                strEquip2 = eee.export(jsonEquip2)
-                if strEquip != strEquip2:
+                else:
+                    # 尝试从服务器空手套白狼
                     flag = True
-            self.jsonEquip[id] = jsonEquip
-            self.strEquip[id] = strEquip
+            else:
+                jsonEquip = ea.convert2(self.bld.info.player[id].equip, self.bld.info.player[id].equipScore)
+                strEquip = eee.export(jsonEquip)
+                self.equipmentDict[id] = jsonEquip  # TODO 只留一个
+                if id not in self.window.playerEquipment:
+                    # 是否从未出现过
+                    flag = True
+                else:
+                    # 比较新旧装备是否一致
+                    jsonEquip2 = ea.convert2(self.window.playerEquipment[id], self.bld.info.player[id].equipScore)
+                    strEquip2 = eee.export(jsonEquip2)
+                    if strEquip != strEquip2:
+                        flag = True
+                self.jsonEquip[id] = jsonEquip
+                self.strEquip[id] = strEquip
             if flag:  # 需要向服务器请求
                 self.window.playerEquipment[id] = self.bld.info.player[id].equip
-                requests["players"].append({"equipStr": strEquip, "id": id, "name": self.bld.info.getName(id), "occ": occDetailList[id]})
+                requests["players"].append({"equipStr": strEquip, "id": id, "name": self.bld.info.getName(id), "occ": occDetailList[id],
+                                            "server": self.bld.info.server})
 
-        # 向服务器请求. 这里先从本地计算，以后再改为服务器请求的逻辑. TODO
+        # 向服务器请求. 这里先从本地计算，以后再改为服务器请求的逻辑.
         # results = {}
         # ad = AttributeDisplay()
         # for playerEquip in requests["players"]:
@@ -274,15 +278,24 @@ class ActorProReplayer(ReplayerBase):
         results = adr.GetGroupAttributeAttrib(requests)
         # 结束
 
+        iee = ImportExcelEquipment
+
         # 记录服务器返回的结果
         for id in results:
+            if results[id]["status"] == "cached":
+                # 记录缓存的装备
+                print("获取缓存装备！", id, results[id]["strEquip"])
+                self.strEquip[id] = results[id]["strEquip"]
+                jsonEquip = iee.importData(results[id]["strEquip"])
+                self.jsonEquip[id] = jsonEquip
+                self.equipmentDict[id] = jsonEquip
             self.window.playerEquipmentAnalysed[id] = results[id]
 
         # 记录属性分析的结果
         self.baseAttribDict = {}
         self.panelAttribDict = {}
         for id in self.bld.info.player:
-            if id in self.window.playerEquipmentAnalysed:
+            if id in self.window.playerEquipmentAnalysed and self.window.playerEquipmentAnalysed[id]["status"] != "notfound":
                 self.baseAttribDict[id] = self.window.playerEquipmentAnalysed[id]["base"]
                 self.panelAttribDict[id] = self.window.playerEquipmentAnalysed[id]["panel"]
             else:

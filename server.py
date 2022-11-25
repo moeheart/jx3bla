@@ -102,10 +102,39 @@ def getGroupAttribute():
     requests = jdata
     results = {}
     ad = AttributeDisplay()
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
+    cursor = db.cursor()
+
     for playerEquip in requests["players"]:
-        results[playerEquip["id"]] = {}
-        results[playerEquip["id"]]["base"] = ad.GetBaseAttrib(playerEquip["equipStr"], playerEquip["occ"])
-        results[playerEquip["id"]]["panel"] = ad.GetPanelAttrib(playerEquip["equipStr"], playerEquip["occ"])
+        if playerEquip["equipStr"] != "":  # 有装备
+            results[playerEquip["id"]] = {}
+            results[playerEquip["id"]]["base"] = ad.GetBaseAttrib(playerEquip["equipStr"], playerEquip["occ"])
+            results[playerEquip["id"]]["panel"] = ad.GetPanelAttrib(playerEquip["equipStr"], playerEquip["occ"])
+            results[playerEquip["id"]]["status"] = "success"
+            # 记录当前的装备
+            sql = '''DELETE FROM EquipmentInfo WHERE id="%s" and server="%s" and occ="%s";''' % (
+                playerEquip["name"], playerEquip.get("server", "unknown"), playerEquip["occ"])
+            cursor.execute(sql)
+            sql = '''INSERT INTO EquipmentInfo VALUES ("%s", "%s", "%s", "%s", "%s", %d);''' % (
+                playerEquip["name"], playerEquip.get("server", "unknown"), playerEquip["id"], playerEquip["occ"], playerEquip["equipStr"], int(time.time()))
+            cursor.execute(sql)
+        else:  # 没有装备信息
+            # 尝试从数据库读取
+            sql = '''SELECT equip FROM EquipmentInfo WHERE id = "%s" AND server = "%s" and occ = "%s";''' % (
+                playerEquip["name"], playerEquip.get("server", "unknown"), playerEquip["occ"])
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            if result:
+                equipStr = result[0][0]
+                results[playerEquip["id"]]["status"] = "cached"
+                results[playerEquip["id"]]["equipStr"] = equipStr
+                results[playerEquip["id"]]["base"] = ad.GetBaseAttrib(equipStr, playerEquip["occ"])
+                results[playerEquip["id"]]["panel"] = ad.GetPanelAttrib(equipStr, playerEquip["occ"])
+            else:
+                results[playerEquip["id"]]["status"] = "notfound"
+
+    db.commit()
+    db.close()
     return jsonify(results)
 
 @app.route('/getPercentInfo', methods=['GET'])
