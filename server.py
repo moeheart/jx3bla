@@ -125,12 +125,14 @@ def getGroupAttribute():
             cursor.execute(sql)
             result = cursor.fetchall()
             if result:
+                results[playerEquip["id"]]
                 equipStr = result[0][0]
                 results[playerEquip["id"]]["status"] = "cached"
                 results[playerEquip["id"]]["equipStr"] = equipStr
                 results[playerEquip["id"]]["base"] = ad.GetBaseAttrib(equipStr, playerEquip["occ"])
                 results[playerEquip["id"]]["panel"] = ad.GetPanelAttrib(equipStr, playerEquip["occ"])
             else:
+                results[playerEquip["id"]]
                 results[playerEquip["id"]]["status"] = "notfound"
 
     db.commit()
