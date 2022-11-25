@@ -284,11 +284,13 @@ class ActorProReplayer(ReplayerBase):
         for id in results:
             if results[id]["status"] == "cached":
                 # 记录缓存的装备
-                print("获取缓存装备！", id, results[id]["equipStr"])
+                # print("获取缓存装备！", id, results[id]["equipStr"])
                 self.strEquip[id] = results[id]["equipStr"]
                 jsonEquip = iee.importData(results[id]["equipStr"])
                 jsonEquip["cached"] = 1
                 jsonEquip["score"] = results[id]["score"]
+                jsonEquip["sketch"] = ea.getSketch(jsonEquip)
+                jsonEquip["forge"] = ea.getForge(jsonEquip)
                 self.jsonEquip[id] = jsonEquip
                 self.equipmentDict[id] = jsonEquip
             self.window.playerEquipmentAnalysed[id] = results[id]

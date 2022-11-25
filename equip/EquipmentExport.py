@@ -664,6 +664,15 @@ class ImportExcelEquipment():
     装备导入类，将由https://www.jx3box.com/bbs/22011定义的格式转换为json格式.
     '''
     equips = {}
+
+    def getPlug(self, id):
+        plugDict = {"": 0, "24423": 1, "24424": 2, "24425": 3, "24426": 4, "24427": 5, "24428": 6, "24429": 7, "24430": 8,
+                    "24442": 1, "24443": 2, "24444": 3, "24445": 4, "24446": 5, "24447": 6, "24448": 7, "24449": 8}
+        if id not in plugDict:
+            return 0
+        else:
+            return plugDict[id]
+
     def importData(self, attrStr):
         '''
         转换.
@@ -679,7 +688,12 @@ class ImportExcelEquipment():
             single = line.split('\t')
             equip = {}
             for j in range(len(self.attribOrder)):
-                equip[self.attribOrder[j]] = single[j]
+                if self.attribOrder[j] in ["star"]:
+                    equip[self.attribOrder[j]] = int(single[j])
+                elif self.attribOrder[j] in ["plug1", "plug2", "plug3"]:
+                    equip[self.attribOrder[j]] = self.getPlug(single[j])
+                else:
+                    equip[self.attribOrder[j]] = single[j]
             equip["pos"] = self.orderTable[i]
             equip["id_cat"] = self.scemeTable[i]
             equip["id_full"] = "%s,%s"%(equip["id_cat"], equip["id"])
@@ -707,7 +721,7 @@ class EquipmentAnalyser():
         plugColor = 0
 
         for key in equips:
-            if key not in ["score", "description", "sketch"]:
+            if key not in ["score", "description", "sketch", "cached"]:
                 equip = equips[key]
                 id_full = "%s,%s"%(equip["id_cat"], equip["id"])
 
@@ -773,8 +787,9 @@ class EquipmentAnalyser():
         res = {"星演": 0, "惊尘": 0, "百相": 0, "择芳": 0, "展锋": 0, "揽江": 0, "切糕": 0, "精简": 0, "特效腰坠": 0, "特效武器": 0, "门派特效": 0, "大橙武": 0}
         
         for key in equips:
-            if key not in ["score", "description", "sketch"]:
+            if key not in ["score", "description", "sketch", "cached"]:
                 equip = equips[key]
+                # print("[Test]", equip)
                 id_full = "%s,%s"%(equip["id_cat"], equip["id"])
                 if id_full in EQUIPMENT_TYPE:
                     t = EQUIPMENT_TYPE[id_full]
