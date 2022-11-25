@@ -168,6 +168,7 @@ sql = """CREATE TABLE EquipmentInfo(
          uid VARCHAR(32),
          occ VARCHAR(32),
          equip VARCHAR(512),
+         score VARCHAR(8),
          time INT
          ) DEFAULT CHARSET utf8mb4"""
 #EquipmentInfo，用于缓存玩家的装备表，这样在装备表读取失败时可以尝试补救

@@ -265,7 +265,7 @@ class ActorProReplayer(ReplayerBase):
             if flag:  # 需要向服务器请求
                 self.window.playerEquipment[id] = self.bld.info.player[id].equip
                 requests["players"].append({"equipStr": strEquip, "id": id, "name": self.bld.info.getName(id), "occ": occDetailList[id],
-                                            "server": self.bld.info.server})
+                                            "server": self.bld.info.server, "score": self.bld.info.player[id].equipScore})
 
         # 向服务器请求. 这里先从本地计算，以后再改为服务器请求的逻辑.
         # results = {}
@@ -278,15 +278,17 @@ class ActorProReplayer(ReplayerBase):
         results = adr.GetGroupAttributeAttrib(requests)
         # 结束
 
-        iee = ImportExcelEquipment
+        iee = ImportExcelEquipment()
 
         # 记录服务器返回的结果
         for id in results:
             if results[id]["status"] == "cached":
                 # 记录缓存的装备
-                print("获取缓存装备！", id, results[id]["strEquip"])
-                self.strEquip[id] = results[id]["strEquip"]
-                jsonEquip = iee.importData(results[id]["strEquip"])
+                print("获取缓存装备！", id, results[id]["equipStr"])
+                self.strEquip[id] = results[id]["equipStr"]
+                jsonEquip = iee.importData(results[id]["equipStr"])
+                jsonEquip["cached"] = 1
+                jsonEquip["score"] = results[id]["score"]
                 self.jsonEquip[id] = jsonEquip
                 self.equipmentDict[id] = jsonEquip
             self.window.playerEquipmentAnalysed[id] = results[id]

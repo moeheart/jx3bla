@@ -115,12 +115,12 @@ def getGroupAttribute():
             sql = '''DELETE FROM EquipmentInfo WHERE id="%s" and server="%s" and occ="%s";''' % (
                 playerEquip["name"], playerEquip.get("server", "unknown"), playerEquip["occ"])
             cursor.execute(sql)
-            sql = '''INSERT INTO EquipmentInfo VALUES ("%s", "%s", "%s", "%s", "%s", %d);''' % (
-                playerEquip["name"], playerEquip.get("server", "unknown"), playerEquip["id"], playerEquip["occ"], playerEquip["equipStr"], int(time.time()))
+            sql = '''INSERT INTO EquipmentInfo VALUES ("%s", "%s", "%s", "%s", "%s", "%s", %d);''' % (
+                playerEquip["name"], playerEquip.get("server", "unknown"), playerEquip["id"], playerEquip["occ"], playerEquip["equipStr"], playerEquip["score"], int(time.time()))
             cursor.execute(sql)
         else:  # 没有装备信息
             # 尝试从数据库读取
-            sql = '''SELECT equip FROM EquipmentInfo WHERE id = "%s" AND server = "%s" and occ = "%s";''' % (
+            sql = '''SELECT equip, score FROM EquipmentInfo WHERE id = "%s" AND server = "%s" and occ = "%s";''' % (
                 playerEquip["name"], playerEquip.get("server", "unknown"), playerEquip["occ"])
             cursor.execute(sql)
             result = cursor.fetchall()
@@ -129,6 +129,7 @@ def getGroupAttribute():
                 equipStr = result[0][0]
                 results[playerEquip["id"]]["status"] = "cached"
                 results[playerEquip["id"]]["equipStr"] = equipStr
+                results[playerEquip["id"]]["score"] = result[0][1]
                 results[playerEquip["id"]]["base"] = ad.GetBaseAttrib(equipStr, playerEquip["occ"])
                 results[playerEquip["id"]]["panel"] = ad.GetPanelAttrib(equipStr, playerEquip["occ"])
             else:
