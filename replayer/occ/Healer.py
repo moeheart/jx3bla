@@ -562,10 +562,12 @@ class HealerReplay(ReplayerBase):
         # if self.bld.info.player[self.mykey].equip != {} and "beta" not in EDITION:
             # TODO 验证
             self.result["equip"]["available"] = 1
-            ea = EquipmentAnalyser()
-            jsonEquip = ea.convert2(self.bld.info.player[self.mykey].equip, self.bld.info.player[self.mykey].equipScore)
-            eee = ExcelExportEquipment()
-            strEquip = eee.export(jsonEquip)
+            # ea = EquipmentAnalyser()
+            # jsonEquip = ea.convert2(self.bld.info.player[self.mykey].equip, self.bld.info.player[self.mykey].equipScore)
+            # eee = ExcelExportEquipment()
+            # strEquip = eee.export(jsonEquip)
+            jsonEquip = self.jsonEquip[self.mykey]
+            strEquip = self.strEquip[self.mykey]
             # adr = AttributeDisplayRemote()
             # res = adr.Display(strEquip, self.occCode)
             # self.result["equip"]["score"] = int(self.bld.info.player[self.mykey].equipScore)

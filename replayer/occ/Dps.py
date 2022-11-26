@@ -276,11 +276,14 @@ class DpsReplayer(ReplayerBase):
         if self.mykey in self.equip and self.equip[self.mykey] is not None:
             # TODO 验证
             self.result["equip"]["available"] = 1
-            ea = EquipmentAnalyser()
-            jsonEquip = ea.convert2(self.bld.info.player[self.mykey].equip, self.bld.info.player[self.mykey].equipScore)
-            eee = ExcelExportEquipment()
-            strEquip = eee.export(jsonEquip)
+            # ea = EquipmentAnalyser()
+            # jsonEquip = ea.convert2(self.bld.info.player[self.mykey].equip, self.bld.info.player[self.mykey].equipScore)
+            # eee = ExcelExportEquipment()
+            # strEquip = eee.export(jsonEquip)
+            jsonEquip = self.jsonEquip[self.mykey]
+            strEquip = self.strEquip[self.mykey]
             res = self.equip[self.mykey]
+            # print("[Equip2]", jsonEquip)
             self.result["equip"]["score"] = str(jsonEquip.get("score", 0))  # int(self.bld.info.player[self.mykey].equipScore)
             if jsonEquip.get("cached", 0) == 1:
                 self.result["equip"]["score"] += "*"

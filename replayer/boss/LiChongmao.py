@@ -167,9 +167,9 @@ class LiChongmaoReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"把这些逆贼打入天牢！"']:
                 pass
-            elif event.content in ['"是。"']:
+            elif event.content in ['"朕没有错！是天下人负了朕！"']:
                 pass
-            elif event.content in ['"什么人？"']:
+            elif event.content in ['"师兄.....师兄你在哪？有人要害我！"']:
                 pass
             elif event.content in ['"啧……"']:
                 pass
@@ -246,7 +246,7 @@ class LiChongmaoReplayer(SpecificReplayerPro):
 
         self.bhBlackList.extend(["n112037", "n112576", "s32339", "b24289", "c32634", "c33075", "s33076", "c32596",
                                  "b24079", "n112030", "c32075", "b24338", "s32634", "s32596",
-                                 "n112523", "n112520", "n112521", "n112493", "n113449",  # P1
+                                 "n112523", "n112520", "n112521", "n112493", "n113449", "n112506",  # P1
                                  "b24085", "b24270", "s32331", "b24078", "s32340", "s32632", "b20485", "s32631",    # P2
                                  "b24589", "s33085", "s33086", "s33079", "s33080", "n112044", "s33078", "c33087",
                                  "b24593", "b24591", "b24853",  # P3

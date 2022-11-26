@@ -244,9 +244,13 @@ class ActorProReplayer(ReplayerBase):
                     strEquip2 = eee.export(jsonEquip2)
                     self.jsonEquip[id] = jsonEquip2
                     self.strEquip[id] = strEquip2
+                    self.equipmentDict[id] = jsonEquip2
                 else:
                     # 尝试从服务器空手套白狼
                     flag = True
+                    jsonEquip = {"score": self.bld.info.player[id].equipScore, "sketch": "", "forge": ""}
+                    self.jsonEquip[id] = jsonEquip
+                    self.equipmentDict[id] = jsonEquip
             else:
                 jsonEquip = ea.convert2(self.bld.info.player[id].equip, self.bld.info.player[id].equipScore)
                 strEquip = eee.export(jsonEquip)
@@ -293,6 +297,7 @@ class ActorProReplayer(ReplayerBase):
                 jsonEquip["forge"] = ea.getForge(jsonEquip)
                 self.jsonEquip[id] = jsonEquip
                 self.equipmentDict[id] = jsonEquip
+                # print("[Equip1]", jsonEquip)
             self.window.playerEquipmentAnalysed[id] = results[id]
 
         # 记录属性分析的结果
@@ -493,7 +498,6 @@ class ActorProReplayer(ReplayerBase):
                                 deathHitDetail[guHuo].append([event.time, self.bld.info.getSkillName(event.full_id)+"(蛊惑)", int(int(event.healEff) / 2), event.caster, 1, event.effect, 0])
 
                 elif event.target in self.bld.info.npc:
-
                     # 检查反弹
                     if event.damage != 0 and event.damageEff == 0:
                         deathHit[event.caster] = [event.time, self.bld.info.getSkillName(event.full_id), event.damage]
@@ -954,6 +958,8 @@ class ActorProReplayer(ReplayerBase):
         actorData["hash"] = self.hashGroup()
         actorData["boss"] = self.bossAnalyseName
         actorData["equip"] = self.panelAttribDict
+        actorData["jsonEquip"] = self.jsonEquip
+        actorData["strEquip"] = self.strEquip
         # actorData["zhenyanInfer"] = self.zhenyanInfer  # TODO 在dps统计中可能会用到
         for id in self.bld.info.player:
             name = self.bld.info.player[id].name

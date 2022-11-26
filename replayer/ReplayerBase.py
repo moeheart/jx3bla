@@ -213,6 +213,8 @@ class ReplayerBase():
             self.act = actorData["act"]
             self.battleID = actorData["hash"]
             self.equip = actorData["equip"]
+            self.jsonEquip = actorData["jsonEquip"]
+            self.strEquip = actorData["strEquip"]
         # self.myname = myname
         self.failThreshold = config.item["actor"]["failthreshold"]
         self.mask = config.item["general"]["mask"]

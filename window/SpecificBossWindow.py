@@ -106,7 +106,7 @@ class SpecificBossWindow(Window):
         tb.AppendHeader("玩家名", "", width=13)
         tb.AppendHeader("有效DPS", "全程DPS。与游戏中不同的是，重伤时间也会被计算在内。")
         tb.AppendHeader("团队-心法DPS", "综合考虑当前团队情况与对应心法的全局表现，计算的百分比。平均水平为100%。")
-        tb.AppendHeader("装分", "玩家的装分，可能会获取失败。")
+        tb.AppendHeader("装分", "玩家的装分，可能会获取失败。\n被星号标记的装分表示对应的装备已经获取失败，但服务器可以从最近的战斗记录中读取到缓存。")
         tb.AppendHeader("详情", "装备详细描述，暂未完全实装。")
         tb.AppendHeader("强化", "装备强化列表，表示[精炼满级装备数量]/[插8]-[插7]-[插6]/[五彩石等级]/[紫色附魔]-[蓝色附魔]/[大附魔：手腰脚头衣裤]")
         tb.AppendHeader("被控", "受到影响无法正常输出的时间，以秒计。\n%s" % stunDescription)
