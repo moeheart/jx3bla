@@ -1021,9 +1021,9 @@ class ActorProReplayer(ReplayerBase):
         else:
             self.bossNamePrint = "%s.%d" % (self.bossname, self.numTry)
 
-        self.qualifiedRate = config.item["actor"]["qualifiedrate"]  # qualifiedRate
-        self.alertRate = config.item["actor"]["alertrate"]  # alertRate
-        self.bonusRate = config.item["actor"]["bonusrate"]  # bonusRate
+        # self.qualifiedRate = config.item["actor"]["qualifiedrate"]  # qualifiedRate
+        # self.alertRate = config.item["actor"]["alertrate"]  # alertRate
+        # self.bonusRate = config.item["actor"]["bonusrate"]  # bonusRate
 
         # 复盘结果信息
         self.potList = []
