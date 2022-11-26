@@ -97,6 +97,8 @@ class SpecificReplayerPro():
         line = self.stat[id]
         if id in self.equipmentDict:
             line[4] = self.equipmentDict[id]["score"]
+            if self.equipmentDict[id].get("cached", 0) == 1:
+                line[4] = line[4] + "*"
             line[5] = "%s|%s" % (self.equipmentDict[id]["sketch"], self.equipmentDict[id]["forge"])
         else:
             line[5] = "|"

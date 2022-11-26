@@ -839,6 +839,7 @@ def receiveReplay(jdata, cursor):
         num += 1
         if score > line[0]:
             numOver += 1
+    numSameOcc = num
 
     # print(num, numOver)
 
@@ -896,7 +897,7 @@ def receiveReplay(jdata, cursor):
         submitTime, battleID, scoreRank, rhps, rhpsRank, hps, hpsRank, rdps, rdpsRank, ndps, ndpsRank, mrdps, mrdpsRank, mndps, mndpsRank, hold)
     cursor.execute(sql)
 
-    return {'result': 'success', 'num': num, 'numOver': numOver, 'shortID': shortID, 'scoreRank': scoreRank}
+    return {'result': 'success', 'num': numSameOcc, 'numOver': numOver, 'shortID': shortID, 'scoreRank': scoreRank}
 
 
 @app.route('/uploadReplayPro', methods=['POST'])

@@ -448,9 +448,9 @@ class LiveListener():
         '''
         self.basepath = basepath
         self.config = config
-        self.dpsThreshold = {"qualifiedRate": config.item["actor"]["qualifiedrate"],
-                             "alertRate": config.item["actor"]["alertrate"],
-                             "bonusRate": config.item["actor"]["bonusrate"]}
+        # self.dpsThreshold = {"qualifiedRate": config.item["actor"]["qualifiedrate"],
+        #                      "alertRate": config.item["actor"]["alertrate"],
+        #                      "bonusRate": config.item["actor"]["bonusrate"]}
         self.analyser = analyser
         self.mainWindow = mainWindow
         

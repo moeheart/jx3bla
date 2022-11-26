@@ -640,10 +640,10 @@ class XiangZhiProReplayer(HealerReplay):
                     #print("[xzAnXiang]", parseTime((event.time - self.startTime)/1000), self.bld.info.getName(event.caster), self.bld.info.getName(event.target) )
 
             elif event.dataType == "Buff":
-                if event.id in ["9459", "9460", "9461", "9462"] and event.caster == self.mykey:  # 商
+                if event.id in ["9459", "9460", "9461", "9462"] and event.caster == self.mykey and event.target in shangBuffDict:  # 商
                     shangBuffDict[event.target].setState(event.time, event.stack, int((event.end - event.frame + 3) * 62.5))
                     # teamLog, teamLastTime = countCluster(teamLog, teamLastTime, event)
-                if event.id in ["9463", "9464", "9465", "9466"] and event.caster == self.mykey:  # 角
+                if event.id in ["9463", "9464", "9465", "9466"] and event.caster == self.mykey and event.target in jueBuffDict:  # 角
                     jueBuffDict[event.target].setState(event.time, event.stack, int((event.end - event.frame + 3) * 62.5))
                     # teamLog, teamLastTime = countCluster(teamLog, teamLastTime, event)
                     if event.stack == 1:

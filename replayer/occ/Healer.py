@@ -584,7 +584,9 @@ class HealerReplay(ReplayerBase):
             #     self.haste = self.result["equip"]["haste"]
             # self.result["equip"]["raw"] = strEquip
             res = self.equip[self.mykey]
-            self.result["equip"]["score"] = int(self.bld.info.player[self.mykey].equipScore)
+            self.result["equip"]["score"] = str(jsonEquip.get("score", 0))  # int(self.bld.info.player[self.mykey].equipScore)
+            if jsonEquip.get("cached", 0) == 1:
+                self.result["equip"]["score"] += "*"
             self.result["equip"]["sketch"] = jsonEquip["sketch"]
             self.result["equip"]["forge"] = jsonEquip["forge"]
             self.result["equip"]["spirit"] = res["根骨"]
