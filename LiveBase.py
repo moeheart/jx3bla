@@ -385,11 +385,18 @@ class LiveListener():
             self.mainWindow.setNotice({"t1": "[%s]分析完成！"%actorRep.bossname, "c1": "#000000"})
         
         window = SingleBossWindow(self.analyser, self.bossNum, self.mainWindow)
-
         self.window = window
         window.addPotList(actorRep.potList)
         window.setDetail(actorRep.potList, actorRep.effectiveDPSList, actorRep.detail, actorRep.occResult, actorRep.actorData)
         window.openDetailWindow()
+
+        potListScore = []
+        for i in range(len(actorRep.potList)):
+            if len(actorRep.potList[i]) <= 6:
+                potListScore.append(actorRep.potList[i] + [0])
+            else:
+                potListScore.append(actorRep.potList[i])
+        self.analyser.addResult(potListScore, self.bossNum, actorRep.effectiveDPSList, actorRep.detail, actorRep.occResult, actorRep.actorData)
 
         self.mainWindow.notifier.show("分锅结果已生成", "[%s]的战斗复盘已经解析完毕，请打开结果界面分锅。"%actorRep.bossname)
 

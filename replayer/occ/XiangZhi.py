@@ -234,6 +234,7 @@ class XiangZhiProWindow(HealerDisplayWindow):
                 record = {"skillname": "Final", "start": 999999999999}
             else:
                 record = self.result["replay"]["normal"][i]
+            # print("[XiangzhiTest]", record)
             if record["skillname"] != lastName or record["start"] - lastStart > 3000:
                 if j == -1:
                     j = i
@@ -388,9 +389,12 @@ class XiangZhiProReplayer(HealerReplay):
 
         self.result["overall"]["calTank"] = self.config.item["xiangzhi"]["caltank"]
         self.shieldCountersNew = {}
+        self.anxiangTimeDict = {}
+        self.anxiangTimeIndex = {}
         for key in self.bld.info.player:
             self.shieldCountersNew[key] = ShieldCounterNew("16911", self.startTime, self.finalTime)
-
+            self.anxiangTimeDict[key] = [0]
+            self.anxiangTimeIndex[key] = 0
         for event in self.bld.log:
 
             if event.time < self.startTime:
@@ -409,6 +413,9 @@ class XiangZhiProReplayer(HealerReplay):
                         jianLiaoStack = self.jianLiaoLog[event.target].checkState(event.time)
                     if jianLiaoStack < 20:
                         self.shieldCountersNew[event.target].setState(event.time, 1)
+                # 记录暗香，用于判断后面贴盾的来源
+                if event.id == "32684" and event.target in self.bld.info.player:
+                    self.anxiangTimeDict[event.target].append(event.time)
 
             elif event.dataType == "Buff":
                 if event.id in ["9334", "16911"] and event.caster == self.mykey:  # buff梅花三弄
@@ -540,6 +547,9 @@ class XiangZhiProReplayer(HealerReplay):
                     continue
 
                 if event.caster == self.mykey and event.scheme == 1:
+
+                    # print("[XiangzhiMeihua]", event.time, event.id, self.bld.info.getSkillName(event.full_id), event.target, self.bld.info.getName(event.target), event.heal, event.healEff)
+
                     if event.id in self.nonGcdSkillIndex:  # 特殊技能
                         desc = ""
                         if event.id in ["18838", "18839"]:
@@ -638,6 +648,7 @@ class XiangZhiProReplayer(HealerReplay):
                 if event.caster == self.mykey and event.id in ["32684"] and event.target in self.bld.info.player:
                     numAnxiang += 1
                     #print("[xzAnXiang]", parseTime((event.time - self.startTime)/1000), self.bld.info.getName(event.caster), self.bld.info.getName(event.target) )
+
 
             elif event.dataType == "Buff":
                 if event.id in ["9459", "9460", "9461", "9462"] and event.caster == self.mykey and event.target in shangBuffDict:  # 商
@@ -860,7 +871,7 @@ class XiangZhiProReplayer(HealerReplay):
         self.result["replay"]["heatType"] = "combined"
         self.result["replay"]["heat"] = {"interval": 500, "timeline": [overallShieldHeat["timeline"], hotHeat]}
 
-        self.specialKey = {"meihua-num": 20, "general-efficiency": 20, "zhi-numPerSec": 10, "healer-rhps": 20}
+        self.specialKey = {"meihua-cover": 20, "general-efficiency": 20, "zhi-numPerSec": 10, "healer-rhps": 20}
         self.markedSkill = ["14082"]
         self.outstandingSkill = []
         self.calculateSkillOverall()

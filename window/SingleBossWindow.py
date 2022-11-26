@@ -279,6 +279,9 @@ class SingleBossWindow(Window):
             assert len(self.potList[i]) == 7
             self.scoreList.append(self.potList[i][6])
 
+        print("[LiveTest]", self.analyser.checkBossExists(self.bossNum))
+        print("[LiveTest]", self.bossNum)
+
         if not self.analyser.checkBossExists(self.bossNum):
             self.analyser.addResult(self.potList, self.bossNum, self.effectiveDPSList, self.detail, self.occResult,
                                     self.analysedBattleData)

@@ -386,6 +386,17 @@ class HealerReplay(ReplayerBase):
                     self.wastedMoyi += nowMoyi - maxMoyi
                     nowMoyi = maxMoyi
                 self.moyiInfer.append([event.time, nowMoyi])
+        elif self.occ == "xiangzhi":
+            # 暗香的特殊判断
+            if event.id == "14231" and event.target in self.anxiangTimeDict:
+                # 滚动
+                while self.anxiangTimeIndex[event.target] < len(self.anxiangTimeDict[event.target]) and \
+                        self.anxiangTimeDict[event.target][self.anxiangTimeIndex[event.target]] + 50 < event.time:
+                    self.anxiangTimeIndex[event.target] += 1
+                # 判断是否在暗香刷盾的时间点附近，如果是就跳过
+                if self.anxiangTimeIndex[event.target] < len(self.anxiangTimeDict[event.target]) and \
+                        abs(event.time - self.anxiangTimeDict[event.target][self.anxiangTimeIndex[event.target]]) < 100:
+                    skip = 1
         if not skip:
             ss.analyseSkill(event, castTime, line[0], tunnel=line[6], hasteAffected=line[7])
             targetName = "Unknown"
