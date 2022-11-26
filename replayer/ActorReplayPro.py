@@ -830,7 +830,7 @@ class ActorProReplayer(ReplayerBase):
             earliestHit = 0
             earliestTankHit = 0
             for name in self.firstHitList:
-                if self.firstHitList[name] == 0:
+                if self.firstHitList[name][1] == "":
                     continue
                 if self.firstHitList[name][1][0] in ["#", "1", "2"] and self.firstHitList[name][2] == "":
                     continue
