@@ -133,7 +133,7 @@ class SpecificBossWindow(Window):
 
         text4 = "-"
         if line[4] != -1:
-            text4 = int(line[4])
+            text4 = str(line[4])
         color4 = "#000000"
         if "大橙武" in line[5]:
             color4 = "#ffcc00"

@@ -221,7 +221,7 @@ class ActorProReplayer(ReplayerBase):
             self.battleTime = self.finalTime - self.startTime
 
         for id in self.bld.info.player:
-            self.firstHitList[id] = 0
+            self.firstHitList[id] = [0, "", "", 0]
 
         self.occDetailList = occDetailList
 
@@ -476,7 +476,7 @@ class ActorProReplayer(ReplayerBase):
 
                     # 普通治疗
                     if event.heal != 0:
-                        if event.heal > event.healEff and self.bossAnalyseName != "宫傲":
+                        if event.heal > event.healEff and self.bossAnalyseName not in ["宫傲", "李重茂"]:
                             if event.target in deathHitDetail:
                                 deathHitDetail[event.target] = []
                         else:
@@ -506,7 +506,7 @@ class ActorProReplayer(ReplayerBase):
                     if event.caster in self.bld.info.player and event.heal == 0:
                         if event.id in ["2516"]:
                             pass
-                        elif self.firstHitList[event.caster] == 0:
+                        elif self.firstHitList[event.caster][1] == "":
                             #print(event.full_id)
                             #print(self.bld.info.skill[event.full_id])
                             self.firstHitList[event.caster] = [event.time, self.bld.info.getSkillName(event.full_id), "", 0]
@@ -592,6 +592,29 @@ class ActorProReplayer(ReplayerBase):
                     if event.time - self.startTime < 60000:  # 假设起始时有这个buff
                         self.zxyzPrecast = 1
 
+                if event.id in ["24941"] and event.stack > 0 and event.target in deathHitDetail:  # 李重茂业障复盘
+                    deathSourceDetail = ["血量变化记录："]
+                    deathTime = parseTime((event.time - self.startTime) / 1000)
+                    for line in deathHitDetail[event.target]:
+                        name = self.bld.info.getName(line[3])
+                        resultStr = ""
+                        if line[5] > 0 and line[5] <= 7:
+                            resultStr = ["", "(招架)", "(免疫)", "(偏离)", "(闪避)", "(会心)", "(识破)", "(化解)"][line[5]]
+                        if line[4] == -1:
+                            deathSourceDetail.append("-%s, %s:%s%s(%d)" % (
+                            parseTime((int(line[0]) - self.startTime) / 1000), name, line[1], resultStr, line[2]))
+                        elif line[4] == 1:
+                            deathSourceDetail.append("+%s, %s:%s%s(%d)" % (
+                            parseTime((int(line[0]) - self.startTime) / 1000), name, line[1], resultStr, line[2]))
+
+                    self.bossAnalyser.addPot([self.bld.info.player[event.target].name,
+                                              occDetailList[event.target],
+                                              0,
+                                              self.bossNamePrint,
+                                              "%s叠加业障debuff到%d层" % (deathTime, event.stack),
+                                              deathSourceDetail,
+                                              0])
+
             elif event.dataType == "Death":  # 重伤记录
                 
                 # if item[4] not in occdict or occdict[item[4]][0] == '0':
@@ -632,11 +655,12 @@ class ActorProReplayer(ReplayerBase):
                 if event.id in deathHitDetail:
                     deathSourceDetail = ["血量变化记录："]
                     for line in deathHitDetail[event.id]:
-                        name = "未知"
-                        if line[3] in self.bld.info.player:
-                            name = self.bld.info.player[line[3]].name
-                        elif line[3] in self.bld.info.npc:
-                            name = self.bld.info.npc[line[3]].name
+                        # name = "未知"
+                        # if line[3] in self.bld.info.player:
+                        #     name = self.bld.info.player[line[3]].name
+                        # elif line[3] in self.bld.info.npc:
+                        #     name = self.bld.info.npc[line[3]].name
+                        name = self.bld.info.getName(line[3])
                         resultStr = ""
                         if line[5] > 0 and line[5] <= 7:
                             resultStr = ["", "(招架)", "(免疫)", "(偏离)", "(闪避)", "(会心)", "(识破)", "(化解)"][line[5]]
@@ -673,7 +697,7 @@ class ActorProReplayer(ReplayerBase):
                     self.deathDict[event.id]["num"] += 1
                     self.deathDict[event.id]["log"].append(lastLine)
 
-                    if damageSum1 < 250000 and damageSum5 < 300000 and lastFatal:
+                    if damageSum1 < 350000 and damageSum5 < 550000 and lastFatal:
                         # 非正常死亡界限值，需要随版本更新
                         self.unusualDeathDict[event.id]["num"] += 1
                         self.unusualDeathDict[event.id]["log"].append(lastLine)
