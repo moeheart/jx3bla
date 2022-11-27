@@ -193,7 +193,7 @@ class ActorProReplayer(ReplayerBase):
                                                                            '21', '22', '212']:
                     occDetailList[event.caster] = checkOccDetailBySkill(occDetailList[event.caster], event.id, event.damageEff)
 
-                # if (event.damageEff > 0 or event.healEff > 0 or True) and event.caster in occDetailList and occDetailList[event.caster] in ["3"]:
+                # if (event.damageEff > 0 or event.healEff > 0 or True) and event.caster in occDetailList and occDetailList[event.caster] in ["10"]:
                 #     print("[Skill]", occDetailList[event.caster], event.id, self.bld.info.getSkillName(event.full_id), event.damageEff, event.healEff)
                     
             elif event.dataType == "Buff":

@@ -728,10 +728,10 @@ class BuTianJueReplayer(HealerReplay):
         # 杂项
         self.calculateSkillInfoDirect("dx", dxSkill)  # 蝶旋
         self.result["skill"]["nvwa"] = {}
+        num = self.battleTimeDict[self.mykey]
         sum = nvwaDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
         self.result["skill"]["nvwa"]["cover"] = roundCent(safe_divide(sum, num))
         self.result["skill"]["ghzs"] = {}
-        num = self.battleTimeDict[self.mykey]
         sum = ghzsDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
         self.result["skill"]["ghzs"]["cover"] = roundCent(safe_divide(sum, num))
         ghzsHps = 0

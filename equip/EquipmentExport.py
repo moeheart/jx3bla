@@ -714,6 +714,10 @@ class EquipmentAnalyser():
         '''
         根据全身装备，得到装备的打造信息（精炼、镶嵌、五彩石、小附魔、大附魔）
         '''
+
+        if '2' not in equips:
+            return ""
+
         refine = 0
         plug = [0] * 9
         magic1 = [0] * 13
@@ -784,6 +788,10 @@ class EquipmentAnalyser():
         '''
         根据全身装备，得到简要的装备说明（如4惊尘，2精简，大橙武）
         '''
+
+        if '2' not in equips:
+            return ""
+
         res = {"星演": 0, "惊尘": 0, "百相": 0, "择芳": 0, "展锋": 0, "揽江": 0, "切糕": 0, "精简": 0, "特效腰坠": 0, "特效武器": 0, "门派特效": 0, "大橙武": 0}
         
         for key in equips:

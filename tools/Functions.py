@@ -1019,7 +1019,7 @@ def checkOccDetailBySkill(default, skillID, damage):
         return '1d'
     elif skillID in ["2589", "246", "15195"]:
         return '1t'
-    elif skillID in ["3979"]:
+    elif skillID in ["3979", "26916", "6735"]:
         return '10d'
     elif skillID in ["3980", "3982", "3985"]:
         return '10t'

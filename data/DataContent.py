@@ -455,13 +455,17 @@ class OverallData():
             self.player[key] = NPCdata()
             self.player[key].name = name.strip('"')
             self.player[key].occ = occ
+            self.player[key].equip = {}
+            return True
+        elif self.player[key].name == "" or self.player[key].occ == "":
+            self.player[key].name = name.strip('"')
+            self.player[key].occ = occ
+            self.player[key].equip = {}
+            return True
+        elif self.player[key].equip == {}:
             return True
         else:
-            if self.player[key].name == "" or self.player[key].occ == "":
-                self.player[key].name = name.strip('"')
-                self.player[key].occ = occ
-                return True
-        return False
+            return False
 
     def addNPC(self, key, name):
         '''
