@@ -25,7 +25,7 @@ def getSingleStat(record):
     key1 = record[2]
     key2 = getIDFromMap(record[5])
     key3 = record[6]
-    edition = record[11]
+    edition = record[10]
     if key2 not in MAP_DICT_RECORD_LOGS:
         return {}
     if key3 not in BOSS_RAW:

@@ -46,7 +46,6 @@ sql = """CREATE TABLE ReplayProStat (
          boss VARCHAR(32),
          hash VARCHAR(32) primary key,
          shortID INT,
-         statistics MEDIUMBLOB,
          public INT,
          edition VARCHAR(32),
          editionfull INT,
