@@ -821,9 +821,9 @@ class EquipmentAnalyser():
         elif res["择芳"] >= 2:
             sketch.append("2择芳")
         elif res["展锋"] >= 2:
-            sketch.append("2择芳")
+            sketch.append("2展锋")
         elif res["揽江"] >= 2:
-            sketch.append("2择芳")
+            sketch.append("2揽江")
             
         if res["切糕"] >= 1:
             sketch.append("%d切糕"%res["切糕"])
