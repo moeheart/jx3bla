@@ -828,7 +828,7 @@ def receiveReplay(jdata, cursor):
     if editionFull <= parseEdition("8.1.1"):
         score *= 100
 
-    sql = '''SELECT score from ReplayProStat WHERE mapdetail = "%s" and boss = "%s" and occ = "%s"''' % (mapDetail, boss, occ)
+    sql = '''SELECT score from ReplayProStat WHERE mapdetail = "%s" and boss = "%s" and occ = "%s" and editionfull >= %d''' % (mapDetail, boss, occ, parseEdition("8.3.5"))
     cursor.execute(sql)
     result = cursor.fetchall()
     num = 0
@@ -898,7 +898,6 @@ def receiveReplay(jdata, cursor):
     cursor.execute(sql)
 
     return {'result': 'success', 'num': numSameOcc, 'numOver': numOver, 'shortID': shortID, 'scoreRank': scoreRank}
-
 
 @app.route('/uploadReplayPro', methods=['POST'])
 def uploadReplayPro():
