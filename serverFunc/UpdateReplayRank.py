@@ -25,6 +25,7 @@ def getSingleStat(record):
     key1 = record[2]
     key2 = getIDFromMap(record[5])
     key3 = record[6]
+    edition = record[11]
     if key2 not in MAP_DICT_RECORD_LOGS:
         return {}
     if key3 not in BOSS_RAW:
@@ -56,24 +57,35 @@ def getSingleStat(record):
                     key = "%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5)
                     value = line[key5] * getDirection(key)
                     res[key] = value
+
     for id in STAT_ID:
-        key4 = "stat"
-        key5 = id
-        value = record[STAT_ID[id]]
-        if value is None:
-            continue
-        key = "%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5)
-        res[key] = value
+        if parseEdition(edition) >= parseEdition("8.3.5") or id != "score":
+            key4 = "stat"
+            key5 = id
+            value = record[STAT_ID[id]]
+            if value is None:
+                continue
+            key = "%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5)
+            res[key] = value
     return res
 
 def getAllStat(records):
     allResults = {}
     for record in records:
         res = getSingleStat(record)
+        uid = "%s-%s" % (record[0], record[1])
         for key in res:
             if key not in allResults:
-                allResults[key] = []
-            allResults[key].append(res[key])
+                allResults[key] = {}
+            if uid not in allResults[key]:
+                allResults[key][uid] = res[key]
+            else:
+                allResults[key][uid] = max(res[key], allResults[key][uid])
+    allFilteredResults = {}
+    for key in allResults:
+        allFilteredResults[key] = []
+        for uid in allResults[key]:
+            allFilteredResults[key].append(allResults[key][uid])
     return allResults
 
 def getPercent(records):
@@ -148,8 +160,10 @@ def updatePercent(raw_rank, cursor, db):
                 sql = """UPDATE ReplayProStat SET %sRank = %d WHERE hash = '%s'""" % (id, rank, hash)
                 cursor.execute(sql)
             # print("updated!")
-        sql = """UPDATE ReplayProStat SET hold=0 WHERE hash = '%s'""" % hash
-        cursor.execute(sql)
+
+        # TODO 在一周后恢复
+        # sql = """UPDATE ReplayProStat SET hold=0 WHERE hash = '%s'""" % hash
+        # cursor.execute(sql)
 
         # print("Complete: ", shortID)
         db.commit()
