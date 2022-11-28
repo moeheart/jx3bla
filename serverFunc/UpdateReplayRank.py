@@ -46,15 +46,16 @@ def getSingleStat(record):
             if "delay" in key and value == 0:
                 value = -9999
             res[key] = value
-    for line in d["healer"]["table"]:
-        if line["name"] == record[1]:
-            key4 = "healer"
-            for key5 in ["heal", "healEff", "rhps", "hps", "ahps", "ohps"]:
-                if key5 not in line:
-                    continue
-                key = "%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5)
-                value = line[key5] * getDirection(key)
-                res[key] = value
+    if "healer" in d:
+        for line in d["healer"]["table"]:
+            if line["name"] == record[1]:
+                key4 = "healer"
+                for key5 in ["heal", "healEff", "rhps", "hps", "ahps", "ohps"]:
+                    if key5 not in line:
+                        continue
+                    key = "%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5)
+                    value = line[key5] * getDirection(key)
+                    res[key] = value
     for id in STAT_ID:
         key4 = "stat"
         key5 = id
