@@ -86,7 +86,7 @@ def getAllStat(records):
         allFilteredResults[key] = []
         for uid in allResults[key]:
             allFilteredResults[key].append(allResults[key][uid])
-    return allResults
+    return allFilteredResults
 
 def getPercent(records):
     allResults = getAllStat(records)
