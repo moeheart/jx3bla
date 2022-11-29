@@ -605,9 +605,9 @@ class HealerReplay(ReplayerBase):
             self.result["equip"]["spirit"] = res["根骨"]
             self.result["equip"]["heal"] = res["治疗"]
             self.result["equip"]["healBase"] = res["基础治疗"]
-            self.result["equip"]["critPercent"] = parseCent(res["会心"]) + "%"
+            self.result["equip"]["critPercent"] = parseCent(res.get("会心", 0)) + "%"
             self.result["equip"]["crit"] = res["会心等级"]
-            self.result["equip"]["critpowPercent"] = parseCent(res["会效"]) + "%"
+            self.result["equip"]["critpowPercent"] = parseCent(res.get("会效", 0)) + "%"
             self.result["equip"]["critpow"] = res["会效等级"]
             self.result["equip"]["hastePercent"] = parseCent(res["加速"]) + "%"
             self.result["equip"]["haste"] = res["加速等级"]
