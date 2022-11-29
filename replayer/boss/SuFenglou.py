@@ -38,8 +38,8 @@ class SuFenglouWindow(SpecificBossWindow):
             self.constructCommonLine(tb, line)
 
             # 心法复盘
-            if line[0] in self.occResult:
-                tb.GenerateXinFaReplayButton(self.occResult[line[0]], line[0])
+            if line["name"] in self.occResult:
+                tb.GenerateXinFaReplayButton(self.occResult[line["name"]], line["name"])
             else:
                 tb.AppendContext("")
             tb.EndOfLine()
@@ -69,14 +69,14 @@ class SuFenglouReplayer(SpecificReplayerPro):
 
         bossResult = []
         for id in self.bld.info.player:
-            if id in self.stat:
-                line = self.stat[id]
+            if id in self.statDict:
+                # line = self.stat[id]
                 res = self.getBaseList(id)
                 bossResult.append(res)
-        bossResult.sort(key=lambda x: -x[2])
-        self.effectiveDPSList = bossResult
+        # bossResult.sort(key=lambda x: -x[2])
+        self.statList = bossResult
 
-        return self.effectiveDPSList, self.potList, self.detail, self.stunCounter
+        return self.statList, self.potList, self.detail, self.stunCounter
 
     def recordDeath(self, item, deathSource):
         '''
@@ -109,24 +109,24 @@ class SuFenglouReplayer(SpecificReplayerPro):
                             self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式命中玩家", "skill")
 
             else:
-                if event.caster in self.bld.info.player and event.caster in self.stat:
-                    self.stat[event.caster][2] += event.damageEff
+                if event.caster in self.bld.info.player and event.caster in self.statDict:
+                    # self.stat[event.caster][2] += event.damageEff
                     if self.bld.info.getName(event.target) in ["苏凤楼", "蘇鳳樓"]:
                         if self.bld.info.npc[event.target].templateID in ["112018", "112531"]:
                             # self.bh.setMainTarget(event.target)
-                            self.stat[event.caster][10] += event.damageEff
+                            self.statDict[event.caster]["battle"]["nc3DPS"] += event.damageEff
                         else:
                             self.bh.setMainTarget(event.target)
-                            self.stat[event.caster][7] += event.damageEff
+                            self.statDict[event.caster]["battle"]["wcDPS"] += event.damageEff
                     elif self.bld.info.getName(event.target) in ["凌雪阁杀手", "淩雪閣殺手"]:
                         # self.bh.setMainTarget(event.target)
-                        self.stat[event.caster][8] += event.damageEff
+                        self.statDict[event.caster]["battle"]["nc1DPS"] += event.damageEff
                     elif self.bld.info.getName(event.target) in ["剧毒孢子", "劇毒孢子"]:
                         # self.bh.setMainTarget(event.target)
-                        self.stat[event.caster][9] += event.damageEff
+                        self.statDict[event.caster]["battle"]["nc2DPS"] += event.damageEff
                     elif self.bld.info.getName(event.target) in ["另一个苏凤楼", "另一個蘇鳳樓"]:
                         self.bh.setMainTarget(event.target)
-                        self.stat[event.caster][11] += event.damageEff
+                        self.statDict[event.caster]["battle"]["P2DPS"] += event.damageEff
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -333,7 +333,11 @@ class SuFenglouReplayer(SpecificReplayerPro):
         self.nowInner = -1
 
         for line in self.bld.info.player:
-            self.stat[line].extend([0, 0, 0, 0, 0])
+            self.statDict[line]["battle"] = {"wcDPS": 0,
+                                             "nc1DPS": 0,
+                                             "nc2DPS": 0,
+                                             "nc3DPS": 0,
+                                             "P2DPS": 0}
             self.zhouyuStart[line] = 0
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):

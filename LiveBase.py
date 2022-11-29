@@ -104,20 +104,20 @@ class PotContainer():
         '''
         playerOcc = {}
         playerOccNum = {}
-        for key in self.effectiveDPSList:
-            dpsList = self.effectiveDPSList[key]
-            for line in dpsList:
-                if line[0] not in playerOcc:
-                    playerOcc[line[0]] = line[1]
-                    occ = line[1]
+        for key in self.statDict:
+            statList = self.statDict[key]
+            for line in statList:
+                if line["name"] not in playerOcc:
+                    playerOcc[line["name"]] = line["occ"]
+                    occ = line["occ"]
                     if occ[-1] in ['d', 't', 'h', 'p', 'm']:
                         occ = occ[:-1]
-                    playerOccNum[line[0]] = int(occ)
+                    playerOccNum[line["name"]] = int(occ)
                         
         playerList = []
         for line in playerOccNum:
             playerList.append([line.strip('"'), playerOccNum[line], playerOcc[line]])
-        playerList.sort(key = lambda x:x[1])
+        playerList.sort(key=lambda x:x[1])
         
         playerListSort = []
         for line in playerList:
@@ -134,7 +134,7 @@ class PotContainer():
         - 战斗复盘中的特定BOSS细节
         '''
         bossidStr = str(bossid)
-        return self.pot[bossidStr], self.effectiveDPSList[bossidStr], self.detail[bossidStr], \
+        return self.pot[bossidStr], self.statDict[bossidStr], self.detail[bossidStr], \
                self.occResult[bossidStr], self.analysedBattleData[bossidStr]
     
     def getBoss(self, bossid):
@@ -155,27 +155,27 @@ class PotContainer():
         bossidStr = str(bossid)
         return self.detail[bossidStr]["boss"]
     
-    def addBoss(self, bossid, potListScore, effectiveDPSList=[], detail={}, occResult={}, bh=None, analysedBattleData={}, change=1):
+    def addBoss(self, bossid, potListScore, statDict=[], detail={}, occResult={}, bh=None, analysedBattleData={}, change=1):
         '''
         当一个BOSS结束时，把分锅记录加入总记录中。
         或是当修改锅时，按对应的bossid取代原有的分锅记录。
         params
         - bossid 按时间顺序的BOSS编号。
         - potListScore 分锅与打分的列表，list格式
-        - effectiveDPSList 战斗复盘中的DPS列表
+        - statDict 战斗复盘中的DPS列表
         - detail 战斗复盘中的特定BOSS细节
         '''
         bossidStr = str(bossid)
         self.pot[bossidStr] = potListScore
         if change:
-            self.effectiveDPSList[bossidStr] = effectiveDPSList
+            self.statDict[bossidStr] = statDict
             self.detail[bossidStr] = detail
             self.occResult[bossidStr] = occResult
             self.analysedBattleData[bossidStr] = analysedBattleData
     
     def __init__(self):
         self.pot = {}
-        self.effectiveDPSList = {}
+        self.statDict = {}
         self.detail = {}
         self.occResult = {}
         self.analysedBattleData = {}
@@ -265,9 +265,9 @@ class LiveActorAnalysis():
     def changeResult(self, potListScore, bossNum):
         self.potContainer.addBoss(bossNum, potListScore, change=0)
 
-    def addResult(self, potListScore, bossNum, effectiveDPSList, detail, occResult, analysedBattleData):
+    def addResult(self, potListScore, bossNum, statDict, detail, occResult, analysedBattleData):
         #self.potListScore.extend(potListScore)
-        self.potContainer.addBoss(bossNum, potListScore, effectiveDPSList, detail, occResult, analysedBattleData=analysedBattleData)
+        self.potContainer.addBoss(bossNum, potListScore, statDict, detail, occResult, analysedBattleData=analysedBattleData)
         
     def checkBossExists(self, bossNum):
         bossNumStr = str(bossNum)
@@ -364,7 +364,7 @@ class LiveListener():
                     potListScore.append(actorRep.potList[i] + [0])
                 else:
                     potListScore.append(actorRep.potList[i])
-            self.analyser.addResult(potListScore, self.bossNum, actorRep.effectiveDPSList, actorRep.detail, actorRep.occResult, actorRep.actorData)
+            self.analyser.addResult(potListScore, self.bossNum, actorRep.statDict, actorRep.detail, actorRep.occResult, actorRep.actorData)
 
     def getNewBattleLog(self, basepath, lastFile):
         '''
@@ -387,7 +387,7 @@ class LiveListener():
         window = SingleBossWindow(self.analyser, self.bossNum, self.mainWindow)
         self.window = window
         window.addPotList(actorRep.potList)
-        window.setDetail(actorRep.potList, actorRep.effectiveDPSList, actorRep.detail, actorRep.occResult, actorRep.actorData)
+        window.setDetail(actorRep.potList, actorRep.statDict, actorRep.detail, actorRep.occResult, actorRep.actorData)
         window.openDetailWindow()
 
         potListScore = []
@@ -396,7 +396,7 @@ class LiveListener():
                 potListScore.append(actorRep.potList[i] + [0])
             else:
                 potListScore.append(actorRep.potList[i])
-        self.analyser.addResult(potListScore, self.bossNum, actorRep.effectiveDPSList, actorRep.detail, actorRep.occResult, actorRep.actorData)
+        self.analyser.addResult(potListScore, self.bossNum, actorRep.statDict, actorRep.detail, actorRep.occResult, actorRep.actorData)
 
         self.mainWindow.notifier.show("分锅结果已生成", "[%s]的战斗复盘已经解析完毕，请打开结果界面分锅。"%actorRep.bossname)
 

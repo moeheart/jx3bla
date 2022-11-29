@@ -41,8 +41,8 @@ class GeneralWindow(SpecificBossWindow):
             self.constructCommonLine(tb, line)
 
             # 心法复盘
-            if line[0] in self.occResult:
-                tb.GenerateXinFaReplayButton(self.occResult[line[0]], line[0])
+            if line["name"] in self.occResult:
+                tb.GenerateXinFaReplayButton(self.occResult[line["name"]], line["name"])
             else:
                 tb.AppendContext("")
             tb.EndOfLine()
@@ -71,14 +71,14 @@ class GeneralReplayer(SpecificReplayerPro):
 
         bossResult = []
         for id in self.bld.info.player:
-            if id in self.stat:
-                line = self.stat[id]
+            if id in self.statDict:
+                # line = self.stat[id]
                 res = self.getBaseList(id)
                 bossResult.append(res)
-        bossResult.sort(key=lambda x: -x[2])
-        self.effectiveDPSList = bossResult
+        # bossResult.sort(key=lambda x: -x[2])
+        self.statList = bossResult
 
-        return self.effectiveDPSList, self.potList, self.detail, self.stunCounter
+        return self.statList, self.potList, self.detail, self.stunCounter
         
     def recordDeath(self, item, deathSource):
         '''

@@ -1,5 +1,5 @@
 # Created by moeheart at 04/07/2022
-# 周通忌的定制复盘库。
+# 常宿的定制复盘库。
 # 功能待定。
 
 from window.SpecificBossWindow import SpecificBossWindow
@@ -11,17 +11,16 @@ from tools.Functions import *
 
 import tkinter as tk
         
-class ZhouTongjiWindow(SpecificBossWindow):
+class ChangXiuWindow(SpecificBossWindow):
     '''
-    周通忌的定制复盘窗口类。
+    常宿的定制复盘窗口类。
     '''
 
     def loadWindow(self):
         '''
         使用tkinter绘制详细复盘窗口。
         '''
-
-        self.constructWindow("周通忌", "1200x900")
+        self.constructWindow("常宿", "1200x800")
         window = self.window
         
         frame1 = tk.Frame(window)
@@ -31,40 +30,25 @@ class ZhouTongjiWindow(SpecificBossWindow):
         #0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
         
         tb = TableConstructorMeta(self.config, frame1)
-        
-        self.constructCommonHeader(tb, "包括被一箭一个点名的时间。")
-        tb.AppendHeader("本体DPS", "对BOSS本体的DPS。")
-        tb.AppendHeader("小怪DPS", "对小怪的DPS。")
+
+        self.constructCommonHeader(tb, "伐逆点名只计3秒，伐乱点名只计4秒，奉天伐恶会全程记录。")
+        tb.AppendHeader("P1DPS", "在P1阶段，也即70%%以上的输出。\nP1时间：%s，这个时间不包括第一次内场。" % parseTime(self.detail["P1Time"]))
+        tb.AppendHeader("P2DPS", "在P2阶段，也即70%%以下的输出。\nP2时间：%s，这个时间包括第二次内场。" % parseTime(self.detail["P2Time"]))
+        tb.AppendHeader("黑字次数", "踩到黑字的次数。\n虽然不会死，但是作者就是这么无聊。")
         tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         tb.EndOfLine()
         
         for i in range(len(self.effectiveDPSList)):
             line = self.effectiveDPSList[i]
             self.constructCommonLine(tb, line)
-
             tb.AppendContext(int(line[7]))
             tb.AppendContext(int(line[8]))
-
+            tb.AppendContext(int(line[9]))
             # 心法复盘
             if line[0] in self.occResult:
-                tb.GenerateXinFaReplayButton(self.occResult[line[0]], line[0])
+                tb.GenerateXinFaReplayButton(self.occResult[line["name"]], line["name"])
             else:
                 tb.AppendContext("")
-            tb.EndOfLine()
-
-        frame2 = tk.Frame(window)
-        frame2.pack()
-        tb = TableConstructorMeta(self.config, frame2)
-        tb.AppendHeader("投石复盘", "")
-        tb.EndOfLine()
-        for line in self.detail["toushi"]:
-            tb.AppendContext("%s喊话" % line["start"])
-            for record in line["log"]:
-                name = self.getMaskName(record[1])
-                occ = record[2]
-                color = getColor(occ)
-                tb.AppendContext(name, color=color)
-                tb.AppendContext("%s投石" % record[3])
             tb.EndOfLine()
 
         self.constructNavigator()
@@ -72,16 +56,20 @@ class ZhouTongjiWindow(SpecificBossWindow):
     def __init__(self, config, effectiveDPSList, detail, occResult, analysedBattleData):
         super().__init__(config, effectiveDPSList, detail, occResult, analysedBattleData)
 
-class ZhouTongjiReplayer(SpecificReplayerPro):
+class ChangXiuReplayer(SpecificReplayerPro):
 
     def countFinal(self):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
         self.countFinalOverall()
+        if self.phase != 0 and self.phaseTime[self.phase] == 0:
+            self.phaseTime[self.phase] = self.finalTime - self.phaseStart
+
+        self.detail["P1Time"] = int(self.phaseTime[1] / 1000)
+        self.detail["P2Time"] = int(self.phaseTime[2] / 1000)
+
         self.bh.setEnvironmentInfo(self.bhInfo)
-        for line in self.detail["toushi"]:
-            self.bh.setBadPeriod(line["startTime"], line["log"][-1][4] + 2000, True, False)
 
         # for line in self.bh.log["environment"]:
         #     timePrint = "%.1f" % ((line["start"] - self.startTime) / 1000)
@@ -99,9 +87,9 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
             if id in self.stat:
                 line = self.stat[id]
                 res = self.getBaseList(id)
-                res.extend([int(line[7] / self.battleTime * 1000),
-                            int(line[8] / self.battleTime * 1000),
-                            ])
+                res.extend([int(safe_divide(line[7], self.detail["P1Time"])),
+                            int(safe_divide(line[8], self.detail["P2Time"])),
+                            line[9]])
                 bossResult.append(res)
         bossResult.sort(key=lambda x: -x[2])
         self.effectiveDPSList = bossResult
@@ -138,25 +126,53 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
                         if "," not in skillName:
                             self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式命中玩家", "skill")
 
+                if event.id == "30436":
+                    self.stat[event.target][9] += 1
+
             else:
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
+
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.getName(event.target) in ["周通忌"]:
+                        if self.phase == 1:
                             self.stat[event.caster][7] += event.damageEff
-                            self.bh.setMainTarget(event.target)
-                        elif self.bld.info.getName(event.target) in ["狼牙精锐士兵"]:
+                        elif self.phase == 2:
                             self.stat[event.caster][8] += event.damageEff
+                            if self.phaseStart == 0:
+                                self.phaseStart = event.time
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
                 return
 
-            if event.id == "22338":  # 一箭一个
-                if event.stack == 1:
-                    self.bh.setCall("22338", "一箭一个", "2911", event.time, 0, event.target, "一箭一个点名")
-                self.stunCounter[event.target].setState(event.time, event.stack)
+            if event.id == "22494" and event.stack == 1:  # 罪印
+                self.bh.setCall("22494", "罪印", "3431", event.time, 0, event.target, "罪印点名")
+            if event.id == "22493" and event.stack == 1:  # 罚印
+                self.bh.setCall("22493", "罚印", "3430", event.time, 0, event.target, "罚印点名")
 
+            if event.id == "22229":  # 伐乱
+                if event.stack == 1:
+                    self.bh.setCall("22229", "伐乱", "3409", event.time, 0, event.target, "伐乱点名，排圈")
+                    self.stunCounter[event.target].setState(event.time, event.stack)
+                    self.stunCounter[event.target].setState(event.time + 4000, 0)
+
+            if event.id == "22246":  # 伐逆
+                if event.stack == 1:
+                    self.bh.setCall("22246", "伐逆", "2141", event.time, 0, event.target, "伐逆点名，排矩形")
+                    self.stunCounter[event.target].setState(event.time, event.stack)
+                    self.stunCounter[event.target].setState(event.time + 3000, 0)
+
+            if event.id == "22331":  # 奉天伐恶
+                if event.stack == 1:
+                    self.bh.setCall("22331", "奉天伐恶", "12451", event.time, 0, event.target, "奉天伐恶点名，沉默")
+                    if event.time - self.ftfeStartTime > 2000:  # 记录开始
+                        self.ftfeStartTime = event.time
+                if event.stack == 0:
+                    if self.ftfeStartTime != 0:  # 记录结束
+                        self.bh.setBadPeriod(self.ftfeStartTime, event.time, True, False)
+                        self.bh.setBadPeriod(self.ftfeStartTime, event.time + 6000, False, True)  # 奶妈按照承伤计算，无效时间延后
+                        self.ftfeStartTime = 0
+                self.stunCounter[event.target].setState(event.time, event.stack)
 
             if event.caster in self.bld.info.npc and event.stack > 0:
                 # 尝试记录buff事件
@@ -168,73 +184,56 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "玩家获得气劲", "buff")
 
         elif event.dataType == "Shout":
-            if event.content in ['"撕碎你们！"']:
+            if event.content in ['"来吧！"']:
                 pass
-            elif event.content in ['"这！就是！"']:
+            elif event.content in ['"喝啊！"']:
                 pass
-            elif event.content in ['"狼牙！"']:
+            elif event.content in ['"罪！"']:
                 pass
-            elif event.content in ['"给我上！"']:
+            elif event.content in ['"罚！"']:
                 pass
-            elif event.content in ['"瞄准他们！"']:
+            elif event.content in ['"乱！"']:
                 pass
-            elif event.content in ['"……"']:
-                pass
-            elif event.content in ['"呀啊！！！！！！！！！"']:
-                pass
-            elif event.content in ['"让我看看你们的能耐！"', '"不痛不痒！哈哈哈哈哈！"', '"用点力！哼哈哈哈哈哈！"']:
-                self.detail["toushi"].append({"start": parseTime((event.time - self.startTime) / 1000), "startTime": event.time, "log": []})
-            elif event.content in ['"今日就让你们见识见识，本将这副巨象铠甲的厉害！"']:
-                pass
-            elif event.content in ['"呕！"']:
-                pass
-            elif event.content in ['"啊……！糟……了……"']:
+            elif event.content in ['"罪！罚！"']:
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
+                if self.phase == 1:
+                    self.phaseTime[1] = event.time - self.phaseStart
+                self.phase = 2
+                self.phaseStart = event.time
+            elif event.content in ['"哼！"']:
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            elif event.content in ['"狼牙守将已亡，众将士！随我杀！"']:
+            elif event.content in ['"你我……再会……"']:
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             else:
-                self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
-            # print("[Shout]", parseTime((event.time - self.startTime) / 1000), event.content)
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
             return
 
         elif event.dataType == "Scene":  # 进入、离开场景
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
                 name = "n%s" % self.bld.info.npc[event.id].templateID
                 skillName = self.bld.info.npc[event.id].name
-                if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 3000:
-                    self.bhTime[name] = event.time
-                    if skillName in ["狼牙精锐士兵", ""]:
-                        self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, "小怪", "340", event.time, 0,
-                                               1, "小怪出现", "npc", "#333333")
-
-                    # if "的" not in skillName:
-                    #     self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
-                    #                            1, "NPC出现", "npc")
+                # if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 3000:
+                #     self.bhTime[name] = event.time
+                #     if "的" not in skillName:
+                #         self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
+                #                                1, "NPC出现", "npc")
 
         elif event.dataType == "Death":  # 重伤记录
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["周通忌"]:
-                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-                self.win = 1
+            pass
 
         elif event.dataType == "Battle":  # 战斗状态变化
-            if self.bld.info.getName(event.id) in ["周通忌"]:
+            if self.bld.info.getName(event.id) in ["常宿"]:
                 self.firstBattle = 0
                 if event.time - self.startTime > 500 and self.firstBattle:  # 预留500ms的空白时间
                     self.bh.setBadPeriod(self.startTime, event.time - 500, True, True)
+                self.bh.setMainTarget(event.target)
 
         elif event.dataType == "Alert":  # 系统警告框
-            if event.content in ['"黄河水位即将上涨！"']:
-                self.bh.setEnvironment("0", "涨潮", "2033", event.time, 0, 1, "系统警告", "alert", "#0077ff")
-            elif event.content[-12:] in ['已呼叫投石车进行投掷。"']:
-                name = event.content[1:-12]
-                for id in self.bld.info.player:
-                    if self.bld.info.player[id].name == name:
-                        self.detail["toushi"][-1]["log"].append([id, self.bld.info.player[id].name,
-                                                             self.bld.info.player[id].occ,
-                                                             parseTime((event.time - self.startTime) / 1000),
-                                                             event.time])
+            pass
 
         elif event.dataType == "Cast":  # 施放技能事件，jcl专属
             if event.caster in self.bld.info.npc:  # 记录非玩家施放的技能
@@ -244,6 +243,13 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
                     skillName = self.bld.info.getSkillName(event.full_id)
                     if "," not in skillName:
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式开始运功", "cast")
+
+            if event.id == "30456":  # 墨言可畏
+                if self.phase == 1:
+                    self.phaseTime[1] = event.time - self.phaseStart
+                    self.phase = 2
+                    self.phaseStart = 0
+                self.bh.setBadPeriod(event.time, event.time + 75000, True, True)
 
                     
     def analyseFirstStage(self, item):
@@ -260,28 +266,48 @@ class ZhouTongjiReplayer(SpecificReplayerPro):
         在战斗开始时的初始化流程，当第二阶段复盘开始时运行。
         '''
         self.initBattleBase()
-        self.activeBoss = "周通忌"
+        self.activeBoss = "常宿"
 
-        self.detail["toushi"] = []  # 投石复盘
+        # self.stunCounter = {}
+        self.phase = 1
+        self.phaseStart = self.startTime
+        self.phaseTime = [0, 0, 0]
 
-        self.bhBlackList.extend(["s28", "s30117", "s30449", "s30108", "b22275", "s30120", "s30121", "b22274",
-                                 "s30115", "s30896", "b22338", "b22337", "s30118", ])
+        self.bhBlackList.extend(["n108727", "n108738",
+                                 "s30044", "s30055", "b22228", "b22660", "b22197", "n108264", "s30048", "c30051", "s30056",
+                                 "n108121", "n108257", "b22192", "s30158", "s30157", "c30157", "c30158", "b22199", "b22229",
+                                 "s30134", "b22190", "b22494", "n108629", "b22493", "b22195", "b22191", "s30060",
+                                 "c30216", "s30216", "b22622",
+                                 "c30436", "s30436", "c30437", "s30437",
+                                 "c30188", "s30188", "s30191", "c30190", "s30190", "s30192", "c30217", "s30217", "b22340",
+                                 "b22335", "b22342",
+                                 ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
-        self.bhInfo = {"s30116": ["2021", "#ff0000"],  # 撕裂回旋
-                       "c30106": ["2019", "#ff7700"],  # 这！就是！狼牙！
-                       "c30172": ["2024", "#7700ff"],  # 象鼻横扫
-                       "c30113": ["3426", "#ff00ff"],  # 象牙冲锋
-                       "c30498": ["2911", "#0000ff"],  # 一箭一个
+        self.bhInfo = {"s30047": ["2019", "#ff00ff"],  # 罪笞
+                       "b22246": ["2141", "#7777ff"],  # 伐逆buff
+                       "c30140": ["2024", "#0000ff"],  # 伐逆读条(lvl1/2)
+                       "c30888": ["3431", "#0077ff"],  # 罪印
+                       "c30048": ["2021", "#00ffff"],  # 罪挥
+                       "c30159": ["3409", "#ff0077"],  # 伐乱·罪影
+                       "c30889": ["3430", "#ff77cc"],  # 罚印
+                       "s30085": ["3436", "#ff0000"],  # 罪笞·鞭挞
+                       "c30056": ["4531", "#ff7700"],  # 罚绞
+                       "c30059": ["2028", "#00ff00"],  # 伐违
+                       "c30060": ["2028", "#77ff77"],  # 伐违·御
+                       "c30456": ["3399", "#007777"],  # 墨言可畏
+                       "b22331": ["12451", "#ff0077"],  # 奉天伐恶
                        }
 
-        # 周通忌数据格式：
-        # 7 本体DPS 8 小怪DPS
+        # 常宿数据格式：
+        # 7 P1DPS, 8 P2DPS, 9 黑字次数
 
         for line in self.bld.info.player:
-            self.stat[line].extend([0, 0])
+            self.stat[line].extend([0, 0, 0])
 
         self.firstBattle = 1
+
+        self.ftfeStartTime = 0  # 奉天伐恶记录
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''

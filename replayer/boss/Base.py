@@ -94,30 +94,39 @@ class SpecificReplayerPro():
         returns
         - res: 生成的复盘结果（前7项）
         '''
-        line = self.stat[id]
+
+        # line = self.stat[id]
+        # if id in self.equipmentDict:
+        #     line[4] = self.equipmentDict[id]["score"]
+        #     if self.equipmentDict[id].get("cached", 0) == 1:
+        #         line[4] = line[4] + "*"
+        #     line[5] = "%s|%s" % (self.equipmentDict[id]["sketch"], self.equipmentDict[id]["forge"])
+        # else:
+        #     line[5] = "|"
+        #
+        # line[6] = self.stunCounter[id].buffTimeIntegral() / 1000
+        #
+        # if getOccType(self.occDetailList[id]) == "healer":
+        #     line[3] = int(self.hps[id] / self.battleTime * 1000)
+        #
+        # dps = int(line[2] / self.battleTime * 1000)
+        # res = [line[0],
+        #        line[1],
+        #        dps,
+        #        line[3],
+        #        line[4],
+        #        line[5],
+        #        line[6],
+        #        ]
+
+        line = self.statDict[id]
         if id in self.equipmentDict:
-            line[4] = self.equipmentDict[id]["score"]
+            line["equip"]["score"] = self.equipmentDict[id]["score"]
             if self.equipmentDict[id].get("cached", 0) == 1:
-                line[4] = line[4] + "*"
-            line[5] = "%s|%s" % (self.equipmentDict[id]["sketch"], self.equipmentDict[id]["forge"])
-        else:
-            line[5] = "|"
-
-        line[6] = self.stunCounter[id].buffTimeIntegral() / 1000
-
-        if getOccType(self.occDetailList[id]) == "healer":
-            line[3] = int(self.hps[id] / self.battleTime * 1000)
-
-        dps = int(line[2] / self.battleTime * 1000)
-        res = [line[0],
-               line[1],
-               dps,
-               line[3],
-               line[4],
-               line[5],
-               line[6],
-               ]
-        return res
+                line["equip"]["score"] += "*"
+            line["equip"]["sketch"] = self.equipmentDict[id]["sketch"]
+            line["equip"]["forge"] = self.equipmentDict[id]["forge"]
+        return line
 
     def analyseSecondStage(self, item):
         '''
@@ -180,6 +189,7 @@ class SpecificReplayerPro():
         初始化流程的通用部分.
         '''
         self.stat = {}
+        self.statDict = {}
         self.hps = {}
         self.detail["boss"] = self.bossNamePrint
         self.win = 0
@@ -206,6 +216,15 @@ class SpecificReplayerPro():
             self.hps[line] = 0
             self.stat[line] = [self.bld.info.player[line].name, self.occDetailList[line], 0, 0, -1, "", 0] + \
                               []
+            self.statDict[line] = {"name": self.bld.info.player[line].name,
+                             "occ": self.occDetailList[line],
+                             "rdps": 0,
+                             "rdpsRank": -1,
+                             "score": 0,
+                             "scoreRank": -1,
+                             "equip": {"score": "", "sketch": "", "forge": ""},
+                             "stunTime": 0,
+                             "battle": {}}
             self.stunCounter[line] = BuffCounter(0, self.startTime, self.finalTime)
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint):

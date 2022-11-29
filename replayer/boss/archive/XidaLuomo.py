@@ -48,7 +48,7 @@ class XidaLuomoWindow(SpecificBossWindow):
 
             # 心法复盘
             if line[0] in self.occResult:
-                tb.GenerateXinFaReplayButton(self.occResult[line[0]], line[0])
+                tb.GenerateXinFaReplayButton(self.occResult[line["name"]], line["name"])
             else:
                 tb.AppendContext("")
             tb.EndOfLine()

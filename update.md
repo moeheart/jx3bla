@@ -21,10 +21,11 @@
   - (TODO)统计类
   - (TODO)展示
 - (TODO)将logs排名放在复盘总表中
-  - (TODO)重构复盘结果的表格
+  - 重构复盘结果的表格
   - (TODO)对dps重新获取，显示rdps和logs排名
   - (TODO)对治疗职业显示分数和logs排名
   - (TODO)连接流程
+  - 描述
 - (TODO)从花间开始dps复盘
   - (TODO)时间轴
   - (TODO)增益和DPS统计

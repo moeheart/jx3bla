@@ -38,8 +38,8 @@ class LiuZhanWindow(SpecificBossWindow):
             self.constructCommonLine(tb, line)
 
             # 心法复盘
-            if line[0] in self.occResult:
-                tb.GenerateXinFaReplayButton(self.occResult[line[0]], line[0])
+            if line["name"] in self.occResult:
+                tb.GenerateXinFaReplayButton(self.occResult[line["name"]], line["name"])
             else:
                 tb.AppendContext("")
             tb.EndOfLine()
@@ -69,14 +69,14 @@ class LiuZhanReplayer(SpecificReplayerPro):
 
         bossResult = []
         for id in self.bld.info.player:
-            if id in self.stat:
-                line = self.stat[id]
+            if id in self.statDict:
+                # line = self.stat[id]
                 res = self.getBaseList(id)
                 bossResult.append(res)
-        bossResult.sort(key=lambda x: -x[2])
-        self.effectiveDPSList = bossResult
+        # bossResult.sort(key=lambda x: -x[2])
+        self.statList = bossResult
 
-        return self.effectiveDPSList, self.potList, self.detail, self.stunCounter
+        return self.statList, self.potList, self.detail, self.stunCounter
 
     def recordDeath(self, item, deathSource):
         '''
@@ -110,13 +110,13 @@ class LiuZhanReplayer(SpecificReplayerPro):
 
             else:
                 if event.caster in self.bld.info.player and event.caster in self.stat:
-                    self.stat[event.caster][2] += event.damageEff
+                    # self.stat[event.caster][2] += event.damageEff
                     if self.bld.info.getName(event.target) in ["刘展", "劉展"]:
                         self.bh.setMainTarget(event.target)
-                        self.stat[event.caster][7] += event.damageEff
+                        self.statDict[event.caster]["battle"]["lzDPS"] += event.damageEff
                     elif self.bld.info.getName(event.target) in ["枪卫首领", "槍衛首領", "斧卫首领", "斧衛首領"]:
                         self.bh.setMainTarget(event.target)
-                        self.stat[event.caster][8] += event.damageEff
+                        self.statDict[event.caster]["battle"]["P2DPS"] += event.damageEff
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -266,7 +266,9 @@ class LiuZhanReplayer(SpecificReplayerPro):
         self.lifuStart = {}
 
         for line in self.bld.info.player:
-            self.stat[line].extend([0, 0, 0])
+            # self.stat[line].extend([0, 0, 0])
+            self.statDict[line]["battle"] = {"lzDPS": 0,
+                                             "P2DPS": 0}
             self.xiazhuiStart[line] = 0
             self.lifuStart[line] = 0
 

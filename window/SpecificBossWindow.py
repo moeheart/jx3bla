@@ -104,11 +104,11 @@ class SpecificBossWindow(Window):
         - stunDescription: 被控栏的描述.
         '''
         tb.AppendHeader("玩家名", "", width=13)
-        tb.AppendHeader("有效DPS", "全程DPS。与游戏中不同的是，重伤时间也会被计算在内。")
-        tb.AppendHeader("团队-心法DPS", "综合考虑当前团队情况与对应心法的全局表现，计算的百分比。平均水平为100%。")
+        tb.AppendHeader("rDPS/分数", "对于DPS或T心法显示rDPS，表示将所有增益转移到对应来源之后的每秒伤害。\n对于治疗心法显示综合评分，表示综合技能数、战斗效率、增益覆盖、rHPS的评分。")
+        tb.AppendHeader("排名", "前一项的排名，表示超过了百分之多少的玩家。")
         tb.AppendHeader("装分", "玩家的装分，可能会获取失败。\n被星号标记的装分表示对应的装备已经获取失败，但服务器可以从最近的战斗记录中读取到缓存。")
-        tb.AppendHeader("详情", "装备详细描述，暂未完全实装。")
-        tb.AppendHeader("强化", "装备强化列表，表示[精炼满级装备数量]/[插8]-[插7]-[插6]/[五彩石等级]/[紫色附魔]-[蓝色附魔]/[大附魔：手腰脚头衣裤]")
+        tb.AppendHeader("详情", "装备详细描述。")
+        tb.AppendHeader("强化", "装备强化列表，表示[精炼满级装备数量]/[插8]-[插7]-[插6]/[五彩石等级]/[紫色附魔]-[蓝色附魔]/[大附魔：手腰脚头衣裤]\n注意精炼与镶嵌目前无法准确获取，但附魔情况是准确的。")
         tb.AppendHeader("被控", "受到影响无法正常输出的时间，以秒计。\n%s" % stunDescription)
 
     def constructCommonLine(self, tb, line):
@@ -118,30 +118,57 @@ class SpecificBossWindow(Window):
         - tb: 表格创建类.
         - line: 对应的数据.
         '''
-        name = self.getMaskName(line[0])
-        color = getColor(line[1])
-        tb.AppendContext(name, color=color, width=13)
-        tb.AppendContext(int(line[2]))
+        # name = self.getMaskName(line[0])
+        # color = getColor(line[1])
+        # tb.AppendContext(name, color=color, width=13)
+        # tb.AppendContext(int(line[2]))
+        #
+        # if getOccType(line[1]) != "healer":
+        #     text3 = str(line[3]) + '%'
+        #     color3 = "#000000"
+        # else:
+        #     text3 = line[3]
+        #     color3 = "#00ff00"
+        # tb.AppendContext(text3, color=color3)
+        #
+        # text4 = "-"
+        # if line[4] != -1:
+        #     text4 = str(line[4])
+        # color4 = "#000000"
+        # if "大橙武" in line[5]:
+        #     color4 = "#ffcc00"
+        # tb.AppendContext(text4, color=color4)
+        #
+        # tb.AppendContext(line[5].split('|')[0])
+        # tb.AppendContext(line[5].split('|')[1])
+        # tb.AppendContext(int(line[6]))
 
-        if getOccType(line[1]) != "healer":
-            text3 = str(line[3]) + '%'
+        name = self.getMaskName(line["name"])
+        color = getColor(line["occ"])
+        tb.AppendContext(name, color=color, width=13)
+
+        if getOccType(line["occ"]) != "healer":
+            tb.AppendContext(int(line["rdps"]))
+            text3 = str(line["rdpsRank"])
             color3 = "#000000"
         else:
-            text3 = line[3]
+            tb.AppendContext(int(line["score"]))
+            text3 = str(line["scoreRank"])
             color3 = "#00ff00"
         tb.AppendContext(text3, color=color3)
 
-        text4 = "-"
-        if line[4] != -1:
-            text4 = str(line[4])
+        if line["equip"]["score"] == "":
+            text4 = "-"
+        else:
+            text4 = str(line["equip"]["score"])
         color4 = "#000000"
-        if "大橙武" in line[5]:
+        if "大橙武" in line["equip"]["sketch"]:
             color4 = "#ffcc00"
         tb.AppendContext(text4, color=color4)
 
-        tb.AppendContext(line[5].split('|')[0])
-        tb.AppendContext(line[5].split('|')[1])
-        tb.AppendContext(int(line[6]))
+        tb.AppendContext(line["equip"]["sketch"])
+        tb.AppendContext(line["equip"]["forge"])
+        tb.AppendContext(int(line["stunTime"]))
 
     def constructNavigator(self):
         '''

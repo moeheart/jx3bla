@@ -1,5 +1,5 @@
 # Created by moeheart at 10/17/2021
-# 雷域大泽2号-桑乔的复盘库。
+# 雷域大泽4号-尤珈罗摩的复盘库。
 
 from window.SpecificBossWindow import SpecificBossWindow
 from replayer.boss.Base import SpecificReplayerPro
@@ -10,9 +10,9 @@ from tools.Functions import *
 
 import tkinter as tk
         
-class SangQiaoWindow(SpecificBossWindow):
+class YoujiaLuomoWindow(SpecificBossWindow):
     '''
-    桑乔复盘窗口类。
+    尤珈罗摩复盘窗口类。
     '''
 
     def loadWindow(self):
@@ -20,7 +20,7 @@ class SangQiaoWindow(SpecificBossWindow):
         使用tkinter绘制详细复盘窗口。
         '''
 
-        self.constructWindow("桑乔", "1200x800")
+        self.constructWindow("尤珈罗摩", "1200x1000")
         window = self.window
         
         frame1 = tk.Frame(window)
@@ -32,10 +32,11 @@ class SangQiaoWindow(SpecificBossWindow):
         tb = TableConstructorMeta(self.config, frame1)
 
         self.constructCommonHeader(tb, "")
-        tb.AppendHeader("本体DPS", "对桑乔本体的DPS。")
-        tb.AppendHeader("丝魂缚锁", "对蜘蛛网的DPS，分母以总时间计算。")
-        tb.AppendHeader("真蜘蛛茧", "对真蜘蛛茧的伤害，只有救人成功的蜘蛛茧才被视为真蜘蛛茧。")
-        tb.AppendHeader("假蜘蛛茧", "对假蜘蛛茧的伤害，错误的蜘蛛茧或是没打掉的蜘蛛茧均为假蜘蛛茧。")
+        tb.AppendHeader("血瘤DPS", "对四个血瘤的DPS，这相当于P1的本体DPS。\nP1持续时间：%s，包含母蛊激活的垃圾时间。" % parseTime(self.detail["P1Time"]))
+        tb.AppendHeader("鬼虫DPS", "对鬼虫的DPS，分母以P1总时间计算。")
+        tb.AppendHeader("勇虫DPS", "对勇虫的DPS，分母以P1总时间计算。")
+        tb.AppendHeader("毒尸DPS", "对毒尸的DPS，分母以P1总时间计算。")
+        tb.AppendHeader("P2DPS", "对血蛊巢心的DPS。\nP2持续时间：%s" % parseTime(self.detail["P2Time"]))
         tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         tb.EndOfLine()
         
@@ -46,15 +47,12 @@ class SangQiaoWindow(SpecificBossWindow):
             tb.AppendContext(int(line[7]))
             tb.AppendContext(int(line[8]))
             tb.AppendContext(int(line[9]))
-
-            color10 = "#000000"
-            if line[10] > line[9]:
-                color10 = "#ff0000"
-            tb.AppendContext(int(line[10]), color=color10)
+            tb.AppendContext(int(line[10]))
+            tb.AppendContext(int(line[11]))
 
             # 心法复盘
             if line[0] in self.occResult:
-                tb.GenerateXinFaReplayButton(self.occResult[line[0]], line[0])
+                tb.GenerateXinFaReplayButton(self.occResult[line["name"]], line["name"])
             else:
                 tb.AppendContext("")
             tb.EndOfLine()
@@ -64,21 +62,20 @@ class SangQiaoWindow(SpecificBossWindow):
     def __init__(self, config, effectiveDPSList, detail, occResult, analysedBattleData):
         super().__init__(config, effectiveDPSList, detail, occResult, analysedBattleData)
 
-class SangQiaoReplayer(SpecificReplayerPro):
+class YoujiaLuomoReplayer(SpecificReplayerPro):
 
     def countFinal(self):
         '''
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
-        # 结算蜘蛛茧伤害
-        for line2 in self.zzl:
-            for line in self.zzl[line2]["dps"]:
-                if self.zzl[line2]["status"] == 1:
-                    self.stat[line][9] += self.zzl[line2]["dps"][line]
-                else:
-                    self.stat[line][10] += self.zzl[line2]["dps"][line]
-        for line in self.tscj:
-            self.bh.setEnvironment("27803", "吐丝成茧", "371", line[0], line[1]-line[0], 1, "")
+        if self.phase != 0:
+            self.phaseTime[self.phase] = self.finalTime - self.phaseStart
+
+        self.detail["P1Time"] = int(self.phaseTime[1] / 1000)
+        self.detail["P2Time"] = int(self.phaseTime[2] / 1000)
+
+        for line in self.dgxl:
+            self.bh.setEnvironment("27747", "毒蛊血露", "4504", line[0], line[1]-line[0], 1, "")
 
     def getResult(self):
         '''
@@ -110,12 +107,13 @@ class SangQiaoReplayer(SpecificReplayerPro):
                                    line[4],
                                    line[5],
                                    line[6],
-                                   int(line[7] / self.battleTime * 1000),
-                                   int(line[8] / self.battleTime * 1000),
-                                   int(line[9] / self.battleTime * 1000),
-                                   int(line[10] / self.battleTime * 1000),
+                                   safe_divide(line[7], self.detail["P1Time"]),
+                                   safe_divide(line[8], self.detail["P1Time"]),
+                                   safe_divide(line[9], self.detail["P1Time"]),
+                                   safe_divide(line[10], self.detail["P1Time"]),
+                                   safe_divide(line[11], self.detail["P2Time"]),
                                    ])
-        bossResult.sort(key=lambda x: -x[2])
+        bossResult.sort(key=lambda x:-x[2])
         self.effectiveDPSList = bossResult
 
         return self.effectiveDPSList, self.potList, self.detail, self.stunCounter
@@ -138,64 +136,70 @@ class SangQiaoReplayer(SpecificReplayerPro):
 
         if event.dataType == "Skill":
             if event.target in self.bld.info.player:
-                if event.heal > 0 and event.effect != 7 and event.caster in self.hps: #非化解
+                if event.heal > 0 and event.effect != 7 and event.caster in self.hps:  # 非化解
                     self.hps[event.caster] += event.healEff
                     
             else:
                 if event.caster in self.bld.info.player and event.caster in self.stat:
                     self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.getName(event.target) in ["桑乔""", "桑喬"]:
+                        if self.bld.info.getName(event.target) in ["赐恩血瘤", "賜恩血瘤"]:
                             self.stat[event.caster][7] += event.damageEff
-                        elif self.bld.info.getName(event.target) in ["蜘蛛网", "蜘蛛網"]:
+                            # 瘤子的开怪检测
+                            if event.target not in self.xueLiuFirstHit:
+                                self.xueLiuFirstHit[event.target] = 1
+                                self.xueLiuActiveNum += 1
+                                if self.xueLiuActiveNum == 3 and self.xueLiuFirstDown != 1:  # 分锅
+                                    self.potList.append([self.bld.info.player[event.caster].name,
+                                                         self.occDetailList[event.caster],
+                                                         0,
+                                                         self.bossNamePrint,
+                                                         "%s提前开对场瘤子" % (parseTime((event.time - self.startTime) / 1000)),
+                                                         []])
+
+                        elif self.bld.info.getName(event.target) in ["摄魂鬼虫", "攝魂鬼蟲"]:
                             self.stat[event.caster][8] += event.damageEff
-                        elif self.bld.info.getName(event.target) in ["蜘蛛茧", "蜘蛛繭"]:
-                            self.zzl[event.target]["dps"][event.caster] += event.damageEff
-                
+                        elif self.bld.info.getName(event.target) in ["秽血勇虫", "穢血勇蟲"]:
+                            self.stat[event.caster][9] += event.damageEff
+                        elif self.bld.info.getName(event.target) in ["毒尸", "毒屍"]:
+                            self.stat[event.caster][10] += event.damageEff
+                        elif self.bld.info.getName(event.target) in ["血蛊巢心", "血蠱巢心"]:
+                            if event.damageEff > 0 and self.phase != 2:
+                                self.phaseTime[1] = event.time - self.startTime
+                                self.phase = 2
+                                self.phaseStart = event.time
+                                self.bh.setEnvironment("0", "血蛊巢心激活", "3398", event.time - 15000, 15000, 1, "")
+                            self.stat[event.caster][11] += event.damageEff
+
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
                 return
 
-            if event.id == "20139":  # 吐丝成茧
-                self.stunCounter[event.target].setState(event.time, event.stack)
-                if event.stack == 1:
-                    if event.time - self.tscj[-1][0] > 1000:
-                        self.tscj.append([event.time, 0])
-                    self.zzlCount += 1
-                    self.bh.setCall("20139", "吐丝成茧", "371", event.time, 0, event.target, "点名内场")
-                else:
-                    self.zzlCount -= 1
-                    if self.zzlCount == 0:
-                        self.tscj[-1][1] = event.time + 5000
+            if event.id == "20289" and event.stack == 1:  # 凝视
+                self.bh.setCall("20289", "毒痰目标", "330", event.time, 0, event.target, "点名排蓝圈")
 
-            if event.id == "20112":  # 丝魂缚锁
+            if event.id in ["20775", "20180"]:  # 鬼虫点名
                 self.stunCounter[event.target].setState(event.time, event.stack)
 
-            if event.id == "20163":
-                print("[Sangqiao]", event.id, event.level, event.stack, event.time, event.target, self.bld.info.player[event.target].name)
-                    
         elif event.dataType == "Shout":
-            return
-                
-        elif event.dataType == "Death":  # 重伤记录
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ['桑乔', "桑喬"]:
-                self.win = 1  # 击杀判定
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["蜘蛛茧", "蜘蛛繭"]:
-                if event.time - self.xzzTime > 100:
-                    self.zzl[event.id]["status"] = 1  # 正确
-                    self.zzl[event.id]["time"] = event.time
-                else:
-                    self.zzl[event.id]["status"] = 2  # 错误
+            pass
 
-        elif event.dataType == "Scene":  # 进入、离开场景
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["小蜘蛛"] and event.enter:
-                self.xzzTime = event.time
-                for line in self.zzl:
-                    if self.zzl[line]["status"] == 1 and event.time - self.zzl[line]["time"] < 100:
-                        self.zzl[line]["status"] = 2
-            
+        elif event.dataType == "Death":  # 重伤记录
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["血蛊巢心", "血蠱巢心"]:
+                self.win = 1
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["赐恩血瘤", "賜恩血瘤"]:
+                self.xueLiuFirstDown = 1
+
         elif event.dataType == "Battle":  # 战斗状态变化
             pass
+
+        elif event.dataType == "Scene":  # 进入、离开场景
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].templateID == "106070":
+                if event.enter:
+                    if event.time - self.dgxl[-1][0] > 2000:
+                        self.dgxl.append([event.time, self.finalTime])
+                else:
+                    self.dgxl[-1][1] = event.time
                     
     def analyseFirstStage(self, item):
         '''
@@ -210,40 +214,36 @@ class SangQiaoReplayer(SpecificReplayerPro):
         '''
         在战斗开始时的初始化流程，当第二阶段复盘开始时运行。
         '''
-        self.activeBoss = "桑乔"
+        self.activeBoss = "尤珈罗摩"
         
         # 通用格式：
         # 0 ID, 1 门派, 2 有效DPS, 3 团队-心法DPS/治疗量, 4 装分, 5 详情, 6 被控时间
 
-        # 桑乔数据格式：
-        # 7 本体DPS 8 丝魂缚锁 9 真蜘蛛茧 10 假蜘蛛茧
+        # 尤珈罗摩数据格式：
+        # 7 血瘤DPS, 8 鬼虫DPS, 9 勇虫DPS, 10 毒尸DPS, 11 P2DPS
         
         self.stat = {}
         self.hps = {}
         self.detail["boss"] = self.bossNamePrint
         self.win = 0
         self.stunCounter = {}
+        self.xueLiuFirstHit = {}
+        self.xueLiuActiveNum = 0
+        self.xueLiuFirstDown = 0
+
+        self.phase = 1
+        self.phaseStart = self.startTime
+        self.phaseTime = [0, 0, 0]
 
         self.bh = BattleHistory(self.startTime, self.finalTime)
         self.hasBh = True
-        self.tscj = [[0, 0]]
+        self.dgxl = [[0, 0]]  # 毒蛊血露
         
         for line in self.bld.info.player:
             self.hps[line] = 0
             self.stat[line] = [self.bld.info.player[line].name, self.occDetailList[line], 0, 0, -1, "", 0] + \
-                [0, 0, 0, 0]
+                [0, 0, 0, 0, 0]
             self.stunCounter[line] = BuffCounter(0, self.startTime, self.finalTime)
-
-        # 统计蜘蛛茧
-        self.zzl = {}
-        self.zzlCount = 0
-        self.xzzTime = 0  # 小蜘蛛出现
-        for line2 in self.bld.info.npc:
-            # print(self.bld.info.npc[line2].name)
-            if self.bld.info.npc[line2].name in ["蜘蛛茧", "蜘蛛繭"]:
-                self.zzl[line2] = {"dps": {}, "status": 0, "time": 0}
-                for line in self.bld.info.player:
-                    self.zzl[line2]["dps"][line] = 0
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint):
         '''

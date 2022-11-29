@@ -39,12 +39,12 @@ class TengyuanYouyeWindow(SpecificBossWindow):
         for i in range(len(self.effectiveDPSList)):
             line = self.effectiveDPSList[i]
             self.constructCommonLine(tb, line)
-            tb.AppendContext(int(line[7]))
-            tb.AppendContext(int(line[8]))
-            tb.AppendContext(int(line[9]))
+            tb.AppendContext(int(line["battle"]["btDPS"]))
+            tb.AppendContext(int(line["battle"]["fzDPS"]))
+            tb.AppendContext(int(line["battle"]["qyDPS"]))
             # 心法复盘
-            if line[0] in self.occResult:
-                tb.GenerateXinFaReplayButton(self.occResult[line[0]], line[0])
+            if line["name"] in self.occResult:
+                tb.GenerateXinFaReplayButton(self.occResult[line["name"]], line["name"])
             else:
                 tb.AppendContext("")
             tb.EndOfLine()
@@ -75,19 +75,31 @@ class TengyuanYouyeReplayer(SpecificReplayerPro):
 
         self.countFinal()
 
+        # bossResult = []
+        # for id in self.bld.info.player:
+        #     if id in self.stat:
+        #         line = self.stat[id]
+        #         res = self.getBaseList(id)
+        #         res.extend([int(safe_divide(line[7], self.detail["P1Time"])),
+        #                     int(safe_divide(line[8], self.detail["P1Time"])),
+        #                     int(safe_divide(line[9], self.detail["P2Time"]))])
+        #         bossResult.append(res)
+        # bossResult.sort(key=lambda x: -x[2])
+        # self.effectiveDPSList = bossResult
+        #
+        # return self.effectiveDPSList, self.potList, self.detail, self.stunCounter
+
         bossResult = []
         for id in self.bld.info.player:
-            if id in self.stat:
-                line = self.stat[id]
+            if id in self.statDict:
                 res = self.getBaseList(id)
-                res.extend([int(safe_divide(line[7], self.detail["P1Time"])),
-                            int(safe_divide(line[8], self.detail["P1Time"])),
-                            int(safe_divide(line[9], self.detail["P2Time"]))])
+                res["battle"]["btDPS"] = int(safe_divide(res["battle"]["btDPS"], self.detail["P1Time"]))
+                res["battle"]["fzDPS"] = int(safe_divide(res["battle"]["fzDPS"], self.detail["P1Time"]))
+                res["battle"]["qyDPS"] = int(safe_divide(res["battle"]["qyDPS"], self.detail["P2Time"]))
                 bossResult.append(res)
-        bossResult.sort(key=lambda x: -x[2])
-        self.effectiveDPSList = bossResult
+        self.statList = bossResult
 
-        return self.effectiveDPSList, self.potList, self.detail, self.stunCounter
+        return self.statList, self.potList, self.detail, self.stunCounter
 
     def recordDeath(self, item, deathSource):
         '''
@@ -120,17 +132,17 @@ class TengyuanYouyeReplayer(SpecificReplayerPro):
                             self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式命中玩家", "skill")
 
             else:
-                if event.caster in self.bld.info.player and event.caster in self.stat:
-                    self.stat[event.caster][2] += event.damageEff
+                if event.caster in self.bld.info.player and event.caster in self.statDict:
+                    # self.stat[event.caster][2] += event.damageEff
                     if self.bld.info.getName(event.target) in ["藤原佑野"]:
                         self.bh.setMainTarget(event.target)
-                        self.stat[event.caster][7] += event.damageEff
+                        self.statDict[event.caster]["battle"]["btDPS"] += event.damageEff
                     if self.bld.info.getName(event.target) in ["结界符咒", "結界符咒"]:
                         # self.bh.setMainTarget(event.target)
-                        self.stat[event.caster][8] += event.damageEff
+                        self.statDict[event.caster]["battle"]["fzDPS"] += event.damageEff
                     if self.bld.info.getName(event.target) in ["泉眼"]:
                         # self.bh.setMainTarget(event.target)
-                        self.stat[event.caster][9] += int(event.fullResult.get("9", 0))
+                        self.statDict[event.caster]["battle"]["qyDPS"] += int(event.fullResult.get("9", 0))
                         self.quanyanDmg += int(event.fullResult.get("9", 0))
 
         elif event.dataType == "Buff":
@@ -280,7 +292,9 @@ class TengyuanYouyeReplayer(SpecificReplayerPro):
         self.quanyanDmg = 0
 
         for line in self.bld.info.player:
-            self.stat[line].extend([0, 0, 0])
+            self.statDict[line]["battle"] = {"btDPS": 0,
+                                             "fzDPS": 0,
+                                             "qyDPS": 0}
             self.sifangStart[line] = 0
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):

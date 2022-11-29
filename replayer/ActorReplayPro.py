@@ -23,19 +23,6 @@ from replayer.boss.Base import SpecificReplayerPro
 
 from replayer.boss.General import GeneralReplayer
 
-from replayer.boss.JuxingJianwenfeng import JuxingJianwenfengReplayer
-from replayer.boss.SangQiao import SangQiaoReplayer
-from replayer.boss.XidaLuomo import XidaLuomoReplayer
-from replayer.boss.YoujiaLuomo import YoujiaLuomoReplayer
-from replayer.boss.YuequanHuai import YuequanHuaiReplayer
-from replayer.boss.WuMenggui import WuMengguiReplayer
-
-from replayer.boss.LeQina import LeQinaReplayer
-from replayer.boss.AGeno import AGenoReplayer
-from replayer.boss.ZhouTongji import ZhouTongjiReplayer
-from replayer.boss.ZhouZhi import ZhouZhiReplayer
-from replayer.boss.ChangXiu import ChangXiuReplayer
-
 from replayer.boss.ZhangJingchao import ZhangJingchaoReplayer
 from replayer.boss.LiuZhan import LiuZhanReplayer
 from replayer.boss.SuFenglou import SuFenglouReplayer
@@ -97,7 +84,7 @@ class ActorProReplayer(ReplayerBase):
         result["userid"] = self.config.item["user"]["uuid"]
         
         allInfo = {}
-        # allInfo["effectiveDPSList"] = self.effectiveDPSList
+        # allInfo["statDict"] = self.statDict
         # allInfo["potList"] = self.potList
         allInfo["battleTime"] = self.battleTime
         allInfo["act"] = self.combatTracker.generateJson()
@@ -122,7 +109,7 @@ class ActorProReplayer(ReplayerBase):
 
         # self.namedict = namedict
         # self.occdict = occdict
-        # self.effectiveDPSList = []
+        # self.statDict = []
 
         # 开怪统计中间变量
         self.firstHitList = {}
@@ -149,32 +136,12 @@ class ActorProReplayer(ReplayerBase):
 
             if event.dataType == "Skill":
 
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ['巨型尖吻凤', "巨型尖吻鳳"]:
-                    self.bossAnalyseName = "巨型尖吻凤"
-                    if not timeReseted:
-                        self.startTime = event.time
-                        timeReseted = 1
+                # if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ['巨型尖吻凤', "巨型尖吻鳳"]:
+                #     self.bossAnalyseName = "巨型尖吻凤"
+                #     if not timeReseted:
+                #         self.startTime = event.time
+                #         timeReseted = 1
 
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ['桑乔', "桑喬"]:
-                    self.bossAnalyseName = "桑乔"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ['悉达罗摩', "悉達羅摩"]:
-                    self.bossAnalyseName = "悉达罗摩"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ['赐恩血瘤', "賜恩血瘤"]:
-                    self.bossAnalyseName = "尤珈罗摩"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) == '月泉淮':
-                    self.bossAnalyseName = "月泉淮"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ['乌蒙贵', "烏蒙貴", "黑条巨蛾", "黑條巨蛾"]:
-                    self.bossAnalyseName = "乌蒙贵"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ['勒齐那', "勒齊那"]:
-                    self.bossAnalyseName = "勒齐那"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ['阿阁诺', "阿閣諾"]:
-                    self.bossAnalyseName = "阿阁诺"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ['周通忌']:
-                    self.bossAnalyseName = "周通忌"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ['周贽', "周贄", "狼牙精锐", "狼牙精銳", "李秦授"]:
-                    self.bossAnalyseName = "周贽"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ['常宿']:
-                    self.bossAnalyseName = "常宿"
                 if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["张景超", "張景超", "张法雷", "張法雷"]:
                     self.bossAnalyseName = "张景超"
                 if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["刘展", "劉展", "枪卫首领", "槍衛首領", "斧卫首领", "斧衛首領"]:
@@ -202,12 +169,13 @@ class ActorProReplayer(ReplayerBase):
                     occDetailList[event.caster] = checkOccDetailByBuff(occDetailList[event.caster], event.id)
 
             elif event.dataType == "Shout":
-                if self.bossAnalyseName == "赵八嫂" and event.content in ['"就拿你们的血来磨磨刀！"']:
-                    self.startTime = event.time
-                if self.bossAnalyseName == "悉达罗摩" and event.content in ['"来吧，进餐时间到了！"']:
-                    self.finalTime = event.time + 5000
-                if self.bossAnalyseName == "月泉淮" and event.content in ['"就到这里吧……我玩够了。"']:
-                    self.finalTime = event.time + 5000
+                # if self.bossAnalyseName == "赵八嫂" and event.content in ['"就拿你们的血来磨磨刀！"']:
+                #     self.startTime = event.time
+                # if self.bossAnalyseName == "悉达罗摩" and event.content in ['"来吧，进餐时间到了！"']:
+                #     self.finalTime = event.time + 5000
+                # if self.bossAnalyseName == "月泉淮" and event.content in ['"就到这里吧……我玩够了。"']:
+                #     self.finalTime = event.time + 5000
+                pass
 
             elif event.dataType == "Battle":
                 pass
@@ -352,40 +320,7 @@ class ActorProReplayer(ReplayerBase):
         self.dps = {}
         self.deathName = {}
 
-        if self.bossAnalyseName == "巨型尖吻凤":
-            bossAnalyser = JuxingJianwenfengReplayer(self.bld, occDetailList, self.startTime,
-                                           self.finalTime, self.battleTime, self.bossNamePrint)
-        elif self.bossAnalyseName == "桑乔":
-            bossAnalyser = SangQiaoReplayer(self.bld, occDetailList, self.startTime,
-                                           self.finalTime, self.battleTime, self.bossNamePrint)
-        elif self.bossAnalyseName == "悉达罗摩":
-            bossAnalyser = XidaLuomoReplayer(self.bld, occDetailList, self.startTime,
-                                           self.finalTime, self.battleTime, self.bossNamePrint)
-        elif self.bossAnalyseName == "尤珈罗摩":
-            bossAnalyser = YoujiaLuomoReplayer(self.bld, occDetailList, self.startTime,
-                                           self.finalTime, self.battleTime, self.bossNamePrint)
-        elif self.bossAnalyseName == "月泉淮":
-            bossAnalyser = YuequanHuaiReplayer(self.bld, occDetailList, self.startTime,
-                                           self.finalTime, self.battleTime, self.bossNamePrint)
-        elif self.bossAnalyseName == "乌蒙贵":
-            bossAnalyser = WuMengguiReplayer(self.bld, occDetailList, self.startTime,
-                                           self.finalTime, self.battleTime, self.bossNamePrint)
-        elif self.bossAnalyseName == "勒齐那":
-            bossAnalyser = LeQinaReplayer(self.bld, occDetailList, self.startTime,
-                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
-        elif self.bossAnalyseName == "阿阁诺":
-            bossAnalyser = AGenoReplayer(self.bld, occDetailList, self.startTime,
-                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
-        elif self.bossAnalyseName == "周通忌":
-            bossAnalyser = ZhouTongjiReplayer(self.bld, occDetailList, self.startTime,
-                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
-        elif self.bossAnalyseName == "周贽":
-            bossAnalyser = ZhouZhiReplayer(self.bld, occDetailList, self.startTime,
-                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
-        elif self.bossAnalyseName == "常宿":
-            bossAnalyser = ChangXiuReplayer(self.bld, occDetailList, self.startTime,
-                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
-        elif self.bossAnalyseName == "张景超":
+        if self.bossAnalyseName == "张景超":
             bossAnalyser = ZhangJingchaoReplayer(self.bld, occDetailList, self.startTime,
                                            self.finalTime, self.battleTime, self.bossNamePrint, self.config)
         elif self.bossAnalyseName == "刘展":
@@ -739,7 +674,7 @@ class ActorProReplayer(ReplayerBase):
         self.startTime, self.finalTime, self.battleTime = self.bossAnalyser.trimTime()
         self.battleTime += 1e-10  # 防止0战斗时间导致错误
 
-        effectiveDPSList, potList, detail, stunCounter = self.bossAnalyser.getResult()
+        statDict, potList, detail, stunCounter = self.bossAnalyser.getResult()
         self.potList = potList
         self.win = self.bossAnalyser.win
         self.stunCounter = stunCounter
@@ -747,7 +682,7 @@ class ActorProReplayer(ReplayerBase):
         # recordGORate = 1
         # sumDPS = 0
         # numDPS = 0
-        # for line in effectiveDPSList:
+        # for line in statDict:
         #     sumDPS += line[2]
         #     numDPS += 1
         #
@@ -772,8 +707,8 @@ class ActorProReplayer(ReplayerBase):
         #         resultDict = json.loads(res['statistics'].replace("'", '"'))
         #         sumStandardDPS = 0
         #
-        #         for i in range(len(effectiveDPSList) - 1, -1, -1):
-        #             line = effectiveDPSList[i]
+        #         for i in range(len(statDict) - 1, -1, -1):
+        #             line = statDict[i]
         #             occ = str(line[1])
         #             if occ not in resultDict:
         #                 resultDict[occ] = ["xx", "xx", 50000]
@@ -781,8 +716,8 @@ class ActorProReplayer(ReplayerBase):
         #             #    occ = occ[:-1]
         #             sumStandardDPS += resultDict[occ][2]
         #
-        #         for i in range(len(effectiveDPSList) - 1, -1, -1):
-        #             line = effectiveDPSList[i]
+        #         for i in range(len(statDict) - 1, -1, -1):
+        #             line = statDict[i]
         #             occ = str(line[1])
         #             if occ not in resultDict:
         #                 resultDict[occ] = ["xx", "xx", 50000]
@@ -823,7 +758,7 @@ class ActorProReplayer(ReplayerBase):
         #                                      0])
         #
         #             if recordGORate and getOccType(line[1]) != "healer":
-        #                 effectiveDPSList[i][3] = int(GORate * 100)
+        #                 statDict[i][3] = int(GORate * 100)
 
         # 开怪统计
         if self.firstHitList != {}:
@@ -887,7 +822,7 @@ class ActorProReplayer(ReplayerBase):
             detail["boss"] = self.bossname
 
         # self.data = data
-        self.effectiveDPSList = effectiveDPSList
+        self.statDict = statDict
         self.detail = detail
         
         self.server = self.bld.info.server
@@ -1028,7 +963,7 @@ class ActorProReplayer(ReplayerBase):
         # 复盘结果信息
         self.potList = []
         self.detail = {"boss": "未知"}
-        self.effectiveDPSList = []
+        self.statDict = []
         self.equipmentDict = {}
         self.available = True  # 暂时用来判定月泉淮中间分片
         self.bossAnalyseName = "未知"

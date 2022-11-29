@@ -38,8 +38,8 @@ class ZhangJingchaoWindow(SpecificBossWindow):
             self.constructCommonLine(tb, line)
 
             # 心法复盘
-            if line[0] in self.occResult:
-                tb.GenerateXinFaReplayButton(self.occResult[line[0]], line[0])
+            if line["name"] in self.occResult:
+                tb.GenerateXinFaReplayButton(self.occResult[line["name"]], line["name"])
             else:
                 tb.AppendContext("")
             tb.EndOfLine()
@@ -70,14 +70,14 @@ class ZhangJingchaoReplayer(SpecificReplayerPro):
 
         bossResult = []
         for id in self.bld.info.player:
-            if id in self.stat:
-                line = self.stat[id]
+            if id in self.statDict:
+                # line = self.stat[id]
                 res = self.getBaseList(id)
                 bossResult.append(res)
-        bossResult.sort(key=lambda x: -x[2])
-        self.effectiveDPSList = bossResult
+        # bossResult.sort(key=lambda x: -x[2])
+        self.statList = bossResult
 
-        return self.effectiveDPSList, self.potList, self.detail, self.stunCounter
+        return self.statList, self.potList, self.detail, self.stunCounter
 
     def recordDeath(self, item, deathSource):
         '''
@@ -112,18 +112,16 @@ class ZhangJingchaoReplayer(SpecificReplayerPro):
                             self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式命中玩家", "skill")
 
             else:
-                if event.caster in self.bld.info.player and event.caster in self.stat:
-                    self.stat[event.caster][2] += event.damageEff
+                if event.caster in self.bld.info.player and event.caster in self.statDict:
+                    # self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
                         if self.bld.info.getName(event.target) in ["张景超", "張景超"]:
                             self.bh.setMainTarget(event.target)
-                            self.stat[event.caster][7] += event.damageEff
+                            self.statDict[event.caster]["battle"]["zjcDPS"] += event.damageEff
                         elif self.bld.info.getName(event.target) in ["张法雷", "張法雷"]:
-                            # self.bh.setMainTarget(event.target)
-                            self.stat[event.caster][8] += event.damageEff
+                            self.statDict[event.caster]["battle"]["zflDPS"] += event.damageEff
                         elif self.bld.info.getName(event.target) in ["劲风", "勁風"]:
-                            # self.bh.setMainTarget(event.target)
-                            self.stat[event.caster][9] += event.damageEff
+                            self.statDict[event.caster]["battle"]["jfDPS"] += event.damageEff
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -266,7 +264,10 @@ class ZhangJingchaoReplayer(SpecificReplayerPro):
         self.wanjunStart = {}
 
         for line in self.bld.info.player:
-            self.stat[line].extend([0, 0, 0])
+            # self.stat[line].extend([0, 0, 0])
+            self.statDict[line]["battle"] = {"zjcDPS": 0,
+                                             "zflDPS": 0,
+                                             "jfDPS": 0}
             self.wanjunStart[line] = 0
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
