@@ -234,10 +234,16 @@ class ActorProReplayer(ReplayerBase):
                         flag = True
                 self.jsonEquip[id] = jsonEquip
                 self.strEquip[id] = strEquip
+
+                print("[TestJsonEquip]", jsonEquip)
+                print("[strEquip]", strEquip)
+
             if flag:  # 需要向服务器请求
                 self.window.playerEquipment[id] = self.bld.info.player[id].equip
                 requests["players"].append({"equipStr": strEquip, "id": id, "name": self.bld.info.getName(id), "occ": occDetailList[id],
                                             "server": self.bld.info.server, "score": self.bld.info.player[id].equipScore})
+
+        return
 
         # 向服务器请求. 这里先从本地计算，以后再改为服务器请求的逻辑.
         # results = {}

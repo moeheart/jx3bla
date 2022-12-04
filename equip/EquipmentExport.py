@@ -651,6 +651,8 @@ class ExcelExportEquipment():
                     result += str(line["plug0"])
                 else:
                     result += ""
+            elif id != "1":
+                result += "0\t\t\t0\t0\t0\t"
             result += "\n"
             
         return result[:-1].strip('\n')

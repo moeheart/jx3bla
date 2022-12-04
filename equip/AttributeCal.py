@@ -46,6 +46,9 @@ class AttributeCal():
         for line in equips:
             #计算基础属性
             feature = self.equipmentInfo.getFeature(equips[line]["id_full"])
+            if feature == 0:
+                continue
+
             if feature["set"] not in ["", "0"]:
                 if feature["set"] not in setCount:
                     setCount[feature["set"]] = 1
