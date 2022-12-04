@@ -105,7 +105,7 @@ class SpecificBossWindow(Window):
         '''
         tb.AppendHeader("玩家名", "", width=13)
         tb.AppendHeader("rDPS/分数", "对于DPS或T心法显示rDPS，表示将所有增益转移到对应来源之后的每秒伤害。\n对于治疗心法显示综合评分，表示综合技能数、战斗效率、增益覆盖、rHPS的评分。")
-        tb.AppendHeader("排名", "前一项的排名，表示超过了百分之多少的玩家。")
+        tb.AppendHeader("排名", "前一项的排名，表示超过了百分之多少的玩家。\n有时这个排名会与详细复盘中不一致，这是因为这里是“全时刻排名”，而详细复盘中是“即时排名”。")
         tb.AppendHeader("装分", "玩家的装分，可能会获取失败。\n被星号标记的装分表示对应的装备已经获取失败，但服务器可以从最近的战斗记录中读取到缓存。")
         tb.AppendHeader("详情", "装备详细描述。")
         tb.AppendHeader("强化", "装备强化列表，表示[精炼满级装备数量]/[插8]-[插7]-[插6]/[五彩石等级]/[紫色附魔]-[蓝色附魔]/[大附魔：手腰脚头衣裤]\n注意精炼与镶嵌目前无法准确获取，但附魔情况是准确的。")
@@ -143,18 +143,20 @@ class SpecificBossWindow(Window):
         # tb.AppendContext(line[5].split('|')[1])
         # tb.AppendContext(int(line[6]))
 
+        # print("[Debug]", line)
+
         name = self.getMaskName(line["name"])
         color = getColor(line["occ"])
         tb.AppendContext(name, color=color, width=13)
 
         if getOccType(line["occ"]) != "healer":
-            tb.AppendContext(int(line["rdps"]))
+            tb.AppendContext(str(line["rdps"]), color="#000000")
             text3 = str(line["rdpsRank"])
-            color3 = "#000000"
+            color3 = getRankColor(line["rdpsRank"])
         else:
-            tb.AppendContext(int(line["score"]))
+            tb.AppendContext(str(line["score"]), color="#00ff00")
             text3 = str(line["scoreRank"])
-            color3 = "#00ff00"
+            color3 = getRankColor(line["scoreRank"])
         tb.AppendContext(text3, color=color3)
 
         if line["equip"]["score"] == "":

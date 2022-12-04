@@ -19,26 +19,6 @@ def getDirection(key):
     else:
         return 1
 
-def getRankColor(percent):
-    '''
-    根据排名获取对应的颜色.
-    '''
-    if percent == 100:
-        color = "#e5cc80"
-    elif percent == 99:
-        color = "#e268a8"
-    elif percent >= 95:
-        color = "#ff7700"
-    elif percent >= 75:
-        color = "#330077"
-    elif percent >= 50:
-        color = "#0000ff"
-    elif percent >= 25:
-        color = "#007700"
-    else:
-        color = "#aaaaaa"
-    return color
-
 class SingleSkillDisplayer():
     '''
     单个技能展示类，用于整理并显示单独的技能。

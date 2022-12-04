@@ -235,15 +235,13 @@ class ActorProReplayer(ReplayerBase):
                 self.jsonEquip[id] = jsonEquip
                 self.strEquip[id] = strEquip
 
-                print("[TestJsonEquip]", jsonEquip)
-                print("[strEquip]", strEquip)
+                # print("[TestJsonEquip]", jsonEquip)
+                # print("[strEquip]", strEquip)
 
             if flag:  # 需要向服务器请求
                 self.window.playerEquipment[id] = self.bld.info.player[id].equip
                 requests["players"].append({"equipStr": strEquip, "id": id, "name": self.bld.info.getName(id), "occ": occDetailList[id],
                                             "server": self.bld.info.server, "score": self.bld.info.player[id].equipScore})
-
-        return
 
         # 向服务器请求. 这里先从本地计算，以后再改为服务器请求的逻辑.
         # results = {}
@@ -920,6 +918,18 @@ class ActorProReplayer(ReplayerBase):
             if replayer is not None:
                 replayer.replay()
                 self.occResult[name] = {"occ": self.occDetailList[id], "result": replayer.result, "rank": replayer.rank}
+                # 尝试从心法复盘中回流排名
+                rdps = replayer.result["skill"]["general"]["rdps"]
+                score = replayer.result["skill"]["general"]["score"]
+                rdpsRank = replayer.result["rank"]["general"]["rdps"]
+                scoreRank = replayer.result["rank"]["general"].get("score", {"num": 0, "percent": -1})
+                for i in range(len(self.statDict)):
+                    if self.statDict[i]["name"] == self.bld.info.getName(id):
+                        self.statDict[i]["rdps"] = rdps
+                        self.statDict[i]["score"] = score
+                        self.statDict[i]["rdpsRank"] = rdpsRank["percent"]
+                        self.statDict[i]["scoreRank"] = scoreRank["percent"]
+        self.statDict.sort(key=lambda x:-x["rdps"])
 
     def replay(self):
         '''

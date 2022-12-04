@@ -652,7 +652,7 @@ class ExcelExportEquipment():
                 else:
                     result += ""
             elif id != "1":
-                result += "0\t\t\t0\t0\t0\t"
+                result += "0\t0\t0\t0\t\t\t\t"
             result += "\n"
             
         return result[:-1].strip('\n')
@@ -683,7 +683,7 @@ class ImportExcelEquipment():
         returns:
         - equips: json形式的装备统计
         '''
-        print("[Test]", attrStr)
+        # print("[Test]", attrStr)
         res = attrStr.split('\n')
         equips = {}
         for i in range(len(res)):

@@ -70,6 +70,10 @@ class HealerReplay(ReplayerBase):
         self.result["review"]["score"] = self.reviewScore
         self.result["skill"]["general"]["score"] = self.reviewScore
 
+        # 把评分再计算一次
+        self.getRankFromStat(self.occ)
+        self.result["rank"] = self.rank
+
     def calculateSkillOverall(self):
         '''
         第二阶段结束时共有的技能统计部分.

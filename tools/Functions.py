@@ -45,6 +45,26 @@ def safe_divide(x, y):
     else:
         return -1e+10
 
+def getRankColor(percent):
+    '''
+    根据排名百分比获取对应的颜色（也即金/粉/橙/紫/蓝/绿/灰）.
+    '''
+    if percent == 100:
+        color = "#e5cc80"
+    elif percent == 99:
+        color = "#e268a8"
+    elif percent >= 95:
+        color = "#ff7700"
+    elif percent >= 75:
+        color = "#330077"
+    elif percent >= 50:
+        color = "#0000ff"
+    elif percent >= 25:
+        color = "#007700"
+    else:
+        color = "#aaaaaa"
+    return color
+
 class SkillCounter():
     '''
     通用的技能统计类，记录技能的施放位置，并给出技能平均延时、数量等数据.
