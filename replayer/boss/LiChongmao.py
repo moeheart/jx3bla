@@ -108,6 +108,20 @@ class LiChongmaoReplayer(SpecificReplayerPro):
                         if "," not in skillName:
                             self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式命中玩家", "skill")
 
+                if event.id == "33376":  # 武士必中普攻
+                    deathTime = parseTime((event.time - self.startTime) / 1000)
+                    source = event.caster
+                    id = 0
+                    if source in self.wushiDict:
+                        id = self.wushiDict[source]
+                    self.addPot([self.bld.info.player[event.target].name,
+                                  self.occDetailList[event.target],
+                                  1,
+                                  self.bossNamePrint,
+                                  "%s武士惩罚击杀，来源：武士%d" % (deathTime, id),
+                                  [],
+                                  0])
+
             else:
                 if event.caster in self.bld.info.player and event.caster in self.statDict:
                     # self.stat[event.caster][2] += event.damageEff
@@ -116,6 +130,28 @@ class LiChongmaoReplayer(SpecificReplayerPro):
                         self.statDict[event.caster]["battle"]["btDPS"] += event.damageEff
                     elif self.bld.info.getName(event.target) in ["一刀流精锐武士", "一刀流精銳武士", "永王叛军长枪兵", "永王叛军剑卫", "永王叛軍長槍兵", "永王叛軍劍衛"]:
                         self.statDict[event.caster]["battle"]["xgDPS"] += event.damageEff
+
+                if event.id in CONTROL_DICT:
+                    print("[Control_test]", parseTime((event.time - self.startTime) / 1000), event.id, self.bld.info.getSkillName(event.full_id),
+                          CONTROL_DICT[event.id], self.bld.info.getName(event.target), event.damageEff)
+
+                if self.phase == 5 and self.bld.info.getName(event.target) in ["一刀流武士"] and event.id in CONTROL_DICT and event.caster in self.bld.info.player:
+                    castTime = parseTime((event.time - self.startTime) / 1000)
+                    id = 0
+                    if event.target in self.wushiDict:
+                        id = self.wushiDict[event.target]
+
+                    skillName = CONTROL_DICT[event.id]
+                    if skillName == "":
+                        skillName = self.bld.info.getSkillName(event.full_id)
+
+                    self.addPot([self.bld.info.player[event.caster].name,
+                                  self.occDetailList[event.caster],
+                                  1,
+                                  self.bossNamePrint,
+                                  "%s控制武士%d，来源：%s" % (castTime, id, skillName),
+                                  [],
+                                  0])
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -168,9 +204,9 @@ class LiChongmaoReplayer(SpecificReplayerPro):
             elif event.content in ['"把这些逆贼打入天牢！"']:
                 pass
             elif event.content in ['"朕没有错！是天下人负了朕！"']:
-                pass
+                self.changePhase(event.time, 5)
             elif event.content in ['"师兄.....师兄你在哪？有人要害我！"']:
-                pass
+                self.changePhase(event.time, 4)
             elif event.content in ['"啧……"']:
                 pass
             elif event.content in ['"啊……"']:
@@ -206,9 +242,31 @@ class LiChongmaoReplayer(SpecificReplayerPro):
                     if "的" not in skillName:
                         self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
                                                1, "NPC出现", "npc")
+            if self.bld.info.getName(event.id) in ["一刀流武士"] and event.enter and self.phase == 5:
+                self.wushiNum += 1
+                self.wushiDict[event.id] = self.wushiNum
 
         elif event.dataType == "Death":  # 重伤记录
-            pass
+
+            if event.id not in self.bld.info.player:
+                return
+
+            # deathTime = parseTime((event.time - self.startTime) / 1000)
+            # source = event.killer
+            # sourceName = self.bld.info.getName(source)
+            # id = 0
+            # if source in self.wushiDict:
+            #     id = self.wushiDict[source]
+            # if sourceName in ["一刀流武士"]:
+            #
+            #     self.addPot([self.bld.info.player[event.id].name,
+            #                   self.occDetailList[event.id],
+            #                   1,
+            #                   self.bossNamePrint,
+            #                   "%s被武士击杀，来源：一刀流武士%d" % (deathTime, id),
+            #                   [],
+            #                   0])
+
 
         elif event.dataType == "Battle":  # 战斗状态变化
             pass
@@ -242,7 +300,7 @@ class LiChongmaoReplayer(SpecificReplayerPro):
         self.initBattleBase()
         self.activeBoss = "李重茂"
 
-        self.initPhase(4, 1)
+        self.initPhase(5, 1)
 
         self.bhBlackList.extend(["n112037", "n112576", "s32339", "b24289", "c32634", "c33075", "s33076", "c32596",
                                  "b24079", "n112030", "c32075", "b24338", "s32634", "s32596",
@@ -280,6 +338,8 @@ class LiChongmaoReplayer(SpecificReplayerPro):
         # 7 ？
 
         self.qiangbingStart = {}
+        self.wushiDict = {}
+        self.wushiNum = 0
 
         for line in self.bld.info.player:
             self.statDict[line]["battle"] = {"btDPS": 0,

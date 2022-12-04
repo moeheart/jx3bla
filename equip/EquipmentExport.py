@@ -681,6 +681,7 @@ class ImportExcelEquipment():
         returns:
         - equips: json形式的装备统计
         '''
+        print("[Test]", attrStr)
         res = attrStr.split('\n')
         equips = {}
         for i in range(len(res)):

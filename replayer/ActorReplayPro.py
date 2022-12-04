@@ -591,14 +591,11 @@ class ActorProReplayer(ReplayerBase):
                 lastFatal = 0
                 lastLine = [event.time, "未知", 0, "0", -1, 0, 0]
 
+                fromWushi = 0
+
                 if event.id in deathHitDetail:
                     deathSourceDetail = ["血量变化记录："]
                     for line in deathHitDetail[event.id]:
-                        # name = "未知"
-                        # if line[3] in self.bld.info.player:
-                        #     name = self.bld.info.player[line[3]].name
-                        # elif line[3] in self.bld.info.npc:
-                        #     name = self.bld.info.npc[line[3]].name
                         name = self.bld.info.getName(line[3])
                         resultStr = ""
                         if line[5] > 0 and line[5] <= 7:
@@ -616,6 +613,8 @@ class ActorProReplayer(ReplayerBase):
                             damageSum1 += line[2]
                         if event.time - line[0] < 5000:
                             damageSum5 += line[2]
+                        if name == "一刀流武士" and line[2] > 3000000:
+                            fromWushi = 1
 
                     state1 = self.penalty1[event.id].checkState(event.time - 500)
                     state2 = self.penalty2[event.id].checkState(event.time - 500)
@@ -624,7 +623,7 @@ class ActorProReplayer(ReplayerBase):
                     if state2 > 0:
                         deathSourceDetail.append("重伤时debuff精神匮乏：%d层"%state2)
 
-                    if self.bossAnalyseName != "月泉淮" or deathSource != "未知":  # 排除月泉淮的自绝统计
+                    if (self.bossAnalyseName != "月泉淮" or deathSource != "未知") and not fromWushi:  # 排除月泉淮的自绝统计
                         self.bossAnalyser.addPot([self.bld.info.player[event.id].name,
                                                   occDetailList[event.id],
                                                   severe,
