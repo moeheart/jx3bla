@@ -918,10 +918,11 @@ class XiangZhiProReplayer(HealerReplay):
             sum += 1
             if i >= 4:
                 num += 1
-        coverRate = roundCent(safe_divide(num, sum))
-        res = {"code": 104, "time": sum, "coverTime": num, "rate": coverRate}
-        res["status"] = getRateStatus(res["rate"], 75, 0, 0)
-        self.result["review"]["content"].append(res)
+        if num > 0:  # 次数为0时直接不显示
+            coverRate = roundCent(safe_divide(num, sum))
+            res = {"code": 104, "time": sum, "coverTime": num, "rate": coverRate}
+            res["status"] = getRateStatus(res["rate"], 75, 0, 0)
+            self.result["review"]["content"].append(res)
 
         # # code 105 使用`移形换影` (现在放影子就会立刻回蓝)
         # sum = self.skillInfo[self.nonGcdSkillIndex["14082"]][0].getNum()

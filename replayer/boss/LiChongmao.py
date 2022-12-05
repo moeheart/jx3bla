@@ -131,9 +131,9 @@ class LiChongmaoReplayer(SpecificReplayerPro):
                     elif self.bld.info.getName(event.target) in ["一刀流精锐武士", "一刀流精銳武士", "永王叛军长枪兵", "永王叛军剑卫", "永王叛軍長槍兵", "永王叛軍劍衛"]:
                         self.statDict[event.caster]["battle"]["xgDPS"] += event.damageEff
 
-                if event.id in CONTROL_DICT:
-                    print("[Control_test]", parseTime((event.time - self.startTime) / 1000), event.id, self.bld.info.getSkillName(event.full_id),
-                          CONTROL_DICT[event.id], self.bld.info.getName(event.target), event.damageEff)
+                # if event.id in CONTROL_DICT:
+                #     print("[Control_test]", parseTime((event.time - self.startTime) / 1000), event.id, self.bld.info.getSkillName(event.full_id),
+                #           CONTROL_DICT[event.id], self.bld.info.getName(event.target), event.damageEff)
 
                 if self.phase == 5 and self.bld.info.getName(event.target) in ["一刀流武士"] and event.id in CONTROL_DICT and event.caster in self.bld.info.player:
                     castTime = parseTime((event.time - self.startTime) / 1000)
