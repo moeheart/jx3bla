@@ -808,12 +808,15 @@ class EquipmentAnalyser():
                         res[t] = 1
                     else:
                         res[t] += 1
+
+        # print("[EquipTest]", equips)
+        # print("[EquipTest2]", res)
         
         sketch = []
         #计算套装
         if res["星演"] >= 4 or res["惊尘"] >= 4 or res["百相"] >= 4 or res["择芳"] >= 4 or res["展锋"] >= 4 or res["揽江"] >= 4:
             sketch.append("4件套")
-        elif (res["择芳"] >= 2 or res["惊尘"] >= 2 or res["展锋"] >= 2) and (res["星演"] >= 2 or res["百相"] >= 2 and res["揽江"] >= 2):
+        elif (res["择芳"] >= 2 or res["惊尘"] >= 2 or res["展锋"] >= 2) and (res["星演"] >= 2 or res["百相"] >= 2 or res["揽江"] >= 2):
             sketch.append("4件套")
         elif res["惊尘"] >= 2:
             sketch.append("2惊尘")

@@ -483,6 +483,7 @@ class YunChangXinJingReplayer(HealerReplay):
                                "565",  # 回雪飘摇壳
                                "569",  # 王母壳
                                "6250",  # 回雪飘摇实际效果
+                               "6654", "6655", "6656",  # 晚阳回雪
                                "6209",  # 辞致
                                "21270", "21274", "21275", "21276",  # 垂眉
                                "24991", "24992", "24993",  # 九微飞花
@@ -554,7 +555,7 @@ class YunChangXinJingReplayer(HealerReplay):
                             # 记录九微飞花
                             jwfhWatchSkill.recordSkill(event.time, 0, 0, self.ss.timeEnd, delta=-1)
                         jwfhLast = event.time
-                    if event.id in ["6250"]:  # 回雪飘摇
+                    if event.id in ["6250", "6654", "6655", "6656"]:  # 回雪飘摇
                         hxpySkill.recordSkill(event.time, event.heal, event.healEff, 0)
                         # 回雪也计入战斗效率中
                         if event.time - hxpyDict.log[-1][0] > 200:
@@ -572,7 +573,7 @@ class YunChangXinJingReplayer(HealerReplay):
                             status = shangyuanDict[event.target].checkState(event.time - 50)
                             if status:
                                 sydhWrong += 1
-                    if event.id in ["6250"]:
+                    if event.id in ["6250", "6654", "6655", "6656"]:
                         # 回雪的运算。此处是推测逻辑，较为复杂，有心重构可以大胆尝试。
                         timeDiff = event.time - hxpyLastSkill
                         reset = 0

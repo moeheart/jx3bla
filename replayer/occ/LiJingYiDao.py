@@ -426,6 +426,7 @@ class LiJingYiDaoReplayer(HealerReplay):
         battleStat = {}  # 伤害占比统计，[无秋肃伤害，有秋肃伤害]
         damageDict = {}  # 伤害统计
         hanqingNumDict = {}  # 寒清触发次数
+        hanqingLastTime = {}  # 寒清上次触发
 
         # 技能统计
         wozhenBuff = SkillHealCounter("631", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 握针
@@ -442,6 +443,7 @@ class LiJingYiDaoReplayer(HealerReplay):
 
         for line in self.bld.info.player:
             hanqingNumDict[line] = 0
+            hanqingLastTime[line] = 0
             wozhenDict[line] = HotCounter("20070", self.startTime, self.finalTime)  # 握针
             shuhuaiDict[line] = HotCounter("20070", self.startTime, self.finalTime)  # 述怀
             battleStat[line] = [0, 0]
@@ -646,6 +648,9 @@ class LiJingYiDaoReplayer(HealerReplay):
                 if event.caster == self.mykey and event.scheme == 2:
                     if event.id in ["631"]:  # 握针
                         wozhenBuff.recordSkill(event.time, event.heal, event.healEff, lastSkillTime)
+                        # print("[WozhenFlag]", event.time, event.target, self.bld.info.getName(event.target))
+                        if event.target in hanqingNumDict and event.time - hanqingLastTime[event.target] < 250:
+                            hanqingNumDict[event.target] += 1
                     if event.id in ["5693"]:  # 述怀
                         shuhuaiBuff.recordSkill(event.time, event.heal, event.healEff, lastSkillTime)
 
@@ -659,9 +664,13 @@ class LiJingYiDaoReplayer(HealerReplay):
                             battleStat[event.caster][0] += event.damageEff
 
                 # 统计寒清
-                if event.id in ["18274"] and event.target in hanqingNumDict: # and event.caster == self.mykey:
-                    hanqingNumDict[event.target] += 1
+                if event.id in ["18274"] and event.target in hanqingNumDict:  # and event.caster == self.mykey:
+                    # hanqingNumDict[event.target] += 1
+                    hanqingLastTime[event.target] = event.time
                     # print("[HanqingFlag]", event.time, event.target, self.bld.info.player[event.target].name)
+
+                # if event.target in self.bld.info.player and event.damageEff > 0:
+                #     print("[DamageFlag]", event.time, event.target, self.bld.info.getName(event.target), event.damageEff, self.bld.info.getSkillName(event.full_id))
 
             elif event.dataType == "Buff":
                 if event.id in ["12770"] and event.stack == 1 and event.target == self.mykey:  # cw特效:
