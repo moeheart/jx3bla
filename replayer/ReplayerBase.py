@@ -41,6 +41,8 @@ class RankCalculator():
         '''
         value = getDirection(key) * value
         percent_key = "%s-%s-%s-%s-%s" % (occ, map, boss, name, key)
+        # print("[key]", percent_key)
+        # print("[data]", self.percent_data.keys())
         if percent_key in self.percent_data:
             # 计算百分位数流程
             result = self.percent_data[percent_key]
@@ -91,8 +93,27 @@ class RankCalculator():
                     for stat in ["hps", "rhps", "ahps", "ohps"]:
                         num, percent = self.getSkillPercent(occ, map, boss, "healer", stat, record.get(stat, 0))
                         self.rank["healer"][stat] = {"num": num, "percent": percent}
-        # print("[Rank]", self.rank)
+
+        # print("[Rank0]", self.rank)
         return self.rank
+
+    def getScoreRankFromStat(self, occ):
+        '''
+        通过统计数据从self.result中获取分数排名, 由于分数需要在其他排名的基础上得到，这里是一个特殊流程.
+        params:
+        - occ: 复盘心法.
+        returns:
+        - res: score这一项的数量与排名.
+        '''
+        # 记录分数，这里是一个特别判定
+        map = getIDFromMap(self.result["overall"]["map"])
+        boss = self.result["overall"]["boss"]
+        res = {"score": {"num": 0, "percent": -1}}
+        if "review" in self.result and "score" in self.result["review"]:
+            value = self.result["review"]["score"]
+            num, percent = self.getSkillPercent(occ, map, boss, "stat", "score", value)
+            res = {"score": {"num": num, "percent": percent}}
+        return res
 
     def __init__(self, result, percent_data):
         '''
@@ -118,6 +139,18 @@ class ReplayerBase():
         '''
         rc = RankCalculator(self.result, self.window.stat_percent)
         self.rank = rc.getRankFromStat(occ)
+
+    def getScoreRankFromStat(self, occ):
+        '''
+        通过统计数据从self.result中获取分数排名, 并保存在self.rank中.
+        params:
+        - occ: 复盘心法.
+        returns:
+        - res: score这一项的数量与排名.
+        '''
+        rc = RankCalculator(self.result, self.window.stat_percent)
+        res = rc.getScoreRankFromStat(occ)
+        return res
 
     def getHash(self):
         '''

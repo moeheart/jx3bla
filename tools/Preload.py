@@ -16,6 +16,7 @@ def checkRateEdition(serverEdition):
     '''
     global STAT_PERCENT
     requireUpdate = False
+    STAT_PERCENT = {}
     if os.path.exists('icons/rate.dat'):
         try:
             with open('icons/rate.dat', 'r') as f:
@@ -35,8 +36,8 @@ def checkRateEdition(serverEdition):
     if requireUpdate:
         # 从服务器重新读取排名
         if parseEdition(EDITION) == 0:  # 非联机版本跳过加载步骤
-            res = {"announcement": "", "version": "0.0.0", "url": ""}
-            STAT_PERCENT = {}
+            # STAT_PERCENT = {}
+            pass
         else:
             resp = urllib.request.urlopen('http://%s:8009/getPercentInfo' % IP)
             res = json.load(resp)

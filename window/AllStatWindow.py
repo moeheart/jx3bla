@@ -102,10 +102,16 @@ class AllStatWindow(Window):
             negativeLabel = tk.Label(frame2, text=negNumText, width=5, fg="#ff0000", font=("Arial", 12, "bold"))
             negativeLabel.grid(row=i, column=2)
 
-            tmp = i
-            button1 = tk.Button(frame2, bitmap="warning", text="评价", width=60, height=15, compound=tk.LEFT,
-                                command=lambda tmp=tmp: self.TryComment(tmp))
-            button1.grid(row=i, column=3)
+            # tmp = i
+            # button1 = tk.Button(frame2, bitmap="warning", text="评价", width=60, height=15, compound=tk.LEFT,
+            #                     command=lambda tmp=tmp: self.TryComment(tmp))
+            # button1.grid(row=i, column=3)
+
+            for j in range(1, 7):
+                rankText = self.playerRank[player[0]][j]
+                rankColor = getRankColor(rankText)
+                rankLabel = tk.Label(frame2, text=rankText, fg=rankColor)
+                rankLabel.grid(row=i, column=2 + j)
 
             text = self.analyser.getPlayerText(name)
             toopTip = ToolTip(nameLabel, text)
@@ -123,6 +129,7 @@ class AllStatWindow(Window):
         self.potListScore = self.analyser.potContainer.getAll()
         self.playerPotList = self.analyser.getPlayerPotList()
         self.playerID = self.analyser.getPlayer()
+        self.playerRank = self.analyser.getPlayerRank()
 
     def __init__(self, analyser, mainWindow):
         super().__init__()

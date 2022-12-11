@@ -70,9 +70,18 @@ class HealerReplay(ReplayerBase):
         self.result["review"]["score"] = self.reviewScore
         self.result["skill"]["general"]["score"] = self.reviewScore
 
-        # 把评分再计算一次
-        self.getRankFromStat(self.occ)
-        self.result["rank"] = self.rank
+        # # 把评分再计算一次
+        # self.getRankFromStat(self.occ)
+        # self.result["rank"] = self.rank
+
+        # print("[Rank1]", self.rank)
+
+        # 额外计算评分的排名
+        res = self.getScoreRankFromStat(self.occ)
+        self.result["rank"]["review"] = res
+        self.result["rank"]["general"]["score"] = res["score"]
+
+        # print("[Rank2]", self.rank)
 
     def calculateSkillOverall(self):
         '''
@@ -613,7 +622,7 @@ class HealerReplay(ReplayerBase):
             self.result["equip"]["crit"] = res["会心等级"]
             self.result["equip"]["critpowPercent"] = parseCent(res.get("会效", 0)) + "%"
             self.result["equip"]["critpow"] = res["会效等级"]
-            self.result["equip"]["hastePercent"] = parseCent(res["加速"]) + "%"
+            self.result["equip"]["hastePercent"] = parseCent(res.get("加速", 0)) + "%"
             self.result["equip"]["haste"] = res["加速等级"]
             if not self.config.item["xiangzhi"]["speedforce"]:
                 self.haste = self.result["equip"]["haste"]

@@ -12,6 +12,7 @@ import pyperclip
 
 from data.DataController import DataController
 from replayer.ActorReplayPro import ActorProReplayer
+from tools.Names import *
 
 from window.CommentWindow import CommentWindow
 from window.SingleBossWindow import SingleBossWindow
@@ -230,8 +231,23 @@ class LiveActorAnalysis():
                 else:
                     s += '\n'
                 s += "%s %s %s"%(line[2], line[3], str(line[-1]))
-            
         return s
+
+    def getPlayerRank(self):
+        '''
+        获取所有队友的logs列表.
+        returns:
+        - res: dict格式，表示所有队友的logs。其中key为队友名，value为数组格式的logs数值.
+        '''
+        # res = {}
+        # for player in self.playerPotList:
+        #     if player not in self.playerRank:
+        #         res[player] = self.playerRank[player]
+        #     else:
+        #         res[player] = [0] * 7
+        # print("[PlayerRankResult]", res)
+        # print("[PlayerRank]", self.playerRank)
+        return self.playerRank
         
     def setSinglePotScore(self, bossNum, pos, pot):
         '''
@@ -243,6 +259,19 @@ class LiveActorAnalysis():
         '''
         bossidStr = str(bossNum)
         self.potContainer.pot[bossidStr][pos][-1] = pot
+
+    def setPlayerRank(self, player, boss, rank):
+        '''
+        设定玩家在某个特定BOSS的logs排名，用于最终显示.
+        params:
+        - player: 玩家名.
+        - boss: BOSS名，必须是标准形式.
+        - rank: logs排名.
+        '''
+        if player not in self.playerRank:
+            self.playerRank[player] = [0] * 7
+        bossID = BOSS_DICT[boss]
+        self.playerRank[player][bossID] = rank
         
     def setServer(self, server):
         self.server = server
@@ -268,6 +297,14 @@ class LiveActorAnalysis():
     def addResult(self, potListScore, bossNum, statDict, detail, occResult, analysedBattleData):
         #self.potListScore.extend(potListScore)
         self.potContainer.addBoss(bossNum, potListScore, statDict, detail, occResult, analysedBattleData=analysedBattleData)
+        boss = detail["boss"]
+        # print("[StatDict]", statDict)
+        for line in statDict:
+            name = line["name"]
+            if getOccType(line["occ"]) != "healer":
+                self.setPlayerRank(name, boss, line["rdpsRank"])
+            else:
+                self.setPlayerRank(name, boss, line["scoreRank"])
         
     def checkBossExists(self, bossNum):
         bossNumStr = str(bossNum)
@@ -282,6 +319,7 @@ class LiveActorAnalysis():
     def __init__(self):
         #self.potListScore = []
         self.potContainer = PotContainer()
+        self.playerRank = {}
         self.server = "未知"
 
 class LiveListener():
