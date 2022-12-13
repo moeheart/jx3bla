@@ -220,7 +220,10 @@ class HealerReplay(ReplayerBase):
                 # 当前玩家
                 rhps = record["rhps"]
         # print("[Result]", self.result["rank"]["healer"])
-        rhpsRank = self.result["rank"]["healer"]["rhps"]["percent"]
+        if "rhps" in self.result["rank"]["healer"]:
+            rhpsRank = self.result["rank"]["healer"]["rhps"]["percent"]
+        else:
+            rhpsRank = 0
         res = {"code": 14, "rhps": rhps, "rhpsRank": rhpsRank, "rate": roundCent(rhpsRank / 100)}
         res["status"] = getRateStatus(res["rate"], 75, 50, 25)
         self.result["review"]["content"].append(res)

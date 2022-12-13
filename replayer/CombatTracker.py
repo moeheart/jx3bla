@@ -290,17 +290,21 @@ class BoostCounter():
             self.targetBoost[targetid][id] = tmp
             self.SetUpdateFlag(targetid)
 
-    def removeBoost(self, id):
+    def removeBoost(self, id, time):
         '''
         移除一个自身增益.
         params:
         - id: 增益的id，一般是buffID.
+        - time: 事件发生的时间.
         '''
         if id in self.boost:
             del self.boost[id]
             self.SetUpdateFlag()
+        if id not in self.boostCover:
+            self.boostCover[id] = BuffCounter(id, self.startTime, self.finalTime)
+        self.boostCover[id].setState(time, 0)
 
-    def addBoost(self, id, effect, source, stack):
+    def addBoost(self, id, effect, source, stack, time):
         '''
         添加一个自身增益.
         params:
@@ -308,6 +312,7 @@ class BoostCounter():
         - effect: 增益效果，用一个dict控制.
         - source: 增益来源.
         - stack: buff层数.
+        - time: 事件发生的时间.
         '''
         effectCopy = effect.copy()
         tmp = {"effect": effectCopy, "source": source}
@@ -316,6 +321,9 @@ class BoostCounter():
         if id not in self.boost or tmp != self.boost[id]:
             self.boost[id] = tmp
             self.SetUpdateFlag()
+        if id not in self.boostCover:
+            self.boostCover[id] = BuffCounter(id, self.startTime, self.finalTime)
+        self.boostCover[id].setState(time, stack)
 
     def setSpecificSkill(self, name, source):
         '''
@@ -329,12 +337,14 @@ class BoostCounter():
         if name == "zyhr":
             self.zyhr = source
 
-    def __init__(self, playerid, occ, baseAttribute=None, lvl=124):
+    def __init__(self, playerid, occ, startTime, finalTime, baseAttribute=None, lvl=124):
         '''
         构造方法.
         params:
         - playerid: 玩家自身的ID.
         - occ: 玩家的心法.
+        - startTime: 战斗记录的开始时间. 用于计算增益覆盖率.
+        - finalTime: 战斗记录的结束时间. 用于计算增益覆盖率.
         - baseAttribute: 玩家的基本属性. 留空时会按照默认属性进行计算.
         - lvl: BOSS等级.
         '''
@@ -356,6 +366,10 @@ class BoostCounter():
         self.needUpdate = {}
         self.lvl = lvl
         # print("[Lvl]", lvl)
+        # 尝试统计覆盖率
+        self.boostCover = {}
+        self.startTime = startTime
+        self.finalTime = finalTime
 
 class StatRecorder():
     '''
@@ -562,13 +576,15 @@ class DpsCastRecorder(StatRecorder):
     记录为"A用B技能攻击C，值为D效果为E"，按A-(此类)-B-D的顺序逐层封装.
     '''
 
-    def export(self, time, info, player):
+    def export(self, time, info, player, boostCounter, badPeriodLog):
         '''
         统计结束时的后处理.
         params:
         - time: 战斗时间.
         - info: bld的info类
         - player: 统计对象的ID.
+        - boostCounter: 增益统计类的dict，用于计算覆盖率.
+        - badPeriodLog: 不参与统计的片段, log形式, 用于计算覆盖率.
         '''
         self.sum = 0
         for skill in self.skill:
@@ -603,6 +619,11 @@ class DpsCastRecorder(StatRecorder):
             self.namedSource[name] = {}
             for key in ["sum", "num", "percent"]:
                 self.namedSource[name][key] = self.source[source][key]
+            # 在此计算覆盖率
+            cover = 0
+            if boostCounter is not None and player in boostCounter and source in boostCounter[player]:
+                cover = safe_divide(boostCounter[player][source].buffTimeIntegral(exclude=badPeriodLog), time)
+            self.namedSource[name]["cover"] = cover
 
     def recordSimple(self, skill, value):
         '''
@@ -769,20 +790,26 @@ class CombatTracker():
                                          "adjustedTime": adjustedTime}
                 objTarget["sum"] += objTarget["player"][player]["sumPerSec"]
                 
-    def getStatInDps(self, objSource, objTarget, subType="target"):
+    def getStatInDps(self, objSource, objTarget, subType="target", boostCounter=None):
         '''
         以dict的形式整理统计伤害结果.
         params:
         - objSource: 整理源对象.
         - objTarget: 整理目标对象.
         - subType: 整理时附带哪个信息. target为目标(通常用于ndps), source为队友(通常用于rdps)
+        - boostCounter: 增益统计类的dict. 用于计算覆盖率.
         '''
+        badPeriodDpsLog = self.badPeriodDpsLog
         for player in objSource:
+            badPeriodInterval = IntervalCounter(self.startTime, self.finalTime)
+            badPeriodInterval.recordLog(badPeriodDpsLog)
             if player in self.stunTime:
                 adjustedTime = self.timeDps - self.stunTime[player].buffTimeIntegral()
+                badPeriodInterval.recordLog(self.stunTime[player].log)
             else:
                 adjustedTime = self.timeDps
-            objSource[player].export(adjustedTime, self.info, player)
+            badPeriodLog = badPeriodInterval.export()
+            objSource[player].export(adjustedTime, self.info, player, boostCounter=boostCounter, badPeriodLog=badPeriodLog)
             if objSource[player].dps > 0:
                 objTarget["player"][player] = {"sum": objSource[player].sum,
                                          "dps": objSource[player].dps,
@@ -851,12 +878,12 @@ class CombatTracker():
         
         # rdps
         rdps = {"sum": 0, "player": {}}
-        self.getStatInDps(self.rdpsCast, rdps, "source")
+        self.getStatInDps(self.rdpsCast, rdps, "source", self.boostCounter)
         self.rdps = rdps
         
         # mrdps
         mrdps = {"sum": 0, "player": {}}
-        self.getStatInDps(self.mrdpsCast, mrdps, "source")
+        self.getStatInDps(self.mrdpsCast, mrdps, "source", self.boostCounter)
         self.mrdps = mrdps
 
     def recordBuff(self, event):
@@ -880,7 +907,7 @@ class CombatTracker():
                 effect_id = "2,23543,1"
                 boostValue = BOOST_DICT[effect_id]
                 source = event.caster
-                self.boostCounter[event.target].addBoost(effect_id, boostValue, source, event.stack)
+                self.boostCounter[event.target].addBoost(effect_id, boostValue, source, event.stack, event.time)
                 # print("[AddShield]", self.boostCounter[event.target].boost)
 
         # if event.id == "20854":
@@ -962,9 +989,9 @@ class CombatTracker():
                 skipFlag = True
             if not skipFlag:
                 if event.stack != 0:
-                    self.boostCounter[event.target].addBoost(effect_id, boostValue, source, event.stack)
+                    self.boostCounter[event.target].addBoost(effect_id, boostValue, source, event.stack, event.time)
                 else:
-                    self.boostCounter[event.target].removeBoost(effect_id)
+                    self.boostCounter[event.target].removeBoost(effect_id, event.time)
 
     def updateRemoveTime(self):
         '''
@@ -1007,7 +1034,7 @@ class CombatTracker():
                 if id in self.absorbBuff[target]:
                     del self.absorbBuff[target][id]
                     if id in ["2,9334,2", "2,9334,4"]:
-                        self.boostCounter[target].removeBoost("2,23543,1")
+                        self.boostCounter[target].removeBoost("2,23543,1", time)
                 if id in self.resistBuff[target]:
                     del self.resistBuff[target][id]
                 del self.buffRemove[target][id]
@@ -1048,11 +1075,11 @@ class CombatTracker():
             minus, plus = self.zhenyanInfer[event.caster].scan(event.time)
             if minus != "0":
                 full_id = "2,%s,%d" % (minus, ZHENYAN_DICT[minus][5])
-                self.boostCounter[event.caster].removeBoost(full_id)
+                self.boostCounter[event.caster].removeBoost(full_id, event.time)
             if plus != "0":
                 full_id = "2,%s,%d" % (plus, ZHENYAN_DICT[plus][5])
                 boostValue = BOOST_DICT[full_id]
-                self.boostCounter[event.caster].addBoost(full_id, boostValue, "*阵眼增益", 1)
+                self.boostCounter[event.caster].addBoost(full_id, boostValue, "*阵眼增益", 1, event.time)
                 zhenyanName = "%s阵" % ZHENYAN_DICT[plus][0]
                 self.rdpsCast["*阵眼增益"].addNote(full_id, zhenyanName)
                 self.mrdpsCast["*阵眼增益"].addNote(full_id, zhenyanName)
@@ -1431,6 +1458,8 @@ class CombatTracker():
             self.bosslvl = 122
         elif "英雄" in info.map:
             self.bosslvl = 124
+        self.startTime = bh.startTime
+        self.finalTime = bh.finalTime
 
         for player in info.player:
             # 治疗
@@ -1450,14 +1479,14 @@ class CombatTracker():
             self.rdpsCast[player] = DpsCastRecorder(1)
             self.mrdpsCast[player] = DpsCastRecorder(1)
             # 增益统计
-            self.boostCounter[player] = BoostCounter(player, self.occDetailList[player], baseAttribDict[player], lvl=self.bosslvl)
+            self.boostCounter[player] = BoostCounter(player, self.occDetailList[player], bh.startTime, bh.finalTime, baseAttribDict[player], lvl=self.bosslvl)
             self.shieldDict[player] = "0"
             self.zyhrDict[player] = "0"
             if zxyzPrecastSource != "0":  # 计算第一次左旋右转
                 effect_id = "2,20938,1"
                 boostValue = BOOST_DICT[effect_id]
                 source = zxyzPrecastSource
-                self.boostCounter[player].addBoost(effect_id, boostValue, source, 1)
+                self.boostCounter[player].addBoost(effect_id, boostValue, source, 1, bh.startTime)
 
         self.rdpsCast["*阵眼增益"] = DpsCastRecorder(1)
         self.mrdpsCast["*阵眼增益"] = DpsCastRecorder(1)

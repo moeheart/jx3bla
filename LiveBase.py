@@ -270,8 +270,9 @@ class LiveActorAnalysis():
         '''
         if player not in self.playerRank:
             self.playerRank[player] = [0] * 7
-        bossID = BOSS_DICT[boss]
-        self.playerRank[player][bossID] = rank
+        if boss in BOSS_DICT:
+            bossID = BOSS_DICT[boss]
+            self.playerRank[player][bossID] = rank
         
     def setServer(self, server):
         self.server = server

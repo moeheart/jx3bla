@@ -359,6 +359,20 @@ class IntervalCounter():
             end = self.finalTime
         self.intervals.append([start, end, exclude])
 
+    def recordLog(self, log):
+        '''
+        由log格式导入区间.
+        '''
+        prevStack = 0
+        prevTime = self.startTime
+        for line in log:
+            if prevStack == 1:
+                self.recordInterval(prevTime, line[0])
+            prevTime = line[0]
+            prevStack = line[1]
+        if prevStack == 1:
+            self.recordInterval(prevTime, self.finalTime)
+
     def export(self):
         '''
         导出为log格式.
