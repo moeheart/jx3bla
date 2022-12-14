@@ -253,12 +253,13 @@ class BoostCounter():
                 for skill in self.rdpsRate[target]:
                     self.needUpdate[target][skill] = True
 
-    def removeTargetBoost(self, targetid, id):
+    def removeTargetBoost(self, targetid, id, time):
         '''
         移除一个目标增益.
         params:
         - targetid: 目标ID.
         - id: 增益的id，一般是buffID.
+        - time: 事件发生的时间.
         '''
         if targetid not in self.targetBoost:
             self.targetBoost[targetid] = {}
@@ -267,8 +268,11 @@ class BoostCounter():
             if self.targetBoost[targetid] == {}:
                 del self.targetBoost[targetid]
             self.SetUpdateFlag(targetid)
+        if id not in self.boostCover:
+            self.boostCover[id] = BuffCounter(id, self.startTime, self.finalTime)
+        self.boostCover[id].setState(time, 0)
 
-    def addTargetBoost(self, targetid, id, effect, source, stack):
+    def addTargetBoost(self, targetid, id, effect, source, stack, time):
         '''
         添加一个目标增益.
         params:
@@ -277,6 +281,7 @@ class BoostCounter():
         - effect: 增益效果，用一个dict控制.
         - source: 增益来源.
         - stack: buff层数.
+        - time: 事件发生的时间.
         '''
         if source == "0":
             source = self.playerid
@@ -289,6 +294,9 @@ class BoostCounter():
         if id not in self.targetBoost[targetid] or tmp != self.targetBoost[targetid][id]:
             self.targetBoost[targetid][id] = tmp
             self.SetUpdateFlag(targetid)
+        if id not in self.boostCover:
+            self.boostCover[id] = BuffCounter(id, self.startTime, self.finalTime)
+        self.boostCover[id].setState(time, stack)
 
     def removeBoost(self, id, time):
         '''
@@ -620,9 +628,10 @@ class DpsCastRecorder(StatRecorder):
             for key in ["sum", "num", "percent"]:
                 self.namedSource[name][key] = self.source[source][key]
             # 在此计算覆盖率
-            cover = 0
-            if boostCounter is not None and player in boostCounter and source in boostCounter[player]:
-                cover = safe_divide(boostCounter[player][source].buffTimeIntegral(exclude=badPeriodLog), time)
+            cover = -1
+            sourceBuff = source[2:]
+            if boostCounter is not None and player in boostCounter and sourceBuff in boostCounter[player].boostCover:
+                cover = safe_divide(boostCounter[player].boostCover[sourceBuff].buffTimeIntegral(exclude=badPeriodLog), time)
             self.namedSource[name]["cover"] = cover
 
     def recordSimple(self, skill, value):
@@ -1044,7 +1053,7 @@ class CombatTracker():
             if self.boostRemove[boost]["time"] <= time:
                 # 执行移除
                 for player in self.boostCounter:
-                    self.boostCounter[player].removeTargetBoost(self.boostRemove[boost]["target"], boost)
+                    self.boostCounter[player].removeTargetBoost(self.boostRemove[boost]["target"], boost, time)
                 toRemove.append(boost)
         for boost in toRemove:
             del self.boostRemove[boost]
@@ -1253,17 +1262,17 @@ class CombatTracker():
                     continue  # 在有秋肃时跳过结算
                 effect_id = "2,4058,1"
                 boostValue = BOOST_DICT[effect_id]
-                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, "*低等级增益", 1)
+                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, "*低等级增益", 1, event.time)
                 self.boostRemove[effect_id] = {"time": event.time + 15000, "target": event.target}
                 self.updateRemoveTime()
         elif event.id in ["180"] and self.occDetailList.get(event.caster, "") == "2h":  # 秋肃
             # print("[YishangDetect]", event.time, event.id, event.caster, self.info.getName(event.caster))
             for player in self.boostCounter:
                 if event.target in self.boostCounter[player].targetBoost and "2,4058,1" in self.boostCounter[player].targetBoost[event.target]:
-                    self.boostCounter[player].removeTargetBoost(event.target, "2,4058,1")  # 在有戒火斩时移除
+                    self.boostCounter[player].removeTargetBoost(event.target, "2,4058,1", event.time)  # 在有戒火斩时移除
                 effect_id = "2,23305,1"
                 boostValue = BOOST_DICT[effect_id]
-                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, event.caster, 1)
+                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, event.caster, 1, event.time)
                 self.boostRemove[effect_id] = {"time": event.time + 40000, "target": event.target}
                 self.updateRemoveTime()
         elif event.id in ["403"] and self.occDetailList.get(event.caster, "") == "3d":  # 傲血破风
@@ -1273,17 +1282,17 @@ class CombatTracker():
                     continue  # 在有高等级时跳过结算
                 effect_id = "2,661,30"
                 boostValue = BOOST_DICT[effect_id]
-                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, "*低等级增益", 1)
+                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, "*低等级增益", 1, event.time)
                 self.boostRemove[effect_id] = {"time": event.time + 14000, "target": event.target}
                 self.updateRemoveTime()
         elif event.id in ["403"] and self.occDetailList.get(event.caster, "") == "3t":  # 铁牢破风
             #print("[YishangDetect2]", event.time, event.id, event.caster, self.info.getName(event.caster))
             for player in self.boostCounter:
                 if event.target in self.boostCounter[player].targetBoost and "2,661,30" in self.boostCounter[player].targetBoost[event.target]:
-                    self.boostCounter[player].removeTargetBoost(event.target, "2,661,30")  # 在有低等级时移除
+                    self.boostCounter[player].removeTargetBoost(event.target, "2,661,30", event.time)  # 在有低等级时移除
                 effect_id = "2,12717,30"
                 boostValue = BOOST_DICT[effect_id]
-                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, event.caster, 1)
+                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, event.caster, 1, event.time)
                 self.boostRemove[effect_id] = {"time": event.time + 14000, "target": event.target}
                 self.updateRemoveTime()
         elif event.id in ["13778"]:  # 乘龙箭
@@ -1294,7 +1303,7 @@ class CombatTracker():
             for player in self.boostCounter:
                 effect_id = "2,3465,1"
                 boostValue = BOOST_DICT[effect_id]
-                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, source, 1)
+                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, source, 1, event.time)
                 self.boostRemove[effect_id] = {"time": event.time + 10000, "target": event.target}
                 self.updateRemoveTime()
         elif event.id in ["211", "212", "213"]:  # 立地成佛
@@ -1318,10 +1327,10 @@ class CombatTracker():
                     for i in range(postLvl):  # 移除低等级
                         id = "2,%d,1" % (563 + i)
                         if event.target in self.boostCounter[player].targetBoost and id in self.boostCounter[player].targetBoost[event.target]:
-                            self.boostCounter[player].removeTargetBoost(event.target, id)  # 在有低等级时移除
+                            self.boostCounter[player].removeTargetBoost(event.target, id, event.time)  # 在有低等级时移除
                     effect_id = "2,%d,1" % (563 + postLvl)
                     boostValue = BOOST_DICT[effect_id]
-                    self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, event.caster, postStack)  # 注意层数判定
+                    self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, event.caster, postStack, event.time)  # 注意层数判定
                     self.boostRemove[effect_id] = {"time": event.time + 20000, "target": event.target}
                     self.updateRemoveTime()
         elif event.id in ["13050"]:  # 盾飞
@@ -1332,7 +1341,7 @@ class CombatTracker():
             for player in self.boostCounter:
                 effect_id = "2,8248,1"
                 boostValue = BOOST_DICT[effect_id]
-                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, source, 1)
+                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, source, 1, event.time)
                 self.boostRemove[effect_id] = {"time": event.time + 25000, "target": event.target}
                 self.updateRemoveTime()
         elif event.id in ["3963"]:  # 烈日斩
@@ -1343,7 +1352,7 @@ class CombatTracker():
             for player in self.boostCounter:
                 effect_id = "2,4418,1"
                 boostValue = BOOST_DICT[effect_id]
-                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, source, 1)
+                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, source, 1, event.time)
                 self.boostRemove[effect_id] = {"time": event.time + 12000, "target": event.target}
                 self.updateRemoveTime()
             

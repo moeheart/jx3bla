@@ -20,10 +20,10 @@
   - 框架
   - 统计类
   - 排除无效时间
-  - (TODO)展示
-  - (TODO)debug
-  - (TODO)目标buff
-  - (TODO)自身buff
+  - 展示
+  - debug
+  - 目标buff
+  - (TODO)用这个方式统计自身buff
 - (TODO)从花间开始dps复盘
   - (TODO)时间轴
   - (TODO)增益和DPS统计

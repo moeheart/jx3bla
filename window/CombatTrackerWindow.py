@@ -119,6 +119,9 @@ class CombatTrackerWindow(Window):
         show = "namedTarget"
         if stat in ["rdps", "mrdps"]:
             show = "namedSource"
+            self.header2[1].configure(text="覆盖率")
+        else:
+            self.header2[1].configure(text="次数")
         for key in data["player"][id][show]:
             dataT.append([key, data["player"][id][show][key]])
         dataT.sort(key=lambda x: -x[1]["sum"])
@@ -126,8 +129,17 @@ class CombatTrackerWindow(Window):
             if i < len(dataT):
                 name = dataT[i][0]
                 self.table2[i][0].configure(text=name)
-                num = dataT[i][1]["num"]
-                self.table2[i][1].configure(text="%d" % num)
+
+                if show == "namedSource":
+                    cover = dataT[i][1].get("cover", -1)
+                    if cover == -1:
+                        coverStr = "N/A"
+                    else:
+                        coverStr = parseCent(cover) + '%'
+                    self.table2[i][1].configure(text=coverStr)
+                else:
+                    num = dataT[i][1]["num"]
+                    self.table2[i][1].configure(text="%d" % num)
                 sum = dataT[i][1]["sum"]
                 self.table2[i][2].configure(text="%d" % sum)
                 sumPerSec = int(sum / self.act.time * 1000)
@@ -264,23 +276,24 @@ class CombatTrackerWindow(Window):
         canvas.config(yscrollcommand=vbar.set)  # 设置
         canvas.create_window((270, 24*50*0.5), window=frameTable)  #create_window
 
-        l = tk.Label(frameTable, text="名称")
-        l.grid(row=0, column=0)
-        l = tk.Label(frameTable, text="次数")
-        l.grid(row=0, column=1)
-        l = tk.Label(frameTable, text="数值")
-        l.grid(row=0, column=2)
-        l = tk.Label(frameTable, text="每秒")
-        l.grid(row=0, column=3)
-        l = tk.Label(frameTable, text="比例")
-        l.grid(row=0, column=4)
+        l1 = tk.Label(frameTable, text="名称")
+        l1.grid(row=0, column=0)
+        l2 = tk.Label(frameTable, text="次数")
+        l2.grid(row=0, column=1)
+        l3 = tk.Label(frameTable, text="数值")
+        l3.grid(row=0, column=2)
+        l4 = tk.Label(frameTable, text="每秒")
+        l4.grid(row=0, column=3)
+        l5 = tk.Label(frameTable, text="比例")
+        l5.grid(row=0, column=4)
+        self.header1 = [l1, l2, l3, l4, l5]
         self.table = []
         for i in range(50):
             l1 = tk.Label(frameTable, text="xxx", width=20)
             l1.grid(row=i+1, column=0)
-            l2 = tk.Label(frameTable, text="xxx", width=5)
+            l2 = tk.Label(frameTable, text="xxx", width=10)
             l2.grid(row=i+1, column=1)
-            l3 = tk.Label(frameTable, text="xxx", width=20)
+            l3 = tk.Label(frameTable, text="xxx", width=15)
             l3.grid(row=i+1, column=2)
             l4 = tk.Label(frameTable, text="xxx", width=10)
             l4.grid(row=i+1, column=3)
@@ -301,23 +314,24 @@ class CombatTrackerWindow(Window):
         canvas.config(yscrollcommand=vbar.set)  # 设置
         canvas.create_window((270, 24*50*0.5), window=frameTable2)  #create_window
 
-        l = tk.Label(frameTable2, text="技能")
-        l.grid(row=0, column=0)
-        l = tk.Label(frameTable2, text="次数")
-        l.grid(row=0, column=1)
-        l = tk.Label(frameTable2, text="数值")
-        l.grid(row=0, column=2)
-        l = tk.Label(frameTable2, text="每秒")
-        l.grid(row=0, column=3)
-        l = tk.Label(frameTable2, text="比例")
-        l.grid(row=0, column=4)
+        l1 = tk.Label(frameTable2, text="技能")
+        l1.grid(row=0, column=0)
+        l2 = tk.Label(frameTable2, text="次数")
+        l2.grid(row=0, column=1)
+        l3 = tk.Label(frameTable2, text="数值")
+        l3.grid(row=0, column=2)
+        l4 = tk.Label(frameTable2, text="每秒")
+        l4.grid(row=0, column=3)
+        l5 = tk.Label(frameTable2, text="比例")
+        l5.grid(row=0, column=4)
+        self.header2 = [l1, l2, l3, l4, l5]
         self.table2 = []
         for i in range(50):
             l1 = tk.Label(frameTable2, text="xxx", width=20)
             l1.grid(row=i+1, column=0)
-            l2 = tk.Label(frameTable2, text="xxx", width=5)
+            l2 = tk.Label(frameTable2, text="xxx", width=10)
             l2.grid(row=i+1, column=1)
-            l3 = tk.Label(frameTable2, text="xxx", width=20)
+            l3 = tk.Label(frameTable2, text="xxx", width=15)
             l3.grid(row=i+1, column=2)
             l4 = tk.Label(frameTable2, text="xxx", width=10)
             l4.grid(row=i+1, column=3)
