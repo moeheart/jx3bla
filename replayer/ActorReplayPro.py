@@ -873,6 +873,8 @@ class ActorProReplayer(ReplayerBase):
                 combatTracker.recordSkill(event)
             elif event.dataType == "Buff":
                 combatTracker.recordBuff(event)
+            elif event.dataType == "Shout":
+                combatTracker.recordShout(event)
 
         combatTracker.export(self.battleTime, self.bh.sumTime("dps"), self.bh.sumTime("healer"), self.stunCounter)
         self.combatTracker = combatTracker

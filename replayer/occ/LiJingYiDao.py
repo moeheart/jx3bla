@@ -852,6 +852,15 @@ class LiJingYiDaoReplayer(HealerReplay):
         self.result["skill"]["qiusu"] = {}
         num = self.battleTimeDict[self.mykey]
         sum = qiusuCounter.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
+        sum2 = qiusuCounter.buffTimeIntegral()
+
+        # print("[qiusuDebug/Num]", num)
+        # print("[qiusuDebug/Sum]", sum)
+        # print("[qiusuDebug/Sum2]", sum2)
+        # print(self.bh.badPeriodHealerLog)
+        # print(self.battleTimeDict)
+        # print(qiusuCounter.log)
+
         self.result["skill"]["qiusu"]["cover"] = roundCent(safe_divide(sum, num))
         self.result["skill"]["qiusu"]["dps"] = int(numdam1 / self.result["overall"]["sumTimeDpsEff"] * 1000)
         # 杂项

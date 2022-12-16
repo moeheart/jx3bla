@@ -983,7 +983,7 @@ class CombatTracker():
                 source = event.target
             if effect_id == "2,20938,1":  # 左旋右转的特殊逻辑 (TODO)改成通用逻辑
                 source = self.zxyzCaster
-            # 不考虑一些全局增益的来源, 认为这些增益是玩家必须具有的
+            # 不考虑战斗中的常驻buff
             if event.id in ["362", "673"]:  # 雷、袖气
                 source = event.target
             # 阵眼特殊判定
@@ -1395,6 +1395,26 @@ class CombatTracker():
                                 self.mrdpsCast[rdpsRate[key]["source"]].recordSimple(keyName, event.damageEff * rdpsRate[key]["rate"])
                                 self.mrdpsCast[event.caster].recordSource(keyName, event.damageEff * rdpsRate[key]["rate"])
 
+
+    def recordShout(self, event):
+        '''
+        记录喊话事件.
+        '''
+        if event.content in ['"朕没有错！是天下人负了朕！"']:
+            if self.bossYishang < 30:
+                self.bossYishang += 10
+            else:
+                self.bossYishang += 20
+            bossID = []
+            for id in self.info.npc:
+                if self.info.getName(id) in ["李重茂", "镜影·李重茂"]:
+                    bossID.append(id)
+            for player in self.info.player:
+                effect_id = "2,24973,1"
+                boostValue = BOOST_DICT[effect_id]
+                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, "*环境增益", self.bossYishang, event.time)
+
+
     def __init__(self, info, bh, occDetailList, zhenyanInfer, stunCounter, zxyzPrecastSource, baseAttribDict):
         '''
         构造方法，需要读取角色或玩家信息。
@@ -1469,6 +1489,31 @@ class CombatTracker():
             self.bosslvl = 124
         self.startTime = bh.startTime
         self.finalTime = bh.finalTime
+        self.bossYishang = 0  # 用于控制整体的BOSS易伤，这里暂时只记录李重茂
+
+        self.rdpsCast["*阵眼增益"] = DpsCastRecorder(1)
+        self.mrdpsCast["*阵眼增益"] = DpsCastRecorder(1)
+        self.rdpsCast["*低等级增益"] = DpsCastRecorder(1)
+        self.mrdpsCast["*低等级增益"] = DpsCastRecorder(1)
+
+        numTiance = 0
+        numTielao = 0
+        tielaoID = ""
+        numQixiu = 0
+        numYunchang = 0
+        yunchangID = ""
+        for player in info.player:
+            # 统计天策和七秀的个数
+            if self.occDetailList[player] in ["3", "3d", "3t"]:
+                numTiance += 1
+                if self.occDetailList[player] == "3t":
+                    numTielao += 1
+                    tielaoID = player
+            if self.occDetailList[player] in ["5", "5d", "5h"]:
+                numQixiu += 1
+                if self.occDetailList[player] == "5h":
+                    numYunchang += 1
+                    yunchangID = player
 
         for player in info.player:
             # 治疗
@@ -1496,11 +1541,20 @@ class CombatTracker():
                 boostValue = BOOST_DICT[effect_id]
                 source = zxyzPrecastSource
                 self.boostCounter[player].addBoost(effect_id, boostValue, source, 1, bh.startTime)
-
-        self.rdpsCast["*阵眼增益"] = DpsCastRecorder(1)
-        self.mrdpsCast["*阵眼增益"] = DpsCastRecorder(1)
-        self.rdpsCast["*低等级增益"] = DpsCastRecorder(1)
-        self.mrdpsCast["*低等级增益"] = DpsCastRecorder(1)
+            if numTiance > 0:
+                effect_id = "2,362,8"
+                boostValue = BOOST_DICT[effect_id]
+                if numTielao == 1:
+                    self.boostCounter[player].addBoost(effect_id, boostValue, tielaoID, 1, bh.startTime)
+                else:
+                    self.boostCounter[player].addBoost(effect_id, boostValue, "*低等级增益", 1, bh.startTime)
+            if numQixiu > 0:
+                effect_id = "2,673,1"
+                boostValue = BOOST_DICT[effect_id]
+                if numYunchang == 1:
+                    self.boostCounter[player].addBoost(effect_id, boostValue, yunchangID, 1, bh.startTime)
+                else:
+                    self.boostCounter[player].addBoost(effect_id, boostValue, "*低等级增益", 1, bh.startTime)
             
         for player in info.npc:
             self.hpsCast[player] = HealCastRecorder(0)

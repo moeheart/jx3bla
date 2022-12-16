@@ -495,6 +495,7 @@ class BuffCounter():
         returns:
         - time: 积分结果.
         '''
+        self.shrink(0)
 
         lastTime = self.startTime
         lastStack = 0
@@ -542,6 +543,7 @@ class BuffCounter():
     def shrink(self, threshold=100):
         '''
         对记录进行收缩，减少大小的同时优化在界面显示时的效果.
+        这个方法同时也是对记录的正规化. 使用此方法会去除重复连续值，并且排除时间不正确的问题.
         params:
         - threshold: 融合的最小间隔
         '''
@@ -552,6 +554,10 @@ class BuffCounter():
             if self.log[i][1] == self.log[i-1][1]:
                 del self.log[i]
                 i -= 1
+            if self.log[i][0] > self.finalTime:
+                self.log[i][0] = self.finalTime
+            if self.log[i-1][0] < self.startTime:
+                self.log[i-1][0] = self.startTime
             i += 1
 
     def sumTime(self, exclude=[]):
