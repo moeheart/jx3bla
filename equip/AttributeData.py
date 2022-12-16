@@ -244,6 +244,8 @@ class AttributeData():
             if boostDetail[1] == 0:
                 continue
             affectedAttrib = boostDetail[0]
+            if affectedAttrib == "全属性":
+                affectedAttrib = attribDict["主属性"]
             if affectedAttrib not in self.baseAttribute:
                 self.baseAttribute[affectedAttrib] = 0
             if affectedAttrib not in self.extraAttribute:
@@ -262,6 +264,8 @@ class AttributeData():
             if boostDetail[1] == 1:
                 continue
             affectedAttrib = boostDetail[0]
+            if affectedAttrib == "全属性":
+                affectedAttrib = attribDict["主属性"]
             if affectedAttrib not in self.baseAttribute:
                 self.baseAttribute[affectedAttrib] = 0
             if affectedAttrib not in self.extraAttribute:
@@ -299,6 +303,8 @@ class AttributeData():
             if boostDetail[1] == 1:
                 continue
             affectedAttrib = boostDetail[0]
+            if affectedAttrib == "全属性":
+                affectedAttrib = attribDict["主属性"]
             if affectedAttrib not in self.baseAttribute:
                 self.baseAttribute[affectedAttrib] = 0
             if affectedAttrib not in self.extraAttribute:
@@ -312,6 +318,8 @@ class AttributeData():
             if boostDetail[1] == 0:
                 continue
             affectedAttrib = boostDetail[0]
+            if affectedAttrib == "全属性":
+                affectedAttrib = attribDict["主属性"]
             if affectedAttrib not in self.baseAttribute:
                 self.baseAttribute[affectedAttrib] = 0
             if affectedAttrib not in self.extraAttribute:

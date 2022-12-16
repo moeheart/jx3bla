@@ -30,12 +30,25 @@ class ZhangJingchaoWindow(SpecificBossWindow):
         tb = TableConstructorMeta(self.config, frame1)
 
         self.constructCommonHeader(tb, "")
+        tb.AppendHeader("本体DPS", "对张景超的DPS。\n常规阶段时间：%s" % parseTime(self.detail["P1Time"]))
+        tb.AppendHeader("双体1DPS", "第一次内外场阶段，对张法雷（红色）和劲风（蓝色）的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P2Time1"]))
+        tb.AppendHeader("双体2DPS", "第二次内外场阶段，对张法雷（红色）和劲风（蓝色）的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P2Time2"]))
         tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         tb.EndOfLine()
 
         for i in range(len(self.effectiveDPSList)):
             line = self.effectiveDPSList[i]
             self.constructCommonLine(tb, line)
+
+            tb.AppendContext(int(line["battle"]["zjcDPS"]))
+            if line["battle"]["zflDPS1"] > line["battle"]["jfDPS1"]:
+                tb.AppendContext(int(line["battle"]["zflDPS1"]), color="#ff0000")
+            else:
+                tb.AppendContext(int(line["battle"]["jfDPS1"]), color="#0000ff")
+            if line["battle"]["zflDPS2"] > line["battle"]["jfDPS2"]:
+                tb.AppendContext(int(line["battle"]["zflDPS2"]), color="#ff0000")
+            else:
+                tb.AppendContext(int(line["battle"]["jfDPS2"]), color="#0000ff")
 
             # 心法复盘
             if line["name"] in self.occResult:
@@ -61,6 +74,10 @@ class ZhangJingchaoReplayer(SpecificReplayerPro):
         self.bh.setEnvironmentInfo(self.bhInfo)
         self.bh.printEnvironmentInfo()
 
+        self.detail["P1Time"] = int(self.phaseTime[1] / 1000)
+        self.detail["P2Time1"] = int(self.phaseTime[2] / 1000)
+        self.detail["P2Time2"] = int(self.phaseTime[3] / 1000)
+
     def getResult(self):
         '''
         生成复盘结果的流程。需要维护effectiveDPSList, potList与detail。
@@ -73,6 +90,11 @@ class ZhangJingchaoReplayer(SpecificReplayerPro):
             if id in self.statDict:
                 # line = self.stat[id]
                 res = self.getBaseList(id)
+                res["battle"]["zjcDPS"] = int(safe_divide(res["battle"]["zjcDPS"], self.detail["P1Time"]))
+                res["battle"]["zflDPS1"] = int(safe_divide(res["battle"]["zflDPS1"], self.detail["P2Time1"]))
+                res["battle"]["zflDPS2"] = int(safe_divide(res["battle"]["zflDPS2"], self.detail["P2Time2"]))
+                res["battle"]["jfDPS1"] = int(safe_divide(res["battle"]["jfDPS1"], self.detail["P2Time1"]))
+                res["battle"]["jfDPS2"] = int(safe_divide(res["battle"]["jfDPS2"], self.detail["P2Time2"]))
                 bossResult.append(res)
         # bossResult.sort(key=lambda x: -x[2])
         self.statList = bossResult
@@ -119,9 +141,15 @@ class ZhangJingchaoReplayer(SpecificReplayerPro):
                             self.bh.setMainTarget(event.target)
                             self.statDict[event.caster]["battle"]["zjcDPS"] += event.damageEff
                         elif self.bld.info.getName(event.target) in ["张法雷", "張法雷"]:
-                            self.statDict[event.caster]["battle"]["zflDPS"] += event.damageEff
+                            if self.phase == 2:
+                                self.statDict[event.caster]["battle"]["zflDPS1"] += event.damageEff
+                            else:
+                                self.statDict[event.caster]["battle"]["zflDPS2"] += event.damageEff
                         elif self.bld.info.getName(event.target) in ["劲风", "勁風"]:
-                            self.statDict[event.caster]["battle"]["jfDPS"] += event.damageEff
+                            if self.phase == 2:
+                                self.statDict[event.caster]["battle"]["jfDPS1"] += event.damageEff
+                            else:
+                                self.statDict[event.caster]["battle"]["jfDPS2"] += event.damageEff
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -173,13 +201,17 @@ class ZhangJingchaoReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"狂风！席卷一切！"']:
                 self.changePhase(event.time, 0)
-                self.setTimer("phase", event.time + 13000, 2)
+                if self.firstPhase2:
+                    self.setTimer("phase", event.time + 13000, 2)
+                    self.firstPhase2 = 0
+                else:
+                    self.setTimer("phase", event.time + 13000, 3)
                 self.bh.setBadPeriod(event.time, event.time + 13000, True, True)
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
                 # 外场球打完了之后本来就没东西打，所以不管了，看mrdps吧
             elif event.content in ['"都滚开！"']:
-                self.changePhase(event.time, 0)
-                self.setTimer("phase", event.time + 2000, 2)
+                self.changePhase(event.time, 1)
+                # self.setTimer("phase", event.time + 2000, 2)
                 self.bh.setBadPeriod(event.time, event.time + 2000, True, True)
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
             elif event.content in ['"又一次……走错路了吗……"']:
@@ -237,14 +269,15 @@ class ZhangJingchaoReplayer(SpecificReplayerPro):
         self.initBattleBase()
         self.activeBoss = "张景超"
 
-        self.initPhase(2, 1)
+        self.initPhase(3, 1)
+        self.firstPhase2 = 1
 
         self.bhBlackList.extend(["s31089", "s32392", "s31146", "b23271", "s31253", "s31259", "s31152", "b23274",
                                  "b23360", "n112005", "b23361", "c31935", "s31294", "s31327", "s32943", "n111977",
                                  "s31324", "s31297", "c31296", "n112915", "b23235", "s31267", "s31150",
                                  "c31293", "c31326", "n112022", "n112029", "c31803", "s31803", "s31296", "n112061",
                                  "s31325", "s31851", "n112875", "n112464", "n112491", "n112501", "n112461", "c31936",
-                                 "n112524",
+                                 "n112524", "s33455"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
@@ -266,8 +299,11 @@ class ZhangJingchaoReplayer(SpecificReplayerPro):
         for line in self.bld.info.player:
             # self.stat[line].extend([0, 0, 0])
             self.statDict[line]["battle"] = {"zjcDPS": 0,
-                                             "zflDPS": 0,
-                                             "jfDPS": 0}
+                                             "zflDPS1": 0,
+                                             "jfDPS1": 0,
+                                             "zflDPS2": 0,
+                                             "jfDPS2": 0,
+                                             }
             self.wanjunStart[line] = 0
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):

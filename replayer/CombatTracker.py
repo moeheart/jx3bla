@@ -138,7 +138,7 @@ class BoostCounter():
             targetBoosts.append(self.targetBoost[target][boost]["effect"])
         for baseBoost in self.boost:
 
-            # if baseBoost == "2,9724,7":
+            # if baseBoost == "2,673,11":
             #     print("[pfStart]", coeffAll, finalAttrib1)
             #     print("[boostValue]", self.boost[baseBoost])
 
@@ -157,7 +157,7 @@ class BoostCounter():
             self.attributeData2.addBoostAndGetAttrib(self.boost[baseBoost]["effect"])
             coeffSpecific2 = getDamageCoeff(self.occ, finalAttrib2, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao)
 
-            # if baseBoost == "2,9724,7":
+            # if baseBoost == "2,673,11":
             #     print("[pfAfter]", coeffSpecific2, finalAttrib2)
 
             # if baseBoost == "2,9724,7" and coeffAll != coeffSpecific2:
@@ -985,7 +985,8 @@ class CombatTracker():
                 source = self.zxyzCaster
             # 不考虑战斗中的常驻buff
             if event.id in ["362", "673"]:  # 雷、袖气
-                source = event.target
+                skipFlag = True
+                # source = event.target
             # 阵眼特殊判定
             if event.id in self.zhenyanExclude:
                 source = "*阵眼增益"
@@ -1409,10 +1410,11 @@ class CombatTracker():
             for id in self.info.npc:
                 if self.info.getName(id) in ["李重茂", "镜影·李重茂"]:
                     bossID.append(id)
-            for player in self.info.player:
-                effect_id = "2,24973,1"
-                boostValue = BOOST_DICT[effect_id]
-                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, "*环境增益", self.bossYishang, event.time)
+            for bossid in bossID:
+                for player in self.info.player:
+                    effect_id = "2,24973,1"
+                    boostValue = BOOST_DICT[effect_id]
+                    self.boostCounter[player].addTargetBoost(bossid, effect_id, boostValue, "*环境增益", self.bossYishang, event.time)
 
 
     def __init__(self, info, bh, occDetailList, zhenyanInfer, stunCounter, zxyzPrecastSource, baseAttribDict):
@@ -1495,6 +1497,8 @@ class CombatTracker():
         self.mrdpsCast["*阵眼增益"] = DpsCastRecorder(1)
         self.rdpsCast["*低等级增益"] = DpsCastRecorder(1)
         self.mrdpsCast["*低等级增益"] = DpsCastRecorder(1)
+        self.rdpsCast["*环境增益"] = DpsCastRecorder(1)
+        self.mrdpsCast["*环境增益"] = DpsCastRecorder(1)
 
         numTiance = 0
         numTielao = 0
@@ -1549,7 +1553,7 @@ class CombatTracker():
                 else:
                     self.boostCounter[player].addBoost(effect_id, boostValue, "*低等级增益", 1, bh.startTime)
             if numQixiu > 0:
-                effect_id = "2,673,1"
+                effect_id = "2,673,11"
                 boostValue = BOOST_DICT[effect_id]
                 if numYunchang == 1:
                     self.boostCounter[player].addBoost(effect_id, boostValue, yunchangID, 1, bh.startTime)
