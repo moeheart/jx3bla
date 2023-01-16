@@ -297,7 +297,7 @@ class LingSuWindow(HealerDisplayWindow):
 
         tb = TableConstructor(self.config, frame7sub)
         tb.AppendHeader("玩家名", "", width=13)
-        tb.AppendHeader("DPS", "全程去除配伍、飘黄增益后的DPS，注意包含重伤时间。")
+        tb.AppendHeader("枯木治疗量", "对枯木状态下玩家进行治疗，被吸收的治疗量。")
         tb.AppendHeader("配伍比例", "配伍的层数对时间的积分除以总量。极限情况下可以是500%。")
         tb.AppendHeader("飘黄次数", "触发飘黄的次数。")
         tb.EndOfLine()
@@ -305,7 +305,7 @@ class LingSuWindow(HealerDisplayWindow):
             name = self.getMaskName(record["name"])
             color = getColor(record["occ"])
             tb.AppendContext(name, color=color, width=13)
-            tb.AppendContext(record["damage"])
+            tb.AppendContext(record["kumuHeal"])
             tb.AppendContext(parseCent(record["PeiwuRate"]) + '%')
             tb.AppendContext(record["PiaohuangNum"])
             tb.EndOfLine()
@@ -419,6 +419,8 @@ class LingSuReplayer(HealerReplay):
         damageDict = {}  # 伤害统计
         peiwuRateDict = {}  # 配伍覆盖率
         piaohuangNumDict = {}  # 飘黄触发次数
+        kumuStatus = {}  # 枯木状态
+        kumuHeal = {}  # 枯木治疗量
 
         # 技能统计
         lszhSkill = SkillHealCounter("28083", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 灵素中和
@@ -429,7 +431,10 @@ class LingSuReplayer(HealerReplay):
         qingchuanDict = BuffCounter("20800", self.startTime, self.finalTime)  # 青川buff
 
         for line in self.bld.info.player:
+            battleStat[line] = [0, 0, 0]  # 正常伤害，配伍伤害，飘黄伤害
             piaohuangNumDict[line] = 0
+            kumuStatus[line] = 0
+            kumuHeal[line] = 0
 
         # 杂项
         qianzhiRemain = 0
@@ -564,8 +569,6 @@ class LingSuReplayer(HealerReplay):
                 # 统计伤害技能
                 if event.damageEff > 0 and event.id not in ["24710", "24730", "25426", "25445"]:  # 技能黑名单
                     if event.caster in self.peiwuCounter:
-                        if event.caster not in battleStat:
-                            battleStat[event.caster] = [0, 0, 0]  # 正常伤害，配伍伤害，飘黄伤害
                         if int(event.id) >= 29532 and int(event.id) <= 29537:  # 逐云寒蕊
                             battleStat[event.caster][2] += event.damageEff
                             piaohuangNumDict[event.caster] += 1
@@ -585,6 +588,17 @@ class LingSuReplayer(HealerReplay):
                         yaoxingLog[-1][2] = - event.level
                     else:
                         yaoxingLog[-1][2] = event.level - 5
+
+                if "8" in event.fullResult and kumuStatus.get(event.target, 0) == 1:
+                    # 记录枯木治疗量
+                    kumuHeal[event.caster] += int(event.fullResult["8"])
+
+                # if event.target == "16689123":
+                #     print("[AllHeal]", parseTime((event.time-self.startTime)/1000), self.bld.info.getName(event.caster), self.bld.info.getSkillName(event.full_id), event.healEff, event.fullResult)
+
+                # if event.id in ["29215"]:  # 枯木技能
+                #     # print("[KumuTest2]", parseTime((event.time-self.startTime)/1000), event.target)
+                #     kumuStatus[event.target] = 1
 
             elif event.dataType == "Buff":
                 if event.id in ["21803"] and event.stack == 1 and event.target == self.mykey:  # cw特效:
@@ -612,6 +626,12 @@ class LingSuReplayer(HealerReplay):
                 if event.id in ["20811"] and event.target == self.mykey:  # 七情debuff判定
                     if event.stack > qqhhMaxNum:
                         qqhhMaxNum = event.stack
+                if event.id in ["20554"]:  # 枯木
+                    # print("[KumuTest]", parseTime((event.time-self.startTime)/1000), event.target, event.stack)
+                    if event.stack >= 1:
+                        kumuStatus[event.target] = 1
+                    else:
+                        kumuStatus[event.target] = 0
 
             elif event.dataType == "Shout":
                 pass
@@ -729,6 +749,7 @@ class LingSuReplayer(HealerReplay):
                    "damage": int(line[1] / self.result["overall"]["sumTimeDpsEff"] * 1000),
                    "PeiwuRate": roundCent(peiwuRateDict[line[0]]),
                    "PiaohuangNum": piaohuangNumDict[line[0]],
+                   "kumuHeal": kumuHeal[line[0]],
                    }
             self.result["dps"]["table"].append(res)
 

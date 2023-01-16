@@ -672,7 +672,14 @@ class LiJingYiDaoReplayer(HealerReplay):
                 # if event.target in self.bld.info.player and event.damageEff > 0:
                 #     print("[DamageFlag]", event.time, event.target, self.bld.info.getName(event.target), event.damageEff, self.bld.info.getSkillName(event.full_id))
 
+                # if event.id in ["631"]:
+                #     print("[WozhenTest]", parseTime((event.time-self.startTime)/1000), event.target, event.healEff, event.fullResult)
+
             elif event.dataType == "Buff":
+
+                # if event.id in ["20399"]:
+                #     print("[ZikuRecord]", parseTime((event.time-self.startTime)/1000), event.target, event.stack)
+
                 if event.id in ["12770"] and event.stack == 1 and event.target == self.mykey:  # cw特效:
                     self.bh.setSpecialSkill(event.id, "cw特效", "14404",
                                        event.time, 0, "触发cw特效")

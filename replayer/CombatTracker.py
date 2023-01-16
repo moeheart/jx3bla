@@ -642,6 +642,18 @@ class DpsCastRecorder(StatRecorder):
                 cover = safe_divide(boostCounter[player].boostCover[sourceBuff].buffTimeIntegral(exclude=badPeriodLog), time)
             self.namedSource[name]["cover"] = cover
 
+        # 加入个人buff
+        if boostCounter is not None and player in boostCounter:
+            for boost in boostCounter[player].boostCover:
+                name = self.getSkillName(boost, info)
+                cover = safe_divide(boostCounter[player].boostCover[boost].buffTimeIntegral(exclude=badPeriodLog), time)
+                if name not in self.namedSource and "%s(增益)" % name not in self.namedSource:
+                    self.namedSource[name] = {}
+                    self.namedSource[name]["cover"] = cover
+                    self.namedSource[name]["sum"] = -1
+
+        # print("[NamedSource]", self.namedSource)
+
     def recordSimple(self, skill, value):
         '''
         在rdps事件中计算伤害数值.
@@ -694,7 +706,6 @@ class DpsCastRecorder(StatRecorder):
         self.namedSource = {}
         self.sum = 0
         self.dps = 0
-    
 
 class CombatTracker():
     '''

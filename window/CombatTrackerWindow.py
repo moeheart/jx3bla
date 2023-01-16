@@ -140,12 +140,21 @@ class CombatTrackerWindow(Window):
                 else:
                     num = dataT[i][1]["num"]
                     self.table2[i][1].configure(text="%d" % num)
-                sum = dataT[i][1]["sum"]
-                self.table2[i][2].configure(text="%d" % sum)
-                sumPerSec = int(sum / self.act.time * 1000)
-                self.table2[i][3].configure(text="%d" % sumPerSec)
-                percent = dataT[i][1]["percent"]
-                self.table2[i][4].configure(text=parseCent(percent) + '%')
+
+                sum = dataT[i][1].get("sum", -1)
+                if sum == -1:
+                    self.table2[i][2].configure(text="N/A")
+                    self.table2[i][3].configure(text="N/A")
+                else:
+                    self.table2[i][2].configure(text="%d" % sum)
+                    sumPerSec = int(sum / self.act.time * 1000)
+                    self.table2[i][3].configure(text="%d" % sumPerSec)
+
+                percent = dataT[i][1].get("percent", -1)
+                if percent == -1:
+                    self.table2[i][4].configure(text="N/A")
+                else:
+                    self.table2[i][4].configure(text=parseCent(percent) + '%')
             else:
                 self.table2[i][0].configure(text="")
                 self.table2[i][1].configure(text="")
