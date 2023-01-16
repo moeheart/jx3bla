@@ -13,7 +13,7 @@ SUM3 = 0
 SUM4 = 0
 SUM5 = 0
 
-def getDamageCoeff(occ, attrib, targetBoosts, lvl=114, isPoZhao=0, debug=0):
+def getDamageCoeff(occ, attrib, targetBoosts, lvl=114, isPoZhao=0, isSangRou=1, debug=0):
     '''
     根据最终面板属性和目标增益获取伤害系数.
     params:
@@ -22,6 +22,7 @@ def getDamageCoeff(occ, attrib, targetBoosts, lvl=114, isPoZhao=0, debug=0):
     - targetBoosts: 目标增益.
     - lvl: 目标等级. 会决定目标的防御，从而影响无视防御的结果.
     - isPoZhao: 是否是破招伤害.
+    - isSangRou: 是否是桑柔类型. 这种类型的伤害同样受治疗量影响.
     - debug: 是否打印中间步骤，用于检查错误
     '''
 
@@ -31,6 +32,8 @@ def getDamageCoeff(occ, attrib, targetBoosts, lvl=114, isPoZhao=0, debug=0):
     base = attrib.get("攻击", 0)
     if isPoZhao:
         base = attrib.get("破招", 0)
+    if isSangRou:
+        base += attrib.get("治疗", 0)
     crit = 1 + min(attrib.get("会心", 0), 1) * (min(attrib.get("会心效果", 0), 3) - 1)
     over = 1 + attrib.get("破防", 0)
     strain = 1 + attrib.get("无双", 0)
@@ -80,8 +83,11 @@ class BoostCounter():
         '''
 
         isPoZhao = 0
+        isSangRou = 0
         if skill == "破招":
             isPoZhao = 1
+        if skill == "桑柔":
+            isSangRou = 1
 
         if target not in self.rdpsRate:
             self.rdpsRate[target] = {}
@@ -99,7 +105,7 @@ class BoostCounter():
         for boost in self.targetBoost[target]:
             if self.targetBoost[target][boost]["source"] == self.playerid:
                 targetBoosts.append(self.targetBoost[target][boost]["effect"])
-        coeffSelf = getDamageCoeff(self.occ, finalAttrib, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao)
+        coeffSelf = getDamageCoeff(self.occ, finalAttrib, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao, isSangRou=isSangRou)
 
         sumCoeff = 0
 
@@ -113,7 +119,7 @@ class BoostCounter():
         targetBoosts = []
         for boost in self.targetBoost[target]:
             targetBoosts.append(self.targetBoost[target][boost]["effect"])
-        coeffAll = getDamageCoeff(self.occ, finalAttrib1, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao)
+        coeffAll = getDamageCoeff(self.occ, finalAttrib1, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao, isSangRou=isSangRou)
 
         self.attributeData2.setBoosts(boosts)
         self.attributeData2.getFinalAttrib()
@@ -155,7 +161,7 @@ class BoostCounter():
 
             finalAttrib2 = self.attributeData2.removeBoostAndGetAttrib(self.boost[baseBoost]["effect"])
             self.attributeData2.addBoostAndGetAttrib(self.boost[baseBoost]["effect"])
-            coeffSpecific2 = getDamageCoeff(self.occ, finalAttrib2, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao)
+            coeffSpecific2 = getDamageCoeff(self.occ, finalAttrib2, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao, isSangRou=isSangRou)
 
             # if baseBoost == "2,673,11":
             #     print("[pfAfter]", coeffSpecific2, finalAttrib2)
@@ -188,7 +194,7 @@ class BoostCounter():
             for boost in self.targetBoost[target]:
                 if boost != baseBoost:
                     targetBoosts.append(self.targetBoost[target][boost]["effect"])
-            coeffSpecific = getDamageCoeff(self.occ, finalAttrib, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao)
+            coeffSpecific = getDamageCoeff(self.occ, finalAttrib, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao, isSangRou=isSangRou)
 
             rdpsSeparateRate[baseBoost] = {"source": self.targetBoost[target][baseBoost]["source"],
                                            "amount": coeffAll - coeffSpecific}
@@ -221,6 +227,8 @@ class BoostCounter():
             skill = "相知玉简"
         elif skillName in ["破", "破·虚空"]:
             skill = "破招"
+        elif skillName in ["商阳指", "阳明指", "桑柔"]:
+            skill = "桑柔"
         else:
             skill = "all"
 

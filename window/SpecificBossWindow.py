@@ -109,7 +109,7 @@ class SpecificBossWindow(Window):
         tb.AppendHeader("装分", "玩家的装分，可能会获取失败。\n被星号标记的装分表示对应的装备已经获取失败，但服务器可以从最近的战斗记录中读取到缓存。")
         tb.AppendHeader("详情", "装备详细描述。")
         tb.AppendHeader("强化", "装备强化列表，表示[精炼满级装备数量]/[插8]-[插7]-[插6]/[五彩石等级]/[紫色附魔]-[蓝色附魔]/[大附魔：手腰脚头衣裤]\n注意精炼与镶嵌目前无法准确获取，但附魔情况是准确的。")
-        tb.AppendHeader("被控", "受到影响无法正常输出的时间，以秒计。\n%s" % stunDescription)
+        tb.AppendHeader("被控", "受到影响无法正常输出的时间，以秒计。%s" % stunDescription)
 
     def constructCommonLine(self, tb, line):
         '''

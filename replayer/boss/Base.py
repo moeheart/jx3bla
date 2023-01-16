@@ -126,6 +126,7 @@ class SpecificReplayerPro():
                 line["equip"]["score"] += "*"
             line["equip"]["sketch"] = self.equipmentDict[id]["sketch"]
             line["equip"]["forge"] = self.equipmentDict[id]["forge"]
+        line["stunTime"] = int(self.stunCounter[id].buffTimeIntegral() / 1000)
         return line
 
     def analyseSecondStage(self, item):

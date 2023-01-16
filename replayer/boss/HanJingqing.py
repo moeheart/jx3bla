@@ -30,12 +30,19 @@ class HanJingqingWindow(SpecificBossWindow):
         tb = TableConstructorMeta(self.config, frame1)
 
         self.constructCommonHeader(tb, "")
+        tb.AppendHeader("本体DPS", "对本体的DPS。\n战斗时间：%s" % parseTime(self.detail["btTime"]))
+        tb.AppendHeader("接罐子次数", "成功接到罐子的次数。这里按照buff判断，因此当多人同时接到一个罐子时，每个人都记为成功。")
+        tb.AppendHeader("扶摇次数", "扶摇跳起的次数。自然消失的扶摇不计入判断，但是注意有时不通过扶摇也可以接罐子。")
         tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         tb.EndOfLine()
 
         for i in range(len(self.effectiveDPSList)):
             line = self.effectiveDPSList[i]
             self.constructCommonLine(tb, line)
+
+            tb.AppendContext(int(line["battle"]["btDPS"]))
+            tb.AppendContext(int(line["battle"]["gzTime"]))
+            tb.AppendContext(int(line["battle"]["fyTime"]))
 
             # 心法复盘
             if line["name"] in self.occResult:
@@ -57,8 +64,11 @@ class HanJingqingReplayer(SpecificReplayerPro):
         '''
 
         self.countFinalOverall()
+        self.changePhase(self.finalTime, 0)
         self.bh.setEnvironmentInfo(self.bhInfo)
         self.bh.printEnvironmentInfo()
+
+        self.detail["btTime"] = int(self.phaseTime[1] / 1000)
 
     def getResult(self):
         '''
@@ -72,6 +82,7 @@ class HanJingqingReplayer(SpecificReplayerPro):
             if id in self.statDict:
                 # line = self.stat[id]
                 res = self.getBaseList(id)
+                res["battle"]["btDPS"] = int(safe_divide(res["battle"]["btDPS"], self.detail["btTime"]))
                 bossResult.append(res)
         # bossResult.sort(key=lambda x: -x[2])
         self.statList = bossResult
@@ -93,6 +104,8 @@ class HanJingqingReplayer(SpecificReplayerPro):
         params
         - item 复盘数据，意义同茗伊复盘。
         '''
+
+        self.checkTimer(event.time)
 
         if event.dataType == "Skill":
             if event.target in self.bld.info.player:
@@ -133,12 +146,20 @@ class HanJingqingReplayer(SpecificReplayerPro):
                     self.bh.setCall("24760", "毒液缠身", "16540", event.time, 5000, event.target, "毒液缠身接罐子")
                     self.stunCounter[event.target].setState(event.time, 1)
                     self.stunCounter[event.target].setState(event.time + 5000, 0)
+                    self.statDict[event.target]["battle"]["gzTime"] += 1
 
             if event.id == "23890":  # 毒技能点名标记
                 if event.stack == 1:
                     self.bh.setCall("23890", "点名标记", "2027", event.time, 0, event.target, "点名去BOSS的另一侧排buff")
                     # self.stunCounter[event.target].setState(event.time, 1)
                     # self.stunCounter[event.target].setState(event.time + 3000, 0)
+
+            if event.id == "208":  # 弹跳，扶摇buff
+                if event.stack == 1:
+                    self.lastFuyao[event.target] = event.time
+                else:
+                    if event.time - self.lastFuyao[event.target] < 29500:  # 不是自然消失
+                        self.statDict[event.target]["battle"]["fyTime"] += 1
 
         elif event.dataType == "Shout":
             if event.content in ['"好，好！就用你们来试试我的蛊毒..."']:
@@ -247,8 +268,13 @@ class HanJingqingReplayer(SpecificReplayerPro):
         # 韩敬青数据格式：
         # 7 ？
 
+        self.lastFuyao = {}  # 记录上一次扶摇buff的时间
+
         for line in self.bld.info.player:
-            self.statDict[line]["battle"] = {"btDPS": 0}
+            self.statDict[line]["battle"] = {"btDPS": 0,
+                                             "gzTime": 0,
+                                             "fyTime": 0,}
+            self.lastFuyao[line] = 0
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''

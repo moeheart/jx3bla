@@ -30,12 +30,23 @@ class SuFenglouWindow(SpecificBossWindow):
         tb = TableConstructorMeta(self.config, frame1)
 
         self.constructCommonHeader(tb, "")
+        tb.AppendHeader("外场DPS", "在P1对外场苏凤楼的DPS。\n阶段持续时间：%s" % parseTime(self.detail["wcTime"]))
+        tb.AppendHeader("内场1DPS", "在第一个幻境期间，对苏凤楼的DPS。\n阶段持续时间：%s" % parseTime(self.detail["nc1Time"]))
+        tb.AppendHeader("内场2DPS", "在第二个幻境期间，对剧毒孢子的DPS。\n阶段持续时间：%s" % parseTime(self.detail["nc2Time"]))
+        tb.AppendHeader("内场3DPS", "在第三个幻境期间，对苏凤楼的DPS。\n阶段持续时间：%s" % parseTime(self.detail["nc3Time"]))
+        tb.AppendHeader("P2DPS", "在25人英雄难度下，最终阶段的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P2Time"]))
         tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         tb.EndOfLine()
 
         for i in range(len(self.effectiveDPSList)):
             line = self.effectiveDPSList[i]
             self.constructCommonLine(tb, line)
+
+            tb.AppendContext(int(line["battle"]["wcDPS"]))
+            tb.AppendContext(int(line["battle"]["nc1DPS"]))
+            tb.AppendContext(int(line["battle"]["nc2DPS"]))
+            tb.AppendContext(int(line["battle"]["nc3DPS"]))
+            tb.AppendContext(int(line["battle"]["P2DPS"]))
 
             # 心法复盘
             if line["name"] in self.occResult:
@@ -57,8 +68,15 @@ class SuFenglouReplayer(SpecificReplayerPro):
         '''
 
         self.countFinalOverall()
+        self.changePhase(self.finalTime, 0)
         self.bh.setEnvironmentInfo(self.bhInfo)
         self.bh.printEnvironmentInfo()
+
+        self.detail["wcTime"] = int(self.phaseTime[1] / 1000)
+        self.detail["nc1Time"] = int(self.phaseTime[2] / 1000)
+        self.detail["nc2Time"] = int(self.phaseTime[3] / 1000)
+        self.detail["nc3Time"] = int(self.phaseTime[4] / 1000)
+        self.detail["P2Time"] = int(self.phaseTime[5] / 1000)
 
     def getResult(self):
         '''
@@ -72,6 +90,11 @@ class SuFenglouReplayer(SpecificReplayerPro):
             if id in self.statDict:
                 # line = self.stat[id]
                 res = self.getBaseList(id)
+                res["battle"]["wcDPS"] = int(safe_divide(res["battle"]["wcDPS"], self.detail["wcTime"]))
+                res["battle"]["nc1DPS"] = int(safe_divide(res["battle"]["nc1DPS"], self.detail["nc1Time"]))
+                res["battle"]["nc2DPS"] = int(safe_divide(res["battle"]["nc2DPS"], self.detail["nc2Time"]))
+                res["battle"]["nc3DPS"] = int(safe_divide(res["battle"]["nc3DPS"], self.detail["nc3Time"]))
+                res["battle"]["P2DPS"] = int(safe_divide(res["battle"]["P2DPS"], self.detail["P2Time"]))
                 bossResult.append(res)
         # bossResult.sort(key=lambda x: -x[2])
         self.statList = bossResult
@@ -93,6 +116,8 @@ class SuFenglouReplayer(SpecificReplayerPro):
         params
         - item 复盘数据，意义同茗伊复盘。
         '''
+
+        self.checkTimer(event.time)
 
         if event.dataType == "Skill":
             if event.target in self.bld.info.player:

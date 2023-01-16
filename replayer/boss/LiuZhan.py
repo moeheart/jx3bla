@@ -18,7 +18,7 @@ class LiuZhanWindow(SpecificBossWindow):
         '''
         使用tkinter绘制详细复盘窗口。
         '''
-        self.constructWindow("刘展", "1200x800")
+        self.constructWindow("刘展", "1200x900")
         window = self.window
         
         frame1 = tk.Frame(window)
@@ -30,12 +30,19 @@ class LiuZhanWindow(SpecificBossWindow):
         tb = TableConstructorMeta(self.config, frame1)
 
         self.constructCommonHeader(tb, "")
+        tb.AppendHeader("刘展DPS", "对刘展的DPS。\n常规阶段时间：%s，包括40%%血量之前与40%%血量之后的两部分之和。" % parseTime(self.detail["P1Time"]))
+        tb.AppendHeader("枪卫DPS", "对枪卫的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P2Time"]))
+        tb.AppendHeader("斧卫DPS", "对斧卫的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P2Time"]))
         tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         tb.EndOfLine()
 
         for i in range(len(self.effectiveDPSList)):
             line = self.effectiveDPSList[i]
             self.constructCommonLine(tb, line)
+
+            tb.AppendContext(int(line["battle"]["lzDPS"]))
+            tb.AppendContext(int(line["battle"]["qwDPS"]))
+            tb.AppendContext(int(line["battle"]["fwDPS"]))
 
             # 心法复盘
             if line["name"] in self.occResult:
@@ -44,6 +51,20 @@ class LiuZhanWindow(SpecificBossWindow):
                 tb.AppendContext("")
             tb.EndOfLine()
 
+        frame2 = tk.Frame(window)
+        frame2.pack()
+        tb = TableConstructorMeta(self.config, frame2)
+        tb.AppendHeader("射箭复盘", "")
+        tb.EndOfLine()
+        num = 0
+        for line in self.detail["shejian"]:
+            tb.AppendContext(line["time"])
+            tb.AppendContext(line["target"], color="#ff0000")
+            num += 1
+            if num % 5 == 0:
+                tb.EndOfLine()
+        if num % 5 != 0:
+            tb.EndOfLine()
         self.constructNavigator()
 
     def __init__(self, config, effectiveDPSList, detail, occResult, analysedBattleData):
@@ -57,8 +78,12 @@ class LiuZhanReplayer(SpecificReplayerPro):
         '''
 
         self.countFinalOverall()
+        self.changePhase(self.finalTime, 0)
         self.bh.setEnvironmentInfo(self.bhInfo)
         self.bh.printEnvironmentInfo()
+
+        self.detail["P1Time"] = int((self.phaseTime[1] + self.phaseTime[3]) / 1000)
+        self.detail["P2Time"] = int(self.phaseTime[2] / 1000)
 
     def getResult(self):
         '''
@@ -72,6 +97,9 @@ class LiuZhanReplayer(SpecificReplayerPro):
             if id in self.statDict:
                 # line = self.stat[id]
                 res = self.getBaseList(id)
+                res["battle"]["lzDPS"] = int(safe_divide(res["battle"]["lzDPS"], self.detail["P1Time"]))
+                res["battle"]["qwDPS"] = int(safe_divide(res["battle"]["qwDPS"], self.detail["P2Time"]))
+                res["battle"]["fwDPS"] = int(safe_divide(res["battle"]["fwDPS"], self.detail["P2Time"]))
                 bossResult.append(res)
         # bossResult.sort(key=lambda x: -x[2])
         self.statList = bossResult
@@ -94,6 +122,8 @@ class LiuZhanReplayer(SpecificReplayerPro):
         - item 复盘数据，意义同茗伊复盘。
         '''
 
+        self.checkTimer(event.time)
+
         if event.dataType == "Skill":
             if event.target in self.bld.info.player:
                 if event.heal > 0 and event.effect != 7 and event.caster in self.hps:  # 非化解
@@ -114,9 +144,15 @@ class LiuZhanReplayer(SpecificReplayerPro):
                     if self.bld.info.getName(event.target) in ["刘展", "劉展"]:
                         self.bh.setMainTarget(event.target)
                         self.statDict[event.caster]["battle"]["lzDPS"] += event.damageEff
-                    elif self.bld.info.getName(event.target) in ["枪卫首领", "槍衛首領", "斧卫首领", "斧衛首領"]:
+                    elif self.bld.info.getName(event.target) in ["枪卫首领", "槍衛首領"]:
                         self.bh.setMainTarget(event.target)
-                        self.statDict[event.caster]["battle"]["P2DPS"] += event.damageEff
+                        self.statDict[event.caster]["battle"]["qwDPS"] += event.damageEff
+                    elif self.bld.info.getName(event.target) in ["斧卫首领", "斧衛首領"]:
+                        self.bh.setMainTarget(event.target)
+                        self.statDict[event.caster]["battle"]["fwDPS"] += event.damageEff
+
+                if event.id == "33084":  # 射手援助
+                    self.detail["shejian"].append({"time": parseTime((event.time - self.startTime) / 1000), "target": self.bld.info.getName(event.target)})
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -268,9 +304,12 @@ class LiuZhanReplayer(SpecificReplayerPro):
         for line in self.bld.info.player:
             # self.stat[line].extend([0, 0, 0])
             self.statDict[line]["battle"] = {"lzDPS": 0,
-                                             "P2DPS": 0}
+                                             "qwDPS": 0,
+                                             "fwDPS": 0}
             self.xiazhuiStart[line] = 0
             self.lifuStart[line] = 0
+
+        self.detail["shejian"] = []  # 射箭复盘
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''
