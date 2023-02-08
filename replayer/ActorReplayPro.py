@@ -36,6 +36,7 @@ from replayer.occ.LiJingYiDao import LiJingYiDaoReplayer
 from replayer.occ.YunChangXinJing import YunChangXinJingReplayer
 from replayer.occ.BuTianJue import BuTianJueReplayer
 from replayer.occ.Dps import DpsReplayer
+from replayer.occ.HuaJianYou import HuaJianYouReplayer
 
 from replayer.CombatTracker import CombatTracker
 from replayer.ZhenyanRecord import ZhenyanRecord
@@ -915,6 +916,8 @@ class ActorProReplayer(ReplayerBase):
                 replayer = YunChangXinJingReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
             if self.config.item["butian"]["active"] and self.occDetailList[id] == "6h":  # 奶毒
                 replayer = BuTianJueReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
+            if self.occDetailList[id] == "2d":  # 花间
+                replayer = HuaJianYouReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
             if self.occDetailList[id] in ["1d", "1t", "2d", "3d", "3t", "4p", "4m", "5d", "6d", "7p", "7m", "8", "9", "10d", "10t",
                                           "21d", "21t", "22d", "23", "24", "25", "211", "212d", "213"]:
                 replayer = DpsReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData, self.occDetailList[id])
