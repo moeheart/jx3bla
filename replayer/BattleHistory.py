@@ -172,7 +172,7 @@ class BattleHistory():
         else:
             return self.log["normal"][-1]["skillid"], self.log["normal"][-1]["start"]
 
-    def updateNormalSkill(self, skillid, skillname, iconid, start, duration, num, heal, healeff, delay=0, busyTime=0, description="", target="", targetName=""):
+    def updateNormalSkill(self, skillid, skillname, iconid, start, duration, num, heal, healeff, damage, damageEff, delay=0, busyTime=0, description="", target="", targetName=""):
         '''
         在常规技能的末尾与当前技能相同时进行更新.
         params:
@@ -184,6 +184,8 @@ class BattleHistory():
         - num: 技能次数.
         - heal: 治疗量.
         - healeff: 有效治疗量.
+        - damage: 伤害.
+        - damageEff: 有效伤害.
         - delay: 平均延时.
         - busyTime: 实际所用时间.
         - description: 描述.
@@ -194,9 +196,11 @@ class BattleHistory():
         self.log["normal"][-1]["num"] += num
         self.log["normal"][-1]["healeff"] += healeff
         self.log["normal"][-1]["heal"] += heal
+        self.log["normal"][-1]["damageeff"] += damageEff
+        self.log["normal"][-1]["damage"] += damage
         self.log["normal"][-1]["targetName"] += '+' + targetName
 
-    def setNormalSkill(self, skillid, skillname, iconid, start, duration, num, heal, healeff, delay=0, busyTime=0, description="", target="", targetName=""):
+    def setNormalSkill(self, skillid, skillname, iconid, start, duration, num, heal, healeff, damage, damageEff, delay=0, busyTime=0, description="", target="", targetName=""):
         '''
         添加常规技能.
         params:
@@ -208,6 +212,8 @@ class BattleHistory():
         - num: 技能次数.
         - heal: 治疗量.
         - healeff: 有效治疗量.
+        - damage: 伤害.
+        - damageEff: 有效伤害.
         - delay: 平均延时.
         - busyTime: 实际所用时间.
         - description: 描述.
@@ -223,6 +229,8 @@ class BattleHistory():
                "num": num,
                "heal": heal,
                "healeff": healeff,
+               "damage": damage,
+               "damageeff": damageEff,
                }
         if description != "":
             res["description"] = description
@@ -355,6 +363,8 @@ class SingleSkill():
             self.skillLog.append([singleBusy, singleEnd])
         self.heal += event.heal
         self.healEff += event.healEff
+        self.damage += event.damage
+        self.damageEff += event.damageEff
         self.timeEnd = event.time + max(getLength(self.gcd, self.haste) - getLength(castLength, hasteActual), 0) * (1 - tunnelD)
         self.target = event.target
 
@@ -367,6 +377,8 @@ class SingleSkill():
         self.num = 0
         self.heal = 0
         self.healEff = 0
+        self.damage = 0
+        self.damageEff = 0
         self.delay = 0
         self.delayNum = 0
         self.busy = 0
@@ -385,6 +397,8 @@ class SingleSkill():
         self.num = 0
         self.heal = 0
         self.healEff = 0
+        self.damage = 0
+        self.damageEff = 0
         self.delay = 0
         self.delayNum = 0
         self.busy = 0

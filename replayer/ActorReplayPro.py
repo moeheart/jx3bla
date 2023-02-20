@@ -448,7 +448,7 @@ class ActorProReplayer(ReplayerBase):
                             deathHitDetail[event.caster].append([event.time, self.bld.info.getSkillName(event.full_id), event.damage, event.caster, -1, event.effect, event.damageEff])
 
                     # 开怪统计，判断对本体的伤害
-                    if event.caster in self.bld.info.player and event.heal == 0:
+                    if event.caster in self.bld.info.player and event.heal == 0 and self.bld.info.getName(event.target) in BOSS_RAW[self.bossAnalyseName][2]:
                         if event.id in ["2516"]:
                             pass
                         elif self.firstHitList[event.caster][1] == "":
@@ -770,6 +770,7 @@ class ActorProReplayer(ReplayerBase):
             earliestHit = 0
             earliestTankHit = 0
             for name in self.firstHitList:
+                # print("[EarliestHit]", self.bld.info.getName(name), self.firstHitList[name][0], self.firstHitList[name][1])
                 if self.firstHitList[name][1] == "":
                     continue
                 if self.firstHitList[name][1][0] in ["#", "1", "2"] and self.firstHitList[name][2] == "":
@@ -794,7 +795,7 @@ class ActorProReplayer(ReplayerBase):
                                  0,
                                  self.bossNamePrint,
                                  "提前开怪：%s" % hitName,
-                                 [],
+                                 ["如果带有[推测]，表示复盘中是壳技能，可能与实际情况不一致，仅供参考"],
                                  0]] + self.potList
 
         # 战斗补药统计
@@ -918,7 +919,7 @@ class ActorProReplayer(ReplayerBase):
                 replayer = BuTianJueReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
             if self.occDetailList[id] == "2d":  # 花间
                 replayer = HuaJianYouReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
-            if self.occDetailList[id] in ["1d", "1t", "2d", "3d", "3t", "4p", "4m", "5d", "6d", "7p", "7m", "8", "9", "10d", "10t",
+            if self.occDetailList[id] in ["1d", "1t", "3d", "3t", "4p", "4m", "5d", "6d", "7p", "7m", "8", "9", "10d", "10t",
                                           "21d", "21t", "22d", "23", "24", "25", "211", "212d", "213"]:
                 replayer = DpsReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData, self.occDetailList[id])
             if replayer is not None:

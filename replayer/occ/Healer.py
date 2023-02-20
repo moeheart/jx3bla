@@ -274,7 +274,7 @@ class HealerReplay(ReplayerBase):
             index = self.gcdSkillIndex[ss.skill]
             line = self.skillInfo[index]
             bh.setNormalSkill(ss.skill, line[1], line[3],
-                              ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
+                              ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal, ss.damage, ss.damageEff,
                               roundCent(safe_divide(ss.healEff, ss.heal)),
                               int(safe_divide(ss.delay, ss.delayNum)), ss.busy, "")
 
@@ -425,12 +425,12 @@ class HealerReplay(ReplayerBase):
                 # 相同技能，原地更新
                 bh.updateNormalSkill(ss.skill, line[1], line[3],
                                      ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
-                                     ss.healEff, 0, ss.busy, "", target, targetName)
+                                     ss.healEff, ss.damage, ss.damageEff, 0, ss.busy, "", target, targetName)
             else:
                 # 不同技能，新建条目
                 bh.setNormalSkill(ss.skill, line[1], line[3],
                                   ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
-                                  ss.healEff, 0, ss.busy, "", target, targetName)
+                                  ss.healEff, ss.damage, ss.damageEff, 0, ss.busy, "", target, targetName)
             ss.reset()
 
     def eventInSecondState(self, event):

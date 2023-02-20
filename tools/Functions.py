@@ -632,11 +632,66 @@ class HotCounter(BuffCounter):
         '''
         self.log.append([int(time), int(stack), int(duration)])
 
-    def __init__(self, shieldLog, startTime, finalTime):
+    def __init__(self, buffid, startTime, finalTime):
         '''
         初始化.
         '''
-        super().__init__(shieldLog, startTime, finalTime)
+        super().__init__(buffid, startTime, finalTime)
+        self.log = [[startTime, 0, 0]]
+
+class DotCounter(HotCounter):
+    '''
+    DOT的统计类.
+    继承HOT统计类, 增加Dot的刷新等功能.
+    '''
+
+    def clearDot(self, time):
+        '''
+        模拟"在某个时间炸Dot"的事件.
+        params:
+        - time: 时间
+        '''
+        while time <= self.log[-1][0]:  # 如果时间早于上一个预期，那么执行刷新dot的逻辑.
+            del self.log[-1]
+        if self.log[-1][1] != 0:
+            self.setState(time, 0, 0)
+
+    def addDot(self, time, stack):
+        '''
+        模拟"在某个时间上Dot或者刷新Dot"的事件.
+        params
+        - time: 时间
+        - stack: 层数. 对于大部分Dot而言都是一层. (如果stack=0，则代表刷新时间，而不是移除)
+        '''
+        while time <= self.log[-1][0]:  # 如果时间早于上一个预期，那么执行刷新dot的逻辑.
+            del self.log[-1]
+        prevTime, prevStack, prevDuration = self.log[-1]
+        nowStack = min(prevStack + stack, self.maxStack)
+        if nowStack == 0:
+            return
+        # 计算这个时间之前的一个应有的结束时间.
+        prevEnd = prevTime + prevDuration
+        if prevEnd > time:
+            adjustedStart = prevEnd - (prevEnd - time + self.period - 1) // self.period * self.period
+            adjustedEnd = adjustedStart + self.period * self.maxStep
+        else:
+            adjustedEnd = time + self.period * self.maxStep
+        self.setState(time, nowStack, adjustedEnd - time)
+        if adjustedEnd < self.finalTime:
+            self.setState(adjustedEnd, 0, 0)
+
+    def __init__(self, buffid, startTime, finalTime, maxStep, maxStack, period):
+        '''
+        初始化.
+        params:
+        - maxStep: 最大跳数.
+        - maxStack: 最大堆叠层数.
+        - period: 每跳间隔.
+        '''
+        super().__init__(buffid, startTime, finalTime)
+        self.maxStep = maxStep
+        self.maxStack = maxStack
+        self.period = period
 
 class SkillLogCounter():
     '''

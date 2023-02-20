@@ -139,7 +139,76 @@ class DpsReplayer(ReplayerBase):
         params:
         - event: 处理的事件.
         '''
-        pass
+        ss = self.ss
+        bh = self.bh
+        ss.initSkill(event)
+        index = self.gcdSkillIndex[event.id]
+        line = self.skillInfo[index]
+        castTime = line[5]
+        skip = 0
+        target = ""
+
+        if self.occ == "huajianyou":
+            # 花间特殊判定
+            sfFlag = 0
+            sf = 0
+            if event.id in ["14941", "189", "190"]:
+                # 检查水月
+                sf = self.shuiyueDict.checkState(event.time - 200)
+                if sf:
+                    sfFlag = 1
+            if not sfFlag and event.id in ["14941"]:
+                # 检查行气血
+                sf2 = self.xqxDict.checkState(event.time - 200)
+                if sf2:
+                    sfFlag = 1
+            if event.id == "14941" and not sfFlag:  # 用推测的墨意来调整阳明的瞬发状态
+                lastMoyi = self.moyiInfer[-1][1]
+                if lastMoyi > 20:
+                    sfFlag = 1
+            if sfFlag:  # 瞬发修改技能
+                castTime = 0
+                # 消耗墨意推测
+                lastMoyi = self.moyiInfer[-1][1]
+                nowMoyi = lastMoyi - 20
+                if nowMoyi < 0:
+                    nowMoyi = 0
+                self.moyiInfer.append([event.time, nowMoyi])
+            if event.id in ["14941", "189", "190", "180", "186", "182", "2636"]:  # 花间通用回复墨意
+                # 获得墨意推测
+                lastMoyi = self.moyiInfer[-1][1]
+                repeated = False
+                lastSkillID, lastTime = bh.getLastNormalSkill()
+                if event.id == "2636" and self.gcdSkillIndex[lastSkillID] == self.gcdSkillIndex[event.id] and event.time - lastTime < 600:  # 过近的快雪被认为是同一个
+                    repeated = True
+                if not repeated:
+                    maxMoyi = 60
+                    nowMoyi = lastMoyi + 5
+                    if event.id == "182":  # 流离
+                        nowMoyi += 20
+                    if nowMoyi > maxMoyi:
+                        nowMoyi = maxMoyi
+                    self.moyiInfer.append([event.time, nowMoyi])
+
+        if not skip:
+            ss.analyseSkill(event, castTime, line[0], tunnel=line[6], hasteAffected=line[7])
+            targetName = "Unknown"
+            if event.target in self.bld.info.player:
+                targetName = self.bld.info.player[event.target].name
+            elif event.target in self.bld.info.npc:
+                targetName = self.bld.info.getName(event.target)
+            lastSkillID, lastTime = bh.getLastNormalSkill()
+            if self.gcdSkillIndex[lastSkillID] == self.gcdSkillIndex[ss.skill] and ss.timeStart - lastTime < 100:
+                # 相同技能，原地更新
+                bh.updateNormalSkill(ss.skill, line[1], line[3],
+                                     ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
+                                     ss.healEff, ss.damage, ss.damageEff, 0, ss.busy, "", target, targetName)
+            else:
+                # 不同技能，新建条目
+                bh.setNormalSkill(ss.skill, line[1], line[3],
+                                  ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
+                                  ss.healEff, ss.damage, ss.damageEff, 0, ss.busy, "", target, targetName)
+            ss.reset()
 
     def eventInSecondState(self, event):
         '''
@@ -164,6 +233,10 @@ class DpsReplayer(ReplayerBase):
             if event.effect == 7:
                 return
 
+            # 跳过纯吸血记录
+            if int(event.fullResult.get("7", 0)) > 0 and event.damageEff == 0:
+                return
+
             if event.scheme == 1 and event.heal != 0 and event.caster == self.mykey:
                 pass
 
@@ -174,6 +247,14 @@ class DpsReplayer(ReplayerBase):
                 # 处理特殊技能
                 elif event.id in self.nonGcdSkillIndex:  # 特殊技能
                     pass
+                # 无法分析的技能
+                elif event.id not in self.unimportantSkill:  # and event.heal != 0:
+                    print("[NonRec]", event.full_id, event.time, self.bld.info.getSkillName(event.full_id), event.damageEff,
+                          self.bld.info.getName(event.caster), self.bld.info.getName(event.target))
+
+            if event.caster == self.mykey:
+                print("[Skill]", event.full_id, event.time, self.bld.info.getSkillName(event.full_id), event.damageEff,
+                      self.bld.info.getName(event.caster), self.bld.info.getName(event.target))
 
         elif event.dataType == "Buff":
             pass
@@ -190,16 +271,16 @@ class DpsReplayer(ReplayerBase):
         # self.allSkillObjs = []
         self.gcdSkillIndex = {}
         self.nonGcdSkillIndex = {}
-        # for i in range(len(self.skillInfo)):
-        #     line = self.skillInfo[i]
-        #     if line[0] is None:
-        #         self.skillInfo[i][0] = SkillCounterAdvance(line, self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)
-        #         # self.allSkillObjs.append(self.skillInfo[i][0])
-        #     for id in line[2]:
-        #         if line[4]:
-        #             self.gcdSkillIndex[id] = i
-        #         else:
-        #             self.nonGcdSkillIndex[id] = i
+        for i in range(len(self.skillInfo)):
+            line = self.skillInfo[i]
+            if line[0] is None:
+                self.skillInfo[i][0] = SkillCounterAdvance(line, self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)
+                # self.allSkillObjs.append(self.skillInfo[i][0])
+            for id in line[2]:
+                if line[4]:
+                    self.gcdSkillIndex[id] = i
+                else:
+                    self.nonGcdSkillIndex[id] = i
 
         # 未解明技能
         self.unimportantSkill = ["4877",  # 水特效作用
@@ -213,7 +294,7 @@ class DpsReplayer(ReplayerBase):
                                "25231",  # 桑柔判定
                                "21832",  # 绝唱触发
                                "9007", "9004", "9005", "9006",  # 后跳，小轻功
-                               "29532", "29541",  # 飘黄
+                               "29532", "29541", "29534",   # 飘黄
                                "4697", "13237",  # 明教阵眼
                                "13332",  # 锋凌横绝阵
                                "14427", "14426",  # 浮生清脉阵
@@ -223,11 +304,16 @@ class DpsReplayer(ReplayerBase):
                                "14358",  # 删除羽减伤
                                "14250",  # 平吟删减伤
                                "2918",  # 可能和天策技能有关的驱散
+                               "33258", "33247",  # 鞋大附魔
+                               "22169",  # 输出附魔伤害波动(?)
+                               "27672",  # 打到青川濯莲
+                               "747",  # 少林阵眼
+                               "769",  # 天策阵眼
                             ]
 
         # 战斗回放初始化
         self.bh = BattleHistory(self.startTime, self.finalTime)
-        # self.ss = SingleSkill(self.startTime, self.haste)
+        self.ss = SingleSkill(self.startTime, self.haste)
 
 
     def getOverallInfo(self):

@@ -141,7 +141,7 @@ class BattleLogData():
                     flag = self.info.addPlayer(jclItem[5]["1"], jclItem[5]["2"], jclItem[5]["3"])
                     if flag:
                         self.info.player[jclItem[5]["1"]].xf = jclItem[5]["4"]
-                        self.info.player[jclItem[5]["1"]].equipScore = jclItem[5]["5"]
+                        self.info.player[jclItem[5]["1"]].equipScore = jclItem[5].get("5", 0)
                         if "6" in jclItem[5]:
                             self.info.player[jclItem[5]["1"]].equip = jclItem[5]["6"]
                         if "7" in jclItem[5]:

@@ -407,7 +407,7 @@ class XiangZhiProReplayer(HealerReplay):
             self.eventInFirstState(event)
             if event.dataType == "Skill":
                 # 记录主动贴盾，主要是为了防止复盘记录中的数据丢失。
-                if event.id == "14231" and event.caster == self.mykey:
+                if event.id == "14231" and event.caster == self.mykey and event.target in self.shieldCountersNew:
                     jianLiaoStack = 0
                     if event.target in self.jianLiaoLog:
                         jianLiaoStack = self.jianLiaoLog[event.target].checkState(event.time)
@@ -418,7 +418,7 @@ class XiangZhiProReplayer(HealerReplay):
                     self.anxiangTimeDict[event.target].append(event.time)
 
             elif event.dataType == "Buff":
-                if event.id in ["9334", "16911"] and event.caster == self.mykey:  # buff梅花三弄
+                if event.id in ["9334", "16911"] and event.caster == self.mykey and event.target in self.shieldCountersNew:  # buff梅花三弄
                     self.shieldCountersNew[event.target].setState(event.time, event.stack)
 
         for key in self.bld.info.player:

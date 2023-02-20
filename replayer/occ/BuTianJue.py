@@ -581,7 +581,7 @@ class BuTianJueReplayer(HealerReplay):
                                 xwgdDict.setState(firstXwgdTaketime, 0)
                         xwgdDict.setState(event.time, 1)
                         xwgdDict.setState(event.time + 25000, 0)
-                    if event.id in ["23951"] and event.level == 51:
+                    if event.id in ["23951"] and event.level == 51 and event.target in xwgdNumDict:
                         xwgdNumDict[event.target] += 1
                         if firstXwgd == 0:
                             firstXwgdTaketime = event.time
@@ -619,7 +619,7 @@ class BuTianJueReplayer(HealerReplay):
                     self.cyDict.setState(event.time, event.stack)
                     if event.stack > prevStack:
                         canyinNum += event.stack - prevStack
-                if event.id in ["20831"] and event.caster == self.mykey:  # buff绮栊
+                if event.id in ["20831"] and event.caster == self.mykey and event.target in self.qilongCounter:  # buff绮栊
                     self.qilongCounter[event.target].setState(event.time, event.stack)
                 if event.id in ["5950"] and event.caster == self.mykey:  # 献祭
                     self.xjDict.setState(event.time, event.stack)

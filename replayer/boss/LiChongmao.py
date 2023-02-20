@@ -69,6 +69,10 @@ class LiChongmaoReplayer(SpecificReplayerPro):
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
 
+        if self.phase == 3:
+            # 结算怒阶段犯错
+            self.phase3Finalize(self.finalTime)
+
         self.countFinalOverall()
         self.changePhase(self.finalTime, 0)
         self.bh.setEnvironmentInfo(self.bhInfo)
@@ -136,6 +140,56 @@ class LiChongmaoReplayer(SpecificReplayerPro):
                              0])
             # 替换暂存区
             self.wushiStack = {"time": time, "caster": caster, "id": [id], "skillName": skillName}
+
+    def phase3Finalize(self, time):
+        '''
+        结算怒阶段的犯错记录.
+        params:
+        - time: 怒阶段结束的时间. 也有可能是脱战时间(如果在怒阶段结束战斗的话)
+        '''
+
+        endTime = parseTime((time - self.startTime) / 1000)
+        maxTianzhu = max(self.tianzhuTime.values())
+        maxZongheng = max(self.zonghengTime.values())
+        for line in self.bld.info.player:
+            if line not in self.p3alive or not self.p3alive[line]:
+                continue
+            # if (self.sanriTime[line] == 0 and self.henTime == 1) or (self.sanriTime[line] > 0 and self.henTime == 2):
+            #     self.addPot([self.bld.info.player[line].name,
+            #                  self.occDetailList[line],
+            #                  1,
+            #                  self.bossNamePrint,
+            #                  "%s三日处理错误，次数%d" % (endTime, self.sanriTime[line]),
+            #                  [],
+            #                  0])
+            if (self.xuefengTime[line] == 0 and self.henTime == 1) or (self.xuefengTime[line] > 0 and self.henTime == 2):
+                self.addPot([self.bld.info.player[line].name,
+                             self.occDetailList[line],
+                             1,
+                             self.bossNamePrint,
+                             "%s雪风处理错误，次数%d" % (endTime, self.xuefengTime[line]),
+                             [],
+                             0])
+            if (self.tianzhuTime[line] < min(2, maxTianzhu) and self.henTime == 1) or (self.tianzhuTime[line] > 0 and self.henTime == 2):
+                self.addPot([self.bld.info.player[line].name,
+                             self.occDetailList[line],
+                             1,
+                             self.bossNamePrint,
+                             "%s天诛处理错误，次数%d" % (endTime, self.tianzhuTime[line]),
+                             [],
+                             0])
+            if (self.zonghengTime[line] < min(2, maxZongheng) and self.zonghengTime[line] >= 0 and self.henTime == 1) or (self.zonghengTime[line] > 0 and self.henTime == 2):
+                self.addPot([self.bld.info.player[line].name,
+                             self.occDetailList[line],
+                             1,
+                             self.bossNamePrint,
+                             "%s刀气纵横处理错误，次数%d" % (endTime, self.zonghengTime[line]),
+                             [],
+                             0])
+            self.zonghengTime[line] = 0
+            # self.sanriTime[line] = 0
+            self.xuefengTime[line] = 0
+            self.tianzhuTime[line] = 0
 
     def analyseSecondStage(self, event):
         '''
@@ -220,6 +274,9 @@ class LiChongmaoReplayer(SpecificReplayerPro):
                 if event.id in ["33085", "33086"]:  # 天诛/天谴
                     self.tianzhuTime[event.target] += 1
 
+                if event.id in ["33483"] and event.damageEff > 0:    # P3dot
+                    self.p3alive[event.target] = 1
+
             else:
 
                 # if event.id in ["262", "263", "264"]:
@@ -270,6 +327,7 @@ class LiChongmaoReplayer(SpecificReplayerPro):
                         self.statDict[event.caster]["battle"]["fx2DPS"] += damage
 
                 if event.id in INTERRUPT_DICT and not (event.id == "18584" and self.fenlanDict[event.caster]):
+                    # print("[Interrupt]", parseTime((event.time - self.startTime) / 1000), self.bld.info.getSkillName(event.full_id), self.bld.info.getName(event.caster), event.damageEff)
                     if self.interruptEventInfo["time"] == -1 or self.interruptEventInfo["time"] > self.interruptInfo["time"]:
                         self.interruptInfo = {"time": event.time, "caster": event.caster, "skillName": INTERRUPT_DICT[event.id]}
 
@@ -322,8 +380,8 @@ class LiChongmaoReplayer(SpecificReplayerPro):
             if event.id == "24808" and event.stack == 1:  # 刀气纵横
                 self.zonghengTime[event.target] -= 10
 
-            if event.id == "24591" and event.stack == 1:  # 三日
-                self.sanriTime[event.target] += 1
+            # if event.id == "24591" and event.stack == 1:  # 三日
+            #     self.sanriTime[event.target] += 1
 
             if event.id == "24589" and event.stack == 1:  # 雪风
                 self.xuefengTime[event.target] += 1
@@ -356,44 +414,7 @@ class LiChongmaoReplayer(SpecificReplayerPro):
             elif event.content in ['"朕没有错！是天下人负了朕！"']:
                 if self.phase == 3:
                     # 结算怒阶段犯错
-                    endTime = parseTime((event.time - self.startTime) / 1000)
-                    for line in self.bld.info.player:
-                        if (self.sanriTime[line] == 0 and self.henTime == 1) or (self.sanriTime[line] > 0 and self.henTime == 2):
-                            self.addPot([self.bld.info.player[line].name,
-                                         self.occDetailList[line],
-                                         1,
-                                         self.bossNamePrint,
-                                         "%s三日处理错误，次数%d" % (endTime, self.sanriTime[line]),
-                                         [],
-                                         0])
-                        if (self.xuefengTime[line] == 0 and self.henTime == 1) or (self.xuefengTime[line] > 0 and self.henTime == 2):
-                            self.addPot([self.bld.info.player[line].name,
-                                         self.occDetailList[line],
-                                         1,
-                                         self.bossNamePrint,
-                                         "%s雪风处理错误，次数%d" % (endTime, self.xuefengTime[line]),
-                                         [],
-                                         0])
-                        if (self.tianzhuTime[line] == 0 and self.henTime == 1) or (self.tianzhuTime[line] > 0 and self.henTime == 2):
-                            self.addPot([self.bld.info.player[line].name,
-                                         self.occDetailList[line],
-                                         1,
-                                         self.bossNamePrint,
-                                         "%s天诛处理错误，次数%d" % (endTime, self.tianzhuTime[line]),
-                                         [],
-                                         0])
-                        if (self.zonghengTime[line] == 0 and self.henTime == 1) or (self.zonghengTime[line] > 0 and self.henTime == 2):
-                            self.addPot([self.bld.info.player[line].name,
-                                         self.occDetailList[line],
-                                         1,
-                                         self.bossNamePrint,
-                                         "%s刀气纵横处理错误，次数%d" % (endTime, self.zonghengTime[line]),
-                                         [],
-                                         0])
-                        self.zonghengTime[line] = 0
-                        self.sanriTime[line] = 0
-                        self.xuefengTime[line] = 0
-                        self.tianzhuTime[line] = 0
+                    self.phase3Finalize(event.time)
                 self.changePhase(event.time, 5)
                 self.jzly = 0
                 self.yshp = 0
@@ -556,9 +577,10 @@ class LiChongmaoReplayer(SpecificReplayerPro):
         self.jzly = 0  # 镜中胧月
         self.henTime = 0  # 恨阶段次数
         self.zonghengTime = {}  # 刀气纵横次数
-        self.sanriTime = {}  # 三日次数
+        # self.sanriTime = {}  # 三日次数
         self.xuefengTime = {}  # 雪风次数
         self.tianzhuTime = {}  # 天诛次数
+        self.p3alive = {}  # P3存活记录
 
         for line in self.bld.info.player:
             self.statDict[line]["battle"] = {"btDPS": 0,
@@ -570,9 +592,10 @@ class LiChongmaoReplayer(SpecificReplayerPro):
             self.qiangbingStart[line] = 0
             self.fenlanDict[line] = 0
             self.zonghengTime[line] = 0
-            self.sanriTime[line] = 0
+            # self.sanriTime[line] = 0
             self.xuefengTime[line] = 0
             self.tianzhuTime[line] = 0
+            self.p3alive[line] = 0
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''

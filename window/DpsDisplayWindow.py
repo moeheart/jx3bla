@@ -325,7 +325,7 @@ class DpsDisplayWindow(Window):
         self.renderDps()
         self.renderQx()
         # self.renderSkill()
-        # self.renderReplay()
+        self.renderReplay()
         # self.renderTeam()
         # self.renderRate()
         self.renderAdvertise()

@@ -7,8 +7,191 @@ from replayer.BattleHistory import BattleHistory, SingleSkill
 from tools.Names import *
 from tools.Functions import *
 from replayer.Name import *
+from window.DpsDisplayWindow import DpsDisplayWindow
+
+import os
+import tkinter as tk
+from tkinter import messagebox
+from PIL import Image
+from PIL import ImageTk
 
 import time
+
+class HuaJianYouWindow(DpsDisplayWindow):
+    '''
+    花间复盘界面显示类.
+    通过tkinter将复盘数据显示在图形界面中.
+    '''
+
+    def showHelp(self):
+        '''
+        展示复盘窗口的帮助界面，用于解释对应心法的一些显示规则.
+        '''
+        text = '''时间轴中由上到下分别表示：商阳、钟林、兰摧、快雪这四个DoT。颜色深浅表示剩余时间。
+注意，对于多目标的情况这里会尝试合并所有目标的状况，因此不一定准确。'''
+        messagebox.showinfo(title='说明', message=text)
+
+    def renderReplay(self):
+        '''
+        渲染回放信息(Part 6)，奶歌复盘特化.
+        '''
+        window = self.window
+        # Part 6: 回放
+
+        frame6 = tk.Frame(window, width=730, height=150, highlightthickness=1, highlightbackground="#7f1fdf")
+        frame6.place(x=10, y=460)
+        battleTime = self.result["overall"]["sumTime"]
+        battleTimePixels = int(battleTime / 100)
+        startTime = self.result["replay"]["startTime"]
+        canvas6 = tk.Canvas(frame6, width=720, height=140, scrollregion=(0, 0, battleTimePixels, 120))  # 创建canvas
+        canvas6.place(x=0, y=0) #放置canvas的位置
+        frame6sub = tk.Frame(canvas6) #把frame放在canvas里
+        frame6sub.place(width=720, height=120) #frame的长宽，和canvas差不多的
+        vbar=tk.Scrollbar(canvas6, orient=tk.HORIZONTAL)
+        vbar.place(y=120,width=720,height=20)
+        vbar.configure(command=canvas6.xview)
+        canvas6.config(xscrollcommand=vbar.set)
+        canvas6.create_window((360, int(battleTimePixels/2)), window=frame6sub)
+
+        # 加载图片列表
+        canvas6.imDict = {}
+        canvas6.im = {}
+        imFile = os.listdir('icons')
+        for line in imFile:
+            imID = line.split('.')[0]
+            if line.split('.')[1] == "png":
+                canvas6.imDict[imID] = Image.open("icons/%s.png" % imID).resize((20, 20), Image.ANTIALIAS)
+                canvas6.im[imID] = ImageTk.PhotoImage(canvas6.imDict[imID])
+
+        # 绘制主时间轴及时间
+        canvas6.create_rectangle(0, 30, battleTimePixels, 70, fill='white')
+        dotName = ["shangyang", "zhonglin", "lancui", "kuaixue"]
+        if "heat" in self.result["replay"]:
+            yPos = [31, 41, 51, 61, 70]
+            for j in range(4):
+                dot = dotName[j]
+                nowTimePixel = 0
+                for line in self.result["replay"]["heat"][dot]["timeline"]:
+                    if line == 0:
+                        color = "#ff7777"
+                    else:
+                        color = getColorHex((int(255 - (255 - 127) * line / 100),
+                                             int(255 - (255 - 31) * line / 100),
+                                             int(255 - (255 - 223) * line / 100)))
+                    canvas6.create_rectangle(nowTimePixel, yPos[j], nowTimePixel + 5, yPos[j+1], fill=color, width=0)
+                    nowTimePixel += 5
+
+        if "badPeriodDps" in self.result["replay"]:
+            # 绘制无效时间段
+            for i in range(1, len(self.result["replay"]["badPeriodDps"])):
+                posStart = int((self.result["replay"]["badPeriodDps"][i - 1][0] - startTime) / 100)
+                posStart = max(posStart, 1)
+                posEnd = int((self.result["replay"]["badPeriodDps"][i][0] - startTime) / 100)
+                zwjt = self.result["replay"]["badPeriodDps"][i - 1][1]
+                if zwjt == 1:
+                    canvas6.create_rectangle(posStart, 31, posEnd, 70, fill="#bbbbbb", width=0)
+
+        nowt = 0
+        while nowt < battleTime:
+            nowt += 10000
+            text = parseTime(nowt / 1000)
+            pos = int(nowt / 100)
+            canvas6.create_text(pos, 50, text=text)
+        # 绘制常规技能轴
+        j = -1
+        lastName = ""
+        lastStart = 0
+        l = len(self.result["replay"]["normal"])
+        for i in range(l + 1):
+            if i == l:
+                record = {"skillname": "Final", "start": 999999999999}
+            else:
+                record = self.result["replay"]["normal"][i]
+            if record["skillname"] != lastName or record["start"] - lastStart > 3000:
+                if j == -1:
+                    j = i
+                    lastName = record["skillname"]
+                    lastStart = record["start"]
+                    continue
+                # 结算上一个技能
+                if self.config.item["lijing"]["stack"] != "不堆叠" and i-j >= int(self.config.item["lijing"]["stack"]):
+                    # 进行堆叠显示
+                    record_first = self.result["replay"]["normal"][j]
+                    record_last = self.result["replay"]["normal"][i-1]
+                    posStart = int((record_first["start"] - startTime) / 100)
+                    posEnd = int((record_last["start"] + record_last["duration"] - startTime) / 100)
+                    canvas6.create_image(posStart + 10, 80, image=canvas6.im[record_last["iconid"]])
+                    # 绘制表示持续的条
+                    if posStart + 20 < posEnd:
+                        canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill="#64fab4")
+                    # 绘制重复次数
+                    if posStart + 30 < posEnd:
+                        canvas6.create_text(posStart + 30, 80, text="*%d" % (i-j))
+                else:
+                    # 进行独立显示
+                    for k in range(j, i):
+                        record_single = self.result["replay"]["normal"][k]
+                        posStart = int((record_single["start"] - startTime) / 100)
+                        posEnd = int((record_single["start"] + record_single["duration"] - startTime) / 100)
+                        canvas6.create_image(posStart + 10, 80, image=canvas6.im[record_single["iconid"]])
+                        # 绘制表示持续的条
+                        if posStart + 20 < posEnd:
+                            canvas6.create_rectangle(posStart, 70, posStart + 20, 90, fill="#64fab4")
+                        if "tunhai" in record_single:
+                            canvas6.create_rectangle(posStart, 70, posStart + 20, 90, outline="#ff0000", width=2)
+                j = i
+            lastName = record["skillname"]
+            lastStart = record["start"]
+
+        # 绘制特殊技能轴
+        for record in self.result["replay"]["special"]:
+            posStart = int((record["start"] - startTime) / 100)
+            posEnd = int((record["start"] + record["duration"] - startTime) / 100)
+            canvas6.create_image(posStart+10, 100, image=canvas6.im[record["iconid"]])
+
+        # 绘制点名轴
+        for record in self.result["replay"]["call"]:
+            posStart = int((record["start"] - startTime) / 100)
+            posEnd = int((record["start"] + record["duration"] - startTime) / 100)
+            canvas6.create_image(posStart+10, 100, image=canvas6.im[record["iconid"]])
+            # 绘制表示持续的条
+            if posStart + 20 < posEnd:
+                canvas6.create_rectangle(posStart+20, 90, posEnd, 110, fill="#ff7777")
+            # 绘制名称
+            if posStart + 30 < posEnd:
+                text = record["skillname"]
+                canvas6.create_text(posStart+20, 100, text=text, anchor=tk.W)
+
+        # 绘制环境轴
+        for record in self.result["replay"]["environment"]:
+            posStart = int((record["start"] - startTime) / 100)
+            posEnd = int((record["start"] + record["duration"] - startTime) / 100)
+            canvas6.create_image(posStart+10, 20, image=canvas6.im[record["iconid"]])
+            # 绘制表示持续的条
+            if posStart + 20 < posEnd:
+                canvas6.create_rectangle(posStart+20, 10, posEnd, 30, fill="#ff7777")
+            # 绘制名称
+            if posStart + 30 < posEnd:
+                text = record["skillname"]
+                if record["num"] > 1:
+                    text += "*%d"%record["num"]
+                canvas6.create_text(posStart+20, 20, text=text, anchor=tk.W)
+
+        tk.Label(frame6sub, text="test").place(x=20, y=20)
+
+
+
+    def __init__(self, config, result):
+        '''
+        初始化.
+        params:
+        - config: 设置类
+        - result: 花间复盘的结果.
+        '''
+        super().__init__(config, result)
+        self.setThemeColor("#7f1fdf")
+        self.title = '花间复盘'
+        self.occ = "huajianyou"
 
 class HuaJianYouReplayer(DpsReplayer):
     '''
@@ -135,104 +318,6 @@ class HuaJianYouReplayer(DpsReplayer):
         self.result["dps"]["stat"] = res
 
         self.myDpsStat = res
-
-
-    def handleGcdSkill(self, event):
-        '''
-        处理gcd技能, 这是第二阶段主循环的子功能.
-        params:
-        - event: 处理的事件.
-        '''
-        pass
-
-    def eventInSecondState(self, event):
-        '''
-        第二阶段处理事件的公共流程.
-        params:
-        - event: 处理的事件.
-        '''
-
-        # prevStatus = self.excludeStatusHealer
-        #
-        # while self.excludePosHealer < len(self.badPeriodHealerLog) and event.time > self.badPeriodHealerLog[self.excludePosHealer][0]:
-        #     self.excludeStatusHealer = self.badPeriodHealerLog[self.excludePosHealer][1]
-        #     self.excludePosHealer += 1
-        #
-        # if self.excludeStatusHealer != prevStatus:
-        #     # 排除状态变化
-        #     for obj in self.allSkillObjs:
-        #         obj.setExclude(self.excludeStatusHealer)
-
-        if event.dataType == "Skill":
-            # 统计化解(暂时只能统计jx3dat的，因为jcl里压根没有)
-            if event.effect == 7:
-                return
-
-            if event.scheme == 1 and event.heal != 0 and event.caster == self.mykey:
-                pass
-
-            if event.caster == self.mykey and event.scheme == 1:
-                # 根据技能表进行自动处理
-                if event.id in self.gcdSkillIndex:
-                    self.handleGcdSkill(event)
-                # 处理特殊技能
-                elif event.id in self.nonGcdSkillIndex:  # 特殊技能
-                    pass
-
-        elif event.dataType == "Buff":
-            pass
-
-
-    def initSecondState(self):
-        '''
-        第二阶段初始化.
-        '''
-        self.battleTimeDict = {}  # 进战时间
-        self.sumPlayer = 0  # 平均玩家数
-
-        # 技能初始化
-        # self.allSkillObjs = []
-        self.gcdSkillIndex = {}
-        self.nonGcdSkillIndex = {}
-        # for i in range(len(self.skillInfo)):
-        #     line = self.skillInfo[i]
-        #     if line[0] is None:
-        #         self.skillInfo[i][0] = SkillCounterAdvance(line, self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)
-        #         # self.allSkillObjs.append(self.skillInfo[i][0])
-        #     for id in line[2]:
-        #         if line[4]:
-        #             self.gcdSkillIndex[id] = i
-        #         else:
-        #             self.nonGcdSkillIndex[id] = i
-
-        # 未解明技能
-        self.unimportantSkill = ["4877",  # 水特效作用
-                               "25682", "25683", "25684", "25685", "25686", "24787", "24788", "24789", "24790", # 破招
-                               "22155", "22207", "22211", "22201", "22208",  # 大附魔
-                               "3071", "18274", "14646", "604",  # 治疗套装，寒清，书离，春泥
-                               "23951",  # 贯体通用
-                               "14536", "14537",  # 盾填充, 盾移除
-                               "3584", "2448",  # 蛊惑
-                               "6800",  # 风特效
-                               "25231",  # 桑柔判定
-                               "21832",  # 绝唱触发
-                               "9007", "9004", "9005", "9006",  # 后跳，小轻功
-                               "29532", "29541",  # 飘黄
-                               "4697", "13237",  # 明教阵眼
-                               "13332",  # 锋凌横绝阵
-                               "14427", "14426",  # 浮生清脉阵
-                               "26128", "26116", "26129", "26087",  # 龙门飞剑
-                               "28982",  # 药宗阵
-                               "742",  # T阵
-                               "14358",  # 删除羽减伤
-                               "14250",  # 平吟删减伤
-                               "2918",  # 可能和天策技能有关的驱散
-                            ]
-
-        # 战斗回放初始化
-        self.bh = BattleHistory(self.startTime, self.finalTime)
-        # self.ss = SingleSkill(self.startTime, self.haste)
-
 
     def getOverallInfo(self):
         '''
@@ -426,36 +511,242 @@ class HuaJianYouReplayer(DpsReplayer):
         # [技能统计对象, 技能名, [所有技能ID], 图标ID, 是否为gcd技能, 运功时长, 是否倒读条, 是否吃加速, cd时间, 充能数量]
         self.skillInfo = [[None, "未知", ["0"], "0", True, 0, False, True, 0, 1],
                      [None, "扶摇直上", ["9002"], "1485", True, 0, False, True, 30, 1],
-                     [None, "蹑云逐月", ["9003"], "1490", True, 0, False, True, 30, 1]
+                     [None, "蹑云逐月", ["9003"], "1490", True, 0, False, True, 30, 1],
+                     [None, "碧水滔天", ["131"], "1525", True, 0, False, True, 95, 1],
+                     [None, "春泥护花", ["132"], "413", True, 0, False, True, 36, 1],
+                     [None, "太阴指", ["228", "497"], "1515", True, 0, False, True, 22, 1],
+                     [None, "商阳指", ["180"], "1514", True, 0, False, True, 0, 1],
+                     [None, "阳明指", ["14941"], "1527", True, 24, False, True, 0, 1],
+                     [None, "钟林毓秀", ["189"], "404", True, 24, False, True, 0, 1],
+                     [None, "兰摧玉折", ["190"], "390", True, 24, False, True, 0, 1],
+                     [None, "快雪时晴", ["2636"], "2999", True, 10, True, True, 0, 1],
+                     [None, "芙蓉并蒂", ["186"], "398", True, 0, False, True, 25, 1],
+                     [None, "玉石俱焚", ["182"], "411", True, 0, False, True, 11, 1],
+
+                     [None, "星楼月影", ["100"], "1520", False, 0, False, True, 21, 1],
+                     [None, "水月无间", ["136"], "1522", False, 0, False, True, 60, 1],
+                     [None, "乱洒青荷", ["2645"], "3001", False, 0, False, True, 75, 1],
                     ]
 
         self.initSecondState()
 
-        # for event in self.bld.log:
-        #     if event.time < self.startTime:
-        #         continue
-        #     if event.time > self.finalTime:
-        #         continue
-        #
-        #     self.eventInSecondState(event)
-        #
-        #     if event.dataType == "Skill":
-        #         # 统计化解(暂时只能统计jx3dat的，因为jcl里压根没有)
-        #         if event.effect == 7:
-        #             # 所有治疗技能都不计算化解.
-        #             continue
-        #
-        #     elif event.dataType == "Buff":
-        #         pass
-        #
-        #     elif event.dataType == "Shout":
-        #         pass
-        #
-        #     elif event.dataType == "Death":
-        #         pass
-        #
-        #     elif event.dataType == "Battle":
-        #         pass
+        self.xqxDict = BuffCounter("6266", self.startTime, self.finalTime)  # 行气血
+        self.cwDict = BuffCounter("12770", self.startTime, self.finalTime)  # cw特效
+        self.shuiyueDict = BuffCounter("412", self.startTime, self.finalTime)  # 水月
+
+        # 墨意推测
+        self.moyiInfer = [[self.startTime, 0]]
+        self.moyiActiveTime = 0  # 墨意对齐生效的时间，在buff发生变化之后进行检测
+        self.moyiBuffNum = 0  # 墨意层数要求，有层数优先级高于0层
+
+        # Dot统计, 注意这里使用敌对目标.
+        self.dotSY = {}
+        self.dotZL = {}
+        self.dotLC = {}
+        self.dotKX = {}
+
+        # 阳明状态
+        self.tunhaiTime = 0
+
+        self.unimportantSkill += ["32467",  # 花间破招
+                                  "32501",  # 踏歌伤害
+                                  "33091",  # 踏歌
+                                  "601",  # 吞海（阳明触发）
+                                  "6693",  # 商阳指的壳
+                                  "18730",  # 兰摧的壳
+                                  "18722",  # 兰摧检测
+                                  "285",  # 钟林的壳
+                                  "13848", "13847",  # 乱洒附带毒
+                                  "6126", "6129", "6128",  # 玉石辅助判断
+                                  "14644",  # 涓流判断
+                                  "33222",  # 快雪（带雪弃）
+                                  "33231",  # 快雪（不带雪弃）
+                                  "179",  # 阳明指（壳）
+                                  "32481",  # 快雪上dot
+                                  "6134", "6135", "6136", "32409",  # 芙蓉刷新
+                                  "32410",  # 吞快雪dot
+                                  "14652",  # 玉石减调息
+                                  "1320",  # 套装效果
+                                  "16",  # 判官笔法
+                                  "1856",  # cw加buff
+                                  "13849",  # 乱洒带商阳（cwbuff用了以前的壳）
+                                  "3086",  # cw实际处理
+                                  "25768",  # cw小特效
+
+                                # 记录所有的特殊技能11
+                                # 改善重复计数的问题11
+                                # 对齐花间的各种瞬发1?
+                                # 用dot跳数补充记录
+                                # 复盘dot状况
+                                # - 上毒 11
+                                # - 玉石 11
+                                # - 芙蓉 11
+                                # - 乱洒/cw 11
+                                # - 阳明(601辅助判断)11
+                                # 显示时间轴
+                                # - 检查cw玉石11
+                                # - 检查阳明瞬发11
+                                # - 吞海阳明显示一个提示11
+                                # 检查墨意复盘是否正确11
+                                # 技能统计
+                                # - 设计内容
+                                  # gcd效率
+                                  # 增益覆盖（队友、自身）
+                                  # 技能数量（阳明：次数、吞海、dps；dot：跳数、覆盖率、dps；芙蓉/玉石：数量、dps）；补充
+                                # - 统计
+                                # - 展示
+                                # 手法警察
+                                # - 设计内容
+                                # - 统计
+                                # - 展示
+                                # 重新设计UI
+                               ]
+
+        for event in self.bld.log:
+            if event.time < self.startTime:
+                continue
+            if event.time > self.finalTime:
+                continue
+
+            self.eventInSecondState(event)
+
+            # 墨意推断
+            if event.time >= self.moyiActiveTime and self.moyiActiveTime != 0:
+                # 修正不合理的墨意值
+                lastMoyi = self.moyiInfer[-1][1]
+                # print("[MoyiCorrect]", event.time, self.moyiBuffNum, lastMoyi)
+                if int(lastMoyi / 20) != self.moyiBuffNum:
+                    correctNum = lastMoyi
+                    # 尝试向上修复
+                    while int(correctNum / 20) > self.moyiBuffNum:
+                        correctNum = max(correctNum - 10, 0)
+                    # 尝试向下修复
+                    while int(correctNum / 20) < self.moyiBuffNum:
+                        correctNum = min(correctNum + 10, 100)
+                    # print("[MoyiChange]", correctNum)
+                    self.moyiInfer.append([event.time, correctNum])
+                # 重置
+                self.moyiActiveTime = 0
+                self.moyiBuffNum = 0
+
+            if event.dataType == "Skill":
+                # 统计化解(暂时只能统计jx3dat的，因为jcl里压根没有)
+                if event.effect == 7:
+                    # 所有治疗技能都不计算化解.
+                    continue
+
+                if event.caster == self.mykey and event.scheme == 1:
+                    if event.id in self.gcdSkillIndex:
+                        pass
+                    elif event.id in self.nonGcdSkillIndex:  # 特殊技能
+                        desc = ""
+                        record = True
+                        if event.id in ["136"]:  # 水月
+                            # 获得墨意推测
+                            lastMoyi = self.moyiInfer[-1][1]
+                            maxMoyi = 60
+                            nowMoyi = lastMoyi + 20
+                            if nowMoyi > maxMoyi:
+                                nowMoyi = maxMoyi
+                            self.moyiInfer.append([event.time, nowMoyi])
+                            self.moyiActiveTime = 0  # 取消这附近的墨意判定
+                        if event.id in ["100"]:  # 星楼
+                            # 获得墨意推测
+                            lastMoyi = self.moyiInfer[-1][1]
+                            maxMoyi = 60
+                            nowMoyi = lastMoyi + 10
+                            if nowMoyi > maxMoyi:
+                                nowMoyi = maxMoyi
+                            self.moyiInfer.append([event.time, nowMoyi])
+                            self.moyiActiveTime = 0  # 取消这附近的墨意判定
+                        if record:
+                            index = self.nonGcdSkillIndex[event.id]
+                            line = self.skillInfo[index]
+                            self.bh.setSpecialSkill(event.id, line[1], line[3], event.time, 0, desc)
+                            skillObj = line[0]
+                            if skillObj is not None:
+                                skillObj.recordSkill(event.time, event.heal, event.healEff, self.ss.timeEnd, delta=-1)
+
+                    if event.id in ["180", "189", "190", "32481", "182", "6134", "6135", "6136", "32409", "13849", "13847", "13848", "601"]:  # 可能涉及目标dot的都计入统计
+                        if event.target not in self.dotSY:
+                            self.dotSY[event.target] = DotCounter("180", self.startTime, self.finalTime, 7, 1, getLength(48, self.haste))
+                        if event.target not in self.dotZL:
+                            self.dotZL[event.target] = DotCounter("189", self.startTime, self.finalTime, 7, 1, getLength(48, self.haste))
+                        if event.target not in self.dotLC:
+                            self.dotLC[event.target] = DotCounter("190", self.startTime, self.finalTime, 7, 1, getLength(48, self.haste))
+                        if event.target not in self.dotKX:
+                            self.dotKX[event.target] = DotCounter("32481", self.startTime, self.finalTime, 10, 6, getLength(48, self.haste))
+                    if event.id in ["180", "13849"]:  # 商阳指
+                        self.dotSY[event.target].addDot(event.time, 1)
+                    if event.id in ["189", "13847"]:  # 钟林
+                        self.dotZL[event.target].addDot(event.time, 1)
+                    if event.id in ["190", "13848"]:  # 兰摧
+                        self.dotLC[event.target].addDot(event.time, 1)
+                    if event.id in ["32481"]:  # 快雪上Dot
+                        self.dotKX[event.target].addDot(event.time, 1)
+                    if event.id in ["182"]:  # 玉石
+                        self.dotSY[event.target].clearDot(event.time)
+                        self.dotZL[event.target].clearDot(event.time)
+                        self.dotLC[event.target].clearDot(event.time)
+                        self.dotKX[event.target].clearDot(event.time)
+                        # 是否有cw?
+                        cw = self.cwDict.checkState(event.time)
+                        if cw:
+                            self.dotSY[event.target].addDot(event.time, 1)
+                            self.dotZL[event.target].addDot(event.time, 1)
+                    if event.id in ["6134"]:  # 芙蓉刷新商阳
+                        self.dotSY[event.target].addDot(event.time, 0)
+                    if event.id in ["6135"]:  # 芙蓉刷新钟林
+                        self.dotZL[event.target].addDot(event.time, 0)
+                    if event.id in ["6136"]:  # 芙蓉刷新兰摧
+                        self.dotLC[event.target].addDot(event.time, 0)
+                    if event.id in ["32409"]:  # 芙蓉刷新快雪
+                        self.dotKX[event.target].addDot(event.time, 0)
+                    if event.id in ["601"]:  # 阳明指吞噬事件
+                        if event.level == 9:  # 钟林
+                            self.dotZL[event.target].clearDot(event.time)
+                        elif event.level == 10:  # 商阳
+                            self.dotSY[event.target].clearDot(event.time)
+                        elif event.level == 11:  # 兰摧
+                            self.dotLC[event.target].clearDot(event.time)
+                        else:
+                            print("[Tunhai]", event.full_id, event.time, self.bld.info.getSkillName(event.full_id),
+                                  event.damageEff,
+                                  self.bld.info.getName(event.caster), self.bld.info.getName(event.target))
+                        if self.bh.log["normal"][-1]["skillid"] == "14941" and event.time - self.tunhaiTime < 10:
+                            self.bh.log["normal"][-1]["tunhai"] = 1
+                    if event.id in ["14941"]:  # 阳明
+                        self.tunhaiTime = event.time
+
+            elif event.dataType == "Buff":
+                if event.id in ["6266"] and event.target == self.mykey:  # 行气血（其实是墨意的瞬发buff，用了以前行气血的逻辑）
+                    self.xqxDict.setState(event.time, event.stack)
+                    if event.time + 500 > self.moyiActiveTime and (self.moyiBuffNum == 0 or event.stack != 0):
+                        # 修正墨意推测
+                        self.moyiActiveTime = event.time + 500
+                        self.moyiBuffNum = event.stack
+                if event.id in ["412"] and event.target == self.mykey:  # 水月无间
+                    self.shuiyueDict.setState(event.time, event.stack)
+                    # if event.stack > shuiyueStack:
+                    #     shuiyueNum += event.stack
+                    # shuiyueStack = event.stack
+                    if event.time + 500 > self.moyiActiveTime and (self.moyiBuffNum == 0 or event.stack != 0):
+                        # 修正墨意推测
+                        self.moyiActiveTime = event.time + 500
+                        self.moyiBuffNum = event.stack
+                if event.id in ["1913"] and event.target == self.mykey:  # cw特效:
+                    if event.stack == 1:
+                        self.bh.setSpecialSkill(event.id, "cw特效", "17817", event.time, 0, "触发cw特效")
+                    self.cwDict.setState(event.time, event.stack)
+
+            elif event.dataType == "Shout":
+                pass
+
+            elif event.dataType == "Death":
+                pass
+
+            elif event.dataType == "Battle":
+                pass
 
         self.sumPlayer = 0
         for key in self.bld.info.player:
@@ -476,8 +767,93 @@ class HuaJianYouReplayer(DpsReplayer):
         # 整体
         self.result["skill"] = {}
         self.result["skill"]["general"] = {}
+        # 计算战斗回放
+        self.result["replay"] = self.bh.getJsonReplay(self.mykey)
 
         self.calculateSkillFinal()
+
+        self.result["replay"]["heat"] = {}
+
+        # self.result["replay"]["heat"][dot]["timeline"]
+
+        # 商阳
+        overallHeat = []
+        for target in self.dotSY:
+            singleHeat = self.dotSY[target].getHeatTable(500, 1)["timeline"]
+            if overallHeat == []:
+                overallHeat = singleHeat
+            else:  # 合并
+                for i in range(len(singleHeat)):
+                    overallHeat[i] = max(overallHeat[i], singleHeat[i])
+        for i in range(len(overallHeat)):
+            overallHeat[i] = int(overallHeat[i] * 100)
+        self.result["replay"]["heat"]["shangyang"] = {"interval": 500, "timeline": overallHeat}
+
+        # 钟林
+        overallHeat = []
+        for target in self.dotZL:
+            singleHeat = self.dotZL[target].getHeatTable(500, 1)["timeline"]
+            if overallHeat == []:
+                overallHeat = singleHeat
+            else:  # 合并
+                for i in range(len(singleHeat)):
+                    overallHeat[i] = max(overallHeat[i], singleHeat[i])
+        for i in range(len(overallHeat)):
+            overallHeat[i] = int(overallHeat[i] * 100)
+        self.result["replay"]["heat"]["zhonglin"] = {"interval": 500, "timeline": overallHeat}
+
+        # 兰摧
+        overallHeat = []
+        for target in self.dotLC:
+            singleHeat = self.dotLC[target].getHeatTable(500, 1)["timeline"]
+            if overallHeat == []:
+                overallHeat = singleHeat
+            else:  # 合并
+                for i in range(len(singleHeat)):
+                    overallHeat[i] = max(overallHeat[i], singleHeat[i])
+        for i in range(len(overallHeat)):
+            overallHeat[i] = int(overallHeat[i] * 100)
+        self.result["replay"]["heat"]["lancui"] = {"interval": 500, "timeline": overallHeat}
+
+        # 快雪
+        overallHeat = []
+        for target in self.dotKX:
+            singleHeat = self.dotKX[target].getHeatTable(500, 1)["timeline"]
+            if overallHeat == []:
+                overallHeat = singleHeat
+            else:  # 合并
+                for i in range(len(singleHeat)):
+                    overallHeat[i] = max(overallHeat[i], singleHeat[i])
+        for i in range(len(overallHeat)):
+            overallHeat[i] = int(overallHeat[i] * 100)
+        self.result["replay"]["heat"]["kuaixue"] = {"interval": 500, "timeline": overallHeat}
+
+        print("[HuajianTest]")
+        # print(self.result["replay"]["moyi"])
+        for line in self.result["replay"]["normal"]:
+            print(line)
+        for line in self.result["replay"]["special"]:
+            print(line)
+        print("[Shangyang]")
+        for target in self.dotSY:
+            print(target, self.bld.info.getName(target))
+            for line in self.dotSY[target].log:
+                print(line)
+        print("[Zhonglin]")
+        for target in self.dotZL:
+            print(target, self.bld.info.getName(target))
+            for line in self.dotZL[target].log:
+                print(line)
+        print("[Lancui]")
+        for target in self.dotLC:
+            print(target, self.bld.info.getName(target))
+            for line in self.dotLC[target].log:
+                print(line)
+        print("[Kuaixue]")
+        for target in self.dotKX:
+            print(target, self.bld.info.getName(target))
+            for line in self.dotKX[target].log:
+                print(line)
 
 
     def replay(self):
@@ -500,7 +876,7 @@ class HuaJianYouReplayer(DpsReplayer):
         - myname: 需要复盘的奶歌名.
         - actorData: 演员复盘得到的统计记录.
         '''
-        super().__init__(config, fileNameInfo, path, bldDict, window, actorData)
+        super().__init__(config, fileNameInfo, path, bldDict, window, myname, actorData)
         self.public = 1  # 暂时强制公开，反正没什么东西  TODO 更改设置中的选项，简化内容
         self.myname = myname
         self.occ = "huajianyou"

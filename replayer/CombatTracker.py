@@ -926,7 +926,7 @@ class CombatTracker():
         lvl0_id = ','.join(full_id.split(',')[0:2])+',0'
 
         # 记录一些单独的buff
-        if event.id == "9334":  # 记录梅花三弄的来源
+        if event.id == "9334" and event.target in self.boostCounter:  # 记录梅花三弄的来源
             self.shieldDict[event.target] = event.caster
             self.boostCounter[event.target].setSpecificSkill("mhsn", event.caster)
             # 检查庄周梦效果，用独立的方式判定
@@ -937,6 +937,9 @@ class CombatTracker():
                 source = event.caster
                 self.boostCounter[event.target].addBoost(effect_id, boostValue, source, event.stack, event.time)
                 # print("[AddShield]", self.boostCounter[event.target].boost)
+
+        # if event.id == "9334" and event.target not in self.boostCounter:  # 记录梅花三弄的来源
+        #     print("[ShieldTest]", event.id, event.target, self.info.getName(event.target))
 
         # if event.id == "20854":
         #     self.zyhrDict[event.target] = event.caster
@@ -1422,7 +1425,7 @@ class CombatTracker():
         '''
         if event.content in ['"朕没有错！是天下人负了朕！"']:
             if self.bossYishang < 30:
-                self.bossYishang += 10
+                self.bossYishang += 20  # TODO 在buff表更新之后，需要修改这里的数值(原本是5%易伤，更新后变为50%)
             else:
                 self.bossYishang += 20
             bossID = []

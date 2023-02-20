@@ -857,13 +857,15 @@ class LiJingYiDaoReplayer(HealerReplay):
 
         # 秋肃
         self.result["skill"]["qiusu"] = {}
-        num = self.battleTimeDict[self.mykey]
+        # num = self.battleTimeDict[self.mykey]
+        # 这里改成所有玩家里最长的那个
+        num = max(self.battleTimeDict.values())
         sum = qiusuCounter.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
         sum2 = qiusuCounter.buffTimeIntegral()
 
         # print("[qiusuDebug/Num]", num)
         # print("[qiusuDebug/Sum]", sum)
-        # print("[qiusuDebug/Sum2]", sum2)
+        # # print("[qiusuDebug/Sum2]", sum2)
         # print(self.bh.badPeriodHealerLog)
         # print(self.battleTimeDict)
         # print(qiusuCounter.log)
@@ -974,15 +976,6 @@ class LiJingYiDaoReplayer(HealerReplay):
         # print(self.result["replay"]["baizi"])
         # for line in self.result["review"]["content"]:
         #     print(line)
-
-        # 横刀断浪更新整理
-        # (TODO)由于墨意产生瞬发的重新对齐
-        # 1墨意推测、浪费墨意的判定
-        # 1增加棋子判定与独立时间轴
-        # 1落子无悔的cd判定，独立的技能统计，专案组
-        # 1记录棋子相关的统计
-        # 1用rdps替换整体dps统计
-        # 1在特定BOSS取消秋肃的专案组
 
 
     def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", actorData={}):
