@@ -1133,10 +1133,14 @@ def getSinglePlayer():
     server = request.args.get('server')
     id = request.args.get('id')
     map = request.args.get('map')
+    occ = request.args.get('occ')  # 如果以后要加限定心法, 就用这个参数；现在暂时用不上
+
+    if occ is None:
+        occ = "all"
+
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
 
-    # sql = '''SELECT score, boss, occ, edition, battletime, submittime, shortID FROM ReplayProStat WHERE server = "%s" AND id = "%s" AND mapdetail = "%s" AND public = 1''' % (server, id, map)
     sql = '''SELECT * FROM ReplayProStat WHERE server = "%s" AND id = "%s" AND mapdetail = "%s" AND public = 1''' % (server, id, map)
     cursor.execute(sql)
     result = cursor.fetchall()
@@ -1212,7 +1216,7 @@ def getRankfunc():
     occ = request.args.get("occ")
     page = request.args.get("page")
     orderby = request.args.get("orderby")
-    alltime = request.args.get("orderby")
+    alltime = request.args.get("alltime")
     if page is None:
         page = 1
     else:
@@ -1276,6 +1280,7 @@ def getRankfunc():
             for id in RANK_ID:
                 res[id+"Rank"] = record[RANK_ID[id]]
             res["hold"] = record[30]
+            res["battleID"] = record[16]
             resJson["table"].append(res)
 
     resJson["num"] = len(result)
