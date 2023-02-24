@@ -1162,6 +1162,7 @@ def getSinglePlayer():
         edition = record[10]
         battleTime = record[14]
         submitTime = record[15]
+        battleID = record[16]
         shortID = record[8]
         if score > highestScore.get(boss, -1):
             highestScore[boss] = score
@@ -1169,7 +1170,7 @@ def getSinglePlayer():
         sumScore[boss] = sumScore.get(boss, 0) + score
         if boss not in allResults:
             allResults[boss] = []
-        res = {"score": score, "occ": occ, "edition": edition, "battleTime": battleTime, "submitTime": submitTime, "shortID": shortID}
+        res = {"score": score, "occ": occ, "edition": edition, "battleTime": battleTime, "submitTime": submitTime, "shortID": shortID, "battleID": battleID}
         for stat_item in STAT_ID:
             res[stat_item] = record[STAT_ID[stat_item]]
         for stat_item in RANK_ID:

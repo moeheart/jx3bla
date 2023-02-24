@@ -322,7 +322,7 @@ class LiChongmaoReplayer(SpecificReplayerPro):
 
                 if self.bld.info.getName(event.target) in ["一刀流武士"]:
                     # 判断是否是回血
-                    if "7" in event.fullResult:
+                    if "7" in event.fullResult and event.caster in self.statDict:
                         damage = int(event.fullResult["7"])
                         self.statDict[event.caster]["battle"]["fx2DPS"] += damage
 

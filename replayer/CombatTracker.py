@@ -786,7 +786,7 @@ class CombatTracker():
         res["ndps"] = self.ndps
         res["rdps"] = self.rdps
         res["mndps"] = self.mndps
-        res["mndps"] = self.mrdps
+        res["mrdps"] = self.mrdps
 
         # 精简技能表，不再记录ID。
         for t in res:
@@ -805,6 +805,9 @@ class CombatTracker():
                 adjustedTime = self.timeHealer
             objSource[player].export(adjustedTime, self.info)
             if objSource[player].hps > 0:
+                occ = self.info.getOcc(player)
+                if player in self.occDetailList:
+                    occ = self.occDetailList[player]
                 objTarget["player"][player] = {"sum": objSource[player].sum,
                                          "hps": objSource[player].hps,
                                          "sumPerSec": objSource[player].hps,
@@ -812,7 +815,7 @@ class CombatTracker():
                                          "namedSkill": objSource[player].namedSkill,
                                          "namedTarget": objSource[player].namedTarget,
                                          "name": self.info.getName(player),
-                                         "occ": self.info.getOcc(player),
+                                         "occ": occ,
                                          "sumTime": self.time,
                                          "effectiveTime": self.timeHealer,
                                          "adjustedTime": adjustedTime}
@@ -839,13 +842,16 @@ class CombatTracker():
             badPeriodLog = badPeriodInterval.export()
             objSource[player].export(adjustedTime, self.info, player, boostCounter=boostCounter, badPeriodLog=badPeriodLog)
             if objSource[player].dps > 0:
+                occ = self.info.getOcc(player)
+                if player in self.occDetailList:
+                    occ = self.occDetailList[player]
                 objTarget["player"][player] = {"sum": objSource[player].sum,
                                          "dps": objSource[player].dps,
                                          "sumPerSec": objSource[player].dps,
                                          "skill": objSource[player].skill,
                                          "namedSkill": objSource[player].namedSkill,
                                          "name": self.info.getName(player),
-                                         "occ": self.info.getOcc(player),
+                                         "occ": occ,
                                          "sumTime": self.time,
                                          "effectiveTime": self.timeDps,
                                          "adjustedTime": adjustedTime}
@@ -1255,7 +1261,7 @@ class CombatTracker():
 
         # 从吸血推测HPS
         xixue = int(event.fullResult.get("7", 0))
-        if xixue > 0 and event.caster in self.hpStatus and not self.excludeStatusHealer:
+        if xixue > 0 and event.caster in self.ohpsCast and not self.excludeStatusHealer:
             # print("[Xixue]", event.time, event.caster, xixue)
             self.ohpsCast[event.caster].record(event.caster, "3," + event.full_id, xixue)
             # if self.hpStatus[event.caster]["damage"] > self.hpStatus[event.caster]["healFull"] or \

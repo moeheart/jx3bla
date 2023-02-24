@@ -119,7 +119,11 @@ class BattleLogData():
                 singleData = SingleDataDeath()
             elif jclItem[4] == "14":
                 singleData = SingleDataShout()
-            elif jclItem[4] in ["5", "9"]:
+            elif jclItem[4] in ["5"]:
+                singleData = SingleDataBattle()
+                if jclItem[5]["1"] not in self.info.player:
+                    self.info.addPlayer(jclItem[5]["1"], jclItem[5]["1"], "0")
+            elif jclItem[4] in ["9"]:
                 singleData = SingleDataBattle()
             elif jclItem[4] in ["2", "3", "6", "7"]:
                 singleData = SingleDataScene()
@@ -138,6 +142,7 @@ class BattleLogData():
                     else:
                         self.info.sumTime = int(jclItem[5]["3"])
                 elif jclItem[4] == "4":
+                    # print("[PlayerTest]", jclItem[5])
                     flag = self.info.addPlayer(jclItem[5]["1"], jclItem[5]["2"], jclItem[5]["3"])
                     if flag:
                         self.info.player[jclItem[5]["1"]].xf = jclItem[5]["4"]
