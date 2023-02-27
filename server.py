@@ -1396,5 +1396,5 @@ if __name__ == '__main__':
     
     initializePercent()
     
-    app.run(host='0.0.0.0', port=8009, debug=app.debug, threaded=True)
+    app.run(host='0.0.0.0',port=8009,debug=app.debug,ssl_context=('./server.crt','./server.key'),threaded=True)
 
