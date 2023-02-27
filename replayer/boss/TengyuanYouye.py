@@ -162,8 +162,11 @@ class TengyuanYouyeReplayer(SpecificReplayerPro):
                 if event.stack == 1:
                     self.sifangStart[event.target] = event.time
                     self.stunCounter[event.target].setState(event.time, 1)
+                    self.stunCounter[event.target].setState(event.time + 20000, 0)
                 else:
                     self.bh.setCall("23366", "四方结界", "12457", self.sifangStart[event.target], event.time - self.sifangStart[event.target], event.target, "被四方结界点名")
+                    if self.stunCounter[event.target].log[-1][0] > event.time:
+                        del self.stunCounter[event.target].log[-1]
                     self.stunCounter[event.target].setState(event.time, 0)
 
             if event.id == "23592":  # 无名之火

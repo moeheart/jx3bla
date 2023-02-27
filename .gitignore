@@ -20,3 +20,5 @@ MainWindow.spec
 icons/rate.dat
 database/ActorStat/
 database/ReplayProStat/
+server.crt
+server.pem

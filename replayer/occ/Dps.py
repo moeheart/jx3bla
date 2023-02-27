@@ -583,6 +583,7 @@ class DpsReplayer(ReplayerBase):
         - actorData: 演员复盘得到的统计记录.
         '''
         super().__init__(config, fileNameInfo, path, bldDict, window, actorData)
+        self.haste = 100  # 默认指定一段加速
         self.public = 1  # 暂时强制公开，反正没什么东西  TODO 更改设置中的选项，简化内容
         self.myname = myname
         self.occ = OCC_PINYIN_DICT[myocc]

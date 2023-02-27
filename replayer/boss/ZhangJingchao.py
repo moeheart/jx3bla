@@ -176,8 +176,11 @@ class ZhangJingchaoReplayer(SpecificReplayerPro):
                 if event.stack == 1:
                     self.wanjunStart[event.target] = event.time
                     self.stunCounter[event.target].setState(event.time, 1)
+                    self.stunCounter[event.target].setState(event.time + 20000, 0)
                 else:
                     self.bh.setCall("23361", "万钧", "3426", self.wanjunStart[event.target], event.time - self.wanjunStart[event.target], event.target, "万钧点名定身")
+                    if self.stunCounter[event.target].log[-1][0] > event.time:
+                        del self.stunCounter[event.target].log[-1]
                     self.stunCounter[event.target].setState(event.time, 0)
 
         elif event.dataType == "Shout":
