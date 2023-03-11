@@ -524,7 +524,7 @@ class BuTianJueReplayer(HealerReplay):
                         # 特殊处理千蝶
                         if event.id == "2449":
                             if event.time - qdtrLast > 1000:
-                                qdtrWatchSkill.recordSkill(event.time, 0, 0, self.ss.timeEnd, delta=-1)
+                                qdtrWatchSkill.recordSkill(event.time, 0, 0, 0, 0, lastTime=self.ss.timeEnd, delta=-1)
                             qdtrLast = event.time
                     elif event.id in self.nonGcdSkillIndex:  # 特殊技能
                         desc = ""
@@ -538,21 +538,21 @@ class BuTianJueReplayer(HealerReplay):
                         if event.id == "21825" and self.bh.log["special"] != [] and self.bh.log["special"][-1]["skillid"] == "21825" and event.time - self.bh.log["special"][-1]["start"] < 100:
                             record = False
                         if record:
-                            skillObj.recordSkill(event.time, event.heal, event.healEff, self.ss.timeEnd, delta=-1)
+                            skillObj.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=self.ss.timeEnd, delta=-1)
 
                     # 统计不计入时间轴的治疗量
                     if event.id in ["3051", "3473"]:  # 蝶旋
-                        dxSkill.recordSkill(event.time, event.heal, event.healEff, event.time)
+                        dxSkill.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=event.time)
                     if event.id in ["15134"]:  # 迷仙引梦
-                        mxymSkill.recordSkill(event.time, event.heal, event.healEff, event.time)
+                        mxymSkill.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=event.time)
                         if event.time - mxymDict.log[-1][0] > 200:
                             mxymDict.setState(event.time - 2000, 1)
                             mxymDict.setState(event.time, 0)
                             if event.time - mxymLast > 5000:
-                                mxymWatchSkill.recordSkill(event.time, 0, 0, self.ss.timeEnd, delta=-1)
+                                mxymWatchSkill.recordSkill(event.time, 0, 0, 0, 0, lastTime=self.ss.timeEnd, delta=-1)
                             mxymLast = event.time
                     if event.id in ["18884"]:  # 蝶池
-                        dcSkill.recordSkill(event.time, event.heal, event.healEff, event.time)
+                        dcSkill.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=event.time)
                         #print("[Diechi]", event.time, event.heal, event.healEff)
                         if event.time - diechiLast > 5000:
                             diechiNum += 1
@@ -568,7 +568,7 @@ class BuTianJueReplayer(HealerReplay):
                     if event.id in ["3061"]:  # 碧蝶献祭
                         bdxjHeal += event.healEff
                     if event.id in ["6252"]:  # 醉舞九天
-                        zwjtSkill.recordSkill(event.time, event.heal, event.healEff, 0)
+                        zwjtSkill.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=0)
                         # 醉舞也计入战斗效率中
                         if event.time - zwjtDict.log[-1][0] > 200:
                             zwjtDict.setState(event.time - zwjtTime, 1)

@@ -542,7 +542,7 @@ class YunChangXinJingReplayer(HealerReplay):
                         self.bh.setSpecialSkill(event.id, line[1], line[3], event.time, 0, desc)
                         skillObj = line[0]
                         if skillObj is not None:
-                            skillObj.recordSkill(event.time, event.heal, event.healEff, self.ss.timeEnd, delta=-1)
+                            skillObj.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=self.ss.timeEnd, delta=-1)
 
                     # 统计不计入时间轴的治疗量
                     if event.id in ["6209"]:  # 辞致
@@ -553,10 +553,10 @@ class YunChangXinJingReplayer(HealerReplay):
                         jwfhSkill.recordSkill(event.time, event.heal, event.healEff, event.time)
                         if event.time - jwfhLast > 5000:
                             # 记录九微飞花
-                            jwfhWatchSkill.recordSkill(event.time, 0, 0, self.ss.timeEnd, delta=-1)
+                            jwfhWatchSkill.recordSkill(event.time, 0, 0, 0, 0, lastTime=self.ss.timeEnd, delta=-1)
                         jwfhLast = event.time
                     if event.id in ["6250", "6654", "6655", "6656"]:  # 回雪飘摇
-                        hxpySkill.recordSkill(event.time, event.heal, event.healEff, 0)
+                        hxpySkill.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=0)
                         # 回雪也计入战斗效率中
                         if event.time - hxpyDict.log[-1][0] > 200:
                             hxpyDict.setState(event.time - hxpyTime, 1)
@@ -599,7 +599,7 @@ class YunChangXinJingReplayer(HealerReplay):
                         hxpyLastSkill = event.time
                         # print("[HxpySkill]", event.time, event.id, event.heal, event.healEff)
                     if event.id in ["6251"]:  # 左旋右转
-                        zxyzSkill.recordSkill(event.time, event.heal, event.healEff, event.time)
+                        zxyzSkill.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=event.time)
                         if event.time - zxyzLastSkill > 10000:
                             zxyzSumSkill += 1
                             zxyzNum.append(len(zxyzList))
@@ -611,9 +611,9 @@ class YunChangXinJingReplayer(HealerReplay):
                 if event.caster == self.mykey and event.scheme == 2:
                     # 统计HOT
                     if event.id in ["680"]:  # 翔舞
-                        xiangwuBuff.recordSkill(event.time, event.heal, event.healEff)
+                        xiangwuBuff.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff)
                     if event.id in ["681"]:  # 上元
-                        shangyuanBuff.recordSkill(event.time, event.heal, event.healEff)
+                        shangyuanBuff.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff)
 
                 # 统计伤害技能
                 if event.damageEff > 0 and event.id not in ["24710", "24730", "25426", "25445"]:  # 技能黑名单

@@ -348,7 +348,7 @@ class SingleSkill():
         if not hasteAffected:
             hasteActual = 0
         if skillObj is not None:
-            skillObj.recordSkill(event.time, event.heal, event.healEff, self.timeEnd, delta=getLength(castLength, hasteActual))
+            skillObj.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=self.timeEnd, delta=getLength(castLength, hasteActual))
         if self.num == 0:
             self.timeStart -= getLength(castLength, hasteActual)
         if event.time - self.timeEnd > 100 or self.num == 0:

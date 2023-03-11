@@ -602,7 +602,7 @@ class LiJingYiDaoReplayer(HealerReplay):
                             self.bh.setSpecialSkill(event.id, line[1], line[3], event.time, 0, desc)
                             skillObj = line[0]
                             if skillObj is not None:
-                                skillObj.recordSkill(event.time, event.heal, event.healEff, self.ss.timeEnd, delta=-1)
+                                skillObj.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=self.ss.timeEnd, delta=-1)
 
                     # 统计不计入时间轴的治疗量
                     if event.id in ["6112"]:  # 清疏
@@ -633,9 +633,9 @@ class LiJingYiDaoReplayer(HealerReplay):
                             weichaoEff += effFlag
                         weichaoSkill = event.time
                     if event.id in ["32750"]:  # 落子无悔
-                        lzwhSkill.recordSkill(event.time, event.heal, event.healEff, event.time)
+                        lzwhSkill.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=event.time)
                     if event.id in ["28645"]:  # 碎玉
-                        sySkill.recordSkill(event.time, event.heal, event.healEff, event.time)
+                        sySkill.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=event.time)
                     if event.id in ["180"]:  # 商阳指
                         # 秋肃生成
                         qiusuTarget = event.target
@@ -647,12 +647,12 @@ class LiJingYiDaoReplayer(HealerReplay):
 
                 if event.caster == self.mykey and event.scheme == 2:
                     if event.id in ["631"]:  # 握针
-                        wozhenBuff.recordSkill(event.time, event.heal, event.healEff, lastSkillTime)
+                        wozhenBuff.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=lastSkillTime)
                         # print("[WozhenFlag]", event.time, event.target, self.bld.info.getName(event.target))
                         if event.target in hanqingNumDict and event.time - hanqingLastTime[event.target] < 250:
                             hanqingNumDict[event.target] += 1
                     if event.id in ["5693"]:  # 述怀
-                        shuhuaiBuff.recordSkill(event.time, event.heal, event.healEff, lastSkillTime)
+                        shuhuaiBuff.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=lastSkillTime)
 
                 # 统计伤害技能
                 if event.damageEff > 0 and event.id not in ["24710", "24730", "25426", "25445"]:  # 技能黑名单

@@ -12,42 +12,43 @@ import time
 
 class DpsReplayer(ReplayerBase):
 
-    # def calculateSkillInfoDirect(self, name, skillObj):
-    #     '''
-    #     根据技能名和对象统计对应技能的基本信息.
-    #     注意更复杂的信息依然需要在派生类中手动统计.
-    #     params:
-    #     - name: 技能的简称. 会存储在result中.
-    #     - skillObj: skillInfo中定义的技能对象.
-    #     returns:
-    #     - skillObj: 查找到的技能对象，用于进一步的手动统计.
-    #     '''
-    #     self.result["skill"][name] = {}
-    #     self.result["skill"][name]["num"] = skillObj.getNum()
-    #     self.result["skill"][name]["numPerSec"] = roundCent(self.result["skill"][name]["num"] / self.result["overall"]["sumTimeEff"] * 1000, 2)
-    #     self.result["skill"][name]["delay"] = int(skillObj.getAverageDelay())
-    #     effHeal = skillObj.getHealEff()
-    #     self.result["skill"][name]["HPS"] = int(effHeal / self.result["overall"]["sumTimeEff"] * 1000)
-    #     self.result["skill"][name]["effRate"] = roundCent(safe_divide(effHeal, skillObj.getHeal()))
-    #
-    # def calculateSkillInfo(self, name, id):
-    #     '''
-    #     根据技能名和ID统计对应技能的基本信息.
-    #     注意更复杂的信息依然需要在派生类中手动统计.
-    #     params:
-    #     - name: 技能的简称. 会存储在result中.
-    #     - id: 技能的ID，用于在skillInfo中查找.
-    #     returns:
-    #     - skillObj: 查找到的技能对象，用于进一步的手动统计.
-    #     '''
-    #     skillObj = self.skillInfo[self.gcdSkillIndex[id]][0]
-    #     self.result["skill"][name] = {}
-    #     self.result["skill"][name]["num"] = skillObj.getNum()
-    #     self.result["skill"][name]["numPerSec"] = roundCent(self.result["skill"][name]["num"] / self.result["overall"]["sumTimeEff"] * 1000, 2)
-    #     self.result["skill"][name]["delay"] = int(skillObj.getAverageDelay())
-    #     effHeal = skillObj.getHealEff()
-    #     self.result["skill"][name]["HPS"] = int(effHeal / self.result["overall"]["sumTimeEff"] * 1000)
-    #     self.result["skill"][name]["effRate"] = roundCent(safe_divide(effHeal, skillObj.getHeal()))
+    def calculateSkillInfoDirect(self, name, skillObj):
+        '''
+        根据技能名和对象统计对应技能的基本信息.
+        注意更复杂的信息依然需要在派生类中手动统计.
+        params:
+        - name: 技能的简称. 会存储在result中.
+        - skillObj: skillInfo中定义的技能对象.
+        returns:
+        - skillObj: 查找到的技能对象，用于进一步的手动统计.
+        '''
+        self.result["skill"][name] = {}
+        self.result["skill"][name]["num"] = skillObj.getNum()
+        self.result["skill"][name]["numPerSec"] = roundCent(self.result["skill"][name]["num"] / self.result["overall"]["sumTimeEff"] * 1000, 2)
+        self.result["skill"][name]["delay"] = int(skillObj.getAverageDelay())
+        effDps = skillObj.getDamageEff()
+        self.result["skill"][name]["ndps"] = int(effDps / self.result["overall"]["sumTimeEff"] * 1000)
+        self.result["skill"][name]["rdps"] = 0
+        # self.result["skill"][name]["effRate"] = roundCent(safe_divide(effHeal, skillObj.getHeal()))
+    def calculateSkillInfo(self, name, id):
+        '''
+        根据技能名和ID统计对应技能的基本信息.
+        注意更复杂的信息依然需要在派生类中手动统计.
+        params:
+        - name: 技能的简称. 会存储在result中.
+        - id: 技能的ID，用于在skillInfo中查找.
+        returns:
+        - skillObj: 查找到的技能对象，用于进一步的手动统计.
+        '''
+        skillObj = self.skillInfo[self.gcdSkillIndex[id]][0]
+        self.result["skill"][name] = {}
+        self.result["skill"][name]["num"] = skillObj.getNum()
+        self.result["skill"][name]["numPerSec"] = roundCent(self.result["skill"][name]["num"] / self.result["overall"]["sumTimeEff"] * 1000, 2)
+        self.result["skill"][name]["delay"] = int(skillObj.getAverageDelay())
+        effDps = skillObj.getDamageEff()
+        self.result["skill"][name]["ndps"] = int(effDps / self.result["overall"]["sumTimeEff"] * 1000)
+        self.result["skill"][name]["rdps"] = 0
+        # self.result["skill"][name]["effRate"] = roundCent(safe_divide(effDps, skillObj.getHeal()))
 
     def calculateSkillFinal(self):
         '''
@@ -129,9 +130,7 @@ class DpsReplayer(ReplayerBase):
                "mrdps": int(self.act.getRdps(player, "mrdps")),
                "mndps": int(self.act.getRdps(player, "mndps"))}
         self.result["dps"]["stat"] = res
-
         self.myDpsStat = res
-
 
     def handleGcdSkill(self, event):
         '''
@@ -274,7 +273,7 @@ class DpsReplayer(ReplayerBase):
         for i in range(len(self.skillInfo)):
             line = self.skillInfo[i]
             if line[0] is None:
-                self.skillInfo[i][0] = SkillCounterAdvance(line, self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)
+                self.skillInfo[i][0] = SkillCounterAdvance(line, self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodDpsLog)
                 # self.allSkillObjs.append(self.skillInfo[i][0])
             for id in line[2]:
                 if line[4]:

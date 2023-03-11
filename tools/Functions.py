@@ -175,7 +175,7 @@ class SkillHealCounter(SkillCounter):
         '''
         sum = 0
         for line in self.log:
-            if not line[5]:
+            if not line[7]:
                 sum += line[3]
         return sum
 
@@ -185,8 +185,18 @@ class SkillHealCounter(SkillCounter):
         '''
         sum = 0
         for line in self.log:
-            if not line[5]:
+            if not line[7]:
                 sum += line[4]
+        return sum
+
+    def getDamageEff(self):
+        '''
+        获取这个技能的总有效治疗量.
+        '''
+        sum = 0
+        for line in self.log:
+            if not line[7]:
+                sum += line[6]
         return sum
 
     def getNum(self):
@@ -195,17 +205,19 @@ class SkillHealCounter(SkillCounter):
         '''
         sum = 0
         for line in self.log:
-            if not line[5]:
+            if not line[7]:
                 sum += 1
         return sum
 
-    def recordSkill(self, time, heal, healEff, lastTime=0, delta=-1):
+    def recordSkill(self, time, heal, healEff, damage=0, damageEff=0, lastTime=0, delta=-1):
         '''
         记录技能施放的事件.
         params:
         - time: 技能施放的时间点.
         - heal: 治疗量.
         - healEff: 有效治疗量.
+        - damage: 伤害.
+        - damageEff: 有效伤害.
         - lastTime: 上一个技能施放的时间点. 如果未提供则自动推断. 技能的施放以开始读条的时间为准。
         - delta: 所记录技能的读条时间.
         returns:
@@ -222,7 +234,7 @@ class SkillHealCounter(SkillCounter):
                 lastTime = self.log[-1][0]
             else:
                 lastTime = self.startTime
-        self.log.append([time, lastTime, delta, heal, healEff, self.excludeStatus])
+        self.log.append([time, lastTime, delta, heal, healEff, damage, damageEff, self.excludeStatus])
         return time - delta
 
     def __init__(self, skillid, startTime, finalTime, haste, delta=-1, exclude=[]):
@@ -246,43 +258,15 @@ class SkillCounterAdvance(SkillHealCounter):
     扩展技能统计类，在基类的基础上支持最大可能数量统计.
     '''
 
-    def getHeal(self):
-        '''
-        获取这个技能的总治疗量.
-        '''
-        sum = 0
-        for line in self.log:
-            if not line[5]:
-                sum += line[3]
-        return sum
-
-    def getHealEff(self):
-        '''
-        获取这个技能的总有效治疗量.
-        '''
-        sum = 0
-        for line in self.log:
-            if not line[5]:
-                sum += line[4]
-        return sum
-
-    def getNum(self):
-        '''
-        获取技能施放数量.
-        '''
-        sum = 0
-        for line in self.log:
-            if not line[5]:
-                sum += 1
-        return sum
-
-    def recordSkill(self, time, heal, healEff, lastTime=0, delta=-1):
+    def recordSkill(self, time, heal, healEff, damage=0, damageEff=0, lastTime=0, delta=-1):
         '''
         记录技能施放的事件.
         params:
         - time: 技能施放的时间点.
         - heal: 治疗量.
         - healEff: 有效治疗量.
+        - damage: 伤害.
+        - damageEff: 有效伤害.
         - lastTime: 上一个技能施放的时间点. 如果未提供则自动推断. 技能的施放以开始读条的时间为准。
         - delta: 所记录技能的读条时间.
         returns:
@@ -299,7 +283,7 @@ class SkillCounterAdvance(SkillHealCounter):
                 lastTime = self.log[-1][0]
             else:
                 lastTime = self.startTime
-        self.log.append([time, lastTime, delta, heal, healEff, self.excludeStatus])
+        self.log.append([time, lastTime, delta, heal, healEff, damage, damageEff, self.excludeStatus])
         return time - delta
 
     def getMaxPossible(self):
@@ -366,11 +350,11 @@ class IntervalCounter():
         prevStack = 0
         prevTime = self.startTime
         for line in log:
-            if prevStack == 1:
+            if prevStack >= 1:
                 self.recordInterval(prevTime, line[0])
             prevTime = line[0]
             prevStack = line[1]
-        if prevStack == 1:
+        if prevStack >= 1:
             self.recordInterval(prevTime, self.finalTime)
 
     def export(self):

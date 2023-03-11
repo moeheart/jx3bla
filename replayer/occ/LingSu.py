@@ -507,7 +507,7 @@ class LingSuReplayer(HealerReplay):
                         # 特殊处理当归四逆
                         if event.id == "27624":
                             if event.time - dgsnLast > 1000:
-                                dgsnWatchSkill.recordSkill(event.time, 0, 0, self.ss.timeEnd, delta=-1)
+                                dgsnWatchSkill.recordSkill(event.time, 0, 0, 0, 0, lastTime=self.ss.timeEnd, delta=-1)
                             dgsnLast = event.time
 
                     # 处理特殊技能
@@ -538,7 +538,7 @@ class LingSuReplayer(HealerReplay):
                             line = self.skillInfo[index]
                             skillObj = line[0]
                             if skillObj is not None:
-                                skillObj.recordSkill(event.time, event.heal, event.healEff, self.ss.timeEnd, delta=-1)
+                                skillObj.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=self.ss.timeEnd, delta=-1)
 
                     # 记录药性相关
                     if event.id in ["27622", "27633", "27624", "27630", "28620"]:
@@ -548,7 +548,7 @@ class LingSuReplayer(HealerReplay):
 
                     # 统计不计入时间轴的治疗量
                     if event.id in ["28083", "28734", "28733", "28757"]:  # 灵素中和
-                        lszhSkill.recordSkill(event.time, event.heal, event.healEff, event.time)
+                        lszhSkill.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=event.time)
                         # print("[Zhonghe]", event.id, event.heal)
                         if event.time - yaoxingLog[-1][0] > 100 or yaoxingLog[-1][2] != 0:
                             yaoxingLog.append([event.time, 0, 0, 0])
@@ -557,14 +557,14 @@ class LingSuReplayer(HealerReplay):
                         if state:
                             zhongheInQianzhi += 1
                     if event.id in ["27673", "28003"]:  # 青川濯莲
-                        qczlSkill.recordSkill(event.time, event.heal, event.healEff, event.time)
+                        qczlSkill.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=event.time)
                         # print("[qcvlSkill]", event.time, event.id, event.heal, event.healEff)
                     if event.id in ["27531", "28347"]:  # 银光照雪
-                        ygzxSkill.recordSkill(event.time, event.heal, event.healEff, event.time)
+                        ygzxSkill.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=event.time)
 
                 if event.caster == self.mykey and event.scheme == 2:
                     if event.id in ["20070"]:  # 赤芍寒香
-                        cshxBuff.recordSkill(event.time, event.heal, event.healEff, self.ss.timeEnd)
+                        cshxBuff.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=self.ss.timeEnd)
 
                 # 统计伤害技能
                 if event.damageEff > 0 and event.id not in ["24710", "24730", "25426", "25445"]:  # 技能黑名单
@@ -615,7 +615,7 @@ class LingSuReplayer(HealerReplay):
                 if event.id in ["20800"] and event.target == self.mykey:  # 青川濯莲
                     qingchuanDict.setState(event.time, event.stack)
                     if event.stack == 1:
-                        qczlWatchSkill.recordSkill(event.time, 0, 0, self.ss.timeEnd, delta=-1)
+                        qczlWatchSkill.recordSkill(event.time, 0, 0, 0, 0, lastTime=self.ss.timeEnd, delta=-1)
                 if event.id in ["20854"] and event.time - zyhrCast < 20000:  # 逐云寒蕊判定
                     if event.time - zyhrLast > 20000:  # 保证是新的一次
                         zyhrNum.append(len(zyhrList))

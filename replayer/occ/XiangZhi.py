@@ -563,7 +563,7 @@ class XiangZhiProReplayer(HealerReplay):
                         self.bh.setSpecialSkill(event.id, line[1], line[3], event.time, 0, desc)
                         skillObj = line[0]
                         if skillObj is not None and event.id != "14082":  # 防止第一视角的影子重复计算
-                            skillObj.recordSkill(event.time, event.heal, event.healEff, self.ss.timeEnd, delta=-1)
+                            skillObj.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=self.ss.timeEnd, delta=-1)
 
                     # 统计不计入时间轴的治疗量
                     if event.id == "15057":  # 犹香
@@ -575,7 +575,7 @@ class XiangZhiProReplayer(HealerReplay):
                     elif event.id == "26965":  # 枕流
                         zhenliuHeal += event.healEff
                     elif event.id == "21321":  # 相依
-                        xySkill.recordSkill(event.time, event.heal, event.healEff)
+                        xySkill.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff)
 
                     if event.id in ["14362", "18865"]:
                         # 徵的运算。此处是推测逻辑，较为复杂，有心重构可以大胆尝试。
@@ -621,9 +621,9 @@ class XiangZhiProReplayer(HealerReplay):
 
                 if event.caster == self.mykey and event.scheme == 2:
                     if event.id in ["9459", "9460", "9461", "9462"]:  # 商
-                        shangBuff.recordSkill(event.time, event.heal, event.healEff)
+                        shangBuff.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff)
                     elif event.id in ["9463", "9464", "9465", "9466"]:  # 角
-                        jueBuff.recordSkill(event.time, event.heal, event.healEff)
+                        jueBuff.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff)
 
                 # 统计伤害技能
                 if event.damageEff > 0 and event.id not in ["24710", "24730", "25426", "25445"]:  # 技能黑名单
@@ -643,7 +643,7 @@ class XiangZhiProReplayer(HealerReplay):
                     state = shadowBuffDict[str(int(event.id)-15039+9993)].checkState(event.time - 50)
                     if state == 0:
                         skillObj = self.skillInfo[self.nonGcdSkillIndex["14082"]][0]
-                        skillObj.recordSkill(event.time, 0, 0, self.ss.timeEnd, delta=-1)
+                        skillObj.recordSkill(event.time, 0, 0, event.damage, event.damageEff, lastTime=self.ss.timeEnd, delta=-1)
 
                 if event.caster == self.mykey and event.id in ["32684"] and event.target in self.bld.info.player:
                     numAnxiang += 1
@@ -675,7 +675,7 @@ class XiangZhiProReplayer(HealerReplay):
                     # 记录影子事件
                     skillObj = self.skillInfo[self.nonGcdSkillIndex["14082"]][0]
                     if skillObj is not None and event.stack == 1:
-                        skillObj.recordSkill(event.time, 0, 0, self.ss.timeEnd, delta=-1)
+                        skillObj.recordSkill(event.time, 0, 0, 0, 0, lastTime=self.ss.timeEnd, delta=-1)
                         # print("[xzRecord]", skillObj.getNum())
                     # print("[xzShadow]", event.time, event.id, event.stack)
                     shadowBuffDict[event.id].setState(event.time, event.stack)

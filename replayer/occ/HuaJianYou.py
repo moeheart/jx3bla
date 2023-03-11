@@ -534,6 +534,13 @@ class HuaJianYouReplayer(DpsReplayer):
         self.cwDict = BuffCounter("12770", self.startTime, self.finalTime)  # cw特效
         self.shuiyueDict = BuffCounter("412", self.startTime, self.finalTime)  # 水月
 
+        # 技能统计
+        syzBuff = SkillHealCounter("180", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodDpsLog)  # 商阳
+        zlyxBuff = SkillHealCounter("189", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodDpsLog)  # 钟林
+        lcyzBuff = SkillHealCounter("190", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodDpsLog)  # 兰摧
+        kxsqBuff = SkillHealCounter("2636", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodDpsLog)  # 快雪
+        self.numTunhai = 0
+
         # 墨意推测
         self.moyiInfer = [[self.startTime, 0]]
         self.moyiActiveTime = 0  # 墨意对齐生效的时间，在buff发生变化之后进行检测
@@ -590,9 +597,9 @@ class HuaJianYouReplayer(DpsReplayer):
                                 # 检查墨意复盘是否正确11
                                 # 技能统计
                                 # - 设计内容
-                                  # gcd效率
-                                  # 增益覆盖（队友、自身）
-                                  # 技能数量（阳明：次数、吞海、dps；dot：跳数、覆盖率、dps；芙蓉/玉石：数量、dps）；补充
+                                  # gcd效率11
+                                  # 增益覆盖（队友、自身）11
+                                  # 技能数量（阳明：次数11、吞海、dps11、rdps11、比例11；dot：跳数11、覆盖率11、dps11；快雪：数量11、dot11、dps11；芙蓉/玉石：数量11、dps11）；补充
                                 # - 统计
                                 # - 展示
                                 # 手法警察
@@ -665,7 +672,7 @@ class HuaJianYouReplayer(DpsReplayer):
                             self.bh.setSpecialSkill(event.id, line[1], line[3], event.time, 0, desc)
                             skillObj = line[0]
                             if skillObj is not None:
-                                skillObj.recordSkill(event.time, event.heal, event.healEff, self.ss.timeEnd, delta=-1)
+                                skillObj.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=self.ss.timeEnd, delta=-1)
 
                     if event.id in ["180", "189", "190", "32481", "182", "6134", "6135", "6136", "32409", "13849", "13847", "13848", "601"]:  # 可能涉及目标dot的都计入统计
                         if event.target not in self.dotSY:
@@ -715,8 +722,19 @@ class HuaJianYouReplayer(DpsReplayer):
                                   self.bld.info.getName(event.caster), self.bld.info.getName(event.target))
                         if self.bh.log["normal"][-1]["skillid"] == "14941" and event.time - self.tunhaiTime < 10:
                             self.bh.log["normal"][-1]["tunhai"] = 1
+                            self.numTunhai += 1
                     if event.id in ["14941"]:  # 阳明
                         self.tunhaiTime = event.time
+
+                if event.caster == self.mykey and event.scheme == 2:
+                    if event.id in ["666"]:
+                        syzBuff.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff)
+                    elif event.id in ["714"]:
+                        zlyxBuff.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff)
+                    elif event.id in ["711"]:
+                        lcyzBuff.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff)
+                    elif event.id in ["24158"]:
+                        kxsqBuff.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff)
 
             elif event.dataType == "Buff":
                 if event.id in ["6266"] and event.target == self.mykey:  # 行气血（其实是墨意的瞬发buff，用了以前行气血的逻辑）
@@ -750,11 +768,11 @@ class HuaJianYouReplayer(DpsReplayer):
 
         self.sumPlayer = 0
         for key in self.bld.info.player:
-            liveCount = self.battleDict[key].buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)  # 存活时间比例
-            if self.battleDict[key].sumTime(exclude=self.bh.badPeriodHealerLog) - liveCount < 8000:  # 脱战缓冲时间
-                liveCount = self.battleDict[key].sumTime(exclude=self.bh.badPeriodHealerLog)
+            liveCount = self.battleDict[key].buffTimeIntegral(exclude=self.bh.badPeriodDpsLog)  # 存活时间比例
+            if self.battleDict[key].sumTime(exclude=self.bh.badPeriodDpsLog) - liveCount < 8000:  # 脱战缓冲时间
+                liveCount = self.battleDict[key].sumTime(exclude=self.bh.badPeriodDpsLog)
             self.battleTimeDict[key] = liveCount
-            self.sumPlayer += liveCount / self.battleDict[key].sumTime(exclude=self.bh.badPeriodHealerLog)
+            self.sumPlayer += liveCount / self.battleDict[key].sumTime(exclude=self.bh.badPeriodDpsLog)
 
         self.result["overall"]["numPlayer"] = int(self.sumPlayer * 100) / 100
 
@@ -776,7 +794,29 @@ class HuaJianYouReplayer(DpsReplayer):
 
         # self.result["replay"]["heat"][dot]["timeline"]
 
+        # 实现一个展示增益覆盖率的逻辑
+        self.myRdpsSource = {}
+        for player in self.act.rdps["player"]:
+            if player == self.mykey:
+                self.myRdpsSource = self.act.rdps["player"][player]["namedSource"]
+                self.myRdpsSkill = self.act.rdps["player"][player]["namedSkill"]
+                self.myAdjustedTime = self.act.rdps["player"][player]["adjustedTime"]
+        self.result["boost"] = self.myRdpsSource
+
+        print("[self.myRdpsSkill]", self.myRdpsSkill)
+
+        # 阳明
+        ymskill = self.calculateSkillInfo("ymz", "14941")
+        self.result["skill"]["ymz"]["tunhai"] = self.numTunhai
+        if "阳明指" in self.myRdpsSkill:
+            self.result["skill"]["ymz"]["rdps"] = int(self.myRdpsSkill["阳明指"]["sum"] / self.myAdjustedTime * 1000)
+        self.result["skill"]["ymz"]["rdpsRate"] = roundCent(self.result["skill"]["ymz"]["rdps"] / self.result["skill"]["general"]["rdps"])
+
         # 商阳
+        self.calculateSkillInfoDirect("syz", syzBuff)
+        if "商阳指(持续)" in self.myRdpsSkill:
+            self.result["skill"]["syz"]["rdps"] = int(self.myRdpsSkill["商阳指(持续)"]["sum"] / self.myAdjustedTime * 1000)
+        self.result["skill"]["syz"]["rdpsRate"] = roundCent(self.result["skill"]["syz"]["rdps"] / self.result["skill"]["general"]["rdps"])
         overallHeat = []
         for target in self.dotSY:
             singleHeat = self.dotSY[target].getHeatTable(500, 1)["timeline"]
@@ -789,7 +829,20 @@ class HuaJianYouReplayer(DpsReplayer):
             overallHeat[i] = int(overallHeat[i] * 100)
         self.result["replay"]["heat"]["shangyang"] = {"interval": 500, "timeline": overallHeat}
 
+        ic = IntervalCounter(self.startTime, self.finalTime)
+        for target in self.dotSY:
+            ic.recordLog(self.dotSY[target].log)
+        dotCombine = BuffCounter("?", self.startTime, self.finalTime)
+        dotCombine.log = ic.export()
+        num = self.battleTimeDict[self.mykey]
+        sum = dotCombine.buffTimeIntegral(exclude=self.bh.badPeriodDpsLog)
+        self.result["skill"]["syz"]["cover"] = roundCent(safe_divide(sum, num))
+
         # 钟林
+        self.calculateSkillInfoDirect("zlyx", zlyxBuff)
+        if "钟林毓秀(持续)" in self.myRdpsSkill:
+            self.result["skill"]["zlyx"]["rdps"] = int(self.myRdpsSkill["钟林毓秀(持续)"]["sum"] / self.myAdjustedTime * 1000)
+        self.result["skill"]["zlyx"]["rdpsRate"] = roundCent(self.result["skill"]["zlyx"]["rdps"] / self.result["skill"]["general"]["rdps"])
         overallHeat = []
         for target in self.dotZL:
             singleHeat = self.dotZL[target].getHeatTable(500, 1)["timeline"]
@@ -802,7 +855,20 @@ class HuaJianYouReplayer(DpsReplayer):
             overallHeat[i] = int(overallHeat[i] * 100)
         self.result["replay"]["heat"]["zhonglin"] = {"interval": 500, "timeline": overallHeat}
 
+        ic = IntervalCounter(self.startTime, self.finalTime)
+        for target in self.dotZL:
+            ic.recordLog(self.dotZL[target].log)
+        dotCombine = BuffCounter("?", self.startTime, self.finalTime)
+        dotCombine.log = ic.export()
+        num = self.battleTimeDict[self.mykey]
+        sum = dotCombine.buffTimeIntegral(exclude=self.bh.badPeriodDpsLog)
+        self.result["skill"]["zlyx"]["cover"] = roundCent(safe_divide(sum, num))
+
         # 兰摧
+        self.calculateSkillInfoDirect("lcyz", lcyzBuff)
+        if "兰摧玉折(持续)" in self.myRdpsSkill:
+            self.result["skill"]["lcyz"]["rdps"] = int(self.myRdpsSkill["兰摧玉折(持续)"]["sum"] / self.myAdjustedTime * 1000)
+        self.result["skill"]["lcyz"]["rdpsRate"] = roundCent(self.result["skill"]["lcyz"]["rdps"] / self.result["skill"]["general"]["rdps"])
         overallHeat = []
         for target in self.dotLC:
             singleHeat = self.dotLC[target].getHeatTable(500, 1)["timeline"]
@@ -815,7 +881,25 @@ class HuaJianYouReplayer(DpsReplayer):
             overallHeat[i] = int(overallHeat[i] * 100)
         self.result["replay"]["heat"]["lancui"] = {"interval": 500, "timeline": overallHeat}
 
+        ic = IntervalCounter(self.startTime, self.finalTime)
+        for target in self.dotLC:
+            ic.recordLog(self.dotLC[target].log)
+        dotCombine = BuffCounter("?", self.startTime, self.finalTime)
+        dotCombine.log = ic.export()
+        num = self.battleTimeDict[self.mykey]
+        sum = dotCombine.buffTimeIntegral(exclude=self.bh.badPeriodDpsLog)
+        self.result["skill"]["lcyz"]["cover"] = roundCent(safe_divide(sum, num))
+
         # 快雪
+        kxskill = self.calculateSkillInfo("kxsq", "2636")
+        if "快雪时晴" in self.myRdpsSkill:
+            self.result["skill"]["kxsq"]["rdps"] = int(self.myRdpsSkill["快雪时晴"]["sum"] / self.myAdjustedTime * 1000)
+        self.result["skill"]["kxsq"]["rdpsRate"] = roundCent(self.result["skill"]["kxsq"]["rdps"] / self.result["skill"]["general"]["rdps"])
+
+        self.calculateSkillInfoDirect("kxsqdot", kxsqBuff)
+        if "快雪时晴(持续)" in self.myRdpsSkill:
+            self.result["skill"]["kxsqdot"]["rdps"] = int(self.myRdpsSkill["快雪时晴(持续)"]["sum"] / self.myAdjustedTime * 1000)
+        self.result["skill"]["kxsqdot"]["rdpsRate"] = roundCent(self.result["skill"]["kxsqdot"]["rdps"] / self.result["skill"]["general"]["rdps"])
         overallHeat = []
         for target in self.dotKX:
             singleHeat = self.dotKX[target].getHeatTable(500, 1)["timeline"]
@@ -828,32 +912,62 @@ class HuaJianYouReplayer(DpsReplayer):
             overallHeat[i] = int(overallHeat[i] * 100)
         self.result["replay"]["heat"]["kuaixue"] = {"interval": 500, "timeline": overallHeat}
 
-        print("[HuajianTest]")
-        # print(self.result["replay"]["moyi"])
-        for line in self.result["replay"]["normal"]:
-            print(line)
-        for line in self.result["replay"]["special"]:
-            print(line)
-        print("[Shangyang]")
-        for target in self.dotSY:
-            print(target, self.bld.info.getName(target))
-            for line in self.dotSY[target].log:
-                print(line)
-        print("[Zhonglin]")
-        for target in self.dotZL:
-            print(target, self.bld.info.getName(target))
-            for line in self.dotZL[target].log:
-                print(line)
-        print("[Lancui]")
-        for target in self.dotLC:
-            print(target, self.bld.info.getName(target))
-            for line in self.dotLC[target].log:
-                print(line)
-        print("[Kuaixue]")
+        ic = IntervalCounter(self.startTime, self.finalTime)
         for target in self.dotKX:
-            print(target, self.bld.info.getName(target))
-            for line in self.dotKX[target].log:
-                print(line)
+            ic.recordLog(self.dotKX[target].log)
+        dotCombine = BuffCounter("?", self.startTime, self.finalTime)
+        dotCombine.log = ic.export()
+        num = self.battleTimeDict[self.mykey]
+        sum = dotCombine.buffTimeIntegral(exclude=self.bh.badPeriodDpsLog)
+        self.result["skill"]["kxsqdot"]["cover"] = roundCent(safe_divide(sum, num))
+
+        # 玉石
+        ysjfSkill = self.calculateSkillInfo("ysjf", "182")
+        if "玉石俱焚" in self.myRdpsSkill:
+            self.result["skill"]["ysjf"]["rdps"] = int(self.myRdpsSkill["玉石俱焚"]["sum"] / self.myAdjustedTime * 1000)
+
+        # 芙蓉
+        frbdSkill = self.calculateSkillInfo("frbd", "186")
+        if "芙蓉并蒂" in self.myRdpsSkill:
+            self.result["skill"]["frbd"]["rdps"] = int(self.myRdpsSkill["芙蓉并蒂"]["sum"] / self.myAdjustedTime * 1000)
+
+        # 一部分公有逻辑可以在其它心法实现后提到外面
+        self.result["skill"]["general"]["efficiency"] = self.bh.getNormalEfficiency(base="dps")
+
+        # print("[Efficiency]", self.result["skill"]["general"]["efficiency"])
+        print("[Boost]", self.result["boost"])
+        print("[Skill]")
+        for line in self.result["skill"]:
+            print(line)
+            print(self.result["skill"][line])
+
+
+        # print("[HuajianTest]")
+        # # print(self.result["replay"]["moyi"])
+        # for line in self.result["replay"]["normal"]:
+        #     print(line)
+        # for line in self.result["replay"]["special"]:
+        #     print(line)
+        # print("[Shangyang]")
+        # for target in self.dotSY:
+        #     print(target, self.bld.info.getName(target))
+        #     for line in self.dotSY[target].log:
+        #         print(line)
+        # print("[Zhonglin]")
+        # for target in self.dotZL:
+        #     print(target, self.bld.info.getName(target))
+        #     for line in self.dotZL[target].log:
+        #         print(line)
+        # print("[Lancui]")
+        # for target in self.dotLC:
+        #     print(target, self.bld.info.getName(target))
+        #     for line in self.dotLC[target].log:
+        #         print(line)
+        # print("[Kuaixue]")
+        # for target in self.dotKX:
+        #     print(target, self.bld.info.getName(target))
+        #     for line in self.dotKX[target].log:
+        #         print(line)
 
 
     def replay(self):
