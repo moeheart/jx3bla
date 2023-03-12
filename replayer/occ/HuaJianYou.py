@@ -530,9 +530,14 @@ class HuaJianYouReplayer(DpsReplayer):
 
         self.initSecondState()
 
+        # buff统计
         self.xqxDict = BuffCounter("6266", self.startTime, self.finalTime)  # 行气血
         self.cwDict = BuffCounter("12770", self.startTime, self.finalTime)  # cw特效
         self.shuiyueDict = BuffCounter("412", self.startTime, self.finalTime)  # 水月
+        self.luansaDict = BuffCounter("2719", self.startTime, self.finalTime)  # 乱洒
+        self.busanDict = BuffCounter("1487", self.startTime, self.finalTime)  # 布散
+        self.fengxueDict = BuffCounter("24205", self.startTime, self.finalTime)  # 逢雪
+        self.jianyuDict = BuffCounter("24599", self.startTime, self.finalTime)  # 溅玉
 
         # 技能统计
         syzBuff = SkillHealCounter("180", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodDpsLog)  # 商阳
@@ -554,6 +559,46 @@ class HuaJianYouReplayer(DpsReplayer):
 
         # 阳明状态
         self.tunhaiTime = 0
+
+        # 手法警察统计
+        self.lcWrongNum = 0  # 兰摧：错误次数
+        self.lcWrong = []
+        self.lcSum = 0  # 兰摧：技能总数
+        self.luansaLastTime = 0  # 用隐藏技能标记的可能的乱洒时机
+        self.ysWrongNum = 0  # 玉石：错误次数
+        self.ysWrong = []
+        self.ysSum = 0  # 玉石总数
+        self.frWrongNum = 0  # 芙蓉：错误次数
+        self.frWrong = []
+        self.frSum = 0  # 芙蓉总数
+        self.frLastTime = 0  # 上次芙蓉时间
+        self.frMidNum = -1  # 芙蓉间隔技能数
+        self.frBusan = 0  # 上次芙蓉是否有布散
+        self.ysfrWrong = []
+        self.ysfrWrongNum = 0  # 玉石之前是否没有打芙蓉的计数
+        self.ymSum = 0  # 阳明总数
+        self.ymtgWrong = []
+        self.ymtgWrongNum = 0  # 阳明：踏歌错误的次数
+        self.ymfxWrong = []
+        self.ymfxWrongNum = 0  # 阳明：逢雪错误的次数
+        self.kxSum = 0  # 快雪首跳总数
+        self.kxLastTime = 0  # 上一次快雪时间（用于判断快雪是不是同一组）
+        self.kxCurrentNum = 0  # 当前的快雪引导了多少跳
+        self.kxCurrentNumAll = 0  # 当前的快雪累计命中了多少个目标（和上一项只在群攻场景有区别）
+        self.kxfxWrong = []
+        self.kxfxWrongNum = 0  # 快雪：逢雪错误的次数
+        self.kxloWrong = []
+        self.kxloWrongNum = 0  # 快雪：数量太少的次数
+        self.kxhiWrong = []
+        self.kxhiWrongNum = 0  # 快雪：数量太多的次数
+        self.dotSum = 0  # 三毒总数
+        self.dotWrongNum = 0
+        self.dotWrong = []  # 三毒重复的次数
+        self.dot2Sum = 0  # 商阳/钟林总数
+        self.dot2WrongNum = 0
+        self.dot2Wrong = []  # 商阳/钟林可以延后的次数
+        self.syLast = 0  # 没有溅玉时施展的商阳和钟林先暂存时间
+        self.zlLast = 0
 
         self.unimportantSkill += ["32467",  # 花间破招
                                   "32501",  # 踏歌伤害
@@ -615,6 +660,8 @@ class HuaJianYouReplayer(DpsReplayer):
             if event.time > self.finalTime:
                 continue
 
+            self.sf = 0
+
             self.eventInSecondState(event)
 
             # 墨意推断
@@ -640,6 +687,10 @@ class HuaJianYouReplayer(DpsReplayer):
                 # 统计化解(暂时只能统计jx3dat的，因为jcl里压根没有)
                 if event.effect == 7:
                     # 所有治疗技能都不计算化解.
+                    continue
+
+                # 跳过纯吸血记录
+                if int(event.fullResult.get("7", 0)) > 0 and event.damageEff == 0:
                     continue
 
                 if event.caster == self.mykey and event.scheme == 1:
@@ -692,6 +743,11 @@ class HuaJianYouReplayer(DpsReplayer):
                     if event.id in ["32481"]:  # 快雪上Dot
                         self.dotKX[event.target].addDot(event.time, 1)
                     if event.id in ["182"]:  # 玉石
+                        numDot = 0
+                        numDot += self.dotSY[event.target].checkState(event.time)
+                        numDot += self.dotZL[event.target].checkState(event.time)
+                        numDot += self.dotLC[event.target].checkState(event.time)
+                        numDot += self.dotKX[event.target].checkState(event.time)
                         self.dotSY[event.target].clearDot(event.time)
                         self.dotZL[event.target].clearDot(event.time)
                         self.dotLC[event.target].clearDot(event.time)
@@ -701,6 +757,30 @@ class HuaJianYouReplayer(DpsReplayer):
                         if cw:
                             self.dotSY[event.target].addDot(event.time, 1)
                             self.dotZL[event.target].addDot(event.time, 1)
+                        if numDot < 4 and not cw:
+                            prevCw = self.cwDict.checkState(event.time - 3000)
+                            if numDot < 3 or not prevCw:
+                                self.ysWrongNum += 1
+                                self.ysWrong.append(parseTime((event.time - self.startTime) / 1000))
+                        self.ysSum += 1
+                        # 芙蓉判定
+                        fr = 0
+                        if self.frMidNum <= 1:
+                            self.frSum += 1
+                            self.frMidNum = -1
+                            fr = 1  # 玉石之前是否打了芙蓉
+                        if not fr and event.time - self.frLastTime > 26000:  # 芙蓉cd转好了
+                            self.ysfrWrongNum += 1
+                            self.ysfrWrong.append(parseTime((event.time - self.startTime) / 1000))
+                        if not fr:
+                            if self.syLast != 0:
+                                self.dot2WrongNum += 1
+                                self.dot2Wrong.append(parseTime((self.syLast - self.startTime) / 1000))
+                            if self.zlLast != 0:
+                                self.dot2WrongNum += 1
+                                self.dot2Wrong.append(parseTime((self.zlLast - self.startTime) / 1000))
+                        self.syLast = 0
+                        self.zlLast = 0
                     if event.id in ["6134"]:  # 芙蓉刷新商阳
                         self.dotSY[event.target].addDot(event.time, 0)
                     if event.id in ["6135"]:  # 芙蓉刷新钟林
@@ -720,11 +800,114 @@ class HuaJianYouReplayer(DpsReplayer):
                             print("[Tunhai]", event.full_id, event.time, self.bld.info.getSkillName(event.full_id),
                                   event.damageEff,
                                   self.bld.info.getName(event.caster), self.bld.info.getName(event.target))
-                        if self.bh.log["normal"][-1]["skillid"] == "14941" and event.time - self.tunhaiTime < 10:
+                        if self.bh.log["normal"][-1]["skillid"] == "14941" and event.time - self.tunhaiTime < 100:
                             self.bh.log["normal"][-1]["tunhai"] = 1
                             self.numTunhai += 1
                     if event.id in ["14941"]:  # 阳明
                         self.tunhaiTime = event.time
+                        self.ymSum += 1
+                        numDot = 0
+                        numDot += self.dotSY[event.target].checkState(event.time - 10)
+                        numDot += self.dotZL[event.target].checkState(event.time - 10)
+                        numDot += self.dotLC[event.target].checkState(event.time - 10)
+                        numDot += self.dotKX[event.target].checkState(event.time - 10)
+
+                        lsCheck = 0
+                        luansa = self.luansaDict.checkState(event.time - 30)
+                        if luansa or event.time - self.luansaLastTime < 30:
+                            lsCheck = 1
+
+                        if not self.sf or (numDot == 0 and not lsCheck):
+                            self.ymtgWrongNum += 1
+                            self.ymtgWrong.append(parseTime((event.time - self.startTime) / 1000))
+                        fx = self.fengxueDict.checkState(event.time - 500)
+                        if fx == 2:
+                            self.ymfxWrongNum += 1
+                            self.ymfxWrong.append(parseTime((event.time - self.startTime) / 1000))
+                    if event.id in ["180", "189", "2636", "14941"]:  # 是否有兰摧的判定
+                        lc = 0
+                        if event.target in self.dotLC:
+                            lc = self.dotLC[event.target].checkState(event.time - 30) + self.dotLC[event.target].checkState(event.time)  # 前后都判定防止秒吞
+                        self.lcSum += 1
+                        if not lc:
+                            # 如果是快雪，任意目标有兰摧，也可以
+                            anylc = 0
+                            if event.id == "2636":
+                                for key in self.dotLC:
+                                    if self.dotLC[key].checkState(event.time - 30):
+                                        anylc = 1
+                            # 阳明带乱洒
+                            luansa = self.luansaDict.checkState(event.time - 30)
+                            if not anylc and not luansa and event.time - self.luansaLastTime > 30:
+                                self.lcWrongNum += 1
+                                self.lcWrong.append(parseTime((event.time - self.startTime) / 1000))
+                    if event.id in ["180", "189", "2636", "14941", "190"]:  # 芙蓉之后是否打了技能的判定
+                        if self.frMidNum != -1:
+                            bs = self.busanDict.checkState(event.time - 100)
+                            if self.frMidNum == 0 and self.frBusan and not bs:
+                                self.frMidNum += 1
+                            else:  # 打错判定
+                                self.frSum += 1
+                                self.frMidNum = -1
+                                self.frWrongNum += 1
+                                self.frWrong.append(parseTime((event.time - self.startTime) / 1000))
+                    if event.id in ["180", "189", "14941", "190", "186", "182"]:  # 快雪以外的技能
+                        if self.kxCurrentNumAll > 0:
+                            if self.kxCurrentNum < 5:
+                                numKxDot = self.dotKX[event.target].checkState(event.time)
+                                bs = self.busanDict.checkState(event.time)
+                                if bs and event.time - self.busanDict.log[-1][0] > 8000:  # 卡布散判定
+                                    numKxDot = 6
+                                if numKxDot < 6:
+                                    self.kxloWrongNum += 1
+                                    self.kxloWrong.append(parseTime((self.kxLastTime - self.startTime) / 1000))
+                            if self.kxCurrentNum > 5:
+                                if self.kxCurrentNum * 2.5 > self.kxCurrentNumAll:
+                                    self.kxhiWrongNum += 1
+                                    self.kxhiWrong.append(parseTime((self.kxLastTime - self.startTime) / 1000))
+                            self.kxCurrentNumAll = 0
+                            self.kxCurrentNum = 0
+                    if event.id in ["180"]:  # 商阳
+                        self.dotSum += 1
+                        self.dot2Sum += 1
+                        if self.dotSY[event.target].checkState(event.time - 100):
+                            self.dotWrongNum += 1
+                            self.dotWrong.append(parseTime((event.time - self.startTime) / 1000))
+                        jy = self.jianyuDict.checkState(event.time - 100)
+                        if not jy:
+                            self.syLast = event.time
+                    if event.id in ["189"]:  # 钟林
+                        self.dotSum += 1
+                        self.dot2Sum += 1
+                        if self.dotZL[event.target].checkState(event.time - 100):
+                            self.dotWrongNum += 1
+                            self.dotWrong.append(parseTime((event.time - self.startTime) / 1000))
+                        jy = self.jianyuDict.checkState(event.time - 100)
+                        if not jy:
+                            self.zlLast = event.time
+                    if event.id in ["190"]:  # 兰摧
+                        self.dotSum += 1
+                        if self.dotLC[event.target].checkState(event.time - 100):
+                            self.dotWrongNum += 1
+                            self.dotWrong.append(parseTime((event.time - self.startTime) / 1000))
+                    if event.id in ["2636"]:  # 快雪
+                        if event.time - self.kxLastTime > 10:
+                            self.kxCurrentNum += 1
+                        if self.kxCurrentNumAll == 0:
+                            self.kxSum += 1
+                            fx = self.fengxueDict.checkState(event.time - 700)
+                            jy = self.jianyuDict.checkState(event.time - 700)
+                            if fx != 2 and jy == 0:
+                                self.kxfxWrongNum += 1
+                                self.kxfxWrong.append(parseTime((event.time - self.startTime) / 1000))
+                        self.kxCurrentNumAll += 1
+                        self.kxLastTime = event.time
+                    if event.id == "186":  # 芙蓉
+                        self.frLastTime = event.time
+                        self.frMidNum = 0
+                        self.frBusan = self.busanDict.checkState(event.time - 100)
+                    if event.id in ["13848", "13847"]:  # 乱洒隐藏技能
+                        self.luansaLastTime = event.time
 
                 if event.caster == self.mykey and event.scheme == 2:
                     if event.id in ["666"]:
@@ -756,6 +939,14 @@ class HuaJianYouReplayer(DpsReplayer):
                     if event.stack == 1:
                         self.bh.setSpecialSkill(event.id, "cw特效", "17817", event.time, 0, "触发cw特效")
                     self.cwDict.setState(event.time, event.stack)
+                if event.id == "2719" and event.target == self.mykey:  # 乱洒
+                    self.luansaDict.setState(event.time, event.stack)
+                if event.id == "1487" and event.target == self.mykey:  # 布散
+                    self.busanDict.setState(event.time, event.stack)
+                if event.id == "24205" and event.target == self.mykey:  # 逢雪
+                    self.fengxueDict.setState(event.time, event.stack)
+                if event.id == "24599" and event.target == self.mykey:  # 溅玉
+                    self.jianyuDict.setState(event.time, event.stack)
 
             elif event.dataType == "Shout":
                 pass
@@ -941,6 +1132,64 @@ class HuaJianYouReplayer(DpsReplayer):
             print(line)
             print(self.result["skill"][line])
 
+        # code 1001 优先使用`兰摧玉折`
+        res = {"code": 1001, "failTime": self.lcWrong, "num": self.lcWrongNum, "sum": self.lcSum, "rate": roundCent(1 - self.lcWrongNum / self.lcSum)}
+        res["status"] = getRateStatus(res["rate"], 100, 98, 95)
+        self.result["review"]["content"].append(res)
+
+        # code 1002 使`玉石俱焚`覆盖到全部的持续伤害效果
+        res = {"code": 1002, "failTime": self.ysWrong, "num": self.ysWrongNum, "sum": self.ysSum, "rate": roundCent(1 - self.ysWrongNum / self.ysSum)}
+        res["status"] = getRateStatus(res["rate"], 100, 95, 90)
+        self.result["review"]["content"].append(res)
+
+        # code 1003 在`芙蓉并蒂`后立刻结算持续伤害
+        res = {"code": 1003, "failTime": self.frWrong, "num": self.frWrongNum, "sum": self.frSum, "rate": roundCent(1 - self.frWrongNum / self.frSum)}
+        res["status"] = getRateStatus(res["rate"], 100, 95, 90)
+        self.result["review"]["content"].append(res)
+
+        # code 1004 尽可能使用`芙蓉并蒂`
+        res = {"code": 1004, "failTime": self.ysfrWrong, "num": self.ysfrWrongNum, "sum": self.ysSum, "rate": roundCent(1 - self.ysfrWrongNum / self.ysSum)}
+        res["status"] = getRateStatus(res["rate"], 100, 95, 90)
+        self.result["review"]["content"].append(res)
+
+        # code 1005 使用瞬发`阳明指`尝试触发`踏歌`
+        res = {"code": 1005, "failTime": self.ymtgWrong, "num": self.ymtgWrongNum, "sum": self.ymSum, "rate": roundCent(1 - self.ymtgWrongNum / self.ymSum)}
+        res["status"] = getRateStatus(res["rate"], 100, 95, 90)
+        self.result["review"]["content"].append(res)
+
+        # code 1006 使用瞬发`阳明指`尝试触发`雪中行`
+        res = {"code": 1006, "failTime": self.ymfxWrong, "num": self.ymfxWrongNum, "sum": self.ymSum, "rate": roundCent(1 - self.ymfxWrongNum / self.ymSum)}
+        res["status"] = getRateStatus(res["rate"], 100, 95, 90)
+        self.result["review"]["content"].append(res)
+
+        # code 1007 在`逢雪`气劲层数最大时使用`快雪时晴`
+        res = {"code": 1007, "failTime": self.kxfxWrong, "num": self.kxfxWrongNum, "sum": self.kxSum, "rate": roundCent(1 - self.kxfxWrongNum / self.kxSum)}
+        res["status"] = getRateStatus(res["rate"], 100, 95, 90)
+        self.result["review"]["content"].append(res)
+
+        # code 1008 打满`快雪时晴`的跳数
+        res = {"code": 1008, "failTime": self.kxloWrong, "num": self.kxloWrongNum, "sum": self.kxSum, "rate": roundCent(1 - self.kxloWrongNum / self.kxSum)}
+        res["status"] = getRateStatus(res["rate"], 100, 95, 90)
+        self.result["review"]["content"].append(res)
+
+        # code 1009 避免重复施展`快雪时晴`
+        res = {"code": 1009, "failTime": self.kxhiWrong, "num": self.kxhiWrongNum, "sum": self.kxSum, "rate": roundCent(1 - self.kxhiWrongNum / self.kxSum)}
+        res["status"] = getRateStatus(res["rate"], 100, 95, 90)
+        self.result["review"]["content"].append(res)
+
+        # code 1010 避免重复施展持续伤害效果
+        res = {"code": 1010, "failTime": self.dotWrong, "num": self.dotWrongNum, "sum": self.dotSum, "rate": roundCent(1 - self.dotWrongNum / self.dotSum)}
+        res["status"] = getRateStatus(res["rate"], 100, 95, 90)
+        self.result["review"]["content"].append(res)
+
+        # code 1011 将持续伤害技能延后到`溅玉`期间
+        res = {"code": 1011, "failTime": self.dot2Wrong, "num": self.dot2WrongNum, "sum": self.dot2Sum, "rate": roundCent(1 - self.dot2WrongNum / self.dot2Sum)}
+        res["status"] = getRateStatus(res["rate"], 100, 95, 90)
+        self.result["review"]["content"].append(res)
+
+        print("[Review]")
+        for line in self.result["review"]["content"]:
+            print(line)
 
         # print("[HuajianTest]")
         # # print(self.result["replay"]["moyi"])

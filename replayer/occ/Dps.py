@@ -173,6 +173,7 @@ class DpsReplayer(ReplayerBase):
                 if nowMoyi < 0:
                     nowMoyi = 0
                 self.moyiInfer.append([event.time, nowMoyi])
+                self.sf = 1
             if event.id in ["14941", "189", "190", "180", "186", "182", "2636"]:  # 花间通用回复墨意
                 # 获得墨意推测
                 lastMoyi = self.moyiInfer[-1][1]
@@ -252,7 +253,7 @@ class DpsReplayer(ReplayerBase):
                           self.bld.info.getName(event.caster), self.bld.info.getName(event.target))
 
             if event.caster == self.mykey:
-                print("[Skill]", event.full_id, event.time, self.bld.info.getSkillName(event.full_id), event.damageEff,
+                print("[Skill]", event.full_id, event.time, parseTime((event.time - self.startTime) / 1000), self.bld.info.getSkillName(event.full_id), event.damageEff,
                       self.bld.info.getName(event.caster), self.bld.info.getName(event.target))
 
         elif event.dataType == "Buff":
