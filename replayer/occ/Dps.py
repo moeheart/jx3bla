@@ -250,12 +250,14 @@ class DpsReplayer(ReplayerBase):
                     pass
                 # 无法分析的技能
                 elif event.id not in self.unimportantSkill:  # and event.heal != 0:
-                    print("[NonRec]", event.full_id, event.time, self.bld.info.getSkillName(event.full_id), event.damageEff,
-                          self.bld.info.getName(event.caster), self.bld.info.getName(event.target))
+                    # print("[NonRec]", event.full_id, event.time, self.bld.info.getSkillName(event.full_id), event.damageEff,
+                    #       self.bld.info.getName(event.caster), self.bld.info.getName(event.target))
+                    pass
 
             if event.caster == self.mykey:
-                print("[Skill]", event.full_id, event.time, parseTime((event.time - self.startTime) / 1000), self.bld.info.getSkillName(event.full_id), event.damageEff,
-                      self.bld.info.getName(event.caster), self.bld.info.getName(event.target))
+                # print("[Skill]", event.full_id, event.time, parseTime((event.time - self.startTime) / 1000), self.bld.info.getSkillName(event.full_id), event.damageEff,
+                #       self.bld.info.getName(event.caster), self.bld.info.getName(event.target))
+                pass
 
         elif event.dataType == "Buff":
             pass
@@ -310,6 +312,8 @@ class DpsReplayer(ReplayerBase):
                                "27672",  # 打到青川濯莲
                                "747",  # 少林阵眼
                                "769",  # 天策阵眼
+                               "352",  # 纯阳阵眼
+                               "22163", "22166",  # 输出大附魔
                             ]
 
         # 战斗回放初始化

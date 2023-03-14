@@ -92,7 +92,10 @@ class ReviewerWindow(Window):
                 text = std["desc"]
                 frame = tk.Frame(window, width=730, height=50)
                 frame.pack()
-                tk.Label(frame, text=text, anchor=tk.W).pack(side='left')
+                subframe2 = tk.Frame(frame, width=730)
+                subframe2.pack(side='left')
+                ttk.Label(subframe2, text=text, wraplength=700, anchor=tk.W).grid(row=0, column=0,
+                                                                                                sticky='w')
 
         for review in result["review"]["content"]:
             code = str(review["code"])

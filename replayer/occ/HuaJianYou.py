@@ -867,9 +867,10 @@ class HuaJianYouReplayer(DpsReplayer):
                         elif event.level == 11:  # 兰摧
                             self.dotLC[event.target].clearDot(event.time)
                         else:
-                            print("[Tunhai]", event.full_id, event.time, self.bld.info.getSkillName(event.full_id),
-                                  event.damageEff,
-                                  self.bld.info.getName(event.caster), self.bld.info.getName(event.target))
+                            # print("[Tunhai]", event.full_id, event.time, self.bld.info.getSkillName(event.full_id),
+                            #       event.damageEff,
+                            #       self.bld.info.getName(event.caster), self.bld.info.getName(event.target))
+                            pass
                         if self.bh.log["normal"][-1]["skillid"] == "14941" and event.time - self.tunhaiTime < 100:
                             self.bh.log["normal"][-1]["tunhai"] = 1
                             self.numTunhai += 1
@@ -1066,7 +1067,7 @@ class HuaJianYouReplayer(DpsReplayer):
         self.result["boost"] = self.myRdpsSource
         self.result["fraction"] = {"table": self.myRdpsSkill, "time": self.myAdjustedTime}
 
-        print("[self.myRdpsSkill]", self.myRdpsSkill)
+        # print("[self.myRdpsSkill]", self.myRdpsSkill)
 
         # 阳明
         ymskill = self.calculateSkillInfo("ymz", "14941")
@@ -1208,11 +1209,11 @@ class HuaJianYouReplayer(DpsReplayer):
         self.result["skill"]["general"]["efficiency"] = self.bh.getNormalEfficiency(base="dps")
 
         # print("[Efficiency]", self.result["skill"]["general"]["efficiency"])
-        print("[Boost]", self.result["boost"])
-        print("[Skill]")
-        for line in self.result["skill"]:
-            print(line)
-            print(self.result["skill"][line])
+        # print("[Boost]", self.result["boost"])
+        # print("[Skill]")
+        # for line in self.result["skill"]:
+        #     print(line)
+        #     print(self.result["skill"][line])
 
         # code 1001 优先使用`兰摧玉折`
         res = {"code": 1001, "failTime": self.lcWrong, "num": self.lcWrongNum, "sum": self.lcSum, "rate": roundCent(1 - self.lcWrongNum / self.lcSum)}
@@ -1273,9 +1274,9 @@ class HuaJianYouReplayer(DpsReplayer):
 
         self.calculateSkillFinal()
 
-        print("[Review]")
-        for line in self.result["review"]["content"]:
-            print(line)
+        # print("[Review]")
+        # for line in self.result["review"]["content"]:
+        #     print(line)
 
         # print("[HuajianTest]")
         # # print(self.result["replay"]["moyi"])

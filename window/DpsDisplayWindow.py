@@ -206,7 +206,7 @@ class DpsDisplayWindow(Window):
 
         frame3 = tk.Frame(window, width=310, height=150, highlightthickness=1, highlightbackground=self.themeColor)
         frame3.place(x=430, y=10)
-        canvas = tk.Canvas(frame3, width=310, height=150, scrollregion=(0, 0, 290, 26*num)) #创建canvas
+        canvas = tk.Canvas(frame3, width=310, height=150, scrollregion=(0, 0, 290, 24*num)) #创建canvas
         canvas.place(x=0, y=0)  # 放置canvas的位置
         frameTable = tk.Frame(canvas)  # 把frame放在canvas里
         frameTable.place(width=290, height=150) #frame的长宽，和canvas差不多的
@@ -214,7 +214,7 @@ class DpsDisplayWindow(Window):
         vbar.place(x=290, width=20, height=150)
         vbar.configure(command=canvas.yview)
         canvas.config(yscrollcommand=vbar.set)  # 设置
-        canvas.create_window((145, 26*num*0.5), window=frameTable)  #create_window
+        canvas.create_window((145, 24*num*0.5), window=frameTable)  #create_window
 
         adjTime = self.result["fraction"]["time"]
         content = []
@@ -241,7 +241,7 @@ class DpsDisplayWindow(Window):
             l2.grid(row=i, column=1)
             l3 = tk.Label(frameTable, text=line[2])
             l3.grid(row=i, column=2)
-            l4 = tk.Label(frameTable, text=line[3])
+            l4 = tk.Label(frameTable, text=line[3] + '%')
             l4.grid(row=i, column=3)
             i += 1
 
@@ -284,11 +284,11 @@ class DpsDisplayWindow(Window):
         '''
         # 290 200
         window = self.window
-        num = max(len(self.result["fraction"]["table"]), 10) + 1
+        num = max(len(self.result["boost"]), 10) + 1
 
         frame7 = tk.Frame(window, width=290, height=200, highlightthickness=1, highlightbackground=self.themeColor)
         frame7.place(x=10, y=620)
-        canvas = tk.Canvas(frame7, width=290, height=200, scrollregion=(0, 0, 270, 26*num))  # 创建canvas
+        canvas = tk.Canvas(frame7, width=290, height=200, scrollregion=(0, 0, 270, 24*num))  # 创建canvas
         canvas.place(x=0, y=0)  # 放置canvas的位置
         frameTable = tk.Frame(canvas)  # 把frame放在canvas里
         frameTable.place(width=270, height=200)  # frame的长宽，和canvas差不多的
@@ -296,13 +296,13 @@ class DpsDisplayWindow(Window):
         vbar.place(x=270, width=20, height=200)
         vbar.configure(command=canvas.yview)
         canvas.config(yscrollcommand=vbar.set)  # 设置
-        canvas.create_window((135, 26*num*0.5), window=frameTable)  # create_window
+        canvas.create_window((135, 24*num*0.5), window=frameTable)  # create_window
 
         content = []
         for key in self.result["boost"]:
             content.append([key,
                             self.result["boost"][key].get("percent", -1),
-                            parseCent(self.result["boost"][key]["cover"])])
+                            self.result["boost"][key]["cover"]])
         content.sort(key=lambda x:-x[1])
 
         l1 = tk.Label(frameTable, text="buff")
@@ -315,11 +315,12 @@ class DpsDisplayWindow(Window):
         for line in content:
             l1 = tk.Label(frameTable, text=line[0])
             l1.grid(row=i, column=0)
-            t2 = "N/A" if line[1] == -1 else parseCent(line[1])
+            t2 = "N/A" if line[1] == -1 else parseCent(line[1]) + '%'
             l2 = tk.Label(frameTable, text=t2)
             l2.grid(row=i, column=1)
-            l3 = tk.Label(frameTable, text=line[2])
-            l3.grid(row=i, column=3)
+            t3 = "N/A" if line[2] == -1 else parseCent(line[2]) + '%'
+            l3 = tk.Label(frameTable, text=t3)
+            l3.grid(row=i, column=2)
             i += 1
 
     def openReviewerWindow(self):
