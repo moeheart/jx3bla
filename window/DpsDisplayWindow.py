@@ -175,31 +175,75 @@ class DpsDisplayWindow(Window):
 
     def renderDps(self):
         '''
-        渲染输出信息(Part 3).
+        渲染技能比例信息，这里展示rDPS的组成(Part 3).
         '''
         window = self.window
-        # Part 3: 输出
+        # # Part 3: 输出
+        # frame3 = tk.Frame(window, width=310, height=150, highlightthickness=1, highlightbackground=self.themeColor)
+        # frame3.place(x=430, y=10)
+        # frame3sub = tk.Frame(frame3)
+        # frame3sub.place(x=0, y=0)
+        #
+        # tb = TableConstructor(self.config, frame3sub)
+        # tb.AppendHeader("rDPS", "全称raid DPS，是将伤害值中的增益部分转移给增益来源后得到的值。\nrDPS可以反映各种增益的强度，并且适用于对比不同战斗中的表现。")
+        # tb.AppendHeader("nDPS", "全称natrual DPS，指自然计算所有伤害的值。\nnDPS会受到各种增益的影响，且不能反映自身对团队的增益，因此只能用来计算全团伤害与BOSS血量的比较。")
+        # tb.AppendHeader("mrDPS", "全称main-target raid DPS，是只考虑主目标的rDPS。\n如果有些阶段只能转火、打分身、打双目标，则这个阶段没有主目标。\n用于衡量单体与群攻的差别。")
+        # tb.AppendHeader("mnDPS", "全称main-target natrual DPS，是只考虑主目标的nDPS。\n如果有些阶段只能转火、打分身、打双目标，则这个阶段没有主目标。\n用于衡量单体与群攻的差别。")
+        # tb.EndOfLine()
+        # # 当前玩家
+        # dpsDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        # for stat in ["rdps", "ndps", "mrdps", "mndps"]:
+        #     num, percent, color = dpsDisplayer.getSkillPercent("dps", stat)
+        #     if num > 0:
+        #         descText = "排名：%d%%\n数量：%d" % (percent, num)
+        #     else:
+        #         descText = "排名未知"
+        #     tb.AppendHeader(self.result["dps"]["stat"].get(stat, 0), descText, color=color)
+        # tb.EndOfLine()
+
+        # 560 350
+        num = max(len(self.result["fraction"]["table"]), 7) + 1
+
         frame3 = tk.Frame(window, width=310, height=150, highlightthickness=1, highlightbackground=self.themeColor)
         frame3.place(x=430, y=10)
-        frame3sub = tk.Frame(frame3)
-        frame3sub.place(x=0, y=0)
+        canvas = tk.Canvas(frame3, width=310, height=150, scrollregion=(0, 0, 290, 26*num)) #创建canvas
+        canvas.place(x=0, y=0)  # 放置canvas的位置
+        frameTable = tk.Frame(canvas)  # 把frame放在canvas里
+        frameTable.place(width=290, height=150) #frame的长宽，和canvas差不多的
+        vbar = tk.Scrollbar(canvas, orient=tk.VERTICAL) #竖直滚动条
+        vbar.place(x=290, width=20, height=150)
+        vbar.configure(command=canvas.yview)
+        canvas.config(yscrollcommand=vbar.set)  # 设置
+        canvas.create_window((145, 26*num*0.5), window=frameTable)  #create_window
 
-        tb = TableConstructor(self.config, frame3sub)
-        tb.AppendHeader("rDPS", "全称raid DPS，是将伤害值中的增益部分转移给增益来源后得到的值。\nrDPS可以反映各种增益的强度，并且适用于对比不同战斗中的表现。")
-        tb.AppendHeader("nDPS", "全称natrual DPS，指自然计算所有伤害的值。\nnDPS会受到各种增益的影响，且不能反映自身对团队的增益，因此只能用来计算全团伤害与BOSS血量的比较。")
-        tb.AppendHeader("mrDPS", "全称main-target raid DPS，是只考虑主目标的rDPS。\n如果有些阶段只能转火、打分身、打双目标，则这个阶段没有主目标。\n用于衡量单体与群攻的差别。")
-        tb.AppendHeader("mnDPS", "全称main-target natrual DPS，是只考虑主目标的nDPS。\n如果有些阶段只能转火、打分身、打双目标，则这个阶段没有主目标。\n用于衡量单体与群攻的差别。")
-        tb.EndOfLine()
-        # 当前玩家
-        dpsDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
-        for stat in ["rdps", "ndps", "mrdps", "mndps"]:
-            num, percent, color = dpsDisplayer.getSkillPercent("dps", stat)
-            if num > 0:
-                descText = "排名：%d%%\n数量：%d" % (percent, num)
-            else:
-                descText = "排名未知"
-            tb.AppendHeader(self.result["dps"]["stat"].get(stat, 0), descText, color=color)
-        tb.EndOfLine()
+        adjTime = self.result["fraction"]["time"]
+        content = []
+        for key in self.result["fraction"]["table"]:
+            content.append([key,
+                            int(self.result["fraction"]["table"][key]["sum"] / adjTime * 1000),
+                            self.result["fraction"]["table"][key]["num"],
+                            parseCent(self.result["fraction"]["table"][key]["percent"])])
+        content.sort(key=lambda x:-x[1])
+
+        l1 = tk.Label(frameTable, text="技能")
+        l1.grid(row=0, column=0)
+        l2 = tk.Label(frameTable, text="rDPS")
+        l2.grid(row=0, column=1)
+        l3 = tk.Label(frameTable, text="数量")
+        l3.grid(row=0, column=2)
+        l4 = tk.Label(frameTable, text="比例")
+        l4.grid(row=0, column=3)
+        i = 1
+        for line in content:
+            l1 = tk.Label(frameTable, text=line[0])
+            l1.grid(row=i, column=0)
+            l2 = tk.Label(frameTable, text=line[1])
+            l2.grid(row=i, column=1)
+            l3 = tk.Label(frameTable, text=line[2])
+            l3.grid(row=i, column=2)
+            l4 = tk.Label(frameTable, text=line[3])
+            l4.grid(row=i, column=3)
+            i += 1
 
     def renderQx(self):
         '''
@@ -236,9 +280,47 @@ class DpsDisplayWindow(Window):
 
     def renderTeam(self):
         '''
-        渲染团队信息，需要派生类实现(Part 7).
+        渲染增益比例信息，这里展示rDPS的组成(Part 7).
         '''
-        pass
+        # 290 200
+        window = self.window
+        num = max(len(self.result["fraction"]["table"]), 10) + 1
+
+        frame7 = tk.Frame(window, width=290, height=200, highlightthickness=1, highlightbackground=self.themeColor)
+        frame7.place(x=10, y=620)
+        canvas = tk.Canvas(frame7, width=290, height=200, scrollregion=(0, 0, 270, 26*num))  # 创建canvas
+        canvas.place(x=0, y=0)  # 放置canvas的位置
+        frameTable = tk.Frame(canvas)  # 把frame放在canvas里
+        frameTable.place(width=270, height=200)  # frame的长宽，和canvas差不多的
+        vbar = tk.Scrollbar(canvas, orient=tk.VERTICAL)  # 竖直滚动条
+        vbar.place(x=270, width=20, height=200)
+        vbar.configure(command=canvas.yview)
+        canvas.config(yscrollcommand=vbar.set)  # 设置
+        canvas.create_window((135, 26*num*0.5), window=frameTable)  # create_window
+
+        content = []
+        for key in self.result["boost"]:
+            content.append([key,
+                            self.result["boost"][key].get("percent", -1),
+                            parseCent(self.result["boost"][key]["cover"])])
+        content.sort(key=lambda x:-x[1])
+
+        l1 = tk.Label(frameTable, text="buff")
+        l1.grid(row=0, column=0)
+        l2 = tk.Label(frameTable, text="增益")
+        l2.grid(row=0, column=1)
+        l3 = tk.Label(frameTable, text="覆盖率")
+        l3.grid(row=0, column=2)
+        i = 1
+        for line in content:
+            l1 = tk.Label(frameTable, text=line[0])
+            l1.grid(row=i, column=0)
+            t2 = "N/A" if line[1] == -1 else parseCent(line[1])
+            l2 = tk.Label(frameTable, text=t2)
+            l2.grid(row=i, column=1)
+            l3 = tk.Label(frameTable, text=line[2])
+            l3.grid(row=i, column=3)
+            i += 1
 
     def openReviewerWindow(self):
         '''
@@ -250,37 +332,37 @@ class DpsDisplayWindow(Window):
         '''
         渲染评分信息，需要派生类实现(Part 8).
         '''
-        pass
+        window = self.window
+        # Part 8: 打分
+        frame8 = tk.Frame(window, width=210, height=200, highlightthickness=1, highlightbackground=self.themeColor)
+        frame8.place(x=320, y=620)
 
-        # window = self.window
-        # # Part 8: 打分
-        # frame8 = tk.Frame(window, width=210, height=200, highlightthickness=1, highlightbackground=self.themeColor)
-        # frame8.place(x=320, y=620)
-        #
-        # if "review" in self.result:
-        #     # 支持专案组模块
-        #     tk.Label(frame8, text="综合评分：").place(x=30, y=20)
-        #     score = self.result["review"]["score"]
-        #     descText = "排名未知"
-        #     color = "#aaaaaa"
-        #     if "numReplays" in self.result["overall"]:
-        #         numReplays = self.result["overall"]["numReplays"]
-        #         scoreRank = self.result["overall"]["scoreRank"]
-        #         descText = "排名：%d%%\n数量：%d" % (scoreRank, numReplays)
-        #         color = getRankColor(scoreRank)
-        #     scoreLabel = tk.Label(frame8, text="%d" % score, fg=color)
-        #     scoreLabel.place(x=100, y=20)
-        #     ToolTip(scoreLabel, descText)
-        #
-        #     numReview = self.result["review"]["num"]
-        #     tk.Label(frame8, text="共有%d条手法建议。" % numReview).place(x=30, y=50)
-        #     b2 = tk.Button(frame8, text='在[专案组]中查看', height=1, command=self.openReviewerWindow)
-        #     b2.place(x=60, y=80)
-        #     tk.Label(frame8, text="本模块仅可作为提高手法的参考，").place(x=20, y=110)
-        #     tk.Label(frame8, text="请勿使用本模块出警！").place(x=20, y=130)
-        #     self.reviewerWindow = ReviewerWindow(self.result, self.themeColor)
-        # else:
-        #     tk.Label(frame8, text="复盘生成时的版本尚不支持此功能。").place(x=10, y=20)
+        if "review" in self.result:
+            # 支持专案组模块
+            # tk.Label(frame8, text="综合评分：").place(x=30, y=20)
+            # score = self.result["review"]["score"]
+            # descText = "排名未知"
+            # color = "#aaaaaa"
+            #
+            # if self.rank["review"]["score"]["num"] > 0:
+            #     numReplays = self.rank["review"]["score"]["num"]
+            #     scoreRank = self.rank["review"]["score"]["percent"]
+            #     descText = "排名：%d%%\n数量：%d" % (scoreRank, numReplays)
+            #     color = getRankColor(scoreRank)
+            #
+            # scoreLabel = tk.Label(frame8, text="%d" % score, fg=color)
+            # scoreLabel.place(x=100, y=20)
+            # ToolTip(scoreLabel, descText)
+
+            numReview = self.result["review"]["num"]
+            tk.Label(frame8, text="共有%d条手法建议。" % numReview).place(x=30, y=50)
+            b2 = tk.Button(frame8, text='在[专案组]中查看', height=1, command=self.openReviewerWindow)
+            b2.place(x=60, y=80)
+            tk.Label(frame8, text="本模块仅可作为提高手法的参考，").place(x=20, y=110)
+            tk.Label(frame8, text="请勿使用本模块出警！").place(x=20, y=130)
+            self.reviewerWindow = ReviewerWindow(self.result, self.themeColor)
+        else:
+            tk.Label(frame8, text="复盘生成时的版本尚不支持此功能。").place(x=10, y=20)
 
     def renderAdvertise(self):
         '''
@@ -324,10 +406,10 @@ class DpsDisplayWindow(Window):
         self.renderEquipment()
         self.renderDps()
         self.renderQx()
-        # self.renderSkill()
+        self.renderSkill()
         self.renderReplay()
-        # self.renderTeam()
-        # self.renderRate()
+        self.renderTeam()
+        self.renderRate()
         self.renderAdvertise()
 
     def setThemeColor(self, color):

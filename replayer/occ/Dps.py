@@ -56,13 +56,14 @@ class DpsReplayer(ReplayerBase):
         '''
 
         # 排序
-        # self.result["review"]["content"].sort(key=lambda x: -x["status"] * 1000 + x["rate"])
-        # num = 0
-        # for line in self.result["review"]["content"]:
-        #     if line["status"] > 0:
-        #         num += 1
-        #         self.reviewScore -= [0, 1, 3, 10][line["status"]] * 100
-        # self.result["review"]["num"] = num
+        if "review" in self.result:
+            self.result["review"]["content"].sort(key=lambda x: -x["status"] * 1000 + x["rate"])
+            num = 0
+            for line in self.result["review"]["content"]:
+                if line["status"] > 0:
+                    num += 1
+                    self.reviewScore -= [0, 1, 3, 10][line["status"]] * 100
+            self.result["review"]["num"] = num
 
         self.calculateSkillOverall()
         self.result["review"]["score"] = self.reviewScore

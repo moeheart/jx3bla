@@ -83,6 +83,17 @@ class ReviewerWindow(Window):
         s.configure('TLabel', background="#f0f0f0")
 
         result = self.result
+
+        if "intro" in result["review"]:
+            review = result["review"]["intro"]
+            code = str(review["code"])
+            if code in self.json:
+                std = self.json[code]
+                text = std["desc"]
+                frame = tk.Frame(window, width=730, height=50)
+                frame.pack()
+                tk.Label(frame, text=text, anchor=tk.W).pack(side='left')
+
         for review in result["review"]["content"]:
             code = str(review["code"])
             if code in self.json:

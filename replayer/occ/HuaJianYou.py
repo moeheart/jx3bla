@@ -7,7 +7,7 @@ from replayer.BattleHistory import BattleHistory, SingleSkill
 from tools.Names import *
 from tools.Functions import *
 from replayer.Name import *
-from window.DpsDisplayWindow import DpsDisplayWindow
+from window.DpsDisplayWindow import DpsDisplayWindow, SingleSkillDisplayer
 
 import os
 import tkinter as tk
@@ -30,6 +30,79 @@ class HuaJianYouWindow(DpsDisplayWindow):
         text = '''时间轴中由上到下分别表示：商阳、钟林、兰摧、快雪这四个DoT。颜色深浅表示剩余时间。
 注意，对于多目标的情况这里会尝试合并所有目标的状况，因此不一定准确。'''
         messagebox.showinfo(title='说明', message=text)
+
+    def renderSkill(self):
+        '''
+        渲染技能信息(Part 5)，奶歌复盘特化.
+        '''
+        window = self.window
+        # Part 5: 技能
+        # TODO 加入图片转存
+        frame5 = tk.Frame(window, width=730, height=200, highlightthickness=1, highlightbackground=self.themeColor)
+        frame5.place(x=10, y=250)
+
+        ymzDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        ymzDisplayer.setImage("1527", "阳明指")
+        ymzDisplayer.setDouble("rate", "数量", "ymz", "num", "numPerSec")
+        ymzDisplayer.setDouble("rate", "rDPS", "ymz", "rdps", "rdpsRate")
+        ymzDisplayer.setSingle("delay", "延迟", "ymz", "delay")
+        ymzDisplayer.setSingle("int", "吞海次数", "ymz", "tunhai")
+        ymzDisplayer.export_image(frame5, 0)
+
+        syzDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        syzDisplayer.setImage("1514", "商阳指")
+        syzDisplayer.setDouble("rate", "数量", "syz", "num", "numPerSec")
+        syzDisplayer.setDouble("rate", "rDPS", "syz", "rdps", "rdpsRate")
+        syzDisplayer.setSingle("percent", "覆盖率", "syz", "cover")
+        syzDisplayer.export_image(frame5, 1)
+
+        zlyxDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        zlyxDisplayer.setImage("404", "钟林毓秀")
+        zlyxDisplayer.setDouble("rate", "数量", "zlyx", "num", "numPerSec")
+        zlyxDisplayer.setDouble("rate", "rDPS", "zlyx", "rdps", "rdpsRate")
+        zlyxDisplayer.setSingle("percent", "覆盖率", "zlyx", "cover")
+        zlyxDisplayer.export_image(frame5, 2)
+
+        lcyzDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        lcyzDisplayer.setImage("390", "兰摧玉折")
+        lcyzDisplayer.setDouble("rate", "数量", "lcyz", "num", "numPerSec")
+        lcyzDisplayer.setDouble("rate", "rDPS", "lcyz", "rdps", "rdpsRate")
+        lcyzDisplayer.setSingle("percent", "覆盖率", "lcyz", "cover")
+        lcyzDisplayer.export_image(frame5, 3)
+
+        kxsqDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        kxsqDisplayer.setImage("2999", "快雪时晴")
+        kxsqDisplayer.setDouble("rate", "数量", "kxsq", "num", "numPerSec")
+        kxsqDisplayer.setDouble("rate", "rDPS", "kxsq", "rdps", "rdpsRate")
+        kxsqDisplayer.setDouble("rate", "DOT数量", "kxsqdot", "num", "numPerSec")
+        kxsqDisplayer.setDouble("rate", "DOTrDPS", "kxsqdot", "rdps", "rdpsRate")
+        kxsqDisplayer.setSingle("delay", "延迟", "kxsq", "delay")
+        kxsqDisplayer.export_image(frame5, 4)
+
+        ysjfDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        ysjfDisplayer.setImage("411", "玉石俱焚")
+        ysjfDisplayer.setDouble("rate", "数量", "ysjf", "num", "numPerSec")
+        ysjfDisplayer.setDouble("rate", "rDPS", "ysjf", "rdps", "rdpsRate")
+        ysjfDisplayer.setSingle("delay", "延迟", "ysjf", "delay")
+        ysjfDisplayer.export_image(frame5, 5)
+
+        frbdDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        frbdDisplayer.setImage("398", "芙蓉并蒂")
+        frbdDisplayer.setDouble("rate", "数量", "frbd", "num", "numPerSec")
+        frbdDisplayer.setDouble("rate", "rDPS", "frbd", "rdps", "rdpsRate")
+        frbdDisplayer.setSingle("delay", "延迟", "frbd", "delay")
+        frbdDisplayer.export_image(frame5, 6)
+
+        info2Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        info2Displayer.setSingle("int", "rDPS", "general", "rdps")
+        info2Displayer.setSingle("int", "mrDPS", "general", "mrdps")
+        info2Displayer.setSingle("int", "nDPS", "general", "ndps")
+        info2Displayer.setSingle("int", "mnDPS", "general", "mndps")
+        info2Displayer.setSingle("percent", "战斗效率", "general", "efficiency")
+        info2Displayer.export_text(frame5, 7)
+
+        button = tk.Button(frame5, text='？', height=1, command=self.showHelp)
+        button.place(x=680, y=160)
 
     def renderReplay(self):
         '''
@@ -179,8 +252,6 @@ class HuaJianYouWindow(DpsDisplayWindow):
 
         tk.Label(frame6sub, text="test").place(x=20, y=20)
 
-
-
     def __init__(self, config, result):
         '''
         初始化.
@@ -242,15 +313,14 @@ class HuaJianYouReplayer(DpsReplayer):
         '''
 
         # 排序
-        # self.result["review"]["content"].sort(key=lambda x: -x["status"] * 1000 + x["rate"])
-        # num = 0
-        # for line in self.result["review"]["content"]:
-        #     if line["status"] > 0:
-        #         num += 1
-        #         self.reviewScore -= [0, 1, 3, 10][line["status"]] * 100
-        # self.result["review"]["num"] = num
+        self.result["review"]["content"].sort(key=lambda x: -x["status"] * 1000 + x["rate"])
+        num = 0
+        for line in self.result["review"]["content"]:
+            if line["status"] > 0:
+                num += 1
+                self.reviewScore -= [0, 1, 3, 10][line["status"]] * 100
+        self.result["review"]["num"] = num
 
-        self.calculateSkillOverall()
         self.result["review"]["score"] = self.reviewScore
         self.result["skill"]["general"]["score"] = self.reviewScore
 
@@ -289,7 +359,7 @@ class HuaJianYouReplayer(DpsReplayer):
 
         # 计算专案组的公有部分.
 
-        self.result["review"] = {"available": 0, "content": []}
+        self.result["review"] = {"available": 1, "content": []}
 
     def completeSecondState(self):
         '''
@@ -976,10 +1046,11 @@ class HuaJianYouReplayer(DpsReplayer):
         # 整体
         self.result["skill"] = {}
         self.result["skill"]["general"] = {}
+
+        self.calculateSkillOverall()
+
         # 计算战斗回放
         self.result["replay"] = self.bh.getJsonReplay(self.mykey)
-
-        self.calculateSkillFinal()
 
         self.result["replay"]["heat"] = {}
 
@@ -993,18 +1064,21 @@ class HuaJianYouReplayer(DpsReplayer):
                 self.myRdpsSkill = self.act.rdps["player"][player]["namedSkill"]
                 self.myAdjustedTime = self.act.rdps["player"][player]["adjustedTime"]
         self.result["boost"] = self.myRdpsSource
+        self.result["fraction"] = {"table": self.myRdpsSkill, "time": self.myAdjustedTime}
 
         print("[self.myRdpsSkill]", self.myRdpsSkill)
 
         # 阳明
         ymskill = self.calculateSkillInfo("ymz", "14941")
         self.result["skill"]["ymz"]["tunhai"] = self.numTunhai
+        self.result["skill"]["ymz"]["rdps"] = 0
         if "阳明指" in self.myRdpsSkill:
             self.result["skill"]["ymz"]["rdps"] = int(self.myRdpsSkill["阳明指"]["sum"] / self.myAdjustedTime * 1000)
         self.result["skill"]["ymz"]["rdpsRate"] = roundCent(self.result["skill"]["ymz"]["rdps"] / self.result["skill"]["general"]["rdps"])
 
         # 商阳
         self.calculateSkillInfoDirect("syz", syzBuff)
+        self.result["skill"]["syz"]["rdps"] = 0
         if "商阳指(持续)" in self.myRdpsSkill:
             self.result["skill"]["syz"]["rdps"] = int(self.myRdpsSkill["商阳指(持续)"]["sum"] / self.myAdjustedTime * 1000)
         self.result["skill"]["syz"]["rdpsRate"] = roundCent(self.result["skill"]["syz"]["rdps"] / self.result["skill"]["general"]["rdps"])
@@ -1031,6 +1105,7 @@ class HuaJianYouReplayer(DpsReplayer):
 
         # 钟林
         self.calculateSkillInfoDirect("zlyx", zlyxBuff)
+        self.result["skill"]["zlyx"]["rdps"] = 0
         if "钟林毓秀(持续)" in self.myRdpsSkill:
             self.result["skill"]["zlyx"]["rdps"] = int(self.myRdpsSkill["钟林毓秀(持续)"]["sum"] / self.myAdjustedTime * 1000)
         self.result["skill"]["zlyx"]["rdpsRate"] = roundCent(self.result["skill"]["zlyx"]["rdps"] / self.result["skill"]["general"]["rdps"])
@@ -1057,6 +1132,7 @@ class HuaJianYouReplayer(DpsReplayer):
 
         # 兰摧
         self.calculateSkillInfoDirect("lcyz", lcyzBuff)
+        self.result["skill"]["lcyz"]["rdps"] = 0
         if "兰摧玉折(持续)" in self.myRdpsSkill:
             self.result["skill"]["lcyz"]["rdps"] = int(self.myRdpsSkill["兰摧玉折(持续)"]["sum"] / self.myAdjustedTime * 1000)
         self.result["skill"]["lcyz"]["rdpsRate"] = roundCent(self.result["skill"]["lcyz"]["rdps"] / self.result["skill"]["general"]["rdps"])
@@ -1083,11 +1159,13 @@ class HuaJianYouReplayer(DpsReplayer):
 
         # 快雪
         kxskill = self.calculateSkillInfo("kxsq", "2636")
+        self.result["skill"]["kxsq"]["rdps"] = 0
         if "快雪时晴" in self.myRdpsSkill:
             self.result["skill"]["kxsq"]["rdps"] = int(self.myRdpsSkill["快雪时晴"]["sum"] / self.myAdjustedTime * 1000)
         self.result["skill"]["kxsq"]["rdpsRate"] = roundCent(self.result["skill"]["kxsq"]["rdps"] / self.result["skill"]["general"]["rdps"])
 
         self.calculateSkillInfoDirect("kxsqdot", kxsqBuff)
+        self.result["skill"]["kxsqdot"]["rdps"] = 0
         if "快雪时晴(持续)" in self.myRdpsSkill:
             self.result["skill"]["kxsqdot"]["rdps"] = int(self.myRdpsSkill["快雪时晴(持续)"]["sum"] / self.myAdjustedTime * 1000)
         self.result["skill"]["kxsqdot"]["rdpsRate"] = roundCent(self.result["skill"]["kxsqdot"]["rdps"] / self.result["skill"]["general"]["rdps"])
@@ -1114,13 +1192,17 @@ class HuaJianYouReplayer(DpsReplayer):
 
         # 玉石
         ysjfSkill = self.calculateSkillInfo("ysjf", "182")
+        self.result["skill"]["ysjf"]["rdps"] = 0
         if "玉石俱焚" in self.myRdpsSkill:
             self.result["skill"]["ysjf"]["rdps"] = int(self.myRdpsSkill["玉石俱焚"]["sum"] / self.myAdjustedTime * 1000)
+        self.result["skill"]["ysjf"]["rdpsRate"] = roundCent(self.result["skill"]["ysjf"]["rdps"] / self.result["skill"]["general"]["rdps"])
 
         # 芙蓉
         frbdSkill = self.calculateSkillInfo("frbd", "186")
+        self.result["skill"]["frbd"]["rdps"] = 0
         if "芙蓉并蒂" in self.myRdpsSkill:
             self.result["skill"]["frbd"]["rdps"] = int(self.myRdpsSkill["芙蓉并蒂"]["sum"] / self.myAdjustedTime * 1000)
+        self.result["skill"]["frbd"]["rdpsRate"] = roundCent(self.result["skill"]["frbd"]["rdps"] / self.result["skill"]["general"]["rdps"])
 
         # 一部分公有逻辑可以在其它心法实现后提到外面
         self.result["skill"]["general"]["efficiency"] = self.bh.getNormalEfficiency(base="dps")
@@ -1186,6 +1268,10 @@ class HuaJianYouReplayer(DpsReplayer):
         res = {"code": 1011, "failTime": self.dot2Wrong, "num": self.dot2WrongNum, "sum": self.dot2Sum, "rate": roundCent(1 - self.dot2WrongNum / self.dot2Sum)}
         res["status"] = getRateStatus(res["rate"], 100, 95, 90)
         self.result["review"]["content"].append(res)
+
+        self.result["review"]["intro"] = {"code": 1000}
+
+        self.calculateSkillFinal()
 
         print("[Review]")
         for line in self.result["review"]["content"]:
