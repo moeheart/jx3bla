@@ -323,7 +323,8 @@ class MainWindow():
         if self.lock.state():
             return
         if self.playerIDs == [] or True:
-            url = "http://%s" % IP
+            #url = "http://%s" % IP
+            url = "http://jx3logs.com/"
             webbrowser.open(url)
         else:
             # TODO 等logs更新功能后加入
