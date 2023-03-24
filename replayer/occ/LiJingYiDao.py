@@ -413,6 +413,7 @@ class LiJingYiDaoReplayer(HealerReplay):
                      [None, "护本", ["28555"], "16222", True, 0, False, True, 10, 1],
                      [None, "脱离机甲", ["28480"], "16225", True, 0, False, True, 0, 1],
                      [None, "商阳指", ["180"], "1514", True, 0, False, True, 0, 1],
+                     [None, "阳明指", ["14941"], "1527", True, 24, False, True, 0, 1],
 
                      [None, "水月无间", ["136"], "1522", False, 0, False, True, 60, 1],
                      [None, "听风吹雪", ["2663"], "2998", False, 0, False, True, 75, 1],

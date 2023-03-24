@@ -157,6 +157,9 @@ class HealerReplay(ReplayerBase):
         # code 11 保持gcd不要空转
         gcd = self.result["skill"]["general"]["efficiency"]
         gcdRank = self.result["rank"]["general"]["efficiency"]["percent"]
+        if self.occ in ["butianjue", "yunchangxinjing"]:
+            gcd = self.result["skill"]["general"]["efficiencyNonGcd"]
+            gcdRank = self.result["rank"]["general"]["efficiencyNonGcd"]["percent"]
         res = {"code": 11, "cover": gcd, "rank": gcdRank, "rate": roundCent(gcdRank / 100)}
         res["status"] = getRateStatus(res["rate"], 75, 50, 25)
         self.result["review"]["content"].append(res)

@@ -634,6 +634,8 @@ class HuaJianYouReplayer(DpsReplayer):
         self.lcWrongNum = 0  # 兰摧：错误次数
         self.lcWrong = []
         self.lcSum = 0  # 兰摧：技能总数
+        self.lastLcSkill = 0  # 上一次施放的除兰摧以外的技能
+        self.lastYushi = 0  # 上一次施放玉石的时间
         self.luansaLastTime = 0  # 用隐藏技能标记的可能的乱洒时机
         self.ysWrongNum = 0  # 玉石：错误次数
         self.ysWrong = []
@@ -795,7 +797,7 @@ class HuaJianYouReplayer(DpsReplayer):
                             if skillObj is not None:
                                 skillObj.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=self.ss.timeEnd, delta=-1)
 
-                    if event.id in ["180", "189", "190", "32481", "182", "6134", "6135", "6136", "32409", "13849", "13847", "13848", "601"]:  # 可能涉及目标dot的都计入统计
+                    if event.id in ["180", "189", "190", "32481", "182", "6134", "6135", "6136", "32409", "13849", "13847", "13848", "601", "14941"]:  # 可能涉及目标dot的都计入统计
                         if event.target not in self.dotSY:
                             self.dotSY[event.target] = DotCounter("180", self.startTime, self.finalTime, 7, 1, getLength(48, self.haste))
                         if event.target not in self.dotZL:
@@ -813,6 +815,7 @@ class HuaJianYouReplayer(DpsReplayer):
                     if event.id in ["32481"]:  # 快雪上Dot
                         self.dotKX[event.target].addDot(event.time, 1)
                     if event.id in ["182"]:  # 玉石
+                        self.lastYushi = event.time
                         numDot = 0
                         numDot += self.dotSY[event.target].checkState(event.time)
                         numDot += self.dotZL[event.target].checkState(event.time)
@@ -835,7 +838,7 @@ class HuaJianYouReplayer(DpsReplayer):
                         self.ysSum += 1
                         # 芙蓉判定
                         fr = 0
-                        if self.frMidNum <= 1:
+                        if self.frMidNum <= 2:
                             self.frSum += 1
                             self.frMidNum = -1
                             fr = 1  # 玉石之前是否打了芙蓉
@@ -888,7 +891,7 @@ class HuaJianYouReplayer(DpsReplayer):
                         if luansa or event.time - self.luansaLastTime < 30:
                             lsCheck = 1
 
-                        if not self.sf or (numDot == 0 and not lsCheck):
+                        if (not self.sf or (numDot == 0 and not lsCheck)) and event.time - self.startTime > 2500:
                             self.ymtgWrongNum += 1
                             self.ymtgWrong.append(parseTime((event.time - self.startTime) / 1000))
                         fx = self.fengxueDict.checkState(event.time - 500)
@@ -899,23 +902,44 @@ class HuaJianYouReplayer(DpsReplayer):
                         lc = 0
                         if event.target in self.dotLC:
                             lc = self.dotLC[event.target].checkState(event.time - 30) + self.dotLC[event.target].checkState(event.time)  # 前后都判定防止秒吞
-                        self.lcSum += 1
-                        if not lc:
-                            # 如果是快雪，任意目标有兰摧，也可以
-                            anylc = 0
-                            if event.id == "2636":
-                                for key in self.dotLC:
-                                    if self.dotLC[key].checkState(event.time - 30):
-                                        anylc = 1
-                            # 阳明带乱洒
-                            luansa = self.luansaDict.checkState(event.time - 30)
-                            if not anylc and not luansa and event.time - self.luansaLastTime > 30:
-                                self.lcWrongNum += 1
-                                self.lcWrong.append(parseTime((event.time - self.startTime) / 1000))
+                        if self.lastLcSkill == "2636" and event.id == "2636":  # 前一个技能和这个技能都是快雪，跳过判定
+                            pass
+                        else:
+                            self.lcSum += 1
+                            if not lc:
+                                # 如果是快雪，任意目标有兰摧，也可以
+                                anylc = 0
+                                if event.id == "2636":
+                                    for key in self.dotLC:
+                                        if self.dotLC[key].checkState(event.time - 30):
+                                            anylc = 1
+                                # 是否缺墨意？如果缺墨意并且在打完玉石或者起手之后，那么就可以打商阳和阳明
+                                lowmy = 0
+                                nowMoyi = self.moyiInfer[-1][1]
+                                if event.id in ["180", "14941"] and nowMoyi < 40 and (event.time - self.lastYushi < 5000 or event.time - self.startTime < 5000):
+                                    lowmy = 1
+                                # 是否在用快雪和商阳卡布散？如果布散合适的话，也可以没有兰摧就打
+                                busanTrick = 0
+                                gap = 0
+                                if event.id == "180":
+                                    gap = 1500
+                                elif event.id == "2636":
+                                    gap = 4300
+                                if gap != 0:
+                                    beforeStack = self.busanDict.checkState(event.time)
+                                    afterStack = self.busanDict.checkState(event.time + gap)
+                                    if beforeStack and not afterStack:
+                                        busanTrick = 1
+                                # 阳明带乱洒
+                                luansa = self.luansaDict.checkState(event.time - 30)
+                                if not anylc and not lowmy and not busanTrick and not luansa and event.time - self.luansaLastTime > 30:
+                                    self.lcWrongNum += 1
+                                    self.lcWrong.append(parseTime((event.time - self.startTime) / 1000))
+                        self.lastLcSkill = event.id
                     if event.id in ["180", "189", "2636", "14941", "190"]:  # 芙蓉之后是否打了技能的判定
                         if self.frMidNum != -1:
                             bs = self.busanDict.checkState(event.time - 100)
-                            if self.frMidNum == 0 and self.frBusan and not bs:
+                            if self.frMidNum <= 1 and self.frBusan and not bs:
                                 self.frMidNum += 1
                             else:  # 打错判定
                                 self.frSum += 1
@@ -933,7 +957,13 @@ class HuaJianYouReplayer(DpsReplayer):
                                     self.kxloWrongNum += 1
                                     self.kxloWrong.append(parseTime((self.kxLastTime - self.startTime) / 1000))
                             if self.kxCurrentNum > 5:
-                                if self.kxCurrentNum * 2.5 > self.kxCurrentNumAll:
+                                # 如果这个技能打的是芙蓉，就可以多打3跳快雪；如果还能吃到布散，多打几跳都行
+                                frSkip = 0
+                                if event.id == "186":
+                                    bsStack = self.busanDict.checkState(event.time)
+                                    if self.kxCurrentNum <= 8 or bsStack:
+                                        frSkip = 1
+                                if not frSkip and self.kxCurrentNum * 2.5 > self.kxCurrentNumAll:
                                     self.kxhiWrongNum += 1
                                     self.kxhiWrong.append(parseTime((self.kxLastTime - self.startTime) / 1000))
                             self.kxCurrentNumAll = 0

@@ -471,6 +471,9 @@ class ActorProReplayer(ReplayerBase):
                     #     if P3active:
                     #         immuneLog.append(s)
 
+                    if self.bld.info.getName(event.target) == "萧沙":
+                        print("[XiaoshaTest]", parseTime((event.time - self.startTime) / 1000), event.caster, event.target, event.damageEff, self.bld.info.getName(event.caster), event.full_id, self.bld.info.getSkillName(event.full_id))
+
                 if event.damageEff < event.damage:
                     s = "%s: %d/%d, %s, %s" % (parseTime((event.time - self.startTime) / 1000), event.damageEff, event.damage,
                                                self.bld.info.getName(event.target), self.bld.info.getSkillName(event.full_id))
