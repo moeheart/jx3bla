@@ -56,6 +56,7 @@ class CombatTrackerWindow(Window):
         max = 0
         maxID = ""
         highlightAppear = 0
+
         for i in range(30):
             if i < len(dataT):
                 name = dataT[i][1]["name"]
@@ -71,7 +72,8 @@ class CombatTrackerWindow(Window):
                 rate = value / max
                 self.bars[i][1]['value'] = rate
                 occ = dataT[i][1]["occ"]
-                if occ[-1] in ["d", "t", "n", "p", "m"]:
+
+                if occ[-1] in ["d", "t", "h", "p", "m"]:
                     occ = occ[:-1]
                 self.bars[i][1].configure(style="bar%s.Horizontal.TProgressbar" % occ)
                 self.bars[i][1].bind('<Button-1>', self.handler_adaptor(self.handler, id=dataT[i][0], stat=stat))

@@ -34,6 +34,8 @@ def getDamageCoeff(occ, attrib, targetBoosts, lvl=114, isPoZhao=0, isSangRou=1, 
         base = attrib.get("破招", 0)
     if isSangRou:
         base += attrib.get("治疗", 0)
+    if base == 0:
+        base = 1  # 为了防止属性空缺时将对应的数值整个丢弃的问题
     crit = 1 + min(attrib.get("会心", 0), 1) * (min(attrib.get("会心效果", 0), 3) - 1)
     over = 1 + attrib.get("破防", 0)
     strain = 1 + attrib.get("无双", 0)
