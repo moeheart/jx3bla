@@ -1263,7 +1263,7 @@ def getRankfunc():
         skip = 0
         if parseEdition(line[10]) < parseEdition("8.4.0") and getIDFromMap(line[5]) == "588" and line[6] == "李重茂":
             skip = 1
-        if skip:
+        if not skip:
             result_var.append(line_var)
     result_var.sort(key=lambda x:-x[-1])
 
