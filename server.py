@@ -1260,12 +1260,24 @@ def getRankfunc():
         if line_var[order_id] is None:
             continue
         line_var.append(line_var[order_id])
-        result_var.append(line_var)
+        skip = 0
+        if parseEdition(line[10]) < parseEdition("8.4.0") and getIDFromMap(line[5]) == "588" and line[6] == "李重茂":
+            skip = 1
+        if skip:
+            result_var.append(line_var)
     result_var.sort(key=lambda x:-x[-1])
 
+    result_nodup = []
+    id_dict = {}
+    for line in result_var:
+        uid = "%s-%s" % (line[0], line[1])
+        if uid not in id_dict:
+            id_dict[uid] = 1
+            result_nodup.append(line)
+
     for i in range((page-1)*numPerPage, page*numPerPage):
-        if i < len(result_var):
-            record = result_var[i]
+        if i < len(result_nodup):
+            record = result_nodup[i]
             if parseEdition(record[10]) < parseEdition("8.1.0") and occ in ["lingsu", "butianjue", "yunchangxinjing"]:
                 record[3] += 10000
             server = record[0]

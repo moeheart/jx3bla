@@ -59,7 +59,12 @@ def getSingleStat(record):
                     res[key] = value
 
     for id in STAT_ID:
-        if parseEdition(edition) >= parseEdition("8.3.5") or id != "score":
+        skip = 0
+        if parseEdition(edition) < parseEdition("8.3.5") and id == "score":
+            skip = 1
+        if parseEdition(edition) < parseEdition("8.4.0") and id in ["rdps", "mrdps"] and key2 == "588" and key3 == "李重茂":
+            skip = 1
+        if not skip:
             key4 = "stat"
             key5 = id
             value = record[STAT_ID[id]]
