@@ -1298,6 +1298,10 @@ def getRankfunc():
 
     resJson["num"] = len(result)
     db.close()
+
+
+
+
     return jsonify({'available': 1, 'text': "请求成功", 'result': resJson})
     
 @app.route('/uploadXiangZhiData', methods=['POST'])
@@ -1408,5 +1412,5 @@ if __name__ == '__main__':
     
     initializePercent()
     
-    app.run(host='0.0.0.0',port=8009,debug=app.debug,ssl_context=('./server.crt','./server.key'),threaded=True)
+    app.run(host='0.0.0.0',port=8009,debug=app.debug,threaded=True)
 
