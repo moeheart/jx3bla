@@ -1296,10 +1296,8 @@ def getRankfunc():
             res["battleID"] = record[16]
             resJson["table"].append(res)
 
-    resJson["num"] = len(result)
+    resJson["num"] = len(result_nodup)
     db.close()
-
-
 
 
     return jsonify({'available': 1, 'text': "请求成功", 'result': resJson})
