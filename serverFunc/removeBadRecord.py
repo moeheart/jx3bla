@@ -18,10 +18,13 @@ db = pymysql.connect(host="127.0.0.1", user=dbname, password=dbpwd, database="jx
 cursor = db.cursor()
 
 for line in l:
-    sql = '''DELETE FROM ReplayProStat WHERE shortID=%s;''' % line
-    cursor.execute(sql)
-    sql = '''DELETE FROM ReplayProStat WHERE battleID="%s";''' % line
-    cursor.execute(sql)
+    try:
+        x = int(line)
+        sql = '''DELETE FROM ReplayProStat WHERE shortID=%d;''' % x
+        cursor.execute(sql)
+    except:
+        sql = '''DELETE FROM ReplayProStat WHERE battleID="%s";''' % line
+        cursor.execute(sql)
 
 db.commit()
 db.close()
