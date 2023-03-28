@@ -396,50 +396,30 @@ class LiChongmaoReplayer(SpecificReplayerPro):
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
             elif event.content in ['"御林军何在！"']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
-            elif event.content in ['"太平公主、临淄王……你们休想夺走朕的皇位！"']:
+            elif event.content in ['"太平公主、临淄王……你们休想夺走朕的皇位！"', '"太平公主、臨淄王……你們休想奪走朕的皇位！"']:
                 self.changePhase(event.time, 2)
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
                 self.henTime += 1
-            elif event.content in ['"我忍辱负重至今，只为重夺皇位，我才是真命天子！"']:
+            elif event.content in ['"我忍辱负重至今，只为重夺皇位，我才是真命天子！"', '"我忍辱負重至今，只為重奪皇位，我才是真命天子！"']:
                 self.changePhase(event.time, 3)
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
-            elif event.content in ['"救驾！人呢？救驾！"']:
+            elif event.content in ['"救驾！人呢？救驾！"', '"救駕！人呢？救駕！"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
-            elif event.content in ['"护驾二字岂是你这贼子能喊的？"']:
+            elif event.content in ['"护驾二字岂是你这贼子能喊的？"', '"護駕二字豈是你這賊子能喊的？"']:
                 pass
-            elif event.content in ['"把这些逆贼打入天牢！"']:
+            elif event.content in ['"把这些逆贼打入天牢！"', '"把這些逆賊打入天牢！"']:
                 pass
-            elif event.content in ['"朕没有错！是天下人负了朕！"']:
+            elif event.content in ['"朕没有错！是天下人负了朕！"', '"朕沒有錯！是天下人負了朕！"']:
                 if self.phase == 3:
                     # 结算怒阶段犯错
                     self.phase3Finalize(event.time)
                 self.changePhase(event.time, 5)
                 self.jzly = 0
                 self.yshp = 0
-            elif event.content in ['"师兄.....师兄你在哪？有人要害我！"']:
+            elif event.content in ['"师兄.....师兄你在哪？有人要害我！"', '"師兄.....師兄你在哪？有人要害我！"']:
                 self.changePhase(event.time, 4)
-            elif event.content in ['"啧……"']:
-                pass
-            elif event.content in ['"啊……"']:
-                pass
-            elif event.content in ['"啊！"']:
-                pass
-            elif event.content in ['"凤棠……是你……"']:
-                pass
-            elif event.content in ['"哥……你醒了。"']:
-                pass
-            elif event.content in ['"我清醒的时间有限……好多事……李重茂……我要告诉你们……"']:
-                pass
-            elif event.content in ['"哥，不要怕。我们先回万花谷去治你的伤，我们还有很多的时间。"']:
-                pass
-            elif event.content in ['"不，还不能走……现在必须立即前去阻止那个姓韩的怪人和那个东瀛人！不能让他们的蛊毒污染水源！"']:
-                pass
-            elif event.content in ['"那个怪人熔炼出的蛊毒虽然与江河相比如沧海一粟，但若以阴阳术催化毒性，就能在水源中快速扩散，污染大片的土地。"']:
-                pass
-            elif event.content in ['""']:
-                pass
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 

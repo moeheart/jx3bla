@@ -162,45 +162,19 @@ class HanJingqingReplayer(SpecificReplayerPro):
                         self.statDict[event.target]["battle"]["fyTime"] += 1
 
         elif event.dataType == "Shout":
-            if event.content in ['"好，好！就用你们来试试我的蛊毒..."']:
+            if event.content in ['"好，好！就用你们来试试我的蛊毒..."', '"好，好！就用你們來試試我的蠱毒..."']:
                 pass
-            elif event.content in ['"奔涌吧！"']:
+            elif event.content in ['"奔涌吧！"', '"奔湧吧！"']:
                 pass
-            elif event.content in ['"号哭吧！"']:
+            elif event.content in ['"号哭吧！"', '"號哭吧！"']:
                 pass
-            elif event.content in ['"嘿嘿嘿...蛊毒早已渗入泉眼，你们都要葬身于此！桑乔，我给你报仇了…….."']:
+            elif event.content in ['"嘿嘿嘿...蛊毒早已渗入泉眼，你们都要葬身于此！桑乔，我给你报仇了…….."', '"嘿嘿嘿...蠱毒早已滲入泉眼,你們都要葬身於此！桑喬,我給你報仇了…….."']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             elif event.content in ['"感受我的痛苦！"']:
                 pass
-            elif event.content in ['"为你们的罪行付出代价！"']:
+            elif event.content in ['"为你们的罪行付出代价！"', '"為你們的罪行付出代價！"']:
                 self.bh.setBadPeriod(event.time, event.time + 18000, True, True)
-            elif event.content in ['"谢谢各位。"']:
-                pass
-            elif event.content in ['"如此……依计行事。"']:
-                pass
-            elif event.content in ['"是。"']:
-                pass
-            elif event.content in ['"什么人？"']:
-                pass
-            elif event.content in ['"啧……"']:
-                pass
-            elif event.content in ['"啊……"']:
-                pass
-            elif event.content in ['"啊！"']:
-                pass
-            elif event.content in ['"凤棠……是你……"']:
-                pass
-            elif event.content in ['"哥……你醒了。"']:
-                pass
-            elif event.content in ['"我清醒的时间有限……好多事……李重茂……我要告诉你们……"']:
-                pass
-            elif event.content in ['"哥，不要怕。我们先回万花谷去治你的伤，我们还有很多的时间。"']:
-                pass
-            elif event.content in ['"不，还不能走……现在必须立即前去阻止那个姓韩的怪人和那个东瀛人！不能让他们的蛊毒污染水源！"']:
-                pass
-            elif event.content in ['"那个怪人熔炼出的蛊毒虽然与江河相比如沧海一粟，但若以阴阳术催化毒性，就能在水源中快速扩散，污染大片的土地。"']:
-                pass
             elif event.content in ['""']:
                 pass
             else:

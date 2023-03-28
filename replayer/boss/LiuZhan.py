@@ -187,22 +187,22 @@ class LiuZhanReplayer(SpecificReplayerPro):
                 pass
 
         elif event.dataType == "Shout":
-            if event.content in ['"尔等必葬身于此！"']:
+            if event.content in ['"尔等必葬身于此！"', '"爾等必葬身於此！"']:
                 pass
             elif event.content in ['"山崩！"']:
                 pass
             elif event.content in ['"石碎！"']:
                 pass
-            elif event.content in ['"枪斧卫出阵！速将这群狂徒拿下！"']:
+            elif event.content in ['"枪斧卫出阵！速将这群狂徒拿下！"', '"槍斧衛出陣！速將這群狂徒拿下！"']:
                 self.changePhase(event.time - 2000, 0)
                 self.setTimer("phase", event.time + 7000, 2)
                 self.bh.setBadPeriod(event.time - 2000, event.time + 7000, True, True)
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
-            elif event.content in ['"是！"']:
+            elif event.content in ['"是！"', '"是!"']:
                 pass
-            elif event.content in ['"枪卫！列阵冲刺！"']:
+            elif event.content in ['"枪卫！列阵冲刺！"', '"槍衛！列陣衝刺！"']:
                 pass
-            elif event.content in ['"感受这大地的震颤"']:
+            elif event.content in ['"感受这大地的震颤"', '"感受這大地的震顫"']:
                 pass
             elif event.content in ['"呃……"']:
                 self.changePhase(event.time, 0)
@@ -215,13 +215,11 @@ class LiuZhanReplayer(SpecificReplayerPro):
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
-            elif event.content in ['"剁碎你们！"']:
+            elif event.content in ['"剁碎你们！"', '"剁碎你們！"']:
                 pass
-            elif event.content in ['"将军……"']:
+            elif event.content in ['"将军……"', '"將軍……"']:
                 pass
-            elif event.content in ['"将军……"']:
-                pass
-            elif event.content in ['"大势已去了嘛……哼，来吧！"']:
+            elif event.content in ['"大势已去了嘛……哼，来吧！"', '"大勢已去了嘛……哼，來吧！"']:
                 pass
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")

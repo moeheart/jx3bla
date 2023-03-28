@@ -177,52 +177,38 @@ class TengyuanYouyeReplayer(SpecificReplayerPro):
                     self.bh.setCall("23592", "无名之火", "4549", event.time, 0, event.target, "被四方结界点名")
 
         elif event.dataType == "Shout":
-            if event.content in ['"术式——无名之火！"']:
+            if event.content in ['"术式——无名之火！"', '"術式——無名之火！"']:
                 pass
-            elif event.content in ['"术式——木牙飞舞！"']:
+            elif event.content in ['"术式——木牙飞舞！"', '"術式——木牙飛舞！"']:
                 pass
             elif event.content in ['"……"']:
                 pass
-            elif event.content in ['"看来，又要徒增业障了。"']:
+            elif event.content in ['"看来，又要徒增业障了。"', '"看來，又要徒增業障了。"']:
                 pass
-            elif event.content in ['"术式——金刚不破！"']:
+            elif event.content in ['"术式——金刚不破！"', '"術式——金剛不破！"']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
-            elif event.content in ['"廿尺方围，彼足定礎，术式——结！"']:
+            elif event.content in ['"廿尺方围，彼足定礎，术式——结！"', '"廿尺方圍，彼足定礎，術式——結！"']:
                 pass
-            elif event.content in ['"拟我之形，化我之态。玄灵听令，式神召来！"']:
+            elif event.content in ['"拟我之形，化我之态。玄灵听令，式神召来！"', '"擬我之形,化我之態。玄靈聽令,式神召來!"']:
                 # self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
                 self.setTimer("phase", event.time + 5000, 2)
             elif event.content in ['"好眼力……"']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
                 self.changePhase(event.time, 1)
-            elif event.content in ['"看来李重茂气运已尽，留在这里对藤原家已经没有意义了。"']:
+            elif event.content in ['"看来李重茂气运已尽，留在这里对藤原家已经没有意义了。"', '"看來李重茂氣運已盡，留在這裏對藤原家已經沒有意義了。"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            elif event.content in ['"如此……泉眼现身！"']:
+            elif event.content in ['"如此……泉眼现身！"', '"如此……泉眼現身!"']:
                 self.bh.setBadPeriod(event.time, event.time + 4000, True, False)
                 self.changePhase(event.time, 0)
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
                 self.quanyanDmg = 0
-            elif event.content in ['"术式——水封！"']:
+            elif event.content in ['"术式——水封！"', '"術式——水封！"']:
                 self.changePhase(event.time, 3)
                 pass
             elif event.content in ['"啊……！泉眼收回！"']:
                 self.changePhase(event.time, 1)
                 # print("[QuanyanDmg]", self.quanyanDmg)
-                pass
-            elif event.content in ['"啊！"']:
-                pass
-            elif event.content in ['"凤棠……是你……"']:
-                pass
-            elif event.content in ['"哥……你醒了。"']:
-                pass
-            elif event.content in ['"我清醒的时间有限……好多事……李重茂……我要告诉你们……"']:
-                pass
-            elif event.content in ['"哥，不要怕。我们先回万花谷去治你的伤，我们还有很多的时间。"']:
-                pass
-            elif event.content in ['"不，还不能走……现在必须立即前去阻止那个姓韩的怪人和那个东瀛人！不能让他们的蛊毒污染水源！"']:
-                pass
-            elif event.content in ['"那个怪人熔炼出的蛊毒虽然与江河相比如沧海一粟，但若以阴阳术催化毒性，就能在水源中快速扩散，污染大片的土地。"']:
                 pass
             elif event.content in ['""']:
                 pass

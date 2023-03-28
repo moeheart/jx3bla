@@ -197,11 +197,11 @@ class SuFenglouReplayer(SpecificReplayerPro):
                     self.setTimer("phase", event.time + 5000, 1)
                     self.bh.setBadPeriod(event.time, event.time + 5000, True, True)
         elif event.dataType == "Shout":
-            if event.content in ['"尝尝这招！"']:
+            if event.content in ['"尝尝这招！"', '"嘗嘗這招！"']:
                 pass
-            elif event.content in ['"……（诡异的笛音传来。）"']:
+            elif event.content in ['"……（诡异的笛音传来。）"', '"……（詭異的笛音傳來。）"']:
                 pass
-            elif event.content in ['"头好痛……发生了什么？"']:
+            elif event.content in ['"头好痛……发生了什么？"', '"頭好痛……發生了什麼？"']:
                 wasteTime = 5000
                 if self.nowInner == 1:
                     wasteTime = 7000
@@ -214,27 +214,27 @@ class SuFenglouReplayer(SpecificReplayerPro):
                 self.changePhase(event.time, 0)
                 self.setTimer("phase", event.time + wasteTime, self.nowInner + 1)
                 self.nowInner = -1
-            elif event.content in ['"果然还有余孽。"']:
+            elif event.content in ['"果然还有余孽。"', '"果然還有餘孽。"']:
                 pass
-            elif event.content in ['"暂时撤退……反正任务已经达成。"']:
+            elif event.content in ['"暂时撤退……反正任务已经达成。"', '"暫時撤退……反正任務已經達成。"']:
                 pass
-            elif event.content in ['"怎么回事……刚才是我的记忆……还是幻觉？"']:
+            elif event.content in ['"怎么回事……刚才是我的记忆……还是幻觉？"', '"怎麼回事……剛才是我的記憶……還是幻覺？"']:
                 pass
             elif event.content in ['"谢谢各位。"']:
                 pass
-            elif event.content in ['"如此……依计行事。"']:
+            elif event.content in ['"如此……依计行事。"', '"如此……依計行事。"']:
                 pass
             elif event.content in ['"是。"']:
                 pass
-            elif event.content in ['"什么人？"']:
+            elif event.content in ['"什么人？"', '"什麼人?"']:
                 pass
-            elif event.content in ['"啧……"']:
+            elif event.content in ['"啧……"', '"嘖……"']:
                 pass
             elif event.content in ['"啊……"']:
                 pass
-            elif event.content in ['"啊！"']:
+            elif event.content in ['"啊！"', '"啊!"']:
                 pass
-            elif event.content in ['"凤棠……是你……"']:
+            elif event.content in ['"凤棠……是你……"', '"鳳棠……是你……"']:
                 if self.bld.info.map != "25人英雄西津渡":
                     self.win = 1
                     self.bh.setBadPeriod(event.time, self.finalTime, True, True)
@@ -243,35 +243,35 @@ class SuFenglouReplayer(SpecificReplayerPro):
                     self.changePhase(event.time, 0)
             elif event.content in ['"哥……你醒了。"']:
                 pass
-            elif event.content in ['"我清醒的时间有限……好多事……李重茂……我要告诉你们……"']:
+            elif event.content in ['"我清醒的时间有限……好多事……李重茂……我要告诉你们……"', '"我清醒的時間有限……好多事……李重茂……我要告訴你們……"']:
                 pass
-            elif event.content in ['"哥，不要怕。我们先回万花谷去治你的伤，我们还有很多的时间。"']:
+            elif event.content in ['"哥，不要怕。我们先回万花谷去治你的伤，我们还有很多的时间。"', '"哥，不要怕。我們先回萬花穀去治你的傷，我們還有很多的時間。"']:
                 pass
             elif event.content in ['"不，还不能走……现在必须立即前去阻止那个姓韩的怪人和那个东瀛人！不能让他们的蛊毒污染水源！"']:
                 pass
             elif event.content in ['"那个怪人熔炼出的蛊毒虽然与江河相比如沧海一粟，但若以阴阳术催化毒性，就能在水源中快速扩散，污染大片的土地。"']:
                 pass
-            elif event.content in ['"不，还不能走……现在必须立即前去阻止……"']:
+            elif event.content in ['"不，还不能走……现在必须立即前去阻止……"', '"不，還不能走……現在必須立即前去阻止……"']:
                 pass
-            elif event.content in ['"阻止……什么？"']:
+            elif event.content in ['"阻止……什么？"', '"阻止……什麼？"']:
                 pass
             elif event.content in ['"……"']:
                 pass
             elif event.content in ['"哥？"']:
                 pass
-            elif event.content in ['"休想抢走他！他是我的！"']:
+            elif event.content in ['"休想抢走他！他是我的！"', '"休想搶走他！他是我的！"']:
                 self.bh.setBadPeriod(self.phaseStart, event.time, True, True)
                 self.changePhase(event.time, 5)
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
-            elif event.content in ['"死吧！"']:
+            elif event.content in ['"死吧！"', '"死吧!"']:
                 pass
-            elif event.content in ['"化为灰烬！"']:
+            elif event.content in ['"化为灰烬！"', '"化為灰燼！"']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
-            elif event.content in ['"不！！！我们的复仇还没结束……我还……不想死……"']:
+            elif event.content in ['"不！！！我们的复仇还没结束……我还……不想死……"', '"不！！！我們的復仇還沒結束……我還……不想死……"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
-            elif event.content in ['"哥哥！你还好吗！这是怎么回事？"']:
+            elif event.content in ['"哥哥！你还好吗！这是怎么回事？"', '"哥哥！你還好嗎！這是怎麼回事？"']:
                 pass
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")

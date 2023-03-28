@@ -184,25 +184,25 @@ class ZhangJingchaoReplayer(SpecificReplayerPro):
                     self.stunCounter[event.target].setState(event.time, 0)
 
         elif event.dataType == "Shout":
-            if event.content in ['"到此为止了！"']:
+            if event.content in ['"到此为止了！"', '"到此為止了！"']:
                 pass
             elif event.content in ['"四分五裂！"']:
                 pass
             elif event.content in ['"迅如疾雷！"']:
                 pass
-            elif event.content in ['"呵！"']:
+            elif event.content in ['"呵！"', '"呵!"']:
                 pass
-            elif event.content in ['"死吧！"']:
+            elif event.content in ['"死吧！"', '"死吧!"']:
                 pass
-            elif event.content in ['"疾风枭首！"']:
+            elif event.content in ['"疾风枭首！"', '"疾風梟首！"']:
                 pass
             elif event.content in ['"无处可逃！"']:
                 pass
-            elif event.content in ['"哼，我才不会死在你们手里！"']:
+            elif event.content in ['"哼，我才不会死在你们手里！"', '"哼，我才不會死在你們手裏！"']:
                 pass
             elif event.content in ['"有敌袭！"']:
                 pass
-            elif event.content in ['"狂风！席卷一切！"']:
+            elif event.content in ['"狂风！席卷一切！"', '"狂風！席捲一切！"']:
                 self.changePhase(event.time, 0)
                 if self.firstPhase2:
                     self.setTimer("phase", event.time + 13000, 2)
@@ -212,15 +212,15 @@ class ZhangJingchaoReplayer(SpecificReplayerPro):
                 self.bh.setBadPeriod(event.time, event.time + 13000, True, True)
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
                 # 外场球打完了之后本来就没东西打，所以不管了，看mrdps吧
-            elif event.content in ['"都滚开！"']:
+            elif event.content in ['"都滚开！"', '"都滾開！"']:
                 self.changePhase(event.time, 1)
                 # self.setTimer("phase", event.time + 2000, 2)
                 self.bh.setBadPeriod(event.time, event.time + 2000, True, True)
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", "#333333")
-            elif event.content in ['"又一次……走错路了吗……"']:
+            elif event.content in ['"又一次……走错路了吗……"', '"又一次……走錯路了嗎……"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            elif event.content in ['"都死在这吧！"']:
+            elif event.content in ['"都死在这吧！"', '"都死在這吧！"']:
                 pass
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
