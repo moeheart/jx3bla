@@ -9,6 +9,7 @@ import re
 import pymysql
 import random
 import time
+import gc
 import urllib.request
 import hashlib
 import configparser
@@ -146,6 +147,7 @@ def getPercentInfo():
     获取百分位排名信息.
     '''
     res = app.percent_data
+    gc.collect()
     return jsonify({'result': 'success', 'data': res})
     
 @app.route('/refreshRateData', methods=['GET', 'POST'])
@@ -757,6 +759,8 @@ def receiveBattle(jdata, cursor):
         server, boss, battleDate, mapDetail, edition, hash, win, editionFull, userID, battleTime, submitTime)
     cursor.execute(sql)
 
+    del statistics
+
     response['result'] = 'success'
     response['hash'] = hash
     return response
@@ -888,8 +892,10 @@ def receiveReplay(jdata, cursor):
     mndpsRank = getRankFromKeys(score, occ, map, boss, "stat", "mndps")
     hold = 1
 
-    print(server, id, occ, score, battleDate, mapDetail, boss, hash, shortID, public, edition, editionFull, replayedition, userID, battleTime,
-        submitTime, battleID, scoreRank, rhps, rhpsRank, hps, hpsRank, rdps, rdpsRank, ndps, ndpsRank, mrdps, mrdpsRank, mndps, mndpsRank, hold)
+    del statistics
+
+    # print(server, id, occ, score, battleDate, mapDetail, boss, hash, shortID, public, edition, editionFull, replayedition, userID, battleTime,
+    #     submitTime, battleID, scoreRank, rhps, rhpsRank, hps, hpsRank, rdps, rdpsRank, ndps, ndpsRank, mrdps, mrdpsRank, mndps, mndpsRank, hold)
 
     sql = """INSERT INTO ReplayProStat VALUES ("%s", "%s", "%s", %.2f, "%s", "%s", "%s", "%s", %d, %d, "%s", %d, "%s", "%s", %d, %d, "%s",
 %d, %.2f, %d, %.2f, %d, %.2f, %d, %.2f, %d, %.2f, %d, %.2f, %d, %d)""" % (

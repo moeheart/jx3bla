@@ -16,6 +16,8 @@ from replayer.boss.HanJingqing import HanJingqingWindow
 from replayer.boss.TengyuanYouye import TengyuanYouyeWindow
 from replayer.boss.LiChongmao import LiChongmaoWindow
 
+from replayer.boss.BaiZhan import BaiZhanWindow
+
 from window.PotExtendWindow import PotExtendWindow
 from window.Window import Window
 from window.ToolTip import ToolTip
@@ -195,6 +197,9 @@ class SingleBossWindow(Window):
                                                          analysedBattleData)
             elif detail["boss"] == "李重茂":
                 self.specificBossWindow = LiChongmaoWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,
+                                                         analysedBattleData)
+            elif "baizhan" in detail:
+                self.specificBossWindow = BaiZhanWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,
                                                          analysedBattleData)
             else:
                 self.specificBossWindow = GeneralWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,

@@ -29,6 +29,7 @@ from replayer.boss.SuFenglou import SuFenglouReplayer
 from replayer.boss.HanJingqing import HanJingqingReplayer
 from replayer.boss.TengyuanYouye import TengyuanYouyeReplayer
 from replayer.boss.LiChongmao import LiChongmaoReplayer
+from replayer.boss.BaiZhan import BaiZhanReplayer
 
 from replayer.occ.XiangZhi import XiangZhiProReplayer
 from replayer.occ.LingSu import LingSuReplayer
@@ -344,9 +345,16 @@ class ActorProReplayer(ReplayerBase):
         elif self.bossAnalyseName == "李重茂":
             bossAnalyser = LiChongmaoReplayer(self.bld, occDetailList, self.startTime,
                                            self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.mapDetail == "百战异闻录":
+            bossAnalyser = BaiZhanReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
         else:
             bossAnalyser = GeneralReplayer(self.bld, occDetailList, self.startTime,
                                            self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+
+        print("[MapDetail]", self.mapDetail)
+
+
             
         self.bossAnalyser = bossAnalyser
         
