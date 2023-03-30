@@ -622,7 +622,7 @@ class HealerReplay(ReplayerBase):
             self.result["equip"]["sketch"] = jsonEquip["sketch"]
             self.result["equip"]["forge"] = jsonEquip["forge"]
             self.result["equip"]["spirit"] = res["根骨"]
-            self.result["equip"]["heal"] = res["治疗"]
+            self.result["equip"]["heal"] = res.get("治疗")
             self.result["equip"]["healBase"] = res["基础治疗"]
             self.result["equip"]["critPercent"] = parseCent(res.get("会心", 0)) + "%"
             self.result["equip"]["crit"] = res["会心等级"]

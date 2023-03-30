@@ -1269,6 +1269,11 @@ def getRankfunc():
         skip = 0
         if parseEdition(line[10]) < parseEdition("8.4.0") and getIDFromMap(line[5]) == "588" and line[6] == "李重茂":
             skip = 1
+        if parseEdition(line[10]) < parseEdition("8.5.0") and getIDFromMap(line[5]) == "588" and line[6] == "李重茂" and line[0] in ["傲血戰意", "共結來緣"]:
+            skip = 1
+        if parseEdition(line[10]) < parseEdition("8.5.0") and orderby in ["rdps", "mrdps", "ndps", "mndps"] and line_var[STAT_ID[orderby]] == 0 and \
+                occ in ["taixuanjing", "wenshuijue", "xiaochenjue", "beiaojue", "linghaijue", "yinlongjue", "gufengjue"]:
+            skip = 1
         if not skip:
             result_var.append(line_var)
     result_var.sort(key=lambda x:-x[-1])

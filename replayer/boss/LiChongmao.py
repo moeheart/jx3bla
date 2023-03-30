@@ -361,9 +361,16 @@ class LiChongmaoReplayer(SpecificReplayerPro):
                     self.bh.setCall("24593", "雪风", "3414", event.time, 2500, event.target, "雪风点名")
 
             if event.id == "24932":  # 铁索牢狱
-                self.stunCounter[event.target].setState(event.time, event.stack)
                 if event.stack == 1:
-                    self.bh.setCall("24932", "铁索牢狱", "3408", event.time, 0, event.target, "铁索牢狱点名")
+                    self.stunCounter[event.target].setState(event.time, 1)
+                    self.stunCounter[event.target].setState(event.time + 30000, 0)
+                    self.laoyuStart[event.target] = event.time
+                else:
+                    self.bh.setCall("24932", "铁索牢狱", "3408", self.laoyuStart[event.target], event.time - self.laoyuStart[event.target], event.target, "铁索牢狱点名")
+                    if self.stunCounter[event.target].log[-1][0] > event.time:
+                        del self.stunCounter[event.target].log[-1]
+                    self.stunCounter[event.target].setState(event.time, 0)
+
 
             if event.id == "24085":  # 印痕
                 if event.stack == 1:
@@ -561,6 +568,7 @@ class LiChongmaoReplayer(SpecificReplayerPro):
         self.xuefengTime = {}  # 雪风次数
         self.tianzhuTime = {}  # 天诛次数
         self.p3alive = {}  # P3存活记录
+        self.laoyuStart = {}  # 铁索牢狱的开始时间
 
         for line in self.bld.info.player:
             self.statDict[line]["battle"] = {"btDPS": 0,
@@ -576,6 +584,7 @@ class LiChongmaoReplayer(SpecificReplayerPro):
             self.xuefengTime[line] = 0
             self.tianzhuTime[line] = 0
             self.p3alive[line] = 0
+            self.laoyuStart[line] = 0
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''

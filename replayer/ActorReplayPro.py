@@ -918,6 +918,7 @@ class ActorProReplayer(ReplayerBase):
         for id in self.bld.info.player:
             name = self.bld.info.player[id].name
             replayer = None
+            rdps = self.combatTracker.getRdps(id)
             if self.config.item["xiangzhi"]["active"] and self.occDetailList[id] == "22h":  # 奶歌
                 replayer = XiangZhiProReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
             if self.config.item["lingsu"]["active"] and self.occDetailList[id] == "212h":  # 灵素
@@ -931,19 +932,21 @@ class ActorProReplayer(ReplayerBase):
             if self.occDetailList[id] == "2d":  # 花间
                 replayer = HuaJianYouReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
             if self.occDetailList[id] in ["1d", "1t", "3d", "3t", "4p", "4m", "5d", "6d", "7p", "7m", "8", "9", "10d", "10t",
-                                          "21d", "21t", "22d", "23", "24", "25", "211", "212d", "213"]:
+                                          "21d", "21t", "22d", "23", "24", "25", "211", "212d", "213"] and rdps != 0:
                 replayer = DpsReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData, self.occDetailList[id])
             if replayer is not None:
                 replayer.replay()
                 self.occResult[name] = {"occ": self.occDetailList[id], "result": replayer.result, "rank": replayer.rank}
                 # 尝试从心法复盘中回流排名
-                rdps = replayer.result["skill"]["general"]["rdps"]
+                rdps = replayer.result["skill"]["general"].get("rdps", 0)
+                ndps = replayer.result["skill"]["general"].get("ndps", 0)
                 score = replayer.result["skill"]["general"]["score"]
                 rdpsRank = replayer.result["rank"]["general"]["rdps"]
                 scoreRank = replayer.result["rank"]["general"].get("score", {"num": 0, "percent": -1})
                 for i in range(len(self.statDict)):
                     if self.statDict[i]["name"] == self.bld.info.getName(id):
                         self.statDict[i]["rdps"] = rdps
+                        self.statDict[i]["ndps"] = ndps
                         self.statDict[i]["score"] = score
                         self.statDict[i]["rdpsRank"] = rdpsRank["percent"]
                         self.statDict[i]["scoreRank"] = scoreRank["percent"]

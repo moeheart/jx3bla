@@ -201,6 +201,9 @@ class DpsDisplayWindow(Window):
         #     tb.AppendHeader(self.result["dps"]["stat"].get(stat, 0), descText, color=color)
         # tb.EndOfLine()
 
+        if "fraction" not in self.result:
+            return
+
         # 560 350
         num = max(len(self.result["fraction"]["table"]), 7) + 1
 
@@ -284,6 +287,10 @@ class DpsDisplayWindow(Window):
         '''
         # 290 200
         window = self.window
+
+        if "boost" not in self.result:
+            return
+
         num = max(len(self.result["boost"]), 10) + 1
 
         frame7 = tk.Frame(window, width=290, height=200, highlightthickness=1, highlightbackground=self.themeColor)

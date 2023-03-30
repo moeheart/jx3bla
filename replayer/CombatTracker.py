@@ -1431,14 +1431,14 @@ class CombatTracker():
         '''
         记录喊话事件.
         '''
-        if event.content in ['"朕没有错！是天下人负了朕！"']:
+        if event.content in ['"朕没有错！是天下人负了朕！"', '"朕沒有錯！是天下人負了朕！"']:
             if self.bossYishang < 30:
                 self.bossYishang += 20  # TODO 在buff表更新之后，需要修改这里的数值(原本是5%易伤，更新后变为50%)
             else:
                 self.bossYishang += 20
             bossID = []
             for id in self.info.npc:
-                if self.info.getName(id) in ["李重茂", "镜影·李重茂"]:
+                if self.info.getName(id) in ["李重茂", "镜影·李重茂", "鏡影·李重茂"]:
                     bossID.append(id)
             for bossid in bossID:
                 for player in self.info.player:
