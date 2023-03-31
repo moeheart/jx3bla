@@ -392,8 +392,8 @@ class BaiZhanReplayer(SpecificReplayerPro):
                         self.poZhanAppear[event.caster] = event.time
                         self.poZhanSaveTarget[event.caster] = event.target
 
-                print("[PoZhan!!]", event.time, parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.caster), event.id, event.level,
-                      self.bld.info.getSkillName(event.full_id), event.damage, self.bld.info.getName(event.target))
+                # print("[PoZhan!!]", event.time, parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.caster), event.id, event.level,
+                #       self.bld.info.getSkillName(event.full_id), event.damage, self.bld.info.getName(event.target))
 
             # if event.caster in self.statDict:
             #     print("[BaizhanLog]", parseTime((event.time - self.startTime) / 1000), event.id, event.level, self.bld.info.getSkillName(event.full_id), event.damage, self.bld.info.getName(event.target))
