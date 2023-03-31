@@ -12,6 +12,7 @@ from tools.StaticJson import *
 from functools import partial
 from replayer.TableConstructor import ToolTip
 from window.Window import Window
+import webbrowser
 
 class CombatTrackerWindow(Window):
     '''
@@ -25,6 +26,16 @@ class CombatTrackerWindow(Window):
         """事件处理函数"""
         self.setPlayer(id, stat)
 
+    def show_right_help(self):
+        if self.stat in ["rhps", "hps", "ahps", "ohps"]:
+            url = "https://www.jx3box.com/bps/43357"
+            webbrowser.open(url)
+        elif self.stat in ["rdps", "ndps", "mrdps", "mndps"]:
+            url = "https://www.jx3box.com/bps/48857"
+            webbrowser.open(url)
+        else:
+            messagebox.showinfo(title='注意', message="暂时没有详细说明！")
+
     def setStat(self, stat):
         '''
         使左半部分显示指定的统计类型.
@@ -33,20 +44,28 @@ class CombatTrackerWindow(Window):
         assert stat in ["rhps", "hps", "ahps", "ohps", "rdps", "ndps", "mrdps", "mndps"]
         if stat == "rhps":
             data = self.act.rhps
+            self.rightTitle.configure(text="rHPS")
         elif stat == "hps":
             data = self.act.hps
+            self.rightTitle.configure(text="HPS")
         elif stat == "ahps":
             data = self.act.ahps
+            self.rightTitle.configure(text="aHPS")
         elif stat == "ohps":
             data = self.act.ohps
+            self.rightTitle.configure(text="oHPS")
         elif stat == "rdps":
             data = self.act.rdps
+            self.rightTitle.configure(text="rDPS")
         elif stat == "ndps":
             data = self.act.ndps
+            self.rightTitle.configure(text="nDPS")
         elif stat == "mrdps":
             data = self.act.mrdps
+            self.rightTitle.configure(text="mrDPS")
         elif stat == "mndps":
             data = self.act.mndps
+            self.rightTitle.configure(text="mnDPS")
         self.data = data
         dataT = []
         for key in data["player"]:
@@ -279,6 +298,13 @@ class CombatTrackerWindow(Window):
         frameDown = tk.Frame(window, width=560, height=350)
         frameDown.place(x=560, y=0)
 
+        l = tk.Label(frameDown, text="Title", font=('Arial', 18))
+        l.place(x=50, y=0)
+        self.rightTitle = l
+
+        b = tk.Button(frameDown, text='详细介绍', height=1, command=self.show_right_help)
+        b.place(x=200, y=10)
+
         canvas = tk.Canvas(frameDown, width=560, height=350, scrollregion=(0, 0, 540, 24*50)) #创建canvas
         canvas.place(x=0, y=50)  # 放置canvas的位置
         frameTable = tk.Frame(canvas)  # 把frame放在canvas里
@@ -361,3 +387,4 @@ class CombatTrackerWindow(Window):
         super().__init__()
         self.act = act
         self.highlightPlayer = ""
+        self.stat = "rhps"

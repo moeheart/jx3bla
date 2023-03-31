@@ -15,6 +15,8 @@ from tkinter import messagebox
 from PIL import Image
 from PIL import ImageTk
 
+import webbrowser
+
 import time
 
 class HuaJianYouWindow(DpsDisplayWindow):
@@ -30,6 +32,13 @@ class HuaJianYouWindow(DpsDisplayWindow):
         text = '''时间轴中由上到下分别表示：商阳、钟林、兰摧、快雪这四个DoT。颜色深浅表示剩余时间。
 注意，对于多目标的情况这里会尝试合并所有目标的状况，因此不一定准确。'''
         messagebox.showinfo(title='说明', message=text)
+
+    def openHelp(self):
+        '''
+        打开心法的介绍网页.
+        '''
+        url = "https://www.jx3box.com/bps/56562"
+        webbrowser.open(url)
 
     def renderSkill(self):
         '''
@@ -1245,59 +1254,65 @@ class HuaJianYouReplayer(DpsReplayer):
         #     print(line)
         #     print(self.result["skill"][line])
 
+        # code 21 保持gcd不要空转
+        gcd = self.result["skill"]["general"]["efficiency"]
+        res = {"code": 21, "cover": gcd, "rate": roundCent(gcd)}
+        res["status"] = getRateStatus(res["rate"], 95, 90, 85)
+        self.result["review"]["content"].append(res)
+
         # code 1001 优先使用`兰摧玉折`
         res = {"code": 1001, "failTime": self.lcWrong, "num": self.lcWrongNum, "sum": self.lcSum, "rate": roundCent(1 - safe_divide(self.lcWrongNum, self.lcSum))}
-        res["status"] = getRateStatus(res["rate"], 100, 98, 95)
+        res["status"] = getRateStatus(res["rate"], 100, 0, 0)
         self.result["review"]["content"].append(res)
 
         # code 1002 使`玉石俱焚`覆盖到全部的持续伤害效果
         res = {"code": 1002, "failTime": self.ysWrong, "num": self.ysWrongNum, "sum": self.ysSum, "rate": roundCent(1 - safe_divide(self.ysWrongNum, self.ysSum))}
-        res["status"] = getRateStatus(res["rate"], 100, 95, 90)
+        res["status"] = getRateStatus(res["rate"], 100, 98, 95)
         self.result["review"]["content"].append(res)
 
         # code 1003 在`芙蓉并蒂`后立刻结算持续伤害
         res = {"code": 1003, "failTime": self.frWrong, "num": self.frWrongNum, "sum": self.frSum, "rate": roundCent(1 - safe_divide(self.frWrongNum, self.frSum))}
-        res["status"] = getRateStatus(res["rate"], 100, 95, 90)
+        res["status"] = getRateStatus(res["rate"], 100, 0, 0)
         self.result["review"]["content"].append(res)
 
         # code 1004 尽可能使用`芙蓉并蒂`
         res = {"code": 1004, "failTime": self.ysfrWrong, "num": self.ysfrWrongNum, "sum": self.ysSum, "rate": roundCent(1 - safe_divide(self.ysfrWrongNum, self.ysSum))}
-        res["status"] = getRateStatus(res["rate"], 100, 95, 90)
+        res["status"] = getRateStatus(res["rate"], 100, 98, 95)
         self.result["review"]["content"].append(res)
 
         # code 1005 使用瞬发`阳明指`尝试触发`踏歌`
         res = {"code": 1005, "failTime": self.ymtgWrong, "num": self.ymtgWrongNum, "sum": self.ymSum, "rate": roundCent(1 - safe_divide(self.ymtgWrongNum, self.ymSum))}
-        res["status"] = getRateStatus(res["rate"], 100, 95, 90)
+        res["status"] = getRateStatus(res["rate"], 100, 98, 95)
         self.result["review"]["content"].append(res)
 
         # code 1006 使用瞬发`阳明指`尝试触发`雪中行`
         res = {"code": 1006, "failTime": self.ymfxWrong, "num": self.ymfxWrongNum, "sum": self.ymSum, "rate": roundCent(1 - safe_divide(self.ymfxWrongNum, self.ymSum))}
-        res["status"] = getRateStatus(res["rate"], 100, 95, 90)
+        res["status"] = getRateStatus(res["rate"], 100, 95, 0)
         self.result["review"]["content"].append(res)
 
         # code 1007 在`逢雪`气劲层数最大时使用`快雪时晴`
         res = {"code": 1007, "failTime": self.kxfxWrong, "num": self.kxfxWrongNum, "sum": self.kxSum, "rate": roundCent(1 - safe_divide(self.kxfxWrongNum, self.kxSum))}
-        res["status"] = getRateStatus(res["rate"], 100, 95, 90)
+        res["status"] = getRateStatus(res["rate"], 100, 98, 95)
         self.result["review"]["content"].append(res)
 
         # code 1008 打满`快雪时晴`的跳数
         res = {"code": 1008, "failTime": self.kxloWrong, "num": self.kxloWrongNum, "sum": self.kxSum, "rate": roundCent(1 - safe_divide(self.kxloWrongNum, self.kxSum))}
-        res["status"] = getRateStatus(res["rate"], 100, 95, 90)
+        res["status"] = getRateStatus(res["rate"], 100, 0, 0)
         self.result["review"]["content"].append(res)
 
         # code 1009 避免重复施展`快雪时晴`
         res = {"code": 1009, "failTime": self.kxhiWrong, "num": self.kxhiWrongNum, "sum": self.kxSum, "rate": roundCent(1 - safe_divide(self.kxhiWrongNum, self.kxSum))}
-        res["status"] = getRateStatus(res["rate"], 100, 95, 90)
+        res["status"] = getRateStatus(res["rate"], 100, 0, 0)
         self.result["review"]["content"].append(res)
 
         # code 1010 避免重复施展持续伤害效果
         res = {"code": 1010, "failTime": self.dotWrong, "num": self.dotWrongNum, "sum": self.dotSum, "rate": roundCent(1 - safe_divide(self.dotWrongNum, self.dotSum))}
-        res["status"] = getRateStatus(res["rate"], 100, 95, 90)
+        res["status"] = getRateStatus(res["rate"], 100, 98, 95)
         self.result["review"]["content"].append(res)
 
         # code 1011 将持续伤害技能延后到`溅玉`期间
         res = {"code": 1011, "failTime": self.dot2Wrong, "num": self.dot2WrongNum, "sum": self.dot2Sum, "rate": roundCent(1 - safe_divide(self.dot2WrongNum, self.dot2Sum))}
-        res["status"] = getRateStatus(res["rate"], 100, 95, 90)
+        res["status"] = getRateStatus(res["rate"], 100, 95, 0)
         self.result["review"]["content"].append(res)
 
         self.result["review"]["intro"] = {"code": 1000}

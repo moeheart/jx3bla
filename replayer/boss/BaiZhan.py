@@ -303,18 +303,18 @@ class BaiZhanReplayer(SpecificReplayerPro):
                     name = self.bld.info.getSkillName(event.full_id)
                     # if name not in ["攻击", "普通攻击", '1,33878,1', '1,33537,1', "流血", "爪击", "血雾侵蚀", '1,33540,1', '1,29786,1', '黑蜂蛊迷雾（穿刺）']:
                     #     self.poZhanSkill[event.caster] = name
-                    print("[BossSkill]", event.time, parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.caster), event.full_id,
-                          self.bld.info.getSkillName(event.full_id), event.damage, self.bld.info.getName(event.target))
+                    # print("[BossSkill]", event.time, parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.caster), event.full_id,
+                    #       self.bld.info.getSkillName(event.full_id), event.damage, self.bld.info.getName(event.target))
                     if name in self.skillNameLine:
                         if self.poZhanStatus[event.caster] == 1 and self.poZhanSkillRecord[event.caster] != self.skillNameLine[name]:
                             self.summaryPoZhan(event.caster)
                         self.poZhanSkill[event.caster] = self.skillNameLine[name]
-                        print("[RecordSkill]", self.skillNameLine[name])
+                        # print("[RecordSkill]", self.skillNameLine[name])
                     if event.id in self.skillIdLine:
                         if self.poZhanStatus[event.caster] == 1 and self.poZhanSkillRecord[event.caster] != self.skillIdLine[event.id]:
                             self.summaryPoZhan(event.caster)
                         self.poZhanSkill[event.caster] = self.skillIdLine[event.id]
-                        print("[RecordSkill]", self.skillIdLine[event.id])
+                        # print("[RecordSkill]", self.skillIdLine[event.id])
 
                     if self.bld.info.getName(event.caster) == "源明雅":
                         self.yuanmingyaActive = event.caster
@@ -449,9 +449,9 @@ class BaiZhanReplayer(SpecificReplayerPro):
                     if self.poZhanStatus[id] == 1 and self.poZhanSkillRecord[id] != self.shoutLine[name]:
                         self.summaryPoZhan(id)
                     self.poZhanSkill[id] = self.shoutLine[name]
-                print("[RecordCast]", self.shoutLine[name])
+                # print("[RecordCast]", self.shoutLine[name])
 
-            print("[BossShout]", event.time, parseTime((event.time - self.startTime) / 1000), event.content)
+            # print("[BossShout]", event.time, parseTime((event.time - self.startTime) / 1000), event.content)
 
         elif event.dataType == "Scene":  # 进入、离开场景
             # if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["张景超宝箱", "張景超寶箱"]:
@@ -488,19 +488,19 @@ class BaiZhanReplayer(SpecificReplayerPro):
                 name = self.bld.info.getSkillName(event.full_id)
                 # if name not in ["攻击", "普通攻击"]:
                 #     self.poZhanSkill[event.caster] = name
-                print("[BossCast]", event.time, parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.caster), event.full_id,
-                      self.bld.info.getSkillName(event.full_id))
+                # print("[BossCast]", event.time, parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.caster), event.full_id,
+                #       self.bld.info.getSkillName(event.full_id))
 
                 if name in self.castNameLine:
                     if self.poZhanStatus[event.caster] == 1 and self.poZhanSkillRecord[event.caster] != self.castNameLine[name]:
                         self.summaryPoZhan(event.caster)
                     self.poZhanSkill[event.caster] = self.castNameLine[name]
-                    print("[RecordCast]", self.castNameLine[name])
+                    # print("[RecordCast]", self.castNameLine[name])
                 if event.id in self.castIdLine:
                     if self.poZhanStatus[event.caster] == 1 and self.poZhanSkillRecord[event.caster] != self.castIdLine[event.id]:
                         self.summaryPoZhan(event.caster)
                     self.poZhanSkill[event.caster] = self.castIdLine[event.id]
-                    print("[RecordCast]", self.castIdLine[event.id])
+                    # print("[RecordCast]", self.castIdLine[event.id])
 
                     
     def analyseFirstStage(self, item):

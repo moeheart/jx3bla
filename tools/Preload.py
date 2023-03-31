@@ -39,6 +39,8 @@ def checkRateEdition(serverEdition):
             # STAT_PERCENT = {}
             pass
         else:
+            print("正在更新排名数据，所需时间可能较长，请等待...")
+            print("注意不要选择此窗口的任何区域，否则会使程序暂停运行！")
             resp = urllib.request.urlopen('http://%s:8009/getPercentInfo' % IP)
             res = json.load(resp)
             STAT_PERCENT = res["data"]

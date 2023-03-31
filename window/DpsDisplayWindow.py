@@ -336,6 +336,12 @@ class DpsDisplayWindow(Window):
         '''
         self.reviewerWindow.start()
 
+    def openHelp(self):
+        '''
+        打开心法的介绍网页.
+        '''
+        messagebox.showinfo(title='注意', message="暂时没有详细说明！")
+
     def renderRate(self):
         '''
         渲染评分信息，需要派生类实现(Part 8).
@@ -345,7 +351,7 @@ class DpsDisplayWindow(Window):
         frame8 = tk.Frame(window, width=210, height=200, highlightthickness=1, highlightbackground=self.themeColor)
         frame8.place(x=320, y=620)
 
-        if "review" in self.result:
+        if "review" in self.result and "num" in self.result["review"]:
             # 支持专案组模块
             # tk.Label(frame8, text="综合评分：").place(x=30, y=20)
             # score = self.result["review"]["score"]
@@ -368,6 +374,8 @@ class DpsDisplayWindow(Window):
             b2.place(x=60, y=80)
             tk.Label(frame8, text="本模块仅可作为提高手法的参考，").place(x=20, y=110)
             tk.Label(frame8, text="请勿使用本模块出警！").place(x=20, y=130)
+            b3 = tk.Button(frame8, text='心法帮助', height=1, command=self.openHelp)
+            b3.place(x=80, y=160)
             self.reviewerWindow = ReviewerWindow(self.result, self.themeColor)
         else:
             tk.Label(frame8, text="复盘生成时的版本尚不支持此功能。").place(x=10, y=20)
