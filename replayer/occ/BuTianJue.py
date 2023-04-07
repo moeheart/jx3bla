@@ -619,6 +619,7 @@ class BuTianJueReplayer(HealerReplay):
                     self.cyDict.setState(event.time, event.stack)
                     if event.stack > prevStack:
                         canyinNum += event.stack - prevStack
+                    # print("[canyinCheck]", parseTime((event.time - self.startTime) / 1000), canyinNum, event.stack, prevStack)
                 if event.id in ["20831"] and event.caster == self.mykey and event.target in self.qilongCounter:  # buff绮栊
                     self.qilongCounter[event.target].setState(event.time, event.stack)
                 if event.id in ["5950"] and event.caster == self.mykey:  # 献祭

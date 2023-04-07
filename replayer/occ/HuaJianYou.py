@@ -806,7 +806,7 @@ class HuaJianYouReplayer(DpsReplayer):
                             if skillObj is not None:
                                 skillObj.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=self.ss.timeEnd, delta=-1)
 
-                    if event.id in ["180", "189", "190", "32481", "182", "6134", "6135", "6136", "32409", "13849", "13847", "13848", "601", "14941"]:  # 可能涉及目标dot的都计入统计
+                    if event.id in ["180", "189", "190", "32481", "182", "6134", "6135", "6136", "32409", "13849", "13847", "13848", "601", "14941", "186"]:  # 可能涉及目标dot的都计入统计
                         if event.target not in self.dotSY:
                             self.dotSY[event.target] = DotCounter("180", self.startTime, self.finalTime, 7, 1, getLength(48, self.haste))
                         if event.target not in self.dotZL:

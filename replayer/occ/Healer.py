@@ -344,8 +344,17 @@ class HealerReplay(ReplayerBase):
                 if sf:
                     castTime = 0
                     if self.bh.log["normal"] == [] or self.bh.log["normal"][-1]["skillname"] != "冰蚕牵丝" or event.time - \
-                            self.bh.log["normal"][-1]["start"] - self.bh.log["normal"][-1]["duration"] > 100:
+                            self.bh.log["normal"][-1]["start"] - self.bh.log["normal"][-1]["duration"] > -100:
                         self.instantNum += 1
+                        # print("[CanyinTrigger] success", self.instantNum)
+                    else:
+                        pass
+                        # print("[CanyinTrigger] fail", self.instantNum)
+                        # print(self.bh.log["normal"][-1]["skillname"], self.bh.log["normal"][-1]["start"], self.bh.log["normal"][-1]["duration"], event.time)
+
+                else:
+                    pass
+                    # print("[CanyinTrigger] not detected", self.instantNum)
             if event.id in ["2965"]:
                 # 检查碧蝶引
                 skip = self.xjDict.checkState(event.time - 200)

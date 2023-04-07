@@ -249,7 +249,7 @@ class HealerDisplayWindow(Window):
         '''
         打开网页版的复盘界面.
         '''
-        url = "http://120.48.95.56/%s/%d" % (self.occ, self.result["overall"]["shortID"])
+        url = "http://jx3logs.com/%s/%d" % (self.occ, self.result["overall"]["shortID"])
         webbrowser.open(url)
 
     def renderOverall(self):
