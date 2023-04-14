@@ -203,7 +203,7 @@ class BattleLogData():
 
         # 读取全局数据
         # TODO: 完整的player信息
-        # print("[MAP]", result["20"])
+        print("[MAP]", result["20"])
         self.info.skill = result["11"]
         self.info.server = result["19"].strip('"')
         self.info.map = getMapFromID(result["20"])

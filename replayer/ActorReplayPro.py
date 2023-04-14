@@ -31,6 +31,13 @@ from replayer.boss.TengyuanYouye import TengyuanYouyeReplayer
 from replayer.boss.LiChongmao import LiChongmaoReplayer
 from replayer.boss.BaiZhan import BaiZhanReplayer
 
+from replayer.boss.ShiFeng import ShiFengReplayer
+from replayer.boss.YueLinchuan import YueLinchuanReplayer
+from replayer.boss.NiuBo import NiuBoReplayer
+from replayer.boss.HeZheng import HeZhengReplayer
+from replayer.boss.WuYunque import WuYunqueReplayer
+from replayer.boss.WengYouzhi import WengYouzhiReplayer
+
 from replayer.occ.XiangZhi import XiangZhiProReplayer
 from replayer.occ.LingSu import LingSuReplayer
 from replayer.occ.LiJingYiDao import LiJingYiDaoReplayer
@@ -156,6 +163,18 @@ class ActorProReplayer(ReplayerBase):
                     self.bossAnalyseName = "藤原佑野"
                 if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["李重茂", "永王叛军长枪兵", "一刀流精锐武士", "永王叛军剑卫", "永王叛軍長槍兵", "一刀流精銳武士", "永王叛軍劍衛"]:
                     self.bossAnalyseName = "李重茂"
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["时风"]:
+                    self.bossAnalyseName = "时风"
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["乐临川"]:
+                    self.bossAnalyseName = "乐临川"
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["牛波"]:
+                    self.bossAnalyseName = "牛波"
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["和正"]:
+                    self.bossAnalyseName = "和正"
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["武云阙"]:
+                    self.bossAnalyseName = "武云阙"
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["翁幼之"]:
+                    self.bossAnalyseName = "翁幼之"
 
                 # 通过技能确定具体心法
                 if event.caster in occDetailList and event.scheme == 1 and occDetailList[event.caster] in ['1', '2', '3', '4', '5', '6', '7', '10',
@@ -348,13 +367,27 @@ class ActorProReplayer(ReplayerBase):
         elif self.mapDetail == "百战异闻录":
             bossAnalyser = BaiZhanReplayer(self.bld, occDetailList, self.startTime,
                                            self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "时风":
+            bossAnalyser = ShiFengReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "乐临川":
+            bossAnalyser = YueLinchuanReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "牛波":
+            bossAnalyser = NiuBoReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "和正":
+            bossAnalyser = HeZhengReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "武云阙":
+            bossAnalyser = WuYunqueReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "翁幼之":
+            bossAnalyser = WengYouzhiReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
         else:
             bossAnalyser = GeneralReplayer(self.bld, occDetailList, self.startTime,
                                            self.finalTime, self.battleTime, self.bossNamePrint, self.config)
-
-        print("[MapDetail]", self.mapDetail)
-
-
             
         self.bossAnalyser = bossAnalyser
         

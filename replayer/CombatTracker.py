@@ -939,11 +939,12 @@ class CombatTracker():
             self.boostCounter[event.target].setSpecificSkill("mhsn", event.caster)
             # 检查庄周梦效果，用独立的方式判定
             # 这里是因为笙簧刷新会有盾的真空期，但是庄周梦在游戏里做了特殊判定，因此这里也要做特殊判定
-            if event.level in [2, 4]:
-                effect_id = "2,23543,1"
-                boostValue = BOOST_DICT[effect_id]
-                source = event.caster
-                self.boostCounter[event.target].addBoost(effect_id, boostValue, source, event.stack, event.time)
+            # 群侠万变版本庄周梦逻辑修改，这里暂时关闭
+            # if event.level in [2, 4]:
+            #     effect_id = "2,23543,1"
+            #     boostValue = BOOST_DICT[effect_id]
+            #     source = event.caster
+            #     self.boostCounter[event.target].addBoost(effect_id, boostValue, source, event.stack, event.time)
                 # print("[AddShield]", self.boostCounter[event.target].boost)
 
         # if event.id == "9334" and event.target not in self.boostCounter:  # 记录梅花三弄的来源
@@ -1073,8 +1074,8 @@ class CombatTracker():
             for id in toRemove:
                 if id in self.absorbBuff[target]:
                     del self.absorbBuff[target][id]
-                    if id in ["2,9334,2", "2,9334,4"]:
-                        self.boostCounter[target].removeBoost("2,23543,1", time)
+                    # if id in ["2,9334,2", "2,9334,4"]:
+                    #     self.boostCounter[target].removeBoost("2,23543,1", time)
                 if id in self.resistBuff[target]:
                     del self.resistBuff[target][id]
                 del self.buffRemove[target][id]
