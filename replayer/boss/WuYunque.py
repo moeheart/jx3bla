@@ -210,7 +210,8 @@ class WuYunqueReplayer(SpecificReplayerPro):
 
         self.bhBlackList.extend(["s34891", "s34614", "n122382", "s34411", "s34414", "b25744", "b25745", "b26164",
                                  "s34407", "n122403", "n122594", "n122236", "n122494", "c34409", "s34410", "n122546",
-                                 "n122242", "s34641", "b25781", "s34893", "s34621", "s34413", "n122550", "n112055"
+                                 "n122242", "s34641", "b25781", "s34893", "s34621", "s34413", "n122550", "n112055",
+                                 "n122593"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 

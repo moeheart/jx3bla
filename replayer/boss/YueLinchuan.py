@@ -211,7 +211,8 @@ class YueLinchuanReplayer(SpecificReplayerPro):
 
         self.bhBlackList.extend(["s33948", "s33949", "n122515", "n122517", "c34097", "b25922", "b25774",
                                  "b25488", "s34153", "s34018", "s33984", "s33977", "n122518", "n122519",
-                                 "n122520", "c34021", "s34012", "s34015", "n122576", "s34021"
+                                 "n122520", "c34021", "s34012", "s34015", "n122576", "s34021", "s33993",
+                                 "s34022", "b25487", "n112055", "n122550"
 
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)

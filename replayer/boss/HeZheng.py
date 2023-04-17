@@ -210,7 +210,7 @@ class HeZhengReplayer(SpecificReplayerPro):
         self.initPhase(1, 1)
 
         self.bhBlackList.extend(["n122492", "n122498", "n122486", "s34154", "s34243", "s34257", "s34231", "n122550",
-                                 "b25782", "s34233", "s34234", "b25627", "n112055", "n122588"
+                                 "b25782", "s34233", "s34234", "b25627", "n112055", "n122588", "n122552", "n122510"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 

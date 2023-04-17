@@ -211,7 +211,7 @@ class WengYouzhiReplayer(SpecificReplayerPro):
                                  "s34029", "b25535", "b25501", "b25672", "s34312", "n122721", "b25689", "b25670",
                                  "n122495", "c34043", "n122560", "c34047", "s34044", "n122529", "s34196", "b25500",
                                  "n122533", "b25671", "s34314", "b25690", "s34321", "s34327", "n122503", "s34141",
-                                 "s34293", "n122532", "n122505", "s34191"
+                                 "s34293", "n122532", "n122505", "s34191", "s34306", "s34325"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 

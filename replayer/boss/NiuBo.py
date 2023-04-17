@@ -222,7 +222,7 @@ class NiuBoReplayer(SpecificReplayerPro):
 
         self.bhBlackList.extend(["s34366", "b25719", "s34146", "n122498", "s34333", "s34337", "n122486", "n122510",
                                  "s34368", "s34365", "n122582", "n122561", "s34330", "c34336", "s34335", "s34332",
-
+                                 "s34358", "n122477", "b25720", "n122492", "n122552", "n122550"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
