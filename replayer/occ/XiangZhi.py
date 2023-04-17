@@ -65,10 +65,11 @@ class XiangZhiProWindow(HealerDisplayWindow):
         mhsnDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         mhsnDisplayer.setImage("7059", "梅花三弄")
         mhsnDisplayer.setDouble("rate", "数量", "meihua", "num", "numPerSec")
-        mhsnDisplayer.setSingle("percent", "覆盖率", "meihua", "cover")
+        mhsnDisplayer.setSingle("percent", "覆盖率", "meihua", "coverSum")
+        mhsnDisplayer.setSingle("percent", "全局覆盖率", "meihua", "cover")
         mhsnDisplayer.setSingle("delay", "延迟", "meihua", "delay")
         mhsnDisplayer.setSingle("int", "犹香HPS", "meihua", "youxiangHPS")
-        mhsnDisplayer.setSingle("int", "平吟HPS", "meihua", "pingyinHPS")
+        # mhsnDisplayer.setSingle("int", "平吟HPS", "meihua", "pingyinHPS")
         mhsnDisplayer.export_image(frame5, 0)
 
         zhiDisplayer = SingleSkillDisplayer(self.result["skill"], self.rank)
@@ -474,9 +475,13 @@ class XiangZhiProReplayer(HealerReplay):
         jueBuffDict = {}
         xySkill = SkillHealCounter("21321", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 相依
         jueOverallCounter = BuffCounter("9463", self.startTime, self.finalTime)  # 角的全局覆盖
+
+        zzmDict = {}
+
         for line in self.bld.info.player:
             shangBuffDict[line] = HotCounter("9459", self.startTime, self.finalTime)  # 商，9460=殊曲，9461=洞天
             jueBuffDict[line] = HotCounter("9463", self.startTime, self.finalTime)  # 角，9460=殊曲，9461=洞天
+            zzmDict[line] = BuffCounter("9334", self.startTime, self.finalTime)
 
         # 杂项
         fengleiActiveTime = self.startTime
@@ -684,6 +689,11 @@ class XiangZhiProReplayer(HealerReplay):
                     # 共潮生激活
                     gcsActive = 1
 
+                if event.id in ["23543"] and event.target in self.bld.info.player:  # 庄周梦
+                    if len(zzmDict[event.target].log) == 1 and event.time - self.startTime < 13000 and event.stack == 0:  # 推测起始时是不是有这个buff
+                        zzmDict[event.target].log[0][1] = 1
+                    zzmDict[event.target].setState(event.time, event.stack)
+
             elif event.dataType == "Shout":
                 pass
 
@@ -793,6 +803,14 @@ class XiangZhiProReplayer(HealerReplay):
         self.result["skill"]["meihua"]["anxiangNumPerSec"] = roundCent(safe_divide(numAnxiang, self.result["overall"]["sumTimeEff"] / 1000), 2)
         self.result["skill"]["meihua"]["youxiangHPS"] = int(youxiangHeal / self.result["overall"]["sumTimeEff"] * 1000)
         self.result["skill"]["meihua"]["pingyinHPS"] = int(pingyinHeal / self.result["overall"]["sumTimeEff"] * 1000)
+        num = 0
+        sum = 0
+        for key in zzmDict:
+            singleDict = zzmDict[key]
+            num += self.battleTimeDict[key]
+            sum += singleDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
+        rate = roundCent(safe_divide(sum, num))
+        self.result["skill"]["meihua"]["coverSum"] = rate
         # 宫
         gongSkill = self.calculateSkillInfo("gong", "18864")
         self.result["skill"]["gong"]["zhenliuHPS"] = int(zhenliuHeal / self.result["overall"]["sumTimeEff"] * 1000)

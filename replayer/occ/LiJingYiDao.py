@@ -926,16 +926,16 @@ class LiJingYiDaoReplayer(HealerReplay):
         # self.result["review"]["content"].append(res)
 
         # code 205 选择合适的`长针`目标
-        num = 0
-        sum = 0
-        for i in weichaoSingleList:
-            sum += 1
-            if i >= 4:
-                num += 1
-        coverRate = roundCent(safe_divide(num, sum))
-        res = {"code": 205, "time": sum, "coverTime": num, "rate": coverRate}
-        res["status"] = getRateStatus(res["rate"], 75, 0, 0)
-        self.result["review"]["content"].append(res)
+        # num = 0
+        # sum = 0
+        # for i in weichaoSingleList:
+        #     sum += 1
+        #     if i >= 4:
+        #         num += 1
+        # coverRate = roundCent(safe_divide(num, sum))
+        # res = {"code": 205, "time": sum, "coverTime": num, "rate": coverRate}
+        # res["status"] = getRateStatus(res["rate"], 75, 0, 0)
+        # self.result["review"]["content"].append(res)
 
         # code 206 提高握针扩散效率
         num = 0
@@ -961,7 +961,7 @@ class LiJingYiDaoReplayer(HealerReplay):
         res["status"] = getRateStatus(res["rate"], 90, 50, 0)
         self.result["review"]["content"].append(res)
 
-        # code 208 使用`落子无悔`的buff效果
+        # code 209 使用`落子无悔`的buff效果
         rate = roundCent(safe_divide(self.luoziBlack + self.luoziWhite, self.luoziBlack + self.luoziWhite + self.luoziNone))
         if rate < 1e-10:
             rate = 1.0

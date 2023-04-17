@@ -137,7 +137,7 @@ class HeZhengReplayer(SpecificReplayerPro):
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "玩家获得气劲", "buff")
 
         elif event.dataType == "Shout":
-            if event.content in ['"到此为止了！"', '"到此為止了！"']:
+            if event.content in ['"可恶，偏偏在这个时候..."']:
                 pass
             elif event.content in ['"四分五裂！"']:
                 pass
@@ -154,7 +154,7 @@ class HeZhengReplayer(SpecificReplayerPro):
             elif event.content in ['"哼，我才不会死在你们手里！"', '"哼，我才不會死在你們手裏！"']:
                 pass
             elif event.content in ['"哼!"']:
-                self.win = 1
+                pass
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
@@ -172,7 +172,9 @@ class HeZhengReplayer(SpecificReplayerPro):
                                                1, "NPC出现", "npc")
 
         elif event.dataType == "Death":  # 重伤记录
-            pass
+            if event.id in self.bld.info.npc and self.bld.info.getName(event.id) in ["和正"]:
+                self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
 
         elif event.dataType == "Battle":  # 战斗状态变化
             pass
@@ -207,10 +209,8 @@ class HeZhengReplayer(SpecificReplayerPro):
 
         self.initPhase(1, 1)
 
-        self.bhBlackList.extend(["s34052", "s32392", "b25516", "s34772", "s34064", "b25678", "b25505",
-                                 "b25512", "s34065", "b25518", "b25515", "b25517", "b25508", "n122570",
-                                 "c34055", "s34055", "s34066", "s34773", "s34067", "s34771", "s34058",
-                                 "s34059", "s34060", "s34068", "s34053", "s34063"
+        self.bhBlackList.extend(["n122492", "n122498", "n122486", "s34154", "s34243", "s34257", "s34231", "n122550",
+                                 "b25782", "s34233", "s34234", "b25627", "n112055", "n122588"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
@@ -223,14 +223,13 @@ class HeZhengReplayer(SpecificReplayerPro):
                        # "c31328": ["2146", "#ff77cc", 7000],  # 逆闪
                        # "c31851": ["3434", "#ff77ff", 7000],  # 霆鸣
                        # "c33130": ["2028", "#ff0000", 20000],  # 风雷灭尽
-                       "c34056": ["2031", "#ff0000", 4000],  # 绽血锋刃
-                       "c34054": ["4513", "#ff7700", 10000],  # 猩红镰舞
-                       "c34076": ["2019", "#7777ff", 4000],  # 渴血连斩
-                       "c34077": ["4495", "#00ff00", 2000],  # 血铳连发
-                       "c34068": ["4495", "#77ff77", 3000],  # 血铳
-                       "c34062": ["4567", "#7700ff", 3000],  # 血魔斩首
-                       "c34057": ["2031", "#7700ff", 2000],  # 绽血锋刃·收
-                       "c34061": ["4549", "#ff00ff", 5000],  # 鲜血盛宴
+                       "c34243": ["3435", "#ff0000", 2000],  # 罗汉掌法
+                       "c34233": ["3319", "#ff7700", 6000],  # 伏魔铲法
+                       "c34160": ["3445", "#0000ff", 3000],  # 佛光渡世
+                       "c34274": ["4224", "#ff7777", 6000],  # 法相降魔铲
+                       "c34850": ["3430", "#7777ff", 9000],  # 月掠天河
+                       "c34232": ["3430", "#7777ff", 2000],  # 摧山断岳
+                       "c34212": ["11310", "#007777", 6000],  # 除魔九界
                        }
 
         # 和正数据格式：

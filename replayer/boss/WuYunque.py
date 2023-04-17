@@ -137,15 +137,16 @@ class WuYunqueReplayer(SpecificReplayerPro):
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "玩家获得气劲", "buff")
 
         elif event.dataType == "Shout":
-            if event.content in ['"到此为止了！"', '"到此為止了！"']:
+            if event.content in ['"来人！助我一臂之力！"']:
+                self.bh.setEnvironment("0", "武家弟子", "1118", event.time, 0, 1, "NPC出现", "shout", "#000000")
+            elif event.content in ['"阴雨连绵！"']:
                 pass
-            elif event.content in ['"四分五裂！"']:
+            elif event.content in ['"情况不妙！我们先撤！"']:
                 pass
-            elif event.content in ['"迅如疾雷！"']:
-                pass
-            elif event.content in ['"呵！"', '"呵!"']:
-                pass
-            elif event.content in ['"死吧！"', '"死吧!"']:
+            elif event.content in ['"嘿！呀！"']:
+                self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            elif event.content in ['"雕虫小技！"']:
                 pass
             elif event.content in ['"疾风枭首！"', '"疾風梟首！"']:
                 pass
@@ -154,14 +155,14 @@ class WuYunqueReplayer(SpecificReplayerPro):
             elif event.content in ['"哼，我才不会死在你们手里！"', '"哼，我才不會死在你們手裏！"']:
                 pass
             elif event.content in ['"哼!"']:
-                self.win = 1
+                pass
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
         elif event.dataType == "Scene":  # 进入、离开场景
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["张景超宝箱", "張景超寶箱"]:
-                self.win = 1
-                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            # if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["张景超宝箱", "張景超寶箱"]:
+            #     self.win = 1
+            #     self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
                 name = "n%s" % self.bld.info.npc[event.id].templateID
                 skillName = self.bld.info.npc[event.id].name
@@ -207,10 +208,9 @@ class WuYunqueReplayer(SpecificReplayerPro):
 
         self.initPhase(1, 1)
 
-        self.bhBlackList.extend(["s34052", "s32392", "b25516", "s34772", "s34064", "b25678", "b25505",
-                                 "b25512", "s34065", "b25518", "b25515", "b25517", "b25508", "n122570",
-                                 "c34055", "s34055", "s34066", "s34773", "s34067", "s34771", "s34058",
-                                 "s34059", "s34060", "s34068", "s34053", "s34063"
+        self.bhBlackList.extend(["s34891", "s34614", "n122382", "s34411", "s34414", "b25744", "b25745", "b26164",
+                                 "s34407", "n122403", "n122594", "n122236", "n122494", "c34409", "s34410", "n122546",
+                                 "n122242", "s34641", "b25781", "s34893", "s34621", "s34413", "n122550", "n112055"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
@@ -223,14 +223,16 @@ class WuYunqueReplayer(SpecificReplayerPro):
                        # "c31328": ["2146", "#ff77cc", 7000],  # 逆闪
                        # "c31851": ["3434", "#ff77ff", 7000],  # 霆鸣
                        # "c33130": ["2028", "#ff0000", 20000],  # 风雷灭尽
-                       "c34056": ["2031", "#ff0000", 4000],  # 绽血锋刃
-                       "c34054": ["4513", "#ff7700", 10000],  # 猩红镰舞
-                       "c34076": ["2019", "#7777ff", 4000],  # 渴血连斩
-                       "c34077": ["4495", "#00ff00", 2000],  # 血铳连发
-                       "c34068": ["4495", "#77ff77", 3000],  # 血铳
-                       "c34062": ["4567", "#7700ff", 3000],  # 血魔斩首
-                       "c34057": ["2031", "#7700ff", 2000],  # 绽血锋刃·收
-                       "c34061": ["4549", "#ff00ff", 5000],  # 鲜血盛宴
+                       "c34411": ["2024", "#ff0000", 3000],  # 大戮戟法·峰回
+                       "c34414": ["3399", "#ff7700", 2000],  # 大戮戟法·唤风
+                       "c34408": ["2019", "#0000ff", 12000],  # 大戮戟法·怒舞
+                       "c34639": ["2033", "#7777ff", 3000],  # 连绵阴雨针
+                       "c34620": ["2034", "#7700ff", 3000],  # 连绵阴雨针
+                       "c34412": ["13167", "#0077ff", 3000],  # 大戮戟法·定虚
+
+
+
+
                        }
 
         # 武云阙数据格式：

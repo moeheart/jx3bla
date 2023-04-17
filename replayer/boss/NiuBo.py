@@ -102,6 +102,9 @@ class NiuBoReplayer(SpecificReplayerPro):
 
         self.checkTimer(event.time)
 
+        if self.EHuDisappear != 0 and event.time - self.EHuDisappear > 30000:
+            self.bh.setBadPeriod(self.EHuDisappear, event.time, True, True)
+
         if event.dataType == "Skill":
             if event.target in self.bld.info.player:
                 if event.heal > 0 and event.effect != 7 and event.caster in self.hps:  # 非化解
@@ -123,6 +126,11 @@ class NiuBoReplayer(SpecificReplayerPro):
                         if self.bld.info.getName(event.target) in ["牛波"]:
                             self.bh.setMainTarget(event.target)
 
+            if event.id == "34364":
+                if self.EHuDisappear != 0:
+                    self.bh.setBadPeriod(self.EHuDisappear, event.time, True, True)
+                    self.EHuDisappear = 0
+
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
                 return
@@ -137,31 +145,32 @@ class NiuBoReplayer(SpecificReplayerPro):
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "玩家获得气劲", "buff")
 
         elif event.dataType == "Shout":
-            if event.content in ['"到此为止了！"', '"到此為止了！"']:
+            if event.content in ['"哼……"']:
                 pass
-            elif event.content in ['"四分五裂！"']:
+            elif event.content in ['"尝尝这个！"']:
                 pass
-            elif event.content in ['"迅如疾雷！"']:
+            elif event.content in ['"出来吧！到你了！"']:
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "黑熊登场", "shout", "#333333")
+            elif event.content in ['"给我死！"']:
                 pass
-            elif event.content in ['"呵！"', '"呵!"']:
+            elif event.content in ['"喝啊！"']:
                 pass
-            elif event.content in ['"死吧！"', '"死吧!"']:
+            elif event.content in ['"呼噜……"']:
                 pass
-            elif event.content in ['"疾风枭首！"', '"疾風梟首！"']:
-                pass
-            elif event.content in ['"无处可逃！"']:
-                pass
-            elif event.content in ['"哼，我才不会死在你们手里！"', '"哼，我才不會死在你們手裏！"']:
-                pass
-            elif event.content in ['"哼!"']:
+            elif event.content in ['"该你上场了！"']:
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "恶虎登场", "shout", "#333333")
+            elif event.content in ['"你们这帮废物！亏我天天给你们喂那么多！真是一点儿用都没有！"']:
                 self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            elif event.content in ['"都给老子……啊？啊啊啊啊啊啊……"']:
+                pass
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
         elif event.dataType == "Scene":  # 进入、离开场景
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["张景超宝箱", "張景超寶箱"]:
-                self.win = 1
-                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            # if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["张景超宝箱", "張景超寶箱"]:
+            #     self.win = 1
+            #     self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
                 name = "n%s" % self.bld.info.npc[event.id].templateID
                 skillName = self.bld.info.npc[event.id].name
@@ -170,6 +179,10 @@ class NiuBoReplayer(SpecificReplayerPro):
                     if "的" not in skillName:
                         self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
                                                1, "NPC出现", "npc")
+            if event.id in self.bld.info.npc and not event.enter and self.bld.info.getName(event.id) in ["恶虎"]:
+                self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, "恶虎消失", "340", event.time, 0,
+                                       1, "隐袭阶段开始", "npc")
+                self.EHuDisappear = event.time
 
         elif event.dataType == "Death":  # 重伤记录
             pass
@@ -207,34 +220,26 @@ class NiuBoReplayer(SpecificReplayerPro):
 
         self.initPhase(1, 1)
 
-        self.bhBlackList.extend(["s34052", "s32392", "b25516", "s34772", "s34064", "b25678", "b25505",
-                                 "b25512", "s34065", "b25518", "b25515", "b25517", "b25508", "n122570",
-                                 "c34055", "s34055", "s34066", "s34773", "s34067", "s34771", "s34058",
-                                 "s34059", "s34060", "s34068", "s34053", "s34063"
+        self.bhBlackList.extend(["s34366", "b25719", "s34146", "n122498", "s34333", "s34337", "n122486", "n122510",
+                                 "s34368", "s34365", "n122582", "n122561", "s34330", "c34336", "s34335", "s34332",
+
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
         self.bhInfo = {
                        # "c31145": ["3452", "#773333", 2000],  # 迅风裂
-                       # "c31102": ["4224", "#ff7700", 5000],  # 疾雷
-                       # "c31152": ["3408", "#7700ff", 5000],  # 刀止横流
-                       # "c31148": ["4564", "#00ffff", 0],  # 绝风疾
-                       # "c31260": ["4222", "#ff7777", 5000],  # 万钧
-                       # "c31328": ["2146", "#ff77cc", 7000],  # 逆闪
-                       # "c31851": ["3434", "#ff77ff", 7000],  # 霆鸣
-                       # "c33130": ["2028", "#ff0000", 20000],  # 风雷灭尽
-                       "c34056": ["2031", "#ff0000", 4000],  # 绽血锋刃
-                       "c34054": ["4513", "#ff7700", 10000],  # 猩红镰舞
-                       "c34076": ["2019", "#7777ff", 4000],  # 渴血连斩
-                       "c34077": ["4495", "#00ff00", 2000],  # 血铳连发
-                       "c34068": ["4495", "#77ff77", 3000],  # 血铳
-                       "c34062": ["4567", "#7700ff", 3000],  # 血魔斩首
-                       "c34057": ["2031", "#7700ff", 2000],  # 绽血锋刃·收
-                       "c34061": ["4549", "#ff00ff", 5000],  # 鲜血盛宴
+                       "c34178": ["3426", "#0000ff", 3000],  # 钉刺重锤
+                       "s34180": ["3428", "#ff0000", 0],  # 刺刃环芒
+                       "c34338": ["2019", "#0077ff", 7000],  # 撕咬
+                       "s34149": ["3445", "#ff7700", 0],  # 黑恶怒吼
+                       "c34332": ["3293", "#00ff00", 0],  # 翼击
+                       "c34334": ["3293", "#00ff00", 0],  # 站立扑击
+                       "s34364": ["2028", "#7700ff", 0],  # 隐袭
                        }
 
         # 牛波数据格式：
         # 7 ？
+        self.EHuDisappear = 0
 
         for line in self.bld.info.player:
             self.statDict[line]["battle"] = {}

@@ -1446,7 +1446,17 @@ class CombatTracker():
                     effect_id = "2,24973,1"
                     boostValue = BOOST_DICT[effect_id]
                     self.boostCounter[player].addTargetBoost(bossid, effect_id, boostValue, "*环境增益", self.bossYishang, event.time)
-
+        if event.content in ['"可恶，偏偏在这个时候..."', '"可惡，偏偏在這個時候..."']:
+            bossID = []
+            for id in self.info.npc:
+                if self.info.getName(id) in ["和正"]:
+                    bossID.append(id)
+            for bossid in bossID:
+                effect_id = "2,25715,1"
+                boostValue = BOOST_DICT[effect_id]
+                for player in self.info.player:
+                    self.boostCounter[player].addTargetBoost(bossid, effect_id, boostValue, "*环境增益", 1, event.time)
+                self.boostRemove[effect_id] = {"time": event.time + 20000, "target": bossid}
 
     def __init__(self, info, bh, occDetailList, zhenyanInfer, stunCounter, zxyzPrecastSource, baseAttribDict):
         '''
@@ -1522,7 +1532,8 @@ class CombatTracker():
             self.bosslvl = 124
         self.startTime = bh.startTime
         self.finalTime = bh.finalTime
-        self.bossYishang = 0  # 用于控制整体的BOSS易伤，这里暂时只记录李重茂
+        self.bossYishang = 0  # 用于控制整体的BOSS易伤
+        self.bossName = ""
 
         self.rdpsCast["*阵眼增益"] = DpsCastRecorder(1)
         self.mrdpsCast["*阵眼增益"] = DpsCastRecorder(1)

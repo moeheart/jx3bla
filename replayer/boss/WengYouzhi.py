@@ -159,7 +159,7 @@ class WengYouzhiReplayer(SpecificReplayerPro):
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
         elif event.dataType == "Scene":  # 进入、离开场景
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["张景超宝箱", "張景超寶箱"]:
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["翁幼之宝箱", "??寶箱"]:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
@@ -207,10 +207,11 @@ class WengYouzhiReplayer(SpecificReplayerPro):
 
         self.initPhase(1, 1)
 
-        self.bhBlackList.extend(["s34052", "s32392", "b25516", "s34772", "s34064", "b25678", "b25505",
-                                 "b25512", "s34065", "b25518", "b25515", "b25517", "b25508", "n122570",
-                                 "c34055", "s34055", "s34066", "s34773", "s34067", "s34771", "s34058",
-                                 "s34059", "s34060", "s34068", "s34053", "s34063"
+        self.bhBlackList.extend(["n122740", "s34030", "n122506", "b25602", "s34193", "s34046", "s34190", "b25603",
+                                 "s34029", "b25535", "b25501", "b25672", "s34312", "n122721", "b25689", "b25670",
+                                 "n122495", "c34043", "n122560", "c34047", "s34044", "n122529", "s34196", "b25500",
+                                 "n122533", "b25671", "s34314", "b25690", "s34321", "s34327", "n122503", "s34141",
+                                 "s34293", "n122532", "n122505", "s34191"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
@@ -223,14 +224,16 @@ class WengYouzhiReplayer(SpecificReplayerPro):
                        # "c31328": ["2146", "#ff77cc", 7000],  # 逆闪
                        # "c31851": ["3434", "#ff77ff", 7000],  # 霆鸣
                        # "c33130": ["2028", "#ff0000", 20000],  # 风雷灭尽
-                       "c34056": ["2031", "#ff0000", 4000],  # 绽血锋刃
-                       "c34054": ["4513", "#ff7700", 10000],  # 猩红镰舞
-                       "c34076": ["2019", "#7777ff", 4000],  # 渴血连斩
-                       "c34077": ["4495", "#00ff00", 2000],  # 血铳连发
-                       "c34068": ["4495", "#77ff77", 3000],  # 血铳
-                       "c34062": ["4567", "#7700ff", 3000],  # 血魔斩首
-                       "c34057": ["2031", "#7700ff", 2000],  # 绽血锋刃·收
-                       "c34061": ["4549", "#ff00ff", 5000],  # 鲜血盛宴
+                       "c34048": ["2021", "#77ff00", 7000],  # 血影碎身
+                       "c34046": ["3430", "#0000ff", 7000],  # 血魂裂爪
+                       "c34190": ["3452", "#ff0000", 3000],  # 骨刃罡风
+                       "c34195": ["3398", "#007700", 2000],   # 断魂流影
+                       "c34028": ["3398", "#00ffff", 5000],   # 森罗万刃
+                       "c34309": ["4224", "#ff7700", 0],   # 血影坠击
+                       "c34313": ["3428", "#7700ff", 5000],   # 黄泉鬼步
+                       "c34306": ["2026", "#ff00ff", 3000],   # 血狩孤魂
+                       "c34321": ["2024", "#7777ff", 9000],   # 击空断骨
+                       "c34291": ["3426", "#ff77cc", 2000],   # 恶鬼噬心
                        }
 
         # 翁幼之数据格式：

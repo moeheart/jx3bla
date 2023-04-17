@@ -107,6 +107,7 @@ class YunChangXinJingWindow(HealerDisplayWindow):
         zxyzDisplayer.setDouble("rate", "数量", "zxyz", "num", "numPerSec")
         zxyzDisplayer.setSingle("int", "HPS", "zxyz", "HPS")
         zxyzDisplayer.setSingle("percent", "覆盖率", "zxyz", "cover")
+        zxyzDisplayer.setSingle("percent", "全局覆盖率", "zxyz", "coverAll")
         zxyzDisplayer.export_image(frame5, 5)
 
         info1Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
@@ -436,6 +437,7 @@ class YunChangXinJingReplayer(HealerReplay):
         xiangwuDict = {}  # 翔舞
         shangyuanDict = {}  # 上元
         zxyzDict = {}  # 左旋右转
+        zxyzAllDict = {}  # 左旋右转的整体覆盖
 
         # self.allSkillObjs.append(hxpySkill)
         # self.allSkillObjs.append(jwfhSkill)
@@ -446,6 +448,7 @@ class YunChangXinJingReplayer(HealerReplay):
             xiangwuDict[line] = HotCounter("20070", self.startTime, self.finalTime)  # 翔舞
             shangyuanDict[line] = HotCounter("20070", self.startTime, self.finalTime)  # 上元
             zxyzDict[line] = BuffCounter("20938", self.startTime, self.finalTime)  # 左旋右转
+            zxyzAllDict[line] = BuffCounter("20938", self.startTime, self.finalTime)  # 左旋右转
             battleStat[line] = [0]
 
         # 杂项
@@ -631,7 +634,12 @@ class YunChangXinJingReplayer(HealerReplay):
                 if event.id in ["20938"] and event.target in self.bld.info.player:  # 左旋右转
                     if len(zxyzDict[event.target].log) == 1 and event.time - self.startTime < 60000:  # 假设起始时有这个buff
                         zxyzDict[event.target].log[0][1] = 1
+                        zxyzAllDict[event.target].log[0][1] = 1
                     zxyzDict[event.target].setState(event.time, event.stack)
+                    if event.stack > 0:
+                        zxyzAllDict[event.target].setState(event.time, 1)
+                    else:
+                        zxyzAllDict[event.target].setState(event.time, 0)
 
             elif event.dataType == "Shout":
                 pass
@@ -772,6 +780,14 @@ class YunChangXinJingReplayer(HealerReplay):
             sum += singleDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
         rate = roundCent(safe_divide(sum, num))
         self.result["skill"]["zxyz"]["cover"] = rate
+        num = 0
+        sum = 0
+        for key in zxyzAllDict:
+            singleDict = zxyzAllDict[key]
+            num += self.battleTimeDict[key]
+            sum += singleDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
+        rate = roundCent(safe_divide(sum, num))
+        self.result["skill"]["zxyz"]["coverAll"] = rate
 
         # 杂项
         self.result["skill"]["xlwl"]["chuimeiHPS"] = int(chuimeiHeal / self.result["overall"]["sumTimeEff"] * 1000)
