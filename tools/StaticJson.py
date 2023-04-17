@@ -242,7 +242,7 @@ REVIEW_JSON = {
     },
     {
       "code": 205,
-      "title": "选择合适的`长针`目标",
+      "title": "【已废弃】选择合适的`长针`目标",
       "time": "长针次数",
       "coverTime": "覆盖人数正常的长针次数",
       "rate": "等于`coverTime`/`time`",
