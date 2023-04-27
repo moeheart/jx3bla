@@ -131,6 +131,10 @@ class NiuBoReplayer(SpecificReplayerPro):
                     self.bh.setBadPeriod(self.EHuDisappear, event.time, True, True)
                     self.EHuDisappear = 0
 
+            # if self.bld.info.getName(event.caster) == "恶虎":
+            #     print("[EHuTest]", event.time, parseTime((event.time - self.startTime) / 1000), event.id,
+            #           (self.bld.info.getSkillName(event.full_id)), self.bld.info.getName(event.target), event.damage, event.damageEff)
+
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
                 return
@@ -143,6 +147,12 @@ class NiuBoReplayer(SpecificReplayerPro):
                     skillName = self.bld.info.getSkillName(event.full_id)
                     if "," not in skillName:
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "玩家获得气劲", "buff")
+
+            # if self.bld.info.getSkillName(event.full_id) in ["云生结海", "盾壁"]:
+            #     print("[YunShengTest]", event.time, parseTime((event.time - self.startTime) / 1000), event.id,
+            #            self.bld.info.getName(event.target), event.stack)
+
+
 
         elif event.dataType == "Shout":
             if event.content in ['"哼……"']:
@@ -159,9 +169,15 @@ class NiuBoReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"该你上场了！"']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "恶虎登场", "shout", "#333333")
-            elif event.content in ['"你们这帮废物！亏我天天给你们喂那么多！真是一点儿用都没有！"']:
+            elif event.content in ['"你们这群废物！亏我天天毫不吝啬的喂养你们！真是一点用都没有！"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            elif event.content in ['"都给老子……啊？啊啊啊啊啊啊……"']:
+                pass
+            elif event.content in ['"很痛吗？嘿嘿嘿！痛就对了！"']:
+                pass
+            elif event.content in ['"啊啊啊啊！"']:
+                pass
             elif event.content in ['"都给老子……啊？啊啊啊啊啊啊……"']:
                 pass
             else:
@@ -222,7 +238,7 @@ class NiuBoReplayer(SpecificReplayerPro):
 
         self.bhBlackList.extend(["s34366", "b25719", "s34146", "n122498", "s34333", "s34337", "n122486", "n122510",
                                  "s34368", "s34365", "n122582", "n122561", "s34330", "c34336", "s34335", "s34332",
-                                 "s34358", "n122477", "b25720", "n122492", "n122552", "n122550"
+                                 "s34358", "n122477", "b25720", "n122492", "n122552", "n122550", "n122984"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 

@@ -137,31 +137,32 @@ class WengYouzhiReplayer(SpecificReplayerPro):
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "玩家获得气劲", "buff")
 
         elif event.dataType == "Shout":
-            if event.content in ['"到此为止了！"', '"到此為止了！"']:
+            if event.content in ['"休想妨碍宗主！"']:
                 pass
-            elif event.content in ['"四分五裂！"']:
+            elif event.content in ['"豁！"']:
+                self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            elif event.content in ['"不自量力。"']:
                 pass
-            elif event.content in ['"迅如疾雷！"']:
+            elif event.content in ['"唔！"']:
                 pass
-            elif event.content in ['"呵！"', '"呵!"']:
+            elif event.content in ['"唔！"']:
                 pass
-            elif event.content in ['"死吧！"', '"死吧!"']:
+            elif event.content in ['"啊……"']:
                 pass
-            elif event.content in ['"疾风枭首！"', '"疾風梟首！"']:
+            elif event.content in ['"小子鲁莽，不过倒也有些胆气。"']:
+                pass
+            elif event.content in ['"呵！"']:
                 pass
             elif event.content in ['"无处可逃！"']:
                 pass
-            elif event.content in ['"哼，我才不会死在你们手里！"', '"哼，我才不會死在你們手裏！"']:
-                pass
-            elif event.content in ['"哼!"']:
-                self.win = 1
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
         elif event.dataType == "Scene":  # 进入、离开场景
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["翁幼之宝箱", "??寶箱"]:
-                self.win = 1
-                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            # if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["翁幼之宝箱", "??寶箱"]:
+            #     self.win = 1
+            #     self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
                 name = "n%s" % self.bld.info.npc[event.id].templateID
                 skillName = self.bld.info.npc[event.id].name
@@ -211,7 +212,8 @@ class WengYouzhiReplayer(SpecificReplayerPro):
                                  "s34029", "b25535", "b25501", "b25672", "s34312", "n122721", "b25689", "b25670",
                                  "n122495", "c34043", "n122560", "c34047", "s34044", "n122529", "s34196", "b25500",
                                  "n122533", "b25671", "s34314", "b25690", "s34321", "s34327", "n122503", "s34141",
-                                 "s34293", "n122532", "n122505", "s34191", "s34306", "s34325"
+                                 "s34293", "n122532", "n122505", "s34191", "s34306", "s34325", "n122527", "n122890",
+                                 "b26160"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 

@@ -139,7 +139,7 @@ class WuYunqueReplayer(SpecificReplayerPro):
         elif event.dataType == "Shout":
             if event.content in ['"来人！助我一臂之力！"']:
                 self.bh.setEnvironment("0", "武家弟子", "1118", event.time, 0, 1, "NPC出现", "shout", "#000000")
-            elif event.content in ['"阴雨连绵！"']:
+            elif event.content in ['"千针化雨，阴雨连绵！"']:
                 pass
             elif event.content in ['"情况不妙！我们先撤！"']:
                 pass
@@ -148,7 +148,7 @@ class WuYunqueReplayer(SpecificReplayerPro):
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             elif event.content in ['"雕虫小技！"']:
                 pass
-            elif event.content in ['"疾风枭首！"', '"疾風梟首！"']:
+            elif event.content in ['"给我出去！"']:
                 pass
             elif event.content in ['"无处可逃！"']:
                 pass
@@ -211,7 +211,7 @@ class WuYunqueReplayer(SpecificReplayerPro):
         self.bhBlackList.extend(["s34891", "s34614", "n122382", "s34411", "s34414", "b25744", "b25745", "b26164",
                                  "s34407", "n122403", "n122594", "n122236", "n122494", "c34409", "s34410", "n122546",
                                  "n122242", "s34641", "b25781", "s34893", "s34621", "s34413", "n122550", "n112055",
-                                 "n122593"
+                                 "n122593", "n122984"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 

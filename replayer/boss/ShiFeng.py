@@ -137,15 +137,15 @@ class ShiFengReplayer(SpecificReplayerPro):
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "玩家获得气劲", "buff")
 
         elif event.dataType == "Shout":
-            if event.content in ['"到此为止了！"', '"到此為止了！"']:
+            if event.content in ['"这一次，献出你的血液吧！"']:
                 pass
-            elif event.content in ['"四分五裂！"']:
+            elif event.content in ['"喝啊！"']:
                 pass
-            elif event.content in ['"迅如疾雷！"']:
+            elif event.content in ['"这招如何？！"']:
                 pass
-            elif event.content in ['"呵！"', '"呵!"']:
+            elif event.content in ['"逃吧！逃吧！看看你们还能逃到何处？"']:
                 pass
-            elif event.content in ['"死吧！"', '"死吧!"']:
+            elif event.content in ['"好极了！让鲜血飞溅吧！"']:
                 pass
             elif event.content in ['"疾风枭首！"', '"疾風梟首！"']:
                 pass
@@ -211,7 +211,8 @@ class ShiFengReplayer(SpecificReplayerPro):
         self.bhBlackList.extend(["s34052", "s32392", "b25516", "s34772", "s34064", "b25678", "b25505",
                                  "b25512", "s34065", "b25518", "b25515", "b25517", "b25508", "n122570",
                                  "c34055", "s34055", "s34066", "s34773", "s34067", "s34771", "s34058",
-                                 "s34059", "s34060", "s34068", "s34053", "s34063"
+                                 "s34059", "s34060", "s34068", "s34053", "s34063", "n122569", "n122477",
+                                 "n122942", "n122552", "n122550", "n122738"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 

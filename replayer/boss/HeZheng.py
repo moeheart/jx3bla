@@ -139,29 +139,30 @@ class HeZhengReplayer(SpecificReplayerPro):
         elif event.dataType == "Shout":
             if event.content in ['"可恶，偏偏在这个时候..."']:
                 pass
-            elif event.content in ['"四分五裂！"']:
+            elif event.content in ['"哪里来的贼人？就让贫僧来超度了你！"']:
                 pass
-            elif event.content in ['"迅如疾雷！"']:
+            elif event.content in ['"吃贫僧一铲！"']:
                 pass
-            elif event.content in ['"呵！"', '"呵!"']:
+            elif event.content in ['"喝！"']:
                 pass
-            elif event.content in ['"死吧！"', '"死吧!"']:
+            elif event.content in ['"嘿！"']:
                 pass
-            elif event.content in ['"疾风枭首！"', '"疾風梟首！"']:
+            elif event.content in ['"金刚伏魔！"']:
                 pass
-            elif event.content in ['"无处可逃！"']:
+            elif event.content in ['"可恶...偏偏在这个时候！"']:
                 pass
-            elif event.content in ['"哼，我才不会死在你们手里！"', '"哼，我才不會死在你們手裏！"']:
-                pass
+            elif event.content in ['"多年来我苦练石碑上百家武学，为何还是打不过……"']:
+                self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             elif event.content in ['"哼!"']:
                 pass
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
         elif event.dataType == "Scene":  # 进入、离开场景
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["张景超宝箱", "張景超寶箱"]:
-                self.win = 1
-                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            # if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["张景超宝箱", "張景超寶箱"]:
+            #     self.win = 1
+            #     self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
                 name = "n%s" % self.bld.info.npc[event.id].templateID
                 skillName = self.bld.info.npc[event.id].name
@@ -172,9 +173,10 @@ class HeZhengReplayer(SpecificReplayerPro):
                                                1, "NPC出现", "npc")
 
         elif event.dataType == "Death":  # 重伤记录
-            if event.id in self.bld.info.npc and self.bld.info.getName(event.id) in ["和正"]:
-                self.win = 1
-                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            pass
+            # if event.id in self.bld.info.npc and self.bld.info.getName(event.id) in ["和正"]:
+            #     self.win = 1
+            #     self.bh.setBadPeriod(event.time, self.finalTime, True, True)
 
         elif event.dataType == "Battle":  # 战斗状态变化
             pass
@@ -210,7 +212,8 @@ class HeZhengReplayer(SpecificReplayerPro):
         self.initPhase(1, 1)
 
         self.bhBlackList.extend(["n122492", "n122498", "n122486", "s34154", "s34243", "s34257", "s34231", "n122550",
-                                 "b25782", "s34233", "s34234", "b25627", "n112055", "n122588", "n122552", "n122510"
+                                 "b25782", "s34233", "s34234", "b25627", "n112055", "n122588", "n122552", "n122510",
+                                 "n122984", "n122484", "n122489", "n122771", "n122382", "n122721"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 

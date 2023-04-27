@@ -137,14 +137,15 @@ class YueLinchuanReplayer(SpecificReplayerPro):
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "玩家获得气劲", "buff")
 
         elif event.dataType == "Shout":
-            if event.content in ['"到此为止了！"', '"到此為止了！"']:
+            if event.content in ['"刀过如雷，剑行如电！"']:
                 pass
-            elif event.content in ['"四分五裂！"']:
+            elif event.content in ['"剑断流水，刀斩崇山！"']:
                 pass
-            elif event.content in ['"迅如疾雷！"']:
+            elif event.content in ['"弱者不配抬头！"']:
                 pass
-            elif event.content in ['"呵！"', '"呵!"']:
-                pass
+            elif event.content in ['"不可能……我竟连这等货色都无法应付……不可能……"']:
+                self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             elif event.content in ['"死吧！"', '"死吧!"']:
                 pass
             elif event.content in ['"疾风枭首！"', '"疾風梟首！"']:
@@ -159,9 +160,9 @@ class YueLinchuanReplayer(SpecificReplayerPro):
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
         elif event.dataType == "Scene":  # 进入、离开场景
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["乐临川宝箱", "??寶箱"]:
-                self.win = 1
-                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            # if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["乐临川宝箱", "??寶箱"]:
+            #     self.win = 1
+            #     self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
                 name = "n%s" % self.bld.info.npc[event.id].templateID
                 skillName = self.bld.info.npc[event.id].name
@@ -212,7 +213,8 @@ class YueLinchuanReplayer(SpecificReplayerPro):
         self.bhBlackList.extend(["s33948", "s33949", "n122515", "n122517", "c34097", "b25922", "b25774",
                                  "b25488", "s34153", "s34018", "s33984", "s33977", "n122518", "n122519",
                                  "n122520", "c34021", "s34012", "s34015", "n122576", "s34021", "s33993",
-                                 "s34022", "b25487", "n112055", "n122550"
+                                 "s34022", "b25487", "n112055", "n122550", "s33994", "s33995", "n122575",
+                                 "n122561"
 
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
