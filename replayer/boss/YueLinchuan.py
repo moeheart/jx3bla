@@ -146,11 +146,11 @@ class YueLinchuanReplayer(SpecificReplayerPro):
             elif event.content in ['"不可能……我竟连这等货色都无法应付……不可能……"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            elif event.content in ['"死吧！"', '"死吧!"']:
+            elif event.content in ['"哦？弱者也妄图恭行天罚？"']:
                 pass
-            elif event.content in ['"疾风枭首！"', '"疾風梟首！"']:
+            elif event.content in ['"太弱了，太弱了！"']:
                 pass
-            elif event.content in ['"无处可逃！"']:
+            elif event.content in ['"照照自己吧，毫无长进的废物！"']:
                 pass
             elif event.content in ['"哼，我才不会死在你们手里！"', '"哼，我才不會死在你們手裏！"']:
                 pass
@@ -214,7 +214,10 @@ class YueLinchuanReplayer(SpecificReplayerPro):
                                  "b25488", "s34153", "s34018", "s33984", "s33977", "n122518", "n122519",
                                  "n122520", "c34021", "s34012", "s34015", "n122576", "s34021", "s33993",
                                  "s34022", "b25487", "n112055", "n122550", "s33994", "s33995", "n122575",
-                                 "n122561"
+                                 "n122561", "n122641", "n122649", "n122654", "n122655", "s33998", "b25482",
+                                 "s33999", "s34524", "s34008", "b25483", "b25485", "s34007", "b25697", "b25484",
+                                 "b25696", "n122977", "n122373", "n122374", "b25486", "n122659", "s33996", "s33997",
+                                 "n122378"
 
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
@@ -238,8 +241,10 @@ class YueLinchuanReplayer(SpecificReplayerPro):
                        "c34011": ["2027", "#7777ff", 4000],  # 夺命碧波剑
                        "c34014": ["3436", "#7700ff", 3000],  # 迦楼罗腾闪
                        "c34018": ["12436", "#ff0077", 4000],  # 巨浪惊涛剑
-
-
+                       "c33998": ["332", "#ff77ff", 3000],  # 摘星换斗
+                       "c34225": ["346", "#0000bb", 3000],  # 遇水叠桥
+                       "c34009": ["2119", "#550000", 2000],  # 剑影汲取
+                       "c33997": ["2019", "#003377", 6000],  # 逢山开道
                        }
 
         # 乐临川数据格式：

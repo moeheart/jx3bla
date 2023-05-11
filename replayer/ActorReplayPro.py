@@ -163,17 +163,17 @@ class ActorProReplayer(ReplayerBase):
                     self.bossAnalyseName = "藤原佑野"
                 if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["李重茂", "永王叛军长枪兵", "一刀流精锐武士", "永王叛军剑卫", "永王叛軍長槍兵", "一刀流精銳武士", "永王叛軍劍衛"]:
                     self.bossAnalyseName = "李重茂"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["时风"]:
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["时风"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "时风"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["乐临川"]:
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["乐临川"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "乐临川"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["牛波"]:
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["牛波"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "牛波"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["和正"]:
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["和正"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "和正"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["武云阙"]:
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["武云阙"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "武云阙"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["翁幼之"]:
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["翁幼之"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "翁幼之"
 
                 # 通过技能确定具体心法
@@ -603,6 +603,10 @@ class ActorProReplayer(ReplayerBase):
                                               "%s叠加业障debuff到%d层" % (deathTime, event.stack),
                                               deathSourceDetail,
                                               0])
+
+                if event.id in ["25603", "25604", "25605", "25606", "25607", "25608", "25609", "25603", "25603", "25501", "25602"] and event.stack == 1:
+                    print("[Dianming]", parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.target), event.id, self.bld.info.getSkillName(event.full_id),
+                          parseTime((event.end - event.frame) * 62.5 / 1000))
 
             elif event.dataType == "Death":  # 重伤记录
                 

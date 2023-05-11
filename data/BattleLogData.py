@@ -32,7 +32,7 @@ class RawDataLoader():
             if self.config.item["general"]["datatype"] == "jx3dat":
                 bossname = getNickToBoss(filename.split('/')[-1].split('\\')[-1].split('_')[1])
             else:
-                bossname = getNickToBoss(filename.split('/')[-1].split('\\')[-1].split('-')[-1].split('.')[0])
+                bossname = getNickToBoss(filename.split('/')[-1].split('\\')[-1].split('-')[-1].split('.')[0].split('(')[0])
             self.window.setNotice({"t1": "正在读取[%s]..." % bossname, "c1": "#000000"})
 
         if self.config.item["general"]["datatype"] == "jcl":
@@ -182,10 +182,14 @@ class BattleLogData():
 
         #读取全局数据
         self.info.skill = {}
-        self.info.map = filePath.split('/')[-1].split('\\')[-1].split('-')[6]
-        if self.info.map in MAP_TRADITIONAL:
-            self.info.map = MAP_TRADITIONAL[self.info.map]
-        self.info.boss = filePath.split('/')[-1].split('\\')[-1].split('-')[7].split('.')[0]
+        map_origin = filePath.split('/')[-1].split('\\')[-1].split('-')[6].split('(')[0]
+        if map_origin in MAP_TRADITIONAL:
+            self.info.map = MAP_TRADITIONAL[map_origin]
+        else:
+            self.info.map = map_origin
+        self.info.boss = filePath.split('/')[-1].split('\\')[-1].split('-')[7].split('.')[0].split('(')[0]
+        print("[Map]", self.info.map)
+        print("[Boss]", self.info.boss)
 
 
     def loadFromJx3dat(self, filePath):

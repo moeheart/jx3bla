@@ -178,7 +178,21 @@ class NiuBoReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"啊啊啊啊！"']:
                 pass
-            elif event.content in ['"都给老子……啊？啊啊啊啊啊啊……"']:
+            elif event.content in ['"睡吧~睡吧！"']:
+                pass
+            elif event.content in ['"畜生们，准备好！"']:
+                pass
+            elif event.content in ['"开饭咯！"']:
+                pass
+            elif event.content in ['"咕~~~（似乎是肚子发出的声音）"']:
+                pass
+            elif event.content in ['"呃！什么？"']:
+                pass
+            elif event.content in ['"你这畜生！是那边！"']:
+                pass
+            elif event.content in ['"去吧！碾碎他们！"']:
+                pass
+            elif event.content in ['"去吧！碾碎他们！"']:
                 pass
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
@@ -238,7 +252,11 @@ class NiuBoReplayer(SpecificReplayerPro):
 
         self.bhBlackList.extend(["s34366", "b25719", "s34146", "n122498", "s34333", "s34337", "n122486", "n122510",
                                  "s34368", "s34365", "n122582", "n122561", "s34330", "c34336", "s34335", "s34332",
-                                 "s34358", "n122477", "b25720", "n122492", "n122552", "n122550", "n122984"
+                                 "s34358", "n122477", "b25720", "n122492", "n122552", "n122550", "n122984", "n122624",
+                                 "b25644", "b25635", "s34150", "b25636", "n122610", "n122907", "n122604", "b25729",
+                                 "s34384", "b25737", "b25700", "s34376", "n122603", "s34377", "b25730"
+
+
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
@@ -251,6 +269,10 @@ class NiuBoReplayer(SpecificReplayerPro):
                        "c34332": ["3293", "#00ff00", 0],  # 翼击
                        "c34334": ["3293", "#00ff00", 0],  # 站立扑击
                        "s34364": ["2028", "#7700ff", 0],  # 隐袭
+                       "s34151": ["397", "#ff77ff", 0],  # 麻醉弩箭
+                       "c34245": ["128", "#ff0077", 5000],  # 饲料诱饵
+                       "c34376": ["2031", "#ff77cc", 3000],  # 象足撼地
+                       "c34379": ["345", "#007700", 0],  # 象鼻音波
                        }
 
         # 牛波数据格式：

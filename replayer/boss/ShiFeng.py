@@ -147,15 +147,17 @@ class ShiFengReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"好极了！让鲜血飞溅吧！"']:
                 pass
-            elif event.content in ['"疾风枭首！"', '"疾風梟首！"']:
+            elif event.content in ['"这就是上乘的鲜味吗？"']:
                 pass
-            elif event.content in ['"无处可逃！"']:
-                pass
+            elif event.content in ['"咳咳，有趣有趣，待我参悟功法重返，再以你的鲜血作画！"']:
+                self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             elif event.content in ['"哼，我才不会死在你们手里！"', '"哼，我才不會死在你們手裏！"']:
                 pass
             elif event.content in ['"哼!"']:
-                self.win = 1
-                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+                pass
+                # self.win = 1
+                # self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
@@ -212,7 +214,8 @@ class ShiFengReplayer(SpecificReplayerPro):
                                  "b25512", "s34065", "b25518", "b25515", "b25517", "b25508", "n122570",
                                  "c34055", "s34055", "s34066", "s34773", "s34067", "s34771", "s34058",
                                  "s34059", "s34060", "s34068", "s34053", "s34063", "n122569", "n122477",
-                                 "n122942", "n122552", "n122550", "n122738"
+                                 "n122942", "n122552", "n122550", "n122738", "n122618", "n122681", "n122906",
+
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
