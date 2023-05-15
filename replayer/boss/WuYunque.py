@@ -139,6 +139,8 @@ class WuYunqueReplayer(SpecificReplayerPro):
         elif event.dataType == "Shout":
             if event.content in ['"来人！助我一臂之力！"']:
                 self.bh.setEnvironment("0", "武家弟子", "1118", event.time, 0, 1, "NPC出现", "shout", "#000000")
+            elif event.content in ['"解家弟子何在！"']:
+                self.bh.setEnvironment("0", "解家弟子", "1118", event.time, 0, 1, "NPC出现", "shout", "#000000")
             elif event.content in ['"千针化雨，阴雨连绵！"']:
                 pass
             elif event.content in ['"情况不妙！我们先撤！"']:
@@ -150,11 +152,17 @@ class WuYunqueReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"给我出去！"']:
                 pass
-            elif event.content in ['"无处可逃！"']:
+            elif event.content in ['"是~"']:
                 pass
-            elif event.content in ['"哼，我才不会死在你们手里！"', '"哼，我才不會死在你們手裏！"']:
+            elif event.content in ['"哼哼哼哼哼……去见阎罗吧。"']:
                 pass
-            elif event.content in ['"哼!"']:
+            elif event.content in ['"哦？让我来与你们过上几招。"']:
+                pass
+            elif event.content in ['"啊！"']:
+                pass
+            elif event.content in ['"铁御于心，刀枪不入！"']:
+                pass
+            elif event.content in ['"啊！什么！"']:
                 pass
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
@@ -171,6 +179,8 @@ class WuYunqueReplayer(SpecificReplayerPro):
                     if "的" not in skillName:
                         self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
                                                1, "NPC出现", "npc")
+                if name == "n122609":
+                    self.bh.setEnvironment("122609", "飞虹针·虹尽", "3312", event.time, 0, 1, "NPC出现", "npc", color="#ff77cc")
 
         elif event.dataType == "Death":  # 重伤记录
             pass
@@ -211,7 +221,9 @@ class WuYunqueReplayer(SpecificReplayerPro):
         self.bhBlackList.extend(["s34891", "s34614", "n122382", "s34411", "s34414", "b25744", "b25745", "b26164",
                                  "s34407", "n122403", "n122594", "n122236", "n122494", "c34409", "s34410", "n122546",
                                  "n122242", "s34641", "b25781", "s34893", "s34621", "s34413", "n122550", "n112055",
-                                 "n122593", "n122984"
+                                 "n122593", "n122984", "n122907", "n122614", "n122609", "n122617", "n122651", "c34624",
+                                 "b25977", "b25892", "s34403", "n122241", "b25771", "s34617", "n122716"
+
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
@@ -230,6 +242,9 @@ class WuYunqueReplayer(SpecificReplayerPro):
                        "c34639": ["2033", "#7777ff", 3000],  # 连绵阴雨针
                        "c34620": ["2034", "#7700ff", 3000],  # 连绵阴雨针
                        "c34412": ["13167", "#0077ff", 3000],  # 大戮戟法·定虚
+                       "c34619": ["4491", "#ff7777", 3000],  # 飞虹针·疾叶
+                       "s34622": ["3432", "#77ff00", 0],  # 散凌阴雨针
+                       "c34415": ["3449", "#000077", 0],  # 铁御诀
 
 
 

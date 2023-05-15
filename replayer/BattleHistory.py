@@ -89,6 +89,8 @@ class BattleHistory():
                 name = "b" + self.log["environment"][i]["skillid"]
             elif self.log["environment"][i]["type"] == "skill":
                 name = "s" + self.log["environment"][i]["skillid"]
+            elif self.log["environment"][i]["type"] == "npc":
+                name = "n" + self.log["environment"][i]["skillid"]
             if name in infoDict:
                 self.log["environment"][i]["iconid"] = infoDict[name][0]
                 self.log["environment"][i]["color"] = infoDict[name][1]

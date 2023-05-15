@@ -122,6 +122,9 @@ class WengYouzhiReplayer(SpecificReplayerPro):
                     if event.target in self.bld.info.npc:
                         if self.bld.info.getName(event.target) in ["翁幼之"]:
                             self.bh.setMainTarget(event.target)
+                            if event.damageEff > 1 and self.immuneStatus == 1:
+                                self.bh.setBadPeriod(self.immuneTime, event.time, True, False)
+                                self.immuneStatus = 0
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -151,6 +154,30 @@ class WengYouzhiReplayer(SpecificReplayerPro):
             elif event.content in ['"啊……"']:
                 pass
             elif event.content in ['"小子鲁莽，不过倒也有些胆气。"']:
+                pass
+            elif event.content in ['"啊……你们这些匪徒！为何杀我妻儿！"']:
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", color="#000000")
+                self.immuneStatus = 1
+                self.immuneTime = event.time
+                self.immuneHealer = 0
+            elif event.content in ['"你们……是你们！"']:
+                pass
+            elif event.content in ['"毁了我的一切！"']:
+                pass
+            elif event.content in ['"偿命……偿命！"']:
+                if self.immuneStatus == 0:
+                    self.immuneTime = event.time
+                self.immuneStatus = 1
+                self.immuneHealer = 0
+            elif event.content in ['"尝尽我的痛苦！"']:
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout", color="#000000")
+                if self.immuneStatus == 1:
+                    self.bh.setBadPeriod(self.immuneTime, event.time, True, False)
+                    self.immuneStatus = 0
+            elif event.content in ['"谁也别想…阻止我！"']:
+                self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            elif event.content in ['"师父！"']:
                 pass
             elif event.content in ['"呵！"']:
                 pass
@@ -189,6 +216,10 @@ class WengYouzhiReplayer(SpecificReplayerPro):
                     skillName = self.bld.info.getSkillName(event.full_id)
                     if "," not in skillName:
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式开始运功", "cast")
+            if event.id == "34535":   # 治疗心法的无效时间
+                if self.immuneStatus == 1 and self.immuneHealer == 0:
+                    self.immuneHealer = 1
+                    self.bh.setBadPeriod(self.immuneTime, event.time, False, True)
 
                     
     def analyseFirstStage(self, item):
@@ -206,14 +237,22 @@ class WengYouzhiReplayer(SpecificReplayerPro):
         self.initBattleBase()
         self.activeBoss = "翁幼之"
 
-        self.initPhase(1, 1)
+        self.initPhase(3, 1)
+
+        self.immuneStatus = 0
+        self.immuneHealer = 0
+        self.immuneTime = 0
 
         self.bhBlackList.extend(["n122740", "s34030", "n122506", "b25602", "s34193", "s34046", "s34190", "b25603",
                                  "s34029", "b25535", "b25501", "b25672", "s34312", "n122721", "b25689", "b25670",
                                  "n122495", "c34043", "n122560", "c34047", "s34044", "n122529", "s34196", "b25500",
                                  "n122533", "b25671", "s34314", "b25690", "s34321", "s34327", "n122503", "s34141",
                                  "s34293", "n122532", "n122505", "s34191", "s34306", "s34325", "n122527", "n122890",
-                                 "b26160"
+                                 "b26160", "n122644", "n122631", "n122673", "n122652", "n122675", "n122633", "n122611",
+                                 "b25846", "b25855", "n122672", "b26061", "n122909", "s34526", "s34711", "b26025",
+                                 "s34742", "s34737", "b25685", "b25992", "b26100", "s34974", "n122635", "n122647",
+                                 "b25837", "b26029", "b25990", "s32392", "n122720", "n122634", "n122612", "b25785",
+                                 "s34794"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
@@ -230,12 +269,18 @@ class WengYouzhiReplayer(SpecificReplayerPro):
                        "c34046": ["3430", "#0000ff", 7000],  # 血魂裂爪
                        "c34190": ["3452", "#ff0000", 3000],  # 骨刃罡风
                        "c34195": ["3398", "#007700", 2000],   # 断魂流影
-                       "c34028": ["3398", "#00ffff", 5000],   # 森罗万刃
+                       "c34028": ["3407", "#00ffff", 5000],   # 森罗万刃
                        "c34309": ["4224", "#ff7700", 0],   # 血影坠击
                        "c34313": ["3428", "#7700ff", 5000],   # 黄泉鬼步
                        "c34306": ["2026", "#ff00ff", 3000],   # 血狩孤魂
                        "c34321": ["2024", "#7777ff", 9000],   # 击空断骨
                        "c34291": ["3426", "#ff77cc", 2000],   # 恶鬼噬心
+                       "c34563": ["345", "#ff7700", 5000],  # 囚魂心牢
+                       "c34535": ["2022", "#773300", 0],  # 痛苦凝聚
+                       "c34715": ["3398", "#7777ff", 0],  # 聚魂灭魄
+                       "c34701": ["2024", "#7777ff", 9000],  # 恨·击空断骨
+                       "c34739": ["3426", "#ff77cc", 2000],  # 仇·恶鬼噬心
+                       "c34736": ["3428", "#7700ff", 5000],  # 怨·黄泉鬼步
                        }
 
         # 翁幼之数据格式：

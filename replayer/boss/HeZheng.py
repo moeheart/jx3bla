@@ -154,7 +154,9 @@ class HeZhengReplayer(SpecificReplayerPro):
             elif event.content in ['"多年来我苦练石碑上百家武学，为何还是打不过……"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            elif event.content in ['"哼!"']:
+            elif event.content in ['"阿弥陀佛，我佛慈悲。"']:
+                pass
+            elif event.content in ['"阿弥陀佛，我佛慈悲。"']:
                 pass
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
@@ -213,7 +215,8 @@ class HeZhengReplayer(SpecificReplayerPro):
 
         self.bhBlackList.extend(["n122492", "n122498", "n122486", "s34154", "s34243", "s34257", "s34231", "n122550",
                                  "b25782", "s34233", "s34234", "b25627", "n112055", "n122588", "n122552", "n122510",
-                                 "n122984", "n122484", "n122489", "n122771", "n122382", "n122721"
+                                 "n122984", "n122484", "n122489", "n122771", "n122382", "n122721", "n122909", "s34232",
+                                 "n122907", "b25618", "s34301", "s34236", "b25632"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
@@ -233,6 +236,8 @@ class HeZhengReplayer(SpecificReplayerPro):
                        "c34850": ["3430", "#7777ff", 9000],  # 月掠天河
                        "c34232": ["3430", "#7777ff", 2000],  # 摧山断岳
                        "c34212": ["11310", "#007777", 6000],  # 除魔九界
+                       "n122620": ["2144", "#000000", 0],  # 和正·虚妄幻化
+                       "s34305": ["3429", "#ff0077", 0],  # 降魔大阵·降魔
                        }
 
         # 和正数据格式：

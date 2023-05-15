@@ -43,6 +43,7 @@ class ZhenyanRecord():
         resRaw = {}
         prevTime = self.startTime
         prevValue = "0"
+        # print("[Log]", self.log)
         for line in self.log:
             if line[0] - prevTime > 0:
                 resRaw[prevValue] = resRaw.get(prevValue, 0) + line[0] - prevTime

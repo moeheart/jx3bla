@@ -151,17 +151,17 @@ class ActorProReplayer(ReplayerBase):
                 #         self.startTime = event.time
                 #         timeReseted = 1
 
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["张景超", "張景超", "张法雷", "張法雷"]:
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["张景超", "張景超", "张法雷", "張法雷"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "张景超"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["刘展", "劉展", "枪卫首领", "槍衛首領", "斧卫首领", "斧衛首領"]:
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["刘展", "劉展", "枪卫首领", "槍衛首領", "斧卫首领", "斧衛首領"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "刘展"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["苏凤楼", "蘇鳳樓"]:
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["苏凤楼", "蘇鳳樓"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "苏凤楼"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["韩敬青", "韓敬青"]:
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["韩敬青", "韓敬青"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "韩敬青"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["藤原佑野"]:
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["藤原佑野"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "藤原佑野"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["李重茂", "永王叛军长枪兵", "一刀流精锐武士", "永王叛军剑卫", "永王叛軍長槍兵", "一刀流精銳武士", "永王叛軍劍衛"]:
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["李重茂", "永王叛军长枪兵", "一刀流精锐武士", "永王叛军剑卫", "永王叛軍長槍兵", "一刀流精銳武士", "永王叛軍劍衛"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "李重茂"
                 if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["时风"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "时风"
@@ -570,12 +570,14 @@ class ActorProReplayer(ReplayerBase):
                     if event.id in zhenyanSymbol and event.stack == 1:
                         # 获取到小队阵眼记录. 推测这里附近都是这个阵眼.
                         self.zhenyanInfer[event.target].recordPresent(event.time, zhenyanSymbol[event.id])
-                    if event.id in ZHENYAN_DICT:
+                        # print("[GetZhenyan1]", self.bld.info.getName(event.target), event.id, parseTime((event.time - self.startTime) / 1000))
+                    if event.id in ZHENYAN_DICT and event.id != "0":
                         # 阵眼本身的获得与消失.
                         if event.stack == 1:
                             self.zhenyanInfer[event.target].recordPost(event.time, event.id)
                         else:
                             self.zhenyanInfer[event.target].recordPrev(event.time, event.id)
+                        # print("[GetZhenyan2]", self.bld.info.getName(event.target), event.id, parseTime((event.time - self.startTime) / 1000), event.stack)
 
                 if event.id in ["20938"] and event.target in self.bld.info.player:  # 左旋右转
                     if event.time - self.startTime < 60000:  # 假设起始时有这个buff
@@ -604,9 +606,9 @@ class ActorProReplayer(ReplayerBase):
                                               deathSourceDetail,
                                               0])
 
-                if event.id in ["25603", "25604", "25605", "25606", "25607", "25608", "25609", "25603", "25603", "25501", "25602"] and event.stack == 1:
-                    print("[Dianming]", parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.target), event.id, self.bld.info.getSkillName(event.full_id),
-                          parseTime((event.end - event.frame) * 62.5 / 1000))
+                # if event.id in ["25603", "25604", "25605", "25606", "25607", "25608", "25609", "25603", "25603", "25501", "25602"] and event.stack == 1:
+                #     print("[Dianming]", parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.target), event.id, self.bld.info.getSkillName(event.full_id),
+                #           parseTime((event.end - event.frame) * 62.5 / 1000))
 
             elif event.dataType == "Death":  # 重伤记录
                 
@@ -715,9 +717,9 @@ class ActorProReplayer(ReplayerBase):
 
 
         # 检验阵眼判断
-        # for player in self.zhenyanInfer:
-        #     res = self.zhenyanInfer[player].getSummary()
-        #     print("[Zhenyan]", player, self.bld.info.getName(player), res)
+        for player in self.zhenyanInfer:
+            res = self.zhenyanInfer[player].getSummary()
+            # print("[Zhenyan]", player, self.bld.info.getName(player), res)
 
         # 左旋右转最终调整
         if self.zxyzPrecast == 0:
