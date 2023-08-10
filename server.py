@@ -1310,7 +1310,6 @@ def getRankfunc():
     resJson["num"] = len(result_nodup)
     db.close()
 
-
     return jsonify({'available': 1, 'text': "请求成功", 'result': resJson})
     
 @app.route('/uploadXiangZhiData', methods=['POST'])

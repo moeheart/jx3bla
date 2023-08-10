@@ -82,6 +82,8 @@ class WengYouzhiReplayer(SpecificReplayerPro):
                 bossResult.append(res)
         self.statList = bossResult
 
+        self.f.close()
+
         return self.statList, self.potList, self.detail, self.stunCounter
 
     def recordDeath(self, item, deathSource):
@@ -199,6 +201,13 @@ class WengYouzhiReplayer(SpecificReplayerPro):
                         self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
                                                1, "NPC出现", "npc")
 
+            # if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name == "翁幼之" and event.enter:
+            #     print("[WyzAppear]", parseTime((event.time - self.startTime) / 1000), self.bld.info.npc[event.id].templateID, self.bld.info.npc[event.id].x, self.bld.info.npc[event.id].y, self.bld.info.npc[event.id].z)
+
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].templateID == "122647" and event.enter:
+                print("[WyzAppear]", parseTime((event.time - self.startTime) / 1000), self.bld.info.npc[event.id].templateID, self.bld.info.npc[event.id].x, self.bld.info.npc[event.id].y, self.bld.info.npc[event.id].z)
+                self.f.write("%d %d %d\n" % (self.bld.info.npc[event.id].x, self.bld.info.npc[event.id].y, self.bld.info.npc[event.id].z))
+
         elif event.dataType == "Death":  # 重伤记录
             pass
 
@@ -220,6 +229,8 @@ class WengYouzhiReplayer(SpecificReplayerPro):
                 if self.immuneStatus == 1 and self.immuneHealer == 0:
                     self.immuneHealer = 1
                     self.bh.setBadPeriod(self.immuneTime, event.time, False, True)
+            # if self.bld.info.getSkillName(event.full_id) in ["血影坠击", "怨·黄泉鬼步"]:
+            #     print("[Xueyingzhuiji]", event.id, parseTime((event.time - self.startTime) / 1000))
 
                     
     def analyseFirstStage(self, item):
@@ -243,6 +254,8 @@ class WengYouzhiReplayer(SpecificReplayerPro):
         self.immuneHealer = 0
         self.immuneTime = 0
 
+        self.f = open("wyztmp/%d.txt" % self.startTime, "w")
+
         self.bhBlackList.extend(["n122740", "s34030", "n122506", "b25602", "s34193", "s34046", "s34190", "b25603",
                                  "s34029", "b25535", "b25501", "b25672", "s34312", "n122721", "b25689", "b25670",
                                  "n122495", "c34043", "n122560", "c34047", "s34044", "n122529", "s34196", "b25500",
@@ -252,7 +265,7 @@ class WengYouzhiReplayer(SpecificReplayerPro):
                                  "b25846", "b25855", "n122672", "b26061", "n122909", "s34526", "s34711", "b26025",
                                  "s34742", "s34737", "b25685", "b25992", "b26100", "s34974", "n122635", "n122647",
                                  "b25837", "b26029", "b25990", "s32392", "n122720", "n122634", "n122612", "b25785",
-                                 "s34794"
+                                 "s34794", "s35059", "b26227"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 

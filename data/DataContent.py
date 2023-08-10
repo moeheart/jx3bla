@@ -478,6 +478,9 @@ class OverallData():
             self.npc[key] = NPCdata()
             self.npc[key].name = name.strip('"')
             self.npc[key].templateID = "0"
+            self.npc[key].x = 0
+            self.npc[key].y = 0
+            self.npc[key].z = 0
 
     def addDoodad(self, key, templateID):
         '''
