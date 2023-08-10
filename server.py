@@ -1235,7 +1235,7 @@ def getXinfaRankfunc():
             continue
         if mapid == "未知":
             continue
-        tablekey = "%s-%s-%s-general-%s" % (occ_pinyin, mapid, boss, orderby)
+        tablekey = "%s-%s-%s-%s-%s" % (occ_pinyin, mapid, boss, case, orderby)
         if tablekey in app.percent_data:
             result[occ_pinyin] = app.percent_data[tablekey]
 
