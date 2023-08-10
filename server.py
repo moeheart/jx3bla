@@ -1216,6 +1216,32 @@ def getSinglePlayer():
     db.close()
     return jsonify({'available': 1, 'text': "请求成功", 'result': resJson})
 
+@app.route('/getXinfaRank', methods=['GET'])
+def getXinfaRankfunc():
+    map = request.args.get('map')
+    boss = request.args.get("boss")
+    orderby = request.args.get("orderby")
+    if orderby not in ["score", "rhps", "hps", "rdps", "ndps", "mrdps", "mndps"]:
+        return jsonify({'available': 0, 'text': "排序方式不合法"})
+
+    mapid = getIDFromMap(map)
+
+    result = {}
+
+    for key in OCC_PINYIN_DICT:
+        occ_pinyin = OCC_PINYIN_DICT[key]
+        if occ_pinyin == "unknown":
+            continue
+        if mapid == "未知":
+            continue
+        tablekey = "%s-%s-%s-general-%s" % (occ_pinyin, mapid, boss, orderby)
+        if tablekey in app.percent_data:
+            result[occ_pinyin] = app.percent_data[tablekey]
+
+    return jsonify({'available': 1, 'text': "请求成功", 'result': result})
+
+
+
 @app.route('/getRank', methods=['GET'])
 def getRankfunc():
     map = request.args.get('map')
