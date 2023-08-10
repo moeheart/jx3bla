@@ -1223,10 +1223,11 @@ def getXinfaRankfunc():
     orderby = request.args.get("orderby")
     if orderby not in ["score", "rhps", "hps", "rdps", "ndps", "mrdps", "mndps"]:
         return jsonify({'available': 0, 'text': "排序方式不合法"})
-
     mapid = getIDFromMap(map)
-
     result = {}
+    case = "general"
+    if orderby in ["rhps", "hps"]:
+        case = "healer"
 
     for key in OCC_PINYIN_DICT:
         occ_pinyin = OCC_PINYIN_DICT[key]
