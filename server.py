@@ -1246,9 +1246,9 @@ def getXinfaRankfunc():
 
     occ_collect.sort(key=lambda x:-x[1])
 
-    real_result = {}
+    real_result = []
     for line in occ_collect:
-        real_result[line[0]] = result[line[0]]
+        real_result.append({"name": line, "value": result[line]["value"], "num": result[line]["num"]})
 
     return jsonify({'available': 1, 'text': "请求成功", 'result': real_result})
 
