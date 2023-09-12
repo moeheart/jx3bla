@@ -1239,6 +1239,7 @@ def getXinfaRankfunc():
             continue
         tablekey = "%s-%s-%s-%s-%s" % (occ_pinyin, mapid, boss, case, orderby)
         if tablekey in app.percent_data:
+            print("[Test]", tablekey)
             result[occ_pinyin] = app.percent_data[tablekey]
             occ_collect.append([occ_pinyin, result[occ_pinyin][75]])
 
@@ -1248,7 +1249,7 @@ def getXinfaRankfunc():
     for line in occ_collect:
         real_result[line[0]] = result[line[0]]
 
-    return jsonify({'available': 1, 'text': "请求成功", 'result': result})
+    return jsonify({'available': 1, 'text': "请求成功", 'result': real_result})
 
 
 
