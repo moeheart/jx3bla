@@ -1239,7 +1239,6 @@ def getXinfaRankfunc():
             continue
         tablekey = "%s-%s-%s-%s-%s" % (occ_pinyin, mapid, boss, case, orderby)
         if tablekey in app.percent_data:
-            print("[Test]", tablekey)
             result[occ_pinyin] = app.percent_data[tablekey]
             table = json.loads(result[occ_pinyin]["value"])
             occ_collect.append([occ_pinyin, table[75]])
