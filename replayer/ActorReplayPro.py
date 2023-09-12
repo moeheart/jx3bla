@@ -433,6 +433,14 @@ class ActorProReplayer(ReplayerBase):
         self.zxyzPrecast = 0
         self.zxyzPrecastSource = "0"
 
+        # 记录模式
+        logMode = 1
+        logSkill = [
+            {"": []}
+
+        ]
+
+
         for event in self.bld.log:
 
             if event.time < self.startTime:
@@ -450,6 +458,9 @@ class ActorProReplayer(ReplayerBase):
                     # data = self.checkFirst(item[5], data, occdict)
                     # if item[7] in self.actorSkillList and int(item[10]) != 2:
                     #     data.hitCount[item[5]]["s" + item[7]] += 1
+
+                    if event.source not in self.bld.info.player and event.damage > 0:
+                        print("[Damage]", self.bld.info.getName(event.source), self.bld.info.getName(event.target), event.id, self.bld.info.getSkillName(event.full_id), event.damage)
 
                     # 过量伤害
                     if event.damage > event.damageEff:
