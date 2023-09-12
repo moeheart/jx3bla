@@ -36,7 +36,7 @@ for player in playerSkillDict:
         row.append(playerSkillDict[player][skill])
     rows.append(row)
 
-with open('result.csv','w',encoding='utf-8', newline='') as f:
+with open('result.csv', 'w' ,encoding='utf-8', newline='') as f:
     f_csv = csv.writer(f)
     f_csv.writerow(headers)
     f_csv.writerows(rows)

@@ -1229,6 +1229,8 @@ def getXinfaRankfunc():
     if orderby in ["rhps", "hps"]:
         case = "healer"
 
+    occ_collect = []
+
     for key in OCC_PINYIN_DICT:
         occ_pinyin = OCC_PINYIN_DICT[key]
         if occ_pinyin == "unknown":
@@ -1238,6 +1240,13 @@ def getXinfaRankfunc():
         tablekey = "%s-%s-%s-%s-%s" % (occ_pinyin, mapid, boss, case, orderby)
         if tablekey in app.percent_data:
             result[occ_pinyin] = app.percent_data[tablekey]
+        occ_collect.append([occ_pinyin, result[occ_pinyin][75]])
+
+    occ_collect.sort(key=lambda x:-x[1])
+
+    real_result = {}
+    for line in occ_collect:
+        real_result[line[0]] = result[line[0]]
 
     return jsonify({'available': 1, 'text': "请求成功", 'result': result})
 

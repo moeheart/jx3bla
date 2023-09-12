@@ -22,3 +22,4 @@ database/ActorStat/
 database/ReplayProStat/
 server.crt
 server.pem
+jldCount/
