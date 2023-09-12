@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
         for row in f_csv:
             s = "1,%s,%s"%(row[0], row[1])
-            resultDict[s] = row[10]
+            resultDict[s] = row[11]
 
     # 读取buff是否有化解/减伤/各种增益
     absorbDict = {}

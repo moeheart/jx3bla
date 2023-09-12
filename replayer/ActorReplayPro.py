@@ -459,8 +459,8 @@ class ActorProReplayer(ReplayerBase):
                     # if item[7] in self.actorSkillList and int(item[10]) != 2:
                     #     data.hitCount[item[5]]["s" + item[7]] += 1
 
-                    if event.source not in self.bld.info.player and event.damage > 0:
-                        print("[Damage]", self.bld.info.getName(event.source), self.bld.info.getName(event.target), event.id, self.bld.info.getSkillName(event.full_id), event.damage)
+                    if event.caster not in self.bld.info.player and event.damage > 0:
+                        print("[Damage]", self.bld.info.getName(event.caster), self.bld.info.getName(event.target), event.id, self.bld.info.getSkillName(event.full_id), event.damage)
 
                     # 过量伤害
                     if event.damage > event.damageEff:
