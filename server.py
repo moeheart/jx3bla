@@ -1240,9 +1240,9 @@ def getXinfaRankfunc():
         tablekey = "%s-%s-%s-%s-%s" % (occ_pinyin, mapid, boss, case, orderby)
         if tablekey in app.percent_data:
             #result[occ_pinyin] = app.percent_data[tablekey]
-            table = json.loads(result[occ_pinyin]["value"])
+            table = json.loads(app.percent_data[tablekey]["value"])
             # occ_collect.append([occ_pinyin, table[75]])
-            occ_collect.append({"name": occ_pinyin, "num": result[occ_pinyin]["num"], "value": table})
+            occ_collect.append({"name": occ_pinyin, "num": app.percent_data[tablekey]["num"], "value": table})
 
     occ_collect.sort(key=lambda x:-x["value"][75])
 
