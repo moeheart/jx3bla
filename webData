@@ -1,0 +1,56 @@
+[
+    {
+        "action": "empty new tab is active tab",
+        "curTabId": 470200431,
+        "curTitle": "新标签页",
+        "curUrl": "chrome://newtab/",
+        "prevTabId": 470200431,
+        "prevUrl": "",
+        "time": 1695238195
+    },
+    {
+        "action": "navigate between urls in the same tab (generated)",
+        "curTabId": 470200431,
+        "curTitle": "git bash download - Google Search",
+        "curUrl": "https://www.google.com/search?q=git+bash+download&oq=Git+bash&aqs=chrome.1.0i67i433i650j0i67i131i433i650j0i67i650j0i67i433i650j0i67i650j0i512j0i67i650l2j0i512l2.8859j1j7&sourceid=chrome&ie=UTF-8",
+        "prevTabId": 470200431,
+        "prevUrl": "chrome://newtab/",
+        "time": 1695238396
+    },
+    {
+        "action": "navigate between urls in the same tab (link)",
+        "curTabId": 470200431,
+        "curTitle": "Git - Downloads",
+        "curUrl": "https://git-scm.com/downloads",
+        "prevTabId": 470200431,
+        "prevUrl": "https://www.google.com/search?q=git+bash+download&oq=Git+bash&aqs=chrome.1.0i67i433i650j0i67i131i433i650j0i67i650j0i67i433i650j0i67i650j0i512j0i67i650l2j0i512l2.8859j1j7&sourceid=chrome&ie=UTF-8",
+        "time": 1695238397
+    },
+    {
+        "action": "navigate between urls in the same tab (link)",
+        "curTabId": 470200431,
+        "curTitle": "Git - Downloading Package",
+        "curUrl": "https://git-scm.com/download/win",
+        "prevTabId": 470200431,
+        "prevUrl": "https://git-scm.com/downloads",
+        "time": 1695238398
+    },
+    {
+        "action": "empty new tab is active tab",
+        "curTabId": 470200486,
+        "curTitle": "新标签页",
+        "curUrl": "chrome://newtab/",
+        "prevTabId": 470200486,
+        "prevUrl": "",
+        "time": 1695238562
+    },
+    {
+        "action": "empty new tab is active tab",
+        "curTabId": 470200539,
+        "curTitle": "新标签页",
+        "curUrl": "chrome://newtab/",
+        "prevTabId": 470200539,
+        "prevUrl": "",
+        "time": 1695238728
+    }
+]

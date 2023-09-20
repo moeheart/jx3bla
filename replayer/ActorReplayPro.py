@@ -38,6 +38,13 @@ from replayer.boss.HeZheng import HeZhengReplayer
 from replayer.boss.WuYunque import WuYunqueReplayer
 from replayer.boss.WengYouzhi import WengYouzhiReplayer
 
+from replayer.boss.Weihua import WeiHuaReplayer
+from replayer.boss.ZhongBugui import ZhongBuguiReplayer
+from replayer.boss.CenShang import CenShangReplayer
+from replayer.boss.GuiChou import GuiChouReplayer
+from replayer.boss.Qilin import QilinReplayer
+from replayer.boss.YuequanHuai import YuequanHuaiReplayer
+
 from replayer.occ.XiangZhi import XiangZhiProReplayer
 from replayer.occ.LingSu import LingSuReplayer
 from replayer.occ.LiJingYiDao import LiJingYiDaoReplayer
@@ -397,6 +404,24 @@ class ActorProReplayer(ReplayerBase):
         elif self.bossAnalyseName == "翁幼之":
             bossAnalyser = WengYouzhiReplayer(self.bld, occDetailList, self.startTime,
                                            self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "魏华":
+            bossAnalyser = WeiHuaReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "钟不归":
+            bossAnalyser = ZhongBuguiReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "岑伤":
+            bossAnalyser = CenShangReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "鬼筹":
+            bossAnalyser = GuiChouReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "麒麟":
+            bossAnalyser = QilinReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "月泉淮":
+            bossAnalyser = YuequanHuaiReplayer(self.bld, occDetailList, self.startTime,
+                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
         else:
             bossAnalyser = GeneralReplayer(self.bld, occDetailList, self.startTime,
                                            self.finalTime, self.battleTime, self.bossNamePrint, self.config)
@@ -452,17 +477,44 @@ class ActorProReplayer(ReplayerBase):
             "35454": ["1号点名圈", 0, 0, 999, 0, -1],  # 1 泉映千山·游龙荡影
             "35652": ["2号矩形", 0, 0, 999, 1, -1],  # 2 太阴剑法·远山式
             "35653": ["2号矩形残留", 0, 0, 999, 1, -1],  # 2 远山剑气
+            "35658": ["2号扶摇", 0, 0, 999, 0, -1],  # 2 太阴剑法·冷涧式
+            "35825": ["2号挡枪", 0, 0, 999, 1, -1],  # 2 云尽寒灭
             "35610": ["3号点名圈", 0, 0, 999, 0, -1],  # 3 泉映千山·游龙荡影
             "35467": ["3号15尺圈", 0, 0, 10, 0, -1],  # 3 泉映千山·游龙荡影
-            "35874": ["3号内伤", 0, 0, 999, 0, 500000],  # 3 内伤
-            "35637": ["4号荆棘", 0, 0, 999, 0, 0],  # 4 荆棘
-            "35817": ["4号落石", 0, 0, 999, 0, 0],  # 4 落石
-            "35818": ["4号滚石", 0, 5000, 999, 0, 0],  # 4 滚石
+            "35874": ["3号内伤移动", 0, 0, 999, 0, 500000],  # 3 内伤
+            "35468": ["3号扶摇", 0, 0, 18, 0, -1],  # 3 幻念剑·横断千峰
+            "35657": ["3号月环", 0, 0, 18, 0, -1],  # 3 幻念剑·山环月辉
+            "35767": ["3号进出", 0, 20000, 18, 0, -1],  # 3 泉映千山·月照
+            "35768": ["3号进出", 0, 20000, 18, 0, -1],  # 3 泉映千山·星环
+            "100001": ["3号分散惩罚", 0, 0, 999, 0, -1],  # 3 幻念剑·星灿
+            "100002": ["3号拉线惩罚", 0, 0, 999, 0, -1],  # 3 幻念剑·玄冥锁链
+            "100003": ["3号明暗惩罚", 0, 0, 999, 0, -1],  # 3 泉映千山·剑分幽明
+            "35637": ["4号荆棘", 0, 0, 999, 0, -1],  # 4 荆棘
+            "35817": ["4号落石", 0, 0, 999, 0, -1],  # 4 落石
+            "35818": ["4号滚石", 0, 5000, 999, 0, -1],  # 4 滚石
+            "35937": ["4号符海", 0, 0, 999, 0, -1],  # 4 符海
+            "35863": ["4号雷击", 0, 0, 999, 0, -1],  # 4 雷击
+            "35800": ["4号燃烧", 0, 0, 999, 0, -1],  # 4 燃烧
+            "35942": ["4号星火坠", 0, 0, 999, 0, -1],  # 4 星火坠
+            "35558": ["5号普攻", 0, 0, 999, 1, -1],  # 5 攻击
+            "35565": ["5号死刑", 0, 0, 999, 1, -1],  # 5 雷之呼息
+            "35569": ["5号跑圈", 0, 0, 999, 0, -1],  # 5 炙热洪流
+            "35570": ["5号跑圈", 0, 0, 999, 0, -1],  # 5 火焰迸射
+            "35568": ["5号火焰旋涡", 0, 5000, 999, 0, 100000],  # 5 火焰旋涡
+            "35581": ["5号冰矩形", 0, 0, 999, 0, -1],  # 5 雪崩山裂
+            "35700": ["5号冰残留", 0, 5000, 999, 0, -1],  # 5 冰堑
+            "35564": ["5号扫尾", 0, 0, 999, 0, -1],  # 5 扫尾
+            "35579": ["5号幻歌", 0, 0, 999, 0, -1],  # 5 凛风
+            "35580": ["5号扶摇", 0, 0, 999, 0, -1],  # 5 风凛霜冻
+            "35573": ["5号死刑", 0, 0, 999, 1, -1],  # 5 秋风咆哮
+            "35574": ["5号死刑", 0, 5000, 999, 1, -1],  # 5 秋风咆哮
             "32514": ["6号普攻", 0, 10, 999, 1, 0],  # 6 琉璃指禅
             "32519": ["6号挑飞点名", 0, 0, 999, 0, 0],  # 6 迦楼罗连闪·挑飞
             "32520": ["6号挑飞命中", 0, 10000, 999, 0, 0],  # 6 迦楼罗连闪·挑飞
+            "32547": ["6号月铳", 0, 10000, 999, 0, 0],  # 6 月铳
             "36249": ["6号点名圈", 0, 0, 999, 0, 0],  # 6 月落
             "36250": ["6号八方矩形", 0, 0, 999, 0, 0],  # 6 月盈
+            "36248": ["6号月蚀", 0, 0, 999, 0, 0],  # 6 月蚀
             "36248": ["6号月蚀", 0, 0, 999, 0, 0],  # 6 月蚀
         }
         logBuff = {  # 名称，生效等级，保护时间ms，最多人数
@@ -470,12 +522,13 @@ class ActorProReplayer(ReplayerBase):
         }
 
         if logMode:
-            penaltyCount = {}
+            self.penaltyCount = {}
             penaltyCooldown = {}
             for player in self.bld.info.player:
-                penaltyCount[player] = {}
+                self.penaltyCount[player] = {}
                 penaltyCooldown[player] = {}
             tuozhanCount = 0
+            self.bossAnalyser.penaltyCount = self.penaltyCount
 
         for event in self.bld.log:
 
@@ -496,18 +549,19 @@ class ActorProReplayer(ReplayerBase):
                     #     data.hitCount[item[5]]["s" + item[7]] += 1
                     if logMode:
                         if event.caster not in self.bld.info.player and event.damage > 0:
-                            print("[Damage]", self.bld.info.getName(event.caster), self.bld.info.getName(event.target), event.full_id, self.bld.info.getSkillName(event.full_id), event.damage)
+                            # print("[Damage]", self.bld.info.getName(event.caster), self.bld.info.getName(event.target), event.full_id, self.bld.info.getSkillName(event.full_id), event.damage)
+                            pass
 
                         if event.id in logSkill and logSkill[event.id][1] in [event.level, 0]:
                             # 记录
                             name = logSkill[event.id][0]
                             if (name not in penaltyCooldown[event.target] or event.time - penaltyCooldown[event.target][name] > logSkill[event.id][2]) and event.damage > logSkill[event.id][5]:
-                                if name not in penaltyCount[event.target]:
-                                    penaltyCount[event.target][name] = 0
+                                if name not in self.penaltyCount[event.target]:
+                                    self.penaltyCount[event.target][name] = 0
                                 penaltyCooldown[event.target][name] = event.time
 
                                 if tuozhanCount < 3 or self.finalTime - event.time > 20000:
-                                    penaltyCount[event.target][name] += 1
+                                    self.penaltyCount[event.target][name] += 1
 
                     # 过量伤害
                     if event.damage > event.damageEff:
@@ -981,47 +1035,47 @@ class ActorProReplayer(ReplayerBase):
             numLog = {}
             for key in logSkill:
                 numLog[logSkill[key][0]] = 0
-            for player in penaltyCount:
-                for key in penaltyCount[player]:
-                    if penaltyCount[player][key] != 0:
+            for player in self.penaltyCount:
+                for key in self.penaltyCount[player]:
+                    if self.penaltyCount[player][key] != 0:
                         numLog[key] += 1
             for key in logSkill:
                 if numLog[logSkill[key][0]] > logSkill[key][3]:
                     numLog[logSkill[key][0]] = -1
-            for player in penaltyCount:
-                for key in penaltyCount[player]:
+            for player in self.penaltyCount:
+                for key in self.penaltyCount[player]:
                     if numLog[key] == -1:
-                        penaltyCount[player][key] = 0
+                        self.penaltyCount[player][key] = 0
 
             # 不计算T心法中的一些技能
             exemptDict = {}
             for key in logSkill:
                 if logSkill[key][4] == 1:
                     exemptDict[logSkill[key][0]] = 1
-            for player in penaltyCount:
+            for player in self.penaltyCount:
                 if getOccType(self.occDetailList[player]) == "tank":
-                    for key in penaltyCount[player]:
+                    for key in self.penaltyCount[player]:
                         if key in exemptDict:
-                            penaltyCount[player][key] = 0
+                            self.penaltyCount[player][key] = 0
 
             # 计算战斗时间
-            for player in penaltyCount:
+            for player in self.penaltyCount:
                 t = self.battleDict[player].buffTimeIntegral()
                 num = 0
                 BOSS_NAME = {"魏华": 1, "钟不归": 2, "岑伤": 3, "鬼筹": 4, "麒麟": 5, "月泉淮": 6}
                 if self.bossAnalyseName in BOSS_NAME:
                     num = BOSS_NAME[self.bossAnalyseName]
                 if num != 0:
-                    penaltyCount[player]["%d号时间" % num] = int(t / 1000)
+                    self.penaltyCount[player]["%d号时间" % num] = int(t / 1000)
 
             # 转玩家名
-            penaltyCountWithName = {}
-            for key in penaltyCount:
-                penaltyCountWithName[self.bld.info.getName(key)] = penaltyCount[key]
+            self.penaltyCountWithName = {}
+            for key in self.penaltyCount:
+                self.penaltyCountWithName[self.bld.info.getName(key)] = self.penaltyCount[key]
 
             # 保存
             with open("jldCount/%s.txt" % self.startTime, "w", encoding="utf-8") as f:
-                f.write(str(penaltyCountWithName))
+                f.write(str(self.penaltyCountWithName))
 
 
     def ThirdStageAnalysis(self):

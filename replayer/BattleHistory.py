@@ -95,7 +95,7 @@ class BattleHistory():
                 self.log["environment"][i]["iconid"] = infoDict[name][0]
                 self.log["environment"][i]["color"] = infoDict[name][1]
 
-    def setEnvironment(self, skillid, skillname, iconid, start, duration, num, description, type="unknown", color="#ffffff"):
+    def setEnvironment(self, skillid, skillname, iconid, start, duration, num, description, type="unknown", color="#000000"):
         '''
         添加场地事件.
         params:
