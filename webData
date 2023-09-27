@@ -52,5 +52,14 @@
         "prevTabId": 470200539,
         "prevUrl": "",
         "time": 1695238728
+    },
+    {
+        "action": "navigate between urls in the same tab (typed)",
+        "curTabId": 470200539,
+        "curTitle": "jx3info",
+        "curUrl": "http://124.222.132.122:8023/",
+        "prevTabId": 470200539,
+        "prevUrl": "chrome://newtab/",
+        "time": 1695242733
     }
 ]

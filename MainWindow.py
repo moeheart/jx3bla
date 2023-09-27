@@ -93,6 +93,7 @@ class MainWindow():
             singleData = {"type": line["type"], "data": line["data"], "id": line["id"]}
             actualData["data"].append(singleData)
 
+        # return
         self.setNotice({"t1": "正在上传数据……", "c1": "#000000"})
 
         Jdata = json.dumps(actualData)
@@ -314,7 +315,7 @@ class MainWindow():
             lastFile = ""
         if lastFile != "":
             newestFile = lastFile
-            print("Newest File: %s"%lastFile)
+            print("Newest File: %s" % lastFile)
             self.listenThread = threading.Thread(target=self.log_once, args = (lastFile,))
             self.listenThread.setDaemon(True);
             self.listenThread.start()

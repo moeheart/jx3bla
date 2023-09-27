@@ -147,7 +147,6 @@ class LiChongmaoReplayer(SpecificReplayerPro):
         params:
         - time: 怒阶段结束的时间. 也有可能是脱战时间(如果在怒阶段结束战斗的话)
         '''
-
         endTime = parseTime((time - self.startTime) / 1000)
         maxTianzhu = max(self.tianzhuTime.values())
         maxZongheng = max(self.zonghengTime.values())

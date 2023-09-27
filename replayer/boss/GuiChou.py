@@ -33,12 +33,15 @@ class GuiChouWindow(SpecificBossWindow):
         # tb.AppendHeader("本体DPS", "对张景超的DPS。\n常规阶段时间：%s" % parseTime(self.detail["P1Time"]))
         # tb.AppendHeader("双体1DPS", "第一次内外场阶段，对张法雷（红色）和劲风（蓝色）的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P2Time1"]))
         # tb.AppendHeader("双体2DPS", "第二次内外场阶段，对张法雷（红色）和劲风（蓝色）的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P2Time2"]))
+        tb.AppendHeader("树木伤害", "对树木的伤害，注意这个伤害没有除以时间。")
         tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         tb.EndOfLine()
 
         for i in range(len(self.effectiveDPSList)):
             line = self.effectiveDPSList[i]
             self.constructCommonLine(tb, line)
+
+            tb.AppendContext(int(line["battle"]["shumuDPS"]))
 
             # 心法复盘
             if line["name"] in self.occResult:
@@ -98,6 +101,21 @@ class GuiChouReplayer(SpecificReplayerPro):
 
         self.checkTimer(event.time)
 
+        idRemoveList = []
+        for id in self.shumu:
+            if self.shumu[id]["alive"] == 0 and event.time - self.shumu[id]["lastDamage"] > 500:
+                time = parseTime((event.time - 500 - self.startTime) / 1000)
+                self.addPot([self.bld.info.getName(self.shumu[id]["lastID"]),
+                             self.occDetailList[self.shumu[id]["lastID"]],
+                             0,
+                             self.bossNamePrint,
+                             "%s树木被击破" % time,
+                             self.shumu[id]["damageList"],
+                             0])
+                idRemoveList.append(id)
+        for id in idRemoveList:
+            del self.shumu[id]
+
         if event.dataType == "Skill":
             if event.target in self.bld.info.player:
                 if event.heal > 0 and event.effect != 7 and event.caster in self.hps:  # 非化解
@@ -120,6 +138,21 @@ class GuiChouReplayer(SpecificReplayerPro):
                     if event.target in self.bld.info.npc:
                         if self.bld.info.getName(event.target) in ["鬼筹"]:
                             self.bh.setMainTarget(event.target)
+                        if self.bld.info.getName(event.target) in ["树木"]:
+                            self.statDict[event.caster]["battle"]["shumuDPS"] += event.damageEff
+                            if event.target not in self.shumu:
+                                self.shumu[event.target] = {"lastDamage": event.time, "alive": 1, "damageList": [], "lastName": "未知"}
+                            if event.damage > 0:
+                                skillName = self.bld.info.getSkillName(event.full_id)
+                                name = self.bld.info.getName(event.caster)
+                                resultStr = ""
+                                value = event.damage
+                                self.shumu[event.target]["damageList"] = ["-%s, %s:%s%s(%d)" % (
+                                        parseTime((int(event.time) - self.startTime) / 1000), name, skillName, resultStr, value)] + self.shumu[event.target]["damageList"]
+                                if len(self.shumu[event.target]["damageList"]) > 20:
+                                    del self.shumu[event.target]["damageList"][20]
+                                self.shumu[event.target]["lastDamage"] = event.time
+                                self.shumu[event.target]["lastID"] = event.caster
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -165,9 +198,9 @@ class GuiChouReplayer(SpecificReplayerPro):
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
         elif event.dataType == "Scene":  # 进入、离开场景
-            # if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["翁幼之宝箱", "??寶箱"]:
-            #     self.win = 1
-            #     self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["鬼筹宝箱", "??寶箱"]:
+                self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
                 name = "n%s" % self.bld.info.npc[event.id].templateID
                 skillName = self.bld.info.npc[event.id].name
@@ -178,9 +211,22 @@ class GuiChouReplayer(SpecificReplayerPro):
                         if key in self.bhInfo or self.debug:
                             self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
                                                1, "NPC出现", "npc")
+            if event.id in self.bld.info.npc:
+                if self.bld.info.npc[event.id].templateID == "125062" and event.enter == 0 and self.finalTime - event.time > 10000:
+                    # print("[NPC]", parseTime((event.time - self.startTime) / 1000), event.id, self.bld.info.npc[event.id].templateID, self.bld.info.getName(event.id), event.enter,
+                    #   self.bld.info.npc[event.id].x, self.bld.info.npc[event.id].y, self.bld.info.npc[event.id].z, self.bld.info.npc[event.id].dir)
+                    with open("outputStone.txt", "a") as f:
+                        s = "%d %d %d %d %d\n" % (event.time - self.startTime, self.bld.info.npc[event.id].x, self.bld.info.npc[event.id].y, self.bld.info.npc[event.id].z, self.bld.info.npc[event.id].dir)
+                        f.write(s)
+            else:
+                pass
+                # print("[badNPC]", parseTime((event.time - self.startTime) / 1000), event.id)
 
         elif event.dataType == "Death":  # 重伤记录
             pass
+            if event.id in self.shumu:
+                self.shumu[event.id]["alive"] = 0
+                self.shumu[event.id]["lastDamage"] = event.time
 
         elif event.dataType == "Battle":  # 战斗状态变化
             pass
@@ -225,7 +271,8 @@ class GuiChouReplayer(SpecificReplayerPro):
         self.bhBlackList.extend(["s35931", "n124304", "s35935", "s35818", "s35640", "b26681", "b26769", "n124615",
                                  "b26809", "s35817", "b26896", "s35933", "s32392", "n124010", "n124880", "b26839",
                                  "s35937", "n125062", "n124887", "n125424", "b26770", "n124637", "s35800", "n125060",
-                                 "s35863", "n124961", "s35637", "n125056", "n125044", "s35942", "n125054"
+                                 "s35863", "n124961", "s35637", "n125056", "n125044", "s35942", "n125054", "n124975",
+                                 "n125476"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
@@ -240,11 +287,13 @@ class GuiChouReplayer(SpecificReplayerPro):
                        # b26839 搬运
                        }
 
-        # 翁幼之数据格式：
+        # 数据格式：
         # 7 ？
 
+        self.shumu = {}
+
         for line in self.bld.info.player:
-            self.statDict[line]["battle"] = {}
+            self.statDict[line]["battle"] = {"shumuDPS": 0}
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''

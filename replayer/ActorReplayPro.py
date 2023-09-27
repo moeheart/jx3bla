@@ -14,7 +14,7 @@ from Constants import *
 from tools.Names import *
 from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment, ImportExcelEquipment
 
-# from equip.AttributeDisplay import AttributeDisplay  # 以后需要改为从服务器实现
+from equip.AttributeDisplay import AttributeDisplay  # 以后需要改为从服务器实现
 from equip.AttributeDisplayRemote import AttributeDisplayRemote
 
 from replayer.ReplayerBase import ReplayerBase
@@ -291,6 +291,8 @@ class ActorProReplayer(ReplayerBase):
         #     results[playerEquip["id"]] = {}
         #     results[playerEquip["id"]]["base"] = ad.GetBaseAttrib(playerEquip["equipStr"], playerEquip["occ"])
         #     results[playerEquip["id"]]["panel"] = ad.GetPanelAttrib(playerEquip["equipStr"], playerEquip["occ"])
+
+
         adr = AttributeDisplayRemote()
         results = adr.GetGroupAttributeAttrib(requests)
         # 结束
@@ -471,7 +473,7 @@ class ActorProReplayer(ReplayerBase):
         self.zxyzPrecastSource = "0"
 
         # 记录模式  TODO 脱战保护，战斗时间统计
-        logMode = 1
+        self.logMode = 0
         logSkill = {  # 名称，生效等级，保护时间ms，最多人数，不计算T，伤害阈值
             "35452": ["1号清流", 0, 0, 999, 0, -1],  # 1 泉映千山·清流
             "35454": ["1号点名圈", 0, 0, 999, 0, -1],  # 1 泉映千山·游龙荡影
@@ -515,13 +517,14 @@ class ActorProReplayer(ReplayerBase):
             "36249": ["6号点名圈", 0, 0, 999, 0, 0],  # 6 月落
             "36250": ["6号八方矩形", 0, 0, 999, 0, 0],  # 6 月盈
             "36248": ["6号月蚀", 0, 0, 999, 0, 0],  # 6 月蚀
-            "36248": ["6号月蚀", 0, 0, 999, 0, 0],  # 6 月蚀
+            "35485": ["6号震荡", 0, 0, 999, 0, 0],  # 6 震荡
+            # "36248": ["6号月蚀", 0, 0, 999, 0, 0],  # 6 月蚀
         }
         logBuff = {  # 名称，生效等级，保护时间ms，最多人数
 
         }
 
-        if logMode:
+        if self.logMode:
             self.penaltyCount = {}
             penaltyCooldown = {}
             for player in self.bld.info.player:
@@ -547,7 +550,7 @@ class ActorProReplayer(ReplayerBase):
                     # data = self.checkFirst(item[5], data, occdict)
                     # if item[7] in self.actorSkillList and int(item[10]) != 2:
                     #     data.hitCount[item[5]]["s" + item[7]] += 1
-                    if logMode:
+                    if self.logMode:
                         if event.caster not in self.bld.info.player and event.damage > 0:
                             # print("[Damage]", self.bld.info.getName(event.caster), self.bld.info.getName(event.target), event.full_id, self.bld.info.getSkillName(event.full_id), event.damage)
                             pass
@@ -648,7 +651,7 @@ class ActorProReplayer(ReplayerBase):
                 if event.target not in self.bld.info.player:
                     continue
 
-                if logMode:
+                if self.logMode:
                     # if event.caster not in self.bld.info.player:
                     #     print("[Buff]", self.bld.info.getName(event.caster), self.bld.info.getName(event.target), event.full_id, self.bld.info.getSkillName(event.full_id), event.stack)
 
@@ -1030,7 +1033,7 @@ class ActorProReplayer(ReplayerBase):
         #     if self.bossAnalyser.yqhInterrupt:
         #         self.available = False  # 进行分片
 
-        if logMode:
+        if self.logMode:
             # 统计总数，如果中的人数超过了一定数值，就排除
             numLog = {}
             for key in logSkill:
@@ -1058,13 +1061,14 @@ class ActorProReplayer(ReplayerBase):
                         if key in exemptDict:
                             self.penaltyCount[player][key] = 0
 
+            num = 0
+            BOSS_NAME = {"魏华": 1, "钟不归": 2, "岑伤": 3, "鬼筹": 4, "麒麟": 5, "月泉淮": 6}
+            if self.bossAnalyseName in BOSS_NAME:
+                num = BOSS_NAME[self.bossAnalyseName]
+
             # 计算战斗时间
             for player in self.penaltyCount:
                 t = self.battleDict[player].buffTimeIntegral()
-                num = 0
-                BOSS_NAME = {"魏华": 1, "钟不归": 2, "岑伤": 3, "鬼筹": 4, "麒麟": 5, "月泉淮": 6}
-                if self.bossAnalyseName in BOSS_NAME:
-                    num = BOSS_NAME[self.bossAnalyseName]
                 if num != 0:
                     self.penaltyCount[player]["%d号时间" % num] = int(t / 1000)
 
@@ -1072,10 +1076,6 @@ class ActorProReplayer(ReplayerBase):
             self.penaltyCountWithName = {}
             for key in self.penaltyCount:
                 self.penaltyCountWithName[self.bld.info.getName(key)] = self.penaltyCount[key]
-
-            # 保存
-            with open("jldCount/%s.txt" % self.startTime, "w", encoding="utf-8") as f:
-                f.write(str(self.penaltyCountWithName))
 
 
     def ThirdStageAnalysis(self):
@@ -1100,6 +1100,26 @@ class ActorProReplayer(ReplayerBase):
 
         combatTracker.export(self.battleTime, self.bh.sumTime("dps"), self.bh.sumTime("healer"), self.stunCounter)
         self.combatTracker = combatTracker
+
+        # 保存log
+        if self.logMode:
+            num = 0
+            BOSS_NAME = {"魏华": 1, "钟不归": 2, "岑伤": 3, "鬼筹": 4, "麒麟": 5, "月泉淮": 6}
+            if self.bossAnalyseName in BOSS_NAME:
+                num = BOSS_NAME[self.bossAnalyseName]
+
+            for key in self.penaltyCount:
+                name = self.bld.info.getName(key)
+                rdps = 0
+                if key in self.combatTracker.rdps["player"]:
+                    rdps = self.combatTracker.rdps["player"][key]["dps"]
+                    occ = self.combatTracker.rdps["player"][key]["occ"]
+                    if getOccType(occ) != "dps":
+                        rdps = 0
+                self.penaltyCountWithName[name]["%d号rDPS" % num] = int(rdps)
+
+            with open("jldCount/%s.txt" % self.startTime, "w", encoding="utf-8") as f:
+                f.write(str(self.penaltyCountWithName))
 
     def OccAnalysis(self):
         '''

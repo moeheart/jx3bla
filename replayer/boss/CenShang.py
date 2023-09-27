@@ -153,6 +153,14 @@ class CenShangReplayer(SpecificReplayerPro):
                     if targetid not in self.penaltyCount[event.target]:
                         self.penaltyCount[event.target][targetid] = 0
                     self.penaltyCount[event.target][targetid] += 1
+                time = parseTime((event.time - self.startTime) / 1000)
+                self.addPot([self.bld.info.player[event.target].name,
+                             self.occDetailList[event.target],
+                             1,
+                             self.bossNamePrint,
+                             "%s触发全团惩罚：%s" % (time, self.lastUlt),
+                             [],
+                             0])
 
 
         elif event.dataType == "Shout":
@@ -181,9 +189,9 @@ class CenShangReplayer(SpecificReplayerPro):
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
         elif event.dataType == "Scene":  # 进入、离开场景
-            # if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["翁幼之宝箱", "??寶箱"]:
-            #     self.win = 1
-            #     self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["岑伤宝箱", "??寶箱"]:
+                self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
                 name = "n%s" % self.bld.info.npc[event.id].templateID
                 skillName = self.bld.info.npc[event.id].name
@@ -196,7 +204,9 @@ class CenShangReplayer(SpecificReplayerPro):
                                                1, "NPC出现", "npc")
 
         elif event.dataType == "Death":  # 重伤记录
-            pass
+            if self.bld.info.getName(event.id) == "岑伤":
+                self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
 
         elif event.dataType == "Battle":  # 战斗状态变化
             pass

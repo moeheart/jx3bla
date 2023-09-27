@@ -162,9 +162,9 @@ class QilinReplayer(SpecificReplayerPro):
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
         elif event.dataType == "Scene":  # 进入、离开场景
-            # if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["翁幼之宝箱", "??寶箱"]:
-            #     self.win = 1
-            #     self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["麒麟宝箱", "??寶箱"]:
+                self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
                 name = "n%s" % self.bld.info.npc[event.id].templateID
                 skillName = self.bld.info.npc[event.id].name
@@ -177,7 +177,10 @@ class QilinReplayer(SpecificReplayerPro):
                                                1, "NPC出现", "npc")
 
         elif event.dataType == "Death":  # 重伤记录
-            pass
+            # print("[Death]", parseTime((event.time - self.startTime) / 1000), event.id, self.bld.info.getName(event.id))
+            if self.bld.info.getName(event.id) == "麒麟":
+                self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
 
         elif event.dataType == "Battle":  # 战斗状态变化
             pass
@@ -223,7 +226,8 @@ class QilinReplayer(SpecificReplayerPro):
                                  "s35576", "n125021", "s35596", "b26735", "n125005", "n124876", "n124872", "b26736",
                                  "b26738", "s35564", "s35860", "b26834", "s35579", "s35580", "b26747", "s35573",
                                  "s35819", "n124637", "b26732", "s35568", "n125029", "n125078", "n125711", "s35574",
-                                 "s35569", "n125026", "s35700", "n125026", "n124981", "s35582", "s35581", "n125486"
+                                 "s35569", "n125026", "s35700", "n125026", "n124981", "s35582", "s35581", "n125486",
+                                 "n125482"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 

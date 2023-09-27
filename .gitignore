@@ -23,3 +23,9 @@ database/ReplayProStat/
 server.crt
 server.pem
 jldCount/
+codeHistories.git
+.vscode
+venv
+myenv
+node_modules
+.bash_profile

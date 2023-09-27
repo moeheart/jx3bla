@@ -33,12 +33,21 @@ class YuequanHuaiWindow(SpecificBossWindow):
         # tb.AppendHeader("本体DPS", "对张景超的DPS。\n常规阶段时间：%s" % parseTime(self.detail["P1Time"]))
         # tb.AppendHeader("双体1DPS", "第一次内外场阶段，对张法雷（红色）和劲风（蓝色）的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P2Time1"]))
         # tb.AppendHeader("双体2DPS", "第二次内外场阶段，对张法雷（红色）和劲风（蓝色）的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P2Time2"]))
+        tb.AppendHeader("分身伤害", "对P1[暗梦仙体的幻影]的伤害，注意这个伤害没有除以时间。")
+        tb.AppendHeader("P1DPS", "对P1[暗梦仙体]的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P1Time"]))
+        tb.AppendHeader("P2DPS", "对P2[月泉淮]在100%%-60%%蓝量期间的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P2Time"]))
+        tb.AppendHeader("被命中", "被P1的技能命中导致BOSS回蓝的次数")
         tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         tb.EndOfLine()
 
         for i in range(len(self.effectiveDPSList)):
             line = self.effectiveDPSList[i]
             self.constructCommonLine(tb, line)
+
+            tb.AppendContext(int(line["battle"]["fenshenDPS"]))
+            tb.AppendContext(int(line["battle"]["P1DPS"]))
+            tb.AppendContext(int(line["battle"]["P2DPS"]))
+            tb.AppendContext(int(line["battle"]["damageTaken"]))
 
             # 心法复盘
             if line["name"] in self.occResult:
@@ -64,6 +73,9 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
         self.bh.setEnvironmentInfo(self.bhInfo)
         self.bh.printEnvironmentInfo()
 
+        self.detail["P1Time"] = int(self.phaseTime[1] / 1000)
+        self.detail["P2Time"] = int(self.phaseTime[2] / 1000)
+
     def getResult(self):
         '''
         生成复盘结果的流程。需要维护effectiveDPSList, potList与detail。
@@ -75,6 +87,8 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
         for id in self.bld.info.player:
             if id in self.statDict:
                 res = self.getBaseList(id)
+                res["battle"]["P1DPS"] = int(safe_divide(res["battle"]["P1DPS"], self.detail["P1Time"]))
+                res["battle"]["P2DPS"] = int(safe_divide(res["battle"]["P2DPS"], self.detail["P2Time"]))
                 bossResult.append(res)
         self.statList = bossResult
 
@@ -98,6 +112,21 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
 
         self.checkTimer(event.time)
 
+        idRemoveList = []
+        for id in self.fenshen:
+            if self.fenshen[id]["alive"] == 0 and event.time - self.fenshen[id]["lastDamage"] > 500:
+                time = parseTime((event.time - 500 - self.startTime) / 1000)
+                self.addPot([self.bld.info.getName(self.fenshen[id]["lastID"]),
+                             self.occDetailList[self.fenshen[id]["lastID"]],
+                             0,
+                             self.bossNamePrint,
+                             "%s分身被击破" % time,
+                             self.fenshen[id]["damageList"],
+                             0])
+                idRemoveList.append(id)
+        for id in idRemoveList:
+            del self.fenshen[id]
+
         if event.dataType == "Skill":
             if event.target in self.bld.info.player:
                 if event.heal > 0 and event.effect != 7 and event.caster in self.hps:  # 非化解
@@ -114,12 +143,58 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                             if key in self.bhInfo or self.debug:
                                 self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式命中玩家", "skill")
 
+                # if event.id in ["35485", "35490", "35486", "35493"]:
+                #     print("[Skill]", parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.target), event.damage, event.damageEff, 
+                #         self.bld.info.getSkillName(event.full_id), event.id)
+
+
+                if event.id in ["32514", "32520", "32547", "36249", "36250", "36248"]:
+                    self.statDict[event.target]["battle"]["damageTaken"] += 1
+
+                if event.id in ["32529", "32535", "32540"]:
+                    # print("[Damage]", event.id, parseTime((event.time - self.startTime) / 1000), self.bld.info.getName(event.target), event.damage, event.damageEff)
+                    if self.lostBuff[event.target]:
+                        self.addPot([self.bld.info.player[event.target].name,
+                                    self.occDetailList[event.target],
+                                    1,
+                                    self.bossNamePrint,
+                                    "丢失buff导致承伤失败",
+                                    [],
+                                    0])
+                    else:
+                        self.addPot([self.bld.info.player[event.target].name,
+                                    self.occDetailList[event.target],
+                                    1,
+                                    self.bossNamePrint,
+                                    "未获得buff，不应该承伤",
+                                    [],
+                                    0])
+
             else:
                 if event.caster in self.bld.info.player and event.caster in self.statDict:
                     # self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.getName(event.target) in ["月泉淮"]:
+                        if self.bld.info.getName(event.target) in ["月泉淮", "暗梦仙体"]:
                             self.bh.setMainTarget(event.target)
+                        if self.bld.info.getName(event.target) in ["暗梦仙体"]:
+                            self.statDict[event.caster]["battle"]["P1DPS"] += event.damageEff
+                        if self.bld.info.getName(event.target) in ["月泉淮"]:
+                            self.statDict[event.caster]["battle"]["P2DPS"] += event.damageEff
+                        if self.bld.info.getName(event.target) in ["暗梦仙体的幻影"]:
+                            self.statDict[event.caster]["battle"]["fenshenDPS"] += event.damageEff
+                            if event.target not in self.fenshen:
+                                self.fenshen[event.target] = {"lastDamage": event.time, "alive": 1, "damageList": [], "lastName": "未知"}
+                            if event.damage > 0:
+                                skillName = self.bld.info.getSkillName(event.full_id)
+                                name = self.bld.info.getName(event.caster)
+                                resultStr = ""
+                                value = event.damage
+                                self.fenshen[event.target]["damageList"] = ["-%s, %s:%s%s(%d)" % (
+                                        parseTime((int(event.time) - self.startTime) / 1000), name, skillName, resultStr, value)] + self.fenshen[event.target]["damageList"]
+                                if len(self.fenshen[event.target]["damageList"]) > 20:
+                                    del self.fenshen[event.target]["damageList"][20]
+                                self.fenshen[event.target]["lastDamage"] = event.time
+                                self.fenshen[event.target]["lastID"] = event.caster
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -135,6 +210,17 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                         key = "b%s" % event.id
                         if key in self.bhInfo or self.debug:
                             self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "玩家获得气劲", "buff")
+                
+            if event.id in ["26606", "26694"]:
+                num = event.stack
+                if num > 1:
+                    num = 1
+                self.stunCounter[event.target].setState(event.time, num)
+
+            if event.id == "26597":
+                if event.stack < self.buffLayers[event.target]:
+                    self.lostBuff[event.target] = 1
+                self.buffLayers[event.target] = event.stack
 
         elif event.dataType == "Shout":
             if event.content in ['"谁？！别过来！别逼我出手！"']:
@@ -149,12 +235,14 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
             elif event.content in ['"哈啊！！！"']:
                 pass
             elif event.content in ['"哦？能和老夫的暗梦仙体周旋这么久，看来你长进不小。"']:
+                self.changePhase(event.time, 0)
+            elif event.content in ['"......"']:
+                self.win = 1
+                self.changePhase(event.time, 0)
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            elif event.content in ['"哼，这点内力实在微不足道"']:
                 pass
-            elif event.content in ['""']:
-                pass
-            elif event.content in ['""']:
-                pass
-            elif event.content in ['""']:
+            elif event.content in ['"嗯？何等侥幸？！这些伎俩似曾相识，但为何让老夫心生厌恶！"']:
                 pass
             elif event.content in ['""']:
                 pass
@@ -182,6 +270,9 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
 
         elif event.dataType == "Death":  # 重伤记录
             pass
+            if event.id in self.fenshen:
+                self.fenshen[event.id]["alive"] = 0
+                self.fenshen[event.id]["lastDamage"] = event.time
 
         elif event.dataType == "Battle":  # 战斗状态变化
             pass
@@ -202,6 +293,10 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式开始运功", "cast")
             # if self.bld.info.getSkillName(event.full_id) in ["血影坠击", "怨·黄泉鬼步"]:
             #     print("[Xueyingzhuiji]", event.id, parseTime((event.time - self.startTime) / 1000))
+                if event.id == "35491":
+                    if self.phase == 0:
+                        self.bh.setBadPeriod(self.phaseStart, event.time, True, False)
+                        self.changePhase(event.time, 2)
 
                     
     def analyseFirstStage(self, item):
@@ -220,7 +315,7 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
         self.activeBoss = "月泉淮"
         self.debug = 1
 
-        self.initPhase(1, 1)
+        self.initPhase(2, 1)
 
         self.immuneStatus = 0
         self.immuneHealer = 0
@@ -229,8 +324,9 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
         self.bhBlackList.extend(["s32514", "b26823", "s32392", "s32549", "s32540", "s32544", "s32516", "s36249", "s32567",
                                  "s32519", "s32520", "s36250", "n124637", "s36248", "s32547", "s36162", "s35511", "s32535",
                                  "s32570", "s32548", "s32529", "n125069", "n125071", "s35489", "b26688", "s35491", "s35549",
-                                 "s35851", "s32563", "n124991", "b26606", "s35850", "s35488", "b26605",
-                                 "b26691"
+                                 "s35851", "s35852", "n124991", "b26606", "s35850", "s35488", "b26605",
+                                 "b26691", "b26719", "s35493", "s35493", "s35486", "s35490", "s35485", "b26604", "s35482",
+                                 "s35484", "b26694", "s35849", "s35481", "c35494"
 
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
@@ -247,15 +343,28 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                        "c35491": ["3407", "#00ff77", 2000],  # 内力汲取
                        "c35548": ["3407", "#77ff77", 2000],  # 夺命碧波剑
                        "c32564": ["3407", "#0000ff", 4000],  # 月引
-                       "s35852": ["3407", "#777700", 0],  # 五行技·水
+                       "s32563": ["3407", "#777700", 0],  # 五行技·水
                        "s35487": ["3407", "#77ff77", 0],  # 五行技·木
+                       "s35854": ["3407", "#77ff77", 0],  # 五行技·火
+                       "s35856": ["3407", "#77ff77", 0],  # 五行技·土
+                       "s35847": ["3407", "#77ff77", 0],  # 五行技·金
+                       "c35527": ["3407", "#77ff77", 0],  # 五行技·终结技
                        }
 
-        # 翁幼之数据格式：
-        # 7 ？
+        # 数据格式：
+        # 7
+
+        self.lostBuff = {}
+        self.buffLayers = {}
+        self.fenshen = {}
 
         for line in self.bld.info.player:
-            self.statDict[line]["battle"] = {}
+            self.statDict[line]["battle"] = {"fenshenDPS": 0,
+                                             "P1DPS": 0,
+                                             "P2DPS": 0,
+                                             "damageTaken": 0,}
+            self.buffLayers[line] = 0
+            self.lostBuff[line] = 0
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''
