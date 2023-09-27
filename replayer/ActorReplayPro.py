@@ -524,14 +524,17 @@ class ActorProReplayer(ReplayerBase):
 
         }
 
+        self.penaltyCount = {}
+        self.bossAnalyser.penaltyCount = self.penaltyCount
+        penaltyCooldown = {}
+        for player in self.bld.info.player:
+            self.penaltyCount[player] = {}
+            penaltyCooldown[player] = {}
+        tuozhanCount = 0
+
         if self.logMode:
-            self.penaltyCount = {}
-            penaltyCooldown = {}
-            for player in self.bld.info.player:
-                self.penaltyCount[player] = {}
-                penaltyCooldown[player] = {}
-            tuozhanCount = 0
-            self.bossAnalyser.penaltyCount = self.penaltyCount
+            pass
+
 
         for event in self.bld.log:
 
