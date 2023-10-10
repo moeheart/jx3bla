@@ -26,7 +26,7 @@ def getSingleStat(record):
     key2 = getIDFromMap(record[5])
     key3 = record[6]
     edition = record[10]
-    if key2 not in MAP_DICT_RECORD_LOGS:
+    if key2 not in MAP_DICT_RECORD_LOGS or MAP_DICT_RECORD_LOGS[key2] == 1:
         return {}
     if key3 not in BOSS_RAW:
         return {}
@@ -147,7 +147,7 @@ def updatePercent(raw_rank, cursor, db):
     直接使用计算的结果更新数据库大项的百分位排名.
     '''
     
-    edition = "8.0.2"
+    edition = "8.6.0"
     
     sql = """SELECT * FROM ReplayProStat WHERE editionFull>=%d AND hold=1""" % parseEdition(edition)
     cursor.execute(sql)
