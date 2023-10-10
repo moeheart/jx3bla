@@ -34,6 +34,7 @@ OCC_ATTRIB = {
     '212d': {'类型': 5, '主属性': '根骨', '攻击': 1.8, '破防': 0.47},  # 无方
     '212h': {'类型': 5, '主属性': '根骨', '治疗': 1.8, '会心': 0.11},  # 奶药
     '213': {'类型': 1, '主属性': '力道', '攻击': 1.6, '会心': 0.25},  # 刀宗
+    '214': {'类型': 1, '主属性': '身法', '攻击': 1.45, '会心': 0.58},  # 万灵
     # TODO Tbuff
 }
 
@@ -67,6 +68,7 @@ OCC_BASE = {  # 心法自带的基础值
     '212d': {'atPoisonAttackPowerBase': 3808, 'atPoisonOvercomeBase': 1788},  # 无方
     '212h': {'atTherapyPowerBase': 6533},  # 奶药
     '213': {'atPhysicsAttackPowerBase': 3346, 'atPhysicsCriticalStrike': 2775},  # 刀宗
+    '214': {'atPhysicsAttackPowerBase': 3277, 'atPhysicsCriticalStrike': 2929},  # 万灵
 }
 
 OVERALL_OCC_BASE = {'atStrengthBase': 38, 'atAgilityBase': 38, 'atSpunkBase': 38, 'atSpiritBase': 38, 'atVitalityBase': 38}
