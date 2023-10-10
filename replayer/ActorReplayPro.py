@@ -473,7 +473,7 @@ class ActorProReplayer(ReplayerBase):
         self.zxyzPrecastSource = "0"
 
         # 记录模式  TODO 脱战保护，战斗时间统计
-        self.logMode = 0
+        self.logMode = 1
         logSkill = {  # 名称，生效等级，保护时间ms，最多人数，不计算T，伤害阈值
             "35452": ["1号清流", 0, 0, 999, 0, -1],  # 1 泉映千山·清流
             "35454": ["1号点名圈", 0, 0, 999, 0, -1],  # 1 泉映千山·游龙荡影
@@ -1164,11 +1164,12 @@ class ActorProReplayer(ReplayerBase):
             if self.occDetailList[id] == "2d":  # 花间
                 replayer = HuaJianYouReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData)
             if self.occDetailList[id] in ["1d", "1t", "3d", "3t", "4p", "4m", "5d", "6d", "7p", "7m", "8", "9", "10d", "10t",
-                                          "21d", "21t", "22d", "23", "24", "25", "211", "212d", "213"] and rdps != 0:
+                                          "21d", "21t", "22d", "23", "24", "25", "211", "212d", "213", "214"] and rdps != 0:
                 replayer = DpsReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name, actorData, self.occDetailList[id])
             if replayer is not None:
                 replayer.replay()
                 self.occResult[name] = {"occ": self.occDetailList[id], "result": replayer.result, "rank": replayer.rank}
+                # print("[Skill]", replayer.result["skill"]["general"])
                 # 尝试从心法复盘中回流排名
                 rdps = replayer.result["skill"]["general"].get("rdps", 0)
                 ndps = replayer.result["skill"]["general"].get("ndps", 0)
@@ -1223,10 +1224,6 @@ class ActorProReplayer(ReplayerBase):
             self.bossNamePrint = self.bossname
         else:
             self.bossNamePrint = "%s.%d" % (self.bossname, self.numTry)
-
-        # self.qualifiedRate = config.item["actor"]["qualifiedrate"]  # qualifiedRate
-        # self.alertRate = config.item["actor"]["alertrate"]  # alertRate
-        # self.bonusRate = config.item["actor"]["bonusrate"]  # bonusRate
 
         # 复盘结果信息
         self.potList = []

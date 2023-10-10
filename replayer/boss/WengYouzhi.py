@@ -82,7 +82,7 @@ class WengYouzhiReplayer(SpecificReplayerPro):
                 bossResult.append(res)
         self.statList = bossResult
 
-        self.f.close()
+        # self.f.close()
 
         return self.statList, self.potList, self.detail, self.stunCounter
 
@@ -204,9 +204,9 @@ class WengYouzhiReplayer(SpecificReplayerPro):
             # if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name == "翁幼之" and event.enter:
             #     print("[WyzAppear]", parseTime((event.time - self.startTime) / 1000), self.bld.info.npc[event.id].templateID, self.bld.info.npc[event.id].x, self.bld.info.npc[event.id].y, self.bld.info.npc[event.id].z)
 
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].templateID == "122647" and event.enter:
-                print("[WyzAppear]", parseTime((event.time - self.startTime) / 1000), self.bld.info.npc[event.id].templateID, self.bld.info.npc[event.id].x, self.bld.info.npc[event.id].y, self.bld.info.npc[event.id].z)
-                self.f.write("%d %d %d\n" % (self.bld.info.npc[event.id].x, self.bld.info.npc[event.id].y, self.bld.info.npc[event.id].z))
+            # if event.id in self.bld.info.npc and self.bld.info.npc[event.id].templateID == "122647" and event.enter:
+            #     print("[WyzAppear]", parseTime((event.time - self.startTime) / 1000), self.bld.info.npc[event.id].templateID, self.bld.info.npc[event.id].x, self.bld.info.npc[event.id].y, self.bld.info.npc[event.id].z)
+            #     self.f.write("%d %d %d\n" % (self.bld.info.npc[event.id].x, self.bld.info.npc[event.id].y, self.bld.info.npc[event.id].z))
 
         elif event.dataType == "Death":  # 重伤记录
             pass
@@ -254,7 +254,7 @@ class WengYouzhiReplayer(SpecificReplayerPro):
         self.immuneHealer = 0
         self.immuneTime = 0
 
-        self.f = open("wyztmp/%d.txt" % self.startTime, "w")
+        # self.f = open("wyztmp/%d.txt" % self.startTime, "w")
 
         self.bhBlackList.extend(["n122740", "s34030", "n122506", "b25602", "s34193", "s34046", "s34190", "b25603",
                                  "s34029", "b25535", "b25501", "b25672", "s34312", "n122721", "b25689", "b25670",

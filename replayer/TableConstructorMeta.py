@@ -45,7 +45,7 @@ class TableConstructorMeta(TableConstructor):
             self.frame.occReplay[name] = HuaJianYouWindow(self.config, xfResult)
             button = tk.Button(self.frame, text='花间游', height=1, command=self.frame.occReplay[name].start, bg=getColor("2"))
         elif xfResult["occ"] in ["1d", "1t", "3d", "3t", "4p", "4m", "5d", "6d", "7p", "7m", "8", "9", "10d", "10t",
-                                          "21d", "21t", "22d", "23", "24", "25", "211", "212d", "213"]:  # 未实现的心法
+                                          "21d", "21t", "22d", "23", "24", "25", "211", "212d", "213", "214"]:  # 未实现的心法
             self.frame.occReplay[name] = DpsDisplayWindow(self.config, xfResult)
             button = tk.Button(self.frame, text=OCC_NAME_DICT[xfResult["occ"]], height=1, command=self.frame.occReplay[name].start, bg="#aaaaaa")
         button.grid(row=self.nowx, column=self.nowy)

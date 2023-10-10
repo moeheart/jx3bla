@@ -94,7 +94,7 @@ class RankCalculator():
                         num, percent = self.getSkillPercent(occ, map, boss, "healer", stat, record.get(stat, 0))
                         self.rank["healer"][stat] = {"num": num, "percent": percent}
 
-        # print("[Rank0]", self.rank)
+        # print("[Rank0]", occ, self.rank)
         return self.rank
 
     def getScoreRankFromStat(self, occ):

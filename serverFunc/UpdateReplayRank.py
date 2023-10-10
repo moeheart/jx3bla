@@ -44,17 +44,17 @@ def getSingleStat(record):
         for item in skillStat[skillName]:
             key4 = skillName
             key5 = item
-            if key4 == "qczl" and key5 in ["num", "numPerSec"] and record[11] < parseEdition("8.1.0"):
-                continue
-            if parseEdition(edition) < parseEdition("8.3.5") and key4 == "general" and key5 in ["score"]:
-                continue
-            if parseEdition(edition) < parseEdition("8.4.0") and key2 == "588" and key3 == "李重茂" and key4 == "general" and key5 in ["rdps", "mrdps"]:
-                continue
-            if parseEdition(edition) < parseEdition("8.5.0") and key2 == "588" and key3 == "李重茂" and key4 == "general" and key5 in ["rdps", "mrdps"] and record[0] in ["傲血戰意", "共結來緣"]:
-                continue
-            if parseEdition(edition) < parseEdition("8.5.0") and key4 == "general" and key5 in ["rdps", "mrdps", "ndps", "mndps"] and skillStat[skillName][item] == 0 and \
-                    key1 in ["taixuanjing", "wenshuijue", "xiaochenjue", "beiaojue", "linghaijue", "yinlongjue", "gufengjue"]:
-                continue
+            # if key4 == "qczl" and key5 in ["num", "numPerSec"] and record[11] < parseEdition("8.1.0"):
+            #     continue
+            # if parseEdition(edition) < parseEdition("8.3.5") and key4 == "general" and key5 in ["score"]:
+            #     continue
+            # if parseEdition(edition) < parseEdition("8.4.0") and key2 == "588" and key3 == "李重茂" and key4 == "general" and key5 in ["rdps", "mrdps"]:
+            #     continue
+            # if parseEdition(edition) < parseEdition("8.5.0") and key2 == "588" and key3 == "李重茂" and key4 == "general" and key5 in ["rdps", "mrdps"] and record[0] in ["傲血戰意", "共結來緣"]:
+            #     continue
+            # if parseEdition(edition) < parseEdition("8.5.0") and key4 == "general" and key5 in ["rdps", "mrdps", "ndps", "mndps"] and skillStat[skillName][item] == 0 and \
+            #         key1 in ["taixuanjing", "wenshuijue", "xiaochenjue", "beiaojue", "linghaijue", "yinlongjue", "gufengjue"]:
+            #     continue
             key = "%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5)
             value = skillStat[skillName][item] * getDirection(key)
             if "delay" in key and value == 0:
@@ -73,15 +73,15 @@ def getSingleStat(record):
 
     for id in STAT_ID:
         skip = 0
-        if parseEdition(edition) < parseEdition("8.3.5") and id == "score":
-            skip = 1
-        if parseEdition(edition) < parseEdition("8.4.0") and id in ["rdps", "mrdps"] and key2 == "588" and key3 == "李重茂":
-            skip = 1
-        if parseEdition(edition) < parseEdition("8.5.0") and id in ["rdps", "mrdps"] and key2 == "588" and key3 == "李重茂" and record[0] in ["傲血戰意", "共結來緣"]:
-            skip = 1
-        if parseEdition(edition) < parseEdition("8.5.0") and id in ["rdps", "mrdps", "ndps", "mndps"] and record[STAT_ID[id]] == 0 and \
-                key1 in ["taixuanjing", "wenshuijue", "xiaochenjue", "beiaojue", "linghaijue", "yinlongjue", "gufengjue"]:
-            skip = 1
+        # if parseEdition(edition) < parseEdition("8.3.5") and id == "score":
+        #     skip = 1
+        # if parseEdition(edition) < parseEdition("8.4.0") and id in ["rdps", "mrdps"] and key2 == "588" and key3 == "李重茂":
+        #     skip = 1
+        # if parseEdition(edition) < parseEdition("8.5.0") and id in ["rdps", "mrdps"] and key2 == "588" and key3 == "李重茂" and record[0] in ["傲血戰意", "共結來緣"]:
+        #     skip = 1
+        # if parseEdition(edition) < parseEdition("8.5.0") and id in ["rdps", "mrdps", "ndps", "mndps"] and record[STAT_ID[id]] == 0 and \
+        #         key1 in ["taixuanjing", "wenshuijue", "xiaochenjue", "beiaojue", "linghaijue", "yinlongjue", "gufengjue"]:
+        #     skip = 1
         if not skip:
             key4 = "stat"
             key5 = id
@@ -162,7 +162,7 @@ def updatePercent(raw_rank, cursor, db):
 
         # 新赛季更新时删除，后续再进行改动
         try:
-            if int(key2) < 586:
+            if int(key2) <= 636 or int(key2) in [648]:
                 continue
         except:
             sql = """UPDATE ReplayProStat SET hold=0 WHERE hash = '%s'""" % hash
@@ -201,7 +201,7 @@ def RefreshStat():
     db = pymysql.connect(host=ip, user=dbname, password=dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
 
-    edition = "8.0.2"
+    edition = "8.6.0"
 
     sql = """SELECT * FROM ReplayProStat WHERE editionFull>=%d""" % parseEdition(edition)
     cursor.execute(sql)
