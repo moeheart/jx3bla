@@ -17,6 +17,7 @@ def checkRateEdition(serverEdition):
     global STAT_PERCENT
     requireUpdate = False
     STAT_PERCENT = {}
+
     if os.path.exists('icons/rate.dat'):
         try:
             with open('icons/rate.dat', 'r') as f:

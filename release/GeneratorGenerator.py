@@ -10,6 +10,8 @@ if __name__ == "__main__":
 
     l = os.listdir('icons')
     for line in l:
+        if line == "rate.dat":
+            continue
         fileName = 'icons/%s'%line
         f = open(fileName, "rb")
         content = f.read()
