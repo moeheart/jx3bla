@@ -1104,6 +1104,12 @@ class ActorProReplayer(ReplayerBase):
         combatTracker.export(self.battleTime, self.bh.sumTime("dps"), self.bh.sumTime("healer"), self.stunCounter)
         self.combatTracker = combatTracker
 
+        # for key in self.bld.info.player:
+        #     print("[Player]", key, self.bld.info.getName(key))
+        #
+        # for key in self.bld.info.npc:
+        #     print("[NPC]", key, self.bld.info.getName(key))
+
         # 保存log
         if self.logMode:
             num = 0

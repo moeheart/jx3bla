@@ -142,11 +142,11 @@ class QilinReplayer(SpecificReplayerPro):
             elif event.content in ['"……"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            elif event.content in ['"看招！"']:
+            elif event.content in ['"嗷——"']:
                 pass
-            elif event.content in ['"再接我这招！"']:
+            elif event.content in ['""']:
                 pass
-            elif event.content in ['"哈啊！！！"']:
+            elif event.content in ['""']:
                 pass
             elif event.content in ['""']:
                 pass
@@ -227,7 +227,7 @@ class QilinReplayer(SpecificReplayerPro):
                                  "b26738", "s35564", "s35860", "b26834", "s35579", "s35580", "b26747", "s35573",
                                  "s35819", "n124637", "b26732", "s35568", "n125029", "n125078", "n125711", "s35574",
                                  "s35569", "n125026", "s35700", "n125026", "n124981", "s35582", "s35581", "n125486",
-                                 "n125482"
+                                 "n125482", "b27283", "b27312", "b27268", "s36348"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 

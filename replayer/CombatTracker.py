@@ -611,6 +611,9 @@ class DpsCastRecorder(StatRecorder):
             self.skill[skill]["percent"] = safe_divide(self.skill[skill]["sum"], self.sum)
             self.skill[skill]["name"] = self.getSkillName(skill, info)
         self.dps = self.sum / time * 1000
+
+        # print("[dps]", self.skill)
+
         for skill in self.skill:
             if self.skill[skill]["name"] not in self.namedSkill:
                 self.namedSkill[self.skill[skill]["name"]] = {"sum": self.skill[skill]["sum"],
@@ -833,6 +836,7 @@ class CombatTracker():
         - boostCounter: 增益统计类的dict. 用于计算覆盖率.
         '''
         badPeriodDpsLog = self.badPeriodDpsLog
+        # print("[objSource]", objSource)
         for player in objSource:
             badPeriodInterval = IntervalCounter(self.startTime, self.finalTime)
             badPeriodInterval.recordLog(badPeriodDpsLog)
@@ -843,6 +847,7 @@ class CombatTracker():
                 adjustedTime = self.timeDps
             badPeriodLog = badPeriodInterval.export()
             objSource[player].export(adjustedTime, self.info, player, boostCounter=boostCounter, badPeriodLog=badPeriodLog)
+            # print("objSource[player].dps", objSource[player].dps)
             if objSource[player].dps > 0:
                 occ = self.info.getOcc(player)
                 if player in self.occDetailList:
@@ -1387,6 +1392,8 @@ class CombatTracker():
                 self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, source, 1, event.time)
                 self.boostRemove[effect_id] = {"time": event.time + 12000, "target": event.target}
                 self.updateRemoveTime()
+
+        # print("[skill]", event.damageEff, event.damageEff > 0, event.caster in self.ndpsCast, event.target in self.info.npc, not self.excludeStatusDps)
             
         # 记录DPS, 这里只记录对NPC的伤害（防止灭之类的技能被统计）
         if event.damageEff > 0 and event.caster in self.ndpsCast and event.target in self.info.npc and not self.excludeStatusDps:

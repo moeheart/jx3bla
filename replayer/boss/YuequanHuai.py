@@ -228,11 +228,11 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
             elif event.content in ['"……"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            elif event.content in ['"看招！"']:
+            elif event.content in ['"哼！可怜的东西！"']:
                 pass
-            elif event.content in ['"再接我这招！"']:
+            elif event.content in ['"烦人的苍蝇解决了……吕洞宾，老夫倒要看看，你在这龙脉下面，究竟藏了什么！"']:
                 pass
-            elif event.content in ['"哈啊！！！"']:
+            elif event.content in ['"幻惑化生，破！"']:
                 pass
             elif event.content in ['"哦？能和老夫的暗梦仙体周旋这么久，看来你长进不小。"']:
                 self.changePhase(event.time, 0)
@@ -327,7 +327,7 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                                  "s35851", "s35852", "n124991", "b26606", "s35850", "s35488", "b26605",
                                  "b26691", "b26719", "s35493", "s35493", "s35486", "s35490", "s35485", "b26604", "s35482",
                                  "s35484", "b26694", "s35849", "s35481", "c35494", "s32563", "s35487", "s35854", "s35856",
-                                 "s35847"
+                                 "s35847", "n125986", "n122939", "n123795"
 
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)

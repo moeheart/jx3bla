@@ -220,7 +220,8 @@ class ZhongBuguiReplayer(SpecificReplayerPro):
         self.immuneTime = 0
 
         self.bhBlackList.extend(["s35650", "s35652", "s35653", "b26836", "b26833", "n124603", "s35655", "s35691",
-                                 "n123688", "b26835", "s35658", "b26815", "n124967", "n125468", "n124894", "s35825"
+                                 "n123688", "b26835", "s35658", "b26815", "n124967", "n125468", "n124894", "s35825",
+                                 "n124966"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 

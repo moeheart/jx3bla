@@ -1195,8 +1195,8 @@ def getSinglePlayer():
     for boss in sumScore:
         numBoss += 1
         avgScore[boss] = roundCent(safe_divide(sumScore[boss], numRecord[boss]))
-        sumHighestScore += highestScore[boss]
-        sumAverageScore += avgScore[boss]
+        sumHighestScore += highestScore.get(boss, 0)
+        sumAverageScore += avgScore.get(boss, 0)
         resJson["stat"][boss] = {"highest": highestScore[boss], "average": avgScore[boss], "num": numRecord[boss]}
         for stat_item in RANK_ID:
             rankStat[stat_item][boss]["average"] = safe_divide(rankStat[stat_item][boss]["sum"], rankStat[stat_item][boss]["num"])

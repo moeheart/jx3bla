@@ -180,7 +180,7 @@ class GuiChouReplayer(SpecificReplayerPro):
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             elif event.content in ['"嗯……是何处出了差错？"']:
                 pass
-            elif event.content in ['""']:
+            elif event.content in ['"月泉宗主已经到达太极逆境，就算没有我，他也会用掩日魔剑污染龙脉，以求见到九老洞底的秘密… …"']:
                 pass
             elif event.content in ['""']:
                 pass

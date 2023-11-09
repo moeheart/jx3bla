@@ -139,7 +139,7 @@ class WeiHuaReplayer(SpecificReplayerPro):
         elif event.dataType == "Shout":
             if event.content in ['"谁？！别过来！别逼我出手！"']:
                 pass
-            elif event.content in ['"……"']:
+            elif event.content in ['"……"', '"啊啊啊啊啊啊啊！好痛！"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             elif event.content in ['"看招！"']:

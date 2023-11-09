@@ -188,7 +188,10 @@ class BattleLogData():
             self.info.map = MAP_TRADITIONAL[map_origin]
         else:
             self.info.map = map_origin
-        self.info.boss = filePath.split('/')[-1].split('\\')[-1].split('-')[7].split('.')[0].split('(')[0]
+        try:
+            self.info.boss = filePath.split('/')[-1].split('\\')[-1].split('-')[7].split('.')[0].split('(')[0]
+        except:
+            self.info.boss = "未知"
         print("[Map]", self.info.map)
         print("[Boss]", self.info.boss)
 

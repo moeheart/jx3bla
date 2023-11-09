@@ -1098,6 +1098,8 @@ class HuaJianYouReplayer(DpsReplayer):
 
         # 实现一个展示增益覆盖率的逻辑
         self.myRdpsSource = {}
+        # print("[Keys]", self.act.rdps["player"].keys())
+        # print("[Mykey]", self.mykey)
         for player in self.act.rdps["player"]:
             if player == self.mykey:
                 self.myRdpsSource = self.act.rdps["player"][player]["namedSource"]

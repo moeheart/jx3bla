@@ -169,9 +169,9 @@ class CenShangReplayer(SpecificReplayerPro):
             elif event.content in ['"……"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            elif event.content in ['"看招！"']:
+            elif event.content in ['"逃啊，跑啊，这样才有意思！"']:
                 pass
-            elif event.content in ['"再接我这招！"']:
+            elif event.content in ['"呵呵，有点意思..那若是这样呢？"']:
                 pass
             elif event.content in ['"哈啊！！！"']:
                 pass
