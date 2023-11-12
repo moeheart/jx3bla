@@ -30,15 +30,17 @@ class WeiHuaWindow(SpecificBossWindow):
         tb = TableConstructorMeta(self.config, frame1)
 
         self.constructCommonHeader(tb, "")
-        # tb.AppendHeader("本体DPS", "对张景超的DPS。\n常规阶段时间：%s" % parseTime(self.detail["P1Time"]))
-        # tb.AppendHeader("双体1DPS", "第一次内外场阶段，对张法雷（红色）和劲风（蓝色）的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P2Time1"]))
-        # tb.AppendHeader("双体2DPS", "第二次内外场阶段，对张法雷（红色）和劲风（蓝色）的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P2Time2"]))
+        tb.AppendHeader("纳元次数", "被秋阳神功·纳元命中的次数。\n需要注意的是，每个矩形只会随机选择5个目标，所以即使站位正确，也不一定会被统计在次数中。")
+        tb.AppendHeader("破野次数", "被秋阳神功·破野命中的次数。\n需要注意的是，每个内力球只有前5次命中有效，所以即使被统计在次数中，也不一定说明站位正确。")
         tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         tb.EndOfLine()
 
         for i in range(len(self.effectiveDPSList)):
             line = self.effectiveDPSList[i]
             self.constructCommonLine(tb, line)
+
+            tb.AppendContext(int(line["battle"]["numNayuan"]))
+            tb.AppendContext(int(line["battle"]["numPoye"]))
 
             # 心法复盘
             if line["name"] in self.occResult:
@@ -114,6 +116,14 @@ class WeiHuaReplayer(SpecificReplayerPro):
                             if key in self.bhInfo or self.debug:
                                 self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式命中玩家", "skill")
 
+                if event.id == "35461":
+                    # 纳元
+                    self.statDict[event.target]["battle"]["numNayuan"] += 1
+
+                if event.id == "35606":
+                    # 破野
+                    self.statDict[event.target]["battle"]["numPoye"] += 1
+
             else:
                 if event.caster in self.bld.info.player and event.caster in self.statDict:
                     # self.stat[event.caster][2] += event.damageEff
@@ -148,13 +158,13 @@ class WeiHuaReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"哈啊！！！"']:
                 pass
-            elif event.content in ['""']:
+            elif event.content in ['"秋阳……神功！"']:
                 pass
-            elif event.content in ['""']:
+            elif event.content in ['"啊……怎么会……"']:
                 pass
-            elif event.content in ['""']:
+            elif event.content in ['"华儿贪恋江湖浮名，终究还是被这邪功反噬了……侠士，请先退下，我要将这秋阳神功压住！"']:
                 pass
-            elif event.content in ['""']:
+            elif event.content in ['"秋阳暴而草木殒……希望我来得还不算晚。"']:
                 pass
             elif event.content in ['""']:
                 pass
@@ -220,7 +230,9 @@ class WeiHuaReplayer(SpecificReplayerPro):
         self.immuneTime = 0
 
         self.bhBlackList.extend(["b25691", "n123664", "s35454", "b26592", "b26591", "b26678", "s35452",
-                                 "n124597", "n124871", "n125462",
+                                 "n124597", "n124871", "n125462", "n122406", "n125101", "b26683", "n125224",
+                                 "b26684", "s35607", "s35461", "n125518", "s35606", "b26632", "b26676", "n125865",
+                                 "n125721", "n125716", "n125519", "n125115", "n125523", "n125512",
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
@@ -239,11 +251,12 @@ class WeiHuaReplayer(SpecificReplayerPro):
                        "c35465": ["3429", "#007700", 3000],  # 秋阳神功·终式
                        }
 
-        # 翁幼之数据格式：
+        # 魏华数据格式：
         # 7 ？
 
         for line in self.bld.info.player:
-            self.statDict[line]["battle"] = {}
+            self.statDict[line]["battle"] = {"numNayuan": 0,
+                                             "numPoye": 0}
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''

@@ -30,9 +30,10 @@ class ZhongBuguiWindow(SpecificBossWindow):
         tb = TableConstructorMeta(self.config, frame1)
 
         self.constructCommonHeader(tb, "")
-        # tb.AppendHeader("本体DPS", "对张景超的DPS。\n常规阶段时间：%s" % parseTime(self.detail["P1Time"]))
-        # tb.AppendHeader("双体1DPS", "第一次内外场阶段，对张法雷（红色）和劲风（蓝色）的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P2Time1"]))
-        # tb.AppendHeader("双体2DPS", "第二次内外场阶段，对张法雷（红色）和劲风（蓝色）的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P2Time2"]))
+        tb.AppendHeader("1组剑", "对第1组剑的伤害量，红/蓝表示不同的分组。如果剑没有打掉，则会显示为浅色。")
+        tb.AppendHeader("2组剑", "对第2组剑的伤害量，红/蓝表示不同的分组。如果剑没有打掉，则会显示为浅色。")
+        tb.AppendHeader("3组剑", "对第3组剑的伤害量，红/蓝表示不同的分组。如果剑没有打掉，则会显示为浅色。")
+        tb.AppendHeader("4组剑", "对第4组剑的伤害量，红/蓝表示不同的分组。如果剑没有打掉，则会显示为浅色。")
         tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         tb.EndOfLine()
 
@@ -40,6 +41,17 @@ class ZhongBuguiWindow(SpecificBossWindow):
             line = self.effectiveDPSList[i]
             self.constructCommonLine(tb, line)
 
+            for j in range(1, 5):
+                if line["battle"]["hsjGroup%d" % j] == 1:
+                    tb.AppendContext(int(line["battle"]["hsjDam%d" % j]), color="#0000ff")
+                elif line["battle"]["hsjGroup%d" % j] == 2:
+                    tb.AppendContext(int(line["battle"]["hsjDam%d" % j]), color="#ff0000")
+                elif line["battle"]["hsjGroup%d" % j] == 3:
+                    tb.AppendContext(int(line["battle"]["hsjDam%d" % j]), color="#7777ff")
+                elif line["battle"]["hsjGroup%d" % j] == 4:
+                    tb.AppendContext(int(line["battle"]["hsjDam%d" % j]), color="#ff7777")
+                else:
+                    tb.AppendContext(int(line["battle"]["hsjDam%d" % j]), color="#000000")
             # 心法复盘
             if line["name"] in self.occResult:
                 tb.GenerateXinFaReplayButton(self.occResult[line["name"]], line["name"])
@@ -114,12 +126,28 @@ class ZhongBuguiReplayer(SpecificReplayerPro):
                             if key in self.bhInfo or self.debug:
                                 self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式命中玩家", "skill")
 
+                if event.id == "35691":
+                    for key in self.hsjOwner:
+                        if self.hsjOwner[key] == event.caster and self.hsjRound in [1,2,3,4] and self.statDict[key]["battle"]["hsjGroup%d" % self.hsjRound] < 3:
+                            self.statDict[key]["battle"]["hsjGroup%d" % self.hsjRound] += 2
+
             else:
                 if event.caster in self.bld.info.player and event.caster in self.statDict:
                     # self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
                         if self.bld.info.getName(event.target) in ["钟不归"]:
                             self.bh.setMainTarget(event.target)
+                        if self.bld.info.getName(event.target) in ["寒山剑"] and event.damageEff > 0:
+                            if self.hsjRound in [1,2,3,4]:
+                                self.statDict[event.caster]["battle"]["hsjDam%d" % self.hsjRound] += event.damageEff
+                            self.hsjOwner[event.caster] = event.target
+                            if self.hsj1 == 0:
+                                self.hsj1 = event.target
+                            if self.statDict[event.caster]["battle"]["hsjGroup%d" % self.hsjRound] < 3:
+                                if self.hsj1 == event.target:
+                                    self.statDict[event.caster]["battle"]["hsjGroup%d" % self.hsjRound] = 1
+                                else:
+                                    self.statDict[event.caster]["battle"]["hsjGroup%d" % self.hsjRound] = 2
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -152,9 +180,9 @@ class ZhongBuguiReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"苍松立岿霜气浓，烈风拨云两眼空！"']:
                 pass
-            elif event.content in ['""']:
+            elif event.content in ['"霜雾环身，坚不可摧！"']:
                 pass
-            elif event.content in ['""']:
+            elif event.content in ['"极晶灭却，无坚不摧！"']:
                 pass
             elif event.content in ['""']:
                 pass
@@ -195,7 +223,9 @@ class ZhongBuguiReplayer(SpecificReplayerPro):
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式开始运功", "cast")
             # if self.bld.info.getSkillName(event.full_id) in ["血影坠击", "怨·黄泉鬼步"]:
             #     print("[Xueyingzhuiji]", event.id, parseTime((event.time - self.startTime) / 1000))
-
+            if event.id == "35698":
+                self.hsjRound += 1
+                self.hsj1 = 0
                     
     def analyseFirstStage(self, item):
         '''
@@ -221,7 +251,7 @@ class ZhongBuguiReplayer(SpecificReplayerPro):
 
         self.bhBlackList.extend(["s35650", "s35652", "s35653", "b26836", "b26833", "n124603", "s35655", "s35691",
                                  "n123688", "b26835", "s35658", "b26815", "n124967", "n125468", "n124894", "s35825",
-                                 "n124966"
+                                 "n124966", "n122406", "n125205", "n125211", "s35701", "b26775", "b26783", "b26811",
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
@@ -230,18 +260,32 @@ class ZhongBuguiReplayer(SpecificReplayerPro):
                        "c35654": ["3408", "#ff0000", 2000],  # 太阴剑法·寒星式
                        # b26836寒颤
                        "c35667": ["12436", "#ff00ff", 0],  # 绝式·寒山峯现
-                       "c35656": ["3431", "#000000", 5000],  # 太阴剑法·冷涧式
-                       "c35692": ["3430", "#000000", 5000],  # 绝式·云尽寒灭
+                       "c35656": ["3431", "#00ff77", 5000],  # 太阴剑法·冷涧式
+                       "c35692": ["3430", "#77ff00", 5000],  # 绝式·云尽寒灭
+                       "c35837": ["3430", "#77ff00", 10000],  # 云尽寒灭
                        # b26815寒灭锢身
-                       "c35698": ["2038", "#000000", 3000],  # 太阴神功·守势
-                       "c35699": ["2037", "#000000", 3000],  # 太阴神功·灭势
+                       "c35698": ["2038", "#7700ff", 3000],  # 太阴神功·守势
+                       "c35699": ["2037", "#ff0077", 3000],  # 太阴神功·灭势
                        }
 
         # 翁幼之数据格式：
         # 7 ？
 
+        self.hsjRound = 0
+        self.hsj1 = 0
+        self.hsjOwner = {}
+
         for line in self.bld.info.player:
-            self.statDict[line]["battle"] = {}
+            self.statDict[line]["battle"] = {"hsjDam1": 0,
+                                             "hsjDam2": 0,
+                                             "hsjDam3": 0,
+                                             "hsjDam4": 0,
+                                             "hsjGroup1": 0,
+                                             "hsjGroup2": 0,
+                                             "hsjGroup3": 0,
+                                             "hsjGroup4": 0,}
+            self.hsjOwner[line] = 0
+
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''

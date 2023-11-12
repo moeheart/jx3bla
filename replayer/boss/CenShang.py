@@ -30,15 +30,17 @@ class CenShangWindow(SpecificBossWindow):
         tb = TableConstructorMeta(self.config, frame1)
 
         self.constructCommonHeader(tb, "")
-        # tb.AppendHeader("本体DPS", "对张景超的DPS。\n常规阶段时间：%s" % parseTime(self.detail["P1Time"]))
-        # tb.AppendHeader("双体1DPS", "第一次内外场阶段，对张法雷（红色）和劲风（蓝色）的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P2Time1"]))
-        # tb.AppendHeader("双体2DPS", "第二次内外场阶段，对张法雷（红色）和劲风（蓝色）的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P2Time2"]))
+        tb.AppendHeader("震荡层数", "自身受到[内力震荡]的总层数。\n如果层数达到7，伤害就足以致死。")
+        tb.AppendHeader("扰乱次数", "自身触发[内力扰乱]的次数。\n来源包括锁链未拉断、分散/抱团未处理，是团灭级别的错误。")
         tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         tb.EndOfLine()
 
         for i in range(len(self.effectiveDPSList)):
             line = self.effectiveDPSList[i]
             self.constructCommonLine(tb, line)
+
+            tb.AppendContext(int(line["battle"]["zhendang"]))
+            tb.AppendContext(int(line["battle"]["raoluan"]))
 
             # 心法复盘
             if line["name"] in self.occResult:
@@ -161,12 +163,16 @@ class CenShangReplayer(SpecificReplayerPro):
                              "%s触发全团惩罚：%s" % (time, self.lastUlt),
                              [],
                              0])
+                self.statDict[event.target]["battle"]["raoluan"] += 1
+
+            if event.id == "26724":
+                self.statDict[event.target]["battle"]["zhendang"] = max(self.statDict[event.target]["battle"]["zhendang"], event.stack)
 
 
         elif event.dataType == "Shout":
             if event.content in ['"谁？！别过来！别逼我出手！"']:
                 pass
-            elif event.content in ['"……"']:
+            elif event.content in ['"……"', '"够了！都去死吧！"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             elif event.content in ['"逃啊，跑啊，这样才有意思！"']:
@@ -177,13 +183,21 @@ class CenShangReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"定！"']:
                 pass
-            elif event.content in ['""']:
+            elif event.content in ['"给我死！"']:
                 pass
-            elif event.content in ['""']:
+            elif event.content in ['"可恶...这是怎么了？"']:
                 pass
-            elif event.content in ['""']:
+            elif event.content in ['"哈哈，你们休想通过！"']:
                 pass
-            elif event.content in ['""']:
+            elif event.content in ['"够了！都去死吧！"']:
+                pass
+            elif event.content in ['"这么着急去死，我就成全你们！"']:
+                pass
+            elif event.content in ['"岑伤，你罪业深重，将陷泥犁，莫要再生杀业。"']:
+                pass
+            elif event.content in ['"哦？不害哥，怎么？你又要来做救苦救难的大善人了？可惜，义父留我在此，他们一个也活不了……"']:
+                pass
+            elif event.content in ['"各位施主，请至小僧身后！"']:
                 pass
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
@@ -257,7 +271,8 @@ class CenShangReplayer(SpecificReplayerPro):
                                  "n123697", "n123860", "b27149", "n125019", "n125062", "n124010", "n125044", "b26799",
                                  "b27022", "s35790", "s35789", "s35468", "n125017", "c35767", "s35767", "n125060",
                                  "n125054", "s35657", "s35610", "n125040", "s35769", "n124975", "s35814", "b26965",
-                                 "b26813", "n125474"
+                                 "b26813", "n125474", "n125215", "n122406", "n125290", "n125294", "n125232", "n125213",
+                                 "n125703", "n125415", "s35768"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
@@ -291,7 +306,8 @@ class CenShangReplayer(SpecificReplayerPro):
         # self.raoluanCount = {}
 
         for line in self.bld.info.player:
-            self.statDict[line]["battle"] = {}
+            self.statDict[line]["battle"] = {"zhendang": 0,
+                                             "raoluan": 0}
             # self.raoluanCount[line] = 0
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
