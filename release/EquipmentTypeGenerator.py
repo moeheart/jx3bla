@@ -39,6 +39,8 @@ if __name__ == "__main__":
                 attr = "展锋"
             if "揽江" in name:
                 attr = "揽江"
+            if "灵源" in name:
+                attr = "灵源"
             if line["GetType"] == "生活技能":
                 attr = "切糕"
             if int(line["MaxStrengthLevel"]) < 6:

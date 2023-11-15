@@ -795,7 +795,7 @@ class EquipmentAnalyser():
         if '2' not in equips:
             return ""
 
-        res = {"星演": 0, "惊尘": 0, "百相": 0, "择芳": 0, "展锋": 0, "揽江": 0, "切糕": 0, "精简": 0, "特效腰坠": 0, "特效武器": 0, "门派特效": 0, "大橙武": 0}
+        res = {"星演": 0, "惊尘": 0, "百相": 0, "择芳": 0, "展锋": 0, "揽江": 0, "灵源": 0, "切糕": 0, "精简": 0, "特效腰坠": 0, "特效武器": 0, "门派特效": 0, "大橙武": 0}
         
         for key in equips:
             if key not in ["score", "description", "sketch", "cached"]:
@@ -814,9 +814,9 @@ class EquipmentAnalyser():
         
         sketch = []
         #计算套装
-        if res["星演"] >= 4 or res["惊尘"] >= 4 or res["百相"] >= 4 or res["择芳"] >= 4 or res["展锋"] >= 4 or res["揽江"] >= 4:
+        if res["星演"] >= 4 or res["惊尘"] >= 4 or res["百相"] >= 4 or res["择芳"] >= 4 or res["展锋"] >= 4 or res["揽江"] >= 4 or res["灵源"] >= 4:
             sketch.append("4件套")
-        elif (res["择芳"] >= 2 or res["惊尘"] >= 2 or res["展锋"] >= 2) and (res["星演"] >= 2 or res["百相"] >= 2 or res["揽江"] >= 2):
+        elif (res["择芳"] >= 2 or res["惊尘"] >= 2 or res["展锋"] >= 2 or res["灵源"] >= 2) and (res["星演"] >= 2 or res["百相"] >= 2 or res["揽江"] >= 2):
             sketch.append("4件套")
         elif res["惊尘"] >= 2:
             sketch.append("2惊尘")
@@ -830,6 +830,8 @@ class EquipmentAnalyser():
             sketch.append("2展锋")
         elif res["揽江"] >= 2:
             sketch.append("2揽江")
+        elif res["灵源"] >= 2:
+            sketch.append("2灵源")
             
         if res["切糕"] >= 1:
             sketch.append("%d切糕"%res["切糕"])

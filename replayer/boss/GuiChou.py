@@ -30,9 +30,9 @@ class GuiChouWindow(SpecificBossWindow):
         tb = TableConstructorMeta(self.config, frame1)
 
         self.constructCommonHeader(tb, "")
-        # tb.AppendHeader("本体DPS", "对张景超的DPS。\n常规阶段时间：%s" % parseTime(self.detail["P1Time"]))
-        # tb.AppendHeader("双体1DPS", "第一次内外场阶段，对张法雷（红色）和劲风（蓝色）的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P2Time1"]))
-        # tb.AppendHeader("双体2DPS", "第二次内外场阶段，对张法雷（红色）和劲风（蓝色）的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P2Time2"]))
+        tb.AppendHeader("搬运用时1", "第一次搬运的用时。\n这个用时包括捡起石头的时间和拿在手里的时间。为0代表这一轮没有参与。")
+        tb.AppendHeader("搬运用时2", "第二次搬运的用时。\n这个用时包括捡起石头的时间和拿在手里的时间。为0代表这一轮没有参与。")
+        tb.AppendHeader("搬运用时3", "第三次搬运的用时。\n这个用时包括捡起石头的时间和拿在手里的时间。为0代表这一轮没有参与。")
         tb.AppendHeader("树木伤害", "对树木的伤害，注意这个伤害没有除以时间。")
         tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         tb.EndOfLine()
@@ -40,7 +40,18 @@ class GuiChouWindow(SpecificBossWindow):
         for i in range(len(self.effectiveDPSList)):
             line = self.effectiveDPSList[i]
             self.constructCommonLine(tb, line)
-
+            if line["battle"]["banyun1"] == 0:
+                tb.AppendContext(0, color="#777777")
+            else:
+                tb.AppendContext(int(line["battle"]["banyun1"] / 10) / 100)
+            if line["battle"]["banyun2"] == 0:
+                tb.AppendContext(0, color="#777777")
+            else:
+                tb.AppendContext(int(line["battle"]["banyun2"] / 10) / 100)
+            if line["battle"]["banyun3"] == 0:
+                tb.AppendContext(0, color="#777777")
+            else:
+                tb.AppendContext(int(line["battle"]["banyun3"] / 10) / 100)
             tb.AppendContext(int(line["battle"]["shumuDPS"]))
 
             # 心法复盘
@@ -172,6 +183,16 @@ class GuiChouReplayer(SpecificReplayerPro):
                         if key == "b26720":
                             self.bh.setEnvironment(event.id, "寒风消失", "341", event.time + 20000, 0, 1, "寒风消失", "buff")
 
+            if event.id == "26839" and self.round in [1,2,3]:  # 搬运
+                if event.stack == 1:
+                    if self.prevThrow == 0:
+                        self.prevThrow = event.time
+                else:
+                    # 计算本次用时
+                    thisTime = event.time - self.prevThrow
+                    self.prevThrow = event.time
+                    self.statDict[event.target]["battle"]["banyun%d" % self.round] = thisTime
+
         elif event.dataType == "Shout":
             if event.content in ['""']:
                 pass
@@ -180,15 +201,16 @@ class GuiChouReplayer(SpecificReplayerPro):
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             elif event.content in ['"嗯……是何处出了差错？"']:
                 pass
-            elif event.content in ['"月泉宗主已经到达太极逆境，就算没有我，他也会用掩日魔剑污染龙脉，以求见到九老洞底的秘密… …"']:
+            elif event.content in ['"月泉宗主已经到达太极逆境，就算没有我，他也会用掩日魔剑污染龙脉，以求见到九老洞底的秘密……"']:
+                self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            elif event.content in ['"不过如果是你的话，或许真有可能阻止那个人……"']:
                 pass
-            elif event.content in ['""']:
+            elif event.content in ['"就让我看看吧，你究竟能做到什么地步……"']:
                 pass
-            elif event.content in ['""']:
+            elif event.content in ['"让我看看你们实力如何！"']:
                 pass
-            elif event.content in ['""']:
-                pass
-            elif event.content in ['""']:
+            elif event.content in ['"你们无法改变失败的结局！"']:
                 pass
             elif event.content in ['""']:
                 pass
@@ -242,8 +264,9 @@ class GuiChouReplayer(SpecificReplayerPro):
                     skillName = self.bld.info.getSkillName(event.full_id)
                     if "," not in skillName:
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式开始运功", "cast")
-            # if self.bld.info.getSkillName(event.full_id) in ["血影坠击", "怨·黄泉鬼步"]:
-            #     print("[Xueyingzhuiji]", event.id, parseTime((event.time - self.startTime) / 1000))
+            if event.id == "35939":
+                self.round += 1
+                self.prevThrow = 0
 
                     
     def analyseFirstStage(self, item):
@@ -272,7 +295,8 @@ class GuiChouReplayer(SpecificReplayerPro):
                                  "b26809", "s35817", "b26896", "s35933", "s32392", "n124010", "n124880", "b26839",
                                  "s35937", "n125062", "n124887", "n125424", "b26770", "n124637", "s35800", "n125060",
                                  "s35863", "n124961", "s35637", "n125056", "n125044", "s35942", "n125054", "n124975",
-                                 "n125476"
+                                 "n125476", "n122406", "n125103", "n125160", "n125372", "n125810", "n124020", "b8272",
+                                 "n125295", "n125108"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
@@ -282,6 +306,7 @@ class GuiChouReplayer(SpecificReplayerPro):
                        "c35933": ["4222", "#7700ff", 3000],  # 天震逆退
                        "b26720": ["3412", "#00ff00", 0],  # 寒风
                        "c36124": ["4222", "#000000", 3000],  # 堪舆
+                       "c35939": ["4222", "#000000", 3000],  # 窥天
                        "c35936": ["4222", "#000000", 3000],  # 符海
                        "c35941": ["4222", "#000000", 3000],  # 星火坠
                        # b26839 搬运
@@ -291,9 +316,14 @@ class GuiChouReplayer(SpecificReplayerPro):
         # 7 ？
 
         self.shumu = {}
+        self.round = 0
+        self.prevThrow = 0
 
         for line in self.bld.info.player:
-            self.statDict[line]["battle"] = {"shumuDPS": 0}
+            self.statDict[line]["battle"] = {"shumuDPS": 0,
+                                             "banyun1": 0,
+                                             "banyun2": 0,
+                                             "banyun3": 0}
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''
