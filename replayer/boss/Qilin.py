@@ -32,15 +32,21 @@ class QilinWindow(SpecificBossWindow):
         self.constructCommonHeader(tb, "")
         tb.AppendHeader("P1DPS", "常规阶段的DPS。\n会将分开的部分累加计算，且排除无敌时间。\n常规阶段时间：%s" % parseTime(self.detail["P1Time"]))
         tb.AppendHeader("灵护1DPS", "第一次灵护阶段的DPS。\n在三只小麒麟血量都小于25%%时，会提前结束统计。\n阶段持续时间：%s" % parseTime(self.detail["P2Time1"]))
-        tb.AppendHeader("魔剑1DPS", "第一次魔剑阶段的DPS。\n在所有魔剑都被击破时，会提前结束统计。\n阶段持续时间：%s" % parseTime(self.detail["P2Time2"]))
-        tb.AppendHeader("灵护2DPS", "第二次灵护阶段的DPS。\n在三只小麒麟血量都小于25%%时，会提前结束统计。\n阶段持续时间：%s" % parseTime(self.detail["P2Time1"]))
-        tb.AppendHeader("魔剑2DPS", "第二次魔剑阶段的DPS。\n在所有魔剑都被击破时，会提前结束统计。\n阶段持续时间：%s" % parseTime(self.detail["P2Time2"]))
+        tb.AppendHeader("魔剑1DPS", "第一次魔剑阶段的DPS。\n在所有魔剑都被击破时，会提前结束统计。\n阶段持续时间：%s" % parseTime(self.detail["P3Time1"]))
+        tb.AppendHeader("灵护2DPS", "第二次灵护阶段的DPS。\n在三只小麒麟血量都小于25%%时，会提前结束统计。\n阶段持续时间：%s" % parseTime(self.detail["P2Time2"]))
+        tb.AppendHeader("魔剑2DPS", "第二次魔剑阶段的DPS。\n在所有魔剑都被击破时，会提前结束统计。\n阶段持续时间：%s" % parseTime(self.detail["P3Time2"]))
         tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         tb.EndOfLine()
 
         for i in range(len(self.effectiveDPSList)):
             line = self.effectiveDPSList[i]
             self.constructCommonLine(tb, line)
+
+            tb.AppendContext(int(line["battle"]["P1DPS"]))
+            tb.AppendContext(int(line["battle"]["lhDPS1"]))
+            tb.AppendContext(int(line["battle"]["mjDPS1"]))
+            tb.AppendContext(int(line["battle"]["lhDPS2"]))
+            tb.AppendContext(int(line["battle"]["mjDPS2"]))
 
             # 心法复盘
             if line["name"] in self.occResult:
@@ -66,6 +72,12 @@ class QilinReplayer(SpecificReplayerPro):
         self.bh.setEnvironmentInfo(self.bhInfo)
         self.bh.printEnvironmentInfo()
 
+        self.detail["P1Time"] = int(self.phaseTime[1] / 1000)
+        self.detail["P2Time1"] = int(self.phaseTime[2] / 1000)
+        self.detail["P2Time2"] = int(self.phaseTime[4] / 1000)
+        self.detail["P3Time1"] = int(self.phaseTime[3] / 1000)
+        self.detail["P3Time2"] = int(self.phaseTime[5] / 1000)
+
     def getResult(self):
         '''
         生成复盘结果的流程。需要维护effectiveDPSList, potList与detail。
@@ -77,6 +89,11 @@ class QilinReplayer(SpecificReplayerPro):
         for id in self.bld.info.player:
             if id in self.statDict:
                 res = self.getBaseList(id)
+                res["battle"]["P1DPS"] = int(safe_divide(res["battle"]["P1DPS"], self.detail["P1Time"]))
+                res["battle"]["lhDPS1"] = int(safe_divide(res["battle"]["lhDPS1"], self.detail["P2Time1"]))
+                res["battle"]["lhDPS2"] = int(safe_divide(res["battle"]["lhDPS2"], self.detail["P2Time2"]))
+                res["battle"]["mjDPS1"] = int(safe_divide(res["battle"]["mjDPS1"], self.detail["P3Time1"]))
+                res["battle"]["mjDPS2"] = int(safe_divide(res["battle"]["mjDPS2"], self.detail["P3Time2"]))
                 bossResult.append(res)
         self.statList = bossResult
 
@@ -122,6 +139,30 @@ class QilinReplayer(SpecificReplayerPro):
                     if event.target in self.bld.info.npc:
                         if self.bld.info.getName(event.target) in ["麒麟"]:
                             self.bh.setMainTarget(event.target)
+                            if self.phase == 0:
+                                self.bh.setBadPeriod(self.phaseStart, event.time, True, False)
+                            if event.damageEff > 0 and self.phase in [0,3,5]:  # 转回第一阶段
+                                self.changePhase(event.time, 1)
+                            self.statDict[event.caster]["battle"]["P1DPS"] += event.damageEff
+                        if self.bld.info.getName(event.target) in ["灵护麒麟"]:
+                            if self.phase == 2:
+                                self.statDict[event.caster]["battle"]["lhDPS1"] += event.damageEff
+                            elif self.phase == 4:
+                                self.statDict[event.caster]["battle"]["lhDPS2"] += event.damageEff
+                            if event.target not in self.lhHP:
+                                self.lhHP[event.target] = 0
+                                self.lhDown[event.target] = 0
+                            self.lhHP[event.target] += event.damageEff
+                            if self.lhHP[event.target] > 345600000 * 0.75 and not self.lhDown[event.target]:
+                                self.lhDownNum += 1
+                                self.lhDown[event.target] = 1
+                                if self.lhDownNum == 3:
+                                    self.changePhase(event.time, 0)
+                        if self.bld.info.getName(event.target) in ["魔剑幻影"]:
+                            if self.phase == 3:
+                                self.statDict[event.caster]["battle"]["mjDPS1"] += event.damageEff
+                            elif self.phase == 5:
+                                self.statDict[event.caster]["battle"]["mjDPS2"] += event.damageEff
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -162,7 +203,7 @@ class QilinReplayer(SpecificReplayerPro):
                 pass
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
-            print("[Shout]", event.content)
+            # print("[Shout]", event.content, parseTime((event.time - self.startTime) / 1000))
 
         elif event.dataType == "Scene":  # 进入、离开场景
             if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["麒麟宝箱", "??寶箱"]:
@@ -178,12 +219,30 @@ class QilinReplayer(SpecificReplayerPro):
                         if key in self.bhInfo or self.debug:
                             self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
                                                1, "NPC出现", "npc")
+            if self.bld.info.getName(event.id) in ["灵护麒麟"] and event.enter:
+                # 检查阶段
+                if event.time - self.prevLinghuTime > 180000:
+                    self.prevLinghuTime = event.time
+                    self.linghuNum += 1
+                    self.bh.setBadPeriod(event.time - 3000, event.time, True, False)
+                    self.changePhase(event.time, self.linghuNum * 2)
+                    self.lhDownNum = 0
+                    self.mjDownNum = 0
+            if self.bld.info.getName(event.id) in ["魔剑幻影"] and event.enter:
+                if self.phase in [0, 2, 4]:
+                    if self.phase == 0:
+                        self.bh.setBadPeriod(self.phaseStart, event.time, True, False)
+                    self.changePhase(event.time, self.linghuNum * 2 + 1)
 
         elif event.dataType == "Death":  # 重伤记录
             # print("[Death]", parseTime((event.time - self.startTime) / 1000), event.id, self.bld.info.getName(event.id))
             if self.bld.info.getName(event.id) == "麒麟":
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            if self.bld.info.getName(event.id) == "魔剑幻影":
+                self.mjDownNum += 1
+                if self.mjDownNum == 3:
+                    self.changePhase(event.time, 0)
 
         elif event.dataType == "Battle":  # 战斗状态变化
             pass
@@ -201,6 +260,12 @@ class QilinReplayer(SpecificReplayerPro):
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式开始运功", "cast")
             # if self.bld.info.getSkillName(event.full_id) in ["血影坠击", "怨·黄泉鬼步"]:
             #     print("[Xueyingzhuiji]", event.id, parseTime((event.time - self.startTime) / 1000))
+            if event.id == "35776":  # 夏·炙热洪流
+                self.bh.setBadPeriod(event.time, event.time + 17500, True, False)
+            if event.id == "35975":  # 夏·火焰旋涡
+                self.bh.setBadPeriod(event.time, event.time + 13000, True, False)
+            if event.id == "35824":  # 冬·雪崩山裂+寒光冰气
+                self.bh.setBadPeriod(event.time - 1000, event.time + 40000, True, False)
 
                     
     def analyseFirstStage(self, item):
@@ -217,13 +282,21 @@ class QilinReplayer(SpecificReplayerPro):
         '''
         self.initBattleBase()
         self.activeBoss = "麒麟"
-        # self.debug = 1
+        self.debug = 0
 
         self.initPhase(5, 1)
 
-        self.immuneStatus = 0
-        self.immuneHealer = 0
-        self.immuneTime = 0
+        self.prevLinghuTime = 0
+        self.linghuNum = 0
+        # n125250 灵护麒麟
+        self.lhHP = {}
+        self.lhDown = {}
+        self.lhDownNum = 0
+        self.mjDownNum = 0
+
+        # self.immuneStatus = 0
+        # self.immuneHealer = 0
+        # self.immuneTime = 0
 
         self.bhBlackList.extend(["s35558", "b26730", "s35565", "n125008", "n125012", "b26729", "s35570", "b26778",
                                  "s35576", "n125021", "s35596", "b26735", "n125005", "n124876", "n124872", "b26736",
@@ -232,7 +305,7 @@ class QilinReplayer(SpecificReplayerPro):
                                  "s35569", "n125026", "s35700", "n125026", "n124981", "s35582", "s35581", "n125486",
                                  "n125482", "b27283", "b27312", "b27268", "s36348", "n125282", "b27033", "s35821",
                                  "s35572", "s35575", "n125250", "b26739", "b26740", "b26741", "s35586", "s35587",
-                                 "c35835", "c35586", "c35589", "n126013", "n125024", "s35567",
+                                 "n126013", "n125024", "s35567", "c35593", "c35593",
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
@@ -247,12 +320,16 @@ class QilinReplayer(SpecificReplayerPro):
                        "c35819": ["4222", "#000000", 4000],  # 坚鳞利爪
                        "c35573": ["4222", "#000000", 4000],  # 秋风咆哮
                        "c35828": ["4222", "#000000", 3000],  # 灵风呼嚎
+                       "c35782": ["4222", "#000000", 3000],  # 麒麟吐息
+                       "c35578": ["4222", "#000000", 8000],  # 春意虹影
+                       "c35840": ["4222", "#000000", 3000],  # 灵护气弹
+                       "c35835": ["4222", "#000000", 3000],  # 灵护扩散
+                       "c35586": ["4222", "#000000", 3000],  # 灵护喷吐
+                       "c35589": ["4222", "#000000", 3000],  # 灵护消散
                        }
 
         # 翁幼之数据格式：
         # 7 ？
-
-        # n125250 灵护麒麟
 
         for line in self.bld.info.player:
             self.statDict[line]["battle"] = {"P1DPS": 0,
@@ -268,3 +345,8 @@ class QilinReplayer(SpecificReplayerPro):
         super().__init__(bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint)
         self.config = config
 
+# 无敌时间 夏
+# 无敌时间 冬
+# 阶段划分统计x
+# 无效时间 停手
+# 无效时间 转阶段
