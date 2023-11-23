@@ -116,6 +116,11 @@ class CenShangReplayer(SpecificReplayerPro):
                             if key in self.bhInfo or self.debug:
                                 self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式命中玩家", "skill")
 
+                if event.id == "35464":
+                    if event.time - self.xuanmingsuoLast > 4000:
+                        self.bh.setBadPeriod(event.time, event.time + 8000, True, True)
+                        self.xuanmingsuoLast = event.time
+
             else:
                 if event.caster in self.bld.info.player and event.caster in self.statDict:
                     # self.stat[event.caster][2] += event.damageEff
@@ -168,6 +173,8 @@ class CenShangReplayer(SpecificReplayerPro):
             if event.id == "26724":
                 self.statDict[event.target]["battle"]["zhendang"] = max(self.statDict[event.target]["battle"]["zhendang"], event.stack)
 
+            if event.id == "26627" and event.target in self.stunCounter:
+                self.stunCounter[event.target].setState(event.time, event.stack)
 
         elif event.dataType == "Shout":
             if event.content in ['"谁？！别过来！别逼我出手！"']:
@@ -238,8 +245,11 @@ class CenShangReplayer(SpecificReplayerPro):
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式开始运功", "cast")
             if event.id == "35645":
                 self.lastUlt = "锁链"
+                self.xuanmingsuoLast = event.time
             if event.id == "35811":
                 self.lastUlt = "明暗"
+            if event.id == "35468":
+                self.bh.setBadPeriod(event.time, event.time + 5000, True, True)
 
                     
     def analyseFirstStage(self, item):
@@ -272,7 +282,7 @@ class CenShangReplayer(SpecificReplayerPro):
                                  "b27022", "s35790", "s35789", "s35468", "n125017", "c35767", "s35767", "n125060",
                                  "n125054", "s35657", "s35610", "n125040", "s35769", "n124975", "s35814", "b26965",
                                  "b26813", "n125474", "n125215", "n122406", "n125290", "n125294", "n125232", "n125213",
-                                 "n125703", "n125415", "s35768"
+                                 "n125703", "n125415", "s35768", "c35614", "s35612", "n125223"
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
@@ -280,10 +290,10 @@ class CenShangReplayer(SpecificReplayerPro):
                        "c35609": ["4498", "#ff00ff", 2000],  # 泉映千山·游龙荡影
                        "c35467": ["3428", "#ff0000", 4000],  # 泉映千山·摧云斩波
                        "s35608": ["2031", "#00ff00", 0],  # 泉映千山·星斗云集
-                       "s35612": ["4535", "#0000ff", 0],  # 泉映千山·月影婆娑
+                       # "s35612": ["4535", "#0000ff", 0],  # 泉映千山·月影婆娑
                        # b26680月影婆娑
                        "c35642": ["4547", "#0077ff", 0],  # 泉映千山·单峰
-                       "c35614": ["2020", "#7700ff", 1000],   # 泉映千山·重峰叠影
+                       # "c35614": ["2020", "#7700ff", 1000],   # 泉映千山·重峰叠影
                        # b26679断筋
                        # b26850内伤
                        "c35811": ["3318", "#ff77ff", 5000],  # 泉映千山·剑分幽明
@@ -292,18 +302,19 @@ class CenShangReplayer(SpecificReplayerPro):
                        # b26965明
                        "c35468": ["4222", "#ff0077", 3000],  # 幻念剑·横断千峰
                        # s35608
-                       "c35645": ["4222", "#000000", 2000],  # 幻念剑·玄冥锁链
+                       "c35645": ["3434", "#7700ff", 2000],  # 幻念剑·玄冥锁链
                        # b27022 内息不畅（沉默）
-                       "c35648": ["4222", "#000000", 2000],  # 皓月功
-                       "c35657": ["4222", "#000000", 10000],  # 幻念剑·山环月辉
-                       "c35766": ["4222", "#000000", 12000],  # 泉映千山·月照星环
-                       "c35788": ["4222", "#000000", 10000],  # 幻念剑·星灿
+                       "c35648": ["4552", "#0000ff", 2000],  # 皓月功
+                       "c35657": ["3435", "#7777ff", 10000],  # 幻念剑·山环月辉
+                       "c35766": ["3444", "#00ff77", 12000],  # 泉映千山·月照星环
+                       "c35788": ["2146", "#ff7700", 10000],  # 幻念剑·星灿
                        }
 
         # 翁幼之数据格式：
         # 7 ？
 
         # self.raoluanCount = {}
+        self.xuanmingsuoLast = 0
 
         for line in self.bld.info.player:
             self.statDict[line]["battle"] = {"zhendang": 0,

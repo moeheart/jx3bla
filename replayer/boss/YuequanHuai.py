@@ -360,6 +360,23 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
         self.buffLayers = {}
         self.fenshen = {}
 
+        # P1DPS
+        # 修血DPS
+        # P2DPS
+        # 月崩击
+        # 月茧
+        # 掩日1-1
+        # 掩日1-2
+        # 掩日1分组
+        # 掩日1延迟
+        # 掩日2-1
+        # 掩日2-2
+        # 掩日2分组
+        # 掩日2延迟
+
+        # P2驱散记录
+        # P2百战技能记录
+
         for line in self.bld.info.player:
             self.statDict[line]["battle"] = {"fenshenDPS": 0,
                                              "P1DPS": 0,

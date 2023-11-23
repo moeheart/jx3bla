@@ -172,7 +172,7 @@ class GuiChouReplayer(SpecificReplayerPro):
             if event.caster in self.bld.info.npc and event.stack > 0:
                 # 尝试记录buff事件
                 name = "b%s" % event.id
-                if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 10000:
+                if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 15000:
                     self.bhTime[name] = event.time
                     skillName = self.bld.info.getSkillName(event.full_id)
                     if "," not in skillName:
@@ -303,12 +303,13 @@ class GuiChouReplayer(SpecificReplayerPro):
         self.bhInfo = {
                        "c35934": ["18446", "#ff00ff", 7000],  # 奔星
                        # b26896奔星
-                       "c35933": ["4222", "#7700ff", 3000],  # 天震逆退
+                       "c35933": ["2026", "#7700ff", 3000],  # 天震逆退
                        "b26720": ["3412", "#00ff00", 0],  # 寒风
-                       "c36124": ["4222", "#000000", 3000],  # 堪舆
-                       "c35939": ["4222", "#000000", 3000],  # 窥天
-                       "c35936": ["4222", "#000000", 3000],  # 符海
-                       "c35941": ["4222", "#000000", 3000],  # 星火坠
+                       "c36124": ["16837", "#77ff00", 3000],  # 堪舆
+                       "c35939": ["16837", "#77ff00", 3000],  # 窥天
+                       "c35936": ["11432", "#ff7700", 3000],  # 符海
+                       "c35941": ["4504", "#ff0000", 3000],  # 星坠
+                       "c36425": ["344", "#0000ff", 5000],  # 天星定命
                        # b26839 搬运
                        }
 
