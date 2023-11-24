@@ -18,7 +18,7 @@ class YuequanHuaiWindow(SpecificBossWindow):
         '''
         使用tkinter绘制详细复盘窗口。
         '''
-        self.constructWindow("月泉淮", "1200x800")
+        self.constructWindow("月泉淮", "1400x900")
         window = self.window
         
         frame1 = tk.Frame(window)
@@ -30,13 +30,20 @@ class YuequanHuaiWindow(SpecificBossWindow):
         tb = TableConstructorMeta(self.config, frame1)
 
         self.constructCommonHeader(tb, "")
-        # tb.AppendHeader("本体DPS", "对张景超的DPS。\n常规阶段时间：%s" % parseTime(self.detail["P1Time"]))
-        # tb.AppendHeader("双体1DPS", "第一次内外场阶段，对张法雷（红色）和劲风（蓝色）的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P2Time1"]))
-        # tb.AppendHeader("双体2DPS", "第二次内外场阶段，对张法雷（红色）和劲风（蓝色）的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P2Time2"]))
-        tb.AppendHeader("分身伤害", "对P1[暗梦仙体的幻影]的伤害，注意这个伤害没有除以时间。")
         tb.AppendHeader("P1DPS", "对P1[暗梦仙体]的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P1Time"]))
+        tb.AppendHeader("修血", "在[月华天相·满月]结束后，对前两只P1[金翅鸟化身]造成的伤害。\n这个伤害越快，治疗的容错就越高，是通过这个治疗检测的关键。\n注意这个伤害没有除以时间。")
+        tb.AppendHeader("回蓝", "被P1的技能命中导致BOSS回蓝的次数。")
         tb.AppendHeader("P2DPS", "对P2[月泉淮]在100%%-60%%蓝量期间的DPS。\n阶段持续时间：%s" % parseTime(self.detail["P2Time"]))
-        tb.AppendHeader("被命中", "被P1的技能命中导致BOSS回蓝的次数")
+        tb.AppendHeader("P3月崩击", "P3[月崩击]期间对[暗梦仙体]的DPS。将所有流程相加计算。\n阶段持续时间：%s" % parseTime(self.detail["P3ybjTime"]))
+        tb.AppendHeader("月茧", "P3[月茧]期间对[暗梦仙体]的DPS。将所有流程相加计算。\n阶段持续时间：%s" % parseTime(self.detail["P3yjTime"]))
+        tb.AppendHeader("1-1", "P3的第一次[月泉天引]期间，对第一轮[掩日]的总伤害。")
+        tb.AppendHeader("1-2", "P3的第一次[月泉天引]期间，对第二轮[掩日]的总伤害。\n这是这个阶段的关键所在。")
+        tb.AppendHeader("1分组", "P3的第一次[月泉天引]期间，根据五行buff推测的分组顺位。\n如果吃到了错误的buff，可能导致这个分组不正确，但这正好可以指出错误。")
+        tb.AppendHeader("1用时", "P3的第一次[月泉天引]期间，从获得buff到上点花费的时间。\n这是这个阶段的关键所在。")
+        tb.AppendHeader("2-1", "P3的第二次[月泉天引]期间，对第一轮[掩日]的总伤害。")
+        tb.AppendHeader("2-2", "P3的第二次[月泉天引]期间，对第二轮[掩日]的总伤害。\n这是这个阶段的关键所在。")
+        tb.AppendHeader("2分组", "P3的第二次[月泉天引]期间，根据五行buff推测的分组顺位。\n如果吃到了错误的buff，可能导致这个分组不正确，但这正好可以指出错误。")
+        tb.AppendHeader("2用时", "P3的第二次[月泉天引]期间，从获得buff到上点花费的时间。\n这是这个阶段的关键所在。")
         tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         tb.EndOfLine()
 
@@ -44,10 +51,20 @@ class YuequanHuaiWindow(SpecificBossWindow):
             line = self.effectiveDPSList[i]
             self.constructCommonLine(tb, line)
 
-            tb.AppendContext(int(line["battle"]["fenshenDPS"]))
             tb.AppendContext(int(line["battle"]["P1DPS"]))
-            tb.AppendContext(int(line["battle"]["P2DPS"]))
+            tb.AppendContext(int(line["battle"]["xiuxue"]))
             tb.AppendContext(int(line["battle"]["damageTaken"]))
+            tb.AppendContext(int(line["battle"]["P2DPS"]))
+            tb.AppendContext(int(line["battle"]["ybj"]))
+            tb.AppendContext(int(line["battle"]["yj"]))
+            tb.AppendContext(int(line["battle"]["yr11"]))
+            tb.AppendContext(int(line["battle"]["yr12"]))
+            tb.AppendContext(int(line["battle"]["yr1group"]))
+            tb.AppendContext(int(line["battle"]["yr1delay"] / 10) / 100)
+            tb.AppendContext(int(line["battle"]["yr21"]))
+            tb.AppendContext(int(line["battle"]["yr22"]))
+            tb.AppendContext(int(line["battle"]["yr2group"]))
+            tb.AppendContext(int(line["battle"]["yr2delay"] / 10) / 100)
 
             # 心法复盘
             if line["name"] in self.occResult:
@@ -75,6 +92,8 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
 
         self.detail["P1Time"] = int(self.phaseTime[1] / 1000)
         self.detail["P2Time"] = int(self.phaseTime[2] / 1000)
+        self.detail["P3ybjTime"] = int(self.phaseTime[3] / 1000)
+        self.detail["P3yjTime"] = int(self.phaseTime[4] / 1000)
 
     def getResult(self):
         '''
@@ -89,6 +108,8 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                 res = self.getBaseList(id)
                 res["battle"]["P1DPS"] = int(safe_divide(res["battle"]["P1DPS"], self.detail["P1Time"]))
                 res["battle"]["P2DPS"] = int(safe_divide(res["battle"]["P2DPS"], self.detail["P2Time"]))
+                res["battle"]["ybj"] = int(safe_divide(res["battle"]["ybj"], self.detail["P3ybjTime"]))
+                res["battle"]["yj"] = int(safe_divide(res["battle"]["yj"], self.detail["P3yjTime"]))
                 bossResult.append(res)
         self.statList = bossResult
 
@@ -170,20 +191,30 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                                     [],
                                     0])
 
+                if event.id in ["35489"]:  # 月衍万化·初式
+                    if self.phase == 0:
+                        self.bh.setBadPeriod(self.phaseStart, event.time, True, False)
+                        self.bh.setBadPeriod(self.p1healerEndTime, event.time, False, True)
+                        self.changePhase(event.time, 2)
+
+                if event.id in ["32527", "32529"]:  # 月华天相·满月
+                    self.countP1last = 2
+                    # print("[Manyue]", parseTime((event.time - self.startTime) / 1000))
+
             else:
                 if event.caster in self.bld.info.player and event.caster in self.statDict:
                     # self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.getName(event.target) in ["月泉淮", "暗梦仙体"]:
+                        if self.bld.info.getName(event.target) in ["月泉淮", "暗梦仙体"] and self.phase in [1,2]:
                             self.bh.setMainTarget(event.target)
-                        if self.bld.info.getName(event.target) in ["暗梦仙体"]:
+                        if self.bld.info.getName(event.target) in ["暗梦仙体"] and self.phase == 1:
                             self.statDict[event.caster]["battle"]["P1DPS"] += event.damageEff
-                        if self.bld.info.getName(event.target) in ["月泉淮"]:
+                        if self.bld.info.getName(event.target) in ["月泉淮"] and self.phase == 2:
                             self.statDict[event.caster]["battle"]["P2DPS"] += event.damageEff
-                        if self.bld.info.getName(event.target) in ["暗梦仙体的幻影"]:
-                            self.statDict[event.caster]["battle"]["fenshenDPS"] += event.damageEff
+                        if self.bld.info.getName(event.target) in ["金翅鸟化身"] and self.phase == 1:
+                            # self.statDict[event.caster]["battle"]["fenshenDPS"] += event.damageEff
                             if event.target not in self.fenshen:
-                                self.fenshen[event.target] = {"lastDamage": event.time, "alive": 1, "damageList": [], "lastName": "未知"}
+                                self.fenshen[event.target] = {"lastDamage": event.time, "alive": 1, "damageList": [], "lastName": "未知", "damageSum": {}}
                             if event.damage > 0:
                                 skillName = self.bld.info.getSkillName(event.full_id)
                                 name = self.bld.info.getName(event.caster)
@@ -195,6 +226,23 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                                     del self.fenshen[event.target]["damageList"][20]
                                 self.fenshen[event.target]["lastDamage"] = event.time
                                 self.fenshen[event.target]["lastID"] = event.caster
+                                if self.countP1last:
+                                    if event.caster not in self.fenshen[event.target]["damageSum"]:
+                                        self.fenshen[event.target]["damageSum"][event.caster] = 0
+                                    self.fenshen[event.target]["damageSum"][event.caster] += event.damageEff
+
+                        if self.bld.info.getName(event.target) in ["暗梦仙体"] and self.bld.info.npc[event.target].templateID in ["123830"]:
+                            self.statDict[event.caster]["battle"]["ybj"] += event.damageEff
+                            if self.p31Ready:
+                                self.changePhase(event.time, 3)
+                                self.p31Ready = 0
+                                self.p3amxtCount = 2
+                        if self.bld.info.getName(event.target) in ["暗梦仙体", "被束缚的暗梦仙体"] and self.bld.info.npc[event.target].templateID in ["123809", "123808"]:
+                            self.statDict[event.caster]["battle"]["yj"] += event.damageEff
+                            if self.p32Ready:
+                                self.changePhase(event.time, 4)
+                                self.p32Ready = 0
+                                self.p3amxtCount = 4
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -222,6 +270,11 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                     self.lostBuff[event.target] = 1
                 self.buffLayers[event.target] = event.stack
 
+            if event.id == "26957" and event.stack > 0:  # 内力聚集
+                if self.phase == 4:
+                    # 强制结束阶段
+                    self.changePhase(event.time, 0)
+
         elif event.dataType == "Shout":
             if event.content in ['"谁？！别过来！别逼我出手！"']:
                 pass
@@ -236,6 +289,7 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"哦？能和老夫的暗梦仙体周旋这么久，看来你长进不小。"']:
                 self.changePhase(event.time, 0)
+                self.p1healerEndTime = event.time
             elif event.content in ['"......"']:
                 self.win = 1
                 self.changePhase(event.time, 0)
@@ -244,7 +298,46 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"嗯？何等侥幸？！这些伎俩似曾相识，但为何让老夫心生厌恶！"']:
                 pass
-            elif event.content in ['""']:
+            elif event.content in ['"哦？竟能扛住老夫的暗梦仙体，看来着实轻看了你们这些蝼蚁……"']:
+                self.changePhase(event.time, 0)
+            elif event.content in ['"......."']:
+                pass
+            elif event.content in ['"哼！无聊透顶！"']:
+                pass
+            elif event.content in ['"各位施主，请至小僧身后！"']:
+                self.p1healerEndTime = event.time
+            elif event.content in ['"轮到这群蝼蚁了，老夫瞬间就能让你们……消失~"']:
+                pass
+            elif event.content in ['"吕洞宾的徒儿们？来得正好！"']:
+                self.changePhase(event.time, 0)
+            elif event.content in ['"诸位侠士请退下！之后便交给我等，结阵！"']:
+                pass
+            elif event.content in ['"侠士，请你收集月泉淮击碎的石碑，上面或许有师父留下的信息。"']:
+                pass
+            elif event.content in ['"这股浊气……不好！"']:
+                pass
+            elif event.content in ['"这是……有余以奉天下……"']:
+                pass
+            elif event.content in ['"……唯有道者，原来这便是天道剑阵的关键。"']:
+                pass
+            elif event.content in ['"纯阳门下，结天道剑阵！"']:
+                self.p2healerEndTime = event.time
+            elif event.content in ['"哦？这就是吕洞宾所留下的招式，让老夫看看谁更甚一筹。"']:
+                self.bh.setBadPeriod(self.p2healerEndTime, event.time, False, True)
+            elif event.content in ['"让老夫看看你们负隅顽抗的丑态！"']:
+                self.p31Ready = 1
+            elif event.content in ['"呵呵，天地不仁以万物为刍狗，就让尔等体会一下吧！"']:
+                self.p32Ready = 1
+            elif event.content in ['"咳！"']:
+                self.p33Ready = 1
+            elif event.content in ['"与其流散无用，不如皆归我仙人所有……"']:
+                pass
+            elif event.content in ['"这些内力……吕洞宾，那么这招又如何！？"']:
+                pass
+            elif event.content in ['"竟能破去老夫的功法，哈哈哈……有趣，有趣！"']:
+                self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            elif event.content in ['"退下！"']:
                 pass
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
@@ -269,10 +362,23 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                 #print("[Huanying]", parseTime((event.time - self.startTime) / 1000), event.id, self.bld.info.npc[event.id].templateID)
 
         elif event.dataType == "Death":  # 重伤记录
-            pass
             if event.id in self.fenshen:
                 self.fenshen[event.id]["alive"] = 0
                 self.fenshen[event.id]["lastDamage"] = event.time
+                if self.countP1last:
+                    # print("[Death]", parseTime((event.time - self.startTime) / 1000), self.countP1last)
+                    # print(self.fenshen[event.id]["damageSum"])
+                    for key in self.fenshen[event.id]["damageSum"]:
+                        self.statDict[key]["battle"]["xiuxue"] += self.fenshen[event.id]["damageSum"][key]
+                    self.countP1last -= 1
+            if self.bld.info.getName(event.id) in ["暗梦仙体"] and self.bld.info.npc[event.id].templateID in ["123830"]:
+                self.p3amxtCount -= 1
+                if self.p3amxtCount == 0:
+                    self.changePhase(event.time, 0)
+            if self.bld.info.getName(event.id) in ["暗梦仙体"] and self.bld.info.npc[event.id].templateID in ["123809"]:
+                self.p3amxtCount -= 1
+                if self.p3amxtCount == 0:
+                    self.changePhase(event.time, 0)
 
         elif event.dataType == "Battle":  # 战斗状态变化
             pass
@@ -293,10 +399,10 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式开始运功", "cast")
             # if self.bld.info.getSkillName(event.full_id) in ["血影坠击", "怨·黄泉鬼步"]:
             #     print("[Xueyingzhuiji]", event.id, parseTime((event.time - self.startTime) / 1000))
-                if event.id == "35491":
-                    if self.phase == 0:
-                        self.bh.setBadPeriod(self.phaseStart, event.time, True, False)
-                        self.changePhase(event.time, 2)
+            #     if event.id == "35491":
+            #         if self.phase == 0:
+            #             self.bh.setBadPeriod(self.phaseStart, event.time, True, False)
+            #             self.changePhase(event.time, 2)
 
                     
     def analyseFirstStage(self, item):
@@ -315,7 +421,7 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
         self.activeBoss = "月泉淮"
         self.debug = 1
 
-        self.initPhase(2, 1)
+        self.initPhase(4, 1)
 
         self.immuneStatus = 0
         self.immuneHealer = 0
@@ -324,10 +430,19 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
         self.bhBlackList.extend(["s32514", "b26823", "s32392", "s32549", "s32540", "s32544", "s32516", "s36249", "s32567",
                                  "s32519", "s32520", "s36250", "n124637", "s36248", "s32547", "s36162", "s35511", "s32535",
                                  "s32570", "s32548", "s32529", "n125069", "n125071", "s35489", "b26688", "s35491", "s35549",
-                                 "s35851", "s35852", "n124991", "b26606", "s35850", "s35488", "b26605",
+                                 "s35851", "s35852", "n124991", "b26606", "s35850", "s35488", "b26605", "b26601",
                                  "b26691", "b26719", "s35493", "s35493", "s35486", "s35490", "s35485", "b26604", "s35482",
                                  "s35484", "b26694", "s35849", "s35481", "c35494", "s32563", "s35487", "s35854", "s35856",
-                                 "s35847", "n125986", "n122939", "n123795"
+                                 "s35847", "n125986", "n122939", "n123795", "n126013", "n125024", "n125278", "n123792",
+                                 "n123796", "s35512", "b26649", "n123797", "b26619", "n123891", "n123892", "n123893", "n123894", "n123895",
+                                 "n123896", "n123897", "n123898", "n123899", "n123900", "s35848",
+                                 "n123784", "n123783", "n123785", "n123786", "n123787", "n123788", "s35524", "s35513", "n123807",
+                                 "n123793", "n125095", "n125302", "n126043", "n126044", "n123832", "s35543", "s35526", "s35528", "b26617",
+                                 "b26614", "n123794", "c32537", "b26718", "s32556", "c32537", "n125191", "n125093", "c32534", "s32556",
+                                 "n123813", "n123878", "s35510"
+
+
+
 
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
@@ -342,6 +457,8 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                        "c32545": ["2144", "#00ff00", 6000],  # 月华天相
                        "c32548": ["3407", "#00ffff", 2000],  # 振翅
                        "c35491": ["3407", "#00ff77", 2000],  # 内力汲取
+                       "s32555": ["3407", "#00ff77", 2000],  # 能量散逸
+                       "s32536": ["3407", "#00ff77", 0],  # 天极月荡
                        "c35548": ["3407", "#77ff77", 2000],  # 夺命碧波剑
                        "c32564": ["3407", "#0000ff", 4000],  # 月引
                        "c32559": ["3407", "#0000ff", 4000],  # 月引
@@ -350,7 +467,9 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                        "c36390": ["3407", "#77ff77", 0],  # 五行技·火
                        "c36391": ["3407", "#77ff77", 0],  # 五行技·土
                        "s35847": ["3407", "#77ff77", 0],  # 五行技·金
+                       "s35848": ["3407", "#77ff77", 0],  # 五行技·金
                        "c35527": ["3407", "#77ff77", 0],  # 五行技·终结技
+                       "d35883": ["3407", "#77ff77", 2000],  # 天极月荡
                        }
 
         # 数据格式：
@@ -360,28 +479,39 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
         self.buffLayers = {}
         self.fenshen = {}
 
-        # P1DPS
-        # 修血DPS
-        # P2DPS
-        # 月崩击
-        # 月茧
-        # 掩日1-1
-        # 掩日1-2
-        # 掩日1分组
-        # 掩日1延迟
-        # 掩日2-1
-        # 掩日2-2
-        # 掩日2分组
-        # 掩日2延迟
+        self.countP1last = 0
+        self.p1healerEndTime = 0
+        self.p2healerEndTime = 0
+        self.p31Ready = 0
+        self.p32Ready = 0
+        self.p33Ready = 0
+        self.p3amxtCount = 0
+        self.p3yqtyTime = 0
 
         # P2驱散记录
         # P2百战技能记录
+        # 技能展示
+        # 无效时间
+        # 阶段DPS统计 1
+        # P3月泉天引
+        # MVP去除蓄力一击，单独记录蓄力一击伤害
 
         for line in self.bld.info.player:
-            self.statDict[line]["battle"] = {"fenshenDPS": 0,
-                                             "P1DPS": 0,
+            self.statDict[line]["battle"] = {"P1DPS": 0,
+                                             "xiuxue": 0,
+                                             "damageTaken": 0,
                                              "P2DPS": 0,
-                                             "damageTaken": 0,}
+                                             "ybj": 0,
+                                             "yj": 0,
+                                             "yr11": 0,
+                                             "yr12": 0,
+                                             "yr1group": 0,
+                                             "yr1delay": 0,
+                                             "yr21": 0,
+                                             "yr22": 0,
+                                             "yr2group": 0,
+                                             "yr2delay": 0,
+                                             }
             self.buffLayers[line] = 0
             self.lostBuff[line] = 0
 

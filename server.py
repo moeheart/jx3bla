@@ -695,7 +695,7 @@ def receiveBattle(jdata, cursor):
     dupID = 0
 
     mapid = getIDFromMap(mapName)
-    if MAP_DICT_RECORD_LOGS[mapid]:
+    if mapid in MAP_DICT_RECORD_LOGS and MAP_DICT_RECORD_LOGS[mapid]:
         mapDetail = mapid
         scoreAdd = MAP_DICT_RECORD_LOGS[mapid]
     else:
