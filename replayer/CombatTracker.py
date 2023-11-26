@@ -1396,7 +1396,7 @@ class CombatTracker():
         # print("[skill]", event.damageEff, event.damageEff > 0, event.caster in self.ndpsCast, event.target in self.info.npc, not self.excludeStatusDps)
             
         # 记录DPS, 这里只记录对NPC的伤害（防止灭之类的技能被统计）
-        if event.damageEff > 0 and event.caster in self.ndpsCast and event.target in self.info.npc and not self.excludeStatusDps:
+        if event.damageEff > 0 and event.caster in self.ndpsCast and event.target in self.info.npc and not self.excludeStatusDps and event.id not in ["35990", "36026"]:
             self.ndpsCast[event.caster].record(event.target, event.full_id, event.damageEff)
             # print("[DpsRecord]", event.time, event.damageEff)
             # rDPS

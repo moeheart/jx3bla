@@ -18,7 +18,7 @@ class YuequanHuaiWindow(SpecificBossWindow):
         '''
         使用tkinter绘制详细复盘窗口。
         '''
-        self.constructWindow("月泉淮", "1400x900")
+        self.constructWindow("月泉淮", "1400x950")
         window = self.window
         
         frame1 = tk.Frame(window)
@@ -84,6 +84,40 @@ class YuequanHuaiWindow(SpecificBossWindow):
             tb.EndOfLine()
 
         self.constructNavigator()
+
+        frame2 = tk.Frame(window)
+        frame2.pack()
+
+        # 显示详细信息
+
+        tb = TableConstructorMeta(self.config, frame2)
+        tb.AppendHeader("交互复盘", "")
+        tb.EndOfLine()
+
+        tb.AppendHeader("百战引导", "P2使用百战技能打白色破绽的记录。时间按[内力汲取]的开始运功时间计算。")
+        for line in self.detail["info"]["baizhan"]:
+            tb.AppendContext(line[0])
+            tb.AppendContext(line[1], color=getColor(line[2]))
+            tb.AppendContext(line[3])
+        tb.EndOfLine()
+        tb.AppendHeader("打断记录", "P2打断[内力汲取]读条的记录。时间按[内力汲取]的开始运功时间计算。")
+        for line in self.detail["info"]["daduan"]:
+            tb.AppendContext(line[0])
+            tb.AppendContext(line[1], color=getColor(line[2]))
+            tb.AppendContext(line[3])
+        tb.EndOfLine()
+        tb.AppendHeader("驱散记录", "P2驱散[侵蚀]的记录。时间按[侵蚀]首次出现计算。")
+        for line in self.detail["info"]["qusan"]:
+            tb.AppendContext(line[0])
+            tb.AppendContext(line[1], color=getColor(line[2]))
+            tb.AppendContext(line[3])
+        tb.EndOfLine()
+        tb.AppendHeader("蓄力一击", "P3[蓄力一击]的伤害记录。前四个数字分别表示八门尽开、内力充盈、内力聚集、内力流失的层数，后一个数字表示伤害。")
+        for line in self.detail["info"]["mvp"]:
+            tb.AppendContext(line[0])
+            tb.AppendContext("%d+%d+%d+%d" % (line[1], line[2], line[3], line[4]))
+            tb.AppendContext(line[5])
+        tb.EndOfLine()
 
     def __init__(self, config, effectiveDPSList, detail, occResult, analysedBattleData):
         super().__init__(config, effectiveDPSList, detail, occResult, analysedBattleData)
@@ -215,6 +249,23 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                     self.p33YanriHit[event.target] = 1
                     self.statDict[event.target]["battle"]["yr%dhit" % self.p3yqtyTime] = 1
 
+                if event.id in PURGE_DICT and self.p2QinshiStart != 0:
+                    #print("[PurgeTest]", event.time, parseTime((event.time - self.startTime) / 1000), event.target, self.bld.info.getSkillName(event.full_id))
+                    if event.target in self.p2Buff:
+                        if self.p2Buff[event.target] > 0 and event.time - self.p2Buff[event.target] < 150:
+                            time = "+" + parseTime((event.time - self.p2QinshiStart) / 1000)
+                            self.detail["info"]["qusan"].append([time,
+                                                                 self.bld.info.player[event.caster].name,
+                                                                 self.occDetailList[event.caster],
+                                                                 PURGE_DICT[event.id]])
+                        elif self.p2Buff[event.target] == 0:
+                            time = "+" + parseTime((event.time - self.p2QinshiStart) / 1000)
+                            self.p2SavedPurge[event.target] = [time,
+                                                               self.bld.info.player[event.caster].name,
+                                                               self.occDetailList[event.caster],
+                                                               PURGE_DICT[event.id],
+                                                               event.time]
+
             else:
                 if event.caster in self.bld.info.player and event.caster in self.statDict:
                     # self.stat[event.caster][2] += event.damageEff
@@ -225,6 +276,23 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                             self.statDict[event.caster]["battle"]["P1DPS"] += event.damageEff
                         if self.bld.info.getName(event.target) in ["月泉淮"] and self.phase == 2:
                             self.statDict[event.caster]["battle"]["P2DPS"] += event.damageEff
+                            if self.p2JiquStart != 0:
+                                if event.id in ["36069", "36071", "36073", "36075", "36086", "36091", "36119", "36120"] and self.p2BaizhanActive:
+                                    time = "+" + parseTime((event.time - self.p2JiquStart) / 1000)
+                                    self.detail["info"]["baizhan"].append([time,
+                                                                           self.bld.info.player[event.caster].name,
+                                                                           self.occDetailList[event.caster],
+                                                                           self.bld.info.getSkillName(event.full_id)])
+                                    self.p2BaizhanActive = 0
+                                if event.id in INTERRUPT_DICT and self.p2DaduanActive:
+                                    time = "+" + parseTime((event.time - self.p2JiquStart) / 1000)
+                                    self.detail["info"]["daduan"].append([time,
+                                                                          self.bld.info.player[event.caster].name,
+                                                                          self.occDetailList[event.caster],
+                                                                          INTERRUPT_DICT[event.id]])
+                                    self.p2DaduanActive = 0
+                                    self.p2JiquStart = 0
+
                         if self.bld.info.getName(event.target) in ["金翅鸟化身"] and self.phase == 1:
                             # self.statDict[event.caster]["battle"]["fenshenDPS"] += event.damageEff
                             if event.target not in self.fenshen:
@@ -262,6 +330,13 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                         if self.bld.info.getName(event.target) in ["掩日"]:
                             if self.p3yrTime in [1,2] and self.p3yqtyTime in [1,2]:
                                 self.statDict[event.caster]["battle"]["yr%d%d" % (self.p3yqtyTime, self.p3yrTime)] += event.damageEff
+                        if event.id == "35990":
+                            # print("[MvpTest]", event.time, parseTime((event.time - self.startTime) / 1000), event.target, self.bld.info.getSkillName(event.full_id), event.damageEff)
+                            time = parseTime((event.time - self.startTime) / 1000)
+                            if len(self.detail["info"]["mvp"]) == 0 or time != self.detail["info"]["mvp"][-1][0]:
+                                self.detail["info"]["mvp"].append([time, self.mvpBamen, self.mvpChongying, self.mvpJuji, self.mvpLiushi, event.damageEff])
+                            else:
+                                self.detail["info"]["mvp"][-1][5] += event.damageEff
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -355,6 +430,28 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                                  [],
                                  0])
 
+            # if event.id == "26605":  # 侵蚀
+            #     print("[QinshiTest]", event.time, parseTime((event.time - self.startTime) / 1000), event.target, event.stack)
+
+            if event.id == "26605" and event.stack == 1:  # 侵蚀
+                self.p2QinshiStart = event.time
+                self.p2Buff[event.target] = 0
+
+            if event.id == "26605" and event.stack == 0:
+                self.p2Buff[event.target] = event.time
+                if event.target in self.p2SavedPurge and event.time - self.p2SavedPurge[event.target][4] < 150:
+                    self.detail["info"]["qusan"].append(self.p2SavedPurge[event.target])
+                    self.p2Buff[event.target] = -1
+
+            if event.id == "26821":  # 八门尽开
+                self.mvpBamen = event.stack
+
+            if event.id == "26615" and event.stack > self.mvpChongying:  # 内力充盈
+                self.mvpChongying = event.stack
+
+            if event.id == "26957" and event.stack > 0:  # 内力聚集
+                self.mvpJuji = event.stack
+
         elif event.dataType == "Shout":
             if event.content in ['"谁？！别过来！别逼我出手！"']:
                 pass
@@ -428,6 +525,7 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
             elif event.content in ['"这些内力……吕洞宾，那么这招又如何！？"']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
+                self.mvpLiushi += 1
             elif event.content in ['"竟能破去老夫的功法，哈哈哈……有趣，有趣！"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
@@ -500,13 +598,11 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                     skillName = self.bld.info.getSkillName(event.full_id)
                     if "," not in skillName:
                         self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式开始运功", "cast")
-            # if self.bld.info.getSkillName(event.full_id) in ["血影坠击", "怨·黄泉鬼步"]:
-            #     print("[Xueyingzhuiji]", event.id, parseTime((event.time - self.startTime) / 1000))
-            #     if event.id == "35491":
-            #         if self.phase == 0:
-            #             self.bh.setBadPeriod(self.phaseStart, event.time, True, False)
-            #             self.changePhase(event.time, 2)
-
+            if event.id == "35491":
+                self.p2JiquStart = event.time
+                self.p2BaizhanActive = 1
+                self.p2DaduanActive = 1
+                self.p2QinshiStart = 0
                     
     def analyseFirstStage(self, item):
         '''
@@ -600,13 +696,27 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
         self.p33YanriHit = {}  # 有没有被掩日击中过
         self.p33Start = 0
 
-        # P2驱散记录
-        # P2打断记录
+        self.p2JiquStart = 0
+        self.p2BaizhanActive = 0
+        self.p2DaduanActive = 0
+        self.p2QinshiStart = 0
+        self.p2Buff = {}
+        self.p2SavedPurge = {}
+
+        self.mvpBamen = 0
+        self.mvpChongying = 0
+        self.mvpJuji = 0
+        self.mvpLiushi = 0
+
+        # P2驱散记录 1
+        # P2打断记录 1
         # 技能展示 1
         # 无效时间 1
         # 阶段DPS统计 1
         # P3月泉天引 1
-        # MVP去除蓄力一击，单独记录蓄力一击伤害
+        # MVP去除蓄力一击，单独记录蓄力一击伤害 1
+
+        self.detail["info"] = {"baizhan": [], "daduan": [], "qusan": [], "mvp": []}
 
         for line in self.bld.info.player:
             self.statDict[line]["battle"] = {"P1DPS": 0,
@@ -630,6 +740,7 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
             self.lostBuff[line] = 0
             self.p33Group[line] = 0
             self.p33Active[line] = 0
+            self.p2Buff[line] = -1
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''
