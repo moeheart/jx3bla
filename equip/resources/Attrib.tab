@@ -56629,7 +56629,7 @@ ID	Value	ModifyType	Param1Min	Param1Max	Param2Min	Param2Max	Group1	Group2	Group3
 56627	0	atSkillEventHandler	2413	2413	0	0	0	0	0	0	0	0	0	0	0	0
 56628	1	atSkillEventHandler	2414	2414	0	0	0	0	0	0	0	0	0	0	0	0
 56629	2	atSkillEventHandler	2436	2436	0	0	0	0	0	0	0	0	0	0	0	0
-56630	3	atSkillEventHandler	2391	2391	0	0	0	0	0	0	0	0	0	0	0	0
+56630	0	atSkillEventHandler	2391	2391	0	0	0	0	0	0	0	0	0	0	0	0
 56631	0	atSetEquipmentRecipe	3186	3186	1	1	0	0	0	0	0	0	0	0	0	0
 56632	0	atSetEquipmentRecipe	3187	3187	1	1	0	0	0	0	0	0	0	0	0	0
 56633	0	atSkillEventHandler	2392	2392	0	0	0	0	0	0	0	0	0	0	0	0
@@ -62191,3 +62191,118 @@ ID	Value	ModifyType	Param1Min	Param1Max	Param2Min	Param2Max	Group1	Group2	Group3
 62189	0	atHorseAttribute	24	24	31003	31003										
 62190	0	atHorseAttribute	24	24	31004	31004										
 62191	0	atHorseAttribute	24	24	31005	31005										
+62192		atMaxLifeBase	77481	77481												
+62193		atAllTypeAttackPowerBase	1721	1721												
+62194		atTherapyPowerBase	2582	2582												
+62195		atAllTypeCriticalStrike	12546	12546												
+62196		atAllTypeCriticalDamagePowerBase	9757	9757												
+62197		atAllTypeOvercomeBase	12546	12546												
+62198		atPhysicsShieldBase	17609	17609												
+62199		atMagicShield	17609	17609												
+62200		atToughnessBase	3214	3214												
+62201		atGlobalDamageFixedAdd	2180	2180												
+62202		atAssistedPowerExtAdd	11681	11681												
+62203		atAllShieldIgnoreAdd	7935	7935												
+62204		atMaxLifeBase	154962	154962												
+62205		atAllTypeAttackPowerBase	4304	4304												
+62206		atMagicAttackPowerBase	1563	1563												
+62207		atStrainBase	3581	3581												
+62208		atTherapyPowerBase	5092	5092												
+62209		atVitalityBase	5596	5596												
+62210		atMagicShield	3358	3358												
+62211		atSurplusValueBase	2238	2238												
+62212		atStrainBase	1119	1119												
+62213		atActiveThreatCoefficient			2210	2210										
+62214		atMagicOvercome	2015	2015												
+62215		atSurplusValueBase	1791	1791												
+62216		atPhysicsShieldBase	1399	1399												
+62217		atStrainBase	1343	1343												
+62218	0	atSkillEventHandler	2563	2563	0	0	0	0	0	0	0	0	0	0	0	0
+62219	0	atSkillEventHandler	2564	2564	0	0	0	0	0	0	0	0	0	0	0	0
+62220		atLunarCriticalStrike	4336	4336												
+62221		atLunarCriticalStrike	4541	4541												
+62222		atPhysicsOvercomeBase	5314	5314												
+62223		atMagicOvercome	5314	5314												
+62224		atAllTypeCriticalStrike	4496	4496												
+62225		atPhysicsOvercomeBase	6185	6185												
+62226		atMagicOvercome	6185	6185												
+62227		atDecriticalDamagePowerBase	952	952												
+62228		atAllTypeCriticalStrike	5234	5234												
+62229		atDecriticalDamagePowerBase	1427	1427												
+62230		atPhysicsOvercomeBase	7338	7338												
+62231		atMagicOvercome	7338	7338												
+62232		atDecriticalDamagePowerBase	1129	1129												
+62233		atAllTypeCriticalStrike	6209	6209												
+62234		atDecriticalDamagePowerBase	1693	1693												
+62235		atPhysicsOvercomeBase	4428	4428												
+62236		atMagicOvercome	4428	4428												
+62237		atAllTypeCriticalStrike	3747	3747												
+62238		atDecriticalDamagePowerBase	1022	1022												
+62239		atDecriticalDamagePowerBase	3679	3679												
+62240		atAllTypeCriticalStrike	3270	3270												
+62241		atPhysicsOvercomeBase	3270	3270												
+62242		atMagicOvercome	3270	3270												
+62243		atAllTypeCriticalStrike	6295	6295												
+62244		atDecriticalDamagePowerBase	1717	1717												
+62245		atPhysicsOvercomeBase	7439	7439												
+62246		atMagicOvercome	7439	7439												
+62247		atDecriticalDamagePowerBase	1145	1145												
+62248		atDecriticalDamagePowerBase	2575	2575												
+62249		atAllTypeCriticalStrike	2289	2289												
+62250		atPhysicsOvercomeBase	2289	2289												
+62251		atMagicOvercome	2289	2289												
+62252		atDecriticalDamagePowerBase	4282	4282												
+62253		atAllTypeCriticalStrike	3806	3806												
+62254		atPhysicsOvercomeBase	3806	3806												
+62255		atMagicOvercome	3806	3806												
+62256		atAllTypeCriticalStrike	7327	7327												
+62257		atDecriticalDamagePowerBase	1998	1998												
+62258		atPhysicsOvercomeBase	8660	8660												
+62259		atMagicOvercome	8660	8660												
+62260		atDecriticalDamagePowerBase	1332	1332												
+62261		atDecriticalDamagePowerBase	2998	2998												
+62262		atAllTypeCriticalStrike	2664	2664												
+62263		atPhysicsOvercomeBase	2664	2664												
+62264		atMagicOvercome	2664	2664												
+62265		atDecriticalDamagePowerBase	5080	5080												
+62266		atAllTypeCriticalStrike	4516	4516												
+62267		atPhysicsOvercomeBase	4516	4516												
+62268		atMagicOvercome	4516	4516												
+62269		atAllTypeCriticalStrike	8693	8693												
+62270		atDecriticalDamagePowerBase	2371	2371												
+62271		atPhysicsOvercomeBase	10273	10273												
+62272		atMagicOvercome	10273	10273												
+62273		atDecriticalDamagePowerBase	1581	1581												
+62274		atDecriticalDamagePowerBase	3556	3556												
+62275		atAllTypeCriticalStrike	3161	3161												
+62276		atPhysicsOvercomeBase	3161	3161												
+62277		atMagicOvercome	3161	3161												
+62278		atDecriticalDamagePowerBase	3066	3066												
+62279		atAllTypeCriticalStrike	5246	5246												
+62280		atDecriticalDamagePowerBase	1431	1431												
+62281		atPhysicsOvercomeBase	6199	6199												
+62282		atMagicOvercome	6199	6199												
+62283		atDecriticalDamagePowerBase	954	954												
+62284		atDecriticalDamagePowerBase	2146	2146												
+62285		atAllTypeCriticalStrike	1908	1908												
+62286		atDecriticalDamagePowerBase	5353	5353												
+62287		atAllTypeCriticalStrike	4758	4758												
+62288		atPhysicsOvercomeBase	4758	4758												
+62289		atMagicOvercome	4758	4758												
+62290		atAllTypeCriticalStrike	9159	9159												
+62291		atDecriticalDamagePowerBase	2498	2498												
+62292		atPhysicsOvercomeBase	10824	10824												
+62293		atMagicOvercome	10824	10824												
+62294		atDecriticalDamagePowerBase	1665	1665												
+62295		atDecriticalDamagePowerBase	3747	3747												
+62296		atAllTypeCriticalStrike	3331	3331												
+62297		atPhysicsOvercomeBase	3331	3331												
+62298		atMagicOvercome	3331	3331												
+62299	0	atSkillEventHandler	2568	2568	0	0										
+62300		atSetEquipmentRecipe	5438	5438	1	1										
+62301	0	atSkillEventHandler	2572	2572	0	0	0	0	0	0	0	0	0	0	0	0
+62302	0	atSetEquipmentRecipe	5461	5461	1	1	0	0	0	0	0	0	0	0	0	0
+62303	0	atSetEquipmentRecipe	5462	5462	1	1	0	0	0	0	0	0	0	0	0	0
+62304	0	atSkillEventHandler	2571	2571	0	0	0	0	0	0	0	0	0	0	0	0
+62305	0	atSkillEventHandler	2573	2573	0	0	0	0	0	0	0	0	0	0	0	0
+62306	0	atSetEquipmentRecipe	5463	5463	1	1	0	0	0	0	0	0	0	0	0	0
