@@ -473,7 +473,7 @@ class ActorProReplayer(ReplayerBase):
         self.zxyzPrecastSource = "0"
 
         # 记录模式  TODO 脱战保护，战斗时间统计
-        self.logMode = 1
+        self.logMode = 0
         logSkill = {  # 名称，生效等级，保护时间ms，最多人数，不计算T，伤害阈值
             "35452": ["1号清流", 0, 0, 999, 0, -1],  # 1 泉映千山·清流
             "35454": ["1号点名圈", 0, 0, 999, 0, -1],  # 1 泉映千山·游龙荡影
