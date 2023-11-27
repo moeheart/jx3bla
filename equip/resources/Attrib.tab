@@ -56629,7 +56629,7 @@ ID	Value	ModifyType	Param1Min	Param1Max	Param2Min	Param2Max	Group1	Group2	Group3
 56627	0	atSkillEventHandler	2413	2413	0	0	0	0	0	0	0	0	0	0	0	0
 56628	1	atSkillEventHandler	2414	2414	0	0	0	0	0	0	0	0	0	0	0	0
 56629	2	atSkillEventHandler	2436	2436	0	0	0	0	0	0	0	0	0	0	0	0
-56630	3	atSkillEventHandler	2391	2391	0	0	0	0	0	0	0	0	0	0	0	0
+56630	0	atSkillEventHandler	2391	2391	0	0	0	0	0	0	0	0	0	0	0	0
 56631	0	atSetEquipmentRecipe	3186	3186	1	1	0	0	0	0	0	0	0	0	0	0
 56632	0	atSetEquipmentRecipe	3187	3187	1	1	0	0	0	0	0	0	0	0	0	0
 56633	0	atSkillEventHandler	2392	2392	0	0	0	0	0	0	0	0	0	0	0	0
@@ -62300,3 +62300,9 @@ ID	Value	ModifyType	Param1Min	Param1Max	Param2Min	Param2Max	Group1	Group2	Group3
 62298		atMagicOvercome	3331	3331												
 62299	0	atSkillEventHandler	2568	2568	0	0										
 62300		atSetEquipmentRecipe	5438	5438	1	1										
+62301	0	atSkillEventHandler	2572	2572	0	0	0	0	0	0	0	0	0	0	0	0
+62302	0	atSetEquipmentRecipe	5461	5461	1	1	0	0	0	0	0	0	0	0	0	0
+62303	0	atSetEquipmentRecipe	5462	5462	1	1	0	0	0	0	0	0	0	0	0	0
+62304	0	atSkillEventHandler	2571	2571	0	0	0	0	0	0	0	0	0	0	0	0
+62305	0	atSkillEventHandler	2573	2573	0	0	0	0	0	0	0	0	0	0	0	0
+62306	0	atSetEquipmentRecipe	5463	5463	1	1	0	0	0	0	0	0	0	0	0	0
