@@ -1019,6 +1019,8 @@ class CombatTracker():
                 source = event.target
             if effect_id == "2,20938,1":  # 左旋右转的特殊逻辑 (TODO)改成通用逻辑
                 source = self.zxyzCaster
+            if effect_id in ["2,26820,1", "2,26821,1", "2,27541,1"]:  # 一些环境buff
+                source = "*环境增益"
             # 不考虑战斗中的常驻buff
             if event.id in ["362", "673"]:  # 雷、袖气
                 skipFlag = True
@@ -1396,7 +1398,7 @@ class CombatTracker():
         # print("[skill]", event.damageEff, event.damageEff > 0, event.caster in self.ndpsCast, event.target in self.info.npc, not self.excludeStatusDps)
             
         # 记录DPS, 这里只记录对NPC的伤害（防止灭之类的技能被统计）
-        if event.damageEff > 0 and event.caster in self.ndpsCast and event.target in self.info.npc and not self.excludeStatusDps and event.id not in ["35990", "36026"]:
+        if event.damageEff > 0 and event.caster in self.ndpsCast and event.target in self.info.npc and not self.excludeStatusDps and event.id not in ["35990", "36026", "36735", "36734"]:
             self.ndpsCast[event.caster].record(event.target, event.full_id, event.damageEff)
             # print("[DpsRecord]", event.time, event.damageEff)
             # rDPS

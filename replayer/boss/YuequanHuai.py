@@ -330,7 +330,7 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                         if self.bld.info.getName(event.target) in ["掩日"]:
                             if self.p3yrTime in [1,2] and self.p3yqtyTime in [1,2]:
                                 self.statDict[event.caster]["battle"]["yr%d%d" % (self.p3yqtyTime, self.p3yrTime)] += event.damageEff
-                        if event.id == "35990":
+                        if event.id in ["35990", "36735"]:
                             # print("[MvpTest]", event.time, parseTime((event.time - self.startTime) / 1000), event.target, self.bld.info.getSkillName(event.full_id), event.damageEff)
                             time = parseTime((event.time - self.startTime) / 1000)
                             if len(self.detail["info"]["mvp"]) == 0 or time != self.detail["info"]["mvp"][-1][0]:
