@@ -137,9 +137,8 @@ class ZhongBuguiReplayer(SpecificReplayerPro):
                     if event.target in self.bld.info.npc:
                         if self.bld.info.getName(event.target) in ["钟不归"]:
                             self.bh.setMainTarget(event.target)
-                        if self.bld.info.getName(event.target) in ["寒山剑"] and event.damageEff > 0:
-                            if self.hsjRound in [1,2,3,4]:
-                                self.statDict[event.caster]["battle"]["hsjDam%d" % self.hsjRound] += event.damageEff
+                        if self.bld.info.getName(event.target) in ["寒山剑"] and event.damageEff > 0 and self.hsjRound in [1,2,3,4]:
+                            self.statDict[event.caster]["battle"]["hsjDam%d" % self.hsjRound] += event.damageEff
                             self.hsjOwner[event.caster] = event.target
                             if self.hsj1 == 0:
                                 self.hsj1 = event.target
