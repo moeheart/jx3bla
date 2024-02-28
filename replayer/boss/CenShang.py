@@ -125,7 +125,7 @@ class CenShangReplayer(SpecificReplayerPro):
                 if event.caster in self.bld.info.player and event.caster in self.statDict:
                     # self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.getName(event.target) in ["岑伤"]:
+                        if self.bld.info.getName(event.target) in ["岑伤", "岑傷"]:
                             self.bh.setMainTarget(event.target)
 
         elif event.dataType == "Buff":
@@ -179,7 +179,7 @@ class CenShangReplayer(SpecificReplayerPro):
         elif event.dataType == "Shout":
             if event.content in ['"谁？！别过来！别逼我出手！"']:
                 pass
-            elif event.content in ['"……"', '"够了！都去死吧！"']:
+            elif event.content in ['"……"', '"够了！都去死吧！"', '"夠了！ 都去死吧！"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             elif event.content in ['"逃啊，跑啊，这样才有意思！"']:
@@ -210,7 +210,7 @@ class CenShangReplayer(SpecificReplayerPro):
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
         elif event.dataType == "Scene":  # 进入、离开场景
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["岑伤宝箱", "??寶箱"]:
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["岑伤宝箱", "岑傷寶箱"]:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
@@ -225,7 +225,7 @@ class CenShangReplayer(SpecificReplayerPro):
                                                1, "NPC出现", "npc")
 
         elif event.dataType == "Death":  # 重伤记录
-            if self.bld.info.getName(event.id) == "岑伤":
+            if self.bld.info.getName(event.id) in ["岑伤", "岑傷"]:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
 

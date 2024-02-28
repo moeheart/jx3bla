@@ -106,6 +106,7 @@ class SingleDataSkill(SingleData):
         params:
         - item: jcl形式的事件信息.
         '''
+        self.timestamp = int(item[2])
         self.time = int(item[3])
         self.caster = item[5]["1"]
         self.target = item[5]["2"]
@@ -128,6 +129,7 @@ class SingleDataSkill(SingleData):
         params:
         - item: jx3dat形式的事件信息.
         '''
+        self.timestamp = int(item["2"])
         self.time = int(item["3"])
         self.caster = item["5"]
         self.target = item["6"]

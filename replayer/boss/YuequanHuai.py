@@ -236,6 +236,7 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                                     0])
 
                 if event.id in ["35489"]:  # 月衍万化·初式
+                    # print("[Debug]", self.phase)
                     if self.phase == 0:
                         self.bh.setBadPeriod(self.phaseStart, event.time, True, False)
                         self.bh.setBadPeriod(self.p1healerEndTime, event.time, False, True)
@@ -270,9 +271,9 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                 if event.caster in self.bld.info.player and event.caster in self.statDict:
                     # self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.getName(event.target) in ["月泉淮", "暗梦仙体"] and self.phase in [1,2]:
+                        if self.bld.info.getName(event.target) in ["月泉淮", "暗梦仙体", "暗夢仙體"] and self.phase in [1,2]:
                             self.bh.setMainTarget(event.target)
-                        if self.bld.info.getName(event.target) in ["暗梦仙体"] and self.phase == 1:
+                        if self.bld.info.getName(event.target) in ["暗梦仙体", "暗夢仙體"] and self.phase == 1:
                             self.statDict[event.caster]["battle"]["P1DPS"] += event.damageEff
                         if self.bld.info.getName(event.target) in ["月泉淮"] and self.phase == 2:
                             self.statDict[event.caster]["battle"]["P2DPS"] += event.damageEff
@@ -293,7 +294,7 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                                     self.p2DaduanActive = 0
                                     self.p2JiquStart = 0
 
-                        if self.bld.info.getName(event.target) in ["金翅鸟化身"] and self.phase == 1:
+                        if self.bld.info.getName(event.target) in ["金翅鸟化身", "金翅鳥化身"] and self.phase == 1:
                             # self.statDict[event.caster]["battle"]["fenshenDPS"] += event.damageEff
                             if event.target not in self.fenshen:
                                 self.fenshen[event.target] = {"lastDamage": event.time, "alive": 1, "damageList": [], "lastName": "未知", "damageSum": {}}
@@ -313,14 +314,14 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                                         self.fenshen[event.target]["damageSum"][event.caster] = 0
                                     self.fenshen[event.target]["damageSum"][event.caster] += event.damageEff
 
-                        if self.bld.info.getName(event.target) in ["暗梦仙体"] and self.bld.info.npc[event.target].templateID in ["123830"]:
+                        if self.bld.info.getName(event.target) in ["暗梦仙体", "暗夢仙體"] and self.bld.info.npc[event.target].templateID in ["123830"]:
                             self.statDict[event.caster]["battle"]["ybj"] += event.damageEff
                             if self.p31Ready:
                                 self.bh.setBadPeriod(self.phaseStart, event.time, True, False)
                                 self.changePhase(event.time, 3)
                                 self.p31Ready = 0
                                 self.p3amxtCount = 2
-                        if self.bld.info.getName(event.target) in ["暗梦仙体", "被束缚的暗梦仙体"] and self.bld.info.npc[event.target].templateID in ["123809", "123808"]:
+                        if self.bld.info.getName(event.target) in ["暗梦仙体", "被束缚的暗梦仙体", "暗夢仙體", "被束縛的暗夢仙體"] and self.bld.info.npc[event.target].templateID in ["123809", "123808"]:
                             self.statDict[event.caster]["battle"]["yj"] += event.damageEff
                             if self.p32Ready:
                                 self.bh.setBadPeriod(self.phaseStart, event.time, True, False)
@@ -453,6 +454,9 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                 self.mvpJuji = event.stack
 
         elif event.dataType == "Shout":
+            # print("[Shout]", event.content, parseTime((event.time - self.startTime) / 1000))
+
+
             if event.content in ['"谁？！别过来！别逼我出手！"']:
                 pass
             elif event.content in ['"……"']:
@@ -464,9 +468,10 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"幻惑化生，破！"']:
                 pass
-            elif event.content in ['"哦？能和老夫的暗梦仙体周旋这么久，看来你长进不小。"']:
+            elif event.content in ['"哦？能和老夫的暗梦仙体周旋这么久，看来你长进不小。"', '"哦？能和老夫的暗夢仙體周旋這麼久，看來你長進不小。"']:
                 self.changePhase(event.time, 0)
                 self.p1healerEndTime = event.time
+                # print("[Debug1]", self.phase)
             elif event.content in ['"......"']:
                 self.win = 1
                 self.changePhase(event.time, 0)
@@ -475,17 +480,18 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"嗯？何等侥幸？！这些伎俩似曾相识，但为何让老夫心生厌恶！"']:
                 pass
-            elif event.content in ['"哦？竟能扛住老夫的暗梦仙体，看来着实轻看了你们这些蝼蚁……"']:
+            elif event.content in ['"哦？竟能扛住老夫的暗梦仙体，看来着实轻看了你们这些蝼蚁……"', '"哦？竟能扛住老夫的暗夢仙體，看來著實輕看了你們這些螻蟻……"']:
                 self.changePhase(event.time, 0)
+                # print("[Debug2]", self.phase)
             elif event.content in ['"......."']:
                 pass
             elif event.content in ['"哼！无聊透顶！"']:
                 pass
-            elif event.content in ['"各位施主，请至小僧身后！"']:
+            elif event.content in ['"各位施主，请至小僧身后！"', '"各位施主，請至小僧身後！"']:
                 self.p1healerEndTime = event.time
             elif event.content in ['"轮到这群蝼蚁了，老夫瞬间就能让你们……消失~"']:
                 pass
-            elif event.content in ['"吕洞宾的徒儿们？来得正好！"']:
+            elif event.content in ['"吕洞宾的徒儿们？来得正好！"', '"呂洞賓的徒兒們？ 來得正好！"']:
                 self.changePhase(event.time, 0)
             elif event.content in ['"诸位侠士请退下！之后便交给我等，结阵！"']:
                 pass
@@ -497,11 +503,11 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"……唯有道者，原来这便是天道剑阵的关键。"']:
                 pass
-            elif event.content in ['"纯阳门下，结天道剑阵！"']:
+            elif event.content in ['"纯阳门下，结天道剑阵！"', '"純陽門下，結天道劍陣！"']:
                 self.p2healerEndTime = event.time
-            elif event.content in ['"哦？这就是吕洞宾所留下的招式，让老夫看看谁更甚一筹。"']:
+            elif event.content in ['"哦？这就是吕洞宾所留下的招式，让老夫看看谁更甚一筹。"', '"哦？ 這就是呂洞賓所留下的招式，讓老夫看看誰更甚一籌。"']:
                 self.bh.setBadPeriod(self.p2healerEndTime, event.time, False, True)
-            elif event.content in ['"让老夫看看你们负隅顽抗的丑态！"']:
+            elif event.content in ['"让老夫看看你们负隅顽抗的丑态！"', '"讓老夫看看你們負隅頑抗的醜態！"']:
                 if self.p3yqtyTime in [1,2]:
                     for player in self.bld.info.player:
                         self.statDict[player]["battle"]["yr%dgroup" % self.p3yqtyTime] = self.p33Group[player]
@@ -513,20 +519,20 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                 for line in self.bld.info.player:
                     self.p33Group[line] = 0
                     self.p33YanriHit[line] = 0
-            elif event.content in ['"呵呵，天地不仁以万物为刍狗，就让尔等体会一下吧！"']:
+            elif event.content in ['"呵呵，天地不仁以万物为刍狗，就让尔等体会一下吧！"', '"呵呵，天地不仁以萬物為芻狗，就讓爾等體會一下吧！"']:
                 self.p32Ready = 1
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
             elif event.content in ['"咳！"']:
                 self.p33Ready = 1
-            elif event.content in ['"与其流散无用，不如皆归我仙人所有……"']:
+            elif event.content in ['"与其流散无用，不如皆归我仙人所有……"', '"與其流散無用，不如皆歸我仙人所有……"']:
                 for line in self.bld.info.player:
                     self.p33Active[line] = event.time
                 self.p33Start = event.time
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
-            elif event.content in ['"这些内力……吕洞宾，那么这招又如何！？"']:
+            elif event.content in ['"这些内力……吕洞宾，那么这招又如何！？"', '"這些內力……呂洞賓，那麼這招又如何！？"']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
                 self.mvpLiushi += 1
-            elif event.content in ['"竟能破去老夫的功法，哈哈哈……有趣，有趣！"']:
+            elif event.content in ['"竟能破去老夫的功法，哈哈哈……有趣，有趣！"', '"竟能破去老夫的功法，哈哈哈……有趣，有趣！"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
@@ -536,7 +542,7 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
             elif event.content in ['"退下！"']:
                 pass
             else:
-                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
+                self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
         elif event.dataType == "Scene":  # 进入、离开场景
             # if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["翁幼之宝箱", "??寶箱"]:
@@ -553,7 +559,7 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                             self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
                                                1, "NPC出现", "npc")
 
-            if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name == "暗梦仙体的幻影":
+            if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name in ["暗梦仙体的幻影", "暗夢仙體的幻影"]:
                 pass
                 #print("[Huanying]", parseTime((event.time - self.startTime) / 1000), event.id, self.bld.info.npc[event.id].templateID)
 
@@ -572,18 +578,18 @@ class YuequanHuaiReplayer(SpecificReplayerPro):
                     for key in self.fenshen[event.id]["damageSum"]:
                         self.statDict[key]["battle"]["xiuxue"] += self.fenshen[event.id]["damageSum"][key]
                     self.countP1last -= 1
-            if self.bld.info.getName(event.id) in ["暗梦仙体"] and self.bld.info.npc[event.id].templateID in ["123830"]:
+            if self.bld.info.getName(event.id) in ["暗梦仙体", "暗夢仙體"] and self.bld.info.npc[event.id].templateID in ["123830"]:
                 self.p3amxtCount -= 1
                 if self.p3amxtCount == 0:
                     self.changePhase(event.time, 0)
-            if self.bld.info.getName(event.id) in ["暗梦仙体"] and self.bld.info.npc[event.id].templateID in ["123809"]:
+            if self.bld.info.getName(event.id) in ["暗梦仙体", "暗夢仙體"] and self.bld.info.npc[event.id].templateID in ["123809"]:
                 self.p3amxtCount -= 1
                 if self.p3amxtCount == 0:
                     self.changePhase(event.time, 0)
 
         elif event.dataType == "Battle":  # 战斗状态变化
             pass
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name == "暗梦仙体的幻影":
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["暗梦仙体的幻影", "暗夢仙體的幻影"]:
                 pass
                 #print("[Huanying2]", parseTime((event.time - self.startTime) / 1000), event.id, event.fight, event.hpMax)
 

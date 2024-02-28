@@ -144,7 +144,7 @@ class QilinReplayer(SpecificReplayerPro):
                             if event.damageEff > 0 and self.phase in [0,3,5]:  # 转回第一阶段
                                 self.changePhase(event.time, 1)
                             self.statDict[event.caster]["battle"]["P1DPS"] += event.damageEff
-                        if self.bld.info.getName(event.target) in ["灵护麒麟"]:
+                        if self.bld.info.getName(event.target) in ["灵护麒麟", "靈護麒麟"]:
                             if self.phase == 2:
                                 self.statDict[event.caster]["battle"]["lhDPS1"] += event.damageEff
                             elif self.phase == 4:
@@ -158,7 +158,7 @@ class QilinReplayer(SpecificReplayerPro):
                                 self.lhDown[event.target] = 1
                                 if self.lhDownNum == 3:
                                     self.changePhase(event.time, 0)
-                        if self.bld.info.getName(event.target) in ["魔剑幻影"]:
+                        if self.bld.info.getName(event.target) in ["魔剑幻影", "魔劍幻影"]:
                             if self.phase == 3:
                                 self.statDict[event.caster]["battle"]["mjDPS1"] += event.damageEff
                             elif self.phase == 5:
@@ -206,7 +206,7 @@ class QilinReplayer(SpecificReplayerPro):
             # print("[Shout]", event.content, parseTime((event.time - self.startTime) / 1000))
 
         elif event.dataType == "Scene":  # 进入、离开场景
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["麒麟宝箱", "??寶箱"]:
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["麒麟宝箱"]:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
@@ -219,7 +219,7 @@ class QilinReplayer(SpecificReplayerPro):
                         if key in self.bhInfo or self.debug:
                             self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
                                                1, "NPC出现", "npc")
-            if self.bld.info.getName(event.id) in ["灵护麒麟"] and event.enter:
+            if self.bld.info.getName(event.id) in ["灵护麒麟", "靈護麒麟"] and event.enter:
                 # 检查阶段
                 if event.time - self.prevLinghuTime > 180000:
                     self.prevLinghuTime = event.time
@@ -228,7 +228,7 @@ class QilinReplayer(SpecificReplayerPro):
                     self.changePhase(event.time, self.linghuNum * 2)
                     self.lhDownNum = 0
                     self.mjDownNum = 0
-            if self.bld.info.getName(event.id) in ["魔剑幻影"] and event.enter:
+            if self.bld.info.getName(event.id) in ["魔剑幻影", "魔劍幻影"] and event.enter:
                 if self.phase in [0, 2, 4]:
                     if self.phase == 0:
                         self.bh.setBadPeriod(self.phaseStart, event.time, True, False)
@@ -236,10 +236,10 @@ class QilinReplayer(SpecificReplayerPro):
 
         elif event.dataType == "Death":  # 重伤记录
             # print("[Death]", parseTime((event.time - self.startTime) / 1000), event.id, self.bld.info.getName(event.id))
-            if self.bld.info.getName(event.id) == "麒麟":
+            if self.bld.info.getName(event.id) in ["麒麟"]:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            if self.bld.info.getName(event.id) == "魔剑幻影":
+            if self.bld.info.getName(event.id) in ["魔剑幻影", "魔劍幻影"]:
                 self.mjDownNum += 1
                 if self.mjDownNum == 3:
                     self.changePhase(event.time, 0)

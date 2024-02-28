@@ -147,9 +147,9 @@ class GuiChouReplayer(SpecificReplayerPro):
                 if event.caster in self.bld.info.player and event.caster in self.statDict:
                     # self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.getName(event.target) in ["鬼筹"]:
+                        if self.bld.info.getName(event.target) in ["鬼筹", "鬼籌"]:
                             self.bh.setMainTarget(event.target)
-                        if self.bld.info.getName(event.target) in ["树木"]:
+                        if self.bld.info.getName(event.target) in ["树木", "樹木"]:
                             self.statDict[event.caster]["battle"]["shumuDPS"] += event.damageEff
                             if event.target not in self.shumu:
                                 self.shumu[event.target] = {"lastDamage": event.time, "alive": 1, "damageList": [], "lastName": "未知"}
@@ -201,7 +201,7 @@ class GuiChouReplayer(SpecificReplayerPro):
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             elif event.content in ['"嗯……是何处出了差错？"']:
                 pass
-            elif event.content in ['"月泉宗主已经到达太极逆境，就算没有我，他也会用掩日魔剑污染龙脉，以求见到九老洞底的秘密……"']:
+            elif event.content in ['"月泉宗主已经到达太极逆境，就算没有我，他也会用掩日魔剑污染龙脉，以求见到九老洞底的秘密……"', '"月泉宗主已經到達太極逆境，就算沒有我，他也會用掩日魔劍污染龍脈，以求見到九老洞底的秘密……"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             elif event.content in ['"不过如果是你的话，或许真有可能阻止那个人……"']:
@@ -220,7 +220,7 @@ class GuiChouReplayer(SpecificReplayerPro):
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
         elif event.dataType == "Scene":  # 进入、离开场景
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["鬼筹宝箱", "??寶箱"]:
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["鬼筹宝箱", "鬼籌寶箱"]:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":

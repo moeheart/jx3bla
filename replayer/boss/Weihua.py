@@ -128,7 +128,7 @@ class WeiHuaReplayer(SpecificReplayerPro):
                 if event.caster in self.bld.info.player and event.caster in self.statDict:
                     # self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.getName(event.target) in ["魏华"]:
+                        if self.bld.info.getName(event.target) in ["魏华", "魏華"]:
                             self.bh.setMainTarget(event.target)
 
         elif event.dataType == "Buff":
@@ -147,9 +147,9 @@ class WeiHuaReplayer(SpecificReplayerPro):
                             self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "玩家获得气劲", "buff")
 
         elif event.dataType == "Shout":
-            if event.content in ['"谁？！别过来！别逼我出手！"']:
+            if event.content in ['"谁？！别过来！别逼我出手！"', '"誰？！ 別過來！ 別逼我出手！"']:
                 pass
-            elif event.content in ['"……"', '"啊啊啊啊啊啊啊！好痛！"']:
+            elif event.content in ['"……"', '"啊啊啊啊啊啊啊！好痛！"', '""']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             elif event.content in ['"看招！"']:

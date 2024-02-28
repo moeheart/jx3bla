@@ -135,9 +135,9 @@ class ZhongBuguiReplayer(SpecificReplayerPro):
                 if event.caster in self.bld.info.player and event.caster in self.statDict:
                     # self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.getName(event.target) in ["钟不归"]:
+                        if self.bld.info.getName(event.target) in ["钟不归", "鐘不歸"]:
                             self.bh.setMainTarget(event.target)
-                        if self.bld.info.getName(event.target) in ["寒山剑"] and event.damageEff > 0 and self.hsjRound in [1,2,3,4]:
+                        if self.bld.info.getName(event.target) in ["寒山剑", "寒山劍"] and event.damageEff > 0 and self.hsjRound in [1,2,3,4]:
                             self.statDict[event.caster]["battle"]["hsjDam%d" % self.hsjRound] += event.damageEff
                             self.hsjOwner[event.caster] = event.target
                             if self.hsj1 == 0:
@@ -166,7 +166,7 @@ class ZhongBuguiReplayer(SpecificReplayerPro):
         elif event.dataType == "Shout":
             if event.content in ['"破解不了老夫的剑法，一个也不许走！"']:
                 pass
-            elif event.content in ['"原来是这样破的……老夫……明白了……"']:
+            elif event.content in ['"原来是这样破的……老夫……明白了……"', '"原來是這樣破的……老夫……明白了……"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             elif event.content in ['"气神相望，剑行如浪。"']:

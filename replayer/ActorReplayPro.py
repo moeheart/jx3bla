@@ -170,29 +170,29 @@ class ActorProReplayer(ReplayerBase):
                     self.bossAnalyseName = "藤原佑野"
                 if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["李重茂", "永王叛军长枪兵", "一刀流精锐武士", "永王叛军剑卫", "永王叛軍長槍兵", "一刀流精銳武士", "永王叛軍劍衛"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "李重茂"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["时风"] and self.bossAnalyseName == "未知":
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["时风", "時風"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "时风"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["乐临川"] and self.bossAnalyseName == "未知":
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["乐临川", "樂臨川"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "乐临川"
                 if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["牛波"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "牛波"
                 if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["和正"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "和正"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["武云阙"] and self.bossAnalyseName == "未知":
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["武云阙", "武雲闕"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "武云阙"
                 if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["翁幼之"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "翁幼之"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["魏华"] and self.bossAnalyseName == "未知":
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["魏华", "魏華"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "魏华"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["钟不归"] and self.bossAnalyseName == "未知":
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["钟不归", "鐘不歸"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "钟不归"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["岑伤"] and self.bossAnalyseName == "未知":
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["岑伤", "岑傷"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "岑伤"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["鬼筹"] and self.bossAnalyseName == "未知":
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["鬼筹", "鬼籌"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "鬼筹"
                 if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["麒麟"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "麒麟"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["月泉淮", "暗梦仙体"] and self.bossAnalyseName == "未知":
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["月泉淮", "暗梦仙体", "暗夢仙體"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "月泉淮"
 
                 # 通过技能确定具体心法
@@ -535,6 +535,15 @@ class ActorProReplayer(ReplayerBase):
         if self.logMode:
             pass
 
+        # 活动
+        self.activity = 1
+        self.startAttack = {}
+        self.startAttackTimestamp = {}
+        self.sumDamage = {}
+        # for player in self.bld.info.player:
+        #     self.startAttack[player] = 0
+        #     self.sumDamage[player] = 0
+        #     self.sumDamage[player] = 0
 
         for event in self.bld.log:
 
@@ -546,6 +555,16 @@ class ActorProReplayer(ReplayerBase):
             self.bossAnalyser.analyseSecondStage(event)
 
             if event.dataType == "Skill":
+
+                if event.caster in self.bld.info.player and event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["极境试炼木桩", "玉娴"]:
+                    if event.caster not in self.startAttack:
+                        self.startAttack[event.caster] = event.time
+                        self.startAttackTimestamp[event.caster] = event.timestamp
+                        self.sumDamage[event.caster] = 0
+                    if event.time - self.startAttack[event.caster] < 1800000:
+                        self.sumDamage[event.caster] += event.damageEff
+                # print("[Damage]", self.bld.info.getName(event.caster), self.bld.info.getName(event.target), event.full_id, self.bld.info.getSkillName(event.full_id), event.damage)
+
 
                 if event.target in self.bld.info.player:
                 #if occdict[item[5]][0] != '0':
@@ -843,6 +862,18 @@ class ActorProReplayer(ReplayerBase):
 
             num += 1
 
+        # 活动
+        if self.activity:
+            # print(self.sumDamage)
+            # print(self.startAttack)
+            # print(self.startAttackTimestamp)
+            for player in self.sumDamage:
+                print("[uid]", player)
+                print("[玩家名]", self.bld.info.getName(player))
+                print("[开始时刻]", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(self.startAttackTimestamp[player])))
+                print("[首次攻击]", parseTime((self.startAttack[player] - self.startTime) / 1000))
+                print("[总伤害]", self.sumDamage[player])
+                print("[DPS]", self.sumDamage[player] / 180)
 
         # 检验阵眼判断
         for player in self.zhenyanInfer:
