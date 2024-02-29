@@ -1331,7 +1331,7 @@ def getRankfunc():
     result_nodup = []
     id_dict = {}
     for line in result_var:
-        uid = "%s-%s" % (line[0], line[1])
+        uid = "%s-%s-%s" % (line[0], line[1], line[31])
         if uid not in id_dict:
             id_dict[uid] = 1
             result_nodup.append(line)
