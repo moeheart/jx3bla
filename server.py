@@ -813,6 +813,9 @@ def receiveReplay(jdata, cursor):
     '''
     server = jdata["server"]
     id = jdata["id"]
+    if "·" in id:
+        server = id.split("·")[1]
+        id = id.split("·")[0]
     score = jdata["score"]
     battleDate = jdata["battledate"]
     mapDetail = jdata["mapdetail"]

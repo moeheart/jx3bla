@@ -18,6 +18,7 @@ __pycache__
 25yx奶歌第一视角10.14
 MainWindow.spec
 icons/rate.dat
+icons/test.py
 database/ActorStat/
 database/ReplayProStat/
 server.crt
