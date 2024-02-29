@@ -1147,14 +1147,19 @@ def getSinglePlayer():
     id = request.args.get('id')
     map = request.args.get('map')
     occ = request.args.get('occ')  # 如果以后要加限定心法, 就用这个参数；现在暂时用不上
+    gameEdition = request.args.get('gameEdition')
 
     if occ is None:
         occ = "all"
+    if gameEdition is None:
+        gameEdition = "all"
 
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
 
-    sql = '''SELECT * FROM ReplayProStat WHERE server = "%s" AND id = "%s" AND mapdetail = "%s" AND public = 1''' % (server, id, map)
+    sql = '''SELECT * FROM ReplayProStat WHERE server = "%s" AND id = "%s" AND mapdetail = "%s" AND public = 1 AND gameEdition = "%s"''' % (server, id, map, gameEdition)
+    if gameEdition == "all":
+        sql = '''SELECT * FROM ReplayProStat WHERE server = "%s" AND id = "%s" AND mapdetail = "%s" AND public = 1''' % (server, id, map)
     cursor.execute(sql)
     result = cursor.fetchall()
     resJson = {"stat": {}}
