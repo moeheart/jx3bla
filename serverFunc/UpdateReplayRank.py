@@ -41,7 +41,7 @@ def getSingleStat(record):
 
     if record[1] != d["overall"]["playerID"]:
         print("Mismatch:", record[8])
-        continue
+        return {}
 
     skillStat = d["skill"]
     for skillName in skillStat:
