@@ -141,7 +141,7 @@ def getNickToBoss(nick):
 def getGameEditionFromTime(map, time):
     for key in GAMEEDITION_RAW:
         line = GAMEEDITION_RAW[key]
-        if map in line[1]:
+        if int(map) in line[1]:
             for period in line[2]:
                 if time >= period[0] and time < period[1]:
                     return line[0]

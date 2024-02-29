@@ -248,11 +248,11 @@ def RefreshStat():
         print("fail!")
         
     # 通知主线程更新完毕
-    
-    resp = urllib.request.urlopen('http://%s:8009/refreshRateData' % "localhost")
 
     db.commit()
     db.close()
+    
+    resp = urllib.request.urlopen('http://%s:8009/refreshRateData' % "localhost")
     
 if __name__ == "__main__":
     RefreshStat()
