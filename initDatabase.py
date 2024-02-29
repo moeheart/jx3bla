@@ -60,6 +60,7 @@ cursor.execute(sql)
 # 加一个数据battleID VARCHAR(32), 链接到ActorStat中.
 # 扩展ReplayProStat, 加13个数据 scoreRank INT, rhps DOUBLE, rhpsRank INT, hps DOUBLE, hpsRank INT, 
 # rdps DOUBLE, rdpsRank INT, ndps DOUBLE, ndpsRank INT, mrdps DOUBLE, mrdpsRank INT, mndps DOUBLE, mndpsRank INT, hold INT
+# 02/28/2024 再次扩展ReplayProStat，加1个字段 gameEdition VARCHAR(32)
 
 sql = """CREATE TABLE ReplayProInfo(
          dataname VARCHAR(32),
@@ -85,6 +86,7 @@ sql = """CREATE TABLE ActorStat (
 cursor.execute(sql)
 
 #在ActorStat最后增加五个字段：editionfull INT, userid VARCHAR(32), battletime INT, submittime INT, instanceid VARCHAR(32)
+# 02/28/2024 再次扩展ActorStat，加1个字段 gameEdition VARCHAR(32)
 
 # sql = """CREATE TABLE PreloadInfo(
 #          edition VARCHAR(32),

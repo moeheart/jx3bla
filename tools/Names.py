@@ -85,6 +85,16 @@ MAP_RAW = {"未知地图": [0, 0, []],
            "九老洞": [648, 1, []],
            }
 
+# 版本号，涉及的地图，合理的时间范围（开始时间戳，结束时间戳）
+# https://www.epochconverter.com/
+GAMEEDITION_RAW = {
+    "0": ["未知坂本", [0], [0, 2147483647]],
+    "100": ["万灵当歌（初版）", [648, 649, 650], [0, 1701043200]],
+    "101": ["万灵当歌（一削）", [648, 649, 650], [1701043200, 1704672000]],
+    "102": ["万灵当歌（二削）", [648, 649, 650], [1704672000, 1705536000], [1708560000, 2147483647]],
+    "103": ["万灵当歌（大阵）", [648, 649, 650], [1705536000, 1708560000]],
+}
+
 BOSS_DICT = {}
 MAP_DICT = {}
 NICK_TO_BOSS = {}
@@ -127,6 +137,15 @@ def getNickToBoss(nick):
         return NICK_TO_BOSS[nick]
     else:
         return nick
+
+def getGameEditionFromTime(map, time):
+    for key in GAMEEDITION_RAW:
+        line = GAMEEDITION_RAW[key]
+        if map in line[1]:
+            for period in line[2]:
+                if time >= period[0] and time < period[1]:
+                    return line[0]
+    return "0"
 
 MAP_DICT = {}
 MAP_DICT_REVERSE = {}
