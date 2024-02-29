@@ -12,7 +12,7 @@ config.readfp(open('./settings.cfg'))
 
 name = config.get('jx3bla', 'username')
 pwd = config.get('jx3bla', 'password')
-db = pymysql.connect("127.0.0.1", name, pwd,"jx3bla",port=3306,charset='utf8mb4')
+db = pymysql.connect(host="127.0.0.1", user=name, password=pwd, database="jx3bla", port=3306, charset='utf8')
 
 cursor = db.cursor()
 
