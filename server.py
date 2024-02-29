@@ -1006,7 +1006,7 @@ def getReplayPro():
             text = f.read().replace('\n', '\\n').replace('\t', '\\t').replace("'", '"')
         text1 = text
         jResult = json.loads(text1)
-        rc = RankCalculator(jResult, app.percent_data)
+        rc = RankCalculator(jResult, app.percent_data, result[0][31])
         rank = rc.getRankFromStat(occ)
         rankStr = json.dumps(rank)
         battleID = result[0][4]
