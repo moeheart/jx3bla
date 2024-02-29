@@ -26,6 +26,8 @@ def getSingleStat(record):
     key2 = getIDFromMap(record[5])
     key3 = record[6]
     edition = record[10]
+    gameEdition = record[31]
+    key6 = gameEdition
     if key2 not in MAP_DICT_RECORD_LOGS or MAP_DICT_RECORD_LOGS[key2] == 1:
         return {}
     if key3 not in BOSS_RAW:
@@ -60,7 +62,7 @@ def getSingleStat(record):
             # if parseEdition(edition) < parseEdition("8.5.0") and key4 == "general" and key5 in ["rdps", "mrdps", "ndps", "mndps"] and skillStat[skillName][item] == 0 and \
             #         key1 in ["taixuanjing", "wenshuijue", "xiaochenjue", "beiaojue", "linghaijue", "yinlongjue", "gufengjue"]:
             #     continue
-            key = "%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5)
+            key = "%s-%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5, key6)
             value = skillStat[skillName][item] * getDirection(key)
             if "delay" in key and value == 0:
                 value = -9999
@@ -72,7 +74,7 @@ def getSingleStat(record):
                 for key5 in ["heal", "healEff", "rhps", "hps", "ahps", "ohps"]:
                     if key5 not in line:
                         continue
-                    key = "%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5)
+                    key = "%s-%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5, key6)
                     value = line[key5] * getDirection(key)
                     res[key] = value
 
@@ -93,7 +95,7 @@ def getSingleStat(record):
             value = record[STAT_ID[id]]
             if value is None:
                 continue
-            key = "%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5)
+            key = "%s-%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5, key6)
             res[key] = value
     return res
 
@@ -164,6 +166,8 @@ def updatePercent(raw_rank, cursor, db):
         key3 = record[6]
         shortID = record[8]
         hash = record[7]
+        gameEdition = record[31]
+        key6 = gameEdition
 
         # 新赛季更新时删除，后续再进行改动
         try:
@@ -177,7 +181,7 @@ def updatePercent(raw_rank, cursor, db):
         for id in STAT_ID:
             key4 = "stat"
             key5 = id
-            key = "%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5)
+            key = "%s-%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5, key6)
             if key not in raw_rank:
                 continue
             order = json.loads(raw_rank[key]["value"])

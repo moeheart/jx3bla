@@ -40,7 +40,7 @@ class RankCalculator():
         - percent: 排名百分位.
         '''
         value = getDirection(key) * value
-        percent_key = "%s-%s-%s-%s-%s" % (occ, map, boss, name, key)
+        percent_key = "%s-%s-%s-%s-%s-%s" % (occ, map, boss, name, key, self.game_edition)
         # print("[key]", percent_key)
         # print("[data]", self.percent_data.keys())
         if percent_key in self.percent_data:
@@ -115,15 +115,17 @@ class RankCalculator():
             res = {"score": {"num": num, "percent": percent}}
         return res
 
-    def __init__(self, result, percent_data):
+    def __init__(self, result, percent_data, game_edition):
         '''
         初始化.
         params:
         - result: 复盘类中的result.
         - percent_data: 百分位排名数据.
+        - game_edition: 战斗时的游戏版本
         '''
         self.result = result
         self.percent_data = percent_data
+        self.game_edition = game_edition
 
 
 class ReplayerBase():
@@ -137,7 +139,7 @@ class ReplayerBase():
         params:
         - occ: 复盘心法.
         '''
-        rc = RankCalculator(self.result, self.window.stat_percent)
+        rc = RankCalculator(self.result, self.window.stat_percent, self.gameEdition)
         self.rank = rc.getRankFromStat(occ)
 
     def getScoreRankFromStat(self, occ):
@@ -148,7 +150,7 @@ class ReplayerBase():
         returns:
         - res: score这一项的数量与排名.
         '''
-        rc = RankCalculator(self.result, self.window.stat_percent)
+        rc = RankCalculator(self.result, self.window.stat_percent, self.gameEdition)
         res = rc.getScoreRankFromStat(occ)
         return res
 
@@ -248,6 +250,8 @@ class ReplayerBase():
             self.equip = actorData["equip"]
             self.jsonEquip = actorData["jsonEquip"]
             self.strEquip = actorData["strEquip"]
+            self.beginTime = actorData["beginTime"]
+            self.gameEdition = getGameEditionFromTime(actorData["mapid"], self.beginTime)
         # self.myname = myname
         self.failThreshold = config.item["actor"]["failthreshold"]
         self.mask = config.item["general"]["mask"]

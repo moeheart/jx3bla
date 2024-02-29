@@ -664,6 +664,8 @@ def receiveBattle(jdata, cursor):
     edition = jdata["edition"]
     hash = jdata["hash"]
     statistics = str(jdata["statistics"]).replace('"', '`')
+    map = getIDFromMap(mapName)
+    gameEdition = getGameEditionFromTime(map, jdata["begintime"])
 
     response = {}
 
@@ -755,8 +757,8 @@ def receiveBattle(jdata, cursor):
     with open("database/ActorStat/%s" % hash, "w") as f:
         f.write(str(statistics))
 
-    sql = """INSERT INTO ActorStat VALUES ("%s", "%s", "%s", "%s", "%s", "%s", %d, %d, "%s", %d, %d, "")""" % (
-        server, boss, battleDate, mapDetail, edition, hash, win, editionFull, userID, battleTime, submitTime)
+    sql = """INSERT INTO ActorStat VALUES ("%s", "%s", "%s", "%s", "%s", "%s", %d, %d, "%s", %d, %d, "", "%s")""" % (
+        server, boss, battleDate, mapDetail, edition, hash, win, editionFull, userID, battleTime, submitTime, gameEdition)
     cursor.execute(sql)
 
     del statistics
@@ -831,11 +833,13 @@ def receiveReplay(jdata, cursor):
     occ = jdata["occ"]
     replayedition = jdata["replayedition"]
     battleID = jdata.get("battleID", "")
+    map = getIDFromMap(mapDetail)
+    gameEdition = getGameEditionFromTime(map, battleTime)
 
     if editionFull <= parseEdition("8.1.1"):
         score *= 100
 
-    sql = '''SELECT score from ReplayProStat WHERE mapdetail = "%s" and boss = "%s" and occ = "%s" and editionfull >= %d''' % (mapDetail, boss, occ, parseEdition("8.3.5"))
+    sql = '''SELECT score from ReplayProStat WHERE mapdetail = "%s" and boss = "%s" and occ = "%s" and editionfull >= %d and gameEdition = "%s"''' % (mapDetail, boss, occ, parseEdition("8.3.5"), gameEdition)
     cursor.execute(sql)
     result = cursor.fetchall()
     num = 0
@@ -878,8 +882,7 @@ def receiveReplay(jdata, cursor):
 
     with open("database/ReplayProStat/%d" % shortID, "w") as f:
         f.write(str(statistics))
-        
-    map = getIDFromMap(mapDetail)
+
     scoreRank = getRankFromKeys(score, occ, map, boss, "stat", "score")
     rhps = statistics["skill"]["healer"].get("rhps", 0)
     rhpsRank = getRankFromKeys(score, occ, map, boss, "stat", "rhps")
@@ -901,9 +904,9 @@ def receiveReplay(jdata, cursor):
     #     submitTime, battleID, scoreRank, rhps, rhpsRank, hps, hpsRank, rdps, rdpsRank, ndps, ndpsRank, mrdps, mrdpsRank, mndps, mndpsRank, hold)
 
     sql = """INSERT INTO ReplayProStat VALUES ("%s", "%s", "%s", %.2f, "%s", "%s", "%s", "%s", %d, %d, "%s", %d, "%s", "%s", %d, %d, "%s",
-%d, %.2f, %d, %.2f, %d, %.2f, %d, %.2f, %d, %.2f, %d, %.2f, %d, %d)""" % (
+%d, %.2f, %d, %.2f, %d, %.2f, %d, %.2f, %d, %.2f, %d, %.2f, %d, %d, "%s")""" % (
         server, id, occ, score, battleDate, mapDetail, boss, hash, shortID, public, edition, editionFull, replayedition, userID, battleTime,
-        submitTime, battleID, scoreRank, rhps, rhpsRank, hps, hpsRank, rdps, rdpsRank, ndps, ndpsRank, mrdps, mrdpsRank, mndps, mndpsRank, hold)
+        submitTime, battleID, scoreRank, rhps, rhpsRank, hps, hpsRank, rdps, rdpsRank, ndps, ndpsRank, mrdps, mrdpsRank, mndps, mndpsRank, hold, gameEdition)
     cursor.execute(sql)
 
     return {'result': 'success', 'num': numSameOcc, 'numOver': numOver, 'shortID': shortID, 'scoreRank': scoreRank}
@@ -986,7 +989,7 @@ def getReplayPro():
     id = request.args.get('id')
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
-    sql = """SELECT shortID, public, replayedition, occ, battleID FROM ReplayProStat WHERE shortID = %s OR hash = "%s";"""%(id, id)
+    sql = """SELECT shortID, public, replayedition, occ, battleID, gameEdition FROM ReplayProStat WHERE shortID = %s OR hash = "%s";"""%(id, id)
     cursor.execute(sql)
     result = cursor.fetchall()
     flag = 0
@@ -1007,6 +1010,7 @@ def getReplayPro():
         rank = rc.getRankFromStat(occ)
         rankStr = json.dumps(rank)
         battleID = result[0][4]
+        gameEdition = result[0][5]
         teammateInfo = {}
         if battleID != "" and battleID != "NULL":
             # 找出同场战斗的编号
@@ -1021,7 +1025,7 @@ def getReplayPro():
         text = "不支持的心法，请等待之后的版本更新."
     db.close()
     if flag:
-        return jsonify({'available': 1, 'text': "请求成功", 'raw': text1, 'rank': rankStr, 'teammate': str(teammateInfo), 'battleID': battleID})
+        return jsonify({'available': 1, 'text': "请求成功", 'raw': text1, 'rank': rankStr, 'teammate': str(teammateInfo), 'battleID': battleID, 'gameEdition': gameEdition})
     else:
         return jsonify({'available': 0, 'text': text})
 
@@ -1030,7 +1034,7 @@ def getBattle():
     hash = request.args.get('hash')
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
-    sql = """SELECT server, boss, battleDate, mapDetail, edition, battleTime, submitTime FROM ActorStat WHERE hash = "%s";"""%(hash)
+    sql = """SELECT server, boss, battleDate, mapDetail, edition, battleTime, submitTime, gameEdition FROM ActorStat WHERE hash = "%s";"""%(hash)
     cursor.execute(sql)
     result = cursor.fetchall()
     flag = 0
@@ -1051,7 +1055,7 @@ def getBattle():
     if flag:
         return jsonify({'available': 1, 'text': "请求成功", "act": act, "server": result[0][0], "boss": result[0][1],
                         "battleDate": result[0][2], "mapDetail": result[0][3], "edition": result[0][4],
-                        "battleTime": result[0][5], "submitTime": result[0][6]})
+                        "battleTime": result[0][5], "submitTime": result[0][6], "gameEdition": result[0][7]})
     else:
         return jsonify({'available': 0, 'text': text})
 
@@ -1265,6 +1269,7 @@ def getRankfunc():
     page = request.args.get("page")
     orderby = request.args.get("orderby")
     alltime = request.args.get("alltime")
+    gameEdition = request.args.get("alltime")
     if page is None:
         page = 1
     else:
@@ -1275,6 +1280,8 @@ def getRankfunc():
         alltime = 1
     if orderby not in ["score", "rhps", "hps", "rdps", "ndps", "mrdps", "mndps", "battletime"]:
         return jsonify({'available': 0, 'text': "排序方式不合法"})
+    if gameEdition is None:
+        gameEdition = "all"
 
     if orderby == "battletime":
         order_id = 4
@@ -1293,7 +1300,9 @@ def getRankfunc():
 # hps, hpsRank, rdps, rdpsRank, ndps, ndpsRank, mrdps, mrdpsRank, mndps, mndpsRank
 # FROM ReplayProStat WHERE mapdetail = "%s" AND boss = "%s" AND occ = "%s" AND public = 1''' % (map, boss, occ)
 
-    sql = '''SELECT * FROM ReplayProStat WHERE mapdetail = "%s" AND boss = "%s" AND occ = "%s" AND public = 1''' % (map, boss, occ)
+    sql = '''SELECT * FROM ReplayProStat WHERE mapdetail = "%s" AND boss = "%s" AND occ = "%s" AND public = 1 AND gameEdition = "%s"''' % (map, boss, occ, gameEdition)
+    if gameEdition == "all":
+        sql = '''SELECT * FROM ReplayProStat WHERE mapdetail = "%s" AND boss = "%s" AND occ = "%s" AND public = 1''' % (map, boss, occ)
     cursor.execute(sql)
     result = cursor.fetchall()
     resJson = {"table": []}

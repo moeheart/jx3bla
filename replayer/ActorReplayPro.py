@@ -1169,8 +1169,10 @@ class ActorProReplayer(ReplayerBase):
         self.occResult = {}
         actorData = {}
         self.actorData = actorData
-        actorData["startTime"] = self.startTime
+        actorData["startTime"] = self.startTime  # 这个是毫秒级的抽象时间
         actorData["finalTime"] = self.finalTime
+        actorData["beginTime"] = self.beginTime  # 这个是具体的时间戳
+        actorData["mapid"] = getIDFromMap(self.mapDetail)
         actorData["win"] = self.win
         actorData["bossBh"] = self.bh
         actorData["battleDict"] = self.battleDict
