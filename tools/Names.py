@@ -144,7 +144,7 @@ def getGameEditionFromTime(map, time):
         if map in line[1]:
             for period in line[2]:
                 if time >= period[0] and time < period[1]:
-                    return line[0]
+                    return key
     return "0"
 
 MAP_DICT = {}
