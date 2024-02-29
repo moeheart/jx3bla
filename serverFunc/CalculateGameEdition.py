@@ -16,8 +16,8 @@ db = pymysql.connect(host="127.0.0.1", user=name, password=pwd, database="jx3bla
 
 cursor = db.cursor()
 
-sql = "ALTER TABLE ReplayProStat ADD COLUMN gameEdition VARCHAR(32)"
-cursor.execute(sql)
+# sql = "ALTER TABLE ReplayProStat ADD COLUMN gameEdition VARCHAR(32)"
+# cursor.execute(sql)
 
 sql = "SELECT hash, shortID, battletime, mapdetail from ReplayProStat"
 cursor.execute(sql)
@@ -26,9 +26,10 @@ for line in result:
     mapid = getIDFromMap(line[3])
     gameedition = getGameEditionFromTime(mapid, line[2])
     sql = 'UPDATE ReplayProStat SET gameEdition="%s" WHERE hash="%s"' % (gameedition, line[0])
+    cursor.execute(sql)
 
-sql = "ALTER TABLE ActorStat ADD COLUMN gameEdition VARCHAR(32)"
-cursor.execute(sql)
+# sql = "ALTER TABLE ActorStat ADD COLUMN gameEdition VARCHAR(32)"
+# cursor.execute(sql)
 
 sql = "SELECT hash, battletime, mapdetail from ActorStat"
 cursor.execute(sql)
@@ -37,6 +38,7 @@ for line in result:
     mapid = getIDFromMap(line[2])
     gameedition = getGameEditionFromTime(mapid, line[1])
     sql = 'UPDATE ActorStat SET gameEdition="%s" WHERE hash="%s"' % (gameedition, line[0])
+    cursor.execute(sql)
 
 db.commit()
 db.close()
