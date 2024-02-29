@@ -1269,7 +1269,7 @@ def getRankfunc():
     page = request.args.get("page")
     orderby = request.args.get("orderby")
     alltime = request.args.get("alltime")
-    gameEdition = request.args.get("alltime")
+    gameEdition = request.args.get("gameEdition")
     if page is None:
         page = 1
     else:
