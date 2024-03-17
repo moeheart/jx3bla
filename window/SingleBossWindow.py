@@ -31,6 +31,8 @@ from replayer.boss.GuiChou import GuiChouWindow
 from replayer.boss.Qilin import QilinWindow
 from replayer.boss.YuequanHuai import YuequanHuaiWindow
 
+from replayer.boss.GeMuhan import GeMuhanWindow
+
 from window.PotExtendWindow import PotExtendWindow
 from window.Window import Window
 from window.ToolTip import ToolTip
@@ -249,6 +251,9 @@ class SingleBossWindow(Window):
                                                          analysedBattleData)
             elif detail["boss"] == "月泉淮":
                 self.specificBossWindow = YuequanHuaiWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,
+                                                         analysedBattleData)
+            elif detail["boss"] == "葛木寒":
+                self.specificBossWindow = GeMuhanWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,
                                                          analysedBattleData)
             else:
                 self.specificBossWindow = GeneralWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,
