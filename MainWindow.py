@@ -390,7 +390,7 @@ class MainWindow():
         if parseEdition(EDITION) == 0:  # 非联机版本跳过加载步骤
             res = {"announcement": "", "version": "0.0.0", "url": "", "rateEdition": 0}
         else:
-            resp = urllib.request.urlopen('http://%s:8009/getAnnouncement' % IP)
+            resp = urllib.request.urlopen('http://%s:8009/getAnnouncement%edition=%s' % (IP, EDITION))
             res = json.load(resp)
 
         self.announcement = res["announcement"]
