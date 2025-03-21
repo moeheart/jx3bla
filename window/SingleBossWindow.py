@@ -44,6 +44,8 @@ from replayer.boss.yizhiku.Wujingyuan import WujingyuanWindow
 from replayer.boss.yizhiku.Saosh import SaoshWindow
 from replayer.boss.yizhiku.Fedhri import FedhriWindow
 
+from replayer.boss.taijigong.Xingtingen import XingtingenWindow
+
 from window.PotExtendWindow import PotExtendWindow
 from window.Window import Window
 from window.ToolTip import ToolTip
@@ -295,6 +297,9 @@ class SingleBossWindow(Window):
                                                          analysedBattleData)
             elif detail["boss"] == "芭德":
                 self.specificBossWindow = FedhriWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,
+                                                         analysedBattleData)
+            elif detail["boss"] == "邢廷恩":
+                self.specificBossWindow = XingtingenWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,
                                                          analysedBattleData)
             else:
                 self.specificBossWindow = GeneralWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,

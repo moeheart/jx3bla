@@ -58,6 +58,8 @@ from replayer.boss.yizhiku.Wujingyuan import WujingyuanReplayer
 from replayer.boss.yizhiku.Saosh import SaoshReplayer
 from replayer.boss.yizhiku.Fedhri import FedhriReplayer
 
+from replayer.boss.taijigong.Xingtingen import XingtingenReplayer
+
 from replayer.occ.XiangZhi import XiangZhiProReplayer
 from replayer.occ.LingSu import LingSuReplayer
 from replayer.occ.LiJingYiDao import LiJingYiDaoReplayer
@@ -553,6 +555,9 @@ class ActorProReplayer(ReplayerBase):
                                          self.finalTime, self.battleTime, self.bossNamePrint, self.config)
         elif self.bossAnalyseName == "芭德":
             bossAnalyser = FedhriReplayer(self.bld, occDetailList, self.startTime,
+                                          self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "邢廷恩":
+            bossAnalyser = XingtingenReplayer(self.bld, occDetailList, self.startTime,
                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
         else:
             bossAnalyser = GeneralReplayer(self.bld, occDetailList, self.startTime,

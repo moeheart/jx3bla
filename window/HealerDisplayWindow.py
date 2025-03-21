@@ -505,8 +505,7 @@ class HealerDisplayWindow(Window):
             # tk.Label(frame8, text="本模块仅可作为提高手法的参考，").place(x=20, y=110)
             # tk.Label(frame8, text="请勿使用本模块出警！").place(x=20, y=130)
             tk.Label(frame8, text="本模块所用的内容基于早期版本，").place(x=20, y=110)
-            tk.Label(frame8, text="可能已经失效，仅供参考！").plac
-            e(x=20, y=130)
+            tk.Label(frame8, text="可能已经失效，仅供参考！").place(x=20, y=130)
             b3 = tk.Button(frame8, text='心法帮助', height=1, command=self.openHelp)
             b3.place(x=80, y=160)
             self.reviewerWindow = ReviewerWindow(self.result, self.themeColor)
