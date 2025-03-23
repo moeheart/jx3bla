@@ -1,5 +1,5 @@
 # Created by moeheart at 03/21/2025
-# 邢廷恩的定制复盘库。
+# 年勒的定制复盘库。
 # 功能待定。
 
 from window.SpecificBossWindow import SpecificBossWindow
@@ -10,16 +10,16 @@ from tools.Functions import *
 import tkinter as tk
 
 
-class XingtingenWindow(SpecificBossWindow):
+class NianleWindow(SpecificBossWindow):
     '''
-    邢廷恩的定制复盘窗口类。
+    年勒的定制复盘窗口类。
     '''
 
     def loadWindow(self):
         '''
         使用tkinter绘制详细复盘窗口。
         '''
-        self.constructWindow("邢廷恩", "1200x800")
+        self.constructWindow("年勒", "1200x800")
         window = self.window
 
         frame1 = tk.Frame(window)
@@ -54,7 +54,7 @@ class XingtingenWindow(SpecificBossWindow):
         super().__init__(config, effectiveDPSList, detail, occResult, analysedBattleData)
 
 
-class XingtingenReplayer(SpecificReplayerPro):
+class NianleReplayer(SpecificReplayerPro):
 
     def countFinal(self):
         '''
@@ -126,7 +126,7 @@ class XingtingenReplayer(SpecificReplayerPro):
                 if event.caster in self.bld.info.player and event.caster in self.statDict:
                     # self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.getName(event.target) in ["邢廷恩"]:
+                        if self.bld.info.getName(event.target) in ["年勒"]:
                             self.bh.setMainTarget(event.target)
 
         elif event.dataType == "Buff":
@@ -190,7 +190,7 @@ class XingtingenReplayer(SpecificReplayerPro):
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
         elif event.dataType == "Scene":  # 进入、离开场景
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["邢廷恩宝箱", "邢廷恩寶箱"]:
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["年勒宝箱", "年勒寶箱"]:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
@@ -205,7 +205,7 @@ class XingtingenReplayer(SpecificReplayerPro):
                         #                        1, "NPC出现", "npc")
 
         elif event.dataType == "Death":  # 重伤记录
-            if event.id in self.bld.info.npc and self.bld.info.getName(event.id) in ["邢廷恩"]:
+            if event.id in self.bld.info.npc and self.bld.info.getName(event.id) in ["年勒"]:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
 
@@ -239,7 +239,7 @@ class XingtingenReplayer(SpecificReplayerPro):
         在战斗开始时的初始化流程，当第二阶段复盘开始时运行。
         '''
         self.initBattleBase()
-        self.activeBoss = "邢廷恩"
+        self.activeBoss = "年勒"
         self.debug = 1
 
         self.initPhase(1, 1)
@@ -266,7 +266,7 @@ class XingtingenReplayer(SpecificReplayerPro):
                        "s39780": ["18567", "#00ff77", 0],  # 冰魄引, 注意技能ID是小球爆炸，并不是技能本身
                        }
 
-        # 邢廷恩数据格式：
+        # 年勒数据格式：
         # ？
 
 

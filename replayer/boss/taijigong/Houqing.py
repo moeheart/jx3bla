@@ -1,5 +1,5 @@
 # Created by moeheart at 03/21/2025
-# 邢廷恩的定制复盘库。
+# 侯青的定制复盘库。
 # 功能待定。
 
 from window.SpecificBossWindow import SpecificBossWindow
@@ -10,16 +10,16 @@ from tools.Functions import *
 import tkinter as tk
 
 
-class XingtingenWindow(SpecificBossWindow):
+class HouqingWindow(SpecificBossWindow):
     '''
-    邢廷恩的定制复盘窗口类。
+    侯青的定制复盘窗口类。
     '''
 
     def loadWindow(self):
         '''
         使用tkinter绘制详细复盘窗口。
         '''
-        self.constructWindow("邢廷恩", "1200x800")
+        self.constructWindow("侯青", "1200x800")
         window = self.window
 
         frame1 = tk.Frame(window)
@@ -54,7 +54,7 @@ class XingtingenWindow(SpecificBossWindow):
         super().__init__(config, effectiveDPSList, detail, occResult, analysedBattleData)
 
 
-class XingtingenReplayer(SpecificReplayerPro):
+class HouqingReplayer(SpecificReplayerPro):
 
     def countFinal(self):
         '''
@@ -126,7 +126,7 @@ class XingtingenReplayer(SpecificReplayerPro):
                 if event.caster in self.bld.info.player and event.caster in self.statDict:
                     # self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.getName(event.target) in ["邢廷恩"]:
+                        if self.bld.info.getName(event.target) in ["侯青"]:
                             self.bh.setMainTarget(event.target)
 
         elif event.dataType == "Buff":
@@ -157,12 +157,12 @@ class XingtingenReplayer(SpecificReplayerPro):
             #         self.bh.setCall("28054", "绿宝石", "2652", event.time, 5000, event.target, "绿宝石点名")
 
         elif event.dataType == "Shout":
-            if event.content in ['"擅闯皇宫禁地者死！"', '""']:
+            if event.content in ['""', '""']:
                 self.bh.setBadPeriod(self.startTime, event.time - 1000, True, True)
-            elif event.content in ['"不……不想死……叫……叫太医……"', '""']:
+            elif event.content in ['""', '""']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            elif event.content in ['"哼，真当咱家是摆设不成？让你们尝尝，这雪髓的滋味！去！"', '""']:
+            elif event.content in ['"快来我身边！"', '""']:
                 pass
             elif event.content in ['"掌风逐影，如影随形！"', '""']:
                 pass
@@ -190,7 +190,7 @@ class XingtingenReplayer(SpecificReplayerPro):
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
         elif event.dataType == "Scene":  # 进入、离开场景
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["邢廷恩宝箱", "邢廷恩寶箱"]:
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["侯青宝箱", "侯青寶箱"]:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
@@ -205,7 +205,7 @@ class XingtingenReplayer(SpecificReplayerPro):
                         #                        1, "NPC出现", "npc")
 
         elif event.dataType == "Death":  # 重伤记录
-            if event.id in self.bld.info.npc and self.bld.info.getName(event.id) in ["邢廷恩"]:
+            if event.id in self.bld.info.npc and self.bld.info.getName(event.id) in ["侯青"]:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
 
@@ -239,7 +239,7 @@ class XingtingenReplayer(SpecificReplayerPro):
         在战斗开始时的初始化流程，当第二阶段复盘开始时运行。
         '''
         self.initBattleBase()
-        self.activeBoss = "邢廷恩"
+        self.activeBoss = "侯青"
         self.debug = 1
 
         self.initPhase(1, 1)
@@ -251,22 +251,35 @@ class XingtingenReplayer(SpecificReplayerPro):
         self.hlszStart = 0
         self.hlszNum = 0
 
-        self.bhBlackList.extend(["s39769", "b30045", "b30268",  # 普攻
-                                 "s39774", "b30147",  # 雪髓引
-                                 "b30146", "b30046", "s39771",  # 逐影式
-                                 "b30161", "b30160", "c39772", "c39773", "s39773", "b30152", "s39780", "b30199",  # （冰魄香）归墟式
-                                 "s40152",  # 垂死挣扎
+        self.bhBlackList.extend(["s39674",  # 普攻
+                                 "b29975", "s39687",  # 覆血斩
+                                 "s39691",  # 枪卫冲锋
+                                 "b29985", "b29986", "b29987",  # 梁天火buff
+                                 "s40316", "s39704", "b30235",  # 横断山河
+                                 "s39703", "s39676", "s39679", "b29971", "s39681",  # 三连
+                                 "s39688",  # 箭雨
+                                 "s39683",  # 弧刃千伤
+                                 "s39682",  # 破阵摧坚
+                                 "s40469",  # 环斩千荡
+                                 "s40439",  # 袭风斩
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
-        self.bhInfo = {"c40022": ["2028", "#ff0000", 3000],  # 雪髓引
-                       "c39770": ["2020", "#ff7700", 4000],  # 逐影式
-                       "c40092": ["345", "#ff0077", 8000],  # 归墟式
-                       "c39779": ["16844", "#00ff00", 0],  # 垂死挣扎
-                       "s39780": ["18567", "#00ff77", 0],  # 冰魄引, 注意技能ID是小球爆炸，并不是技能本身
+        self.bhInfo = {"c39692": ["3398", "#0000ff", 4000],  # 注视射击
+                       "c39707": ["2021", "#00ff00", 3000],  # 覆血斩
+                       "c39698": ["3407", "#ff0077", 3000],  # 利刃断躯
+                       "c39699": ["335", "#ff7777", 4000],  # 箭雨
+                       "c39693": ["2141", "#ff0000", 4000],  # 一箭穿心
+                       "c39702": ["4496", "#0077ff", 8000],  # 神威浩荡
+                       "c39683": ["4531", "#ff7700", 3000],  # 弧刃千伤
+                       "c39675": ["3430", "#7700ff", 4000],  # 三连
+                       "c39682": ["2029", "#00ff77", 3000],  # 破阵摧坚
+                       "c39697": ["2143", "#7777ff", 4000],  # 横断山河
+                       "c40469": ["3429", "#ff3377", 3000],  # 环斩千荡
+                       "c40437": ["4504", "#ff7733", 4000],  # 袭风斩
                        }
 
-        # 邢廷恩数据格式：
+        # 侯青数据格式：
         # ？
 
 

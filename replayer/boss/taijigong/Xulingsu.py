@@ -1,5 +1,5 @@
 # Created by moeheart at 03/21/2025
-# 邢廷恩的定制复盘库。
+# 许灵素的定制复盘库。
 # 功能待定。
 
 from window.SpecificBossWindow import SpecificBossWindow
@@ -10,16 +10,16 @@ from tools.Functions import *
 import tkinter as tk
 
 
-class XingtingenWindow(SpecificBossWindow):
+class XulingsuWindow(SpecificBossWindow):
     '''
-    邢廷恩的定制复盘窗口类。
+    许灵素的定制复盘窗口类。
     '''
 
     def loadWindow(self):
         '''
         使用tkinter绘制详细复盘窗口。
         '''
-        self.constructWindow("邢廷恩", "1200x800")
+        self.constructWindow("许灵素", "1200x800")
         window = self.window
 
         frame1 = tk.Frame(window)
@@ -54,7 +54,7 @@ class XingtingenWindow(SpecificBossWindow):
         super().__init__(config, effectiveDPSList, detail, occResult, analysedBattleData)
 
 
-class XingtingenReplayer(SpecificReplayerPro):
+class XulingsuReplayer(SpecificReplayerPro):
 
     def countFinal(self):
         '''
@@ -126,7 +126,7 @@ class XingtingenReplayer(SpecificReplayerPro):
                 if event.caster in self.bld.info.player and event.caster in self.statDict:
                     # self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.getName(event.target) in ["邢廷恩"]:
+                        if self.bld.info.getName(event.target) in ["许灵素"]:
                             self.bh.setMainTarget(event.target)
 
         elif event.dataType == "Buff":
@@ -157,25 +157,19 @@ class XingtingenReplayer(SpecificReplayerPro):
             #         self.bh.setCall("28054", "绿宝石", "2652", event.time, 5000, event.target, "绿宝石点名")
 
         elif event.dataType == "Shout":
-            if event.content in ['"擅闯皇宫禁地者死！"', '""']:
+            if event.content in ['"祈天福，降灾厄，皆在一念之间。尔等既犯禁地，便以蛊咒为罚，永堕幽冥！"', '""']:
                 self.bh.setBadPeriod(self.startTime, event.time - 1000, True, True)
-            elif event.content in ['"不……不想死……叫……叫太医……"', '""']:
+            elif event.content in ['"今日竟败于尔等之手……天命难违，罢了……"', '""']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            elif event.content in ['"哼，真当咱家是摆设不成？让你们尝尝，这雪髓的滋味！去！"', '""']:
+            elif event.content in ['"灾厄随行！"', '""']:
                 pass
-            elif event.content in ['"掌风逐影，如影随形！"', '""']:
+            elif event.content in ['"噬心为罚！"', '""']:
                 pass
-            elif event.content in ['"呵呵，既然你们这么喜欢热闹，咱家就送你们一份大礼！——散！"', '""']:
-                self.bh.setEnvironment("39780", "冰魄引", "341", event.time, 0, 1, "招式命中玩家", "skill")
-            elif event.content in ['"万法归墟，皆为我用！"', '""']:
+            elif event.content in ['"聚灵成刃！"', '""']:
                 pass
-            elif event.content in ['"贱民……不可玷污皇宫……"', '""']:
-                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
-            elif event.content in ['"不能就这样死了……"', '""']:
-                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
-            elif event.content in ['"废物！什么劳什子大内七绝，连江湖混混都打不过！"', '""']:
-                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
+            elif event.content in ['"天灵护佑！"', '""']:
+                pass
             elif event.content in ['""', '""']:
                 pass
             elif event.content in ['""', '""']:
@@ -190,7 +184,7 @@ class XingtingenReplayer(SpecificReplayerPro):
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
         elif event.dataType == "Scene":  # 进入、离开场景
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["邢廷恩宝箱", "邢廷恩寶箱"]:
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["许灵素宝箱", "许灵素寶箱"]:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
@@ -200,12 +194,16 @@ class XingtingenReplayer(SpecificReplayerPro):
                     self.bhTime[name] = event.time
                     if "的" not in skillName:
                         key = "n%s" % self.bld.info.npc[event.id].templateID
-                        # if key in self.bhInfo or self.debug:
-                        #     self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
-                        #                        1, "NPC出现", "npc")
+                        if key in ["n131723"]:
+                            self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, "天灵卫", "344", event.time, 0,
+                                               1, "NPC出现", "npc")
+                        elif key in self.bhInfo or self.debug:
+                            # self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
+                            #                    1, "NPC出现", "npc")
+                            pass
 
         elif event.dataType == "Death":  # 重伤记录
-            if event.id in self.bld.info.npc and self.bld.info.getName(event.id) in ["邢廷恩"]:
+            if event.id in self.bld.info.npc and self.bld.info.getName(event.id) in ["许灵素"]:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
 
@@ -239,7 +237,7 @@ class XingtingenReplayer(SpecificReplayerPro):
         在战斗开始时的初始化流程，当第二阶段复盘开始时运行。
         '''
         self.initBattleBase()
-        self.activeBoss = "邢廷恩"
+        self.activeBoss = "许灵素"
         self.debug = 1
 
         self.initPhase(1, 1)
@@ -251,22 +249,28 @@ class XingtingenReplayer(SpecificReplayerPro):
         self.hlszStart = 0
         self.hlszNum = 0
 
-        self.bhBlackList.extend(["s39769", "b30045", "b30268",  # 普攻
-                                 "s39774", "b30147",  # 雪髓引
-                                 "b30146", "b30046", "s39771",  # 逐影式
-                                 "b30161", "b30160", "c39772", "c39773", "s39773", "b30152", "s39780", "b30199",  # （冰魄香）归墟式
-                                 "s40152",  # 垂死挣扎
+        self.bhBlackList.extend(["s39749",  # 普攻
+                                 "b29962",  # 通用易伤
+                                 "b29961", "s39755", "s39757",  # 灵蛊引
+                                 "s39759", "s39760", "b29964", "b29963", "b29966",  # 灵咒令
+                                 "s39762",  # 聚灵杀
+                                 "s40272",  # 蛊灭劫
+                                 "s39768", "b30000",  # 天灵卫
+
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
-        self.bhInfo = {"c40022": ["2028", "#ff0000", 3000],  # 雪髓引
-                       "c39770": ["2020", "#ff7700", 4000],  # 逐影式
-                       "c40092": ["345", "#ff0077", 8000],  # 归墟式
-                       "c39779": ["16844", "#00ff00", 0],  # 垂死挣扎
-                       "s39780": ["18567", "#00ff77", 0],  # 冰魄引, 注意技能ID是小球爆炸，并不是技能本身
+        self.bhInfo = {"c39756": ["16379", "#ff0000", 4000],  # 灵蛊引
+                       "c39758": ["2138", "#00ff00", 4000],  # 灵咒令
+                       "c39761": ["342", "#ff7700", 2000],  # 聚灵杀
+                       "c39879": ["16389", "#00ff00", 0],  # 蛊灭劫
+                       "n131723": ["344", "#00ff77", 0],  # 天灵卫
+                       "c39782": ["16366", "#ff0077", 3000],  # 怒吼
+                       "c39765": ["3446", "#ff7777", 2000],  # 起死回生
+
                        }
 
-        # 邢廷恩数据格式：
+        # 许灵素数据格式：
         # ？
 
 

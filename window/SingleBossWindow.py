@@ -45,6 +45,11 @@ from replayer.boss.yizhiku.Saosh import SaoshWindow
 from replayer.boss.yizhiku.Fedhri import FedhriWindow
 
 from replayer.boss.taijigong.Xingtingen import XingtingenWindow
+from replayer.boss.taijigong.Xulingsu import XulingsuWindow
+from replayer.boss.taijigong.Houqing import HouqingWindow
+from replayer.boss.taijigong.Lixi import LixiWindow
+from replayer.boss.taijigong.Nianle import NianleWindow
+from replayer.boss.taijigong.Yangyuhuan import YangyuhuanWindow
 
 from window.PotExtendWindow import PotExtendWindow
 from window.Window import Window
@@ -300,6 +305,21 @@ class SingleBossWindow(Window):
                                                          analysedBattleData)
             elif detail["boss"] == "邢廷恩":
                 self.specificBossWindow = XingtingenWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,
+                                                         analysedBattleData)
+            elif detail["boss"] == "许灵素":
+                self.specificBossWindow = XulingsuWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,
+                                                         analysedBattleData)
+            elif detail["boss"] == "侯青":
+                self.specificBossWindow = HouqingWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,
+                                                         analysedBattleData)
+            elif detail["boss"] == "李系":
+                self.specificBossWindow = LixiWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,
+                                                         analysedBattleData)
+            elif detail["boss"] == "年勒":
+                self.specificBossWindow = NianleWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,
+                                                         analysedBattleData)
+            elif detail["boss"] == "杨玉环":
+                self.specificBossWindow = YangyuhuanWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,
                                                          analysedBattleData)
             else:
                 self.specificBossWindow = GeneralWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,
