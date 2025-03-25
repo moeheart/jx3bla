@@ -260,7 +260,7 @@ class HouqingReplayer(SpecificReplayerPro):
                                  "s39688",  # 箭雨
                                  "s39683",  # 弧刃千伤
                                  "s39682",  # 破阵摧坚
-                                 "s40469",  # 环斩千荡
+                                 "s40463", "s40436",  # 环斩千荡
                                  "s40439",  # 袭风斩
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)

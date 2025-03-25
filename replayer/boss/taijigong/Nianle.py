@@ -113,7 +113,12 @@ class NianleReplayer(SpecificReplayerPro):
                 if event.caster in self.bld.info.npc and event.heal == 0 and event.scheme == 1:
                     # 尝试记录技能事件
                     name = "s%s" % event.id
-                    if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 3000:
+                    if int(event.id) >= 39845 and int(event.id) <= 39855:
+                        if event.time - self.lastYwt > 1000:
+                            self.bh.setEnvironment("39855", "阎王帖", "341", event.time, 0, 1, "招式命中玩家",
+                                                   "skill")
+                            self.lastYwt = event.time
+                    elif name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 3000:
                         self.bhTime[name] = event.time
                         skillName = self.bld.info.getSkillName(event.full_id)
                         if "," not in skillName:
@@ -159,7 +164,7 @@ class NianleReplayer(SpecificReplayerPro):
         elif event.dataType == "Shout":
             if event.content in ['"擅闯皇宫禁地者死！"', '""']:
                 self.bh.setBadPeriod(self.startTime, event.time - 1000, True, True)
-            elif event.content in ['"不……不想死……叫……叫太医……"', '""']:
+            elif event.content in ['"我败了"', '""']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             elif event.content in ['"哼，真当咱家是摆设不成？让你们尝尝，这雪髓的滋味！去！"', '""']:
@@ -248,22 +253,26 @@ class NianleReplayer(SpecificReplayerPro):
         self.immuneHealer = 0
         self.immuneTime = 0
 
-        self.hlszStart = 0
-        self.hlszNum = 0
+        self.lastYwt = 0
 
-        self.bhBlackList.extend(["s39769", "b30045", "b30268",  # 普攻
-                                 "s39774", "b30147",  # 雪髓引
-                                 "b30146", "b30046", "s39771",  # 逐影式
-                                 "b30161", "b30160", "c39772", "c39773", "s39773", "b30152", "s39780", "b30199",  # （冰魄香）归墟式
-                                 "s40152",  # 垂死挣扎
+        self.bhBlackList.extend(["s39748",  # 普攻
+                                 "s39747",  # 三更雨
+                                 "s39807", "b30034", "b30035", "s39810",  # 淬毒
+                                 "s39839", "s39840",  # 溅射（毒池）
+                                 "s39819", "s39821", "s39824",  # 三连
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
-        self.bhInfo = {"c40022": ["2028", "#ff0000", 3000],  # 雪髓引
-                       "c39770": ["2020", "#ff7700", 4000],  # 逐影式
-                       "c40092": ["345", "#ff0077", 8000],  # 归墟式
-                       "c39779": ["16844", "#00ff00", 0],  # 垂死挣扎
-                       "s39780": ["18567", "#00ff77", 0],  # 冰魄引, 注意技能ID是小球爆炸，并不是技能本身
+        self.bhInfo = {"c40093": ["9568", "#ff0000", 3000],  # 三更雨
+                       "c40150": ["2777", "#ff7700", 1250],  # 淬毒
+                       "c39806": ["2778", "#ff7700", 1500],  # 毒刺
+                       "c39814": ["4529", "#ff7700", 1500],  # 瘴月弧
+                       "c39808": ["4528", "#ff7700", 1500],  # 瘴月弧
+                       "c40097": ["4519", "#0000ff", 2500],  # 瘴气圈地
+                       "s39855": ["4568", "#0077ff", 0],  # 阎王帖 所有等级都用这个
+                       "c39822": ["4531", "#ff0077", 2000],  # 九泉沸
+                       "c39820": ["4530", "#ff0077", 2000],  # 七魄钉
+                       "c39817": ["4529", "#ff0077", 2000],  # 三步血
                        }
 
         # 年勒数据格式：

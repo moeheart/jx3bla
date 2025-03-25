@@ -61,6 +61,10 @@ class YangyuhuanReplayer(SpecificReplayerPro):
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
 
+        print("[Damage]", self.sumDamage)
+        if self.sumDamage > 8928000000 * 0.99:  # 等有喊话以后再说
+            self.win = 1
+
         self.countFinalOverall()
         self.changePhase(self.finalTime, 0)
         self.bh.setEnvironmentInfo(self.bhInfo)
@@ -128,6 +132,7 @@ class YangyuhuanReplayer(SpecificReplayerPro):
                     if event.target in self.bld.info.npc:
                         if self.bld.info.getName(event.target) in ["杨玉环"]:
                             self.bh.setMainTarget(event.target)
+                            self.sumDamage += event.damageEff
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -218,7 +223,7 @@ class YangyuhuanReplayer(SpecificReplayerPro):
         elif event.dataType == "Cast":  # 施放技能事件，jcl专属
             if event.caster in self.bld.info.npc:  # 记录非玩家施放的技能
                 name = "c%s" % event.id
-                if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 2000:
+                if name not in self.bhBlackList and (event.time - self.bhTime.get(name, 0) > 2000 or name == "c39899"):
                     self.bhTime[name] = event.time
                     skillName = self.bld.info.getSkillName(event.full_id)
                     if "," not in skillName:
@@ -248,22 +253,23 @@ class YangyuhuanReplayer(SpecificReplayerPro):
         self.immuneHealer = 0
         self.immuneTime = 0
 
-        self.hlszStart = 0
-        self.hlszNum = 0
+        self.sumDamage = 0
 
-        self.bhBlackList.extend(["s39769", "b30045", "b30268",  # 普攻
-                                 "s39774", "b30147",  # 雪髓引
-                                 "b30146", "b30046", "s39771",  # 逐影式
-                                 "b30161", "b30160", "c39772", "c39773", "s39773", "b30152", "s39780", "b30199",  # （冰魄香）归墟式
-                                 "s40152",  # 垂死挣扎
+        self.bhBlackList.extend(["s39921", "b30167", "s39970",  # 普攻
+                                 "s39894", "s39895", "b30112",  # 杀机+绽放
+                                 "b30115", "b30114", "b30132",  # 控体
+                                 "s39896", "s39897", "s39898",  # 旋风迟
+                                 "b30131", "s39903",  # 烟火
+                                 "b30130", "s39891",  # 刀光
+                                 "b30106",  # 承伤buff
+                                 "b30113",  # 傀儡
+                                 "s40074", "b30255",   # 聚能缠缚
+                                 "s39984",  # 烽火
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
-        self.bhInfo = {"c40022": ["2028", "#ff0000", 3000],  # 雪髓引
-                       "c39770": ["2020", "#ff7700", 4000],  # 逐影式
-                       "c40092": ["345", "#ff0077", 8000],  # 归墟式
-                       "c39779": ["16844", "#00ff00", 0],  # 垂死挣扎
-                       "s39780": ["18567", "#00ff77", 0],  # 冰魄引, 注意技能ID是小球爆炸，并不是技能本身
+        self.bhInfo = {"c39901": ["4567", "#ff0000", 1500],  # 杀机
+                       "c39899": ["2144", "#ff7700", 1750],  # 旋风迟
                        }
 
         # 杨玉环数据格式：

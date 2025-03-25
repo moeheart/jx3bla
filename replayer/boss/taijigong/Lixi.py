@@ -157,28 +157,22 @@ class LixiReplayer(SpecificReplayerPro):
             #         self.bh.setCall("28054", "绿宝石", "2652", event.time, 5000, event.target, "绿宝石点名")
 
         elif event.dataType == "Shout":
-            if event.content in ['"擅闯皇宫禁地者死！"', '""']:
+            if event.content in ['"你们还不配与我一战！"', '""']:
                 self.bh.setBadPeriod(self.startTime, event.time - 1000, True, True)
-            elif event.content in ['"不……不想死……叫……叫太医……"', '""']:
+            elif event.content in ['"天命未尽…这甘露殿困不住真龙！"', '""']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            elif event.content in ['"哼，真当咱家是摆设不成？让你们尝尝，这雪髓的滋味！去！"', '""']:
+            elif event.content in ['"龙啸千山裂，万疆尽伏鳞！"', '""']:
                 pass
-            elif event.content in ['"掌风逐影，如影随形！"', '""']:
+            elif event.content in ['"天若不跪我？那便焚了这天！"', '""']:
                 pass
-            elif event.content in ['"呵呵，既然你们这么喜欢热闹，咱家就送你们一份大礼！——散！"', '""']:
-                self.bh.setEnvironment("39780", "冰魄引", "341", event.time, 0, 1, "招式命中玩家", "skill")
-            elif event.content in ['"万法归墟，皆为我用！"', '""']:
+            elif event.content in ['"够了！竟能把本王逼至此境，那便只能再次血染太极宫！"', '""']:
                 pass
-            elif event.content in ['"贱民……不可玷污皇宫……"', '""']:
-                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
-            elif event.content in ['"不能就这样死了……"', '""']:
-                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
-            elif event.content in ['"废物！什么劳什子大内七绝，连江湖混混都打不过！"', '""']:
-                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
-            elif event.content in ['""', '""']:
+            elif event.content in ['"江淮蛟鳞骨，尽作本王的登龙阶！"', '""']:
                 pass
-            elif event.content in ['""', '""']:
+            elif event.content in ['"这大唐的龙椅，只有本王配得坐！"', '""']:
+                pass
+            elif event.content in ['"看招！"', '""']:
                 pass
             elif event.content in ['""', '""']:
                 pass
@@ -251,19 +245,31 @@ class LixiReplayer(SpecificReplayerPro):
         self.hlszStart = 0
         self.hlszNum = 0
 
-        self.bhBlackList.extend(["s39769", "b30045", "b30268",  # 普攻
-                                 "s39774", "b30147",  # 雪髓引
-                                 "b30146", "b30046", "s39771",  # 逐影式
-                                 "b30161", "b30160", "c39772", "c39773", "s39773", "b30152", "s39780", "b30199",  # （冰魄香）归墟式
-                                 "s40152",  # 垂死挣扎
+        self.bhBlackList.extend(["s39711", "s39725",  # 普攻
+                                 "b29943", "b29946",  # buff
+                                 "b29944", "s39741",  "s39726",  # 怪蟒翻身
+                                 "s39723",  # buff
+                                 "s39719", "s39717",  # 摄魂天罚
+                                 "s39718",  # 蛟腾天罚
+                                 "s39720", "b29948",  # 引气
+                                 "s40057", "s40056",  # 苍蛟覆海
+                                 "s39721", "s39722", "s39727", "s39728",  # 震击
+                                 "s40013",  # 双震
+                                 "s39962", "s39730", "s39767", "s40425",  # 引怀蛟吸
+                                 "b29951", "s39732", "s39731",  # 撒手锏
+                                 "s39715", "s39714", "s39713", "s39729",  # 蛟舞乾坤
+
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
-        self.bhInfo = {"c40022": ["2028", "#ff0000", 3000],  # 雪髓引
-                       "c39770": ["2020", "#ff7700", 4000],  # 逐影式
-                       "c40092": ["345", "#ff0077", 8000],  # 归墟式
-                       "c39779": ["16844", "#00ff00", 0],  # 垂死挣扎
-                       "s39780": ["18567", "#00ff77", 0],  # 冰魄引, 注意技能ID是小球爆炸，并不是技能本身
+        self.bhInfo = {"c39712": ["18963", "#ff0000", 3000],  # 怪蟒翻身
+                       "c40076": ["3447", "#00ff00", 10000],  # 摄魂天罚
+                       "c39739": ["18549", "#0000ff", 10000],  # 引气
+                       "c39996": ["18554", "#00ff77", 3000],  # 震荡
+                       "c39716": ["3429", "#ff7700", 3000],  # 连袭
+                       "c39737": ["3428", "#ff0077", 2000],  # 双震
+                       "c39735": ["4221", "#7700ff", 1000],  # 引怀蛟吸
+                       "c39736": ["18552", "#ff7777", 3000],  # 撒手锏
                        }
 
         # 李系数据格式：
