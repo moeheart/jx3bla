@@ -1337,8 +1337,8 @@ class ActorProReplayer(ReplayerBase):
 
         self.server = self.bld.info.server
 
-        if self.server not in ["太极密录", "梦回江南"]:
-            raise Exception("这是体服专属版本，只能用于太极密录版本的测试服。")
+        if self.server not in ["太极秘录", "梦回江南"]:
+            raise Exception("这是体服专属版本，只能用于太极秘录版本的测试服。")
 
         ids = {}
         for line in self.bld.info.player:
