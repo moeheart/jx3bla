@@ -652,7 +652,7 @@ class ActorProReplayer(ReplayerBase):
                              "zzm": {"flag": 0, "id": "0", "stack": 0}}
 
         # 记录模式
-        self.logMode = 1
+        self.logMode = 0
         logSkill = {  # 名称，生效等级，保护时间ms，最多人数，不计算T，伤害阈值
             "40463": ["3号幻歌", 0, 0, 999, 0, -1],
             "40439": ["3号圆形", 0, 0, 999, 0, -1],

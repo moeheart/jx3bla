@@ -81,9 +81,9 @@ class XingtingenReplayer(SpecificReplayerPro):
                 bossResult.append(res)
         self.statList = bossResult
 
-        if self.win == 1:
-            print("[Debug] Win!!! Yet disabled for debugging")
-            self.win = 0
+        # if self.win == 1:
+        #     print("[Debug] Win!!! Yet disabled for debugging")
+        #     self.win = 0
 
         return self.statList, self.potList, self.detail, self.stunCounter
 
