@@ -12309,7 +12309,7 @@ ID	Name	UIID	AttriName	Attribute1ID	Attribute1Value1	Attribute1Value2	Score	Diam
 15936	于阗玉川·御·帽	帽子限时大附魔		atSkillEventHandler	2842																											60	3				11	0
 15937	于阗玉川·疗·腰	腰带限时大附魔		atSkillEventHandler	2838																											60	6				11	0
 15938	于阗玉川·疗·鞋	鞋子限时大附魔		atSkillEventHandler	2843																											60	9				11	0
-15939	于阗玉川·疗·腕	护手限时大附魔		atSkillEventHandler	3836																											60	10				11	0
+15939	于阗玉川·疗·腕	护手限时大附魔		atSkillEventHandler	2836																											60	10				11	0
 15940	于阗玉川·疗·衣	上装限时大附魔		atSkillEventHandler	2837																											60	2				11	0
 15941	于阗玉川·疗·帽	帽子限时大附魔		atExecuteScript	skill/装备/帽子_新附魔_治疗非战斗附魔减读条.lua																											60	3				3	0
 15942	于阗玉川·伤·腰	腰带限时大附魔		atSkillEventHandler	2833																											60	6				11	0
