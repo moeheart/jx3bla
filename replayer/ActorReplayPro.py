@@ -1387,6 +1387,10 @@ class ActorProReplayer(ReplayerBase):
                     if self.penaltyCount[player][key] < 0:
                         self.penaltyCount[player][key] = 0
 
+            if self.win == 1:
+                print("Reset win to 0 for debugging...")
+                self.win = 0
+
             # 不计算T心法中的一些技能
             exemptDict = {}
             for key in logSkill:

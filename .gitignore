@@ -25,6 +25,7 @@ server.crt
 server.pem
 jldCount/
 llfCount/
+tjgCount/
 codeHistories.git
 .vscode
 venv
