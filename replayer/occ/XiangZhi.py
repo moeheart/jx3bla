@@ -160,7 +160,7 @@ class XiangZhiProWindow(HealerDisplayWindow):
         for line in imFile:
             imID = line.split('.')[0]
             if line.split('.')[1] == "png":
-                canvas6.imDict[imID] = Image.open("icons/%s.png" % imID).resize((20, 20), Image.ANTIALIAS)
+                canvas6.imDict[imID] = Image.open("icons/%s.png" % imID).resize((20, 20), Image.LANCZOS)
                 canvas6.im[imID] = ImageTk.PhotoImage(canvas6.imDict[imID])
 
         #canvas6 = tk.Canvas(frame6sub, width=battleTimePixels, height=125)

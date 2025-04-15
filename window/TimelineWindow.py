@@ -93,7 +93,7 @@ class TimelineWindow(Window):
         for line in imFile:
             imID = line.split('.')[0]
             if line.split('.')[1] == "png":
-                canvas.imDict[imID] = Image.open("icons/%s.png" % imID).resize((20, 20), Image.ANTIALIAS)
+                canvas.imDict[imID] = Image.open("icons/%s.png" % imID).resize((20, 20), Image.LANCZOS)
                 canvas.im[imID] = ImageTk.PhotoImage(canvas.imDict[imID])
 
         for i in range(numRows):
