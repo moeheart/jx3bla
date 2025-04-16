@@ -199,3 +199,5 @@ if __name__ == "__main__":
     # equips = im.importData(str)
     # print(equips)
 
+# [colorID] 73408
+# [colorAttrib] ['atHasteBase', '1463']

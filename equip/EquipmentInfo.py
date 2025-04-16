@@ -119,7 +119,8 @@ class EquipmentInfo():
                     first = False
                 else:
                     content = line.strip('\n').split('\t')
-                    if content[7] == "":  # 只记录最简单的形式
+                    # if content[7] == "":  # 只记录最简单的形式
+                    if "彩" not in content[1]:
                         self.enchant[content[0]] = [content[4], content[5]]
                     else:  # 记录五彩石形式
                         self.enchant[content[0]] = [content[4], content[5], content[10], content[11],
