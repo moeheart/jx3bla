@@ -98520,3 +98520,6 @@ ID	Value	ModifyType	Param1Min	Param1Max	Param2Min	Param2Max	Group1	Group2	Group3
 98519		atMagicAttackPowerBase	3905	3905												
 98520		atHasteBase	9307	9307												
 98521		atStrainBase	7536	7536												
+98522		atMagicShield	5989	5989												
+98523	0	atSkillEventHandler	2848	2848	0	0	0	0	0	0	0	0	0	0	0	0
+98524	0	atSkillEventHandler	2849	2849	0	0	0	0	0	0	0	0	0	0	0	0
