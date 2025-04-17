@@ -275,9 +275,9 @@ class XulingsuReplayer(SpecificReplayerPro):
 
 
         if self.bld.info.map == "太极宫":
-            self.bh.critPeriodDesc = "待定."
+            self.bh.critPeriodDesc = "暂无."
         if self.bld.info.map == "25人普通太极宫":
-            self.bh.critPeriodDesc = "待定."  # [垂死挣扎]期间.
+            self.bh.critPeriodDesc = "暂无."
         if self.bld.info.map == "25人英雄太极宫":
             self.bh.critPeriodDesc = "待定."
 

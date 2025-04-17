@@ -113,15 +113,18 @@ class NianleReplayer(SpecificReplayerPro):
                 if event.caster in self.bld.info.npc and event.heal == 0 and event.scheme == 1:
                     # 尝试记录技能事件
                     name = "s%s" % event.id
-                    if int(event.id) >= 39845 and int(event.id) <= 39855:
-                        if event.time - self.lastYwt > 1000:
-                            self.bh.setEnvironment("39855", "阎王帖", "341", event.time, 0, 1, "招式命中玩家",
-                                                   "skill")
-                            self.lastYwt = event.time
+                    if int(event.id) >= 39845 and int(event.id) <= 39855 and event.time - self.lastYwt > 1000:
+                        self.bh.setEnvironment("39855", "阎王帖", "341", event.time, 0, 1, "招式命中玩家",
+                                               "skill")
+                        self.lastYwt = event.time
+                        if event.time - self.lastGroupYwt >= 30000:
+                            self.bh.setCritPeriod(event.time, event.time + 18000, False, True)
+                            self.lastGroupYwt = event.time
+
                     elif name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 3000:
                         self.bhTime[name] = event.time
                         skillName = self.bld.info.getSkillName(event.full_id)
-                        if "," not in skillName:
+                        if "," not in skillName and skillName != "阎王帖":
                             key = "s%s" % event.id
                             if key in self.bhInfo or self.debug:
                                 self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式命中玩家",
@@ -162,32 +165,22 @@ class NianleReplayer(SpecificReplayerPro):
             #         self.bh.setCall("28054", "绿宝石", "2652", event.time, 5000, event.target, "绿宝石点名")
 
         elif event.dataType == "Shout":
-            if event.content in ['"擅闯皇宫禁地者死！"', '""']:
+            if event.content in ['"无根无名人，归来无家门。"', '""']:
                 self.bh.setBadPeriod(self.startTime, event.time - 1000, True, True)
             elif event.content in ['"我败了"', '""']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            elif event.content in ['"哼，真当咱家是摆设不成？让你们尝尝，这雪髓的滋味！去！"', '""']:
+            elif event.content in ['"三更雨，道迷离。"', '""']:
                 pass
-            elif event.content in ['"掌风逐影，如影随形！"', '""']:
+            elif event.content in ['"白刃见，阎罗现。"', '""']:
                 pass
-            elif event.content in ['"呵呵，既然你们这么喜欢热闹，咱家就送你们一份大礼！——散！"', '""']:
-                self.bh.setEnvironment("39780", "冰魄引", "341", event.time, 0, 1, "招式命中玩家", "skill")
-            elif event.content in ['"万法归墟，皆为我用！"', '""']:
+            elif event.content in ['"天南身无生。"', '""']:
                 pass
-            elif event.content in ['"贱民……不可玷污皇宫……"', '""']:
-                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
-            elif event.content in ['"不能就这样死了……"', '""']:
-                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
-            elif event.content in ['"废物！什么劳什子大内七绝，连江湖混混都打不过！"', '""']:
-                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
-            elif event.content in ['""', '""']:
+            elif event.content in ['"九泉难送魂!"', '""']:
                 pass
-            elif event.content in ['""', '""']:
+            elif event.content in ['"地北首离分!"', '""']:
                 pass
-            elif event.content in ['""', '""']:
-                pass
-            elif event.content in ['""', '""']:
+            elif event.content in ['"七魄钉棺内!"', '""']:
                 pass
             elif event.content in ['""', '""']:
                 pass
@@ -254,6 +247,7 @@ class NianleReplayer(SpecificReplayerPro):
         self.immuneTime = 0
 
         self.lastYwt = 0
+        self.lastGroupYwt = 0
 
         self.bhBlackList.extend(["s39748",  # 普攻
                                  "s39747",  # 三更雨
@@ -280,9 +274,9 @@ class NianleReplayer(SpecificReplayerPro):
 
 
         if self.bld.info.map == "太极宫":
-            self.bh.critPeriodDesc = "待定."
+            self.bh.critPeriodDesc = "[阎王帖]期间，从第一次伤害出现到第五次伤害出现."
         if self.bld.info.map == "25人普通太极宫":
-            self.bh.critPeriodDesc = "待定."  # [垂死挣扎]期间.
+            self.bh.critPeriodDesc = "[阎王帖]期间，从第一次伤害出现到第七次伤害出现."
         if self.bld.info.map == "25人英雄太极宫":
             self.bh.critPeriodDesc = "待定."
 

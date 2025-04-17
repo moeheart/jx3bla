@@ -122,6 +122,10 @@ class LixiReplayer(SpecificReplayerPro):
                                 self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式命中玩家",
                                                        "skill")
 
+                if event.id == "39719" and event.time - self.lastShtf >= 10000:  # 摄魂天罚
+                    self.bh.setCritPeriod(event.time, event.time + 3500, False, True)
+                    self.lastShtf = event.time
+
             else:
                 if event.caster in self.bld.info.player and event.caster in self.statDict:
                     # self.stat[event.caster][2] += event.damageEff
@@ -174,7 +178,7 @@ class LixiReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"看招！"', '""']:
                 pass
-            elif event.content in ['""', '""']:
+            elif event.content in ['"啊!!!"', '""']:
                 pass
             elif event.content in ['""', '""']:
                 pass
@@ -242,8 +246,7 @@ class LixiReplayer(SpecificReplayerPro):
         self.immuneHealer = 0
         self.immuneTime = 0
 
-        self.hlszStart = 0
-        self.hlszNum = 0
+        self.lastShtf = 0
 
         self.bhBlackList.extend(["s39711", "s39725",  # 普攻
                                  "b29943", "b29946",  # buff
@@ -254,7 +257,7 @@ class LixiReplayer(SpecificReplayerPro):
                                  "s39720", "b29948",  # 引气
                                  "s40057", "s40056",  # 苍蛟覆海
                                  "s39721", "s39722", "s39727", "s39728",  # 震击
-                                 "s40013",  # 双震
+                                 "s40013", "s40094", # 双震
                                  "s39962", "s39730", "s39767", "s40425",  # 引怀蛟吸
                                  "b29951", "s39732", "s39731",  # 撒手锏
                                  "s39715", "s39714", "s39713", "s39729",  # 蛟舞乾坤
@@ -277,9 +280,9 @@ class LixiReplayer(SpecificReplayerPro):
 
 
         if self.bld.info.map == "太极宫":
-            self.bh.critPeriodDesc = "待定."
+            self.bh.critPeriodDesc = "暂无."
         if self.bld.info.map == "25人普通太极宫":
-            self.bh.critPeriodDesc = "待定."  # [垂死挣扎]期间.
+            self.bh.critPeriodDesc = "[摄魂天罚]吸引期间，从第一次伤害出现到第八次伤害出现，每轮3.5秒。\n如果未施放过这个技能，则不记录。"  #
         if self.bld.info.map == "25人英雄太极宫":
             self.bh.critPeriodDesc = "待定."
 

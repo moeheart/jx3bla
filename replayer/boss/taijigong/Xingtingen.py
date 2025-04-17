@@ -162,6 +162,7 @@ class XingtingenReplayer(SpecificReplayerPro):
             elif event.content in ['"不……不想死……叫……叫太医……"', '""']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+                self.bh.setCritPeriod(self.cszzStart, event.time, False, True)
             elif event.content in ['"哼，真当咱家是摆设不成？让你们尝尝，这雪髓的滋味！去！"', '""']:
                 pass
             elif event.content in ['"掌风逐影，如影随形！"', '""']:
@@ -176,6 +177,7 @@ class XingtingenReplayer(SpecificReplayerPro):
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
             elif event.content in ['"废物！什么劳什子大内七绝，连江湖混混都打不过！"', '""']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
+                self.cszzStart = event.time
             elif event.content in ['""', '""']:
                 pass
             elif event.content in ['""', '""']:
@@ -248,8 +250,7 @@ class XingtingenReplayer(SpecificReplayerPro):
         self.immuneHealer = 0
         self.immuneTime = 0
 
-        self.hlszStart = 0
-        self.hlszNum = 0
+        self.cszzStart = 0
 
         self.bhBlackList.extend(["s39769", "b30045", "b30268",  # 普攻
                                  "s39774", "b30147",  # 雪髓引
@@ -271,11 +272,11 @@ class XingtingenReplayer(SpecificReplayerPro):
 
 
         if self.bld.info.map == "太极宫":
-            self.bh.critPeriodDesc = "待定."
+            self.bh.critPeriodDesc = "[垂死挣扎]期间."
         if self.bld.info.map == "25人普通太极宫":
-            self.bh.critPeriodDesc = "待定."  # [垂死挣扎]期间.
+            self.bh.critPeriodDesc = "[垂死挣扎]期间."
         if self.bld.info.map == "25人英雄太极宫":
-            self.bh.critPeriodDesc = "待定."
+            self.bh.critPeriodDesc = "[垂死挣扎]期间."
 
         for line in self.bld.info.player:
             pass

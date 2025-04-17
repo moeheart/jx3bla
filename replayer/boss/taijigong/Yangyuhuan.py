@@ -61,9 +61,9 @@ class YangyuhuanReplayer(SpecificReplayerPro):
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
 
-        print("[Damage]", self.sumDamage)
-        if self.sumDamage > 8928000000 * 0.99:  # 等有喊话以后再说
-            self.win = 1
+        # print("[Damage]", self.sumDamage)
+        # if self.sumDamage > 8928000000 * 0.99:  # 等有喊话以后再说
+        #     self.win = 1
 
         self.countFinalOverall()
         self.changePhase(self.finalTime, 0)
@@ -126,6 +126,10 @@ class YangyuhuanReplayer(SpecificReplayerPro):
                                 self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式命中玩家",
                                                        "skill")
 
+                if event.id == "39984" and event.time - self.lastFenghuo >= 10000:  # 烽火
+                    self.bh.setCritPeriod(event.time, event.time + 2000, False, True)
+                    self.lastFenghuo = event.time
+
             else:
                 if event.caster in self.bld.info.player and event.caster in self.statDict:
                     # self.stat[event.caster][2] += event.damageEff
@@ -162,26 +166,16 @@ class YangyuhuanReplayer(SpecificReplayerPro):
             #         self.bh.setCall("28054", "绿宝石", "2652", event.time, 5000, event.target, "绿宝石点名")
 
         elif event.dataType == "Shout":
-            if event.content in ['"擅闯皇宫禁地者死！"', '""']:
+            if event.content in ['"梨园旧谱翻新怨，血丝缠玉恨无常。玉环本是谪仙降，错付骊山薄幸郎。"', '""']:
                 self.bh.setBadPeriod(self.startTime, event.time - 1000, True, True)
-            elif event.content in ['"不……不想死……叫……叫太医……"', '""']:
+            elif event.content in ['"霓裳碎处金钗落，丝弦迸血玉人凉。梨园悲散哀玉殒，千古犹唱骂昏王！"', '""']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            elif event.content in ['"哼，真当咱家是摆设不成？让你们尝尝，这雪髓的滋味！去！"', '""']:
+            elif event.content in ['"寒光凛冽！"', '""']:
                 pass
-            elif event.content in ['"掌风逐影，如影随形！"', '""']:
+            elif event.content in ['"烈焰缤纷！"', '""']:
                 pass
-            elif event.content in ['"呵呵，既然你们这么喜欢热闹，咱家就送你们一份大礼！——散！"', '""']:
-                self.bh.setEnvironment("39780", "冰魄引", "341", event.time, 0, 1, "招式命中玩家", "skill")
-            elif event.content in ['"万法归墟，皆为我用！"', '""']:
-                pass
-            elif event.content in ['"贱民……不可玷污皇宫……"', '""']:
-                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
-            elif event.content in ['"不能就这样死了……"', '""']:
-                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
-            elif event.content in ['"废物！什么劳什子大内七绝，连江湖混混都打不过！"', '""']:
-                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
-            elif event.content in ['""', '""']:
+            elif event.content in ['"琼台舞罢星斗黯，金缕衣沾荔枝香。骊宫春醉笙箫乱，罗帷交盏夜未央。"', '""']:
                 pass
             elif event.content in ['""', '""']:
                 pass
@@ -255,9 +249,11 @@ class YangyuhuanReplayer(SpecificReplayerPro):
 
         self.sumDamage = 0
 
+        self.lastFenghuo = 0
+
         self.bhBlackList.extend(["s39921", "b30167", "s39970",  # 普攻
                                  "s39894", "s39895", "b30112",  # 杀机+绽放
-                                 "b30115", "b30114", "b30132",  # 控体
+                                 "b30115", "b30114", "b30132", "b30788",  # 控体
                                  "s39896", "s39897", "s39898",  # 旋风迟
                                  "b30131", "s39903",  # 烟火
                                  "b30130", "s39891",  # 刀光
@@ -277,9 +273,9 @@ class YangyuhuanReplayer(SpecificReplayerPro):
 
 
         if self.bld.info.map == "太极宫":
-            self.bh.critPeriodDesc = "待定."
+            self.bh.critPeriodDesc = "暂无."
         if self.bld.info.map == "25人普通太极宫":
-            self.bh.critPeriodDesc = "待定."  # [垂死挣扎]期间.
+            self.bh.critPeriodDesc = "[烽火]的两次承伤间隔期间.\n由于部分打法中需要快速抬血，chps在这里是有意义的。"
         if self.bld.info.map == "25人英雄太极宫":
             self.bh.critPeriodDesc = "待定."
 

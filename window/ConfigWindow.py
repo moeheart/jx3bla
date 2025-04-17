@@ -262,7 +262,7 @@ class ConfigWindow(Window):
         window = tk.Toplevel(self.mainWindow)
         # window = tk.Tk()
         window.title('设置')
-        window.geometry('400x300')
+        window.geometry('500x300')
 
         notebook = ttk.Notebook(window)
 

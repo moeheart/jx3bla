@@ -122,6 +122,10 @@ class HouqingReplayer(SpecificReplayerPro):
                                 self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式命中玩家",
                                                        "skill")
 
+                if event.id == "39687" and event.time - self.lastFxz >= 15000:  # 覆血斩判断
+                    self.bh.setCritPeriod(event.time, event.time + 15000, False, True)
+                    self.lastFxz = event.time
+
             else:
                 if event.caster in self.bld.info.player and event.caster in self.statDict:
                     # self.stat[event.caster][2] += event.damageEff
@@ -159,27 +163,17 @@ class HouqingReplayer(SpecificReplayerPro):
         elif event.dataType == "Shout":
             if event.content in ['""', '""']:
                 self.bh.setBadPeriod(self.startTime, event.time - 1000, True, True)
-            elif event.content in ['""', '""']:
+            elif event.content in ['"此刃为殿下斩过二十七员敌将……余下一命，侯青只能用命来还了……"', '""']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             elif event.content in ['"快来我身边！"', '""']:
                 pass
-            elif event.content in ['"掌风逐影，如影随形！"', '""']:
-                pass
-            elif event.content in ['"呵呵，既然你们这么喜欢热闹，咱家就送你们一份大礼！——散！"', '""']:
-                self.bh.setEnvironment("39780", "冰魄引", "341", event.time, 0, 1, "招式命中玩家", "skill")
-            elif event.content in ['"万法归墟，皆为我用！"', '""']:
-                pass
-            elif event.content in ['"贱民……不可玷污皇宫……"', '""']:
+            elif event.content in ['"都让开！我来一战！"', '""']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
-            elif event.content in ['"不能就这样死了……"', '""']:
-                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
-            elif event.content in ['"废物！什么劳什子大内七绝，连江湖混混都打不过！"', '""']:
-                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
-            elif event.content in ['""', '""']:
+            elif event.content in ['"哪里逃！"', '""']:
                 pass
-            elif event.content in ['""', '""']:
-                pass
+            elif event.content in ['"众将听令！先取那畏缩之人的首级！"', '""']:
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
             elif event.content in ['""', '""']:
                 pass
             elif event.content in ['""', '""']:
@@ -251,17 +245,21 @@ class HouqingReplayer(SpecificReplayerPro):
         self.hlszStart = 0
         self.hlszNum = 0
 
+        self.lastFxz = 0
+
         self.bhBlackList.extend(["s39674",  # 普攻
                                  "b29975", "s39687",  # 覆血斩
                                  "s39691",  # 枪卫冲锋
                                  "b29985", "b29986", "b29987",  # 梁天火buff
                                  "s40316", "s39704", "b30235",  # 横断山河
-                                 "s39703", "s39676", "s39679", "b29971", "s39681",  # 三连
+                                 "s39703", "s39676", "s39679", "b29971", "s39681", "s40600",  # 三连
                                  "s39688",  # 箭雨
                                  "s39683",  # 弧刃千伤
                                  "s39682",  # 破阵摧坚
                                  "s40463", "s40436",  # 环斩千荡
                                  "s40439",  # 袭风斩
+                                 "s39706", "s39689",  # 利刃断躯
+                                 "c40805",  # 神威浩荡(二段)
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
@@ -270,7 +268,7 @@ class HouqingReplayer(SpecificReplayerPro):
                        "c39698": ["3407", "#ff0077", 3000],  # 利刃断躯
                        "c39699": ["335", "#ff7777", 4000],  # 箭雨
                        "c39693": ["2141", "#ff0000", 4000],  # 一箭穿心
-                       "c39702": ["4496", "#0077ff", 8000],  # 神威浩荡
+                       "c39702": ["4496", "#0077ff", 12000],  # 神威浩荡
                        "c39683": ["4531", "#ff7700", 3000],  # 弧刃千伤
                        "c39675": ["3430", "#7700ff", 4000],  # 三连
                        "c39682": ["2029", "#00ff77", 3000],  # 破阵摧坚
@@ -284,11 +282,11 @@ class HouqingReplayer(SpecificReplayerPro):
 
 
         if self.bld.info.map == "太极宫":
-            self.bh.critPeriodDesc = "待定."
+            self.bh.critPeriodDesc = "暂无."
         if self.bld.info.map == "25人普通太极宫":
-            self.bh.critPeriodDesc = "待定."  # [垂死挣扎]期间.
+            self.bh.critPeriodDesc = "[覆血斩]dot期间."
         if self.bld.info.map == "25人英雄太极宫":
-            self.bh.critPeriodDesc = "待定."
+            self.bh.critPeriodDesc = "[覆血斩]dot期间."
 
         for line in self.bld.info.player:
             pass
