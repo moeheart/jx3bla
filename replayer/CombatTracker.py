@@ -1072,6 +1072,8 @@ class CombatTracker():
                 source = self.zxyzCaster
             if effect_id in ["2,26820,1", "2,26821,1", "2,27541,1"]:  # 一些环境buff
                 source = "*环境增益"
+            if effect_id in ["2,20854,1"] and self.zyhrDict.get(event.target, "0") != "0":  # 新飘黄加无双buff
+                source = self.zyhrDict.get(event.target, "0")
             # 不考虑战斗中的常驻buff
             if event.id in ["362", "673"]:  # 雷、袖气
                 skipFlag = True
