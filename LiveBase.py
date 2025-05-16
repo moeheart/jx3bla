@@ -269,7 +269,7 @@ class LiveActorAnalysis():
         - rank: logs排名.
         '''
         if player not in self.playerRank:
-            self.playerRank[player] = [0] * 7
+            self.playerRank[player] = [0] * 9
         if boss in BOSS_DICT:
             bossID = BOSS_DICT[boss]
             self.playerRank[player][bossID] = rank

@@ -64,6 +64,7 @@ from replayer.boss.taijigong.Houqing import HouqingReplayer
 from replayer.boss.taijigong.Lixi import LixiReplayer
 from replayer.boss.taijigong.Nianle import NianleReplayer
 from replayer.boss.taijigong.Yangyuhuan import YangyuhuanReplayer
+from replayer.boss.taijigong.Chiqingchuan import ChiqingchuanReplayer
 
 from replayer.occ.XiangZhi import XiangZhiProReplayer
 from replayer.occ.LingSu import LingSuReplayer
@@ -284,13 +285,13 @@ class ActorProReplayer(ReplayerBase):
                     "芭德"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "芭德"
                 if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "邢廷恩", "马英俊", "朱光辉"] and self.bossAnalyseName == "未知":
+                    "邢廷恩", "马英俊", "朱光辉", "馬英俊", "朱光輝"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "邢廷恩"
                 if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "许灵素", "天灵卫", "地灵卫"] and self.bossAnalyseName == "未知":
+                    "许灵素", "天灵卫", "地灵卫", "許靈素", "天靈衛", "地靈衛"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "许灵素"
                 if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "弓兵", "枪兵", "侯青"] and self.bossAnalyseName == "未知":
+                    "弓兵", "枪兵", "侯青", "弓衛"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "侯青"
                 if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
                     "李系"] and self.bossAnalyseName == "未知":
@@ -299,8 +300,11 @@ class ActorProReplayer(ReplayerBase):
                     "年勒"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "年勒"
                 if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "杨玉环"] and self.bossAnalyseName == "未知":
+                    "杨玉环", "楊玉環"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "杨玉环"
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
+                    "池清川", "白蛟", "黑蛟"] and self.bossAnalyseName == "未知":
+                    self.bossAnalyseName = "池清川"
 
                 # 通过技能确定具体心法
                 if event.caster in occDetailList and event.scheme == 1 and occDetailList[event.caster] in ['1', '2',
@@ -489,6 +493,8 @@ class ActorProReplayer(ReplayerBase):
         self.dps = {}
         self.deathName = {}
 
+        print("[bossAnalyseName]", self.bossAnalyseName)
+
         if self.bossAnalyseName == "张景超":
             bossAnalyser = ZhangJingchaoReplayer(self.bld, occDetailList, self.startTime,
                                                  self.finalTime, self.battleTime, self.bossNamePrint, self.config)
@@ -596,6 +602,9 @@ class ActorProReplayer(ReplayerBase):
                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
         elif self.bossAnalyseName == "杨玉环":
             bossAnalyser = YangyuhuanReplayer(self.bld, occDetailList, self.startTime,
+                                          self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "池清川":
+            bossAnalyser = ChiqingchuanReplayer(self.bld, occDetailList, self.startTime,
                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
         else:
             bossAnalyser = GeneralReplayer(self.bld, occDetailList, self.startTime,
@@ -1404,7 +1413,7 @@ class ActorProReplayer(ReplayerBase):
 
             num = 0
             BOSS_NAME = {"魏华": 1, "钟不归": 2, "岑伤": 3, "鬼筹": 4, "麒麟": 5, "月泉淮": 6, "葛木寒": 1, "雨轻红": 2,
-                         "喜雅": 3, "鹰眼客": 4, "赤幽明": 5, "邢廷恩": 1, "许灵素": 2, "侯青": 3, "李系": 4, "年勒": 5, "杨玉环": 6}
+                         "喜雅": 3, "鹰眼客": 4, "赤幽明": 5, "邢廷恩": 1, "许灵素": 2, "侯青": 3, "李系": 4, "年勒": 5, "杨玉环": 6, "池清川": 1, "李倓": 2}
             if self.bossAnalyseName in BOSS_NAME:
                 num = BOSS_NAME[self.bossAnalyseName]
 
@@ -1453,7 +1462,7 @@ class ActorProReplayer(ReplayerBase):
         if self.logMode:
             num = 0
             BOSS_NAME = {"魏华": 1, "钟不归": 2, "岑伤": 3, "鬼筹": 4, "麒麟": 5, "月泉淮": 6, "葛木寒": 1, "雨轻红": 2,
-                         "喜雅": 3, "鹰眼客": 4, "赤幽明": 5, "邢廷恩": 1, "许灵素": 2, "侯青": 3, "李系": 4, "年勒": 5, "杨玉环": 6}
+                         "喜雅": 3, "鹰眼客": 4, "赤幽明": 5, "邢廷恩": 1, "许灵素": 2, "侯青": 3, "李系": 4, "年勒": 5, "杨玉环": 6, "池清川": 1, "李倓": 2}
             if self.bossAnalyseName in BOSS_NAME:
                 num = BOSS_NAME[self.bossAnalyseName]
 

@@ -61,6 +61,10 @@ class NianleReplayer(SpecificReplayerPro):
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
 
+        print("[Damage]", self.sumDamage)
+        if self.sumDamage > self.bossMaxHp * 0.9:  # 等有喊话以后再说
+            self.win = 1
+
         self.countFinalOverall()
         self.changePhase(self.finalTime, 0)
         self.bh.setEnvironmentInfo(self.bhInfo)
@@ -136,6 +140,7 @@ class NianleReplayer(SpecificReplayerPro):
                     if event.target in self.bld.info.npc:
                         if self.bld.info.getName(event.target) in ["年勒"]:
                             self.bh.setMainTarget(event.target)
+                            self.sumDamage += event.damageEff
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -165,24 +170,24 @@ class NianleReplayer(SpecificReplayerPro):
             #         self.bh.setCall("28054", "绿宝石", "2652", event.time, 5000, event.target, "绿宝石点名")
 
         elif event.dataType == "Shout":
-            if event.content in ['"无根无名人，归来无家门。"', '""']:
+            if event.content in ['"无根无名人，归来无家门。"', '"無根無名人，歸來無家門。"']:
                 self.bh.setBadPeriod(self.startTime, event.time - 1000, True, True)
-            elif event.content in ['"我败了"', '""']:
+            elif event.content in ['"我败了"', '"我敗了"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            elif event.content in ['"三更雨，道迷离。"', '""']:
+            elif event.content in ['"三更雨，道迷离。"', '"三更雨，道迷離。"']:
                 pass
-            elif event.content in ['"白刃见，阎罗现。"', '""']:
+            elif event.content in ['"白刃见，阎罗现。"', '"白刃見，閻羅現。"']:
                 pass
-            elif event.content in ['"天南身无生。"', '""']:
+            elif event.content in ['"天南身无生。"', '"天南身無生。"']:
                 pass
-            elif event.content in ['"九泉难送魂!"', '""']:
+            elif event.content in ['"九泉难送魂!"', '"九泉難送魂!"']:
                 pass
-            elif event.content in ['"地北首离分!"', '""']:
+            elif event.content in ['"地北首离分!"', '"地北首離分!"']:
                 pass
-            elif event.content in ['"七魄钉棺内!"', '""']:
+            elif event.content in ['"七魄钉棺内!"', '"七魄釘棺內!"']:
                 pass
-            elif event.content in ['""', '""']:
+            elif event.content in ['"一技四十载，可度百岁魂！"', '"一技四十載，可度百歲魂！"']:
                 pass
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
@@ -249,11 +254,16 @@ class NianleReplayer(SpecificReplayerPro):
         self.lastYwt = 0
         self.lastGroupYwt = 0
 
+        self.sumDamage = 0
+
         self.bhBlackList.extend(["s39748",  # 普攻
-                                 "s39747",  # 三更雨
+                                 "s39747", "b30260",  # 三更雨
                                  "s39807", "b30034", "b30035", "s39810",  # 淬毒
                                  "s39839", "s39840",  # 溅射（毒池）
                                  "s39819", "s39821", "s39824",  # 三连
+                                 "s39792", "b30031",  # 毒雾环境
+                                 "s39803",  # 丧魂刺
+                                 "s39800",  # 断喉
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
@@ -267,18 +277,24 @@ class NianleReplayer(SpecificReplayerPro):
                        "c39822": ["4531", "#ff0077", 2000],  # 九泉沸
                        "c39820": ["4530", "#ff0077", 2000],  # 七魄钉
                        "c39817": ["4529", "#ff0077", 2000],  # 三步血
+                       "c39798": ["4522", "#ff3300", 3000],  # 断喉
+                       "c40722": ["4522", "#77ff00", 2000],  # 丧魂刺
                        }
 
         # 年勒数据格式：
         # ？
 
+        self.bossMaxHp = 0
 
         if self.bld.info.map == "太极宫":
             self.bh.critPeriodDesc = "[阎王帖]期间，从第一次伤害出现到第五次伤害出现."
+            self.bossMaxHp = 1347840000 * 0.7
         if self.bld.info.map == "25人普通太极宫":
             self.bh.critPeriodDesc = "[阎王帖]期间，从第一次伤害出现到第七次伤害出现."
+            self.bossMaxHp = 8736000000 * 0.85
         if self.bld.info.map == "25人英雄太极宫":
-            self.bh.critPeriodDesc = "待定."
+            self.bh.critPeriodDesc = "[阎王帖]期间，从第一次伤害出现到第七次伤害出现."
+            self.bossMaxHp = 16255680000
 
         for line in self.bld.info.player:
             pass

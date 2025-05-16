@@ -1,5 +1,5 @@
-# Created by moeheart at 03/21/2025
-# 许灵素的定制复盘库。
+# Created by moeheart at 04/19/2025
+# 池清川的定制复盘库。
 # 功能待定。
 
 from window.SpecificBossWindow import SpecificBossWindow
@@ -10,16 +10,16 @@ from tools.Functions import *
 import tkinter as tk
 
 
-class XulingsuWindow(SpecificBossWindow):
+class ChiqingchuanWindow(SpecificBossWindow):
     '''
-    许灵素的定制复盘窗口类。
+    池清川的定制复盘窗口类。
     '''
 
     def loadWindow(self):
         '''
         使用tkinter绘制详细复盘窗口。
         '''
-        self.constructWindow("许灵素", "1200x800")
+        self.constructWindow("池清川", "1200x800")
         window = self.window
 
         frame1 = tk.Frame(window)
@@ -31,7 +31,7 @@ class XulingsuWindow(SpecificBossWindow):
         tb = TableConstructorMeta(self.config, frame1)
 
         self.constructCommonHeader(tb, "")
-        # tb.AppendHeader("图腾伤害", "对图腾造成的伤害。")
+        tb.AppendHeader("P2伤害", "在P2期间（转P伤害出现后）对BOSS的有效伤害。此处为原始伤害，暂不支持rdps的单独统计。")
         tb.AppendHeader("心法复盘", "心法专属的复盘模式，只有很少心法中有实现。")
         tb.EndOfLine()
 
@@ -39,7 +39,7 @@ class XulingsuWindow(SpecificBossWindow):
             line = self.effectiveDPSList[i]
             self.constructCommonLine(tb, line)
 
-            # tb.AppendContext(int(line["battle"]["yztzDamage"]), color="#000000")
+            tb.AppendContext(int(line["battle"]["P2Damage"]), color="#000000")
 
             # 心法复盘
             if line["name"] in self.occResult:
@@ -54,7 +54,7 @@ class XulingsuWindow(SpecificBossWindow):
         super().__init__(config, effectiveDPSList, detail, occResult, analysedBattleData)
 
 
-class XulingsuReplayer(SpecificReplayerPro):
+class ChiqingchuanReplayer(SpecificReplayerPro):
 
     def countFinal(self):
         '''
@@ -122,12 +122,18 @@ class XulingsuReplayer(SpecificReplayerPro):
                                 self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式命中玩家",
                                                        "skill")
 
+                if event.id == "39924":  # 转阶段龙怒
+                    if self.phase == 1:
+                        self.changePhase(event.time, 2)
+
             else:
                 if event.caster in self.bld.info.player and event.caster in self.statDict:
                     # self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.getName(event.target) in ["许灵素", "許靈素"]:
+                        if self.bld.info.getName(event.target) in ["池清川"]:
                             self.bh.setMainTarget(event.target)
+                    if self.phase == 2:
+                        self.statDict[event.caster]["battle"]["P2Damage"] += event.damageEff
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -157,25 +163,30 @@ class XulingsuReplayer(SpecificReplayerPro):
             #         self.bh.setCall("28054", "绿宝石", "2652", event.time, 5000, event.target, "绿宝石点名")
 
         elif event.dataType == "Shout":
-            if event.content in ['"祈天福，降灾厄，皆在一念之间。尔等既犯禁地，便以蛊咒为罚，永堕幽冥！"', '"祈天福，降災厄，皆在一念之間。爾等既犯禁地，便以蠱咒為罰，永墮幽冥！"']:
+            if event.content in ['"让你认清自己的斤两!"', '"讓你認清自己的斤兩!"']:
                 self.bh.setBadPeriod(self.startTime, event.time - 1000, True, True)
-            elif event.content in ['"今日竟败于尔等之手……天命难违，罢了……"', '"今日竟敗於爾等之手……天命難違，罷了……"']:
+            elif event.content in ['"呼呼……是我轻看了你们……"', '"呼呼……是我輕看了你們……"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            elif event.content in ['"灾厄随行！"', '"災厄隨行！"']:
+                if self.P2shout + 40000 < event.time:
+                    self.bh.setCritPeriod(self.P2shout + 40000, event.time, False, True)
+            elif event.content in ['"有些本事！那这招又如何?"', '"有些本事！那這招又如何?"']:
+                self.P2shout = event.time
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
                 pass
-            elif event.content in ['"噬心为罚！"', '"噬心為罰！"']:
+            elif event.content in ['"吃我一枪!"', '"吃我一槍!"']:
                 pass
-            elif event.content in ['"聚灵成刃！"', '"聚靈成刃！"']:
+            elif event.content in ['"双蛟出渊!"', '"雙蛟出淵!"']:
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
+            elif event.content in ['"要你付出代价!"', '"要你付出代價!"']:
                 pass
-            elif event.content in ['"天灵护佑！"', '"天靈護佑！"']:
+            elif event.content in ['"受死!"', '""']:
                 pass
-            elif event.content in ['"炙魂为引，伐罪为劫！"', '"炙魂為引，伐罪為劫！"']:
+            elif event.content in ['"太慢了！看招！"', '""']:
                 pass
-            elif event.content in ['"夺尔生机以续吾命！"', '"奪爾生機以續吾命！"']:
-                self.win = 1
-                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            elif event.content in ['""', '""']:
+            elif event.content in ['"化影分形!"', '""']:
+                pass
+            elif event.content in ['"接我这招!"', '""']:
                 pass
             elif event.content in ['""', '""']:
                 pass
@@ -185,26 +196,32 @@ class XulingsuReplayer(SpecificReplayerPro):
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
         elif event.dataType == "Scene":  # 进入、离开场景
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["许灵素宝箱", "许灵素寶箱"]:
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["池清川宝箱", "池清川寶箱"]:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
+            if event.id in self.bld.info.npc and event.enter: # and self.bld.info.npc[event.id].name != "":
                 name = "n%s" % self.bld.info.npc[event.id].templateID
                 skillName = self.bld.info.npc[event.id].name
                 if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 3000:
                     self.bhTime[name] = event.time
                     if "的" not in skillName:
                         key = "n%s" % self.bld.info.npc[event.id].templateID
-                        if key in ["n131723"]:
-                            self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, "天灵卫", "344", event.time, 0,
+                        icon = "341"
+                        if key in ["n131426", "n131413"]:
+                            if key == "n131426":
+                                key = "怒潮碎岳"
+                                icon = "2146"
+                            elif key == "n131413":
+                                key = "螺旋激流"
+                                icon = "3405"
+                            self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, key, icon, event.time, 0,
                                                1, "NPC出现", "npc")
-                        elif key in self.bhInfo or self.debug:
-                            # self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
-                            #                    1, "NPC出现", "npc")
-                            pass
+                        # if key in self.bhInfo or self.debug:
+                        #     self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
+                        #                        1, "NPC出现", "npc")
 
         elif event.dataType == "Death":  # 重伤记录
-            if event.id in self.bld.info.npc and self.bld.info.getName(event.id) in ["许灵素", "許靈素"]:
+            if event.id in self.bld.info.npc and self.bld.info.getName(event.id) in ["池清川"]:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
 
@@ -238,57 +255,71 @@ class XulingsuReplayer(SpecificReplayerPro):
         在战斗开始时的初始化流程，当第二阶段复盘开始时运行。
         '''
         self.initBattleBase()
-        self.activeBoss = "许灵素"
+        self.activeBoss = "池清川"
         self.debug = 1
 
-        self.initPhase(1, 1)
+        self.initPhase(2, 1)
 
         self.immuneStatus = 0
         self.immuneHealer = 0
         self.immuneTime = 0
 
-        self.hlszStart = 0
-        self.hlszNum = 0
+        self.P2shout = 0
 
-        self.bhBlackList.extend(["s39749",  # 普攻
-                                 "b29962",  # 通用易伤
-                                 "b29961", "s39755", "s39757",  # 灵蛊引
-                                 "s39759", "s39760", "b29964", "b29963", "b29966",  # 灵咒令
-                                 "s39762",  # 聚灵杀
-                                 "s40272",  # 蛊灭劫
-                                 "s39768", "b30000",  # 天灵卫
-                                 "s39902", # 噬血咒
-                                 "b30008", # 噬疗
-
+        self.bhBlackList.extend(["s39871",  # 普攻
+                                 "b30100",  # 血上限惩罚
+                                 "b30376", "b30377",  # 黑白buff
+                                 "s39881",  # 龙牙
+                                 "s40003", "s39974",  # 沧浪千屏
+                                 "s39988",  # 逆鳞星爆
+                                 "s40004",  # 逆鳞怒涛
+                                 "b30197", "b30196",  # 双极龙霆·阳
+                                 "s40551", "s40524",  # 配平4人伤害
+                                 "s40833", "s40834",  # 配平超人
+                                 "s40049",  # 配平结算
+                                 "s39880", "s40126",  # 龙影·四象劫
+                                 "s40252", "s40461",  # 龙啸
+                                 "s40296",  # 小龙普攻
+                                 # === P2
+                                 "s39940",  # 普攻
+                                 "s39924",  # 龙怒
+                                 "s39893",  # 龙吟震魄
+                                 "s39918",  # 螺旋激流
+                                 "b30135",  # 螭吻蚀劲
+                                 "s39928",  # 怒潮碎岳
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
-        self.bhInfo = {"c39756": ["16379", "#ff0000", 4000],  # 灵蛊引
-                       "c39758": ["2138", "#00ff00", 4000],  # 灵咒令
-                       "c39761": ["342", "#ff7700", 2000],  # 聚灵杀
-                       "c39879": ["16389", "#00ff00", 0],  # 蛊灭劫
-                       "n131723": ["344", "#00ff77", 0],  # 天灵卫
-                       "c39782": ["16366", "#ff0077", 3000],  # 怒吼
-                       "c39765": ["3446", "#ff7777", 2000],  # 起死回生
-                       "c39794": ["3398", "#77ff00", 0],  # 灭魂蛊
-                       "c40054": ["4544", "#0000ff", 0],  # 野蛮冲锋
-                       "c39785": ["4519", "#77ff77", 0],  # 枯木逢春
+        self.bhInfo = {"c39882": ["3293", "#0000ff", 2000],  # 龙牙
+                       "c39946": ["3398", "#ffff00", 3000],  # 逆鳞怒涛
+                       "c39961": ["3404", "#ff0000", 2000],  # 逆瀑连环
+                       "c39985": ["3405", "#ff0033", 2000],  # 逆鳞星爆
+                       "c40038": ["4529", "#00ff00", 5000],  # 蓄势引动
+                       "c39972": ["3414", "#77ff00", 2000],  # 沧浪千屏
+                       "c39941": ["3319", "#ff00ff", 2000],  # 龙影
+                       "c40125": ["3320", "#ff7700", 3000],  # 龙影·四象劫
+                       "c40131": ["13167", "#0077ff", 2000],  # 云螭判阴阳
+                       "s40229": ["4221", "#ff0077", 0],  # 黑鳞雨
+                       "c40251": ["3318", "#ff0033", 3000],  # 龙啸
+                       "c40309": ["4528", "#770077", 2000],  # 龙魂
+                       "c39923": ["3409", "#00ff77", 2000],  # 龙怒
+                       "c39884": ["2020", "#7700ff", 2000],  # 龙刺
                        }
 
-        # 许灵素数据格式：
+        # 池清川数据格式：
         # ？
 
 
-        if self.bld.info.map == "太极宫":
-            self.bh.critPeriodDesc = "暂无."
-        if self.bld.info.map == "25人普通太极宫":
-            self.bh.critPeriodDesc = "暂无."
-        if self.bld.info.map == "25人英雄太极宫":
-            self.bh.critPeriodDesc = "待定."
+        # if self.bld.info.map == "太极宫":
+        #     self.bh.critPeriodDesc = "[垂死挣扎]期间."
+        # if self.bld.info.map == "25人普通太极宫":
+        #     self.bh.critPeriodDesc = "[垂死挣扎]期间."
+        # if self.bld.info.map == "25人英雄太极宫":
+        #     self.bh.critPeriodDesc = "[垂死挣扎]期间."
+        self.bh.critPeriodDesc = "转阶段喊话之后第40秒，到战斗结束."
 
         for line in self.bld.info.player:
-            pass
-            # self.statDict[line]["battle"] = {"yztzDamage": 0}
+            self.statDict[line]["battle"] = {"P2Damage": 0}
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''

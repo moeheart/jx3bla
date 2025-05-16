@@ -50,6 +50,7 @@ from replayer.boss.taijigong.Houqing import HouqingWindow
 from replayer.boss.taijigong.Lixi import LixiWindow
 from replayer.boss.taijigong.Nianle import NianleWindow
 from replayer.boss.taijigong.Yangyuhuan import YangyuhuanWindow
+from replayer.boss.taijigong.Chiqingchuan import ChiqingchuanWindow
 
 from window.PotExtendWindow import PotExtendWindow
 from window.Window import Window
@@ -213,6 +214,8 @@ class SingleBossWindow(Window):
         self.analysedBattleData = analysedBattleData
         self.hasDetail = 1
         if "boss" in detail:
+            print("[Detail-boss]", detail["boss"])
+
             if detail["boss"] == "张景超":
                 self.specificBossWindow = ZhangJingchaoWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,
                                                          analysedBattleData)
@@ -320,6 +323,9 @@ class SingleBossWindow(Window):
                                                          analysedBattleData)
             elif detail["boss"] == "杨玉环":
                 self.specificBossWindow = YangyuhuanWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,
+                                                         analysedBattleData)
+            elif detail["boss"] == "池清川":
+                self.specificBossWindow = ChiqingchuanWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,
                                                          analysedBattleData)
             else:
                 self.specificBossWindow = GeneralWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,

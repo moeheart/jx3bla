@@ -157,25 +157,25 @@ class XingtingenReplayer(SpecificReplayerPro):
             #         self.bh.setCall("28054", "绿宝石", "2652", event.time, 5000, event.target, "绿宝石点名")
 
         elif event.dataType == "Shout":
-            if event.content in ['"擅闯皇宫禁地者死！"', '""']:
+            if event.content in ['"擅闯皇宫禁地者死！"', '"擅闖皇宮禁地者死！"']:
                 self.bh.setBadPeriod(self.startTime, event.time - 1000, True, True)
-            elif event.content in ['"不……不想死……叫……叫太医……"', '""']:
+            elif event.content in ['"不……不想死……叫……叫太医……"', '"不……不想死……叫……叫太醫……"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
                 self.bh.setCritPeriod(self.cszzStart, event.time, False, True)
-            elif event.content in ['"哼，真当咱家是摆设不成？让你们尝尝，这雪髓的滋味！去！"', '""']:
+            elif event.content in ['"哼，真当咱家是摆设不成？让你们尝尝，这雪髓的滋味！去！"', '"哼，真當咱家是擺設不成？讓你們嘗嘗，這雪髓的滋味！去！"']:
                 pass
-            elif event.content in ['"掌风逐影，如影随形！"', '""']:
+            elif event.content in ['"掌风逐影，如影随形！"', '"掌風逐影，如影隨形！"']:
                 pass
-            elif event.content in ['"呵呵，既然你们这么喜欢热闹，咱家就送你们一份大礼！——散！"', '""']:
+            elif event.content in ['"呵呵，既然你们这么喜欢热闹，咱家就送你们一份大礼！——散！"', '"呵呵，既然你們這麼喜歡熱鬧，咱家就送你們一份大禮！——散！"']:
                 self.bh.setEnvironment("39780", "冰魄引", "341", event.time, 0, 1, "招式命中玩家", "skill")
-            elif event.content in ['"万法归墟，皆为我用！"', '""']:
+            elif event.content in ['"万法归墟，皆为我用！"', '"萬法歸墟，皆為我用！"']:
                 pass
-            elif event.content in ['"贱民……不可玷污皇宫……"', '""']:
+            elif event.content in ['"贱民……不可玷污皇宫……"', '"賤民……不可玷污皇宮……"']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
-            elif event.content in ['"不能就这样死了……"', '""']:
+            elif event.content in ['"不能就这样死了……"', '"不能就這樣死了……"']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
-            elif event.content in ['"废物！什么劳什子大内七绝，连江湖混混都打不过！"', '""']:
+            elif event.content in ['"废物！什么劳什子大内七绝，连江湖混混都打不过！"', '"廢物！什麼勞什子大內七絕，連江湖混混都打不過！"']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
                 self.cszzStart = event.time
             elif event.content in ['""', '""']:
@@ -265,6 +265,7 @@ class XingtingenReplayer(SpecificReplayerPro):
                        "c40092": ["345", "#ff0077", 8000],  # 归墟式
                        "c39779": ["16844", "#00ff00", 0],  # 垂死挣扎
                        "s39780": ["18567", "#00ff77", 0],  # 冰魄引, 注意技能ID是小球爆炸，并不是技能本身
+                       "c39775": ["2025", "#0000ff", 0],  # 上品金疮药
                        }
 
         # 邢廷恩数据格式：

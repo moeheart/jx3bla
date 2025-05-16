@@ -883,7 +883,7 @@ class HuaJianYouReplayer(DpsReplayer):
                             #       event.damageEff,
                             #       self.bld.info.getName(event.caster), self.bld.info.getName(event.target))
                             pass
-                        if self.bh.log["normal"][-1]["skillid"] == "14941" and event.time - self.tunhaiTime < 100:
+                        if self.bh.log["normal"] != [] and self.bh.log["normal"][-1]["skillid"] == "14941" and event.time - self.tunhaiTime < 100:
                             self.bh.log["normal"][-1]["tunhai"] = 1
                             self.numTunhai += 1
                     if event.id in ["14941"]:  # 阳明

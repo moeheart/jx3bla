@@ -134,7 +134,7 @@ class YangyuhuanReplayer(SpecificReplayerPro):
                 if event.caster in self.bld.info.player and event.caster in self.statDict:
                     # self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.getName(event.target) in ["杨玉环"]:
+                        if self.bld.info.getName(event.target) in ["杨玉环", "楊玉環"]:
                             self.bh.setMainTarget(event.target)
                             self.sumDamage += event.damageEff
 
@@ -166,16 +166,16 @@ class YangyuhuanReplayer(SpecificReplayerPro):
             #         self.bh.setCall("28054", "绿宝石", "2652", event.time, 5000, event.target, "绿宝石点名")
 
         elif event.dataType == "Shout":
-            if event.content in ['"梨园旧谱翻新怨，血丝缠玉恨无常。玉环本是谪仙降，错付骊山薄幸郎。"', '""']:
+            if event.content in ['"梨园旧谱翻新怨，血丝缠玉恨无常。玉环本是谪仙降，错付骊山薄幸郎。"', '"梨園舊譜翻新怨，血絲纏玉恨無常。玉環本是謫仙降，錯付驪山薄幸郎。"']:
                 self.bh.setBadPeriod(self.startTime, event.time - 1000, True, True)
-            elif event.content in ['"霓裳碎处金钗落，丝弦迸血玉人凉。梨园悲散哀玉殒，千古犹唱骂昏王！"', '""']:
+            elif event.content in ['"霓裳碎处金钗落，丝弦迸血玉人凉。梨园悲散哀玉殒，千古犹唱骂昏王！"', '"霓裳碎處金釵落，絲弦迸血玉人涼。梨園悲散哀玉殞，千古猶唱罵昏王！"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            elif event.content in ['"寒光凛冽！"', '""']:
+            elif event.content in ['"寒光凛冽！"', '"寒光凜冽！"']:
                 pass
-            elif event.content in ['"烈焰缤纷！"', '""']:
+            elif event.content in ['"烈焰缤纷！"', '"烈焰繽紛！"']:
                 pass
-            elif event.content in ['"琼台舞罢星斗黯，金缕衣沾荔枝香。骊宫春醉笙箫乱，罗帷交盏夜未央。"', '""']:
+            elif event.content in ['"琼台舞罢星斗黯，金缕衣沾荔枝香。骊宫春醉笙箫乱，罗帷交盏夜未央。"', '"瓊臺舞罷星斗黯，金縷衣沾荔枝香。驪宮春醉笙簫亂，羅帷交盞夜未央。"']:
                 pass
             elif event.content in ['""', '""']:
                 pass
@@ -189,7 +189,7 @@ class YangyuhuanReplayer(SpecificReplayerPro):
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
         elif event.dataType == "Scene":  # 进入、离开场景
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["杨玉环宝箱", "杨玉环寶箱"]:
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["杨玉环宝箱", "楊玉環寶箱"]:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
@@ -204,7 +204,7 @@ class YangyuhuanReplayer(SpecificReplayerPro):
                         #                        1, "NPC出现", "npc")
 
         elif event.dataType == "Death":  # 重伤记录
-            if event.id in self.bld.info.npc and self.bld.info.getName(event.id) in ["杨玉环"]:
+            if event.id in self.bld.info.npc and self.bld.info.getName(event.id) in ["杨玉环", "楊玉環"]:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
 
@@ -260,12 +260,18 @@ class YangyuhuanReplayer(SpecificReplayerPro):
                                  "b30106",  # 承伤buff
                                  "b30113",  # 傀儡
                                  "s40074", "b30255",   # 聚能缠缚
-                                 "s39984",  # 烽火
+                                 "s39984", "s40595",  # 烽火
+                                 "b30450", "b30451",  # 寒光斩炎/天火燎刃
+                                 "c40104",  # 沉沦
+                                 "s40493",  # 舞域
+                                 "s40280", "b30597",  # 惑
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
         self.bhInfo = {"c39901": ["4567", "#ff0000", 1500],  # 杀机
                        "c39899": ["2144", "#ff7700", 1750],  # 旋风迟
+                       "c40245": ["2120", "#0000ff", 5000],  # 盛大剧目
+
                        }
 
         # 杨玉环数据格式：

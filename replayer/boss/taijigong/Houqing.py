@@ -163,20 +163,20 @@ class HouqingReplayer(SpecificReplayerPro):
         elif event.dataType == "Shout":
             if event.content in ['""', '""']:
                 self.bh.setBadPeriod(self.startTime, event.time - 1000, True, True)
-            elif event.content in ['"此刃为殿下斩过二十七员敌将……余下一命，侯青只能用命来还了……"', '""']:
+            elif event.content in ['"此刃为殿下斩过二十七员敌将……余下一命，侯青只能用命来还了……"', '"此刃為殿下斬過二十七員敵將……餘下一命，侯青只能用命來還了……"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            elif event.content in ['"快来我身边！"', '""']:
+            elif event.content in ['"快来我身边！"', '"快來我身邊！"']:
                 pass
-            elif event.content in ['"都让开！我来一战！"', '""']:
+            elif event.content in ['"都让开！我来一战！"', '"都讓開！我來一戰！"']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
-            elif event.content in ['"哪里逃！"', '""']:
+            elif event.content in ['"哪里逃！"', '"哪裡逃!"']:
                 pass
-            elif event.content in ['"众将听令！先取那畏缩之人的首级！"', '""']:
+            elif event.content in ['"众将听令！先取那畏缩之人的首级！"', '"眾將聽令！先取那畏縮之人的首級！"']:
                 self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
-            elif event.content in ['""', '""']:
+            elif event.content in ['"你这宵小，可敢与我一战！"', '"你這宵小，可敢與我一戰！"']:
                 pass
-            elif event.content in ['""', '""']:
+            elif event.content in ['""', '"哼！倒是小瞧你了！"']:
                 pass
             elif event.content in ['""', '""']:
                 pass
@@ -260,6 +260,8 @@ class HouqingReplayer(SpecificReplayerPro):
                                  "s40439",  # 袭风斩
                                  "s39706", "s39689",  # 利刃断躯
                                  "c40805",  # 神威浩荡(二段)
+                                 "s39695", "s39694",  # 冲锋
+                                 "b29981", "b29990", "s39685",  # 斩首技能组
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
@@ -275,6 +277,8 @@ class HouqingReplayer(SpecificReplayerPro):
                        "c39697": ["2143", "#7777ff", 4000],  # 横断山河
                        "c40469": ["3429", "#ff3377", 3000],  # 环斩千荡
                        "c40437": ["4504", "#ff7733", 4000],  # 袭风斩
+                       "c39700": ["3320", "#7777ff", 4000],  # 冲锋
+                       "c39684": ["3445", "#3377ff", 3000],  # 斩首
                        }
 
         # 侯青数据格式：

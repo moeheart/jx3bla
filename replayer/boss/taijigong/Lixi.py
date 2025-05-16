@@ -161,28 +161,30 @@ class LixiReplayer(SpecificReplayerPro):
             #         self.bh.setCall("28054", "绿宝石", "2652", event.time, 5000, event.target, "绿宝石点名")
 
         elif event.dataType == "Shout":
-            if event.content in ['"你们还不配与我一战！"', '""']:
+            if event.content in ['"你们还不配与我一战！"', '"你們還不配與我一戰！"']:
                 self.bh.setBadPeriod(self.startTime, event.time - 1000, True, True)
-            elif event.content in ['"天命未尽…这甘露殿困不住真龙！"', '""']:
+            elif event.content in ['"天命未尽…这甘露殿困不住真龙！"', '"天命未盡…這甘露殿困不住真龍！"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            elif event.content in ['"龙啸千山裂，万疆尽伏鳞！"', '""']:
+            elif event.content in ['"龙啸千山裂，万疆尽伏鳞！"', '"龍嘯千山裂，萬疆盡伏鱗！"']:
                 pass
-            elif event.content in ['"天若不跪我？那便焚了这天！"', '""']:
+            elif event.content in ['"天若不跪我？那便焚了这天！"', '"天若不跪我？那便焚了這天！"']:
                 pass
-            elif event.content in ['"够了！竟能把本王逼至此境，那便只能再次血染太极宫！"', '""']:
+            elif event.content in ['"够了！竟能把本王逼至此境，那便只能再次血染太极宫！"', '"夠了！竟能把本王逼至此境，那便只能再次血染太極宮！"']:
                 pass
-            elif event.content in ['"江淮蛟鳞骨，尽作本王的登龙阶！"', '""']:
+            elif event.content in ['"江淮蛟鳞骨，尽作本王的登龙阶！"', '"江淮蛟鱗骨，盡作本王的登龍階！"']:
                 pass
-            elif event.content in ['"这大唐的龙椅，只有本王配得坐！"', '""']:
+            elif event.content in ['"这大唐的龙椅，只有本王配得坐！"', '"這大唐的龍椅，只有本王配得坐！"']:
                 pass
-            elif event.content in ['"看招！"', '""']:
+            elif event.content in ['"看招！"', '"看招!"']:
                 pass
             elif event.content in ['"啊!!!"', '""']:
                 pass
-            elif event.content in ['""', '""']:
+            elif event.content in ['"看好了——这才是真龙吞四海！"', '"看好了——這才是真龍吞四海！"']:
                 pass
-            elif event.content in ['""', '""']:
+            elif event.content in ['"本王的命，重比长安——区区凡兵也敢撼鼎？！"', '"本王的命，重比長安——區區凡兵也敢撼鼎？！"']:
+                pass
+            elif event.content in ['"起！"', '""']:
                 pass
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
@@ -261,6 +263,8 @@ class LixiReplayer(SpecificReplayerPro):
                                  "s39962", "s39730", "s39767", "s40425",  # 引怀蛟吸
                                  "b29951", "s39732", "s39731",  # 撒手锏
                                  "s39715", "s39714", "s39713", "s39729",  # 蛟舞乾坤
+                                 "s40145", "s39993",  # 覆海技能组
+                                 "s39999", "b30209", "b30239", "s39995", "s39997", "s39998",  # 腾空技能组
 
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
