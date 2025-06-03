@@ -51,6 +51,7 @@ from replayer.boss.taijigong.Lixi import LixiWindow
 from replayer.boss.taijigong.Nianle import NianleWindow
 from replayer.boss.taijigong.Yangyuhuan import YangyuhuanWindow
 from replayer.boss.taijigong.Chiqingchuan import ChiqingchuanWindow
+from replayer.boss.taijigong.Litan import LitanWindow
 
 from window.PotExtendWindow import PotExtendWindow
 from window.Window import Window
@@ -326,6 +327,9 @@ class SingleBossWindow(Window):
                                                          analysedBattleData)
             elif detail["boss"] == "池清川":
                 self.specificBossWindow = ChiqingchuanWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,
+                                                         analysedBattleData)
+            elif detail["boss"] == "李倓":
+                self.specificBossWindow = LitanWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,
                                                          analysedBattleData)
             else:
                 self.specificBossWindow = GeneralWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,

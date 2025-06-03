@@ -12207,7 +12207,7 @@ ID	Name	UIID	AttriName	Attribute1ID	Attribute1Value1	Attribute1Value2	Score	Diam
 15834	风语·兵·甲（内攻）	武器	内功攻击提升364点	atMagicAttackPowerBase	364	364	1231																										0				0	0
 15835	风语·兵·甲（疗伤）	武器	疗伤成效提升583点	atTherapyPowerBase	583	583	1231																										0				0	0
 15836	风语·兵·甲（武伤）	武器	武器伤害提升492点	atMeleeWeaponDamageBase	492	492	1231																										0				0	0
-15837	风语·兵·甲（仇恨）	武器	仇恨百分比提升8%点	atActiveThreatCoefficient	8	8	1231																										0				0	0
+15837	风语·兵·甲（仇恨）	武器	仇恨百分比提升8%点	atActiveThreatCoefficient	0	82	1231																										0				0	0
 15838	风语·瀑沙磨石（外伤）	武器限时	外功攻击提升490点	atPhysicsAttackPowerBase	490	490	0																									1800	0				11	0
 15839	风语·坠宵磨石（内伤）	武器限时	内功攻击提升546点	atMagicAttackPowerBase	546	546	0																									1800	0				11	0
 15840	风语·絮泊磨石（疗伤）	武器限时	疗伤成效提升874点	atTherapyPowerBase	874	874	0																									1800	0				11	0

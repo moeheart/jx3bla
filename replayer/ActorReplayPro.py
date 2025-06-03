@@ -8,6 +8,7 @@ import time
 
 import os
 
+from replayer.boss.taijigong.Litan import LitanReplayer
 # from ReplayBase import StatGeneratorBase
 from tools.Functions import *
 from Constants import *
@@ -65,6 +66,7 @@ from replayer.boss.taijigong.Lixi import LixiReplayer
 from replayer.boss.taijigong.Nianle import NianleReplayer
 from replayer.boss.taijigong.Yangyuhuan import YangyuhuanReplayer
 from replayer.boss.taijigong.Chiqingchuan import ChiqingchuanReplayer
+from replayer.boss.taijigong.Litan import LitanReplayer
 
 from replayer.occ.XiangZhi import XiangZhiProReplayer
 from replayer.occ.LingSu import LingSuReplayer
@@ -305,6 +307,9 @@ class ActorProReplayer(ReplayerBase):
                 if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
                     "池清川", "白蛟", "黑蛟"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "池清川"
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
+                    "李倓"] and self.bossAnalyseName == "未知":
+                    self.bossAnalyseName = "李倓"
 
                 # 通过技能确定具体心法
                 if event.caster in occDetailList and event.scheme == 1 and occDetailList[event.caster] in ['1', '2',
@@ -605,6 +610,9 @@ class ActorProReplayer(ReplayerBase):
                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
         elif self.bossAnalyseName == "池清川":
             bossAnalyser = ChiqingchuanReplayer(self.bld, occDetailList, self.startTime,
+                                          self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "李倓":
+            bossAnalyser = LitanReplayer(self.bld, occDetailList, self.startTime,
                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
         else:
             bossAnalyser = GeneralReplayer(self.bld, occDetailList, self.startTime,
