@@ -113,7 +113,7 @@ class LitanReplayer(SpecificReplayerPro):
                 if event.caster in self.bld.info.npc and event.heal == 0 and event.scheme == 1:
                     # 尝试记录技能事件
                     name = "s%s" % event.id
-                    if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 3000:
+                    if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 800:
                         self.bhTime[name] = event.time
                         skillName = self.bld.info.getSkillName(event.full_id)
                         if "," not in skillName:
@@ -185,7 +185,7 @@ class LitanReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"接我这招!"', '""']:
                 pass
-            elif event.content in ['""', '""']:
+            elif event.content in ['"让本王瞧瞧你们的手段。"', '""']:
                 pass
             elif event.content in ['""', '""']:
                 pass
@@ -199,9 +199,24 @@ class LitanReplayer(SpecificReplayerPro):
             if event.id in self.bld.info.npc and event.enter: # and self.bld.info.npc[event.id].name != "":
                 name = "n%s" % self.bld.info.npc[event.id].templateID
                 skillName = self.bld.info.npc[event.id].name
-                if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 3000:
+                if name not in self.bhBlackList: # and event.time - self.bhTime.get(name, 0) > 3000:
                     self.bhTime[name] = event.time
                     if "的" not in skillName:
+                        key = "n%s" % self.bld.info.npc[event.id].templateID
+                        # icon = "341"
+                        # if key in ["n131426", "n131413"]:
+                        #     if key == "n131426":
+                        #         key = "怒潮碎岳"
+                        #         icon = "2146"
+                        #     elif key == "n131413":
+                        #         key = "螺旋激流"
+                        #         icon = "3405"
+                        #     self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, key, icon, event.time, 0,
+                        #                        1, "NPC出现", "npc")
+                        if skillName == "真龙":
+                            skillName = "%s,%d,%d,%d" % (skillName, self.bld.info.npc[event.id].x, self.bld.info.npc[event.id].y, self.bld.info.npc[event.id].z)
+                        if self.bld.info.npc[event.id].templateID == "132131":
+                            self.f.write("%d %d %d %d\n" % (event.time, self.bld.info.npc[event.id].x, self.bld.info.npc[event.id].y, self.bld.info.npc[event.id].z))
                         if key in self.bhInfo or self.debug:
                             self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
                                                1, "NPC出现", "npc")
@@ -252,7 +267,7 @@ class LitanReplayer(SpecificReplayerPro):
 
         self.P2shout = 0
 
-        self.bhBlackList.extend(["s39871",  # 普攻
+        self.bhBlackList.extend(["s39963", "s40825", "",  # 普攻
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
@@ -273,6 +288,10 @@ class LitanReplayer(SpecificReplayerPro):
 
         for line in self.bld.info.player:
             self.statDict[line]["battle"] = {"P2Damage": 0}
+
+        self.f = open("litanLogs.txt", "w")
+
+
 
     def __init__(self, bld, occDetailList, startTime, finalTime, battleTime, bossNamePrint, config):
         '''
