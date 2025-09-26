@@ -113,6 +113,8 @@ class PotContainer():
                     occ = line["occ"]
                     if occ[-1] in ['d', 't', 'h', 'p', 'm']:
                         occ = occ[:-1]
+                    if occ[-1] == "w":
+                        occ = occ[:-1]
                     playerOccNum[line["name"]] = int(occ)
                         
         playerList = []
