@@ -301,9 +301,12 @@ def receiveBattle(jdata, cursor):
     edition = jdata["edition"]
     hash = jdata["hash"]
     team = jdata.get("team", "")
+    length = jdata.get("length", 0)
     statistics = str(jdata["statistics"]).replace('"', '`')
     map = getIDFromMap(mapName)
     gameEdition = getGameEditionFromTime(map, jdata["begintime"])
+
+    print("[Battle]", team, length, hash)
 
     response = {}
 
@@ -397,8 +400,8 @@ def receiveBattle(jdata, cursor):
     with open("database/ActorStat/%s" % hash, "w") as f:
         f.write(str(statistics))
 
-    sql = """INSERT INTO ActorStat VALUES ("%s", "%s", "%s", "%s", "%s", "%s", %d, %d, "%s", %d, %d, "", "%s", "%s")""" % (
-        server, boss, battleDate, mapDetail, edition, hash, win, editionFull, userID, battleTime, submitTime, gameEdition, team)
+    sql = """INSERT INTO ActorStat VALUES ("%s", "%s", "%s", "%s", "%s", "%s", %d, %d, "%s", %d, %d, "", "%s", "%s", %d)""" % (
+        server, boss, battleDate, mapDetail, edition, hash, win, editionFull, userID, battleTime, submitTime, gameEdition, team, length)
     cursor.execute(sql)
 
     del statistics

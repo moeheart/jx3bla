@@ -132,14 +132,15 @@ class ActorProReplayer(ReplayerBase):
         result["begintime"] = self.beginTime
         result["userid"] = self.config.item["user"]["uuid"]
 
+        result["team"] = self.config.item["general"]["team"]
+        result["length"] = self.battleTime
+
         allInfo = {}
         # allInfo["statDict"] = self.statDict
         # allInfo["potList"] = self.potList
         allInfo["battleTime"] = self.battleTime
         allInfo["act"] = self.combatTracker.generateJson()
         allInfo["mask"] = self.config.item["general"]["mask"]
-
-        allInfo["team"] = self.config.item["general"]["team"]
 
         result["statistics"] = allInfo
 
