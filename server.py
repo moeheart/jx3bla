@@ -460,6 +460,9 @@ def receiveReplay(jdata, cursor):
     - jdata: json格式的replay信息.
     - cursor: 数据库操作的指针.
     '''
+
+    print("[UpdateReplay] Start")
+
     server = jdata["server"]
     id = jdata["id"]
     if "·" in id:
@@ -527,12 +530,8 @@ def receiveReplay(jdata, cursor):
 
     statistics["overall"]["shortID"] = shortID
 
-    print("Start writing file...")
-
     with open("database/ReplayProStat/%d" % shortID, "w") as f:
         f.write(str(statistics))
-
-    print("End writing file...")
 
     scoreRank = getRankFromKeys(score, occ, map, boss, "stat", "score", gameEdition)
     rhps = statistics["skill"]["healer"].get("rhps", 0)
@@ -559,6 +558,8 @@ def receiveReplay(jdata, cursor):
         server, id, occ, score, battleDate, mapDetail, boss, hash, shortID, public, edition, editionFull, replayedition, userID, battleTime,
         submitTime, battleID, scoreRank, rhps, rhpsRank, hps, hpsRank, rdps, rdpsRank, ndps, ndpsRank, mrdps, mrdpsRank, mndps, mndpsRank, hold, gameEdition)
     cursor.execute(sql)
+
+    print("[UpdateReplay] Final")
 
     return {'result': 'success', 'num': numSameOcc, 'numOver': numOver, 'shortID': shortID, 'scoreRank': scoreRank}
 
