@@ -159,7 +159,7 @@ def updatePercent(raw_rank, cursor, db):
     直接使用计算的结果更新数据库大项的百分位排名.
     '''
     
-    edition = "8.6.0"
+    edition = "8.13.0"
     
     sql = """SELECT * FROM ReplayProStat WHERE editionFull>=%d AND hold=1""" % parseEdition(edition)
     cursor.execute(sql)
@@ -176,7 +176,7 @@ def updatePercent(raw_rank, cursor, db):
 
         # 新赛季更新时删除，后续再进行改动
         try:
-            if int(key2) <= 648:
+            if int(key2) <= 688:
                 continue
         except:
             sql = """UPDATE ReplayProStat SET hold=0 WHERE hash = '%s'""" % hash
@@ -215,7 +215,7 @@ def RefreshStat():
     db = pymysql.connect(host=ip, user=dbname, password=dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
 
-    edition = "8.6.0"
+    edition = "8.13.0"
 
     sql = """SELECT * FROM ReplayProStat WHERE editionFull>=%d""" % parseEdition(edition)
     cursor.execute(sql)

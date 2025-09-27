@@ -130,6 +130,8 @@ class MainWindow():
                         self.setNotice({"t2": "未增加荣誉值，原因：数据已被自己上传", "c2": "#ff0000"})
                     elif res["data"][i]["scoreStatus"] == "nologin":
                         self.setNotice({"t2": "未增加荣誉值，原因：未注册用户名", "c2": "#ff0000"})
+                    elif res["data"][i]["scoreStatus"] == "noteam":
+                        self.setNotice({"t2": "未填写团队名，无法参与名人堂", "c2": "#ff0000"})
                     elif res["data"][i]["scoreStatus"] == "success":
                         self.setNotice({"t2": "数据上传成功，荣誉值增加：%d" % res["data"][i]["scoreAdd"], "c2": "#00ff00"})
 

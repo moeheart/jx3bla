@@ -58,7 +58,7 @@ class AttributeCal():
             singleAttrib = self.attribMerge(singleAttrib, feature)
 
             #计算精炼
-            refineLvl = int(equips[line]["star"])
+            refineLvl = int(equips[line].get("star", 0))
             # refineLvl = 6  # 强制精6
             refineRate = [0, 0.005, 0.013, 0.024, 0.038, 0.055, 0.075, 0.098, 0.124][refineLvl]
             for attrib in singleAttrib:
@@ -66,7 +66,7 @@ class AttributeCal():
 
             #计算镶嵌
             for i in range(1, 4):
-                plugLvl = equips[line]["plug%d"%i]
+                plugLvl = equips[line].get("plug%d"%i, 0)
                 if plugLvl in ['', ' ']:
                     plugLvl = 0
                 else:
@@ -86,7 +86,7 @@ class AttributeCal():
 
             #计算附魔
             for i in range(1, 3):
-                magicID = equips[line]["magic%d"%i]
+                magicID = equips[line].get("magic%d"%i, '0')
                 if magicID in ['', ' ', '0']:
                     continue
                 if magicID in ["11272"]:  # 治疗鞋大附魔

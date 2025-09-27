@@ -68,6 +68,14 @@ from replayer.boss.taijigong.Yangyuhuan import YangyuhuanReplayer
 from replayer.boss.taijigong.Chiqingchuan import ChiqingchuanReplayer
 from replayer.boss.taijigong.Litan import LitanReplayer
 
+from replayer.boss.huizhangongyuecheng.Baturenqin import BaturenqinReplayer
+from replayer.boss.huizhangongyuecheng.Jiele import JieleReplayer
+from replayer.boss.huizhangongyuecheng.Tunanzi import TunanziReplayer
+from replayer.boss.huizhangongyuecheng.Yekui import YekuiReplayer
+from replayer.boss.huizhangongyuecheng.Yinxuechen import YinxuechenReplayer
+from replayer.boss.huizhangongyuecheng.Alimanhuanshen import AlimanhuanshenReplayer
+from replayer.boss.huizhangongyuecheng.Asaxin import AsaxinReplayer
+
 from replayer.occ.XiangZhi import XiangZhiProReplayer
 from replayer.occ.LingSu import LingSuReplayer
 from replayer.occ.LiJingYiDao import LiJingYiDaoReplayer
@@ -130,6 +138,8 @@ class ActorProReplayer(ReplayerBase):
         allInfo["battleTime"] = self.battleTime
         allInfo["act"] = self.combatTracker.generateJson()
         allInfo["mask"] = self.config.item["general"]["mask"]
+
+        allInfo["team"] = self.config.item["general"]["team"]
 
         result["statistics"] = allInfo
 
@@ -310,6 +320,28 @@ class ActorProReplayer(ReplayerBase):
                 if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
                     "李倓"] and self.bossAnalyseName == "未知":
                     self.bossAnalyseName = "李倓"
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
+                    "巴图仁钦", "巴圖仁欽"] and self.bossAnalyseName == "未知":
+                    self.bossAnalyseName = "巴图仁钦"
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
+                    "竭勒", "竭勒"] and self.bossAnalyseName == "未知":
+                    self.bossAnalyseName = "竭勒"
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
+                    "图南子", "圖南子"] and self.bossAnalyseName == "未知":
+                    self.bossAnalyseName = "图南子"
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
+                    "叶葵", "葉葵"] and self.bossAnalyseName == "未知":
+                    self.bossAnalyseName = "叶葵"
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
+                    "尹雪尘", "尹雪塵"] and self.bossAnalyseName == "未知":
+                    self.bossAnalyseName = "尹雪尘"
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
+                    "阿里曼幻身", "阿里曼幻身"] and self.bossAnalyseName == "未知":
+                    self.bossAnalyseName = "阿里曼幻身"
+                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
+                    "阿萨辛", "阿薩辛"] and self.bossAnalyseName == "未知":
+                    self.bossAnalyseName = "阿萨辛"
+
 
                 # 通过技能确定具体心法
                 if event.caster in occDetailList and event.scheme == 1 and occDetailList[event.caster] in ['1', '2',
@@ -409,17 +441,20 @@ class ActorProReplayer(ReplayerBase):
                      "server": self.bld.info.server, "score": self.bld.info.player[id].equipScore})
 
         # 向服务器请求. 这里先从本地计算，以后再改为服务器请求的逻辑.
-        # results = {}
-        # ad = AttributeDisplay()
-        # for playerEquip in requests["players"]:
-        #     results[playerEquip["id"]] = {}
-        #     results[playerEquip["id"]]["base"] = ad.GetBaseAttrib(playerEquip["equipStr"], playerEquip["occ"])
-        #     results[playerEquip["id"]]["panel"] = ad.GetPanelAttrib(playerEquip["equipStr"], playerEquip["occ"])
+        if parseEdition(EDITION) == 0:
+            results = {}
+            ad = AttributeDisplay()
+            for playerEquip in requests["players"]:
+                results[playerEquip["id"]] = {}
+                results[playerEquip["id"]]["base"] = ad.GetBaseAttrib(playerEquip["equipStr"], playerEquip["occ"])
+                results[playerEquip["id"]]["panel"] = ad.GetPanelAttrib(playerEquip["equipStr"], playerEquip["occ"])
 
-        # print("[Checkpoint2]", self.window.playerEquipmentAnalysed)
+            # print("[Checkpoint2]", self.window.playerEquipmentAnalysed)
 
-        adr = AttributeDisplayRemote()
-        results = adr.GetGroupAttributeAttrib(requests)
+        # TODO 改回来
+        else:
+            adr = AttributeDisplayRemote()
+            results = adr.GetGroupAttributeAttrib(requests)
         # 结束
 
         iee = ImportExcelEquipment()
@@ -428,7 +463,7 @@ class ActorProReplayer(ReplayerBase):
 
         # 记录服务器返回的结果
         for id in results:
-            if results[id]["status"] == "cached":
+            if results[id].get("status", "") == "cached":
                 # 记录缓存的装备
                 # print("获取缓存装备！", id, results[id]["equipStr"])
                 self.strEquip[id] = results[id]["equipStr"]
@@ -448,8 +483,7 @@ class ActorProReplayer(ReplayerBase):
         self.baseAttribDict = {}
         self.panelAttribDict = {}
         for id in self.bld.info.player:
-            if id in self.window.playerEquipmentAnalysed and self.window.playerEquipmentAnalysed[id][
-                "status"] != "notfound":
+            if id in self.window.playerEquipmentAnalysed and self.window.playerEquipmentAnalysed[id].get("status", "notfound") != "notfound":
                 self.baseAttribDict[id] = self.window.playerEquipmentAnalysed[id]["base"]
                 self.panelAttribDict[id] = self.window.playerEquipmentAnalysed[id]["panel"]
                 # print("[Equip1]", self.bld.info.getName(id))
@@ -613,6 +647,27 @@ class ActorProReplayer(ReplayerBase):
                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
         elif self.bossAnalyseName == "李倓":
             bossAnalyser = LitanReplayer(self.bld, occDetailList, self.startTime,
+                                          self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "巴图仁钦":
+            bossAnalyser = BaturenqinReplayer(self.bld, occDetailList, self.startTime,
+                                          self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "竭勒":
+            bossAnalyser = JieleReplayer(self.bld, occDetailList, self.startTime,
+                                          self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "图南子":
+            bossAnalyser = TunanziReplayer(self.bld, occDetailList, self.startTime,
+                                          self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "叶葵":
+            bossAnalyser = YekuiReplayer(self.bld, occDetailList, self.startTime,
+                                          self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "尹雪尘":
+            bossAnalyser = YinxuechenReplayer(self.bld, occDetailList, self.startTime,
+                                          self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "阿里曼幻身":
+            bossAnalyser = AlimanhuanshenReplayer(self.bld, occDetailList, self.startTime,
+                                          self.finalTime, self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "阿萨辛":
+            bossAnalyser = AsaxinReplayer(self.bld, occDetailList, self.startTime,
                                           self.finalTime, self.battleTime, self.bossNamePrint, self.config)
         else:
             bossAnalyser = GeneralReplayer(self.bld, occDetailList, self.startTime,
@@ -1421,7 +1476,8 @@ class ActorProReplayer(ReplayerBase):
 
             num = 0
             BOSS_NAME = {"魏华": 1, "钟不归": 2, "岑伤": 3, "鬼筹": 4, "麒麟": 5, "月泉淮": 6, "葛木寒": 1, "雨轻红": 2,
-                         "喜雅": 3, "鹰眼客": 4, "赤幽明": 5, "邢廷恩": 1, "许灵素": 2, "侯青": 3, "李系": 4, "年勒": 5, "杨玉环": 6, "池清川": 1, "李倓": 2}
+                         "喜雅": 3, "鹰眼客": 4, "赤幽明": 5, "邢廷恩": 1, "许灵素": 2, "侯青": 3, "李系": 4, "年勒": 5, "杨玉环": 6, "池清川": 1, "李倓": 2,
+                         "巴图仁钦": 1, "竭勒": 2, "图南子": 3, "叶葵": 4, "尹雪尘": 5, "阿里曼幻身": 1, "阿萨辛": 2}
             if self.bossAnalyseName in BOSS_NAME:
                 num = BOSS_NAME[self.bossAnalyseName]
 
@@ -1470,7 +1526,8 @@ class ActorProReplayer(ReplayerBase):
         if self.logMode:
             num = 0
             BOSS_NAME = {"魏华": 1, "钟不归": 2, "岑伤": 3, "鬼筹": 4, "麒麟": 5, "月泉淮": 6, "葛木寒": 1, "雨轻红": 2,
-                         "喜雅": 3, "鹰眼客": 4, "赤幽明": 5, "邢廷恩": 1, "许灵素": 2, "侯青": 3, "李系": 4, "年勒": 5, "杨玉环": 6, "池清川": 1, "李倓": 2}
+                         "喜雅": 3, "鹰眼客": 4, "赤幽明": 5, "邢廷恩": 1, "许灵素": 2, "侯青": 3, "李系": 4, "年勒": 5, "杨玉环": 6, "池清川": 1, "李倓": 2,
+                         "巴图仁钦": 1, "竭勒": 2, "图南子": 3, "叶葵": 4, "尹雪尘": 5, "阿里曼幻身": 1, "阿萨辛": 2}
             if self.bossAnalyseName in BOSS_NAME:
                 num = BOSS_NAME[self.bossAnalyseName]
 

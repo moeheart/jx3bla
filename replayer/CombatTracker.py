@@ -1316,7 +1316,7 @@ class CombatTracker():
 
         # 来自于减伤的aps
         sumDamage = event.damage + absorb
-        if sumDamage > 0 and event.target in self.resistBuff and not self.excludeStatusHealer:
+        if sumDamage > 0 and event.target in self.resistBuff and not self.excludeStatusHealer and event.id not in self.penetrationID:
             # print("[Damage]", event.time, event.target, sumDamage)
             # 考虑所有减伤，如果减伤之和大于100%，则不做统计，这种情况一般不可能发生.
             resistSum = 0
@@ -1723,4 +1723,17 @@ class CombatTracker():
                                      "fullTime": 0}
             # 输出
             self.ndpsCast[player] = DpsCastRecorder(0)
+
+        self.penetrationID = {"41823": 1,
+                              "42003": 1,
+                              "41861": 1,
+                              "41899": 1,
+                              "42272": 1,
+                              "42856": 1,
+                              "41693": 1,
+                              "41694": 1,
+                              "41842": 1,
+                              "41713": 1,
+                              "41714": 1,
+                              "41716": 1,}
 

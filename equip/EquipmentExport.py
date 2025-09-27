@@ -691,12 +691,13 @@ class ImportExcelEquipment():
             single = line.split('\t')
             equip = {}
             for j in range(len(self.attribOrder)):
-                if self.attribOrder[j] in ["star"]:
-                    equip[self.attribOrder[j]] = int(single[j])
-                elif self.attribOrder[j] in ["plug1", "plug2", "plug3"]:
-                    equip[self.attribOrder[j]] = self.getPlug(single[j])
-                else:
-                    equip[self.attribOrder[j]] = single[j]
+                if len(single) > j:
+                    if self.attribOrder[j] in ["star"]:
+                        equip[self.attribOrder[j]] = int(single[j])
+                    elif self.attribOrder[j] in ["plug1", "plug2", "plug3"]:
+                        equip[self.attribOrder[j]] = self.getPlug(single[j])
+                    else:
+                        equip[self.attribOrder[j]] = single[j]
             equip["pos"] = self.orderTable[i]
             equip["id_cat"] = self.scemeTable[i]
             equip["id_full"] = "%s,%s"%(equip["id_cat"], equip["id"])

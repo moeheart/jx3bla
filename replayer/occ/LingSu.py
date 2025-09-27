@@ -98,11 +98,14 @@ class LingSuWindow(HealerDisplayWindow):
         info1Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
         info1Displayer.setSingle("int", "七情数量", "qqhh", "num")
         info1Displayer.setSingle("int", "七情HPS", "qqhh", "HPS")
-        info1Displayer.setSingle("percent", "配伍比例", "general", "PeiwuRate")
-        info1Displayer.setSingle("int", "飘黄数量", "general", "PiaohuangAllNum")
+        # info1Displayer.setSingle("int", "飘黄施展", "general", "PiaohuangAllNum")
+        info1Displayer.setSingle("percent", "飘黄覆盖率", "piaohuang", "cover")
+        info1Displayer.setSingle("digit2", "飘黄层数", "piaohuang", "stack")
+        info1Displayer.setSingle("percent", "飘黄存在", "piaohuang", "coverAll")
         info1Displayer.export_text(frame5, 6)
 
         info2Displayer = SingleSkillDisplayer(self.result["skill"], self.rank)
+        info2Displayer.setSingle("percent", "配伍比例", "general", "PeiwuRate")
         info2Displayer.setSingle("int", "rDPS", "general", "rdps")
         info2Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
         info2Displayer.setSingle("percent", "战斗效率", "general", "efficiency")
@@ -431,11 +434,16 @@ class LingSuReplayer(HealerReplay):
         qianzhiDict = BuffCounter("20075", self.startTime, self.finalTime)  # 千枝buff
         qingchuanDict = BuffCounter("20800", self.startTime, self.finalTime)  # 青川buff
 
+        piaohuangDict = {}
+        piaohuangAllDict = {}
+
         for line in self.bld.info.player:
             battleStat[line] = [0, 0, 0]  # 正常伤害，配伍伤害，飘黄伤害
             piaohuangNumDict[line] = 0
             kumuStatus[line] = 0
             kumuHeal[line] = 0
+            piaohuangDict[line] = BuffCounter("20854", self.startTime, self.finalTime)  # 飘黄
+            piaohuangAllDict[line] = BuffCounter("20854", self.startTime, self.finalTime)  # 飘黄
 
         # 杂项
         qianzhiRemain = 0
@@ -604,6 +612,17 @@ class LingSuReplayer(HealerReplay):
                 #     kumuStatus[event.target] = 1
 
             elif event.dataType == "Buff":
+
+                if event.id in ["20854"] and event.target in self.bld.info.player:  # 飘黄
+                    # if len(qiusuDict[event.target].log) == 1 and event.time - self.startTime < 60000:  # 假设起始时有这个buff
+                    #     qiusuDict[event.target].log[0][1] = 1
+                    #     qiusuAllDict[event.target].log[0][1] = 1
+                    piaohuangDict[event.target].setState(event.time, event.stack)
+                    if event.stack > 0:
+                        piaohuangAllDict[event.target].setState(event.time, 1)
+                    else:
+                        piaohuangAllDict[event.target].setState(event.time, 0)
+
                 if event.id in ["21803"] and event.stack == 1 and event.target == self.mykey:  # cw特效:
                     self.bh.setSpecialSkill(event.id, "cw特效", "15888",
                                        event.time, 0, "触发cw特效")
@@ -808,6 +827,37 @@ class LingSuReplayer(HealerReplay):
         self.calculateSkillInfoDirect("qczl", qczlSkill)
         # 杂项
         qqhhSkill = self.calculateSkillInfo("qqhh", "28620")
+
+        # 飘黄
+        self.result["skill"]["piaohuang"] = {}
+        num = 0
+        sum = 0
+        sumStack = 0
+        numStack = 0
+        for key in piaohuangDict:
+            singleDict = piaohuangDict[key]
+            time = singleDict.buffTimeIntegral(exclude=self.bh.badPeriodDpsLog)
+            if time < 1e-10:
+                continue
+            num += self.battleTimeDict[key]
+            numStack += 1
+            sum += singleDict.buffTimeIntegral(exclude=self.bh.badPeriodDpsLog)
+            sumStack += singleDict.averageStack(exclude=self.bh.badPeriodDpsLog)
+        rate = roundCent(safe_divide(sum, num))
+        self.result["skill"]["piaohuang"]["cover"] = rate
+        self.result["skill"]["piaohuang"]["stack"] = roundCent(safe_divide(sumStack, numStack), 2)
+        num = 0
+        sum = 0
+        for key in piaohuangAllDict:
+            singleDict = piaohuangAllDict[key]
+            time = singleDict.buffTimeIntegral(exclude=self.bh.badPeriodDpsLog)
+            if time < 1e-10:
+                continue
+            num += self.battleTimeDict[key]
+            sum += singleDict.buffTimeIntegral(exclude=self.bh.badPeriodDpsLog)
+        rate = roundCent(safe_divide(sum, num))
+        self.result["skill"]["piaohuang"]["coverAll"] = rate
+
         # 整体
         self.result["skill"]["general"] = {}
         self.result["skill"]["general"]["PeiwuRate"] = overallRate

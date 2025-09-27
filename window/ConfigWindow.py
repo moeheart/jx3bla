@@ -297,6 +297,9 @@ class ConfigWindow(Window):
                             [
                                 "jcl格式，是茗伊团队工具的结果记录。这种记录结构轻巧，且拥有更全面的数据，但没有技能名等固定的信息。\n开启步骤：\n1. 在茗伊插件集-团队-团队工具中，勾选[xxx]\n2. 点击旁边的小齿轮，勾选[xxx]",
                                 "jx3dat格式，是茗伊战斗统计的结果记录。这种记录无需依赖全局信息，但没有部分数据种类。\n开启步骤：\n1. 在茗伊战斗统计的小齿轮中，勾选[记录所有复盘数据]。\n2. 按Shift点开历史页面，勾选[退出游戏时保存复盘][脱离战斗时保存复盘]，并取消[不保存历史复盘数据]。\n3. 再次按Shift点开历史页面，点击[仅在秘境中启用复盘]2-3次，使其取消。"])
+        self.constructEntry("Frame1", frame1, "团队名",
+                            "指定团队名。团队名会用于标识数据，使其显示在名人堂中。",
+                            "general", "team")
 
         self.frameInfo["Frame1"]["playername"]["entry"].bind('<Button-1>', self.clear_basepath)
         self.frameInfo["Frame1"]["jx3path"]["entry"].bind('<Button-1>', self.clear_basepath)

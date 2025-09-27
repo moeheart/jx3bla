@@ -101,6 +101,7 @@ class Config():
             self.item["general"]["text"] = int(self.item["general"].get("text", 0))
             self.item["general"]["datatype"] = self.item["general"].get("datatype", "jcl")
             self.item["general"]["edition"] = self.item["general"].get("edition", EDITION)
+            self.item["general"]["team"] = self.item["general"].get("team", "")
 
             self.item["actor"]["active"] = int(self.item["actor"].get("active", 1))
             self.item["actor"]["checkall"] = int(self.item["actor"].get("checkall", 0))

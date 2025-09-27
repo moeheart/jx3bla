@@ -300,6 +300,7 @@ def receiveBattle(jdata, cursor):
     mapName = jdata["mapdetail"]
     edition = jdata["edition"]
     hash = jdata["hash"]
+    team = jdata.get("team", "")
     statistics = str(jdata["statistics"]).replace('"', '`')
     map = getIDFromMap(mapName)
     gameEdition = getGameEditionFromTime(map, jdata["begintime"])
@@ -359,7 +360,9 @@ def receiveBattle(jdata, cursor):
                 scoreSuccess = 0
                 response['scoreStatus'] = 'expire'
 
-        if parseEdition(result[0][4]) >= parseEdition(edition):
+        if result[0][12] == "" and team != "":
+            print("Update team")
+        elif parseEdition(result[0][4]) >= parseEdition(edition):
             dupID = 1
         else:
             print("Update edition")
@@ -394,13 +397,17 @@ def receiveBattle(jdata, cursor):
     with open("database/ActorStat/%s" % hash, "w") as f:
         f.write(str(statistics))
 
-    sql = """INSERT INTO ActorStat VALUES ("%s", "%s", "%s", "%s", "%s", "%s", %d, %d, "%s", %d, %d, "", "%s")""" % (
-        server, boss, battleDate, mapDetail, edition, hash, win, editionFull, userID, battleTime, submitTime, gameEdition)
+    sql = """INSERT INTO ActorStat VALUES ("%s", "%s", "%s", "%s", "%s", "%s", %d, %d, "%s", %d, %d, "", "%s", "%s")""" % (
+        server, boss, battleDate, mapDetail, edition, hash, win, editionFull, userID, battleTime, submitTime, gameEdition, team)
     cursor.execute(sql)
 
     del statistics
 
     response['result'] = 'success'
+
+    if team == "":
+        response['result'] = 'noteam'
+
     response['hash'] = hash
     return response
 

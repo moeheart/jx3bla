@@ -119,9 +119,9 @@ MAP_RAW = {"未知地图": [0, 0, []],
            "冷龙峰": [668, 0, []],
            "一之窟": [686, 0, []],
            "太极宫": [706, 1, ["太極宮"]],
-           "空城殿": [710, 1, ["25人挑戰空城殿·上", "25人挑戰空城殿·下"]],  # TODO fix
+           "空城殿": [710, 5, ["25人挑戰空城殿·上", "25人挑戰空城殿·下"]],  # TODO fix
            "会战弓月城": [722, 1, ["會戰弓月城"]],
-           "缚罪之渊": [1, 1, ["縛罪之淵"]],
+           "缚罪之渊": [1, 5, ["縛罪之淵"]],
            }
 
 # 版本号，涉及的地图，合理的时间范围（开始时间戳，结束时间戳）
@@ -210,17 +210,25 @@ MAP_DICT_RECORD_LOGS = {}
 for map in MAP_RAW:
     if MAP_RAW[map][0] != 0:
         mapid = MAP_RAW[map][0]
-        MAP_DICT[str(mapid)] = "10人普通%s" % map
-        MAP_DICT[str(mapid + 1)] = "25人普通%s" % map
-        MAP_DICT[str(mapid + 2)] = "25人英雄%s" % map
+        if MAP_RAW[map][1] == 5:
+            MAP_DICT[str(mapid)] = "25人挑战%s·上" % map
+            MAP_DICT[str(mapid + 1)] = "25人挑战%s·下" % map
+        else:
+            MAP_DICT[str(mapid)] = "10人普通%s" % map
+            MAP_DICT[str(mapid + 1)] = "25人普通%s" % map
+            MAP_DICT[str(mapid + 2)] = "25人英雄%s" % map
         if MAP_RAW[map][1]:
             MAP_DICT_RECORD_LOGS[str(mapid)] = int(MAP_RAW[map][1])
             MAP_DICT_RECORD_LOGS[str(mapid + 1)] = int(MAP_RAW[map][1] * 2)
             MAP_DICT_RECORD_LOGS[str(mapid + 2)] = int(MAP_RAW[map][1] * 4)
         MAP_DICT_REVERSE[map] = str(mapid)
-        MAP_DICT_REVERSE["10人普通%s" % map] = str(mapid)
-        MAP_DICT_REVERSE["25人普通%s" % map] = str(mapid + 1)
-        MAP_DICT_REVERSE["25人英雄%s" % map] = str(mapid + 2)
+        if MAP_RAW[map][1] == 5:
+            MAP_DICT_REVERSE["25人挑战%s·上" % map] = str(mapid)
+            MAP_DICT_REVERSE["25人挑战%s·下" % map] = str(mapid + 1)
+        else:
+            MAP_DICT_REVERSE["10人普通%s" % map] = str(mapid)
+            MAP_DICT_REVERSE["25人普通%s" % map] = str(mapid + 1)
+            MAP_DICT_REVERSE["25人英雄%s" % map] = str(mapid + 2)
         for map_othername in MAP_RAW[map][2]:
             MAP_TRADITIONAL[map_othername] = map
             MAP_TRADITIONAL["10人普通%s" % map_othername] = "10人普通%s" % map
