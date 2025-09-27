@@ -489,22 +489,24 @@ def receiveReplay(jdata, cursor):
     if editionFull <= parseEdition("8.1.1"):
         score *= 100
 
-    print("[UpdateReplay] Step1")
 
-    sql = '''SELECT score from ReplayProStat WHERE mapdetail = "%s" and boss = "%s" and occ = "%s" and editionfull >= %d and gameEdition = "%s"''' % (mapDetail, boss, occ, parseEdition("8.3.5"), gameEdition)
-    cursor.execute(sql)
-    result = cursor.fetchall()
-    num = 0
-    numOver = 0
-    for line in result:
-        if line[0] == 0:
-            continue
-        num += 1
-        if score > line[0]:
-            numOver += 1
-    numSameOcc = num
-
-    print("[UpdateReplay] Step2")
+    # 性能问题不再计算，而且这个好像也没什么意义
+    # print("[UpdateReplay] Step1")
+    #
+    # sql = '''SELECT score from ReplayProStat WHERE mapdetail = "%s" and boss = "%s" and occ = "%s" and editionfull >= %d and gameEdition = "%s"''' % (mapDetail, boss, occ, parseEdition("8.3.5"), gameEdition)
+    # cursor.execute(sql)
+    # result = cursor.fetchall()
+    # num = 0
+    # numOver = 0
+    # for line in result:
+    #     if line[0] == 0:
+    #         continue
+    #     num += 1
+    #     if score > line[0]:
+    #         numOver += 1
+    # numSameOcc = num
+    #
+    # print("[UpdateReplay] Step2")
 
     # print(num, numOver)
 
@@ -516,7 +518,7 @@ def receiveReplay(jdata, cursor):
             print("Find Duplicated")
             shortID = result[0][0]
             scoreRank = result[0][3]
-            return {'result': 'dupid', 'num': num, 'numOver': numOver, 'shortID': shortID, 'scoreRank': scoreRank}
+            return {'result': 'dupid', 'num': 0, 'numOver': 0, 'shortID': shortID, 'scoreRank': scoreRank}
         else:
             print("Update edition")
 
@@ -567,7 +569,7 @@ def receiveReplay(jdata, cursor):
 
     print("[UpdateReplay] Final")
 
-    return {'result': 'success', 'num': numSameOcc, 'numOver': numOver, 'shortID': shortID, 'scoreRank': scoreRank}
+    return {'result': 'success', 'num': 0, 'numOver': 0, 'shortID': shortID, 'scoreRank': scoreRank}
 
 @app.route('/uploadReplayPro', methods=['POST'])
 def uploadReplayPro():
