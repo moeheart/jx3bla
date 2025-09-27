@@ -527,8 +527,12 @@ def receiveReplay(jdata, cursor):
 
     statistics["overall"]["shortID"] = shortID
 
+    print("Start writing file...")
+
     with open("database/ReplayProStat/%d" % shortID, "w") as f:
         f.write(str(statistics))
+
+    print("End writing file...")
 
     scoreRank = getRankFromKeys(score, occ, map, boss, "stat", "score", gameEdition)
     rhps = statistics["skill"]["healer"].get("rhps", 0)
