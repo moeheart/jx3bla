@@ -489,6 +489,8 @@ def receiveReplay(jdata, cursor):
     if editionFull <= parseEdition("8.1.1"):
         score *= 100
 
+    print("[UpdateReplay] Step1")
+
     sql = '''SELECT score from ReplayProStat WHERE mapdetail = "%s" and boss = "%s" and occ = "%s" and editionfull >= %d and gameEdition = "%s"''' % (mapDetail, boss, occ, parseEdition("8.3.5"), gameEdition)
     cursor.execute(sql)
     result = cursor.fetchall()
@@ -501,6 +503,8 @@ def receiveReplay(jdata, cursor):
         if score > line[0]:
             numOver += 1
     numSameOcc = num
+
+    print("[UpdateReplay] Step2")
 
     # print(num, numOver)
 
@@ -515,6 +519,8 @@ def receiveReplay(jdata, cursor):
             return {'result': 'dupid', 'num': num, 'numOver': numOver, 'shortID': shortID, 'scoreRank': scoreRank}
         else:
             print("Update edition")
+
+    print("[UpdateReplay] Step3")
 
     sql = '''DELETE FROM ReplayProStat WHERE hash = "%s"''' % hash
     cursor.execute(sql)
