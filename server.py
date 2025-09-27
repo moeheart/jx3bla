@@ -363,9 +363,7 @@ def receiveBattle(jdata, cursor):
                 scoreSuccess = 0
                 response['scoreStatus'] = 'expire'
 
-        print("[Debug]", result[0][12], "/", team)
-
-        if result[0][12] == "" and team != "":
+        if result[0][13] == "" and team != "":
             print("Update team")
         elif parseEdition(result[0][4]) >= parseEdition(edition):
             dupID = 1
