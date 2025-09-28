@@ -892,7 +892,7 @@ def getSinglePlayer():
 def getMapsfunc():
     result = {}
     for map in MAP_DICT:
-        result[map] = getIDFromMap(map)
+        result[map] = getMapFromID(map)
     return jsonify({'available': 1, 'text': "请求成功", 'result': result})
 
 @app.route('/getBossesFromMap', methods=['GET'])
@@ -944,11 +944,16 @@ def getHoFfunc():
     if mapid == "未知":
         return jsonify({'available': 0, 'text': "地图不存在"})
 
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
+    cursor = db.cursor()
+
 
     sql = '''select hash, server, team, battletime, length from ActorStat where team <> "" AND mapdetail = "%s" AND boss = "%s"''' % (map, boss)
     cursor.execute(sql)
     result = cursor.fetchall()
     resJson = {"table": []}
+
+    db.close()
 
     resultDict = {}
     for item in result:
