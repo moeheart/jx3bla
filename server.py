@@ -948,11 +948,10 @@ def getHoFfunc():
     cursor = db.cursor()
 
 
-    sql = '''select hash, server, team, battletime, length from ActorStat where team <> "" AND mapdetail = "%s" AND boss = "%s"''' % (map, boss)
+    sql = '''select hash, server, team, battletime, length from ActorStat where team <> "" AND mapdetail = "%s" AND boss = "%s"''' % (mapid, boss)
     cursor.execute(sql)
     result = cursor.fetchall()
     resJson = {"table": []}
-
     db.close()
 
     resultDict = {}
