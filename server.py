@@ -987,7 +987,7 @@ def getHoFfunc():
                 act["available"] = 1
             act = jResult["act"]
             for player in act["rdps"]["player"]:
-                players.append(act["rdps"]["player"][player]["name"], act["rdps"]["player"][player]["occ"])
+                players.append([act["rdps"]["player"][player]["name"], act["rdps"]["player"][player]["occ"]])
         item["player"] = players
 
     resJson["table"] = resultList
