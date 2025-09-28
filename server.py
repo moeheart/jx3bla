@@ -888,6 +888,109 @@ def getSinglePlayer():
     db.close()
     return jsonify({'available': 1, 'text': "请求成功", 'result': resJson})
 
+@app.route('/getMaps', methods=['GET'])
+def getMapsfunc():
+    result = {}
+    for map in MAP_DICT:
+        result[map] = getIDFromMap(map)
+    return jsonify({'available': 1, 'text': "请求成功", 'result': result})
+
+@app.route('/getBossesFromMap', methods=['GET'])
+def getBossesFromMapfunc():
+    result = {}
+    map = request.args.get('map')
+    mapid = getIDFromMap(map)
+    if mapid == "未知":
+        return jsonify({'available': 0, 'text': "地图不存在"})
+    baseMap = "未知"
+    baseid = 0
+    for item in MAP_RAW:
+        if int(mapid) - MAP_RAW[item][0] <= 2:
+            baseMap = item
+            baseid = MAP_RAW[item][0]
+            break
+    if baseMap == "未知":
+        return jsonify({'available': 0, 'text': "地图不存在"})
+    maporder = 0
+    for i in range(len(MAP_NAME_LIST)):
+        if MAP_NAME_LIST[i] == baseMap:
+            maporder = i
+            break
+    for item in BOSS_RAW:
+        if BOSS_RAW[item][0] == maporder:
+            result[item] = BOSS_RAW[item][1]
+    return jsonify({'available': 1, 'text': "请求成功", 'result': result})
+
+@app.route('/getGameEditionFromMap', methods=['GET'])
+def getGameEditionFromMapfunc():
+    result = {}
+    map = request.args.get('map')
+    mapid = getIDFromMap(map)
+    if mapid == "未知":
+        return jsonify({'available': 0, 'text': "地图不存在"})
+    for item in GAMEEDITION_RAW:
+        if mapid in GAMEEDITION_RAW[item][1]:
+            result[item] = GAMEEDITION_RAW[item][0]
+    return jsonify({'available': 1, 'text': "请求成功", 'result': result})
+
+@app.route('/getHoFRank', methods=['GET'])
+def getHoFfunc():
+    map = request.args.get('map')
+    boss = request.args.get("boss")
+    orderby = request.args.get("orderby")
+    if orderby not in ["firstkill", "speedrun"]:
+        return jsonify({'available': 0, 'text': "排序方式不合法"})
+    mapid = getIDFromMap(map)
+    if mapid == "未知":
+        return jsonify({'available': 0, 'text': "地图不存在"})
+
+
+    sql = '''select hash, server, team, battletime, length from ActorStat where team <> "" AND mapdetail = "%s" AND boss = "%s"''' % (map, boss)
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    resJson = {"table": []}
+
+    resultDict = {}
+    for item in result:
+        endtime = item[3] + item[4] / 1000
+        if orderby == "firstkill":
+            value = endtime
+        else:
+            value = item[4]
+        if item[2] not in resultDict:
+            resultDict[item[2]] = [item[0], item[1], endtime, item[4], value]
+        else:
+            if value < resultDict[item[2]][4]:
+                resultDict[item[2]] = [item[0], item[1], endtime, item[4], value]
+
+    resultList = []
+    for key in resultDict:
+        resultList.append({"team": key, "hash": resultDict[key][0], "server": resultDict[key][1],
+                           "endtime": resultDict[key][2], "length": resultDict[key][3], "key": resultDict[key][4]})
+
+    resultList.sort(key = lambda x:x["key"])
+    if len(resultList) > 100:
+        resultList = resultList[0:100]
+
+    for item in resultList:
+        players = []
+        with open("database/ActorStat/%s" % item["hash"], "r") as f:
+            text = f.read().replace('\n', '\\n').replace('\t', '\\t').replace("'", '"')
+            text1 = text
+            jResult = json.loads(text1)
+            act = {"available": 0}
+            if "act" in jResult:
+                act["available"] = 1
+            act = jResult["act"]
+            for player in act["rdps"]["player"]:
+                players.append(act["rdps"]["player"][player]["name"], act["rdps"]["player"][player]["occ"])
+        item["player"] = players
+
+    resJson["table"] = resultList
+
+    return jsonify({'available': 1, 'text': "请求成功", 'result': resJson})
+
+
 @app.route('/getXinfaRank', methods=['GET'])
 def getXinfaRankfunc():
     map = request.args.get('map')
