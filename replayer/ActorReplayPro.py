@@ -1575,25 +1575,26 @@ class ActorProReplayer(ReplayerBase):
             if self.config.item["xiangzhi"]["active"] and self.occDetailList[id] == "22h":  # 奶歌
                 replayer = XiangZhiProReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window,
                                                name, actorData)
-            if self.config.item["lingsu"]["active"] and self.occDetailList[id] == "212h":  # 灵素
+            elif self.config.item["lingsu"]["active"] and self.occDetailList[id] == "212h":  # 灵素
                 replayer = LingSuReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name,
                                           actorData)
-            if self.config.item["lijing"]["active"] and self.occDetailList[id] == "2h":  # 奶花
+            elif self.config.item["lijing"]["active"] and self.occDetailList[id] == "2h":  # 奶花
                 replayer = LiJingYiDaoReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window,
                                                name, actorData)
-            if self.config.item["yunchang"]["active"] and self.occDetailList[id] == "5h":  # 奶秀
+            elif self.config.item["yunchang"]["active"] and self.occDetailList[id] == "5h":  # 奶秀
                 replayer = YunChangXinJingReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window,
                                                    name, actorData)
-            if self.config.item["butian"]["active"] and self.occDetailList[id] == "6h":  # 奶毒
+            elif self.config.item["butian"]["active"] and self.occDetailList[id] == "6h":  # 奶毒
                 replayer = BuTianJueReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name,
                                              actorData)
-            if self.occDetailList[id] == "2d":  # 花间
+            elif self.occDetailList[id] == "2d":  # 花间
                 replayer = HuaJianYouReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window,
                                               name, actorData)
-            if self.occDetailList[id] in ["1d", "1t", "3d", "3t", "4p", "4m", "5d", "6d", "7p", "7m", "8", "9", "10d",
-                                          "10t",
-                                          "21d", "21t", "22d", "23", "24", "25", "211", "212d", "213", "214",
-                                          "215"] and rdps != 0:
+            # if self.occDetailList[id] in ["1d", "1t", "3d", "3t", "4p", "4m", "5d", "6d", "7p", "7m", "8", "9", "10d",
+            #                               "10t",
+            #                               "21d", "21t", "22d", "23", "24", "25", "211", "212d", "213", "214",
+            #                               "215"] and rdps != 0:
+            elif rdps != 0:
                 replayer = DpsReplayer(self.config, self.fileNameInfo, self.path, self.bldDict, self.window, name,
                                        actorData, self.occDetailList[id])
             if replayer is not None:

@@ -900,6 +900,8 @@ def getColor(occ):
     return
     - 颜色RGB代码。
     '''
+    if occ[-1] == "w":
+        occ = occ[:-1]
     if occ[-1] in ['d', 't', 'h', 'p', 'm']:
         occ = occ[:-1]
     res = (0, 0, 0)
@@ -1187,6 +1189,7 @@ def getOccDetailFromXinfaCode(xinfaCode):
         "10698": "213",
         "10756": "214",
         "10786": "215",
+        "10821": "34",
         "100053": "1dw",  # 易筋
         "100069": "1tw",  # 洗髓
         "100389": "4pw",  # 剑纯
@@ -1219,7 +1222,8 @@ def getOccDetailFromXinfaCode(xinfaCode):
         "101716": "7pw",  # 惊羽
         "101734": "7mw",  # 天罗
         "101740": "214w",  # 万灵
-        "123456": "214",  # 段氏  TODO 界
+        "102278": "215w",  # 段氏  TODO 界
+        "102393": "34w",  # 无相楼
     }
     if xinfaCode in XINFA_CODE_TO_OCCDETAIL:
         return XINFA_CODE_TO_OCCDETAIL[xinfaCode]
