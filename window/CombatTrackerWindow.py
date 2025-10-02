@@ -274,7 +274,7 @@ class CombatTrackerWindow(Window):
         s = ttk.Style()
         s.theme_use('clam')
         s.configure("TProgressbar", thickness=30)
-        for i in [0,1,2,3,4,5,6,7,8,9,10,21,22,23,24,25,211,212,213]:
+        for i in [0,1,2,3,4,5,6,7,8,9,10,21,22,23,24,25,211,212,213,214,215,34]:
             color = getColor(str(i))
             s.configure("bar%d.Horizontal.TProgressbar" % i, background=color, lightcolor=color,
                 darkcolor=color)
