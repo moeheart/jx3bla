@@ -1010,7 +1010,7 @@ def getXinfaRankfunc():
     if orderby in ["rhps", "hps"]:
         case = "healer"
     if gameEdition is None:
-        gameEdition = "all"
+        jsonify({'available': 0, 'text': "未指定数据版本", 'result': []})
 
     occ_collect = []
 
@@ -1022,7 +1022,6 @@ def getXinfaRankfunc():
         if mapid == "未知":
             continue
         tablekey = "%s-%s-%s-%s-%s-%s" % (occ_pinyin, mapid, boss, case, orderby, gameEdition)
-        print("[Tabelkey]", tabelkey)
         if tablekey in app.percent_data:
             #result[occ_pinyin] = app.percent_data[tablekey]
             table = json.loads(app.percent_data[tablekey]["value"])
