@@ -1014,6 +1014,7 @@ def getXinfaRankfunc():
 
     occ_collect = []
 
+    print("[Test]", OCC_PINYIN_DICT)
     for key in OCC_PINYIN_DICT:
         occ_pinyin = OCC_PINYIN_DICT[key]
         if occ_pinyin == "unknown":
@@ -1021,6 +1022,7 @@ def getXinfaRankfunc():
         if mapid == "未知":
             continue
         tablekey = "%s-%s-%s-%s-%s-%s" % (occ_pinyin, mapid, boss, case, orderby, gameEdition)
+        print("[Tabelkey]", tabelkey)
         if tablekey in app.percent_data:
             #result[occ_pinyin] = app.percent_data[tablekey]
             table = json.loads(app.percent_data[tablekey]["value"])
@@ -1034,7 +1036,6 @@ def getXinfaRankfunc():
     #     real_result.append({"name": line[0], "value": result[line[0]]["value"], "num": result[line[0]]["num"]})
 
     return jsonify({'available': 1, 'text': "请求成功", 'result': occ_collect})
-
 
 
 @app.route('/getRank', methods=['GET'])
