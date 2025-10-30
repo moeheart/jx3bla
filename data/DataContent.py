@@ -486,6 +486,9 @@ class OverallData():
             self.npc[key].x = 0
             self.npc[key].y = 0
             self.npc[key].z = 0
+            self.npc[key].firstX = 0;
+            self.npc[key].firstY = 0;
+            self.npc[key].firstZ = 0;
             self.npc[key].dir = 0
 
     def addDoodad(self, key, templateID):

@@ -153,12 +153,19 @@ class BattleLogData():
                             self.info.player[jclItem[5]["1"]].qx = jclItem[5]["7"]
                     playerNameDict[self.info.player[jclItem[5]["1"]].name] = jclItem[5]["1"]
                 elif jclItem[4] == "8":
+                    first = False
+                    if jclItem[5]["1"] not in self.info.npc:
+                        first = True
                     self.info.addNPC(jclItem[5]["1"], jclItem[5]["2"])
                     self.info.npc[jclItem[5]["1"]].templateID = jclItem[5]["3"]
                     self.info.npc[jclItem[5]["1"]].x = int(jclItem[5]["5"])
                     self.info.npc[jclItem[5]["1"]].y = int(jclItem[5]["6"])
                     self.info.npc[jclItem[5]["1"]].z = int(jclItem[5]["7"])
                     self.info.npc[jclItem[5]["1"]].dir = int(jclItem[5]["8"])
+                    if first:
+                        self.info.npc[jclItem[5]["1"]].firstX = int(jclItem[5]["5"])
+                        self.info.npc[jclItem[5]["1"]].firstY = int(jclItem[5]["6"])
+                        self.info.npc[jclItem[5]["1"]].firstZ = int(jclItem[5]["7"])
                     # 判断召唤物
                     if '的' in jclItem[5]["2"]:
                         possiblePlayerName = '的'.join(jclItem[5]["2"].strip('"').split('的')[:-1])

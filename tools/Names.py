@@ -121,7 +121,7 @@ MAP_RAW = {"未知地图": [0, 0, []],
            "太极宫": [706, 1, ["太極宮"]],
            "空城殿": [710, 5, ["25人挑戰空城殿·上", "25人挑戰空城殿·下"]],  # TODO fix
            "会战弓月城": [722, 1, ["會戰弓月城"]],
-           "缚罪之渊": [1, 5, ["縛罪之淵"]],
+           "缚罪之渊": [1, 6, ["縛罪之淵"]],
            }
 
 # 版本号，涉及的地图，合理的时间范围（开始时间戳，结束时间戳）
@@ -143,8 +143,9 @@ GAMEEDITION_RAW = {
     "131": ["太极密录（初版）", ["706", "707", "708", "710", "711"], [[1744844400, 1747609200]]],
     "132": ["太极密录（一削）", ["706", "707", "708", "710", "711"], [[1747609200, 2147483647]]],
     "140": ["山海源流（体服）", ["722", "723", "724"], [[0, 1761177600]]],
-    "141": ["山海源流（初版）", ["722", "723", "724"], [[1761177600, 1764201600]]],
-    "142": ["山海源流（一削）", ["722", "723", "724"], [[1764201600, 2147483647]]],
+    "141": ["山海源流（体服2）", ["722", "723", "724"], [[1761177600, 1761782400]]],
+    "142": ["山海源流（初版）", ["722", "723", "724"], [[1761782400, 1764547200]]],
+    "143": ["山海源流（一削）", ["722", "723", "724"], [[1764547200, 2147483647]]],
 }
 
 BOSS_DICT = {}
@@ -213,10 +214,12 @@ for map in MAP_RAW:
         if MAP_RAW[map][1] == 5:
             MAP_DICT[str(mapid)] = "25人挑战%s·上" % map
             MAP_DICT[str(mapid + 1)] = "25人挑战%s·下" % map
-        else:
+        elif MAP_RAW[map][1] != 6:
             MAP_DICT[str(mapid)] = "10人普通%s" % map
             MAP_DICT[str(mapid + 1)] = "25人普通%s" % map
             MAP_DICT[str(mapid + 2)] = "25人英雄%s" % map
+        else:
+            MAP_DICT[str(mapid)] = map
         if MAP_RAW[map][1]:
             MAP_DICT_RECORD_LOGS[str(mapid)] = int(MAP_RAW[map][1])
             MAP_DICT_RECORD_LOGS[str(mapid + 1)] = int(MAP_RAW[map][1] * 2)
@@ -225,10 +228,12 @@ for map in MAP_RAW:
         if MAP_RAW[map][1] == 5:
             MAP_DICT_REVERSE["25人挑战%s·上" % map] = str(mapid)
             MAP_DICT_REVERSE["25人挑战%s·下" % map] = str(mapid + 1)
-        else:
+        elif MAP_RAW[map][1] != 6:
             MAP_DICT_REVERSE["10人普通%s" % map] = str(mapid)
             MAP_DICT_REVERSE["25人普通%s" % map] = str(mapid + 1)
             MAP_DICT_REVERSE["25人英雄%s" % map] = str(mapid + 2)
+        else:
+            MAP_DICT_REVERSE[map] = str(mapid)
         for map_othername in MAP_RAW[map][2]:
             MAP_TRADITIONAL[map_othername] = map
             MAP_TRADITIONAL["10人普通%s" % map_othername] = "10人普通%s" % map

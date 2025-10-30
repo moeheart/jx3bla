@@ -186,6 +186,11 @@ class YekuiReplayer(SpecificReplayerPro):
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
                 name = "n%s" % self.bld.info.npc[event.id].templateID
                 skillName = self.bld.info.npc[event.id].name
+                # print("[YekuiDebug]", parseTime((event.time - self.startTime) / 1000), event.id, name,
+                #       self.bld.info.npc[event.id].x, self.bld.info.npc[event.id].y)
+                # if name == "n134212":
+                #     with open("yekui.txt", "a") as f:
+                #         f.write("%s %s %s\n" % (event.time, self.bld.info.npc[event.id].firstX, self.bld.info.npc[event.id].firstY))
                 if name not in self.bhBlackList and event.time - self.bhTime.get(name, 0) > 3000:
                     self.bhTime[name] = event.time
                     if "的" not in skillName:
@@ -195,9 +200,10 @@ class YekuiReplayer(SpecificReplayerPro):
                         #                        1, "NPC出现", "npc")
 
         elif event.dataType == "Death":  # 重伤记录
-            if event.id in self.bld.info.npc and self.bld.info.getName(event.id) in ["叶葵"]:
-                self.win = 1
-                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            pass
+            # if event.id in self.bld.info.npc and self.bld.info.getName(event.id) in ["叶葵"]:
+            #     self.win = 1
+            #     self.bh.setBadPeriod(event.time, self.finalTime, True, True)
 
         elif event.dataType == "Battle":  # 战斗状态变化
             pass

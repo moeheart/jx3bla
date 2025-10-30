@@ -165,9 +165,15 @@ class TunanziReplayer(SpecificReplayerPro):
             elif event.content in ['"呃……"', '"不……不想死……叫……叫太醫……"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-            elif event.content in ['""', '""']:
+            elif event.content in ['"南冥激荡……鲲鲸击浪！"', '"南冥激盪…鯤鯨擊浪！"']:
                 pass
-            elif event.content in ['""', '""']:
+            elif event.content in ['"紫气东来……鲲鲸跃海！"', '"紫氣東來…鯡鯨躍海！"']:
+                pass
+            elif event.content in ['"手可摘星！"', '"手可摘星！"']:
+                pass
+            elif event.content in ['"嘿！"', '"嘿！"']:
+                pass
+            elif event.content in ['"哈哈哈……"', '"哈哈哈……"']:
                 pass
             elif event.content in ['""', '""']:
                 pass
