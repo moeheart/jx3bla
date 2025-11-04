@@ -160,15 +160,23 @@ class YekuiReplayer(SpecificReplayerPro):
             #         self.bh.setCall("28054", "绿宝石", "2652", event.time, 5000, event.target, "绿宝石点名")
 
         elif event.dataType == "Shout":
-            if event.content in ['"擅闯皇宫禁地者死！"', '"擅闖皇宮禁地者死！"']:
-                self.bh.setBadPeriod(self.startTime, event.time - 1000, True, True)
+            if event.content in ['"乖乖受死吧！"', '"乖乖受死吧！"']:
+                if not self.firstShout:
+                    self.bh.setBadPeriod(self.startTime, event.time - 1000, True, True)
+                    self.firstShout = 1
             elif event.content in ['"不……不想死……叫……叫太医……"', '"不……不想死……叫……叫太醫……"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
                 # self.bh.setCritPeriod(self.cszzStart, event.time, False, True)
-            elif event.content in ['""', '""']:
+            elif event.content in ['"手牵手进棺材去吧！"', '"手牽手進棺材去吧！"']:
                 pass
-            elif event.content in ['""', '""']:
+            elif event.content in ['"想化为灰烬，还是碎成冰渣？"', '"想化為灰燼，還是碎成冰渣？"']:
+                pass
+            elif event.content in ['"给老子变成碎肉！"', '"給老子變成碎肉！"']:
+                pass
+            elif event.content in ['"嘿嘿嘿……这下可是有点疼的！"', '"嘿嘿嘿……這下可是有點痛的！"']:
+                pass
+            elif event.content in ['"切……这速成的东西果然靠不住……"', '"切……這速成的東西果然靠不住……"']:
                 pass
             elif event.content in ['""', '""']:
                 pass
@@ -180,7 +188,7 @@ class YekuiReplayer(SpecificReplayerPro):
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
         elif event.dataType == "Scene":  # 进入、离开场景
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["叶葵宝箱", "葉葵寶箱"]:
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["弓月城宝箱", "弓月城寶箱"]:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
@@ -201,9 +209,9 @@ class YekuiReplayer(SpecificReplayerPro):
 
         elif event.dataType == "Death":  # 重伤记录
             pass
-            # if event.id in self.bld.info.npc and self.bld.info.getName(event.id) in ["叶葵"]:
-            #     self.win = 1
-            #     self.bh.setBadPeriod(event.time, self.finalTime, True, True)
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].templateID in ["133457", "134224", "134282"]:
+                self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
 
         elif event.dataType == "Battle":  # 战斗状态变化
             pass
@@ -244,14 +252,17 @@ class YekuiReplayer(SpecificReplayerPro):
         self.immuneHealer = 0
         self.immuneTime = 0
 
-        self.cszzStart = 0
+        self.firstShout = 0
 
         self.bhBlackList.extend(["s41854",  # 普攻
-                                 "s41868",  # 坠刃
-                                 "b31502", "b31758", "s41861",  # 锁影缠身
-                                 "b31706", "s42272", "s42270",  # 索命旋刃
-                                 "s41899",  # 裂空旋刃杀
-                                 "s42003", "s42699",  # 链命
+                                 "s41868", "s41869", "s41870",  # 坠刃
+                                 "b31502", "b31758", "s41861", "s41862", "s41863",  # 锁影缠身
+                                 "b31706", "s42272", "s42270", "s42321", "s42322", "s42315", "s42316", "s42317", "s42318", "s42319",  # 索命旋刃
+                                 "s41899", "s41900", "s41901",  # 裂空旋刃杀
+                                 "s42003", "s42699", "s42004", "s42005", "s42006",  # 链命
+                                 "b31506", "s41975", "b31507", "s41974",  # 寒冰，烈焰
+                                 "s41865", "s41866",  # 断魂扫
+
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
@@ -261,6 +272,7 @@ class YekuiReplayer(SpecificReplayerPro):
                        "c41897": ["4224", "#0000ff", 5000],  # 裂空旋刃杀
                        "c41898": ["4224", "#3300ff", 5000],  # 裂空旋刃杀
                        "c41998": ["733", "#ff7700", 3000],  # 链命
+                       "c41864": ["3429", "#ff0077", 5000],  # 断魂扫
                        }
 
         # 叶葵数据格式：

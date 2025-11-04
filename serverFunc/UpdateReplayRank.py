@@ -237,7 +237,7 @@ def RefreshStat():
             sql = """INSERT INTO ReplayProStatRank VALUES ("%s", %d, "%s")""" % (key, res[key]["num"], res[key]["value"])
             cursor.execute(sql)
     except:
-        print(res[key])
+        print(key, res[key])
 
     dataDict = {"rateEdition": str(int(time.time()))}
     

@@ -159,7 +159,7 @@ class JieleReplayer(SpecificReplayerPro):
         elif event.dataType == "Shout":
             if event.content in ['"擅闯皇宫禁地者死！"', '"擅闖皇宮禁地者死！"']:
                 self.bh.setBadPeriod(self.startTime, event.time - 1000, True, True)
-            elif event.content in ['"不……不想死……叫……叫太医……"', '"不……不想死……叫……叫太醫……"']:
+            elif event.content in ['"我的霸业……要止步于此了吗……"', '"我的霸業……要止步於此了嗎……"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             elif event.content in ['""', '""']:
@@ -240,6 +240,8 @@ class JieleReplayer(SpecificReplayerPro):
                                  "s41827",  # 离弦
                                  "s42092", "b31903",  # 破阵斩
                                  "s41812",  # 苍原弧月
+                                 "b31768",  # 阻力
+                                 "b31740",  # 眩晕
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 

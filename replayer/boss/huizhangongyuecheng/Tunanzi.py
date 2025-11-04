@@ -175,12 +175,27 @@ class TunanziReplayer(SpecificReplayerPro):
                 pass
             elif event.content in ['"哈哈哈……"', '"哈哈哈……"']:
                 pass
-            elif event.content in ['""', '""']:
+            elif event.content in ['"星宿落……"', '"星宿落……"']:
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
+            elif event.content in ['"万物生！"', '"萬物生！"']:
+                self.bh.setEnvironment("0", event.content, "340", event.time, 0, 1, "喊话", "shout")
+            elif event.content in ['"吃吾一掌！"', '"吃吾一掌！"']:
                 pass
-            elif event.content in ['""', '""']:
+            elif event.content in ['"过来！"', '"過來！"']:
                 pass
-            elif event.content in ['""', '""']:
+            elif event.content in ['"鹏鸟腾空……振翅搏风！"', '"鵬鳥騰空…振翅搏風！"']:
                 pass
+            elif event.content in ['"汝辈竖子……何处可逃？"', '"汝輩豎子……何處可逃？"']:
+                pass
+            elif event.content in ['"啊！可恶！！！可恶！！！"', '"啊！可惡！ ！ ！可惡！ ！ ！"']:
+                pass
+            elif event.content in ['"哼……逃过初一，可躲十五？"', '"哼……逃過初一，可躲十五？"']:
+                pass
+            elif event.content in ['"啊！！怎么可能……"', '"啊！ ！怎麼可能…"']:
+                pass
+            elif event.content in ['"哼，有些斤两……"', '"哼，有些斤兩…"']:
+                self.win = 1
+                self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             else:
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
@@ -251,7 +266,10 @@ class TunanziReplayer(SpecificReplayerPro):
                                  "s41783", "s41784", "s41785",  # 跃海式
                                  "s41786", "b31479",  # 荡波式
                                  "b31629",  # 摘星
-
+                                 "s41798",  # 鱼普攻
+                                 "b31737", "s41801", "s42349",  # 万里鹏击
+                                 "b32057",  # 垂钓
+                                 "s41802",  # 鹏翼搏风
                                  ])
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
 
@@ -259,6 +277,13 @@ class TunanziReplayer(SpecificReplayerPro):
                        "c41782": ["16379", "#ff7700", 5000],  # 跃海式
                        "c41786": ["3430", "#0000ff", 3000],  # 荡波式
                        "s41787": ["3319", "#ff0077", 0],  # 摘星手
+                       "c42835": ["3400", "#ff0077", 3000],  # 万里鹏击
+                       "s41799": ["3427", "#00ff00", 0],  # 水球
+                       "c42562": ["3425", "#ff7777", 5000],  # 泡沫滑行
+                       "c41788": ["12436", "#77ff00", 5000],  # 垂钓
+                       "c42932": ["335", "#0077ff", 4000],  # 鹏翼搏风
+
+
                        }
 
         # 图南子数据格式：
