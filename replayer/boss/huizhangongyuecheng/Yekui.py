@@ -61,6 +61,10 @@ class YekuiReplayer(SpecificReplayerPro):
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
 
+        print("TotalDamage:", self.totalDamage)
+        if self.totalDamage >= self.targetHP * 0.98:
+            self.win = 1
+
         self.countFinalOverall()
         self.changePhase(self.finalTime, 0)
         self.bh.setEnvironmentInfo(self.bhInfo)
@@ -126,6 +130,8 @@ class YekuiReplayer(SpecificReplayerPro):
                     self.bh.setCritPeriod(event.time, event.time + 4000, False, True)
 
             else:
+                if self.bld.info.getName(event.target) in ["叶葵"]:
+                    self.totalDamage += event.damageEff
                 if event.caster in self.bld.info.player and event.caster in self.statDict:
                     # self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
@@ -278,13 +284,18 @@ class YekuiReplayer(SpecificReplayerPro):
         # 叶葵数据格式：
         # ？
 
+        self.targetHP = 0
+        self.totalDamage = 0
 
         if self.bld.info.map == "会战弓月城":
             self.bh.critPeriodDesc = "暂无."
+            self.targetHP = 1275557400
         if self.bld.info.map == "25人普通会战弓月城":
             self.bh.critPeriodDesc = "[裂空旋刃杀]期间."
+            self.targetHP = 13956360000
         if self.bld.info.map == "25人英雄会战弓月城":
             self.bh.critPeriodDesc = "[裂空旋刃杀]期间."
+            self.targetHP = 38298750000
 
         for line in self.bld.info.player:
             pass

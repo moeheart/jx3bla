@@ -61,6 +61,10 @@ class YinxuechenReplayer(SpecificReplayerPro):
         战斗结束时需要处理的流程。包括BOSS的通关喊话和全团脱战。
         '''
 
+        print("TotalDamage:", self.totalDamage)
+        if self.totalDamage >= self.targetHP * 0.98:
+            self.win = 1
+
         self.countFinalOverall()
         self.changePhase(self.finalTime, 0)
         self.bh.setEnvironmentInfo(self.bhInfo)
@@ -121,13 +125,19 @@ class YinxuechenReplayer(SpecificReplayerPro):
                             if key in self.bhInfo or self.debug:
                                 self.bh.setEnvironment(event.id, skillName, "341", event.time, 0, 1, "招式命中玩家",
                                                        "skill")
+                if event.id == "41713":
+                    self.bh.setCritPeriod(event.time, event.time + 6750, False, True)
+
 
             else:
                 if event.caster in self.bld.info.player and event.caster in self.statDict:
                     # self.stat[event.caster][2] += event.damageEff
                     if event.target in self.bld.info.npc:
-                        if self.bld.info.getName(event.target) in ["尹雪尘"]:
+                        # if self.bld.info.getName(event.target) in ["尹雪尘"]:
+                        #     self.bh.setMainTarget(event.target)
+                        if self.bld.info.npc[event.target].templateID in ["133620", "134237", "134309"]:
                             self.bh.setMainTarget(event.target)
+                            self.totalDamage += event.damageEff
 
         elif event.dataType == "Buff":
             if event.target not in self.bld.info.player:
@@ -162,7 +172,7 @@ class YinxuechenReplayer(SpecificReplayerPro):
             elif event.content in ['"不……不想死……叫……叫太医……"', '"不……不想死……叫……叫太醫……"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
-                self.bh.setCritPeriod(self.cszzStart, event.time, False, True)
+                # self.bh.setCritPeriod(self.cszzStart, event.time, False, True)
             elif event.content in ['"尝尝天罚的滋味吧！"', '"嚐嚐天罰的滋味吧！"']:
                 pass
             elif event.content in ['"哼！这回可没那畜生护着你们了！"', '"哼！這回可沒那畜生護著你們了！"']:
@@ -192,7 +202,8 @@ class YinxuechenReplayer(SpecificReplayerPro):
                         #                        1, "NPC出现", "npc")
 
         elif event.dataType == "Death":  # 重伤记录
-            if event.id in self.bld.info.npc and self.bld.info.getName(event.id) in ["尹雪尘", "尹雪塵"]:
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].templateID in ["133620", "134237", "134309"]:
+            # if event.id in self.bld.info.npc and self.bld.info.getName(event.id) in ["尹雪尘", "尹雪塵"]:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
 
@@ -235,7 +246,7 @@ class YinxuechenReplayer(SpecificReplayerPro):
         self.immuneHealer = 0
         self.immuneTime = 0
 
-        self.cszzStart = 0
+        self.yczbStart = 0
 
         self.bhBlackList.extend(["s42832", "s41687", "b31408",  # 普攻
                                  "s41690", "s42676", "s41691",  # 破阵曲·徵
@@ -275,7 +286,7 @@ class YinxuechenReplayer(SpecificReplayerPro):
                        "c41710": ["3404", "#ff0033", 5000],  # 浮游天地
                        "s41713": ["2027", "#ff3377", 0],  # 逐波灵游
                        "c41715": ["3431", "#77ff00", 6000],  # 跃潮斩波
-                       "c41720": ["2009", "#3300ff", 5000],  # 无相玄机
+                       "c41720": ["2019", "#3300ff", 5000],  # 无相玄机
                        "c41726": ["4564", "#7733ff", 5000],  # 破阵曲·羽
                        "c41724": ["3428", "#7777ff", 7000],  # 艮山掌·一式
                        "c41725": ["3428", "#0000ff", 1000],  # 艮山掌
@@ -286,13 +297,18 @@ class YinxuechenReplayer(SpecificReplayerPro):
         # 尹雪尘数据格式：
         # ？
 
+        self.targetHP = 0
+        self.totalDamage = 0
 
         if self.bld.info.map == "会战弓月城":
             self.bh.critPeriodDesc = "暂无."
+            self.targetHP = 1482568040
         if self.bld.info.map == "25人普通会战弓月城":
-            self.bh.critPeriodDesc = "暂无."
+            self.bh.critPeriodDesc = "[逐波灵游]之后，[驰风震域]结算前的治疗时间。"
+            self.targetHP = 15659600000
         if self.bld.info.map == "25人英雄会战弓月城":
-            self.bh.critPeriodDesc = "暂无."
+            self.bh.critPeriodDesc = "[逐波灵游]之后，[驰风震域]结算前的治疗时间。"
+            self.targetHP = 30393000000
 
         for line in self.bld.info.player:
             pass

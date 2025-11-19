@@ -1224,7 +1224,7 @@ class CombatTracker():
                 if self.critStatusHealer:
                     self.chpsCast[event.caster].record(event.target, "5," + event.full_id, event.healEff)
                 self.rhpsRecorder.record(event.caster, event.target, event.heal, event.healEff, "5," + event.full_id, self.hpStatus[event.target]["status"])
-            elif event.full_id in ['"1,29748,1"', '"1,23951,2"']:  # 其它响应式处理
+            elif event.full_id in ['"1,29748,1"', '"1,23951,2"', '"1,40345,1"']:  # 其它响应式处理
                 self.ahpsCast[event.caster].record(event.target, "5," + event.full_id, event.healEff)
                 if self.critStatusHealer:
                     self.chpsCast[event.caster].record(event.target, "5," + event.full_id, event.healEff)
@@ -1328,12 +1328,15 @@ class CombatTracker():
                     res = self.resistBuff[event.target][key]
                     damageResist = int(damageOrigin * (res[2] / 1024))
                     # print("[ResistRes]", key, sumDamage, resistSum, damageOrigin, damageResist, res)
+                    source = res[0]
+                    if key == "2,2573,1":
+                        source = "*团队增益"
                     if res[0] in self.ahpsCast and damageResist < 1000000:
-                        self.ahpsCast[res[0]].record(event.target, "2," + key, damageResist)
-                        self.rhpsRecorder.record(res[0], event.target, damageResist, damageResist, "2," + key,
+                        self.ahpsCast[source].record(event.target, "2," + key, damageResist)
+                        self.rhpsRecorder.record(source, event.target, damageResist, damageResist, "2," + key,
                                                  self.hpStatus[event.target]["status"])
                         if self.critStatusHealer:
-                            self.chpsCast[res[0]].record(event.target, "2," + key, damageResist)
+                            self.chpsCast[source].record(event.target, "2," + key, damageResist)
 
         # 从吸血推测HPS
         xixue = int(event.fullResult.get("7", 0))
@@ -1640,6 +1643,10 @@ class CombatTracker():
         self.mrdpsCast["*环境增益"] = DpsCastRecorder(1)
         self.rdpsCast["*团队增益"] = DpsCastRecorder(1)
         self.mrdpsCast["*团队增益"] = DpsCastRecorder(1)
+
+        self.ahpsCast["*团队增益"] = HealCastRecorder(1)
+        self.rhpsCast["*团队增益"] = HealCastRecorder(1)
+        self.chpsCast["*团队增益"] = HealCastRecorder(1)
 
         numTiance = 0
         numTielao = 0
