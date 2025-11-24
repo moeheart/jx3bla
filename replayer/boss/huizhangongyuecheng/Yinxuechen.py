@@ -168,7 +168,9 @@ class YinxuechenReplayer(SpecificReplayerPro):
 
         elif event.dataType == "Shout":
             if event.content in ['"若是让我玩尽兴了，我可以大发慈悲让你们死得痛快一些！"', '"若是讓我玩盡興了，我可以大發慈悲讓你們死得痛快一些！"']:
-                self.bh.setBadPeriod(self.startTime, event.time - 1000, True, True)
+                if not self.battleStarted:
+                    self.bh.setBadPeriod(self.startTime, event.time - 1000, True, True)
+                    self.battleStarted = 1
             elif event.content in ['"不……不想死……叫……叫太医……"', '"不……不想死……叫……叫太醫……"']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
@@ -246,6 +248,7 @@ class YinxuechenReplayer(SpecificReplayerPro):
         self.immuneHealer = 0
         self.immuneTime = 0
 
+        self.battleStarted = 0
         self.yczbStart = 0
 
         self.bhBlackList.extend(["s42832", "s41687", "b31408",  # 普攻
