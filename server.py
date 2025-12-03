@@ -892,7 +892,7 @@ def getSinglePlayer():
 def getMapsfunc():
     result = {}
     for map in MAP_DICT:
-        result[map] = getMapFromID(map)
+        result[map] = getAllMapInfoFromID(map)
     return jsonify({'available': 1, 'text': "请求成功", 'result': result})
 
 @app.route('/getBossesFromMap', methods=['GET'])
