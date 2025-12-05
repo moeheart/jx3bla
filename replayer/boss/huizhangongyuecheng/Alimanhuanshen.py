@@ -159,7 +159,7 @@ class AlimanhuanshenReplayer(SpecificReplayerPro):
         elif event.dataType == "Shout":
             if event.content in ['"擅闯皇宫禁地者死！"', '"擅闖皇宮禁地者死！"']:
                 self.bh.setBadPeriod(self.startTime, event.time - 1000, True, True)
-            elif event.content in ['"不……不想死……叫……叫太医……"', '"不……不想死……叫……叫太醫……"']:
+            elif event.content in ['"一境既破，万障新生。不过是拆了纸枷，又戴金镣。"', '""']:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
                 self.bh.setCritPeriod(self.cszzStart, event.time, False, True)
