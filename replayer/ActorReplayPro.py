@@ -124,6 +124,8 @@ class ActorProReplayer(ReplayerBase):
         result["boss"] = self.bossname
         result["battledate"] = self.battleDate
         result["mapdetail"] = self.bld.info.map
+        print(result["mapdetail"])
+        print(getIDFromMap(result["mapdetail"]))
         result["edition"] = EDITION
         result["hash"] = self.hashGroup()
         result["win"] = self.win

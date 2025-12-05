@@ -237,11 +237,11 @@ for map in MAP_RAW:
             MAP_DICT_REVERSE["25人挑战%s·上" % map] = str(mapid)
             MAP_DICT_REVERSE["25人挑战%s·下" % map] = str(mapid + 1)
         elif MAP_RAW[map][1] != 6:
-            MAP_DICT_RECORD_LOGS[str(mapid)] = int(MAP_RAW[map][1])
             MAP_DICT_REVERSE["10人普通%s" % map] = str(mapid)
             MAP_DICT_REVERSE["25人普通%s" % map] = str(mapid + 1)
             MAP_DICT_REVERSE["25人英雄%s" % map] = str(mapid + 2)
         else:
+            MAP_DICT_RECORD_LOGS[str(mapid)] = int(MAP_RAW[map][1])
             MAP_DICT_REVERSE[map] = str(mapid)
         for map_othername in MAP_RAW[map][2]:
             MAP_TRADITIONAL[map_othername] = map
