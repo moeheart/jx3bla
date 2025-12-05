@@ -233,9 +233,11 @@ for map in MAP_RAW:
             MAP_DICT_RECORD_LOGS[str(mapid + 2)] = int(MAP_RAW[map][1] * 4)
         MAP_DICT_REVERSE[map] = str(mapid)
         if MAP_RAW[map][1] == 5:
+            MAP_DICT_RECORD_LOGS[str(mapid)] = int(MAP_RAW[map][1])
             MAP_DICT_REVERSE["25人挑战%s·上" % map] = str(mapid)
             MAP_DICT_REVERSE["25人挑战%s·下" % map] = str(mapid + 1)
         elif MAP_RAW[map][1] != 6:
+            MAP_DICT_RECORD_LOGS[str(mapid)] = int(MAP_RAW[map][1])
             MAP_DICT_REVERSE["10人普通%s" % map] = str(mapid)
             MAP_DICT_REVERSE["25人普通%s" % map] = str(mapid + 1)
             MAP_DICT_REVERSE["25人英雄%s" % map] = str(mapid + 2)
