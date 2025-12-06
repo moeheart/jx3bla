@@ -905,7 +905,7 @@ def getBossesFromMapfunc():
     baseMap = "未知"
     baseid = 0
     for item in MAP_RAW:
-        if int(mapid) - MAP_RAW[item][0] <= 2:
+        if int(mapid) - MAP_RAW[item][0] <= 2 and int(mapid) - MAP_RAW[item][0] >= 0:
             baseMap = item
             baseid = MAP_RAW[item][0]
             break
