@@ -177,7 +177,7 @@ class AsaxinReplayer(SpecificReplayerPro):
                 self.bh.setEnvironment("0", event.content, "341", event.time, 0, 1, "喊话", "shout")
 
         elif event.dataType == "Scene":  # 进入、离开场景
-            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["阿萨辛宝箱", "巴圖仁欽寶箱"]:
+            if event.id in self.bld.info.npc and self.bld.info.npc[event.id].name in ["阿萨辛的宝物", "阿薩辛的寶物"]:
                 self.win = 1
                 self.bh.setBadPeriod(event.time, self.finalTime, True, True)
             if event.id in self.bld.info.npc and event.enter and self.bld.info.npc[event.id].name != "":
@@ -190,6 +190,8 @@ class AsaxinReplayer(SpecificReplayerPro):
                         # if key in self.bhInfo or self.debug:
                         #     self.bh.setEnvironment(self.bld.info.npc[event.id].templateID, skillName, "341", event.time, 0,
                         #                        1, "NPC出现", "npc")
+                        # npc = self.bld.info.npc[event.id]
+                        # print("[NPCappear]", npc.templateID, npc.x, npc.y ,npc.z)
 
         elif event.dataType == "Death":  # 重伤记录
             if event.id in self.bld.info.npc and self.bld.info.getName(event.id) in ["阿萨辛"]:
@@ -227,7 +229,7 @@ class AsaxinReplayer(SpecificReplayerPro):
         '''
         self.initBattleBase()
         self.activeBoss = "阿萨辛"
-        self.debug = 1
+        self.debug = 0
 
         self.initPhase(1, 1)
 
