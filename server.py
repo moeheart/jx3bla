@@ -978,6 +978,7 @@ def getHoFfunc():
 
     for item in resultList:
         players = []
+        acrossServer = 0
         with open("database/ActorStat/%s" % item["hash"], "r") as f:
             text = f.read().replace('\n', '\\n').replace('\t', '\\t').replace("'", '"')
             text1 = text
@@ -989,6 +990,10 @@ def getHoFfunc():
             for player in act["rdps"]["player"]:
                 if act["rdps"]["player"][player]["name"][0] != "*":
                     players.append([act["rdps"]["player"][player]["name"], act["rdps"]["player"][player]["occ"]])
+                if "·" in act["rdps"]["player"][player]["name"]:
+                    acrossServer = 1
+        if acrossServer:
+            item["server"] = "跨服"
         item["player"] = players
 
     resJson["table"] = resultList
