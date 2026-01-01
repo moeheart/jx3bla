@@ -99,6 +99,7 @@ class Config():
             self.item["general"]["mask"] = int(self.item["general"].get("mask", 0))
             self.item["general"]["color"] = int(self.item["general"].get("color", 1))
             self.item["general"]["text"] = int(self.item["general"].get("text", 0))
+            self.item["general"]["trivia"] = int(self.item["general"].get("trivia", 0))
             self.item["general"]["datatype"] = self.item["general"].get("datatype", "jcl")
             self.item["general"]["edition"] = self.item["general"].get("edition", EDITION)
             self.item["general"]["team"] = self.item["general"].get("team", "")

@@ -290,6 +290,9 @@ class ConfigWindow(Window):
         self.constructCheck("Frame1", frame1, "生成txt格式",
                             "是否将生成的图片中的信息以txt格式保存，方便再次传播。",
                             "general", "text")
+        self.constructCheck("Frame1", frame1, "生成摘要信息",
+                            "是否对复盘的数据生成摘要信息。目前用于生成阿萨辛的trivia。",
+                            "general", "trivia")
         self.constructRadio("Frame1", frame1, "数据格式",
                             "复盘数据的格式，由剑三茗伊插件集的对应功能生成。\n对于指定的格式，必须正确设置，才能进行复盘。",
                             "general", "datatype",
