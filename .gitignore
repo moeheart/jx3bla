@@ -26,6 +26,7 @@ server.pem
 jldCount/
 llfCount/
 tjgCount/
+triviaResult/
 codeHistories.git
 .vscode
 venv

@@ -232,7 +232,7 @@ class AsaxinReplayer(SpecificReplayerPro):
                 # 找到同场地的NPC
                 dualNPC = ""
                 for npc2 in self.p2npc:
-                    if self.p2npc[npc2]["status"] == 1 and self.p2npc[npc2]["sex"] * self.p2npc[npc]["sex"] > 0:
+                    if self.p2npc[npc2]["status"] == 1 and self.p2npc[npc2]["sex"] * self.p2npc[npc]["sex"] > 0 and npc2 != npc:
                         dualNPC = npc2
                         break
 
@@ -514,7 +514,7 @@ class AsaxinReplayer(SpecificReplayerPro):
                 # 找到另一个NPC
                 dualNPC = ""
                 for npc in self.p2npc:
-                    if self.p2npc[npc]["status"] == 1 and self.p2npc[npc]["sex"] * self.p2npc[event.id]["sex"] > 0:
+                    if self.p2npc[npc]["status"] == 1 and self.p2npc[npc]["sex"] * self.p2npc[event.id]["sex"] > 0 and npc != event.id:
                         dualNPC = npc
                         break
                 if dualNPC != "":
