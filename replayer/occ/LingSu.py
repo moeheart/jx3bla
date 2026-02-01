@@ -602,7 +602,10 @@ class LingSuReplayer(HealerReplay):
 
                 if "8" in event.fullResult and kumuStatus.get(event.target, 0) == 1:
                     # 记录枯木治疗量
-                    kumuHeal[event.caster] += int(event.fullResult["8"])
+                    if event.caster in kumuHeal:
+                        kumuHeal[event.caster] += int(event.fullResult["8"])
+                    else:
+                        print("[KumuHealError]", self.bld.info.getName(event.caster), event.caster)
 
                 # if event.target == "16689123":
                 #     print("[AllHeal]", parseTime((event.time-self.startTime)/1000), self.bld.info.getName(event.caster), self.bld.info.getSkillName(event.full_id), event.healEff, event.fullResult)
