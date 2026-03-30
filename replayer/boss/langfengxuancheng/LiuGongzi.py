@@ -40,6 +40,27 @@ class LiuGongziReplayer(GeneralReplayer):
     TARGET_HP = 24658595404
     SCENE_THRESHOLD = 0.95
     DAMAGE_THRESHOLD = 0.98
+    BH_BLACKLIST_EXTRA = [
+        "s33125",  # 普通攻击
+        "b33125",
+        "b32993",
+        "b32870",
+        "b33214",
+        "s44475",
+        "s44476",
+    ]
+    BH_INFO = {
+        "s44285": ["3405", "#ff5555", 0],   # 掠影探囊
+        # "s44475": ["16435", "#33aa66", 0],  # 舒叶扶风
+        # "s44476": ["31042", "#3355ff", 0],  # 敛锋点梅
+        "s44287": ["3293", "#ff8800", 0],   # 回影掠余
+        "s44068": ["3431", "#aa44ff", 0],   # 公子扇·散锋
+        "s44244": ["3452", "#ff3355", 0],   # 公子扇·裂风
+        "s44239": ["12452", "#33aaff", 0],  # 公子扇·旋扇
+        "s44066": ["3426", "#ffaa00", 0],   # 公子扇·聚锋
+        "s44547": ["2028", "#ff66aa", 0],   # 扇骨飞散
+        "c44570": ["340", "#7733ff", 0],    # 三叠扇
+    }
 
     def recordDeath(self, item, deathSource):
         pass
@@ -146,7 +167,21 @@ class LiuGongziReplayer(GeneralReplayer):
             self.trimmedFinalTime = self.resolvedWinReason["trimTime"]
         return super().trimTime()
 
+    def recordMainTarget(self, event):
+        if self.mainTargetRecorded:
+            return
+        if event.dataType != "Skill":
+            return
+        if event.caster not in self.bld.info.player or event.target not in self.bld.info.npc:
+            return
+
+        npc = self.bld.info.npc[event.target]
+        if npc.templateID == self.mainBossTemplateID and self.bld.info.getName(event.target) == self.bossName:
+            self.bh.setMainTarget(event.target)
+            self.mainTargetRecorded = 1
+
     def analyseSecondStage(self, event):
+        self.recordMainTarget(event)
         if event.dataType == "Shout":
             self.collectShoutCandidates(event)
         elif event.dataType == "Death":
@@ -182,14 +217,16 @@ class LiuGongziReplayer(GeneralReplayer):
         self.detail["winEvidence"] = evidence
         self.detail["winEvidenceRecommendation"] = recommendation
         self.detail["winEvidenceReport"] = format_evidence_report(self.bossName, evidence, recommendation)
+        self.detail["P1Time"] = int(self.phaseTime[1] / 1000)
 
     def initBattle(self):
         self.initBattleBase()
         self.initPhase(1, 1)
 
         self.activeBoss = "柳公子"
+        self.bhBlackList.extend(self.BH_BLACKLIST_EXTRA)
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
-        self.bhInfo = {}
+        self.bhInfo = dict(self.BH_INFO)
 
         self.bossName = "柳公子"
         self.mainBossTemplateID = "137019"
@@ -205,6 +242,7 @@ class LiuGongziReplayer(GeneralReplayer):
         self.lastMainBossLeaveTime = 0
         self.damageFallbackTime = 0
         self.mainBossDamage = 0
+        self.mainTargetRecorded = 0
 
         self.shoutCandidates = []
         self.deathCandidates = []

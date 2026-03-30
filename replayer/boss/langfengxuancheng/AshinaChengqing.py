@@ -39,6 +39,44 @@ class AshinaChengqingWindow(SpecificBossWindow):
 class AshinaChengqingReplayer(GeneralReplayer):
     TARGET_HP = 28671061364
     DAMAGE_THRESHOLD = 0.98
+    BH_BLACKLIST_EXTRA = [
+        "s44171",  # 普通攻击
+        "s44170",  # 开山 - 普通攻击
+        "s44176",
+        "s44178",
+        "s44179",
+        "s44182",
+        "s44190",
+        "s44415",
+        "s44444",
+        "s43975",
+        "s44622",
+        "b32949",
+        "b32939",
+        "b33102",
+        "b32943",
+        "b32944",
+        "b32945",
+        "b32946",
+        "b32953",
+        "b32999",
+        "b32937",
+        "b32996",
+        "b32938",
+    ]
+    BH_INFO = {
+        "n137054": ["12449", "#33aa66", 0],  # 魂火
+        "n137047": ["2019", "#ff5555", 0],   # 处决鬼手
+        "n137202": ["340", "#7744ff", 0],    # 鬼手
+        "b32954": ["18462", "#33aa66", 0],   # 唤醒
+        # "s44170": ["2028", "#3355ff", 0],    # 开山
+        "s44303": ["2028", "#3355ff", 0],    # 连击
+        "s32953": ["3431", "#ff8800", 0],    # 巨刃掠影
+        "s44196": ["3452", "#ff3333", 0],    # 碾碎
+        "s44191": ["433", "#aa33ff", 0],     # 黄泉破
+        "c44410": ["4531", "#ff5555", 0],    # 斩
+        "c44411": ["3452", "#ffaa00", 0],    # 破
+    }
 
     def recordDeath(self, item, deathSource):
         pass
@@ -131,7 +169,44 @@ class AshinaChengqingReplayer(GeneralReplayer):
             self.trimmedFinalTime = self.resolvedWinReason["trimTime"]
         return super().trimTime()
 
+    def recordMainTarget(self, event):
+        if self.mainTargetRecorded:
+            return
+        if event.dataType != "Skill":
+            return
+        if event.caster not in self.bld.info.player or event.target not in self.bld.info.npc:
+            return
+
+        npc = self.bld.info.npc[event.target]
+        if npc.templateID == self.mainBossTemplateID and self.bld.info.getName(event.target) == self.bossName:
+            self.bh.setMainTarget(event.target)
+            self.mainTargetRecorded = 1
+
+    def recordSceneTimeline(self, event):
+        if event.dataType != "Scene" or event.id not in self.bld.info.npc or event.enter != 1:
+            return
+
+        npc = self.bld.info.npc[event.id]
+        template_id = npc.templateID
+        name = self.bld.info.getName(event.id)
+        key = "n%s" % template_id
+        if key not in self.bhInfo:
+            return
+        if event.time - self.bhTime.get(key, 0) <= 3000:
+            return
+
+        self.bhTime[key] = event.time
+        description = "%s现身" % name
+        color = self.bhInfo[key][1]
+        self.bh.setEnvironment(template_id, name, self.bhInfo[key][0], event.time, 0, 1, description, "npc", color=color)
+
+        if template_id == "137202" and not self.phase2Started:
+            self.changePhase(event.time, 2)
+            self.phase2Started = 1
+
     def analyseSecondStage(self, event):
+        self.recordMainTarget(event)
+        self.recordSceneTimeline(event)
         if event.dataType == "Shout":
             self.collectShoutCandidates(event)
         elif event.dataType == "Death":
@@ -167,14 +242,17 @@ class AshinaChengqingReplayer(GeneralReplayer):
         self.detail["winEvidence"] = evidence
         self.detail["winEvidenceRecommendation"] = recommendation
         self.detail["winEvidenceReport"] = format_evidence_report(self.bossName, evidence, recommendation)
+        self.detail["P1Time"] = int(self.phaseTime[1] / 1000)
+        self.detail["P2Time"] = int(self.phaseTime[2] / 1000)
 
     def initBattle(self):
         self.initBattleBase()
-        self.initPhase(1, 1)
+        self.initPhase(2, 1)
 
         self.activeBoss = "阿史那承庆"
+        self.bhBlackList.extend(self.BH_BLACKLIST_EXTRA)
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
-        self.bhInfo = {}
+        self.bhInfo = dict(self.BH_INFO)
 
         self.bossName = "阿史那承庆"
         self.mainBossTemplateID = "137017"
@@ -182,13 +260,15 @@ class AshinaChengqingReplayer(GeneralReplayer):
         self.bossTemplateIDs = [self.mainBossTemplateID]
         self.chestNames = ["阿史那承庆宝箱", "阿史那承庆寶箱"]
         self.chestTemplateIDs = []
-        self.sceneTemplateIDs = [self.mainBossTemplateID, "137054"]
+        self.sceneTemplateIDs = [self.mainBossTemplateID, "137054", "137047", "137202"]
         self.damageTemplateIDs = [self.mainBossTemplateID]
 
         self.resolvedWinReason = None
         self.chestWinTime = 0
         self.damageFallbackTime = 0
         self.mainBossDamage = 0
+        self.mainTargetRecorded = 0
+        self.phase2Started = 0
 
         self.shoutCandidates = []
         self.deathCandidates = []

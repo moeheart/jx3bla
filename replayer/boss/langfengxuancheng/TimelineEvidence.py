@@ -16,6 +16,15 @@ TIMELINE_GARBAGE_EXACT = {
     "松鼠",
     "蝶旋",
     "千蝶吐瑞",
+    "宫",
+}
+
+TIMELINE_GARBAGE_IDS = {
+    "s44021": "ordinary_attack",
+    "s43923": "ordinary_attack",
+    "s33125": "ordinary_attack",
+    "s44303": "ordinary_attack",
+    "s44171": "ordinary_attack",
 }
 
 TIMELINE_GARBAGE_CONTAINS = [
@@ -48,6 +57,8 @@ TIMELINE_SUSPICIOUS_KEYWORDS = [
     "内部接引人",
 ]
 
+COMMON_FILTER_MIN_BOSS_COUNT = 2
+
 
 def normalize_name(name):
     if name is None:
@@ -68,6 +79,10 @@ def get_garbage_reason(name):
         if keyword in name:
             return keyword
     return ""
+
+
+def get_garbage_reason_by_id(event_type, event_id):
+    return TIMELINE_GARBAGE_IDS.get(get_parsed_key(event_type, event_id), "")
 
 
 def looks_suspicious(name):
@@ -92,7 +107,7 @@ def append_candidate(store, key, name, time, event_type, event_id, extra=None):
     if key not in store:
         store[key] = {
             "type": event_type,
-            "id": event_id,
+            "id": str(event_id),
             "name": name,
             "count": 0,
             "firstTime": time,
@@ -122,13 +137,69 @@ def finalize_garbage(store):
         results.append({
             "type": event_type,
             "name": name,
-            "id": event_id,
+            "id": str(event_id),
             "reason": reason,
             "count": item["count"],
             "firstTime": item["firstTime"],
             "lastTime": item["lastTime"],
         })
     results.sort(key=lambda x: (-x["count"], x["type"], x["name"], x["id"]))
+    return results
+
+
+def get_parsed_key(event_type, event_id):
+    prefix = {
+        "Skill": "s",
+        "Buff": "b",
+        "Cast": "c",
+        "Scene": "n",
+    }.get(event_type, event_type[:1].lower())
+    return "%s%s" % (prefix, event_id)
+
+
+def build_common_filter_table(summary_by_boss):
+    usage = {}
+    for boss, info in summary_by_boss.items():
+        seen = {}
+        for item in info.get("rawCandidates", []):
+            key = get_parsed_key(item["type"], item["id"])
+            seen[key] = {"name": item["name"], "type": item["type"]}
+        for item in info.get("garbageHits", []):
+            key = get_parsed_key(item["type"], item["id"])
+            if key not in seen:
+                seen[key] = {"name": item["name"], "type": item["type"]}
+        for key, meta in seen.items():
+            if key not in usage:
+                usage[key] = {
+                    "name": meta["name"],
+                    "type": meta["type"],
+                    "bosses": set(),
+                }
+            usage[key]["bosses"].add(boss)
+
+    result = {}
+    for key, info in usage.items():
+        if len(info["bosses"]) >= COMMON_FILTER_MIN_BOSS_COUNT:
+            result[key] = {
+                "name": info["name"],
+                "type": info["type"],
+                "bossCount": len(info["bosses"]),
+                "bosses": sorted(info["bosses"]),
+            }
+    return result
+
+
+def finalize_common_filters(common_filters):
+    results = []
+    for key, info in common_filters.items():
+        results.append({
+            "key": key,
+            "name": info["name"],
+            "type": info["type"],
+            "bossCount": info["bossCount"],
+            "bosses": info["bosses"],
+        })
+    results.sort(key=lambda x: (-x["bossCount"], x["key"]))
     return results
 
 

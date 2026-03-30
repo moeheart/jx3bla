@@ -1,0 +1,1262 @@
+{
+  "commonContents": [
+    {
+      "key": "b17885",
+      "name": "明尊·宿敌",
+      "type": "Buff",
+      "bossCount": 4,
+      "bosses": [
+        "唐醉",
+        "柳公子",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "b29938",
+      "name": "铁骨",
+      "type": "Buff",
+      "bossCount": 4,
+      "bosses": [
+        "唐醉",
+        "柳公子",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "b7671",
+      "name": "牧云",
+      "type": "Buff",
+      "bossCount": 4,
+      "bosses": [
+        "唐醉",
+        "柳公子",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "c36322",
+      "name": "千蝶吐瑞",
+      "type": "Cast",
+      "bossCount": 4,
+      "bosses": [
+        "唐醉",
+        "柳公子",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "n106107",
+      "name": "切割的苍棘缚地",
+      "type": "Scene",
+      "bossCount": 4,
+      "bosses": [
+        "唐醉",
+        "柳公子",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "n106623",
+      "name": "我要回蓝的逐云寒蕊",
+      "type": "Scene",
+      "bossCount": 4,
+      "bosses": [
+        "唐醉",
+        "柳公子",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "n124066",
+      "name": "饼仙的乘黄",
+      "type": "Scene",
+      "bossCount": 4,
+      "bosses": [
+        "唐醉",
+        "柳公子",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "n124356",
+      "name": "困困大王的熊@梦江南",
+      "type": "Scene",
+      "bossCount": 4,
+      "bosses": [
+        "唐醉",
+        "柳公子",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "n124538",
+      "name": "饼仙的狼",
+      "type": "Scene",
+      "bossCount": 4,
+      "bosses": [
+        "唐醉",
+        "柳公子",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "n124539",
+      "name": "困困大王的虎@梦江南",
+      "type": "Scene",
+      "bossCount": 4,
+      "bosses": [
+        "唐醉",
+        "柳公子",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "n124540",
+      "name": "困困大王的鹰@梦江南",
+      "type": "Scene",
+      "bossCount": 4,
+      "bosses": [
+        "唐醉",
+        "柳公子",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "n124541",
+      "name": "困困大王的大象@梦江南",
+      "type": "Scene",
+      "bossCount": 4,
+      "bosses": [
+        "唐醉",
+        "柳公子",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "n124542",
+      "name": "困困大王的野猪@梦江南",
+      "type": "Scene",
+      "bossCount": 4,
+      "bosses": [
+        "唐醉",
+        "柳公子",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "n12944",
+      "name": "忧郁施夷光的碧蝶",
+      "type": "Scene",
+      "bossCount": 4,
+      "bosses": [
+        "唐醉",
+        "柳公子",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "n133952",
+      "name": "我要回蓝的青川濯莲",
+      "type": "Scene",
+      "bossCount": 4,
+      "bosses": [
+        "唐醉",
+        "柳公子",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "n4977",
+      "name": "会吃鱼的花的气场破苍穹",
+      "type": "Scene",
+      "bossCount": 4,
+      "bosses": [
+        "唐醉",
+        "柳公子",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "n4980",
+      "name": "淡年华夜微醺的气场碎星辰",
+      "type": "Scene",
+      "bossCount": 4,
+      "bosses": [
+        "唐醉",
+        "柳公子",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "n4981",
+      "name": "淡年华夜微醺的气场吞日月",
+      "type": "Scene",
+      "bossCount": 4,
+      "bosses": [
+        "唐醉",
+        "柳公子",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "s3051",
+      "name": "蝶旋",
+      "type": "Skill",
+      "bossCount": 4,
+      "bosses": [
+        "唐醉",
+        "柳公子",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "s3473",
+      "name": "蝶旋",
+      "type": "Skill",
+      "bossCount": 4,
+      "bosses": [
+        "唐醉",
+        "柳公子",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "c15082",
+      "name": "宫",
+      "type": "Cast",
+      "bossCount": 3,
+      "bosses": [
+        "唐醉",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "n137019",
+      "name": "柳公子",
+      "type": "Scene",
+      "bossCount": 3,
+      "bosses": [
+        "唐醉",
+        "柳公子",
+        "笑妆娘"
+      ]
+    },
+    {
+      "key": "n137035",
+      "name": "内部接引人",
+      "type": "Scene",
+      "bossCount": 3,
+      "bosses": [
+        "唐醉",
+        "柳公子",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "n9956",
+      "name": "忧郁施夷光的圣蝎",
+      "type": "Scene",
+      "bossCount": 3,
+      "bosses": [
+        "唐醉",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "n9998",
+      "name": "忧郁施夷光的灵蛇",
+      "type": "Scene",
+      "bossCount": 3,
+      "bosses": [
+        "柳公子",
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "b17201",
+      "name": "耐力损耗",
+      "type": "Buff",
+      "bossCount": 2,
+      "bosses": [
+        "柳公子",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "b28871",
+      "name": "鏖战",
+      "type": "Buff",
+      "bossCount": 2,
+      "bosses": [
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "b31448",
+      "name": "微妙风",
+      "type": "Buff",
+      "bossCount": 2,
+      "bosses": [
+        "笑妆娘",
+        "阿史那承庆"
+      ]
+    },
+    {
+      "key": "n122906",
+      "name": "松鼠",
+      "type": "Scene",
+      "bossCount": 2,
+      "bosses": [
+        "唐醉",
+        "柳公子"
+      ]
+    },
+    {
+      "key": "n20107",
+      "name": "标记_白",
+      "type": "Scene",
+      "bossCount": 2,
+      "bosses": [
+        "唐醉",
+        "柳公子"
+      ]
+    },
+    {
+      "key": "n36785",
+      "name": "标记10",
+      "type": "Scene",
+      "bossCount": 2,
+      "bosses": [
+        "唐醉",
+        "柳公子"
+      ]
+    },
+    {
+      "key": "s32392",
+      "name": "怯战",
+      "type": "Skill",
+      "bossCount": 2,
+      "bosses": [
+        "柳公子",
+        "阿史那承庆"
+      ]
+    }
+  ],
+  "bosses": {
+    "笑妆娘": {
+      "file": "2026-03-27-19-39-28-25人普通阆风悬城(794)-笑妆娘(137088).jcl",
+      "boss": "笑妆娘",
+      "map": "25人普通阆风悬城",
+      "candidateStats": {
+        "scene": 274,
+        "buff": 4,
+        "cast": 7,
+        "skill": 48
+      },
+      "candidates": [
+        {
+          "type": "Skill",
+          "id": "44022",
+          "name": "祭跪双坟",
+          "count": 15,
+          "firstTime": 2747839,
+          "lastTime": 2985595,
+          "extra": []
+        },
+        {
+          "type": "Buff",
+          "id": "32976",
+          "name": "灵簪锁魂",
+          "count": 4,
+          "firstTime": 2720405,
+          "lastTime": 2954363,
+          "extra": []
+        },
+        {
+          "type": "Cast",
+          "id": "44238",
+          "name": "灵簪锁魂",
+          "count": 4,
+          "firstTime": 2725163,
+          "lastTime": 2959165,
+          "extra": []
+        },
+        {
+          "type": "Cast",
+          "id": "44290",
+          "name": "悲音恸潮",
+          "count": 3,
+          "firstTime": 2768797,
+          "lastTime": 2923675,
+          "extra": []
+        }
+      ],
+      "garbageHits": [
+        {
+          "type": "Buff",
+          "name": "精神匮乏",
+          "id": "17200",
+          "reason": "filtered_b",
+          "count": 1,
+          "firstTime": 2731309,
+          "lastTime": 2731309
+        },
+        {
+          "type": "Buff",
+          "name": "血染",
+          "id": "33259",
+          "reason": "filtered_b",
+          "count": 1,
+          "firstTime": 2748006,
+          "lastTime": 2748006
+        },
+        {
+          "type": "Scene",
+          "name": "笑妆娘",
+          "id": "137088",
+          "reason": "filtered_n",
+          "count": 1,
+          "firstTime": 2989879,
+          "lastTime": 2989879
+        },
+        {
+          "type": "Scene",
+          "name": "笑妆娘",
+          "id": "137095",
+          "reason": "filtered_n",
+          "count": 1,
+          "firstTime": 2746835,
+          "lastTime": 2746835
+        },
+        {
+          "type": "Scene",
+          "name": "笑妆娘",
+          "id": "137099",
+          "reason": "filtered_n",
+          "count": 1,
+          "firstTime": 2709863,
+          "lastTime": 2709863
+        },
+        {
+          "type": "Scene",
+          "name": "笑妆娘",
+          "id": "137108",
+          "reason": "filtered_n",
+          "count": 1,
+          "firstTime": 2750568,
+          "lastTime": 2750568
+        },
+        {
+          "type": "Scene",
+          "name": "笑妆娘宝箱",
+          "id": "137057",
+          "reason": "filtered_n",
+          "count": 1,
+          "firstTime": 2988486,
+          "lastTime": 2988486
+        },
+        {
+          "type": "Scene",
+          "name": "血量检测",
+          "id": "137073",
+          "reason": "filtered_n",
+          "count": 1,
+          "firstTime": 2988476,
+          "lastTime": 2988476
+        },
+        {
+          "type": "Skill",
+          "name": "悲音恸潮",
+          "id": "44589",
+          "reason": "skill_has_cast",
+          "count": 1,
+          "firstTime": 2780195,
+          "lastTime": 2780195
+        },
+        {
+          "type": "Skill",
+          "name": "攻击",
+          "id": "44021",
+          "reason": "ordinary_attack",
+          "count": 1,
+          "firstTime": 2710297,
+          "lastTime": 2710297
+        },
+        {
+          "type": "Skill",
+          "name": "灵簪锁魂",
+          "id": "44149",
+          "reason": "skill_has_cast",
+          "count": 1,
+          "firstTime": 2731171,
+          "lastTime": 2731171
+        }
+      ],
+      "suspicious": []
+    },
+    "唐醉": {
+      "file": "2026-03-27-20-18-00-25人普通阆风悬城(794)-唐醉(137005).jcl",
+      "boss": "唐醉",
+      "map": "25人普通阆风悬城",
+      "candidateStats": {
+        "scene": 220,
+        "cast": 12,
+        "skill": 117,
+        "buff": 6
+      },
+      "candidates": [
+        {
+          "type": "Skill",
+          "id": "43965",
+          "name": "碎星·柔",
+          "count": 47,
+          "firstTime": 5086186,
+          "lastTime": 5201783,
+          "extra": []
+        },
+        {
+          "type": "Skill",
+          "id": "43964",
+          "name": "碎星·刚",
+          "count": 10,
+          "firstTime": 5086180,
+          "lastTime": 5201687,
+          "extra": []
+        },
+        {
+          "type": "Skill",
+          "id": "43995",
+          "name": "剧毒",
+          "count": 8,
+          "firstTime": 5101498,
+          "lastTime": 5218174,
+          "extra": []
+        },
+        {
+          "type": "Buff",
+          "id": "32851",
+          "name": "翎刃毒",
+          "count": 6,
+          "firstTime": 5100751,
+          "lastTime": 5216303,
+          "extra": []
+        },
+        {
+          "type": "Skill",
+          "id": "43990",
+          "name": "毒变",
+          "count": 6,
+          "firstTime": 5100453,
+          "lastTime": 5215946,
+          "extra": []
+        },
+        {
+          "type": "Cast",
+          "id": "43933",
+          "name": "透骨刺",
+          "count": 5,
+          "firstTime": 5027438,
+          "lastTime": 5227450,
+          "extra": []
+        },
+        {
+          "type": "Skill",
+          "id": "44018",
+          "name": "剧毒",
+          "count": 4,
+          "firstTime": 5105299,
+          "lastTime": 5220619,
+          "extra": []
+        },
+        {
+          "type": "Cast",
+          "id": "43925",
+          "name": "三叠杀",
+          "count": 3,
+          "firstTime": 5052662,
+          "lastTime": 5181683,
+          "extra": []
+        },
+        {
+          "type": "Cast",
+          "id": "43969",
+          "name": "碎星",
+          "count": 3,
+          "firstTime": 5079652,
+          "lastTime": 5195210,
+          "extra": []
+        },
+        {
+          "type": "Skill",
+          "id": "44050",
+          "name": "烈风",
+          "count": 3,
+          "firstTime": 5048920,
+          "lastTime": 5050932,
+          "extra": []
+        },
+        {
+          "type": "Cast",
+          "id": "43937",
+          "name": "魂锁牵",
+          "count": 1,
+          "firstTime": 5042390,
+          "lastTime": 5042390,
+          "extra": []
+        }
+      ],
+      "garbageHits": [
+        {
+          "type": "Buff",
+          "name": "封足",
+          "id": "31979",
+          "reason": "filtered_b",
+          "count": 1,
+          "firstTime": 5043957,
+          "lastTime": 5043957
+        },
+        {
+          "type": "Buff",
+          "name": "损伤",
+          "id": "33133",
+          "reason": "filtered_b",
+          "count": 1,
+          "firstTime": 5052511,
+          "lastTime": 5052511
+        },
+        {
+          "type": "Buff",
+          "name": "致命标记",
+          "id": "32808",
+          "reason": "filtered_b",
+          "count": 1,
+          "firstTime": 5033088,
+          "lastTime": 5033088
+        },
+        {
+          "type": "Scene",
+          "name": "唐醉",
+          "id": "137005",
+          "reason": "filtered_n",
+          "count": 1,
+          "firstTime": 5229930,
+          "lastTime": 5229930
+        },
+        {
+          "type": "Scene",
+          "name": "唐醉",
+          "id": "137044",
+          "reason": "filtered_n",
+          "count": 1,
+          "firstTime": 5080032,
+          "lastTime": 5080032
+        },
+        {
+          "type": "Scene",
+          "name": "唐醉",
+          "id": "137049",
+          "reason": "filtered_n",
+          "count": 1,
+          "firstTime": 5079696,
+          "lastTime": 5079696
+        },
+        {
+          "type": "Scene",
+          "name": "毒雾",
+          "id": "137097",
+          "reason": "filtered_n",
+          "count": 1,
+          "firstTime": 5228659,
+          "lastTime": 5228659
+        },
+        {
+          "type": "Scene",
+          "name": "阿史那承庆",
+          "id": "137017",
+          "reason": "other_boss",
+          "count": 1,
+          "firstTime": 5240281,
+          "lastTime": 5240281
+        },
+        {
+          "type": "Skill",
+          "name": "三叠杀",
+          "id": "43924",
+          "reason": "skill_has_cast",
+          "count": 1,
+          "firstTime": 5055159,
+          "lastTime": 5055159
+        },
+        {
+          "type": "Skill",
+          "name": "攻击",
+          "id": "43923",
+          "reason": "ordinary_attack",
+          "count": 1,
+          "firstTime": 5047398,
+          "lastTime": 5047398
+        },
+        {
+          "type": "Skill",
+          "name": "透骨刺",
+          "id": "43934",
+          "reason": "skill_has_cast",
+          "count": 1,
+          "firstTime": 5032899,
+          "lastTime": 5032899
+        },
+        {
+          "type": "Skill",
+          "name": "魂锁牵",
+          "id": "44305",
+          "reason": "skill_has_cast",
+          "count": 1,
+          "firstTime": 5052177,
+          "lastTime": 5052177
+        }
+      ],
+      "suspicious": []
+    },
+    "柳公子": {
+      "file": "2026-03-27-20-23-48-25人普通阆风悬城(794)-柳公子(137019).jcl",
+      "boss": "柳公子",
+      "map": "25人普通阆风悬城",
+      "candidateStats": {
+        "scene": 612,
+        "skill": 321,
+        "cast": 2
+      },
+      "candidates": [
+        {
+          "type": "Skill",
+          "id": "44285",
+          "name": "掠影探囊",
+          "count": 85,
+          "firstTime": 5400200,
+          "lastTime": 5592157,
+          "extra": []
+        },
+        {
+          "type": "Skill",
+          "id": "44475",
+          "name": "舒叶扶风",
+          "count": 65,
+          "firstTime": 5370411,
+          "lastTime": 5617545,
+          "extra": []
+        },
+        {
+          "type": "Skill",
+          "id": "44476",
+          "name": "敛锋点梅",
+          "count": 65,
+          "firstTime": 5381277,
+          "lastTime": 5605409,
+          "extra": []
+        },
+        {
+          "type": "Skill",
+          "id": "44287",
+          "name": "回影掠余",
+          "count": 40,
+          "firstTime": 5403165,
+          "lastTime": 5595152,
+          "extra": []
+        },
+        {
+          "type": "Skill",
+          "id": "44068",
+          "name": "公子扇·散锋",
+          "count": 21,
+          "firstTime": 5415671,
+          "lastTime": 5550661,
+          "extra": []
+        },
+        {
+          "type": "Skill",
+          "id": "44244",
+          "name": "公子扇·裂风",
+          "count": 17,
+          "firstTime": 5393656,
+          "lastTime": 5587425,
+          "extra": []
+        },
+        {
+          "type": "Skill",
+          "id": "44239",
+          "name": "公子扇·旋扇",
+          "count": 11,
+          "firstTime": 5380794,
+          "lastTime": 5557305,
+          "extra": []
+        },
+        {
+          "type": "Skill",
+          "id": "44547",
+          "name": "扇骨飞散",
+          "count": 10,
+          "firstTime": 5416591,
+          "lastTime": 5570410,
+          "extra": []
+        },
+        {
+          "type": "Skill",
+          "id": "44066",
+          "name": "公子扇·聚锋",
+          "count": 6,
+          "firstTime": 5415399,
+          "lastTime": 5607588,
+          "extra": []
+        },
+        {
+          "type": "Cast",
+          "id": "44570",
+          "name": "三叠扇",
+          "count": 2,
+          "firstTime": 5445149,
+          "lastTime": 5541147,
+          "extra": []
+        }
+      ],
+      "garbageHits": [
+        {
+          "type": "Buff",
+          "name": "伤口",
+          "id": "33125",
+          "reason": "filtered_b",
+          "count": 1,
+          "firstTime": 5381432,
+          "lastTime": 5381432
+        },
+        {
+          "type": "Buff",
+          "name": "失财",
+          "id": "32993",
+          "reason": "filtered_b",
+          "count": 1,
+          "firstTime": 5400509,
+          "lastTime": 5400509
+        },
+        {
+          "type": "Buff",
+          "name": "注视",
+          "id": "32870",
+          "reason": "filtered_b",
+          "count": 1,
+          "firstTime": 5375103,
+          "lastTime": 5375103
+        },
+        {
+          "type": "Buff",
+          "name": "注视",
+          "id": "33214",
+          "reason": "filtered_b",
+          "count": 1,
+          "firstTime": 5445299,
+          "lastTime": 5445299
+        },
+        {
+          "type": "Scene",
+          "name": "宋不久的孤影化双@隐息",
+          "id": "58852",
+          "reason": "filtered_n",
+          "count": 1,
+          "firstTime": 5487716,
+          "lastTime": 5487716
+        },
+        {
+          "type": "Scene",
+          "name": "柳公子",
+          "id": "137074",
+          "reason": "filtered_n",
+          "count": 1,
+          "firstTime": 5415675,
+          "lastTime": 5415675
+        },
+        {
+          "type": "Scene",
+          "name": "柳公子",
+          "id": "137077",
+          "reason": "filtered_n",
+          "count": 1,
+          "firstTime": 5393660,
+          "lastTime": 5393660
+        },
+        {
+          "type": "Scene",
+          "name": "柳公子",
+          "id": "137079",
+          "reason": "filtered_n",
+          "count": 1,
+          "firstTime": 5380289,
+          "lastTime": 5380289
+        },
+        {
+          "type": "Skill",
+          "name": "伤口",
+          "id": "33125",
+          "reason": "ordinary_attack",
+          "count": 1,
+          "firstTime": 5382390,
+          "lastTime": 5382390
+        }
+      ],
+      "suspicious": []
+    },
+    "阿史那承庆": {
+      "file": "2026-03-27-21-49-52-25人普通阆风悬城(794)-阿史那承庆(137017).jcl",
+      "boss": "阿史那承庆",
+      "map": "25人普通阆风悬城",
+      "candidateStats": {
+        "scene": 320,
+        "skill": 321,
+        "buff": 18,
+        "cast": 16
+      },
+      "candidates": [
+        {
+          "type": "Skill",
+          "id": "32953",
+          "name": "巨刃掠影",
+          "count": 86,
+          "firstTime": 10662643,
+          "lastTime": 10667305,
+          "extra": []
+        },
+        {
+          "type": "Skill",
+          "id": "44196",
+          "name": "碾碎",
+          "count": 84,
+          "firstTime": 10727035,
+          "lastTime": 10802126,
+          "extra": []
+        },
+        {
+          "type": "Skill",
+          "id": "44191",
+          "name": "黄泉破",
+          "count": 43,
+          "firstTime": 10690595,
+          "lastTime": 10989609,
+          "extra": []
+        },
+        {
+          "type": "Skill",
+          "id": "44170",
+          "name": "开山",
+          "count": 29,
+          "firstTime": 10534614,
+          "lastTime": 10655875,
+          "extra": []
+        },
+        {
+          "type": "Skill",
+          "id": "44182",
+          "name": "巨刃掠影",
+          "count": 24,
+          "firstTime": 10662101,
+          "lastTime": 10662112,
+          "extra": []
+        },
+        {
+          "type": "Buff",
+          "id": "32954",
+          "name": "唤醒",
+          "count": 18,
+          "firstTime": 10538506,
+          "lastTime": 10992965,
+          "extra": []
+        },
+        {
+          "type": "Cast",
+          "id": "44410",
+          "name": "斩",
+          "count": 10,
+          "firstTime": 10569616,
+          "lastTime": 10630397,
+          "extra": []
+        },
+        {
+          "type": "Skill",
+          "id": "44178",
+          "name": "仇",
+          "count": 8,
+          "firstTime": 10551344,
+          "lastTime": 10606365,
+          "extra": []
+        },
+        {
+          "type": "Cast",
+          "id": "44411",
+          "name": "破",
+          "count": 6,
+          "firstTime": 10639035,
+          "lastTime": 10997088,
+          "extra": []
+        },
+        {
+          "type": "Skill",
+          "id": "44179",
+          "name": "尘",
+          "count": 4,
+          "firstTime": 10561479,
+          "lastTime": 10616438,
+          "extra": []
+        },
+        {
+          "type": "Skill",
+          "id": "44190",
+          "name": "黄泉斩",
+          "count": 4,
+          "firstTime": 10754620,
+          "lastTime": 10784667,
+          "extra": []
+        },
+        {
+          "type": "Skill",
+          "id": "44176",
+          "name": "退",
+          "count": 2,
+          "firstTime": 10545348,
+          "lastTime": 10600353,
+          "extra": []
+        },
+        {
+          "type": "Skill",
+          "id": "44444",
+          "name": "劫",
+          "count": 1,
+          "firstTime": 10788860,
+          "lastTime": 10788860,
+          "extra": []
+        }
+      ],
+      "garbageHits": [
+        {
+          "type": "Buff",
+          "name": "刑",
+          "id": "32949",
+          "reason": "filtered_b",
+          "count": 1,
+          "firstTime": 10690898,
+          "lastTime": 10690898
+        },
+        {
+          "type": "Buff",
+          "name": "唤",
+          "id": "32939",
+          "reason": "filtered_b",
+          "count": 1,
+          "firstTime": 10538427,
+          "lastTime": 10538427
+        },
+        {
+          "type": "Buff",
+          "name": "处决",
+          "id": "33102",
+          "reason": "filtered_b",
+          "count": 1,
+          "firstTime": 10547874,
+          "lastTime": 10547874
+        },
+        {
+          "type": "Buff",
+          "name": "尘",
+          "id": "32943",
+          "reason": "filtered_b",
+          "count": 1,
+          "firstTime": 10609957,
+          "lastTime": 10609957
+        },
+        {
+          "type": "Buff",
+          "name": "尘",
+          "id": "32944",
+          "reason": "filtered_b",
+          "count": 1,
+          "firstTime": 10554990,
+          "lastTime": 10554990
+        },
+        {
+          "type": "Buff",
+          "name": "尘",
+          "id": "32945",
+          "reason": "filtered_b",
+          "count": 1,
+          "firstTime": 10554863,
+          "lastTime": 10554863
+        },
+        {
+          "type": "Buff",
+          "name": "尘",
+          "id": "32946",
+          "reason": "filtered_b",
+          "count": 1,
+          "firstTime": 10554906,
+          "lastTime": 10554906
+        },
+        {
+          "type": "Buff",
+          "name": "巨刃掠影",
+          "id": "32953",
+          "reason": "filtered_b",
+          "count": 1,
+          "firstTime": 10662138,
+          "lastTime": 10662138
+        },
+        {
+          "type": "Buff",
+          "name": "挡",
+          "id": "32999",
+          "reason": "filtered_b",
+          "count": 1,
+          "firstTime": 10662378,
+          "lastTime": 10662378
+        },
+        {
+          "type": "Buff",
+          "name": "搏命",
+          "id": "32937",
+          "reason": "filtered_b",
+          "count": 1,
+          "firstTime": 10534758,
+          "lastTime": 10534758
+        },
+        {
+          "type": "Buff",
+          "name": "搏命",
+          "id": "32996",
+          "reason": "filtered_b",
+          "count": 1,
+          "firstTime": 10673386,
+          "lastTime": 10673386
+        },
+        {
+          "type": "Buff",
+          "name": "震慑",
+          "id": "32938",
+          "reason": "filtered_b",
+          "count": 1,
+          "firstTime": 10662840,
+          "lastTime": 10662840
+        },
+        {
+          "type": "Scene",
+          "name": "处决鬼手",
+          "id": "137047",
+          "reason": "filtered_n",
+          "count": 1,
+          "firstTime": 10547642,
+          "lastTime": 10547642
+        },
+        {
+          "type": "Scene",
+          "name": "帮会旗帜-天下无敌",
+          "id": "10636",
+          "reason": "filtered_n",
+          "count": 1,
+          "firstTime": 10612421,
+          "lastTime": 10612421
+        },
+        {
+          "type": "Scene",
+          "name": "阿史那承庆宝箱",
+          "id": "137100",
+          "reason": "filtered_n",
+          "count": 1,
+          "firstTime": 11011487,
+          "lastTime": 11011487
+        },
+        {
+          "type": "Scene",
+          "name": "鬼手",
+          "id": "137202",
+          "reason": "filtered_n",
+          "count": 1,
+          "firstTime": 10715091,
+          "lastTime": 10715091
+        },
+        {
+          "type": "Scene",
+          "name": "魂火",
+          "id": "137054",
+          "reason": "filtered_n",
+          "count": 1,
+          "firstTime": 10534062,
+          "lastTime": 10534062
+        },
+        {
+          "type": "Skill",
+          "name": "撼岳",
+          "id": "44171",
+          "reason": "ordinary_attack",
+          "count": 1,
+          "firstTime": 10662641,
+          "lastTime": 10662641
+        },
+        {
+          "type": "Skill",
+          "name": "斩",
+          "id": "44415",
+          "reason": "skill_has_cast",
+          "count": 1,
+          "firstTime": 10626609,
+          "lastTime": 10626609
+        },
+        {
+          "type": "Skill",
+          "name": "破",
+          "id": "43975",
+          "reason": "skill_has_cast",
+          "count": 1,
+          "firstTime": 10643253,
+          "lastTime": 10643253
+        },
+        {
+          "type": "Skill",
+          "name": "破",
+          "id": "44622",
+          "reason": "skill_has_cast",
+          "count": 1,
+          "firstTime": 10643139,
+          "lastTime": 10643139
+        },
+        {
+          "type": "Skill",
+          "name": "连击",
+          "id": "44303",
+          "reason": "ordinary_attack",
+          "count": 1,
+          "firstTime": 10677346,
+          "lastTime": 10677346
+        }
+      ],
+      "suspicious": []
+    }
+  }
+}

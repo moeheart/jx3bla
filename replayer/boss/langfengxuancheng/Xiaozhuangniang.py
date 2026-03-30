@@ -39,6 +39,18 @@ class XiaozhuangniangWindow(SpecificBossWindow):
 class XiaozhuangniangReplayer(GeneralReplayer):
     TARGET_HP = 22117633925
     DAMAGE_THRESHOLD = 0.98
+    BH_BLACKLIST_EXTRA = [
+        "s44021",  # 普通攻击
+        "s44149",  # 与读条同名的命中事件，时间轴保留读条
+        "s44589",  # 与读条同名的后续伤害
+        "b33259",
+    ]
+    BH_INFO = {
+        "s44022": ["2019", "#ff5555", 0],   # 祭跪双坟
+        "b32976": ["3330", "#3355ff", 0],   # 灵簪锁魂
+        "c44238": ["3330", "#3355ff", 0],   # 灵簪锁魂
+        "c44290": ["12449", "#ff00aa", 0],  # 悲音恸潮
+    }
 
     def recordDeath(self, item, deathSource):
         pass
@@ -131,7 +143,21 @@ class XiaozhuangniangReplayer(GeneralReplayer):
             self.trimmedFinalTime = self.resolvedWinReason["trimTime"]
         return super().trimTime()
 
+    def recordMainTarget(self, event):
+        if self.mainTargetRecorded:
+            return
+        if event.dataType != "Skill":
+            return
+        if event.caster not in self.bld.info.player or event.target not in self.bld.info.npc:
+            return
+
+        npc = self.bld.info.npc[event.target]
+        if npc.templateID == self.mainBossTemplateID and self.bld.info.getName(event.target) == self.bossName:
+            self.bh.setMainTarget(event.target)
+            self.mainTargetRecorded = 1
+
     def analyseSecondStage(self, event):
+        self.recordMainTarget(event)
         if event.dataType == "Shout":
             self.collectShoutCandidates(event)
         elif event.dataType == "Death":
@@ -167,14 +193,16 @@ class XiaozhuangniangReplayer(GeneralReplayer):
         self.detail["winEvidence"] = evidence
         self.detail["winEvidenceRecommendation"] = recommendation
         self.detail["winEvidenceReport"] = format_evidence_report(self.bossName, evidence, recommendation)
+        self.detail["P1Time"] = int(self.phaseTime[1] / 1000)
 
     def initBattle(self):
         self.initBattleBase()
         self.initPhase(1, 1)
 
         self.activeBoss = "笑妆娘"
+        self.bhBlackList.extend(self.BH_BLACKLIST_EXTRA)
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
-        self.bhInfo = {}
+        self.bhInfo = dict(self.BH_INFO)
 
         self.bossName = "笑妆娘"
         self.mainBossTemplateID = "137088"
@@ -189,6 +217,7 @@ class XiaozhuangniangReplayer(GeneralReplayer):
         self.chestWinTime = 0
         self.damageFallbackTime = 0
         self.mainBossDamage = 0
+        self.mainTargetRecorded = 0
 
         self.shoutCandidates = []
         self.deathCandidates = []

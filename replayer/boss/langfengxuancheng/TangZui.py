@@ -41,6 +41,28 @@ class TangZuiReplayer(GeneralReplayer):
     SCENE_THRESHOLD = 0.95
     DAMAGE_THRESHOLD = 0.98
     REENTER_WINDOW = 5000
+    BH_BLACKLIST_EXTRA = [
+        "s43923",  # 普通攻击
+        "s43924",
+        "s43934",
+        "s43964",
+        "s43965",
+        "s43990",
+        "s43995",
+        "s44018",
+        "s44050",
+        "s44305",
+        "b31979",
+        "b33133",
+        "b32808",
+    ]
+    BH_INFO = {
+        "b32851": ["15522", "#aa33ff", 0],  # 翎刃毒
+        "c43933": ["3452", "#ff3333", 0],   # 透骨刺
+        "c43925": ["2028", "#ff8800", 0],   # 三叠杀
+        "c43969": ["12453", "#3355ff", 0],  # 碎星
+        "c43937": ["12452", "#33aa66", 0],  # 魂锁牵
+    }
 
     def recordDeath(self, item, deathSource):
         pass
@@ -150,7 +172,21 @@ class TangZuiReplayer(GeneralReplayer):
             self.trimmedFinalTime = self.resolvedWinReason["trimTime"]
         return super().trimTime()
 
+    def recordMainTarget(self, event):
+        if self.mainTargetRecorded:
+            return
+        if event.dataType != "Skill":
+            return
+        if event.caster not in self.bld.info.player or event.target not in self.bld.info.npc:
+            return
+
+        npc = self.bld.info.npc[event.target]
+        if npc.templateID == self.mainBossTemplateID and self.bld.info.getName(event.target) == self.bossName:
+            self.bh.setMainTarget(event.target)
+            self.mainTargetRecorded = 1
+
     def analyseSecondStage(self, event):
+        self.recordMainTarget(event)
         if event.dataType == "Shout":
             self.collectShoutCandidates(event)
         elif event.dataType == "Death":
@@ -186,14 +222,16 @@ class TangZuiReplayer(GeneralReplayer):
         self.detail["winEvidence"] = evidence
         self.detail["winEvidenceRecommendation"] = recommendation
         self.detail["winEvidenceReport"] = format_evidence_report(self.bossName, evidence, recommendation)
+        self.detail["P1Time"] = int(self.phaseTime[1] / 1000)
 
     def initBattle(self):
         self.initBattleBase()
         self.initPhase(1, 1)
 
         self.activeBoss = "唐醉"
+        self.bhBlackList.extend(self.BH_BLACKLIST_EXTRA)
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
-        self.bhInfo = {}
+        self.bhInfo = dict(self.BH_INFO)
 
         self.bossName = "唐醉"
         self.mainBossTemplateID = "137005"
@@ -209,6 +247,7 @@ class TangZuiReplayer(GeneralReplayer):
         self.lastMainBossLeaveTime = 0
         self.damageFallbackTime = 0
         self.mainBossDamage = 0
+        self.mainTargetRecorded = 0
 
         self.shoutCandidates = []
         self.deathCandidates = []
