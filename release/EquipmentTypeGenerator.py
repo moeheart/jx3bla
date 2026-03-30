@@ -8,7 +8,7 @@ if __name__ == "__main__":
     # 数据准备
     resultDict = {}
 
-    with open('equip/resources/Custom_Armor.tab')as f:
+    with open('equip/resources/Custom_Armor.tab', 'r', encoding='utf-8')as f:
 
         data_7 = []
         f_csv = csv.reader(f, delimiter='\t')
@@ -49,7 +49,7 @@ if __name__ == "__main__":
             if attr != "":
                 resultDict[id] = attr
 
-    with open('equip/resources/Custom_Weapon.tab')as f:
+    with open('equip/resources/Custom_Weapon.tab', 'r', encoding='utf-8')as f:
 
         data_6 = []
         f_csv = csv.reader(f, delimiter='\t')
@@ -80,7 +80,7 @@ if __name__ == "__main__":
             if attr != "":
                 resultDict[id] = attr
 
-    with open('equip/resources/Custom_Trinket.tab')as f:
+    with open('equip/resources/Custom_Trinket.tab', 'r', encoding='utf-8')as f:
 
         data_8 = []
         f_csv = csv.reader(f, delimiter='\t')
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     # 读取附魔等级
     enchantDict = {}
 
-    with open('equip/resources/Enchant.tab')as f:
+    with open('equip/resources/Enchant.tab', 'r', encoding='utf-8')as f:
         f_csv = csv.reader(f, delimiter='\t')
         lvl = 0
         for row in f_csv:
@@ -134,7 +134,7 @@ if __name__ == "__main__":
     # 读取五彩石等级
     colorDict = {}
 
-    with open('equip/resources/Other.tab')as f:
+    with open('equip/resources/Other.tab', 'r', encoding='utf-8')as f:
         f_csv = csv.reader(f, delimiter='\t')
         lvl = 0
         for row in f_csv:

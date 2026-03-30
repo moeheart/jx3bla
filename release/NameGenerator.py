@@ -11,7 +11,7 @@ if __name__ == "__main__":
     resultDict = {}
 
     # 读取buff
-    with open('equip/resources/buff.txt')as f:
+    with open('equip/resources/buff.txt', 'r', encoding='utf-8')as f:
         f_csv = csv.reader(f, delimiter='\t')
         headers = next(f_csv)
         # print(headers)
@@ -19,7 +19,7 @@ if __name__ == "__main__":
             s = "2,%s,%s"%(row[0], row[1])
             resultDict[s] = row[7]
 
-    with open('equip/resources/buff2.txt')as f:
+    with open('equip/resources/buff2.txt', 'r', encoding='utf-8')as f:
         f_csv = csv.reader(f, delimiter='\t')
         headers = next(f_csv)
         # print(headers)
@@ -28,7 +28,7 @@ if __name__ == "__main__":
             resultDict[s] = row[7]
 
     # 读取技能
-    with open('equip/resources/skill.txt')as f:
+    with open('equip/resources/skill.txt', 'r', encoding='utf-8')as f:
         f_csv = csv.reader(f, delimiter='\t')
         headers = next(f_csv)
         # print(headers)
@@ -36,7 +36,7 @@ if __name__ == "__main__":
             s = "1,%s,%s"%(row[0], row[1])
             resultDict[s] = row[11]
 
-    with open('equip/resources/skill2.txt')as f:
+    with open('equip/resources/skill2.txt', 'r', encoding='utf-8')as f:
         f_csv = csv.reader(f, delimiter='\t')
         headers = next(f_csv)
         # print(headers)
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     absorbDict = {}
     resistDict = {}
     boostDict = {}
-    with open('equip/resources/buff.tab') as f:
+    with open('equip/resources/buff.tab', 'r', encoding='utf-8') as f:
 
         f_csv = csv.reader(f, delimiter='\t')
         headers = next(f_csv)
@@ -80,7 +80,7 @@ if __name__ == "__main__":
             if boost != {}:
                 boostDict[s] = boost
 
-    with open('equip/resources/buff2.tab') as f:
+    with open('equip/resources/buff2.tab', 'r', encoding='utf-8') as f:
 
         f_csv = csv.reader(f, delimiter='\t')
         headers = next(f_csv)
