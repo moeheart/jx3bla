@@ -8,6 +8,30 @@ class EquipmentInfo():
     装备信息类，包括属性的读取与获得。
     '''
 
+    def openTextFile(self, path):
+        '''
+        兼容读取不同编码的静态资源文件。
+        目前优先尝试 utf-8 / utf-8-sig，失败后回退到 gbk。
+        '''
+        last_error = None
+        for encoding in ["utf-8", "utf-8-sig", "gbk"]:
+            try:
+                f = open(path, 'r', encoding=encoding)
+                f.readline()
+                f.seek(0)
+                return f
+            except UnicodeDecodeError as e:
+                last_error = e
+                try:
+                    f.close()
+                except:
+                    pass
+            except LookupError as e:
+                last_error = e
+        if last_error is not None:
+            raise last_error
+        return open(path, 'r')
+
     def getAttribute(self, full_id, attribute):
         '''
         通过带标签的ID获取装备特定的属性。
@@ -76,7 +100,7 @@ class EquipmentInfo():
         '''
         header = []
         first = True
-        with open(path, 'r', encoding='gbk') as f:
+        with self.openTextFile(path) as f:
             for line in f:
                 if first:
                     header = line.strip('\n').split('\t')
@@ -103,7 +127,7 @@ class EquipmentInfo():
 
         ATTRIB_PATH = 'equip/resources/Attrib.tab'
         first = True
-        with open(ATTRIB_PATH, 'r', encoding='gbk') as f:
+        with self.openTextFile(ATTRIB_PATH) as f:
             for line in f:
                 if first:
                     first = False
@@ -113,7 +137,7 @@ class EquipmentInfo():
 
         ENCHANT_PATH = 'equip/resources/Enchant.tab'
         first = True
-        with open(ENCHANT_PATH, 'r', encoding='gbk') as f:
+        with self.openTextFile(ENCHANT_PATH) as f:
             for line in f:
                 if first:
                     first = False
@@ -129,7 +153,7 @@ class EquipmentInfo():
 
         ITEM_PATH = 'equip/resources/item.txt'
         first = True
-        with open(ITEM_PATH, 'r', encoding='gbk') as f:
+        with self.openTextFile(ITEM_PATH) as f:
             for line in f:
                 if first:
                     first = False
@@ -144,7 +168,7 @@ class EquipmentInfo():
 
         OTHER_PATH = 'equip/resources/Other.tab'
         first = True
-        with open(OTHER_PATH, 'r', encoding='gbk') as f:
+        with self.openTextFile(OTHER_PATH) as f:
             for line in f:
                 if first:
                     first = False
@@ -155,7 +179,7 @@ class EquipmentInfo():
 
         SET_PATH = 'equip/resources/Set.tab'
         first = True
-        with open(SET_PATH, 'r', encoding='gbk') as f:
+        with self.openTextFile(SET_PATH) as f:
             for line in f:
                 if first:
                     first = False
