@@ -65,6 +65,8 @@ class AshinaChengqingReplayer(GeneralReplayer):
         "b32937",
         "b32996",
         "b32938",
+        "s45000",  # 风（格挡成功）
+        "s45001",  # 暴（格挡失败）
     ]
     BH_INFO = {
         "n137054": ["12449", "#33aa66", 0],  # 魂火
@@ -270,7 +272,7 @@ class AshinaChengqingReplayer(GeneralReplayer):
         self.initPhase(2, 1)
 
         self.activeBoss = "阿史那承庆"
-        self.debug = 0
+        self.debug = 1
         self.bhBlackList.extend(self.BH_BLACKLIST_EXTRA)
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
         self.bhInfo = dict(self.BH_INFO)

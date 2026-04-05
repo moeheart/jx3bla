@@ -74,7 +74,7 @@ class BattleHistory():
         if affectHealer:
             self.critPeriodHealer.recordInterval(start, end)
 
-    def printEnvironmentInfo(self):
+    def printEnvironmentInfo(self, showResolved=False):
         '''
         打印所有的bldinfo. 用于调试.
         '''
@@ -87,9 +87,8 @@ class BattleHistory():
             t = line["type"]
             if line["iconid"] == "341":
                 print("[Unsolved]", formattedTime, t, id, name)
-            else:
-                pass
-                # print("[Env]", formattedTime, t, id, name)
+            elif showResolved:
+                print("[Env]", formattedTime, t, id, name)
 
     def setEnvironmentInfo(self, infoDict):
         '''

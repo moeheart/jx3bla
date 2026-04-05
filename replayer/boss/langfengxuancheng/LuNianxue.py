@@ -61,6 +61,6 @@ class LuNianxueReplayer(GeneralReplayer):
         self.initPhase(1, 1)
 
         self.activeBoss = "鲁念雪"
-        self.debug = 0
+        self.debug = 1
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
         self.bhInfo = {}

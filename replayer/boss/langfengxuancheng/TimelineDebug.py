@@ -14,4 +14,4 @@ def recordDebugShout(replayer, event):
 
 def printDebugTimeline(replayer):
     if getattr(replayer, "debug", 0):
-        replayer.bh.printEnvironmentInfo()
+        replayer.bh.printEnvironmentInfo(True)

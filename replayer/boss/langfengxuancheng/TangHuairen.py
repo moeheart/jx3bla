@@ -61,6 +61,6 @@ class TangHuairenReplayer(GeneralReplayer):
         self.initPhase(1, 1)
 
         self.activeBoss = "唐怀仁"
-        self.debug = 0
+        self.debug = 1
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
         self.bhInfo = {}

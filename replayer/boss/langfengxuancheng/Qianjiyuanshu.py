@@ -61,6 +61,6 @@ class QianjiyuanshuReplayer(GeneralReplayer):
         self.initPhase(1, 1)
 
         self.activeBoss = "千机源枢"
-        self.debug = 0
+        self.debug = 1
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
         self.bhInfo = {}

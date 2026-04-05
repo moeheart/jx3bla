@@ -50,6 +50,11 @@ class LiuGongziReplayer(GeneralReplayer):
         "b33214",
         "s44475",
         "s44476",
+        "s44240",  # 公子扇·裂风（最高等级）
+        "s44243",
+        "s44244",
+        "s44243",
+        "s44244",  # 公子扇·裂风（最低等级）
     ]
     BH_INFO = {
         "s44285": ["3405", "#ff5555", 0],   # 掠影探囊
@@ -57,7 +62,6 @@ class LiuGongziReplayer(GeneralReplayer):
         # "s44476": ["31042", "#3355ff", 0],  # 敛锋点梅
         "s44287": ["3293", "#ff8800", 0],   # 回影掠余
         "s44068": ["3431", "#aa44ff", 0],   # 公子扇·散锋
-        "s44244": ["3452", "#ff3355", 0],   # 公子扇·裂风
         "s44239": ["12452", "#33aaff", 0],  # 公子扇·旋扇
         "s44066": ["3426", "#ffaa00", 0],   # 公子扇·聚锋
         "s44547": ["2028", "#ff66aa", 0],   # 扇骨飞散
@@ -234,7 +238,7 @@ class LiuGongziReplayer(GeneralReplayer):
         self.initPhase(1, 1)
 
         self.activeBoss = "柳公子"
-        self.debug = 0
+        self.debug = 1
         self.bhBlackList.extend(self.BH_BLACKLIST_EXTRA)
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
         self.bhInfo = dict(self.BH_INFO)

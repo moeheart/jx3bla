@@ -210,7 +210,7 @@ class XiaozhuangniangReplayer(GeneralReplayer):
         self.initPhase(1, 1)
 
         self.activeBoss = "笑妆娘"
-        self.debug = 0
+        self.debug = 1
         self.bhBlackList.extend(self.BH_BLACKLIST_EXTRA)
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
         self.bhInfo = dict(self.BH_INFO)
