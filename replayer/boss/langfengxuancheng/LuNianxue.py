@@ -3,6 +3,7 @@ import tkinter as tk
 from window.SpecificBossWindow import SpecificBossWindow
 from replayer.boss.General import GeneralReplayer
 from replayer.TableConstructorMeta import TableConstructorMeta
+from replayer.boss.langfengxuancheng.TimelineDebug import recordDebugShout, printDebugTimeline
 
 
 class LuNianxueWindow(SpecificBossWindow):
@@ -46,10 +47,20 @@ class LuNianxueReplayer(GeneralReplayer):
     鲁念雪的定制复盘类。
     '''
 
+    def analyseSecondStage(self, event):
+        if event.dataType == "Shout":
+            recordDebugShout(self, event)
+        super().analyseSecondStage(event)
+
+    def countFinal(self):
+        super().countFinal()
+        printDebugTimeline(self)
+
     def initBattle(self):
         self.initBattleBase()
         self.initPhase(1, 1)
 
         self.activeBoss = "鲁念雪"
+        self.debug = 0
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
         self.bhInfo = {}

@@ -6,6 +6,8 @@ from replayer.TableConstructorMeta import TableConstructorMeta
 from replayer.boss.langfengxuancheng.WinEvidence import append_unique, filter_relevant_candidates, \
     filter_chest_candidates, filter_tail_scene_candidates, build_damage_candidates, build_recommendation, \
     format_evidence_report
+from replayer.boss.langfengxuancheng.TimelineDebug import recordDebugShout, printDebugTimeline
+from replayer.boss.langfengxuancheng.Trivia import LangfengTriviaRecorder, bool_flag
 
 
 class TangZuiWindow(SpecificBossWindow):
@@ -41,6 +43,8 @@ class TangZuiReplayer(GeneralReplayer):
     SCENE_THRESHOLD = 0.95
     DAMAGE_THRESHOLD = 0.98
     REENTER_WINDOW = 5000
+    TRIVIA_WAVE_WINDOW = 200
+    TRIVIA_GROUP_THRESHOLD = 7
     BH_BLACKLIST_EXTRA = [
         "s43923",  # 普通攻击
         "s43924",
@@ -66,6 +70,45 @@ class TangZuiReplayer(GeneralReplayer):
 
     def recordDeath(self, item, deathSource):
         pass
+
+    def recordTriviaDeath(self, event):
+        if self.triviaRecorder.enabled and event.id in self.bld.info.player:
+            self.triviaRecorder.record_event("Dead", self.bld.info.getName(event.id), event.time)
+
+    def flush33133Wave(self):
+        if not self.triviaRecorder.enabled or not self.buff33133WavePlayers:
+            return
+        if len(self.buff33133WavePlayers) < self.TRIVIA_GROUP_THRESHOLD:
+            for player_name in sorted(self.buff33133WavePlayers):
+                self.triviaRecorder.record_event("TangZui33133", player_name, self.buff33133WaveTime)
+        self.buff33133WaveTime = 0
+        self.buff33133WaveLast = 0
+        self.buff33133WavePlayers = set()
+
+    def collectTrivia33133(self, event):
+        if not self.triviaRecorder.enabled:
+            return
+        if event.target not in self.bld.info.player or event.caster not in self.bld.info.npc:
+            return
+        if event.id != "33133" or bool_flag(event.delete):
+            return
+
+        player_name = self.bld.info.getName(event.target)
+        if not self.buff33133WavePlayers:
+            self.buff33133WaveTime = event.time
+            self.buff33133WaveLast = event.time
+            self.buff33133WavePlayers = {player_name}
+            return
+
+        if event.time - self.buff33133WaveLast <= self.TRIVIA_WAVE_WINDOW:
+            self.buff33133WavePlayers.add(player_name)
+            self.buff33133WaveLast = event.time
+            return
+
+        self.flush33133Wave()
+        self.buff33133WaveTime = event.time
+        self.buff33133WaveLast = event.time
+        self.buff33133WavePlayers = {player_name}
 
     def collectShoutCandidates(self, event):
         if event.content not in ['""', ""]:
@@ -188,17 +231,22 @@ class TangZuiReplayer(GeneralReplayer):
     def analyseSecondStage(self, event):
         self.recordMainTarget(event)
         if event.dataType == "Shout":
+            recordDebugShout(self, event)
             self.collectShoutCandidates(event)
         elif event.dataType == "Death":
             self.collectDeathCandidates(event)
+            self.recordTriviaDeath(event)
         elif event.dataType == "Scene":
             self.collectChestCandidates(event)
             self.collectSceneCandidates(event)
+        elif event.dataType == "Buff":
+            self.collectTrivia33133(event)
         elif event.dataType == "Skill":
             self.collectDamageCandidates(event)
         super().analyseSecondStage(event)
 
     def countFinal(self):
+        self.flush33133Wave()
         self.resolveWinCondition()
         if self.resolvedWinReason is not None:
             self.win = 1
@@ -223,12 +271,15 @@ class TangZuiReplayer(GeneralReplayer):
         self.detail["winEvidenceRecommendation"] = recommendation
         self.detail["winEvidenceReport"] = format_evidence_report(self.bossName, evidence, recommendation)
         self.detail["P1Time"] = int(self.phaseTime[1] / 1000)
+        printDebugTimeline(self)
+        self.triviaRecorder.flush(self.finalTime, self.battleTime, self.win)
 
     def initBattle(self):
         self.initBattleBase()
         self.initPhase(1, 1)
 
         self.activeBoss = "唐醉"
+        self.debug = 0
         self.bhBlackList.extend(self.BH_BLACKLIST_EXTRA)
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
         self.bhInfo = dict(self.BH_INFO)
@@ -248,9 +299,15 @@ class TangZuiReplayer(GeneralReplayer):
         self.damageFallbackTime = 0
         self.mainBossDamage = 0
         self.mainTargetRecorded = 0
+        self.buff33133WaveTime = 0
+        self.buff33133WaveLast = 0
+        self.buff33133WavePlayers = set()
 
         self.shoutCandidates = []
         self.deathCandidates = []
         self.chestCandidates = []
         self.sceneCandidates = []
         self.damageByNpc = {}
+        self.triviaRecorder = LangfengTriviaRecorder(self.config, self.bossName, self.bld.info.battleTime,
+                                                     self.startTime)
+        self.triviaRecorder.add_player_names(self.statDict)

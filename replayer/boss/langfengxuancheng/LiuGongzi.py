@@ -6,6 +6,8 @@ from replayer.TableConstructorMeta import TableConstructorMeta
 from replayer.boss.langfengxuancheng.WinEvidence import append_unique, filter_relevant_candidates, \
     filter_chest_candidates, filter_tail_scene_candidates, build_damage_candidates, build_recommendation, \
     format_evidence_report
+from replayer.boss.langfengxuancheng.TimelineDebug import recordDebugShout, printDebugTimeline
+from replayer.boss.langfengxuancheng.Trivia import LangfengTriviaRecorder
 
 
 class LiuGongziWindow(SpecificBossWindow):
@@ -64,6 +66,10 @@ class LiuGongziReplayer(GeneralReplayer):
 
     def recordDeath(self, item, deathSource):
         pass
+
+    def recordTriviaDeath(self, event):
+        if self.triviaRecorder.enabled and event.id in self.bld.info.player:
+            self.triviaRecorder.record_event("Dead", self.bld.info.getName(event.id), event.time)
 
     def collectShoutCandidates(self, event):
         if event.content not in ['""', ""]:
@@ -183,9 +189,11 @@ class LiuGongziReplayer(GeneralReplayer):
     def analyseSecondStage(self, event):
         self.recordMainTarget(event)
         if event.dataType == "Shout":
+            recordDebugShout(self, event)
             self.collectShoutCandidates(event)
         elif event.dataType == "Death":
             self.collectDeathCandidates(event)
+            self.recordTriviaDeath(event)
         elif event.dataType == "Scene":
             self.collectChestCandidates(event)
             self.collectSceneCandidates(event)
@@ -218,12 +226,15 @@ class LiuGongziReplayer(GeneralReplayer):
         self.detail["winEvidenceRecommendation"] = recommendation
         self.detail["winEvidenceReport"] = format_evidence_report(self.bossName, evidence, recommendation)
         self.detail["P1Time"] = int(self.phaseTime[1] / 1000)
+        printDebugTimeline(self)
+        self.triviaRecorder.flush(self.finalTime, self.battleTime, self.win)
 
     def initBattle(self):
         self.initBattleBase()
         self.initPhase(1, 1)
 
         self.activeBoss = "柳公子"
+        self.debug = 0
         self.bhBlackList.extend(self.BH_BLACKLIST_EXTRA)
         self.bhBlackList = self.mergeBlackList(self.bhBlackList, self.config)
         self.bhInfo = dict(self.BH_INFO)
@@ -249,3 +260,6 @@ class LiuGongziReplayer(GeneralReplayer):
         self.chestCandidates = []
         self.sceneCandidates = []
         self.damageByNpc = {}
+        self.triviaRecorder = LangfengTriviaRecorder(self.config, self.bossName, self.bld.info.battleTime,
+                                                     self.startTime)
+        self.triviaRecorder.add_player_names(self.statDict)

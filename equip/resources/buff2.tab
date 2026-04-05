@@ -6437,7 +6437,7 @@ ID	Name	Useage	FunctionType	RepresentPos	RepresentID	AppendType	DetachType	BuffT
 71573	废弃	450		Body	0	71573	0		1	1	0	1	1	0	0	1	1		Fight					1	0	1																																																												4294967295	0		0	0						0		0		63	1	0	1	0	1									
 71574	千里急需求buff	450		Body	0	71574	0		1	1	0	1	1	176	0	1	1							1	0	0	atNoLimitChangeSkillIcon	0	1																																																									3758030846	0		0	0						0		176		63	1	176	1	0	1									
 71575	千里急显示的秘籍	450		Body	0	71575	0		1	1	0	1	1	0	0	1	1							1	0	0	atSetTalentRecipe	17546	1	atSetTalentRecipe	17547	1																																																						4294967295	0		0	0						0		0		63	1	0	1	0	1									
-71576	障幕虚影持续伤害	450		Body	0	71576	0		1	1	0	1	11	16	0	1	1							1	0	0																																														atExecuteScript	skill_mobile/无相楼/移动端_无相楼_子技能/障幕虚影每跳打伤害.lua													3758030846	0		0	0						0		16		63	1	16	1	0	1									
+71576	障幕虚影持续伤害	450		Body	0	71576	0		1	1	0	1	11	16	0	0	1							1	0	0																																														atExecuteScript	skill_mobile/无相楼/移动端_无相楼_子技能/障幕虚影每跳打伤害.lua													3758030846	0		0	0						0		16		63	1	16	1	0	1									
 71577	障幕虚影自身增益	450		Body	0	71577	0		1	1	0	1	1	176	0	1	1							1	0	1																																																												3758030846	0		0	0						0		176		63	1	176	1	0	1						202			
 71578	移动端_无相楼_游丝枕月切二段	450		Body	0	71578	0		1	1	0	1	1	240	0	1	1							1	0	1	atNoLimitChangeSkillIcon	0	1																																																									3758030846	0		0	0						0		240		63	1	240	1	0	1									
 71579	游丝枕月免控每秒回血	450		Body	0	71579	0		1	1	0	1	1	16	0	1	1							1	0	1																																														atExecuteScript	skill_mobile/无相楼/移动端_无相楼_子技能/游丝枕月秘籍持续回血.lua													3758030846	0		0	0						0		16		63	1	16	1	0	1									
@@ -6629,3 +6629,4 @@ ID	Name	Useage	FunctionType	RepresentPos	RepresentID	AppendType	DetachType	BuffT
 71699	移动端_少林锻骨免疫秘籍	401		Body	0	71699	0		1	1	0	1	1	64	0	1	1							1	0	1	atGlobalBlock	1	0																																																									3758030846	0		0	0						0		64		63	1	64	1	0	1									
 71700	绝技招式伤害提高	417		Body	0	71700	0		1	1	0	1	1	8	0	1	1							1	0	1																																																												3758030846	0		0	0						0		8		63	1	8	1	0	1									
 71701	移动端_左旋右转_二段计数	405		Body	0	71701	0		1	1	1	5	1	80	0	1	1							1	0	1																																																												3758030846	0		0	0						0		80		63	1	80	1	0	1									
+71702	蹑云逐月换踏浪行·激荡	407		Body	0	71702	0		1	1	0	1	1	0	0	1	1							1	0	0	atNoLimitChangeSkillIcon	0	1																																																									3758030846	0		0	0						0		0		63	1	0	1	0	1									
