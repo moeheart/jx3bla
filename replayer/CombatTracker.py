@@ -1093,6 +1093,10 @@ class CombatTracker():
                     self.boostCounter[event.target].addBoost(effect_id, boostValue, source, event.stack, event.time)
                 else:
                     self.boostCounter[event.target].removeBoost(effect_id, event.time)
+            
+        # 记录一部分buff的出现情况，尝试用这些buff反推玩家流派
+        if event.id in ["9889"]:
+            self.buffAppearCounter[event.target]["9889"] = 1
 
     def updateRemoveTime(self):
         '''
@@ -1416,10 +1420,12 @@ class CombatTracker():
                 self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, source, 1, event.time)
                 self.boostRemove[effect_id + event.target] = {"time": event.time + 10000, "target": event.target, "boost": effect_id}
                 self.updateRemoveTime()
-        elif event.id in ["211", "212", "213"]:  # 立地成佛
+        # elif event.id in ["211", "212", "213"]:  # 立地成佛
+        elif event.id in ["201", "202", "203"]:  # 立地成佛，改为由韦陀献杵触发
             # global SUM_TIME, SUM1, SUM2, SUM3, SUM4, SUM5
             # print("[SUM_TIME]", SUM_TIME, SUM1, SUM2, SUM3, SUM4, SUM5)
-            lvl = int(event.id) - 210
+            # lvl = int(event.id) - 210
+            lvl = 3
             postLvl = lvl
             postStack = 1
             change = 1
@@ -1448,8 +1454,17 @@ class CombatTracker():
             source = event.caster
             if self.occDetailList.get(event.caster, "") == "21d":
                 source = "*低等级增益"
+            lvl = 1
+            if self.occDetailList.get(event.caster, "") == "21t" and self.buffAppearCounter[event.caster].get("9889", 0) == 0:
+                lvl = 2
+                # print("[DunfeiBoost]", event.time, event.target, "2,8248,2", self.boostCounter[event.caster].targetBoost.get(event.target, {}))
             for player in self.boostCounter:
-                effect_id = "2,8248,1"
+                effect_id = "2,8248,%d" % lvl
+                if lvl == 2:
+                    # 移除低等级
+                    old_id = "2,8248,1"
+                    if event.target in self.boostCounter[player].targetBoost and old_id in self.boostCounter[player].targetBoost[event.target]:
+                        self.boostCounter[player].removeTargetBoost(event.target, old_id, event.time)
                 boostValue = BOOST_DICT[effect_id]
                 self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, source, 1, event.time)
                 self.boostRemove[effect_id + event.target] = {"time": event.time + 25000, "target": event.target, "boost": effect_id}
@@ -1667,6 +1682,8 @@ class CombatTracker():
                     numYunchang += 1
                     yunchangID = player
 
+        self.buffAppearCounter = {}
+
         for player in info.player:
             # 治疗
             self.hpsCast[player] = HealCastRecorder(1)
@@ -1720,6 +1737,8 @@ class CombatTracker():
                 #     self.boostCounter[player].addBoost(effect_id, boostValue, yunchangID, 1, bh.startTime)
                 # else:
                 #     self.boostCounter[player].addBoost(effect_id, boostValue, "*低等级增益", 1, bh.startTime)
+            self.buffAppearCounter[player] = {}
+            
             
         for player in info.npc:
             self.hpsCast[player] = HealCastRecorder(0)
