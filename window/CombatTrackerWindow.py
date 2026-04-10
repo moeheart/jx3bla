@@ -151,6 +151,9 @@ class CombatTrackerWindow(Window):
             self.header2[1].configure(text="覆盖率")
         else:
             self.header2[1].configure(text="次数")
+
+
+        # print(data["player"][id][show])
         for key in data["player"][id][show]:
             dataT.append([key, data["player"][id][show][key]])
         dataT.sort(key=lambda x: -x[1]["sum"])

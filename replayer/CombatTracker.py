@@ -1469,6 +1469,13 @@ class CombatTracker():
                 self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, source, 1, event.time)
                 self.boostRemove[effect_id + event.target] = {"time": event.time + 25000, "target": event.target, "boost": effect_id}
                 self.updateRemoveTime()
+        elif event.id in ["100869"]:  # 戒火斩·悟
+            for player in self.boostCounter:
+                effect_id = "2,70188,2"  # 无界的通用伤害提高
+                boostValue = BOOST_DICT[effect_id]
+                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, event.caster, 1, event.time)
+                self.boostRemove[effect_id + event.target] = {"time": event.time + 15000, "target": event.target, "boost": effect_id}
+                self.updateRemoveTime()
         # elif event.id in ["3963"]:  # 烈日斩
         #     # print("[YishangDetect]", event.time, event.id, event.caster, self.info.getName(event.caster))
         #     source = event.caster
