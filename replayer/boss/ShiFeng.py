@@ -62,7 +62,7 @@ class ShiFengReplayer(SpecificReplayerPro):
         self.countFinalOverall()
         self.changePhase(self.finalTime, 0)
         self.bh.setEnvironmentInfo(self.bhInfo)
-        self.bh.printEnvironmentInfo()
+        self.bh.printEnvironmentInfo(showResolved=True)
 
         # self.detail["P1Time"] = int(self.phaseTime[1] / 1000)
         # self.detail["P2Time1"] = int(self.phaseTime[2] / 1000)
