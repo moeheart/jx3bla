@@ -6,7 +6,8 @@ from replayer.TableConstructorMeta import TableConstructorMeta
 from replayer.boss.langfengxuancheng.WinEvidence import append_unique, filter_relevant_candidates, \
     filter_chest_candidates, filter_tail_scene_candidates, build_damage_candidates, build_recommendation, \
     format_evidence_report
-from replayer.boss.langfengxuancheng.TimelineDebug import recordDebugShout, printDebugTimeline
+from replayer.boss.langfengxuancheng.TimelineDebug import recordTimelineScene, recordTimelineShout, \
+    printDebugTimeline
 from replayer.boss.langfengxuancheng.Trivia import LangfengTriviaRecorder
 
 
@@ -200,24 +201,12 @@ class AshinaChengqingReplayer(GeneralReplayer):
             self.mainTargetRecorded = 1
 
     def recordSceneTimeline(self, event):
+        recordTimelineScene(self, event)
         if event.dataType != "Scene" or event.id not in self.bld.info.npc or event.enter != 1:
             return
 
         npc = self.bld.info.npc[event.id]
-        template_id = npc.templateID
-        name = self.bld.info.getName(event.id)
-        key = "n%s" % template_id
-        if key not in self.bhInfo:
-            return
-        if event.time - self.bhTime.get(key, 0) <= 3000:
-            return
-
-        self.bhTime[key] = event.time
-        description = "%s现身" % name
-        color = self.bhInfo[key][1]
-        self.bh.setEnvironment(template_id, name, self.bhInfo[key][0], event.time, 0, 1, description, "npc", color=color)
-
-        if template_id == "137202" and not self.phase2Started:
+        if npc.templateID == "137202" and not self.phase2Started:
             self.changePhase(event.time, 2)
             self.phase2Started = 1
 
@@ -225,7 +214,7 @@ class AshinaChengqingReplayer(GeneralReplayer):
         self.recordMainTarget(event)
         self.recordSceneTimeline(event)
         if event.dataType == "Shout":
-            recordDebugShout(self, event)
+            recordTimelineShout(self, event)
             self.collectShoutCandidates(event)
         elif event.dataType == "Death":
             self.collectDeathCandidates(event)

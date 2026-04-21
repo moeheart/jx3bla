@@ -6,7 +6,8 @@ from replayer.TableConstructorMeta import TableConstructorMeta
 from replayer.boss.langfengxuancheng.WinEvidence import append_unique, filter_relevant_candidates, \
     filter_chest_candidates, filter_tail_scene_candidates, build_damage_candidates, build_recommendation, \
     format_evidence_report
-from replayer.boss.langfengxuancheng.TimelineDebug import recordDebugShout, printDebugTimeline
+from replayer.boss.langfengxuancheng.TimelineDebug import recordTimelineScene, recordTimelineShout, \
+    printDebugTimeline
 from replayer.boss.langfengxuancheng.Trivia import LangfengTriviaRecorder, bool_flag
 
 
@@ -231,12 +232,13 @@ class TangZuiReplayer(GeneralReplayer):
     def analyseSecondStage(self, event):
         self.recordMainTarget(event)
         if event.dataType == "Shout":
-            recordDebugShout(self, event)
+            recordTimelineShout(self, event)
             self.collectShoutCandidates(event)
         elif event.dataType == "Death":
             self.collectDeathCandidates(event)
             self.recordTriviaDeath(event)
         elif event.dataType == "Scene":
+            recordTimelineScene(self, event)
             self.collectChestCandidates(event)
             self.collectSceneCandidates(event)
         elif event.dataType == "Buff":
