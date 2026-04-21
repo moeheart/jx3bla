@@ -10,6 +10,7 @@ import threading
 import pyperclip
 from tkinter import messagebox
 from window.Window import Window
+from tools.ResourcePath import get_icon_dir, get_icon_path
 
 class TimelineWindow(Window):
     '''
@@ -89,11 +90,11 @@ class TimelineWindow(Window):
         # 加载图片列表
         canvas.imDict = {}
         canvas.im = {}
-        imFile = os.listdir('icons')
+        imFile = os.listdir(get_icon_dir())
         for line in imFile:
             imID = line.split('.')[0]
             if line.split('.')[1] == "png":
-                canvas.imDict[imID] = Image.open("icons/%s.png" % imID).resize((20, 20), Image.LANCZOS)
+                canvas.imDict[imID] = Image.open(get_icon_path(imID)).resize((20, 20), Image.LANCZOS)
                 canvas.im[imID] = ImageTk.PhotoImage(canvas.imDict[imID])
 
         for i in range(numRows):

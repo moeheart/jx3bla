@@ -7,6 +7,7 @@ import json
 import urllib
 from Constants import *
 from tools.Functions import *
+from tools.ResourcePath import ensure_parent_dir, get_resource_path, get_writable_path
 
 def checkRateEdition(serverEdition):
     '''
@@ -18,9 +19,15 @@ def checkRateEdition(serverEdition):
     requireUpdate = False
     STAT_PERCENT = {}
 
-    if os.path.exists('icons/rate.dat'):
+    rate_path = get_writable_path(os.path.join("icons", "rate.dat"))
+    read_rate_path = get_resource_path(os.path.join("icons", "rate.dat"))
+
+    if os.path.exists(rate_path):
+        read_rate_path = rate_path
+
+    if os.path.exists(read_rate_path):
         try:
-            with open('icons/rate.dat', 'r') as f:
+            with open(read_rate_path, 'r') as f:
                 s = f.read()
                 j = json.loads(s)
                 edition = j["edition"]
@@ -47,7 +54,8 @@ def checkRateEdition(serverEdition):
             STAT_PERCENT = res["data"]
             j = {"edition": serverEdition, "data": STAT_PERCENT}
             s = json.dumps(j)
-            with open('icons/rate.dat', 'w') as f:
+            ensure_parent_dir(rate_path)
+            with open(rate_path, 'w') as f:
                 f.write(s)
 
     return STAT_PERCENT

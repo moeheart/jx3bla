@@ -1723,4 +1723,7 @@ class ActorProReplayer(ReplayerBase):
         self.available = True  # 暂时用来判定月泉淮中间分片
         self.bossAnalyseName = "未知"
         self.occDetailList = {}
+        self.occResult = {}
+        self.actorData = {}
+        self.bh = None
         self.upload = 0

@@ -16,7 +16,7 @@ JX3 **B**attle **L**og **A**nalyser v8.0.0
 
 ## 发布
 
-`pyinstaller -F -i jx3bla.ico MainWindow.py`
+发布构建说明见 [release/README.md](release/README.md)。
 
 ## 心法支持
 

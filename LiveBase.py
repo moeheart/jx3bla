@@ -1,4 +1,4 @@
-# Created by moeheart at 10/10/2020
+﻿# Created by moeheart at 10/10/2020
 # 实时模式的基础方法库。
 
 import threading
@@ -345,6 +345,7 @@ class LiveListener():
             controller.setRawData(self.mainWindow.bldDict)
         controller.getSingleData(self.mainWindow, fileName)  # 此处将MainWindow类本身传入
         
+        actorRep = None
         try:
             fileNameInfo = [fileName, 0, 1]
             # print(self.mainWindow.bldDict)
@@ -379,8 +380,16 @@ class LiveListener():
             #     DestroyRaw(liveGenerator.getRawData())
         except Exception as e:
             traceback.print_exc()
-            self.mainWindow.setNotice({"t1": "[%s]分析失败！"%actorRep.bld.info.boss, "c1": "#000000", "t2": "请保留数据，并反馈给作者~", "c2": "#ff0000"})
-            return actorRep
+            bossName = fileName
+            if actorRep is not None and hasattr(actorRep, "bld"):
+                bossName = actorRep.bld.info.boss
+            errorText = "请保留数据，并反馈给作者~"
+            if isinstance(e, FileNotFoundError):
+                missingFile = getattr(e, "filename", "") or str(e)
+                if "equip\\resources" in missingFile or "equip/resources" in missingFile or "icons\\" in missingFile or "icons/" in missingFile:
+                    errorText = "离线版资源未打包完整，请使用 beta 离线版构建脚本重新打包"
+            self.mainWindow.setNotice({"t1": "[%s]分析失败！" % bossName, "c1": "#000000", "t2": errorText, "c2": "#ff0000"})
+            return None
             
         self.bossNum += 1
         self.mainWindow.setTianwangInfo(actorRep.ids, actorRep.server)
@@ -396,6 +405,8 @@ class LiveListener():
 
         for file in fileList:
             actorRep = self.getOneBattleLog(basepath, file)
+            if actorRep is None:
+                continue
             if not actorRep.available:
                 continue
             #print("[Detail]", actorRep.detail)
@@ -415,6 +426,8 @@ class LiveListener():
         - lastFile: 新增的文件，通常是刚刚完成的战斗复盘
         '''
         actorRep = self.getOneBattleLog(basepath, lastFile)
+        if actorRep is None:
+            return
         if not actorRep.available:
             self.mainWindow.setNotice({"t1": "[%s]分析中断，等待完整记录..." % actorRep.bossname, "c1": "#000000"})
             return

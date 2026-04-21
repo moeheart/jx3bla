@@ -12,6 +12,7 @@ from tools.Functions import *
 from window.ReviewWindow import ReviewerWindow
 from window.Window import Window
 from window.ToolTip import ToolTip
+from tools.ResourcePath import get_icon_path
 
 def getDirection(key):
     if "delay" in key:
@@ -62,7 +63,7 @@ class SingleSkillDisplayer():
 
         subFrame = tk.Frame(frame, width=180, height=95)
         subFrame.place(x=x, y=y)
-        subFrame.photo = tk.PhotoImage(file="icons/%s.png" % self.iconID)
+        subFrame.photo = tk.PhotoImage(file=get_icon_path(self.iconID))
         label = tk.Label(subFrame, image=subFrame.photo)
         label.place(x=5, y=25)
         ToolTip(label, self.skillName)

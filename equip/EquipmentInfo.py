@@ -3,6 +3,8 @@
 
 import re
 
+from tools.ResourcePath import get_resource_path
+
 class EquipmentInfo():
     '''
     装备信息类，包括属性的读取与获得。
@@ -13,6 +15,7 @@ class EquipmentInfo():
         兼容读取不同编码的静态资源文件。
         目前优先尝试 utf-8 / utf-8-sig，失败后回退到 gbk。
         '''
+        path = get_resource_path(path)
         last_error = None
         for encoding in ["utf-8", "utf-8-sig", "gbk"]:
             try:
@@ -125,7 +128,7 @@ class EquipmentInfo():
         self.loadSingleFile(ARMOR_PATH, 7)
         self.loadSingleFile(WEAPON_PATH, 8)
 
-        ATTRIB_PATH = 'equip/resources/Attrib.tab'
+        ATTRIB_PATH = 'equip/resources/attrib.tab'
         first = True
         with self.openTextFile(ATTRIB_PATH) as f:
             for line in f:
@@ -135,7 +138,7 @@ class EquipmentInfo():
                     content = line.strip('\n').split('\t')
                     self.attrib[content[0]] = [content[2], content[3]]  # 只记录最简单的形式
 
-        ENCHANT_PATH = 'equip/resources/Enchant.tab'
+        ENCHANT_PATH = 'equip/resources/enchant.tab'
         first = True
         with self.openTextFile(ENCHANT_PATH) as f:
             for line in f:
@@ -166,7 +169,7 @@ class EquipmentInfo():
                         number = res.group(1)
                         self.itemColor[id] = number
 
-        OTHER_PATH = 'equip/resources/Other.tab'
+        OTHER_PATH = 'equip/resources/other.tab'
         first = True
         with self.openTextFile(OTHER_PATH) as f:
             for line in f:

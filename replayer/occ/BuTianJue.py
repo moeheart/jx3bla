@@ -26,6 +26,7 @@ import urllib.request
 import hashlib
 import webbrowser
 import pyperclip
+from tools.ResourcePath import get_icon_dir, get_icon_path
 
 class BuTianJueWindow(HealerDisplayWindow):
     '''
@@ -145,11 +146,11 @@ class BuTianJueWindow(HealerDisplayWindow):
         # 加载图片列表
         canvas6.imDict = {}
         canvas6.im = {}
-        imFile = os.listdir('icons')
+        imFile = os.listdir(get_icon_dir())
         for line in imFile:
             imID = line.split('.')[0]
             if line.split('.')[1] == "png":
-                canvas6.imDict[imID] = Image.open("icons/%s.png" % imID).resize((20, 20), Image.LANCZOS)
+                canvas6.imDict[imID] = Image.open(get_icon_path(imID)).resize((20, 20), Image.LANCZOS)
                 canvas6.im[imID] = ImageTk.PhotoImage(canvas6.imDict[imID])
 
         # 绘制主时间轴及时间

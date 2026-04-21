@@ -1,6 +1,8 @@
 # Created by moeheart at 09/12/2021
 # 维护win10toast的展示。
 
+from tools.ResourcePath import get_resource_path
+
 class Notifier():
     '''
     通知展示类。
@@ -14,7 +16,7 @@ class Notifier():
         - content: 内容。
         '''
         if self.mode == "toast":
-            self.toaster.show_toast(title, content, icon_path='icons/jx3bla.ico')
+            self.toaster.show_toast(title, content, icon_path=get_resource_path('icons/jx3bla.ico'))
         else:
             print(title, content)
 
