@@ -16,9 +16,9 @@ beta_datas = [
     ("equip/resources/Custom_Armor.tab", "equip/resources"),
     ("equip/resources/Custom_Weapon.tab", "equip/resources"),
     ("equip/resources/Attrib.tab", "equip/resources"),
-    ("equip/resources/enchant.tab", "equip/resources"),
+    ("equip/resources/Enchant.tab", "equip/resources"),
     ("equip/resources/item.txt", "equip/resources"),
-    ("equip/resources/other.tab", "equip/resources"),
+    ("equip/resources/Other.tab", "equip/resources"),
     ("equip/resources/Set.tab", "equip/resources"),
 ] + icon_datas
 

@@ -48,7 +48,7 @@ if __name__ == "__main__":
     absorbDict = {}
     resistDict = {}
     boostDict = {}
-    with open('equip/resources/buff.tab', 'r', encoding='utf-8') as f:
+    with open('equip/resources/Buff.tab', 'r', encoding='utf-8') as f:
 
         f_csv = csv.reader(f, delimiter='\t')
         headers = next(f_csv)

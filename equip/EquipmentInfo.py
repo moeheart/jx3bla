@@ -138,7 +138,7 @@ class EquipmentInfo():
                     content = line.strip('\n').split('\t')
                     self.attrib[content[0]] = [content[2], content[3]]  # 只记录最简单的形式
 
-        ENCHANT_PATH = 'equip/resources/enchant.tab'
+        ENCHANT_PATH = 'equip/resources/Enchant.tab'
         first = True
         with self.openTextFile(ENCHANT_PATH) as f:
             for line in f:
@@ -169,7 +169,7 @@ class EquipmentInfo():
                         number = res.group(1)
                         self.itemColor[id] = number
 
-        OTHER_PATH = 'equip/resources/other.tab'
+        OTHER_PATH = 'equip/resources/Other.tab'
         first = True
         with self.openTextFile(OTHER_PATH) as f:
             for line in f:

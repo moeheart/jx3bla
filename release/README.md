@@ -49,9 +49,9 @@ Beta 离线版额外打包的资源：
 - `equip/resources/Custom_Armor.tab`
 - `equip/resources/Custom_Weapon.tab`
 - `equip/resources/Attrib.tab`
-- `equip/resources/enchant.tab`
+- `equip/resources/Enchant.tab`
 - `equip/resources/item.txt`
-- `equip/resources/other.tab`
+- `equip/resources/Other.tab`
 - `equip/resources/Set.tab`
 - `icons/`
 
