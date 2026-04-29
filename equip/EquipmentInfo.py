@@ -128,7 +128,7 @@ class EquipmentInfo():
         self.loadSingleFile(ARMOR_PATH, 7)
         self.loadSingleFile(WEAPON_PATH, 8)
 
-        ATTRIB_PATH = 'equip/resources/attrib.tab'
+        ATTRIB_PATH = 'equip/resources/Attrib.tab'
         first = True
         with self.openTextFile(ATTRIB_PATH) as f:
             for line in f:
