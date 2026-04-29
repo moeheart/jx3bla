@@ -5,7 +5,7 @@ from replayer.boss.General import GeneralReplayer
 from replayer.TableConstructorMeta import TableConstructorMeta
 from replayer.boss.langfengxuancheng.WinEvidence import append_unique, filter_relevant_candidates, \
     filter_chest_candidates, filter_tail_scene_candidates, build_damage_candidates, build_recommendation, \
-    format_evidence_report
+    format_evidence_report, find_shout_win_reason, allow_damage_win_fallback, template_id_match
 from replayer.boss.langfengxuancheng.TimelineDebug import recordTimelineScene, recordTimelineShout, \
     printDebugTimeline
 from replayer.boss.langfengxuancheng.Trivia import LangfengTriviaRecorder
@@ -46,7 +46,12 @@ class XiaozhuangniangReplayer(GeneralReplayer):
         "s44021",  # 普通攻击
         "s44149",  # 与读条同名的命中事件，时间轴保留读条
         "s44589",  # 与读条同名的后续伤害
+        "s44489",
+        "s45063",
+        "s44281",
         "b33259",
+        "b33754",
+        "b33755",
     ]
     BH_INFO = {
         "s44022": ["2019", "#ff5555", 0],   # 祭跪双坟
@@ -88,7 +93,7 @@ class XiaozhuangniangReplayer(GeneralReplayer):
                 "enter": event.enter,
             }
             append_unique(self.chestCandidates, item)
-            if name in self.chestNames and self.chestWinTime == 0:
+            if (name in self.chestNames or npc.templateID in self.chestTemplateIDs) and self.chestWinTime == 0:
                 self.chestWinTime = event.time
 
     def collectSceneCandidates(self, event):
@@ -118,7 +123,7 @@ class XiaozhuangniangReplayer(GeneralReplayer):
         self.damageByNpc[event.target]["damage"] += event.damageEff
         self.damageByNpc[event.target]["lastTime"] = event.time
 
-        if npc.templateID == self.mainBossTemplateID:
+        if template_id_match(npc.templateID, self.mainBossTemplateIDs):
             self.mainBossDamage += event.damageEff
             if self.damageFallbackTime == 0 and self.mainBossDamage >= self.TARGET_HP * self.DAMAGE_THRESHOLD:
                 self.damageFallbackTime = event.time
@@ -127,7 +132,10 @@ class XiaozhuangniangReplayer(GeneralReplayer):
         if self.resolvedWinReason is not None:
             return
 
-        if self.chestWinTime:
+        shoutWinReason = find_shout_win_reason(self.shoutCandidates, self.bossWinShouts, self.damageFallbackTime)
+        if shoutWinReason is not None:
+            self.resolvedWinReason = shoutWinReason
+        elif self.chestWinTime:
             self.resolvedWinReason = {
                 "rule": "chest",
                 "eventTime": self.chestWinTime,
@@ -135,7 +143,7 @@ class XiaozhuangniangReplayer(GeneralReplayer):
                 "backupRule": "damage",
                 "needShoutHook": 1,
             }
-        elif self.damageFallbackTime:
+        elif self.damageFallbackTime and allow_damage_win_fallback(self):
             self.resolvedWinReason = {
                 "rule": "damage",
                 "eventTime": self.damageFallbackTime,
@@ -159,7 +167,7 @@ class XiaozhuangniangReplayer(GeneralReplayer):
             return
 
         npc = self.bld.info.npc[event.target]
-        if npc.templateID == self.mainBossTemplateID and self.bld.info.getName(event.target) == self.bossName:
+        if template_id_match(npc.templateID, self.mainBossTemplateIDs) and self.bld.info.getName(event.target) == self.bossName:
             self.bh.setMainTarget(event.target)
             self.mainTargetRecorded = 1
 
@@ -193,7 +201,7 @@ class XiaozhuangniangReplayer(GeneralReplayer):
             "shouts": self.shoutCandidates,
             "deaths": filter_relevant_candidates(self.deathCandidates, self.bossName, self.bossTemplateIDs,
                                                  self.extraBossNames),
-            "chests": filter_chest_candidates(self.chestCandidates, self.chestNames, []),
+            "chests": filter_chest_candidates(self.chestCandidates, self.chestNames, self.chestTemplateIDs),
             "scenes": filter_tail_scene_candidates(self.sceneCandidates, self.finalTime, self.bossName,
                                                    self.sceneTemplateIDs, self.extraBossNames),
             "damage": build_damage_candidates(self.damageByNpc, self.finalTime, self.bossName,
@@ -218,13 +226,15 @@ class XiaozhuangniangReplayer(GeneralReplayer):
         self.bhInfo = dict(self.BH_INFO)
 
         self.bossName = "笑妆娘"
-        self.mainBossTemplateID = "137088"
+        self.mainBossTemplateIDs = ["137088", "137205"]
+        self.mainBossTemplateID = self.mainBossTemplateIDs[0]
         self.extraBossNames = ["笑妆娘宝箱", "笑妆娘寶箱"]
-        self.bossTemplateIDs = [self.mainBossTemplateID]
+        self.bossTemplateIDs = self.mainBossTemplateIDs
         self.chestNames = ["笑妆娘宝箱", "笑妆娘寶箱"]
-        self.chestTemplateIDs = []
-        self.sceneTemplateIDs = ["137088", "137095", "137099", "137108"]
-        self.damageTemplateIDs = [self.mainBossTemplateID]
+        self.chestTemplateIDs = ["137176"]
+        self.sceneTemplateIDs = ["137088", "137095", "137099", "137108", "137205", "137216", "137212", "137225"]
+        self.damageTemplateIDs = self.mainBossTemplateIDs
+        self.bossWinShouts = ["有完没完了，烦死了！"]
 
         self.resolvedWinReason = None
         self.chestWinTime = 0

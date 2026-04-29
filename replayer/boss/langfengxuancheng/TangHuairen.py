@@ -5,7 +5,7 @@ from replayer.boss.General import GeneralReplayer
 from replayer.TableConstructorMeta import TableConstructorMeta
 from replayer.boss.langfengxuancheng.WinEvidence import append_unique, filter_relevant_candidates, \
     filter_chest_candidates, filter_tail_scene_candidates, build_damage_candidates, build_recommendation, \
-    format_evidence_report
+    format_evidence_report, find_shout_win_reason, allow_damage_win_fallback, template_id_match
 from replayer.boss.langfengxuancheng.TimelineDebug import recordTimelineScene, recordTimelineShout, \
     printDebugTimeline
 from replayer.boss.langfengxuancheng.Trivia import LangfengTriviaRecorder
@@ -53,8 +53,36 @@ class TangHuairenReplayer(GeneralReplayer):
     BH_BLACKLIST_EXTRA = [
         "s44052",  # 普攻：残夜·射击
         "s44047",  # 普攻：破阵·攻击
+        "s44230",
+        "s44587",
+        "s45174",
+        "b32959",
+        "b32960",
+        "b33223",
     ]
-    BH_INFO = {}
+    BH_INFO = {
+        "c44037": ["12453", "#3355ff", 0],  # 磁震
+        "c44041": ["3405", "#ffaa00", 0],   # 千机匣·连弩
+        "c44043": ["3330", "#33aa66", 0],   # 修缮
+        "c44076": ["12452", "#66aa33", 0],  # 千机匣·毒刹
+        "c44152": ["3405", "#ffaa00", 0],   # 连弩扫射
+        "c44153": ["2028", "#aa33ff", 0],   # 玄阴霹雳弹
+        "c44180": ["3452", "#ff5555", 0],   # 瞬杀箭
+        "c44197": ["12449", "#33aaff", 0],  # 牵机磁荡
+        "c44207": ["4531", "#3355ff", 0],   # 玄阴·震鸣
+        "c44208": ["4531", "#ff3333", 0],   # 赤阳·震鸣
+        "c44209": ["340", "#ffaa00", 0],    # 蓄能横扫
+        "c44491": ["12451", "#ff3333", 0],  # 毁灭
+        "c44754": ["12449", "#7733ff", 0],  # 天机雷印
+        "s44040": ["3452", "#ff5555", 0],   # 索命箭
+        "s44154": ["2028", "#aa33ff", 0],   # 玄阴霹雳弹
+        "s44198": ["12449", "#33aaff", 0],  # 牵机磁荡
+        "s44207": ["4531", "#3355ff", 0],   # 玄阴·震鸣
+        "s44208": ["4531", "#ff3333", 0],   # 赤阳·震鸣
+        "s44223": ["340", "#ffaa00", 0],    # 蓄能横扫
+        "s44231": ["12451", "#ff3333", 0],  # 赤阳陨星
+        "s44491": ["12451", "#ff3333", 0],  # 毁灭
+    }
 
     def recordDeath(self, item, deathSource):
         pass
@@ -89,7 +117,7 @@ class TangHuairenReplayer(GeneralReplayer):
                 "enter": event.enter,
             }
             append_unique(self.chestCandidates, item)
-            if name in self.chestNames and self.chestWinTime == 0:
+            if (name in self.chestNames or npc.templateID in self.chestTemplateIDs) and self.chestWinTime == 0:
                 self.chestWinTime = event.time
 
     def collectSceneCandidates(self, event):
@@ -106,15 +134,15 @@ class TangHuairenReplayer(GeneralReplayer):
             "enter": event.enter,
         })
 
-        if name == self.bossName and npc.templateID == self.mainBossTemplateID and event.enter == 0:
+        if name == self.bossName and template_id_match(npc.templateID, self.mainBossTemplateIDs) and event.enter == 0:
             self.lastPhase1BossLeaveTime = event.time
-        elif name == self.phase2BossName and npc.templateID == self.phase2BossTemplateID and event.enter == 0:
+        elif name == self.phase2BossName and template_id_match(npc.templateID, self.phase2BossTemplateIDs) and event.enter == 0:
             self.lastPhase2BossLeaveTime = event.time
 
     def triggerPhase2(self, event, npc):
         if self.phase2Started:
             return
-        if npc.templateID != self.phase2BossTemplateID:
+        if not template_id_match(npc.templateID, self.phase2BossTemplateIDs):
             return
 
         self.changePhase(event.time, 2)
@@ -136,11 +164,11 @@ class TangHuairenReplayer(GeneralReplayer):
         self.damageByNpc[event.target]["damage"] += event.damageEff
         self.damageByNpc[event.target]["lastTime"] = event.time
 
-        if npc.templateID == self.mainBossTemplateID:
+        if template_id_match(npc.templateID, self.mainBossTemplateIDs):
             self.mainBossDamageP1 += event.damageEff
             if self.damageFallbackTimeP1 == 0 and self.mainBossDamageP1 >= self.TARGET_HP_P1 * self.DAMAGE_THRESHOLD:
                 self.damageFallbackTimeP1 = event.time
-        elif npc.templateID == self.phase2BossTemplateID:
+        elif template_id_match(npc.templateID, self.phase2BossTemplateIDs):
             self.triggerPhase2(event, npc)
             self.mainBossDamageP2 += event.damageEff
             if self.damageFallbackTimeP2 == 0 and self.mainBossDamageP2 >= self.TARGET_HP_P2 * self.DAMAGE_THRESHOLD:
@@ -150,7 +178,11 @@ class TangHuairenReplayer(GeneralReplayer):
         if self.resolvedWinReason is not None:
             return
 
-        if self.phase2Started:
+        damageFallbackTime = self.damageFallbackTimeP2 if self.phase2Started else self.damageFallbackTimeP1
+        shoutWinReason = find_shout_win_reason(self.shoutCandidates, self.bossWinShouts, damageFallbackTime)
+        if shoutWinReason is not None:
+            self.resolvedWinReason = shoutWinReason
+        elif self.phase2Started:
             if self.chestWinTime:
                 self.resolvedWinReason = {
                     "rule": "chest",
@@ -159,15 +191,15 @@ class TangHuairenReplayer(GeneralReplayer):
                     "backupRule": "scene",
                     "needShoutHook": 1,
                 }
-            elif self.lastPhase2BossLeaveTime and self.mainBossDamageP2 >= self.TARGET_HP_P2 * self.SCENE_THRESHOLD:
+            elif self.lastPhase2BossLeaveTime and self.mainBossDamageP2 >= self.TARGET_HP_P2 * self.SCENE_THRESHOLD and allow_damage_win_fallback(self):
                 self.resolvedWinReason = {
-                    "rule": "scene",
+                    "rule": "confirmed_scene",
                     "eventTime": self.lastPhase2BossLeaveTime,
                     "trimTime": self.lastPhase2BossLeaveTime,
                     "backupRule": "damage",
                     "needShoutHook": 1,
                 }
-            elif self.damageFallbackTimeP2:
+            elif self.damageFallbackTimeP2 and allow_damage_win_fallback(self):
                 self.resolvedWinReason = {
                     "rule": "damage",
                     "eventTime": self.damageFallbackTimeP2,
@@ -176,15 +208,15 @@ class TangHuairenReplayer(GeneralReplayer):
                     "needShoutHook": 1,
                 }
         else:
-            if self.lastPhase1BossLeaveTime and self.mainBossDamageP1 >= self.TARGET_HP_P1 * self.SCENE_THRESHOLD:
+            if self.lastPhase1BossLeaveTime and self.mainBossDamageP1 >= self.TARGET_HP_P1 * self.SCENE_THRESHOLD and allow_damage_win_fallback(self):
                 self.resolvedWinReason = {
-                    "rule": "scene",
+                    "rule": "confirmed_scene",
                     "eventTime": self.lastPhase1BossLeaveTime,
                     "trimTime": self.lastPhase1BossLeaveTime,
                     "backupRule": "damage",
                     "needShoutHook": 1,
                 }
-            elif self.damageFallbackTimeP1:
+            elif self.damageFallbackTimeP1 and allow_damage_win_fallback(self):
                 self.resolvedWinReason = {
                     "rule": "damage",
                     "eventTime": self.damageFallbackTimeP1,
@@ -207,11 +239,11 @@ class TangHuairenReplayer(GeneralReplayer):
 
         npc = self.bld.info.npc[event.target]
         name = self.bld.info.getName(event.target)
-        if npc.templateID == self.mainBossTemplateID and name == self.bossName:
+        if template_id_match(npc.templateID, self.mainBossTemplateIDs) and name == self.bossName:
             if self.mainBossTemplateID not in self.mainTargetRecorded:
                 self.bh.setMainTarget(event.target)
                 self.mainTargetRecorded.add(self.mainBossTemplateID)
-        elif npc.templateID == self.phase2BossTemplateID and name == self.phase2BossName:
+        elif template_id_match(npc.templateID, self.phase2BossTemplateIDs) and name == self.phase2BossName:
             if self.phase2BossTemplateID not in self.mainTargetRecorded:
                 self.bh.setMainTarget(event.target)
                 self.mainTargetRecorded.add(self.phase2BossTemplateID)
@@ -246,7 +278,7 @@ class TangHuairenReplayer(GeneralReplayer):
             "shouts": self.shoutCandidates,
             "deaths": filter_relevant_candidates(self.deathCandidates, self.bossName, self.bossTemplateIDs,
                                                  self.deathExtraNames),
-            "chests": filter_chest_candidates(self.chestCandidates, self.chestNames, []),
+            "chests": filter_chest_candidates(self.chestCandidates, self.chestNames, self.chestTemplateIDs),
             "scenes": filter_tail_scene_candidates(self.sceneCandidates, self.finalTime, self.bossName,
                                                    self.sceneTemplateIDs, self.extraBossNames),
             "damage": build_damage_candidates(self.damageByNpc, self.finalTime, self.bossName,
@@ -273,15 +305,18 @@ class TangHuairenReplayer(GeneralReplayer):
 
         self.bossName = "唐怀仁"
         self.phase2BossName = "须罗巨傀"
-        self.mainBossTemplateID = "137058"
-        self.phase2BossTemplateID = "137067"
+        self.mainBossTemplateIDs = ["137058", "137163"]
+        self.phase2BossTemplateIDs = ["137067", "137175"]
+        self.mainBossTemplateID = self.mainBossTemplateIDs[0]
+        self.phase2BossTemplateID = self.phase2BossTemplateIDs[0]
         self.extraBossNames = [self.phase2BossName, "陷阵机卒", "蕴雷机瓮"]
         self.deathExtraNames = []
-        self.bossTemplateIDs = [self.mainBossTemplateID, self.phase2BossTemplateID]
-        self.chestNames = ["唐怀仁宝箱"]
+        self.bossTemplateIDs = self.mainBossTemplateIDs + self.phase2BossTemplateIDs
+        self.chestNames = ["唐怀仁宝箱", "唐怀仁寶箱"]
         self.chestTemplateIDs = []
-        self.sceneTemplateIDs = [self.mainBossTemplateID, self.phase2BossTemplateID, "137064", "137041", "137085"]
-        self.damageTemplateIDs = [self.mainBossTemplateID, self.phase2BossTemplateID, "137027", "137023"]
+        self.sceneTemplateIDs = self.bossTemplateIDs + ["137064", "137041", "137085", "137145", "137166", "137128", "137120"]
+        self.damageTemplateIDs = self.bossTemplateIDs + ["137027", "137023", "137145"]
+        self.bossWinShouts = []
 
         self.resolvedWinReason = None
         self.chestWinTime = 0

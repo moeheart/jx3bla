@@ -5,7 +5,7 @@ from replayer.boss.General import GeneralReplayer
 from replayer.TableConstructorMeta import TableConstructorMeta
 from replayer.boss.langfengxuancheng.WinEvidence import append_unique, filter_relevant_candidates, \
     filter_chest_candidates, filter_tail_scene_candidates, build_damage_candidates, build_recommendation, \
-    format_evidence_report
+    format_evidence_report, find_shout_win_reason, allow_damage_win_fallback, template_id_match
 from replayer.boss.langfengxuancheng.TimelineDebug import recordTimelineScene, recordTimelineShout, \
     printDebugTimeline
 from replayer.boss.langfengxuancheng.Trivia import LangfengTriviaRecorder
@@ -54,6 +54,13 @@ class AshinaChengqingReplayer(GeneralReplayer):
         "s44444",
         "s43975",
         "s44622",
+        "s44185",
+        "s44186",
+        "s44203",
+        "s44298",
+        "s44302",
+        "s44888",
+        "s45111",
         "b32949",
         "b32939",
         "b33102",
@@ -81,6 +88,11 @@ class AshinaChengqingReplayer(GeneralReplayer):
         "s44191": ["433", "#aa33ff", 0],     # 黄泉破
         "c44410": ["4531", "#ff5555", 0],    # 斩
         "c44411": ["3452", "#ffaa00", 0],    # 破
+        "c44694": ["12449", "#33aa66", 0],   # 汲取
+        "c45028": ["4531", "#ff5555", 0],    # 斩破
+        "s44196": ["3452", "#ff3333", 0],    # 碾碎
+        "s44694": ["12449", "#33aa66", 0],   # 汲取
+        "s44999": ["3405", "#aa33ff", 0],    # 掠影
     }
 
     def recordDeath(self, item, deathSource):
@@ -125,7 +137,7 @@ class AshinaChengqingReplayer(GeneralReplayer):
                 "enter": event.enter,
             }
             append_unique(self.chestCandidates, item)
-            if name in self.chestNames and self.chestWinTime == 0:
+            if (name in self.chestNames or npc.templateID in self.chestTemplateIDs) and self.chestWinTime == 0:
                 self.chestWinTime = event.time
 
     def collectSceneCandidates(self, event):
@@ -155,7 +167,7 @@ class AshinaChengqingReplayer(GeneralReplayer):
         self.damageByNpc[event.target]["damage"] += event.damageEff
         self.damageByNpc[event.target]["lastTime"] = event.time
 
-        if npc.templateID == self.mainBossTemplateID:
+        if template_id_match(npc.templateID, self.mainBossTemplateIDs):
             self.mainBossDamage += event.damageEff
             if self.damageFallbackTime == 0 and self.mainBossDamage >= self.TARGET_HP * self.DAMAGE_THRESHOLD:
                 self.damageFallbackTime = event.time
@@ -164,7 +176,10 @@ class AshinaChengqingReplayer(GeneralReplayer):
         if self.resolvedWinReason is not None:
             return
 
-        if self.chestWinTime:
+        shoutWinReason = find_shout_win_reason(self.shoutCandidates, self.bossWinShouts, self.damageFallbackTime)
+        if shoutWinReason is not None:
+            self.resolvedWinReason = shoutWinReason
+        elif self.chestWinTime:
             self.resolvedWinReason = {
                 "rule": "chest",
                 "eventTime": self.chestWinTime,
@@ -172,7 +187,7 @@ class AshinaChengqingReplayer(GeneralReplayer):
                 "backupRule": "damage",
                 "needShoutHook": 1,
             }
-        elif self.damageFallbackTime:
+        elif self.damageFallbackTime and allow_damage_win_fallback(self):
             self.resolvedWinReason = {
                 "rule": "damage",
                 "eventTime": self.damageFallbackTime,
@@ -196,7 +211,7 @@ class AshinaChengqingReplayer(GeneralReplayer):
             return
 
         npc = self.bld.info.npc[event.target]
-        if npc.templateID == self.mainBossTemplateID and self.bld.info.getName(event.target) == self.bossName:
+        if template_id_match(npc.templateID, self.mainBossTemplateIDs) and self.bld.info.getName(event.target) == self.bossName:
             self.bh.setMainTarget(event.target)
             self.mainTargetRecorded = 1
 
@@ -241,7 +256,7 @@ class AshinaChengqingReplayer(GeneralReplayer):
             "shouts": self.shoutCandidates,
             "deaths": filter_relevant_candidates(self.deathCandidates, self.bossName, self.bossTemplateIDs,
                                                  self.extraBossNames),
-            "chests": filter_chest_candidates(self.chestCandidates, self.chestNames, []),
+            "chests": filter_chest_candidates(self.chestCandidates, self.chestNames, self.chestTemplateIDs),
             "scenes": filter_tail_scene_candidates(self.sceneCandidates, self.finalTime, self.bossName,
                                                    self.sceneTemplateIDs, self.extraBossNames),
             "damage": build_damage_candidates(self.damageByNpc, self.finalTime, self.bossName,
@@ -267,13 +282,15 @@ class AshinaChengqingReplayer(GeneralReplayer):
         self.bhInfo = dict(self.BH_INFO)
 
         self.bossName = "阿史那承庆"
-        self.mainBossTemplateID = "137017"
+        self.mainBossTemplateIDs = ["137017", "137130"]
+        self.mainBossTemplateID = self.mainBossTemplateIDs[0]
         self.extraBossNames = ["阿史那承庆宝箱", "阿史那承庆寶箱"]
-        self.bossTemplateIDs = [self.mainBossTemplateID]
+        self.bossTemplateIDs = self.mainBossTemplateIDs
         self.chestNames = ["阿史那承庆宝箱", "阿史那承庆寶箱"]
         self.chestTemplateIDs = []
-        self.sceneTemplateIDs = [self.mainBossTemplateID, "137054", "137047", "137202"]
-        self.damageTemplateIDs = [self.mainBossTemplateID]
+        self.sceneTemplateIDs = self.mainBossTemplateIDs + ["137054", "137047", "137202", "137160", "137178", "137147"]
+        self.damageTemplateIDs = self.mainBossTemplateIDs
+        self.bossWinShouts = ["哈哈哈哈哈！痛快！中原武林，果然还有几个能打的。"]
 
         self.resolvedWinReason = None
         self.chestWinTime = 0

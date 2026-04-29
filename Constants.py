@@ -3,7 +3,7 @@
 
 import time
 
-EDITION = "8.15.3beta"
+EDITION = "8.15.4"
 ANNOUNCEMENT = "名人堂功能即将更新，有意向参与的团队请在设置面板中填写团队名！"
 # IP = "139.199.102.41"
 IP = "120.48.95.56"

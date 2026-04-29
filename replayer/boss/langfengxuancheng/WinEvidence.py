@@ -1,8 +1,11 @@
 # Created by moeheart at 03/30/2026
 # Thin helpers for Langfeng Xuancheng stage-2 win evidence collection.
 
+from tools.Names import getGameEditionFromTime, getIDFromMap
+
 TAIL_WINDOW = 30000
 SYSTEM_SHOUT_MARKERS = ["获得了", "所有奖励已添加到包裹中", "已升至"]
+REWARD_SHOUT_MARKERS = ["祈愿值", "所有奖励已添加到包裹中", "薪火点"]
 
 
 def append_unique(items, item, keys=None):
@@ -35,6 +38,81 @@ def is_meaningful_shout(content):
         if marker in content:
             return False
     return True
+
+
+def normalize_shout_content(content):
+    if content is None:
+        return ""
+    text = str(content).strip()
+    if len(text) >= 2 and text[0] == '"' and text[-1] == '"':
+        text = text[1:-1]
+    return text
+
+
+def is_reward_shout(content):
+    text = normalize_shout_content(content)
+    for marker in REWARD_SHOUT_MARKERS:
+        if marker in text:
+            return True
+    return False
+
+
+def find_shout_win_reason(items, boss_win_shouts=None, damage_trim_time=0):
+    boss_win_shouts = boss_win_shouts or []
+    normalized_win_shouts = set([normalize_shout_content(line) for line in boss_win_shouts])
+    reward_candidate = None
+    boss_candidate = None
+
+    for item in items:
+        content = item.get("content", "")
+        text = normalize_shout_content(content)
+        if reward_candidate is None and is_reward_shout(text):
+            reward_candidate = item
+        if boss_candidate is None and text in normalized_win_shouts:
+            boss_candidate = item
+
+    chosen = None
+    rule = ""
+    if reward_candidate is not None:
+        chosen = reward_candidate
+        rule = "reward_shout"
+    elif boss_candidate is not None:
+        chosen = boss_candidate
+        rule = "boss_win_shout"
+
+    if chosen is None:
+        return None
+
+    event_time = chosen.get("time", 0)
+    trim_time = 0
+    if damage_trim_time and damage_trim_time <= event_time:
+        event_time = damage_trim_time
+        trim_time = damage_trim_time
+
+    return {
+        "rule": rule,
+        "eventTime": event_time,
+        "trimTime": trim_time,
+        "backupRule": "damage" if trim_time else "",
+        "needShoutHook": 0,
+        "shoutTime": chosen.get("time", 0),
+        "shout": normalize_shout_content(chosen.get("content", "")),
+    }
+
+
+def get_langfeng_game_edition(replayer):
+    map_id = getIDFromMap(replayer.bld.info.map)
+    return getGameEditionFromTime(map_id, replayer.bld.info.battleTime)
+
+
+def allow_damage_win_fallback(replayer):
+    return get_langfeng_game_edition(replayer) in ["0", "150"]
+
+
+def template_id_match(template_id, template_ids):
+    if isinstance(template_ids, str):
+        template_ids = [template_ids]
+    return template_id in template_ids
 
 
 def is_reliable_shout_candidate(items):
