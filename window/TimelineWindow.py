@@ -17,6 +17,9 @@ class TimelineWindow(Window):
     时间轴窗口的展示类.
     '''
 
+    def shouldShowTimelineRecord(self, record):
+        return record.get("iconid", "") != "341"
+
     def generateLinear(self):
         '''
         生成线性时间轴.
@@ -27,6 +30,8 @@ class TimelineWindow(Window):
             startSec = 0.0
         res = ""
         for line in self.bh.log["environment"]:
+            if not self.shouldShowTimelineRecord(line):
+                continue
             time = (line["start"] - self.bh.startTime) / 1000
             if startSec > time:
                 continue
@@ -48,6 +53,8 @@ class TimelineWindow(Window):
         res2 = ""
         n = 0
         for line in self.bh.log["environment"]:
+            if not self.shouldShowTimelineRecord(line):
+                continue
             time = (line["start"] - self.bh.startTime) / 1000
             if startSec > time:
                 continue
@@ -114,6 +121,8 @@ class TimelineWindow(Window):
                 canvas.create_rectangle(baseX+3, baseY+15, baseX+6, baseY+45, fill=colorH, width=0)
 
         for line in self.bh.log["environment"]:
+            if not self.shouldShowTimelineRecord(line):
+                continue
             row = int((line["start"] - self.bh.startTime) / 60000)
             baseY = row * singleHeight
             baseX = int((line["start"] - self.bh.startTime - 60000*row) * timeRate)
