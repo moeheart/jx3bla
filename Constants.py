@@ -7,7 +7,7 @@ EDITION = "8.15.5"
 ANNOUNCEMENT = "名人堂功能即将更新，有意向参与的团队请在设置面板中填写团队名！"
 # IP is kept for old compatibility. New HTTP requests should use get_api_url()
 # or get_logs_url().
-IP = "116.211.150.188"
+IP = get_address_config()["api"]["host"]
 CHAPTER = 130
 
 LVLTABLE = [0, 30, 100, 200, 300, 500, 700, 900, 1200, 1500, 1800, 2400, 3000, 999999]
