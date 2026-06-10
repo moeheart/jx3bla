@@ -1,14 +1,13 @@
 # Created by moeheart at 10/11/2020
 # 全局用到的部分常量。
 
-import time
+from ServerAddress import get_address_config, get_api_url, get_logs_url
 
-EDITION = "8.15.4"
+EDITION = "8.15.5"
 ANNOUNCEMENT = "名人堂功能即将更新，有意向参与的团队请在设置面板中填写团队名！"
-# IP = "139.199.102.41"
-IP = "120.48.95.56"
-if time.time() > 1725829200:
-    IP = "116.211.150.188"
+# IP is kept for old compatibility. New HTTP requests should use get_api_url()
+# or get_logs_url().
+IP = "116.211.150.188"
 CHAPTER = 130
 
 LVLTABLE = [0, 30, 100, 200, 300, 500, 700, 900, 1200, 1500, 1800, 2400, 3000, 999999]

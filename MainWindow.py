@@ -99,7 +99,7 @@ class MainWindow():
         Jdata = json.dumps(actualData)
         jpost = {'jdata': Jdata}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        resp = urllib.request.urlopen('http://%s:8009/uploadCombinedData' % IP, data=jparse)
+        resp = urllib.request.urlopen(get_api_url('/uploadCombinedData'), data=jparse)
         res = json.load(resp)
 
         # print("[res]", res)
@@ -326,14 +326,12 @@ class MainWindow():
         if self.lock.state():
             return
         if self.playerIDs == [] or True:
-            #url = "http://%s" % IP
-            # url = "http://jx3logs.com/"
-            url = "http://116.211.150.188:888/"
+            url = get_logs_url('/')
             webbrowser.open(url)
         else:
             # TODO 等logs更新功能后加入
             ids = "+".join(self.playerIDs)
-            url = "http://%s/getMultiRank.html?server=%s&ids=%s"%(IP, self.server, ids)
+            url = get_logs_url('/getMultiRank.html', {'server': self.server, 'ids': ids})
             webbrowser.open(url)
         
     def show_history(self):
@@ -393,7 +391,7 @@ class MainWindow():
         if parseEdition(EDITION) == 0:  # 非联机版本跳过加载步骤
             res = {"announcement": "", "version": "0.0.0", "url": "", "rateEdition": 0}
         else:
-            resp = urllib.request.urlopen('http://%s:8009/getAnnouncement?edition=%s' % (IP, EDITION))
+            resp = urllib.request.urlopen(get_api_url('/getAnnouncement', {'edition': EDITION}))
             res = json.load(resp)
 
         self.announcement = res["announcement"]

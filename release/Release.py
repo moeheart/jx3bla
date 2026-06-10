@@ -19,6 +19,6 @@ if __name__ == "__main__":
     jparse = urllib.parse.urlencode(jpost).encode('utf-8')
     print(jparse)
     print("准备更新……")
-    resp = urllib.request.urlopen('http://%s:8009/setAnnouncement' % IP, data=jparse)
+    resp = urllib.request.urlopen(get_api_url('/setAnnouncement'), data=jparse)
     print("更新完成！")
 

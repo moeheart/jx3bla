@@ -203,7 +203,7 @@ class ReplayerBase():
         # jpost = {'jdata': Jdata}
         # jparse = urllib.parse.urlencode(jpost).encode('utf-8')
         # # print(jparse)
-        # resp = urllib.request.urlopen('http://%s:8009/uploadReplayPro' % IP, data=jparse)
+        # resp = urllib.request.urlopen(get_api_url('/uploadReplayPro'), data=jparse)
         # res = json.load(resp)
         # # print(res)
         # if res["result"] != "fail":

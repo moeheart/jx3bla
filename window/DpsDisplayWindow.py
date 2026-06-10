@@ -7,6 +7,7 @@ from tkinter import messagebox
 import webbrowser
 import pyperclip
 
+from Constants import get_logs_url
 from replayer.TableConstructor import TableConstructor
 from tools.Functions import *
 from window.ReviewWindow import ReviewerWindow
@@ -71,7 +72,7 @@ class DpsDisplayWindow(Window):
         '''
         打开网页版的复盘界面.
         '''
-        url = "http://jx3logs.com/%s/%d" % (self.occPinyin, self.result["overall"]["shortID"])
+        url = get_logs_url('/%s/%d' % (self.occPinyin, self.result["overall"]["shortID"]))
         webbrowser.open(url)
 
     def renderOverall(self):

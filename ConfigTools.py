@@ -27,7 +27,7 @@ class Config():
         else:
             jpost = {'uuid': self.userUuid}
             jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-            resp = urllib.request.urlopen('http://%s:8009/getUserInfo' % IP, data=jparse)
+            resp = urllib.request.urlopen(get_api_url('/getUserInfo'), data=jparse)
             res = json.load(resp)
         
         if res['exist'] == 0:
@@ -63,7 +63,7 @@ class Config():
         mac = "-".join(re.findall(r".{2}",uuid.uuid1().hex[-12:].upper()))
         jpost = {'mac': mac}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        resp = urllib.request.urlopen('http://%s:8009/getUuid' % IP, data=jparse)
+        resp = urllib.request.urlopen(get_api_url('/getUuid'), data=jparse)
         res = json.load(resp)
         return res["uuid"]
 

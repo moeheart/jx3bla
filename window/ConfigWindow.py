@@ -24,7 +24,7 @@ class ConfigWindow(Window):
     '''
 
     def show_xiangzhiTianti(self):
-        webbrowser.open("http://%s:8009/XiangZhiTable.html" % IP)
+        webbrowser.open(get_api_url('/XiangZhiTable.html'))
 
     def show_replay(self):
         '''
@@ -32,7 +32,7 @@ class ConfigWindow(Window):
         '''
         pass
         id = self.entry2_8.get()
-        resp = urllib.request.urlopen('http://%s:8009/getReplayPro?id=%s' % (IP, id))
+        resp = urllib.request.urlopen(get_api_url('/getReplayPro', {'id': id}))
         res = json.load(resp)
         if res["text"] == "结果未找到.":
             messagebox.showinfo(title='嘶', message='找不到该ID对应的数据！')
@@ -71,7 +71,7 @@ class ConfigWindow(Window):
         id = self.entry4_2.get()
         jpost = {'uuid': uuid, 'id': id}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        resp = urllib.request.urlopen('http://%s:8009/setUserId' % IP, data=jparse)
+        resp = urllib.request.urlopen(get_api_url('/setUserId'), data=jparse)
         res = json.load(resp)
 
         if res["result"] == "dupid":
@@ -114,7 +114,7 @@ class ConfigWindow(Window):
     def lvlup(self):
         jpost = {'uuid': self.config.userUuid}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        resp = urllib.request.urlopen('http://%s:8009/userLvlup' % IP, data=jparse)
+        resp = urllib.request.urlopen(get_api_url('/userLvlup'), data=jparse)
         res = json.load(resp)
         if res["result"] == "fail":
             messagebox.showinfo(title='错误', message='升级失败！')

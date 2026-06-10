@@ -24,7 +24,7 @@ class AttributeDisplayRemote():
         jpost = {'jdata': Jdata}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
         for i in range(0, 5):
-            resp = urllib.request.urlopen('http://%s:8009/getAttribute' % IP, data=jparse)
+            resp = urllib.request.urlopen(get_api_url('/getAttribute'), data=jparse)
             if resp is None:
                 print("连接失败，重试中...")
             else:
@@ -45,7 +45,7 @@ class AttributeDisplayRemote():
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
         resp = None
         for i in range(0, 5):
-            resp = urllib.request.urlopen('http://%s:8009/getGroupAttribute' % IP, data=jparse)
+            resp = urllib.request.urlopen(get_api_url('/getGroupAttribute'), data=jparse)
             if resp is None:
                 print("连接失败，重试中...")
             else:

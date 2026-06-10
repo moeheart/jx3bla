@@ -1337,7 +1337,7 @@ class ActorProReplayer(ReplayerBase):
         #         Jdata = json.dumps(result)
         #         jpost = {'jdata': Jdata}
         #         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        #         resp = urllib.request.urlopen('http://%s:8009/getDpsStat' % IP, data=jparse)
+        #         resp = urllib.request.urlopen(get_api_url('/getDpsStat'), data=jparse)
         #         res = json.load(resp)
         #     if result is None:
         #         print("连接服务器失败！")

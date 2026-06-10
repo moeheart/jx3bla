@@ -210,7 +210,7 @@ class MingZunReplayer(ReplayerBase):
         Jdata = json.dumps(upload)
         jpost = {'jdata': Jdata}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        resp = urllib.request.urlopen('http://139.199.102.41:8009/uploadReplayPro', data=jparse)
+        resp = urllib.request.urlopen(get_api_url('/uploadReplayPro'), data=jparse)
         res = json.load(resp)
         # print(res)
         if res["result"] != "fail":
