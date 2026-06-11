@@ -8,7 +8,7 @@ if (res != "yes"):
     exit
     
 config = configparser.RawConfigParser()
-config.readfp(open('./settings.cfg'))
+config.read_file(open('./settings.cfg'))
 
 name = config.get('jx3bla', 'username')
 pwd = config.get('jx3bla', 'password')

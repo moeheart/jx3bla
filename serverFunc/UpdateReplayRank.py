@@ -126,10 +126,11 @@ def getAllStat(records):
 def getPercent(records):
     allResults = getAllStat(records)
     percentResults = {}
+    percentile_marks = list(range(101))
     for key in allResults:
         res_percent = []
-        for i in range(101):
-            num = np.percentile(allResults[key], i)
+        percentile_values = np.percentile(allResults[key], percentile_marks)
+        for num in percentile_values:
             num = int(num * 100000) / 100000
             if num > 1000000000:
                 num = 1000000000
@@ -208,7 +209,7 @@ def updatePercent(raw_rank, cursor, db):
 def RefreshStat():
     ip = "127.0.0.1"
     config = configparser.RawConfigParser()
-    config.readfp(open('settings.cfg'))
+    config.read_file(open('settings.cfg'))
 
     dbname = config.get('jx3bla', 'username')
     dbpwd = config.get('jx3bla', 'password')

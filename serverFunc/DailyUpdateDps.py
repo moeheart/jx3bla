@@ -10,7 +10,7 @@ import time
 def RefreshDps():
     ip = "127.0.0.1"
     config = configparser.RawConfigParser()
-    config.readfp(open('settings.cfg'))
+    config.read_file(open('settings.cfg'))
 
     dbname = config.get('jx3bla', 'username')
     dbpwd = config.get('jx3bla', 'password')

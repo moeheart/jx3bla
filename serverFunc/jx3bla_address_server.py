@@ -9,8 +9,8 @@ HOST = "127.0.0.1"
 PORT = 8033
 
 ADDRESS_DATA = {
-    "api": {"host": "116.211.150.188", "port": 8009},
-    "logs": {"host": "116.211.150.188", "port": 888},
+    "api": {"host": "jx3bla.moeheart.cn", "port": 80},
+    "logs": {"host": "jx3bla.moeheart.cn", "port": 80},
 }
 
 

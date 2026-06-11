@@ -12,7 +12,7 @@ if __name__ == "__main__":
     print("连接数据库...")
     ip = IP
     config = configparser.RawConfigParser()
-    config.readfp(open('settings.cfg'))
+    config.read_file(open('settings.cfg'))
 
     dbname = config.get('jx3bla', 'username')
     dbpwd = config.get('jx3bla', 'password')

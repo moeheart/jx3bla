@@ -11,8 +11,8 @@ ADDRESS_SERVICE_URL = "http://jx3blaaddress.moeheart.cn/"
 ADDRESS_SERVICE_TIMEOUT = 2
 
 FALLBACK_ADDRESS = {
-    "api": {"scheme": "http", "host": "116.211.150.188", "port": 8009},
-    "logs": {"scheme": "http", "host": "116.211.150.188", "port": 888},
+    "api": {"scheme": "http", "host": "jx3bla.moeheart.cn", "port": 80},
+    "logs": {"scheme": "http", "host": "jx3bla.moeheart.cn", "port": 80},
 }
 
 _address_cache = None

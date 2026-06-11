@@ -1243,7 +1243,7 @@ if __name__ == '__main__':
     import signal
     
     config = configparser.RawConfigParser()
-    config.readfp(open('./settings.cfg'))
+    config.read_file(open('./settings.cfg'))
     
     app.dbname = config.get('jx3bla', 'username')
     app.dbpwd = config.get('jx3bla', 'password')
