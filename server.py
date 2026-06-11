@@ -29,6 +29,8 @@ announcement = "全新的DPS统计已出炉，大家可以关注一下，看一�
 app = Flask(__name__)
 CORS(app)
 app.config['JSON_AS_ASCII'] = False
+app.config['MAX_CONTENT_LENGTH'] = 200 * 1024 * 1024
+app.config['MAX_FORM_MEMORY_SIZE'] = 200 * 1024 * 1024
 app.ad = AttributeDisplay()
 
 # 数据库的屎山
