@@ -1,0 +1,557 @@
+{
+  "client_version": "1.6.0.9503",
+  "mode": "zhcn_exp",
+  "source_client": "C:/SeasunGame/Game/JX3_EXP",
+  "unpack_tool": "C:/Develop/26/jx3decrypt/unpack.exe",
+  "unluac_jar": "C:/Develop/26/jx3decrypt/legacy/unluac/unluac.jar",
+  "extraction_date": "2026-09-15",
+  "files": [
+    {
+      "origin": "scripts/Include/Skill.lh",
+      "sha256": "bf2f4c325669a49a56792d905bc57adcb1539d6f893a506e7356184ee6b77bfc",
+      "bytes": 159765,
+      "mtime_ns": 1789510716695452300,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "c933e42f554a1be08ea2a66d5b01a6ba6a6d1ef7bb8c1514dc7be2bce9309a74",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/include/kungfuConst.lh",
+      "sha256": "909c79a149183ae19d0b20b3cb56bbcd078ecc43a74325b8db271912db6be57d",
+      "bytes": 3227,
+      "mtime_ns": 1789510716693942100,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "c06579df8a8e8d4f79ac45887122ed9a784d87cf3eef1823603ed9fecf3ba52f",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/七秀/七秀_内功_云裳心经.lua",
+      "sha256": "b28a21b8c6de6d6d9fb6c0169420ec0f05852c59a0a65aaf5ef1fbfbad5ac2f7",
+      "bytes": 4381,
+      "mtime_ns": 1789510716670903100,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "d8e234ec0f9ee548c6fad681be5deab5f35a702c604d4781b8a43581021b6fff",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/七秀/七秀_内功_冰心诀.lua",
+      "sha256": "0cacb18ef0a03efb80a57dec747d33071a2840bb5ee3d7675fe6e7cb6df45823",
+      "bytes": 4579,
+      "mtime_ns": 1789510716672418300,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "d2508eaf2e5327616e338a2c826a2fdeec639abd273fae77b8159aa062b9cd33",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/万灵山庄/万灵山庄_套路_内功_万灵山庄.lua",
+      "sha256": "2589bd2519ca0da2c4c085f266669041840ee24e17f3e9ece5cd253c29ebd1a5",
+      "bytes": 5010,
+      "mtime_ns": 1789510716690924600,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "58d39ed36092c5a1f20de20f8855498e6a2d82892b21ab312c7a80f3aff15083",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/万花/万花_内功_离经易道.lua",
+      "sha256": "821b967024bb632713db03406ad8015a20f6d383c449c2421a07f34f1dc37082",
+      "bytes": 4539,
+      "mtime_ns": 1789510716670903100,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "7fd1c8ae6c9502f12a713b5befd73c0596bfb3f0a373892e50ccc94958b8da25",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/万花/万花_内功_花间游.lua",
+      "sha256": "b8fd76f832a9d0cfc579ada8d5cfbfd5724a2f1a774ee56212d42b7386dc5d96",
+      "bytes": 4565,
+      "mtime_ns": 1789510716669399400,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "f05c6b58598f5c87b383c80d33502916bb68655aaa3c068fe8d967267a5bd3ea",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/丐帮/丐帮_内功.lua",
+      "sha256": "d0f2c219232f3ff16823a7b9043d712105b415c4c27414402366c133b734d510",
+      "bytes": 4432,
+      "mtime_ns": 1789510716679441200,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "4176909c06baea86e36d238330cb1ec16bcf8cb01bdaae0ad0f7bfb731507da4",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/五毒/五毒_内功_毒经.lua",
+      "sha256": "943f5dfd4053a687f16e2adcaec414b1415adcdfdad1c49e37fdace5a7c55e16",
+      "bytes": 4807,
+      "mtime_ns": 1789510716674929300,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "421d25bb1fbf508fc5f7470cb5148436e6d3543e1f82f66053fe58252018d56b",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/五毒/五毒_内功_补天诀.lua",
+      "sha256": "bbe94e98cb5b2e3c7a1943d381ae80d5c4d0ee08d02e3c4121a33ba18e8bd9fe",
+      "bytes": 4544,
+      "mtime_ns": 1789510716674929300,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "a4317246273d35b321964ba4c0a3ffb50159df8d87e2587e2441e1d4bc0fa659",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/凌雪阁/凌雪阁_套路_内功_输出心法.lua",
+      "sha256": "f01cd7bad39bc8e1a8b571144ff28789ebc19f44d49563b449e60f50d95766cb",
+      "bytes": 3882,
+      "mtime_ns": 1789510716686410000,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "080f23bd458e1f6473f31afd9b7848e493cec26983bf9c8471501ecfa9740a48",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/刀宗/套路及子技能/内功_刀宗.lua",
+      "sha256": "aad12c11267f27790dc000742a66eada335a0469172e33f93f4a6920aa4e1d77",
+      "bytes": 3801,
+      "mtime_ns": 1789510716690924600,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "a3487208985ca4a3476750fe7bb76d3b6207ea4bb10874616fd4d51ad97dff1c",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/北天药宗/北天药宗_套路_内功_无方.lua",
+      "sha256": "2aacd442a2ea5dc0a666a664addd0d779f5312408fb07898448da73cfc20574e",
+      "bytes": 4210,
+      "mtime_ns": 1789510716689924100,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "43dfbd9a368bcb361b83923b865d6516199ca8f312a81458393467fedb0c5273",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/北天药宗/北天药宗_套路_内功_灵素.lua",
+      "sha256": "dd089d50e45c26c8b6272fc9be6e581b95a64a6c7c125fa813470656a1c3311d",
+      "bytes": 4111,
+      "mtime_ns": 1789510716688924900,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "ac3f5d7ce1479897f5c413466ffc88eba64f37343d71d9e199e19de77928ea63",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/唐门/唐门_内功_机关.lua",
+      "sha256": "2ff331b3a6e7792a2b76491e8c999760bdb8f0aa44b1d4b77041ddce76dd93b7",
+      "bytes": 4432,
+      "mtime_ns": 1789510716677441700,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "f8b2fbf79a235e39cc6abc75e2f6298c4f7925440701930b63d46f9489a15212",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/唐门/唐门_内功_箭弩.lua",
+      "sha256": "309df548d5d40bf5fc6c27c1497f7951adef54e1958280dfec5ee9ec87bd8048",
+      "bytes": 4477,
+      "mtime_ns": 1789510716677441700,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "dfd7e39146b3e46c19182382e126d129bd80b96cc94e77f18b63223d637338da",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/天策/天策_套路_内功_傲血战意.lua",
+      "sha256": "7865b439c5c5c6504cb1941574f74c09eb0ac9d132c112d1a5d0f2b61c7c70fa",
+      "bytes": 4204,
+      "mtime_ns": 1789510716669399400,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "1cd66534e6736beb0e2a04a6567704514a870f059829c9862b3cdbf4e58efc8e",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/天策/天策_套路_内功_铁牢律.lua",
+      "sha256": "161e20256ef5a3a1db4185e61ec5b8cc233f6d45f64c86937e0051d798177b63",
+      "bytes": 4552,
+      "mtime_ns": 1789510716670903100,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "9ac4c59112778ef5b14dac152f68ba6bc0ebc9b3c3d38c666d75b80945396e7f",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/少林/90级奇穴/一仇Buff监控.lua",
+      "sha256": "8c00514edc7c5282ccb41e04d49709d466435a5d51ed23ffec7ca9f07249ae4c",
+      "bytes": 13640,
+      "mtime_ns": 1789511549530040100,
+      "format": "GB18030 text",
+      "readable_sha256": "413bc262ef723c03a0ebf8a35c347ea536b19beb512e8edf264e19aa6a7dd4b7",
+      "readable_method": "GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/少林/90级奇穴/被击加攻击力.lua",
+      "sha256": "c70831200b9f25207e89ed1fd2dc4aecfd848d92714a50ccc2d59cb02323331d",
+      "bytes": 11607,
+      "mtime_ns": 1789511657610453000,
+      "format": "GB18030 text",
+      "readable_sha256": "094bee42a4187ac39c27a25970ac2345815c43c3e417f9ab6e2a73d6f3543862",
+      "readable_method": "GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/少林/T被击判断是否是一仇.lua",
+      "sha256": "fcb48885bedfaed5b5f68ef4b670a45e6b1c5b1b475fed211acdcd62619bb3b4",
+      "bytes": 12885,
+      "mtime_ns": 1789511549533054900,
+      "format": "GB18030 text",
+      "readable_sha256": "f59739542d0f5c2b515ef350224840da4e3d33660c99d77af02ad539a73467d8",
+      "readable_method": "GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/少林/删除减仇buff.lua",
+      "sha256": "104085b5a803a45056e247dbdda14eac0e9c26ed27d66802a0495bfcc34a4ecc",
+      "bytes": 13329,
+      "mtime_ns": 1789511549531547600,
+      "format": "GB18030 text",
+      "readable_sha256": "e18175660f8af9943386a42323532fd176e6dd8a349356873d210dd00527f648",
+      "readable_method": "GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/少林/少林_套路_易筋经.lua",
+      "sha256": "0688f0fb753282dd53e5f778edadfaa56a75fa6969ff3528036a17c149ea7b05",
+      "bytes": 4467,
+      "mtime_ns": 1789510716667401800,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "e7f849f2b1225f65e630d7354fd02819ae35c25f6cc63fb069ff51e6ee786c0d",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/少林/少林_套路_洗髓经.lua",
+      "sha256": "fb289eb61ec6f87eb22337c0b4a4d6aa4ad789e1ff74269421c469cea4509ecc",
+      "bytes": 4403,
+      "mtime_ns": 1789510716666403000,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "d1eb6ae4723a66cd600cb9d1a16a8586a9c3678b5b7368c0ab1d92e49c584647",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/明教/明教_套路_内功_明尊琉璃体.lua",
+      "sha256": "bb00b5b4c26492a76610c490762c1dfc77f03087735629d40a60681e258be57c",
+      "bytes": 4544,
+      "mtime_ns": 1789510716678441000,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "b08e6d6c4116b077d33c714f56b18952ab1872f699ee085b2df637218814957a",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/明教/明教_套路_内功_焚影圣诀.lua",
+      "sha256": "f653d3748b2680cea1366b9a7ae68a3a841fdee962ef621b3913a887a5913362",
+      "bytes": 4679,
+      "mtime_ns": 1789510716678441000,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "3148188e1922ce0ab2527bae94ab7019aa6d2fe2015e32ac4c27f79209515278",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/段氏/段氏技能/段氏心法用脚本.lua",
+      "sha256": "7b3b3daef1ada538baf830dce7354557cbf7d1506d447d8642e808e24f09d381",
+      "bytes": 4301,
+      "mtime_ns": 1789510716692936300,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "c9d6556ac77068c0a86f3cf1096708eb8e5ab9a7a1bc9b237a855b8ab02ebc83",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/纯阳/纯阳_套路_太虚剑意.lua",
+      "sha256": "279f0e90e0da9da0b588c95deb4a1ec93ad014e0649decfe043336751603c2fd",
+      "bytes": 5030,
+      "mtime_ns": 1789510716668399600,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "b2989f028ba6d874668e703c00b7b32865136aea40a138383123bad858814d94",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/纯阳/纯阳_套路_紫霞功.lua",
+      "sha256": "8434f3d42db2cc71c6b6d27460425f735d0610e624d88219f8e9fd715e84b484",
+      "bytes": 4652,
+      "mtime_ns": 1789510716668399600,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "eb4aaff45ddb1df70e9f940037b064d5fb5b94049211c8c2097a638cf090a176",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/苍云/套路及子技能/内功_分山劲.lua",
+      "sha256": "88d2cf4353b0fca2a9ee211becc7d57a04c8d94a4f0a2d68550830d3c03df088",
+      "bytes": 4180,
+      "mtime_ns": 1789510716681946300,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "92a67b6df32d5503a85dd14d9d69212190d23f9bb36786d8c6ea956dc1defd2b",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/苍云/套路及子技能/内功_铁骨衣.lua",
+      "sha256": "aa767e4e0c4962a3531a96dceb41079af643fb7c5612b04e605978b8307cd5db",
+      "bytes": 4197,
+      "mtime_ns": 1789510716680441300,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "84c410a3d52337eba82dc030a21cc34d9655497742750ac7c9fa46b6371ad1d1",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/蓬莱/蓬莱_套路_内功_输出心法.lua",
+      "sha256": "e5528d44f431dca9d65b83fe4e0378e96a57872388483a2eec947177ee2f0d53",
+      "bytes": 4277,
+      "mtime_ns": 1789510716686410000,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "30e9ab8e2c93303c3af6f17c770e33dfd42fc9451d6548acb4a500a1fde79050",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/藏剑/藏剑_套路_内功_山居剑意.lua",
+      "sha256": "f43579733f7f3c2f5fa3267e327cad829b2c88d56e9e4a9c8813b5d1f40cda63",
+      "bytes": 4251,
+      "mtime_ns": 1789510716673922200,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "e2cdada069850148ce5ccea6bf02008828c8c758db6a384e89be1c35471f4396",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/藏剑/藏剑_套路_内功_问水诀.lua",
+      "sha256": "531b227878565390a6084bc6f8ea3aaa2640602e9a529e0d05d1b386d4da790b",
+      "bytes": 4417,
+      "mtime_ns": 1789510716673922200,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "e29a1ef68bd7efaff0836f66ca64de71e4c583f11d05690d6734d42e193b8dd0",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/衍天/衍天_套路_太玄经.lua",
+      "sha256": "63f82f5a53913a2bed681df8f41db249ff7853396ab1ce9d8e038407f6a4a43b",
+      "bytes": 4161,
+      "mtime_ns": 1789510716687922500,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "ae3ba36ff0154cadddc56e4d4ecb0c4584ccc632842a4a37befb40f489acaf5d",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/长歌/套路及子技能/内功_相知.lua",
+      "sha256": "5076e0aee4d013c14e23b2d2061dc635555cec848bcc68541a91073de5986934",
+      "bytes": 5288,
+      "mtime_ns": 1789510716683951500,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "04638ba522ee25a07a722c46371ce345307d46f4535b7dca70f3a946fba1a29c",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/长歌/套路及子技能/内功_莫问.lua",
+      "sha256": "66231cd661f278de72d0f00dc15b63acc3cf901f11102423c8960f967e0fa89d",
+      "bytes": 5694,
+      "mtime_ns": 1789510716682952900,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "34811af892d359df281b8ce5d792e705636c2b2ae2bc10980e7b1699b5b0c410",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "scripts/skill/霸刀/霸刀_套路_内功_输出心法.lua",
+      "sha256": "88c2e0f68a1bf9327ba9b36e0bbbb09a3a90b352535ffd385fdd96c8dc73754a",
+      "bytes": 4359,
+      "mtime_ns": 1789510716683951500,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "a4087a17a1340eb918bde0bc17a04e635ff44e9dd1034d6c35934ecc0263c1ec",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/七秀.tab",
+      "sha256": "e918731ce85d56bd500aaadb66eac3130c5b6a601c4e39083dc49e322a9ed8ec",
+      "bytes": 1545,
+      "mtime_ns": 1789511808974005900,
+      "format": "GB18030 text"
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/万灵山庄.tab",
+      "sha256": "44fbfcdeb0d2a962d0c1376dc74ad4bb574ae85f97154f0524de8ee942e03543",
+      "bytes": 1165,
+      "mtime_ns": 1789511808975010400,
+      "format": "GB18030 text"
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/万花.tab",
+      "sha256": "f442040de2475b3873fa6122481c7bad2bd02e7e6ded224e843a42be76651e82",
+      "bytes": 1729,
+      "mtime_ns": 1789511808975010400,
+      "format": "GB18030 text"
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/丐帮.tab",
+      "sha256": "5523d3049154dd046a2777cda51a2427c12412ff569ce1af8685b10294ee6cae",
+      "bytes": 1230,
+      "mtime_ns": 1789511808977009700,
+      "format": "GB18030 text"
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/五毒.tab",
+      "sha256": "3b9a72bebf173587500ccf0defe7535f0030e59d5ba6b0de9f33b245b81ab3c5",
+      "bytes": 1565,
+      "mtime_ns": 1789511808978010800,
+      "format": "GB18030 text"
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/凌雪阁.tab",
+      "sha256": "53840c6a3464a06f72fccbefc7b91fd1df10eba3836c0fc98229ac20a446f7af",
+      "bytes": 998,
+      "mtime_ns": 1789511808979009500,
+      "format": "GB18030 text"
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/刀宗.tab",
+      "sha256": "a52e781a0150294a030a38b33b062038ab3f4d1fdaa1df7d881c547462f1a53c",
+      "bytes": 944,
+      "mtime_ns": 1789511808979009500,
+      "format": "GB18030 text"
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/北天药宗.tab",
+      "sha256": "17ea1b987a07a9d9aacb1c681eef87e0bc5cecdb4271c02b63762a14324bde94",
+      "bytes": 1630,
+      "mtime_ns": 1789511808980514700,
+      "format": "GB18030 text"
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/唐门.tab",
+      "sha256": "289b7bc8e35d3172d8bedf6b7da6cc887b10e4cd8fd8d941d9bf23ee7ee7d13f",
+      "bytes": 1552,
+      "mtime_ns": 1789511808980514700,
+      "format": "GB18030 text"
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/天策.tab",
+      "sha256": "42d65c5488f0ca8418f126aba1093f3966a403ff50a70cbd7c4bd34fd94e3073",
+      "bytes": 1457,
+      "mtime_ns": 1789511808981518600,
+      "format": "GB18030 text"
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/少林.tab",
+      "sha256": "081af82dffd4c219f1fdd0a71b5c9e0324e0bba834f72cb5fe549ad15555aa9d",
+      "bytes": 1448,
+      "mtime_ns": 1789511808982520500,
+      "format": "GB18030 text"
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/明教.tab",
+      "sha256": "77cc8b471cb698aff24e89fa73f1f42f1469bd4a83c9dbbffea6dc54081450b1",
+      "bytes": 1574,
+      "mtime_ns": 1789511808983519000,
+      "format": "GB18030 text"
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/段氏.tab",
+      "sha256": "4fc124d151d6cd27ebb414e8bf80734b9e73d9a9756179876efcb8da234a8d22",
+      "bytes": 953,
+      "mtime_ns": 1789511808984022400,
+      "format": "GB18030 text"
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/纯阳.tab",
+      "sha256": "320cc7e4268b5518819cbda4e6c215f7f799ae68bdfb35f33c53f711488c6ebc",
+      "bytes": 1767,
+      "mtime_ns": 1789511808985026600,
+      "format": "GB18030 text"
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/苍云.tab",
+      "sha256": "a01c42f5335cd36cd718cd621a7459ab6d123ea5a6d44c1746167cd71318093d",
+      "bytes": 1155,
+      "mtime_ns": 1789511808985026600,
+      "format": "GB18030 text"
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/蓬莱.tab",
+      "sha256": "48a3e4dfc41140c2e376be0e5c4f6a3b2b6571819e9f0f6150fa0d7a77bb0dca",
+      "bytes": 922,
+      "mtime_ns": 1789511808986030100,
+      "format": "GB18030 text"
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/藏剑.tab",
+      "sha256": "614b59cce633459b9de9da99f51f1432319234bff1140d79f4209278172874e3",
+      "bytes": 1336,
+      "mtime_ns": 1789511808987031400,
+      "format": "GB18030 text"
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/衍天.tab",
+      "sha256": "233c5705cc4a44030b5779506fd78073b336d6da3579de39e9bb67a06a4fbb12",
+      "bytes": 951,
+      "mtime_ns": 1789511808987031400,
+      "format": "GB18030 text"
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/长歌.tab",
+      "sha256": "95ead7c0c2e6373e3b2f35b75581ba1e8935d676f37782f512584698914a02d9",
+      "bytes": 1806,
+      "mtime_ns": 1789511808988030800,
+      "format": "GB18030 text"
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/霸刀.tab",
+      "sha256": "8bd6649e2645416c207149bc220f61ca8e619054cf9b688f3a0bb0686880b011",
+      "bytes": 1117,
+      "mtime_ns": 1789511808989030900,
+      "format": "GB18030 text"
+    },
+    {
+      "origin": "ui/Script/common/role_attribute.lua",
+      "sha256": "162d3e5041f08419cc22f6f6f0d3c54315b6d72537313ca166ae70b85301b0cb",
+      "bytes": 51150,
+      "mtime_ns": 1789510971371196900,
+      "format": "Lua51 bytecode",
+      "readable_sha256": "e6e3de309cca8d1b01ad0c9f6ff6d5ce5f82d1de28904cb75ecb2835afe75baf",
+      "readable_method": "unluac --rawstring; GB18030 to UTF-8"
+    }
+  ],
+  "input_tables": [
+    {
+      "name": "skills.tab",
+      "sha256": "e10d9566ae6071db0d56803db2c39e673c3acdd68d766990dab6d7865e2dd2c0",
+      "bytes": 18115861,
+      "source": "C:\\Develop\\26\\jx3decrypt\\critical_files\\result_exp\\skills.tab"
+    },
+    {
+      "name": "skills2.tab",
+      "sha256": "e4069562f8dec775ccc8e749c3309e25884f5eb5ccc714b1ab7484e642093089",
+      "bytes": 989477,
+      "source": "C:\\Develop\\26\\jx3decrypt\\critical_files\\result_exp\\skills2.tab"
+    },
+    {
+      "name": "SkillEvent.tab",
+      "sha256": "b21aacad3b224fd4f312e67aa933b1742ffeed384daee3877ed30d5b55c39554",
+      "bytes": 314138,
+      "source": "C:\\Develop\\26\\jx3decrypt\\critical_files\\result_exp\\SkillEvent.tab"
+    },
+    {
+      "name": "buff.tab",
+      "source": "equip/resources/cangshengtf/buff.tab",
+      "sha256": "1222607f700a5ce6a97c2595012f86b470c4c610dd67707293ea7d7fea04d73c",
+      "bytes": 15459043
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "mount_skills.json",
+      "sha256": "9460ce6dc82a02a0ac4c4152c4f1081065aec9aeda1451267621a918ef4a9536"
+    },
+    {
+      "path": "occ_names.json",
+      "sha256": "d5d6951b7e69d4a4350141317d0d6292eee8b859d136513fa73b313d9974da1e"
+    },
+    {
+      "path": "skill_level_evidence.json",
+      "sha256": "eb80f1ee647b07fec53b0adbb6093cb97473ec5f3a743c514afc452f9cadd170"
+    }
+  ],
+  "verification_method": {
+    "original_lua": "Lupa 2.8, lupa.lua51, isolated Python callbacks capture AddAttribute only",
+    "bytecode_adapter": "release/Lua51Evidence.py; size_t 4->8 only, serialize(4)==original required",
+    "decompiled": "unluac --rawstring; cross-check only, original bytecode has priority",
+    "skill_level": "20 SkillAutoLearning tables; all 32 selected skills require player level 50, skill level 5"
+  },
+  "tools": [
+    {
+      "path": "C:/Develop/26/jx3decrypt/unpack.exe",
+      "sha256": "5b97228ce8bbbc9114aca4d4dd7accbcd308d0e6d1836fe3f54aa4b1050e7d99"
+    },
+    {
+      "path": "C:/Develop/26/jx3decrypt/legacy/unluac/unluac.jar",
+      "sha256": "cd75cf980510fafae8c8b8bb61e61fe4adbda9847664f6ebcfbcf9b65bc91ce3"
+    }
+  ]
+}

@@ -1,0 +1,482 @@
+{
+  "edition": "8.16.0-beta.2",
+  "client": "1.6.0.9503",
+  "network": "disabled",
+  "upload": "disabled",
+  "unitTests": 74,
+  "damageCoefficientTests": 10,
+  "boss45Tests": 12,
+  "sourceReportSha256": "81889b8f80873ea037bb6843f26f8d909cb40e88a649d323e2eaf6278a5eec84",
+  "results": [
+    {
+      "boss": "突利和顺",
+      "file": "2026-09-15-20-12-21-25人普通洛阳之战(835)-突利和顺(139306).jcl",
+      "sha256": "56F3BD74FD1A2CA71BFE2CE4C0C81BCDDB626E57EA97E498CDE2D44FBCA3C528",
+      "seconds": 425.0380000000001,
+      "status": {
+        "status": "supported",
+        "gameEdition": 160
+      },
+      "directDamage": 263983070,
+      "redistributedDamage": 263983070.0000001,
+      "conservationError": 8.940696716308594e-08,
+      "healerReplays": 5,
+      "specializationReplays": 25,
+      "ui": {
+        "bossWindow": "TuliHeshunWindow",
+        "widgets": "constructed",
+        "rdps": "supported"
+      },
+      "tankHealerRdps": [
+        {
+          "occ": "21t",
+          "kungfu": "铁骨衣",
+          "role": "tank",
+          "ndps": 12578.491805438573,
+          "rdps": 27035.489903161968,
+          "mrdps": 27035.489903161968
+        },
+        {
+          "occ": "6h",
+          "kungfu": "补天诀",
+          "role": "healer",
+          "ndps": 0,
+          "rdps": 23916.595362922075,
+          "mrdps": 23916.595362922075
+        },
+        {
+          "occ": "1t",
+          "kungfu": "洗髓经",
+          "role": "tank",
+          "ndps": 2250.6575882626967,
+          "rdps": 22886.917993730654,
+          "mrdps": 22886.917993730654
+        },
+        {
+          "occ": "2h",
+          "kungfu": "离经易道",
+          "role": "healer",
+          "ndps": 0,
+          "rdps": 22432.87535542437,
+          "mrdps": 22432.87535542437
+        },
+        {
+          "occ": "22h",
+          "kungfu": "相知",
+          "role": "healer",
+          "ndps": 0,
+          "rdps": 22231.196910176994,
+          "mrdps": 22231.196910176994
+        },
+        {
+          "occ": "3t",
+          "kungfu": "铁牢律",
+          "role": "tank",
+          "ndps": 3748.173104522419,
+          "rdps": 18243.36046639382,
+          "mrdps": 18243.36046639382
+        },
+        {
+          "occ": "5h",
+          "kungfu": "云裳心经",
+          "role": "healer",
+          "ndps": 0,
+          "rdps": 18025.711619652833,
+          "mrdps": 18025.711619652833
+        },
+        {
+          "occ": "212h",
+          "kungfu": "灵素",
+          "role": "healer",
+          "ndps": 366.51546449964474,
+          "rdps": 15348.886910211799,
+          "mrdps": 15348.886910211799
+        },
+        {
+          "occ": "10t",
+          "kungfu": "明尊琉璃体",
+          "role": "tank",
+          "ndps": 6014.335188853703,
+          "rdps": 13723.39764474096,
+          "mrdps": 13723.39764474096
+        }
+      ]
+    },
+    {
+      "boss": "田承嗣",
+      "file": "2026-09-15-20-33-51-25人普通洛阳之战(835)-田承嗣(139329).jcl",
+      "sha256": "ECDF3E34A185930FFA8247340553806E034C382F84845AE8F3F805CD5CD11DFB",
+      "seconds": 360.7930000000001,
+      "status": {
+        "status": "supported",
+        "gameEdition": 160
+      },
+      "directDamage": 216018986,
+      "redistributedDamage": 216018986.0000001,
+      "conservationError": 8.940696716308594e-08,
+      "healerReplays": 5,
+      "specializationReplays": 25,
+      "ui": {
+        "bossWindow": "TianChengsiWindow",
+        "widgets": "constructed",
+        "rdps": "supported"
+      },
+      "tankHealerRdps": [
+        {
+          "occ": "1t",
+          "kungfu": "洗髓经",
+          "role": "tank",
+          "ndps": 2130.8561973209016,
+          "rdps": 23501.146437577092,
+          "mrdps": 21455.40887693623
+        },
+        {
+          "occ": "21t",
+          "kungfu": "铁骨衣",
+          "role": "tank",
+          "ndps": 3075.6897277595735,
+          "rdps": 21908.51898747301,
+          "mrdps": 21067.480225899242
+        },
+        {
+          "occ": "10t",
+          "kungfu": "明尊琉璃体",
+          "role": "tank",
+          "ndps": 11638.867716391394,
+          "rdps": 20834.520608412004,
+          "mrdps": 17984.828394837798
+        },
+        {
+          "occ": "3t",
+          "kungfu": "铁牢律",
+          "role": "tank",
+          "ndps": 5029.31320729615,
+          "rdps": 19489.41088537912,
+          "mrdps": 18686.228106420414
+        },
+        {
+          "occ": "5h",
+          "kungfu": "云裳心经",
+          "role": "healer",
+          "ndps": 0,
+          "rdps": 19343.79944280467,
+          "mrdps": 18222.30228933501
+        },
+        {
+          "occ": "22h",
+          "kungfu": "相知",
+          "role": "healer",
+          "ndps": 0,
+          "rdps": 18139.301928325174,
+          "mrdps": 16895.988688406567
+        },
+        {
+          "occ": "2h",
+          "kungfu": "离经易道",
+          "role": "healer",
+          "ndps": 0,
+          "rdps": 17507.183390278133,
+          "mrdps": 16061.226005155735
+        },
+        {
+          "occ": "6h",
+          "kungfu": "补天诀",
+          "role": "healer",
+          "ndps": 0,
+          "rdps": 13732.845367295002,
+          "mrdps": 8884.662841568666
+        },
+        {
+          "occ": "212h",
+          "kungfu": "灵素",
+          "role": "healer",
+          "ndps": 42.83065358806851,
+          "rdps": 11117.534038890866,
+          "mrdps": 9891.393942400091
+        }
+      ]
+    },
+    {
+      "boss": "伊曼双子",
+      "file": "2026-09-15-20-42-55-25人普通洛阳之战(835)-伊曼·寂夜(139319).jcl",
+      "sha256": "671A25AA1CBCE2E0CFCA7CEE028BE858C8126B19967272B572561609C18E1493",
+      "seconds": 375.7000000000001,
+      "status": {
+        "status": "supported",
+        "gameEdition": 160
+      },
+      "directDamage": 316826546,
+      "redistributedDamage": 316826545.9999999,
+      "conservationError": -1.1920928955078125e-07,
+      "healerReplays": 5,
+      "specializationReplays": 25,
+      "ui": {
+        "bossWindow": "YimanTwinsWindow",
+        "widgets": "constructed",
+        "rdps": "supported"
+      },
+      "tankHealerRdps": [
+        {
+          "occ": "6h",
+          "kungfu": "补天诀",
+          "role": "healer",
+          "ndps": 0.002661698163428267,
+          "rdps": 32345.165756707793,
+          "mrdps": 26402.0126254854
+        },
+        {
+          "occ": "22h",
+          "kungfu": "相知",
+          "role": "healer",
+          "ndps": 0,
+          "rdps": 30223.101855403183,
+          "mrdps": 25168.668857202785
+        },
+        {
+          "occ": "2h",
+          "kungfu": "离经易道",
+          "role": "healer",
+          "ndps": 0.005323396326856534,
+          "rdps": 30013.52062450228,
+          "mrdps": 24940.995779810008
+        },
+        {
+          "occ": "1t",
+          "kungfu": "洗髓经",
+          "role": "tank",
+          "ndps": 2216.177801437317,
+          "rdps": 28377.165259857706,
+          "mrdps": 25208.843147666183
+        },
+        {
+          "occ": "5h",
+          "kungfu": "云裳心经",
+          "role": "healer",
+          "ndps": 0,
+          "rdps": 27733.04468265025,
+          "mrdps": 23118.19749573848
+        },
+        {
+          "occ": "21t",
+          "kungfu": "铁骨衣",
+          "role": "tank",
+          "ndps": 2593.485375032338,
+          "rdps": 25988.670900785823,
+          "mrdps": 21963.79845397671
+        },
+        {
+          "occ": "3t",
+          "kungfu": "铁牢律",
+          "role": "tank",
+          "ndps": 7538.363055629492,
+          "rdps": 25169.597191371486,
+          "mrdps": 21043.974403923683
+        },
+        {
+          "occ": "10t",
+          "kungfu": "明尊琉璃体",
+          "role": "tank",
+          "ndps": 14828.110135777912,
+          "rdps": 22233.846550180708,
+          "mrdps": 20740.527974131248
+        },
+        {
+          "occ": "212h",
+          "kungfu": "灵素",
+          "role": "healer",
+          "ndps": 53.29252062816077,
+          "rdps": 20329.37066438357,
+          "mrdps": 17159.980338519515
+        }
+      ]
+    },
+    {
+      "boss": "阿史那承庆",
+      "file": "2026-09-15-21-18-36-25人普通洛阳之战(835)-阿史那承庆(139323).jcl",
+      "sha256": "0AE3962D84935053C50868083C87FB783B570D5D75A4438C4A83E26F31B7E0CE",
+      "seconds": 380.8780000000001,
+      "status": {
+        "status": "supported",
+        "gameEdition": 160
+      },
+      "directDamage": 289596521,
+      "redistributedDamage": 289596520.99999994,
+      "conservationError": -5.960464477539063e-08,
+      "healerReplays": 5,
+      "specializationReplays": 25,
+      "ui": {
+        "bossWindow": "LuoyangAshinaChengqingWindow",
+        "widgets": "constructed",
+        "rdps": "supported"
+      },
+      "tankHealerRdps": [
+        {
+          "occ": "6h",
+          "kungfu": "补天诀",
+          "role": "healer",
+          "ndps": 0.06563781578353173,
+          "rdps": 29193.008934209225,
+          "mrdps": 27763.497300684514
+        },
+        {
+          "occ": "1t",
+          "kungfu": "洗髓经",
+          "role": "tank",
+          "ndps": 3412.6019355279122,
+          "rdps": 28901.561842406605,
+          "mrdps": 28352.889293865588
+        },
+        {
+          "occ": "2h",
+          "kungfu": "离经易道",
+          "role": "healer",
+          "ndps": 0,
+          "rdps": 28770.232946279986,
+          "mrdps": 28021.2784200398
+        },
+        {
+          "occ": "22h",
+          "kungfu": "相知",
+          "role": "healer",
+          "ndps": 0,
+          "rdps": 28203.147110761307,
+          "mrdps": 27457.845933465785
+        },
+        {
+          "occ": "21t",
+          "kungfu": "铁骨衣",
+          "role": "tank",
+          "ndps": 6983.843031550574,
+          "rdps": 27280.64674369422,
+          "mrdps": 26487.358428652053
+        },
+        {
+          "occ": "5h",
+          "kungfu": "云裳心经",
+          "role": "healer",
+          "ndps": 0,
+          "rdps": 25571.21176395634,
+          "mrdps": 24895.240928734813
+        },
+        {
+          "occ": "3t",
+          "kungfu": "铁牢律",
+          "role": "tank",
+          "ndps": 4974.930163541409,
+          "rdps": 21996.91212589944,
+          "mrdps": 20344.39509961856
+        },
+        {
+          "occ": "10t",
+          "kungfu": "明尊琉璃体",
+          "role": "tank",
+          "ndps": 12441.082597582728,
+          "rdps": 21333.841771401105,
+          "mrdps": 20381.575008164094
+        },
+        {
+          "occ": "212h",
+          "kungfu": "灵素",
+          "role": "healer",
+          "ndps": 18.128346477461555,
+          "rdps": 13893.598523956762,
+          "mrdps": 13392.77793675128
+        }
+      ]
+    },
+    {
+      "boss": "史朝义",
+      "file": "2026-09-15-23-40-33-25人普通洛阳之战(835)-史朝义(139312).jcl",
+      "sha256": "49489D2604E5E4168F89BF6B32A63B88E8FAEF3E31EDDD22FBE6C03CD9EF7C62",
+      "seconds": 443.6440000000001,
+      "status": {
+        "status": "supported",
+        "gameEdition": 160
+      },
+      "directDamage": 218479858,
+      "redistributedDamage": 218479858.00000003,
+      "conservationError": 2.9802322387695312e-08,
+      "healerReplays": 5,
+      "specializationReplays": 25,
+      "ui": {
+        "bossWindow": "ShiChaoyiWindow",
+        "widgets": "constructed",
+        "rdps": "supported"
+      },
+      "tankHealerRdps": [
+        {
+          "occ": "6h",
+          "kungfu": "补天诀",
+          "role": "healer",
+          "ndps": 0,
+          "rdps": 23164.702288148572,
+          "mrdps": 16555.162298387422
+        },
+        {
+          "occ": "22h",
+          "kungfu": "相知",
+          "role": "healer",
+          "ndps": 0,
+          "rdps": 18696.707446669738,
+          "mrdps": 15303.452165470138
+        },
+        {
+          "occ": "10t",
+          "kungfu": "明尊琉璃体",
+          "role": "tank",
+          "ndps": 12256.44435628567,
+          "rdps": 18489.13396944604,
+          "mrdps": 13107.378875009843
+        },
+        {
+          "occ": "1t",
+          "kungfu": "洗髓经",
+          "role": "tank",
+          "ndps": 2617.26068649638,
+          "rdps": 18046.182318677376,
+          "mrdps": 14115.505295619307
+        },
+        {
+          "occ": "5h",
+          "kungfu": "云裳心经",
+          "role": "healer",
+          "ndps": 0,
+          "rdps": 16466.452461392524,
+          "mrdps": 13396.976832635268
+        },
+        {
+          "occ": "2h",
+          "kungfu": "离经易道",
+          "role": "healer",
+          "ndps": 0.0022540595612698467,
+          "rdps": 16129.419495545611,
+          "mrdps": 12942.70044835869
+        },
+        {
+          "occ": "3t",
+          "kungfu": "铁牢律",
+          "role": "tank",
+          "ndps": 2870.81083030538,
+          "rdps": 12749.025742386228,
+          "mrdps": 12128.778953453217
+        },
+        {
+          "occ": "21t",
+          "kungfu": "铁骨衣",
+          "role": "tank",
+          "ndps": 1220.595793023235,
+          "rdps": 12264.188283539484,
+          "mrdps": 11847.291075785526
+        },
+        {
+          "occ": "212h",
+          "kungfu": "灵素",
+          "role": "healer",
+          "ndps": 122.35260704528856,
+          "rdps": 6027.72363826099,
+          "mrdps": 4462.6587171498095
+        }
+      ]
+    }
+  ]
+}

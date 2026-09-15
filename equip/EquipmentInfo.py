@@ -1,6 +1,7 @@
 # Created by moeheart at 08/30/2021
 # 维护装备信息类.
 
+import csv
 import re
 
 from tools.ResourcePath import get_resource_path
@@ -51,7 +52,7 @@ class EquipmentInfo():
             return 0
         return self.data[full_id][self.headerID[header_key]]
 
-    def getFeature(self, full_id):
+    def getFeature(self, full_id, refineLevel=0):
         '''
         通过装备ID获取关心的所有属性.
 
@@ -72,10 +73,13 @@ class EquipmentInfo():
             if attribID in ["", "0", 0, "atInvalid"]:
                 continue
             attribRes = self.attrib[attribID]
-            attribValue = 0
-            if attribRes[1] != '':
-                attribValue = int(attribRes[1])
-            result[attribRes[0]] = result.get(attribRes[0], 0) + attribValue
+            attributes = self.staticAttribute(attribRes[0], attribRes[1], "装备%s词条%s" % (full_id, attribID))
+            for name, value in attributes.items():
+                # 当前客户端只精炼 Magic 词条；白字武器伤害、攻速、基础防御不参与。
+                if self.gameEdition >= 160 and name in self.strengthable:
+                    rate = self.REFINE_PERMILLE[refineLevel]
+                    value = (value * (1000 + rate) + 500) // 1000
+                result[name] = result.get(name, 0) + value
 
         for i in range(1, 11):
             attribName = "Base%dType"%i
@@ -94,6 +98,48 @@ class EquipmentInfo():
             result[name] = self.getAttribute(full_id, name)
 
         return result
+
+    REFINE_PERMILLE = (0, 5, 13, 24, 38, 55, 75, 98, 124)
+
+    def getGemAttribute(self, attribID, level):
+        """返回已激活孔的属性；50级使用当前客户端 GetSlotAttrib 的数值流程。"""
+        if not 1 <= level <= 8:
+            raise ValueError("五行石等级超出1至8: %s" % level)
+        name, value = self.attrib[attribID]
+        attributes = self.staticAttribute(name, value, "镶嵌词条%s" % attribID)
+        result = {}
+        for name, value in attributes.items():
+            if self.gameEdition >= 160:
+                # SO3ItemHouseX64.dll 1.6.0.9503 RVA 216C0：仅缩放 Value1Strable。
+                # 原生依次做 double 乘法/除法，最后 cvttsd2si 向零截断，不能提前取整。
+                if name in self.strengthable:
+                    factor = level * 0.195 if level <= 6 else (level * 0.65 - 3.2) * 1.3
+                    scaled = float(value) * factor
+                    scaled *= 1355.0
+                    scaled /= 27800.0
+                    value = int(scaled)
+            else:
+                rate = (0, 190, 390, 585, 780, 975, 1170, 1750, 2600)[level]
+                value = value * rate // 1000
+            result[name] = value
+        return result
+
+    def staticAttribute(self, name, value, source):
+        """只返回可直接相加的数值；脚本/技能效果 ID 不能充当面板数值。"""
+        if not name or name == "atInvalid":
+            return {}
+        if name in {"atExecuteScript", "atSetEquipmentRecipe", "atSkillEventHandler", "atSetEquipmentSkill"}:
+            self.unsupportedEffects.add("%s: %s" % (source, name))
+            return {}
+        try:
+            return {name: int(value or 0)}
+        except (ValueError, TypeError):
+            self.unsupportedEffects.add("%s: %s" % (source, name))
+            return {}
+
+    def readRows(self, path):
+        with self.openTextFile(path) as source:
+            yield from csv.DictReader(source, delimiter="\t")
 
 
     def loadSingleFile(self, path, scene):
@@ -141,20 +187,17 @@ class EquipmentInfo():
                     self.attrib[content[0]] = [content[2], content[3]]  # 只记录最简单的形式
 
         ENCHANT_PATH = self.resourceRoot + '/enchant.tab'
-        first = True
-        with self.openTextFile(ENCHANT_PATH) as f:
-            for line in f:
-                if first:
-                    first = False
-                else:
-                    content = line.strip('\n').split('\t')
-                    # if content[7] == "":  # 只记录最简单的形式
-                    if "彩" not in content[1]:
-                        self.enchant[content[0]] = [content[4], content[5]]
-                    else:  # 记录五彩石形式
-                        self.enchant[content[0]] = [content[4], content[5], content[10], content[11],
-                                                    content[12], content[13], content[17], content[18],
-                                                    content[19], content[20], content[24], content[25]]
+        # 以列名读取全部四条附魔效果；五彩石条件与普通附魔共用同一源表。
+        for row in self.readRows(ENCHANT_PATH):
+            self.enchantAttributes[row['ID']] = [
+                (row.get('Attribute%dID' % i, ''), row.get('Attribute%dValue1' % i, ''))
+                for i in range(1, 5)
+            ]
+            self.enchant[row['ID']] = [
+                row.get(column % i, '')
+                for i in range(1, 4)
+                for column in ('Attribute%dID', 'Attribute%dValue1', 'DiamondCount%d', 'DiamondIntensity%d')
+            ]
 
         ITEM_PATH = self.resourceRoot + '/item.txt'
         first = True
@@ -183,14 +226,17 @@ class EquipmentInfo():
                         self.color[content[0]] = self.enchant[self.itemColor[content[3]]]  # 记录五彩石
 
         SET_PATH = self.resourceRoot + '/Set.tab'
-        first = True
-        with self.openTextFile(SET_PATH) as f:
-            for line in f:
-                if first:
-                    first = False
-                else:
-                    content = line.strip('\n').split('\t')
-                    self.set[content[0]] = content[4:14]
+        for row in self.readRows(SET_PATH):
+            self.set[row['ID']] = [
+                (int(column.split('_')[0]), value)
+                for column, value in row.items()
+                if re.fullmatch(r'\d+_\d+', column) and value not in ('', '0', None)
+            ]
+
+        if self.gameEdition >= 160:
+            for row in self.readRows(self.resourceRoot + '/StrengthableAttrib.tab'):
+                if row['Value1Strable'] == '1':
+                    self.strengthable.add(row['AttribType'])
 
     def __init__(self, gameEdition=0):
         self.gameEdition = int(gameEdition or 0)
@@ -198,10 +244,13 @@ class EquipmentInfo():
         self.data = {}
         self.attrib = {}
         self.enchant = {}
+        self.enchantAttributes = {}
         self.color = {}
         self.set = {}
         self.itemColor = {}  # 存储可能的五彩石物品id与对应的enchantID
         self.headerID = {}
+        self.strengthable = set()
+        self.unsupportedEffects = set()
 
 if __name__ == "__main__":
     t = EquipmentInfo()

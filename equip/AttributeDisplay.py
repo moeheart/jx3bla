@@ -3,6 +3,7 @@
 
 from equip.AttributeCal import AttributeCal
 from equip.AttributeData import *
+from equip.CangshengAttributeData import make_base_attributes, calculate_attributes
 
 class AttributeDisplay():
 
@@ -19,7 +20,17 @@ class AttributeDisplay():
         '''
 
         if self.gameEdition >= 160:
-            return None
+            if not str.strip():
+                return None
+            equipment = self.ac.CalculateAll(str)
+            if not equipment:
+                return None
+            base = make_base_attributes(equipment, occ)
+            if self.ac.lastWarnings:
+                base['_warnings'] = list(self.ac.lastWarnings)
+                warnings = sorted(set(self.status.get('warnings', []) + self.ac.lastWarnings))
+                self.status.update(status='incomplete', reason='装备含尚未解析的脚本或技能效果。', warnings=warnings)
+            return base
         attrib = self.ac.CalculateAll(str)
 
         # 全心法的基础属性
@@ -65,6 +76,12 @@ class AttributeDisplay():
         baseAttrib = self.GetBaseAttrib(str, occ)
         if baseAttrib is None:
             return None
+        if self.gameEdition >= 160:
+            panel = calculate_attributes(baseAttrib['_raw'], occ)
+            panel['_baseSource'] = baseAttrib['_baseSource']
+            if baseAttrib.get('_warnings'):
+                panel['_warnings'] = baseAttrib['_warnings']
+            return panel
         finalAttrib = baseAttrib.copy()
         mainAttribExtra = getExtraAttrib(occ, finalAttrib)
         for attrib in mainAttribExtra:
@@ -96,7 +113,7 @@ class AttributeDisplay():
         '''
 
         if self.gameEdition >= 160:
-            return None
+            return self.GetPanelAttrib(str, occ)
         result = {}
 
         # 根据装备计算属性
@@ -182,7 +199,8 @@ class AttributeDisplay():
         self.gameEdition = int(gameEdition or 0)
         self.status = {"status": "supported", "gameEdition": self.gameEdition}
         if self.gameEdition >= 160:
-            self.status.update(status="incomplete", reason="50级心法基础属性、装备换算和首领防御尚未完整核实，暂不推算面板与rDPS。")
+            self.status.update(profile="cangsheng50", source="current client Lua and item tables",
+                               assumptions=["JCL未提供体型，裸属性采用当前客户端默认基线"])
         self.ac = AttributeCal(gameEdition=self.gameEdition)
 
     def GetRawEquipmentFeature(self, full_id):

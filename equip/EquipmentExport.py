@@ -668,12 +668,16 @@ class ImportExcelEquipment():
     equips = {}
 
     def getPlug(self, id):
+        # 装备导出格式存的是等级；旧配装也允许使用五行石物品 ID。
+        value = str(id).strip()
+        if value in tuple(str(level) for level in range(9)):
+            return int(value)
         plugDict = {"": 0, "24423": 1, "24424": 2, "24425": 3, "24426": 4, "24427": 5, "24428": 6, "24429": 7, "24430": 8,
                     "24442": 1, "24443": 2, "24444": 3, "24445": 4, "24446": 5, "24447": 6, "24448": 7, "24449": 8}
-        if id not in plugDict:
+        if value not in plugDict:
             return 0
         else:
-            return plugDict[id]
+            return plugDict[value]
 
     def importData(self, attrStr):
         '''

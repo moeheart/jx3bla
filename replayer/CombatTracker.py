@@ -7,6 +7,7 @@ from replayer import Name as LegacyName
 from replayer import NameCangsheng
 from tools.Names import getGameEditionFromTime, getIDFromMap
 from equip.AttributeData import *
+from equip.CangshengAttributeData import CangshengAttributeData, get_target_profiles
 import time
 
 SUM_TIME = 0
@@ -57,7 +58,8 @@ def getResistedAmounts(fullResult, buffs, damage, absorb=0):
                 amounts[key] = amounts.get(key, 0) + origin * coefficient / 1024
     return {key: int(value) for key, value in amounts.items() if value > 0}
 
-def getDamageCoeff(occ, attrib, targetBoosts, lvl=114, isPoZhao=0, isSangRou=1, isPiaoHuang=0, debug=0):
+def getDamageCoeff(occ, attrib, targetBoosts, lvl=114, isPoZhao=0, isSangRou=1, isPiaoHuang=0, debug=0,
+                   gameEdition=0, targetProfile=None):
     '''
     根据最终面板属性和目标增益获取伤害系数.
     params:
@@ -68,6 +70,8 @@ def getDamageCoeff(occ, attrib, targetBoosts, lvl=114, isPoZhao=0, isSangRou=1, 
     - isPoZhao: 是否是破招伤害.
     - isSangRou: 是否是桑柔类型. 这种类型的伤害同样受治疗量影响.
     - debug: 是否打印中间步骤，用于检查错误
+    - gameEdition: 160 起使用 50 级压缩参数及实际目标防御.
+    - targetProfile: 当前目标 NPC 的 level 和五学校 shieldBase；新版不猜测缺失值.
     '''
 
     global SUM1
@@ -80,7 +84,10 @@ def getDamageCoeff(occ, attrib, targetBoosts, lvl=114, isPoZhao=0, isSangRou=1, 
         base += attrib.get("治疗", 0)
     if base == 0:
         base = 1  # 为了防止属性空缺时将对应的数值整个丢弃的问题
-    crit = 1 + min(attrib.get("会心", 0), 1) * (min(attrib.get("会心效果", 0), 3) - 1)
+    criticalEffect = min(attrib.get("会心效果", 0), 3)
+    if int(gameEdition or 0) >= 160:
+        criticalEffect += attrib.get("额外会心效果", 0)
+    crit = 1 + min(attrib.get("会心", 0), 1) * (criticalEffect - 1)
     over = 1 + attrib.get("破防", 0)
     strain = 1 + attrib.get("无双", 0)
     damageAdd1 = 1 + attrib.get("伤害变化", 0) / 1024
@@ -88,15 +95,37 @@ def getDamageCoeff(occ, attrib, targetBoosts, lvl=114, isPoZhao=0, isSangRou=1, 
     for boost in targetBoosts:
         for key in boost:
             targetBoostsDict[key] = targetBoostsDict.get(key, 0) + boost[key]
-    shieldParam = {"130": 126007.2, "131": 133357.62, "132": 140708.04, "133": 148058.46, "134": 155408.88,
-                   "120": 42000.75, "121": 44291.7, "122": 46582.65, "123": 48873.6, "124": 51164.55,
-                   "110": 19091.25, "111": 20132.6, "112": 21173.95, "113": 22215.3, "114": 23256.6}[str(lvl)]
-    shieldBase = {"110": 7060, "111": 7060, "112": 7060, "113": 11966, "114": 12528,
-                  "120": 15528, "121": 15528, "122": 15528, "123": 26317, "124": 27550,
-                  "130": 46902, "131": 46902, "132": 46902, "133": 79722, "134": 79722}[str(lvl)]
+    playerType = attrib["类型"]
+    isCangsheng = int(gameEdition or 0) >= 160
+    if isCangsheng:
+        # ATTRIB_TYPE 顺序为外功、阳性、阴性、混元、毒性，区别于 JCL 伤害字段顺序。
+        schools = {1: "Physics", 2: "Solar", 3: "Lunar", 4: "Neutral", 5: "Poison"}
+        if not isinstance(targetProfile, dict):
+            raise ValueError("Cangsheng rDPS requires an explicit target NPC defense profile")
+        if playerType not in schools:
+            raise ValueError("Unknown damage school for Cangsheng rDPS: %r" % playerType)
+        school = schools[playerType]
+        targetLevel = targetProfile.get("level")
+        shieldBySchool = targetProfile.get("shieldBase")
+        shieldBase = shieldBySchool.get(school) if isinstance(shieldBySchool, dict) else None
+        if (not isinstance(targetLevel, int) or isinstance(targetLevel, bool) or targetLevel <= 0
+                or not isinstance(shieldBase, (int, float)) or isinstance(shieldBase, bool)
+                or not 0 <= shieldBase < float("inf")):
+            raise ValueError("Incomplete Cangsheng NPC level/%s defense: %r" % (school, targetProfile))
+        # GlobalParam.lua fPhysicsShieldParam/fMagicShieldParam = 10.912.
+        # 数值压缩参数.lua GetCofValue50ByLevel: <=30 =>330; otherwise 33*level-660.
+        # 使用目标等级；53 级防御分母为 11883.168，不是玩家 50 级的 10802.88。
+        levelFactor = 330 if targetLevel <= 30 else 33 * targetLevel - 660
+        shieldParam = 10.912 * levelFactor
+    else:
+        shieldParam = {"130": 126007.2, "131": 133357.62, "132": 140708.04, "133": 148058.46, "134": 155408.88,
+                       "120": 42000.75, "121": 44291.7, "122": 46582.65, "123": 48873.6, "124": 51164.55,
+                       "110": 19091.25, "111": 20132.6, "112": 21173.95, "113": 22215.3, "114": 23256.6}[str(lvl)]
+        shieldBase = {"110": 7060, "111": 7060, "112": 7060, "113": 11966, "114": 12528,
+                      "120": 15528, "121": 15528, "122": 15528, "123": 26317, "124": 27550,
+                      "130": 46902, "131": 46902, "132": 46902, "133": 79722, "134": 79722}[str(lvl)]
 
     availableBoostDict = {}
-    playerType = attrib["类型"]
     for boost in targetBoostsDict:
         if boost in ATTRIB_TYPE:
             desc = ATTRIB_TYPE[boost]
@@ -108,6 +137,8 @@ def getDamageCoeff(occ, attrib, targetBoosts, lvl=114, isPoZhao=0, isSangRou=1, 
     shieldBase += shieldBase * availableBoostDict.get("防御%", 0) / 1024
     shieldBase = max(shieldBase, 0)
     shieldBase -= shieldBase * attrib.get("无视防御A", 0) / 1024
+    if isCangsheng:
+        shieldBase = max(shieldBase, 0)
     shieldRate = 1 - min(shieldBase / (shieldBase + shieldParam), 0.75)
 
     endTime = time.time()
@@ -117,7 +148,8 @@ def getDamageCoeff(occ, attrib, targetBoosts, lvl=114, isPoZhao=0, isSangRou=1, 
         print("[Calculate]", base, crit, over, strain, damageAdd1, damageAdd2, shieldRate)
     if isPiaoHuang:
         return base * damageAdd2
-    return base * crit * over * strain * damageAdd1 * damageAdd2 * shieldRate
+    npcCoefficient = attrib.get("非侠士伤害系数", 1) if isCangsheng else 1
+    return base * crit * over * strain * damageAdd1 * damageAdd2 * shieldRate * npcCoefficient
 
 class BoostCounter():
     '''
@@ -132,6 +164,12 @@ class BoostCounter():
         - skill: 需要计算的技能.
         '''
 
+        cacheKey = skill
+        if isinstance(skill, tuple):
+            skill, damageSchool = skill
+            self.attributeData.school = damageSchool
+            self.attributeData2.school = damageSchool
+
         isPoZhao = 0
         isSangRou = 0
         isPiaoHuang = 0
@@ -144,7 +182,7 @@ class BoostCounter():
 
         if target not in self.rdpsRate:
             self.rdpsRate[target] = {}
-        self.rdpsRate[target][skill] = {}
+        self.rdpsRate[target][cacheKey] = {}
         rdpsSeparateRate = {}
 
         # 计算仅自身增益的伤害
@@ -158,7 +196,7 @@ class BoostCounter():
         for boost in self.targetBoost[target]:
             if self.targetBoost[target][boost]["source"] == self.playerid:
                 targetBoosts.append(self.targetBoost[target][boost]["effect"])
-        coeffSelf = getDamageCoeff(self.occ, finalAttrib, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao, isSangRou=isSangRou, isPiaoHuang=isPiaoHuang)
+        coeffSelf = getDamageCoeff(self.occ, finalAttrib, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao, isSangRou=isSangRou, isPiaoHuang=isPiaoHuang, gameEdition=self.gameEdition, targetProfile=self.targetProfiles.get(target))
 
         sumCoeff = 0
 
@@ -172,7 +210,7 @@ class BoostCounter():
         targetBoosts = []
         for boost in self.targetBoost[target]:
             targetBoosts.append(self.targetBoost[target][boost]["effect"])
-        coeffAll = getDamageCoeff(self.occ, finalAttrib1, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao, isSangRou=isSangRou, isPiaoHuang=isPiaoHuang)
+        coeffAll = getDamageCoeff(self.occ, finalAttrib1, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao, isSangRou=isSangRou, isPiaoHuang=isPiaoHuang, gameEdition=self.gameEdition, targetProfile=self.targetProfiles.get(target))
 
         self.attributeData2.setBoosts(boosts)
         self.attributeData2.getFinalAttrib()
@@ -214,7 +252,7 @@ class BoostCounter():
 
             finalAttrib2 = self.attributeData2.removeBoostAndGetAttrib(self.boost[baseBoost]["effect"])
             self.attributeData2.addBoostAndGetAttrib(self.boost[baseBoost]["effect"])
-            coeffSpecific2 = getDamageCoeff(self.occ, finalAttrib2, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao, isSangRou=isSangRou, isPiaoHuang=isPiaoHuang)
+            coeffSpecific2 = getDamageCoeff(self.occ, finalAttrib2, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao, isSangRou=isSangRou, isPiaoHuang=isPiaoHuang, gameEdition=self.gameEdition, targetProfile=self.targetProfiles.get(target))
 
             # if baseBoost == "2,29294,1":
             #     print("[pfAfter]", coeffSpecific2, finalAttrib2)
@@ -231,6 +269,7 @@ class BoostCounter():
             #     print("[DifferentA]", coeffSpecific, coeffSpecific2)
 
             rdpsSeparateRate[baseBoost] = {"source": self.boost[baseBoost]["source"],
+                                           "id": self.boost[baseBoost].get("id", baseBoost),
                                            "amount": coeffAll - coeffSpecific2}
             sumCoeff += rdpsSeparateRate[baseBoost]["amount"]
 
@@ -247,7 +286,7 @@ class BoostCounter():
             for boost in self.targetBoost[target]:
                 if boost != baseBoost:
                     targetBoosts2.append(self.targetBoost[target][boost]["effect"])
-            coeffSpecific = getDamageCoeff(self.occ, finalAttrib, targetBoosts2, lvl=self.lvl, isPoZhao=isPoZhao, isSangRou=isSangRou, isPiaoHuang=isPiaoHuang)
+            coeffSpecific = getDamageCoeff(self.occ, finalAttrib, targetBoosts2, lvl=self.lvl, isPoZhao=isPoZhao, isSangRou=isSangRou, isPiaoHuang=isPiaoHuang, gameEdition=self.gameEdition, targetProfile=self.targetProfiles.get(target))
 
             # if baseBoost == "2,566,1" and coeffAll != coeffSpecific:
             #     print("[pfStart]", coeffAll, finalAttrib, targetBoosts)
@@ -261,16 +300,30 @@ class BoostCounter():
             sumCoeff += rdpsSeparateRate[baseBoost]["amount"]
 
         # 计算结果
+        if self.gameEdition >= 160:
+            # Harmful external effects do not earn positive credit. Attribute
+            # only the observed positive uplift and keep the split conserved.
+            ownRate = min(1.0, max(0.0, safe_divide(coeffSelf, coeffAll)))
+            positiveTotal = sum(max(0.0, value['amount']) for value in rdpsSeparateRate.values())
+            if positiveTotal <= 0:
+                ownRate = 1.0
+            for boost, value in rdpsSeparateRate.items():
+                if value['amount'] > 0 and positiveTotal > 0:
+                    self.rdpsRate[target][cacheKey][boost] = {'source': value['source'],
+                        'id': value.get('id', boost),
+                        'rate': value['amount'] / positiveTotal * (1 - ownRate)}
+            self.rdpsRate[target][cacheKey]['self'] = {'source': self.playerid, 'rate': ownRate}
+            return
         for boost in rdpsSeparateRate:
             rate = safe_divide(rdpsSeparateRate[boost]["amount"], sumCoeff) * safe_divide(coeffAll - coeffSelf, coeffAll)
             if rate > 0:
-                self.rdpsRate[target][skill][boost] = {"source": rdpsSeparateRate[boost]["source"],
+                self.rdpsRate[target][cacheKey][boost] = {"source": rdpsSeparateRate[boost]["source"],
                                                        "rate": rate}
-        self.rdpsRate[target][skill]["self"] = {"source": self.playerid,
+        self.rdpsRate[target][cacheKey]["self"] = {"source": self.playerid,
                                                 "rate": safe_divide(coeffSelf, coeffAll)}
 
 
-    def getRate(self, target, skill, skillName):
+    def getRate(self, target, skill, skillName, damageSchool=None):
         '''
         获取rDPS比例.
         params:
@@ -279,7 +332,14 @@ class BoostCounter():
         - skillName: 技能名.
         '''
 
-        if target not in self.targetBoost:
+        if self.gameEdition >= 160:
+            if target not in self.targetProfiles or self.attributeData.baseAttrib is None:
+                if target not in self.targetProfiles:
+                    self.unresolvedTargets.add(target)
+                return {'self': {'source': self.playerid, 'rate': 1.0}}
+            # NPCs with different defenses must keep separate coefficient caches.
+            self.targetBoost.setdefault(target, {})
+        elif target not in self.targetBoost:
             target = "all"
         if skillName in ["逐云寒蕊"]:
             skill = "逐云寒蕊"
@@ -291,6 +351,9 @@ class BoostCounter():
             skill = "桑柔"
         else:
             skill = "all"
+
+        if self.gameEdition >= 160:
+            skill = (skill, damageSchool)
 
         reCalFlag = False
         if target not in self.rdpsRate or skill not in self.rdpsRate[target]:
@@ -304,6 +367,25 @@ class BoostCounter():
             self.needUpdate[target][skill] = False
 
         return self.rdpsRate[target][skill]
+
+    def getRateForEvent(self, event, skillName):
+        """Weight mixed damage by the schools actually recorded in JCL."""
+        if self.gameEdition < 160:
+            return self.getRate(event.target, event.full_id, skillName)
+        schools = ("Physics", "Solar", "Neutral", "Lunar", "Poison")
+        portions = [(school, int(event.fullResult.get(str(index), 0)))
+                    for index, school in enumerate(schools)
+                    if int(event.fullResult.get(str(index), 0)) > 0]
+        if not portions:
+            return self.getRate(event.target, event.full_id, skillName)
+        total = sum(value for _, value in portions)
+        combined = {}
+        for school, damage in portions:
+            rates = self.getRate(event.target, event.full_id, skillName, school)
+            for key, value in rates.items():
+                combined.setdefault(key, {"source": value["source"], "id": value.get("id", key), "rate": 0.0})
+                combined[key]["rate"] += value["rate"] * damage / total
+        return combined
 
     def SetUpdateFlag(self, target="all"):
         '''
@@ -366,21 +448,28 @@ class BoostCounter():
             self.boostCover[id] = BuffCounter(id, self.startTime, self.finalTime)
         self.boostCover[id].setState(time, stack)
 
-    def removeBoost(self, id, time):
+    def removeBoost(self, id, time, instance=None):
         '''
         移除一个自身增益.
         params:
         - id: 增益的id，一般是buffID.
         - time: 事件发生的时间.
         '''
-        if id in self.boost:
+        key = instance if instance is not None else id
+        if instance is not None and id in self.boost:
+            # A real log instance supersedes the pre-pull inferred copy.
             del self.boost[id]
+            self.SetUpdateFlag()
+        if key in self.boost:
+            del self.boost[key]
             self.SetUpdateFlag()
         if id not in self.boostCover:
             self.boostCover[id] = BuffCounter(id, self.startTime, self.finalTime)
-        self.boostCover[id].setState(time, 0)
+        remaining = max((boost.get('stack', 1) for boostKey, boost in self.boost.items()
+                         if boost.get('id', boostKey) == id), default=0)
+        self.boostCover[id].setState(time, remaining)
 
-    def addBoost(self, id, effect, source, stack, time):
+    def addBoost(self, id, effect, source, stack, time, instance=None):
         '''
         添加一个自身增益.
         params:
@@ -392,15 +481,23 @@ class BoostCounter():
         '''
         effectCopy = effect.copy()
         tmp = {"effect": effectCopy, "source": source}
+        key = instance if instance is not None else id
+        if instance is not None:
+            tmp.update(id=id, stack=stack)
+            if id in self.boost:
+                del self.boost[id]
+                self.SetUpdateFlag()
         if id != "2,70018,2":
-            for key in tmp["effect"]:
-                tmp["effect"][key] *= stack
-        if id not in self.boost or tmp != self.boost[id]:
-            self.boost[id] = tmp
+            for attribute in tmp["effect"]:
+                tmp["effect"][attribute] *= stack
+        if key not in self.boost or tmp != self.boost[key]:
+            self.boost[key] = tmp
             self.SetUpdateFlag()
         if id not in self.boostCover:
             self.boostCover[id] = BuffCounter(id, self.startTime, self.finalTime)
-        self.boostCover[id].setState(time, stack)
+        remaining = max((boost.get('stack', stack) for boostKey, boost in self.boost.items()
+                         if boost.get('id', boostKey) == id), default=stack)
+        self.boostCover[id].setState(time, remaining)
 
     def setSpecificSkill(self, name, source):
         '''
@@ -412,9 +509,11 @@ class BoostCounter():
         if name == "mhsn":
             self.mhsn = source
         if name == "zyhr":
+            if self.gameEdition >= 160 and self.zyhr != source:
+                self.SetUpdateFlag()
             self.zyhr = source
 
-    def __init__(self, playerid, occ, startTime, finalTime, baseAttribute=None, lvl=124):
+    def __init__(self, playerid, occ, startTime, finalTime, baseAttribute=None, lvl=124, gameEdition=0, targetProfiles=None):
         '''
         构造方法.
         params:
@@ -427,14 +526,18 @@ class BoostCounter():
         '''
         self.playerid = playerid
         self.occ = occ
+        self.gameEdition = int(gameEdition or 0)
+        self.targetProfiles = targetProfiles or {}
+        self.unresolvedTargets = set()
         self.boost = {}
         self.targetBoost = {"all": {}}
         # rdps伤害系数. 第一级是目标（all表示全目标），第二级是技能ID（all表示通用技能）
         # 其中source表示来源玩家ID，rate表示倍率，boost表示增益ID
         self.rdpsRate = {}
         self.basicAttribute = {}
-        self.attributeData = AttributeData(occ)
-        self.attributeData2 = AttributeData(occ)
+        attributeClass = CangshengAttributeData if self.gameEdition >= 160 else AttributeData
+        self.attributeData = attributeClass(occ)
+        self.attributeData2 = attributeClass(occ)
         if baseAttribute is not None:
             self.attributeData.baseAttrib = baseAttribute
             self.attributeData2.baseAttrib = baseAttribute
@@ -964,6 +1067,8 @@ class CombatTracker():
         self.timeDps = timeDps
         self.timeHealer = timeHealer
         self.stunTime = stunTime
+        if self.isCangsheng:
+            self.checkRemoveBuff(self.finalTime)
 
         # 脱战时对缓冲区的结算.
         for player in self.hpStatus:
@@ -1014,6 +1119,11 @@ class CombatTracker():
         self.getStatInDps(self.mrdpsCast, mrdps, "source", self.boostCounter)
         self.mrdps = mrdps
         if self.isCangsheng:
+            unresolved = sorted({target for counter in self.boostCounter.values()
+                                 for target in counter.unresolvedTargets})
+            if unresolved:
+                self.rdpsStatus.update(status="incomplete", reason="部分受击目标缺少当前防御数据。",
+                                       unresolvedTargets=unresolved)
             self.rdps.update(self.rdpsStatus)
             self.mrdps.update(self.rdpsStatus)
 
@@ -1028,6 +1138,8 @@ class CombatTracker():
         # if event.id == "23543":
         #     print("[NameBuff]", event.time, event.id, event.caster, event.target, event.full_id, event.stack)
 
+        if self.isCangsheng:
+            self.checkRemoveBuff(event.time)
         full_id = event.full_id.strip('"')
         active = event.stack != 0
         if self.isCangsheng:
@@ -1061,9 +1173,11 @@ class CombatTracker():
         # if event.id == "9334" and event.target not in self.boostCounter:  # 记录梅花三弄的来源
         #     print("[ShieldTest]", event.id, event.target, self.info.getName(event.target))
 
-        # if event.id == "20854":
-        #     self.zyhrDict[event.target] = event.caster
-        #     self.boostCounter[event.target].setSpecificSkill("zyhr", event.caster)
+        if self.isCangsheng and event.id == "20854" and active and event.target in self.boostCounter:
+            # Current JCL records the actual provider per recipient. Another
+            # player's cast must not steal an already active PiaoHuang buff.
+            self.zyhrDict[event.target] = event.caster
+            self.boostCounter[event.target].setSpecificSkill("zyhr", event.caster)
 
         if event.id == "23107":
             if event.caster != event.target:
@@ -1158,7 +1272,7 @@ class CombatTracker():
                 source = self.zxyzCaster
             if effect_id in ["2,26820,1", "2,26821,1", "2,27541,1"]:  # 一些环境buff
                 source = "*环境增益"
-            if effect_id in ["2,20854,1"] and self.zyhrDict.get(event.target, "0") != "0":  # 新飘黄加无双buff
+            if not self.isCangsheng and effect_id in ["2,20854,1"] and self.zyhrDict.get(event.target, "0") != "0":  # 旧日志推定飘黄来源
                 source = self.zyhrDict.get(event.target, "0")
             # 不考虑战斗中的常驻buff
             if event.id in ["362", "673"]:  # 雷、袖气
@@ -1175,10 +1289,21 @@ class CombatTracker():
             elif event.id in ZHENYAN_DICT:
                 skipFlag = True
             if not skipFlag:
+                instance = instanceKey if self.isCangsheng else None
+                expiryKey = (event.target, instance)
                 if active:
-                    self.boostCounter[event.target].addBoost(effect_id, boostValue, source, event.stack, event.time)
+                    self.boostCounter[event.target].addBoost(effect_id, boostValue, source, event.stack, event.time, instance=instance)
+                    if self.isCangsheng:
+                        frame, end = getattr(event, 'frame', 0), getattr(event, 'end', 0)
+                        if end > frame:
+                            expires = event.time + (end - frame) * 62.5
+                            self.playerBoostRemove[expiryKey] = {'time': expires, 'id': effect_id}
+                            self.removeTime = min(self.removeTime, expires)
+                        else:
+                            self.playerBoostRemove.pop(expiryKey, None)
                 else:
-                    self.boostCounter[event.target].removeBoost(effect_id, event.time)
+                    self.boostCounter[event.target].removeBoost(effect_id, event.time, instance=instance)
+                    self.playerBoostRemove.pop(expiryKey, None)
             
         # 记录一部分buff的出现情况，尝试用这些buff反推玩家流派
         if event.id in ["9889"]:
@@ -1196,6 +1321,8 @@ class CombatTracker():
         for boost in self.boostRemove:
             if self.boostRemove[boost]["time"] < earliestTime:
                 earliestTime = self.boostRemove[boost]["time"]
+        for pending in self.playerBoostRemove.values():
+            earliestTime = min(earliestTime, pending['time'])
         self.removeTime = earliestTime
         # print("[Update111]Update", self.removeTime)
 
@@ -1207,6 +1334,11 @@ class CombatTracker():
         '''
         if time < self.removeTime:
             return
+        for key, pending in list(self.playerBoostRemove.items()):
+            if pending['time'] <= time:
+                target, instance = key
+                self.boostCounter[target].removeBoost(pending['id'], pending['time'], instance=instance)
+                del self.playerBoostRemove[key]
 
         # print("[Remove]Try removing...", self.removeTime, time)
         # print("[Before]")
@@ -1251,12 +1383,23 @@ class CombatTracker():
         记录技能事件.
         '''
 
+        if self.isCangsheng:
+            self.checkRemoveBuff(event.time)
         # 一些全局事件
         if event.id == "27674":  # 是否是逐云寒蕊
             self.zyhrCaster = event.caster
-            for player in self.zyhrDict:
-                self.zyhrDict[player] = event.caster
-                self.boostCounter[player].setSpecificSkill("zyhr", event.caster)
+            if not self.isCangsheng:
+                for player in self.zyhrDict:
+                    self.zyhrDict[player] = event.caster
+                    self.boostCounter[player].setSpecificSkill("zyhr", event.caster)
+            else:
+                for player, counter in self.boostCounter.items():
+                    active = any(value.get('id', key) == '2,20854,1' for key, value in counter.boost.items())
+                    if not active:
+                        # The first proc can precede its BUFF_UPDATE by a few
+                        # frames. Use the cast only while no live source exists.
+                        self.zyhrDict[player] = event.caster
+                        counter.setSpecificSkill('zyhr', event.caster)
 
         if event.id == "6251":  # 左旋右转记录
             self.zxyzCaster = event.caster
@@ -1586,7 +1729,7 @@ class CombatTracker():
             # print("[DpsRecord]", event.time, event.damageEff)
             # rDPS
             if event.caster in self.boostCounter:
-                rdpsRate = {} if self.isCangsheng else self.boostCounter[event.caster].getRate(event.target, event.full_id, self.info.getSkillName(event.full_id))
+                rdpsRate = self.boostCounter[event.caster].getRateForEvent(event, self.info.getSkillName(event.full_id))
 
                 # if self.info.getSkillName(event.full_id) == "破" and '2,20938,1' in rdpsRate:
                 #     print("[PoZyhr]", rdpsRate, event.caster, self.info.getName(event.caster), event.damageEff)
@@ -1602,7 +1745,7 @@ class CombatTracker():
                         self.rdpsCast[event.caster].recordSimple(event.full_id, event.damageEff * rdpsRate[key]["rate"])
                         self.rdpsCast[event.caster].recordSource("自身伤害", event.damageEff * rdpsRate[key]["rate"])
                     elif rdpsRate[key]["source"] in self.rdpsCast:
-                        keyName = "6,%s" % key
+                        keyName = "6,%s" % rdpsRate[key].get("id", key)
                         self.rdpsCast[rdpsRate[key]["source"]].recordSimple(keyName, event.damageEff * rdpsRate[key]["rate"])
                         self.rdpsCast[event.caster].recordSource(keyName, event.damageEff * rdpsRate[key]["rate"])
 
@@ -1615,7 +1758,7 @@ class CombatTracker():
                                 self.mrdpsCast[event.caster].recordSimple(event.full_id, event.damageEff * rdpsRate[key]["rate"])
                                 self.mrdpsCast[event.caster].recordSource("自身伤害", event.damageEff * rdpsRate[key]["rate"])
                             elif rdpsRate[key]["source"] in self.mrdpsCast:
-                                keyName = "6,%s" % key
+                                keyName = "6,%s" % rdpsRate[key].get("id", key)
                                 self.mrdpsCast[rdpsRate[key]["source"]].recordSimple(keyName, event.damageEff * rdpsRate[key]["rate"])
                                 self.mrdpsCast[event.caster].recordSource(keyName, event.damageEff * rdpsRate[key]["rate"])
 
@@ -1683,8 +1826,9 @@ class CombatTracker():
         self.resistDict = tables.RESIST_BY_SCHOOL_DICT if self.isCangsheng else tables.RESIST_DICT
         self.therapyDict = NameCangsheng.THERAPY_DICT if self.isCangsheng else {}
         self.rdpsStatus = {"status": "supported", "gameEdition": self.gameEdition}
-        if self.isCangsheng:
-            self.rdpsStatus.update(status="incomplete", reason="50级心法基础属性、装备换算和首领防御尚未完整核实，暂不推算面板与rDPS。")
+        self.targetProfiles = get_target_profiles(info) if self.isCangsheng else {}
+        if self.isCangsheng and (not self.targetProfiles or any(value is None or value.get('_warnings') for value in baseAttribDict.values())):
+            self.rdpsStatus.update(status="incomplete", reason="部分玩家装备或当前地图首领属性缺少验证数据。")
         self.occDetailList = occDetailList
 
         self.hpsCast = {}
@@ -1698,6 +1842,7 @@ class CombatTracker():
         self.rhpsRecorder = RHpsRecorder(info)
         self.hpStatus = {}
         self.boostRemove = {}
+        self.playerBoostRemove = {}
         self.removeTime = 9999999999  # 下一次移除事件的时间
         
         self.ndpsCast = {}
@@ -1810,7 +1955,7 @@ class CombatTracker():
             self.rdpsCast[player] = DpsCastRecorder(1)
             self.mrdpsCast[player] = DpsCastRecorder(1)
             # 增益统计
-            self.boostCounter[player] = BoostCounter(player, self.occDetailList[player], bh.startTime, bh.finalTime, baseAttribDict[player], lvl=self.bosslvl)
+            self.boostCounter[player] = BoostCounter(player, self.occDetailList[player], bh.startTime, bh.finalTime, baseAttribDict[player], lvl=self.bosslvl, gameEdition=self.gameEdition, targetProfiles=self.targetProfiles)
             self.shieldDict[player] = "0"
             self.zyhrDict[player] = "0"
             if boostPredict["zxyz"]["id"] != "0":  # 计算第一次左旋右转

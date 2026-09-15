@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "gameEdition": 160,
+  "source": {
+    "file": "SO3ItemHouseX64.dll",
+    "bytes": 346552,
+    "sha256": "ba4d8adbd13ec4850b068c0f7523d77c3f4f6127b08a5d4efb6ec16091962d37",
+    "location": "JX3_EXP/bin/zhcn_exp/bin64",
+    "imageBase": "0x180000000",
+    "inspection": "Static PE bytes and GNU objdump disassembly; no DLL load or game process access"
+  },
+  "constants": {
+    "lowLevelFactor": {
+      "rva": "0x455d8",
+      "bytes": "f6285c8fc2f5c83f",
+      "value": 0.195
+    },
+    "highLevelFactor": {
+      "rva": "0x40fc8",
+      "bytes": "cdcccccccccce43f",
+      "value": 0.65
+    },
+    "highLevelOffset": {
+      "rva": "0x40fd8",
+      "bytes": "9a99999999990940",
+      "value": 3.2
+    },
+    "highLevelScale": {
+      "rva": "0x40fd0",
+      "bytes": "cdccccccccccf43f",
+      "value": 1.3
+    },
+    "compressionNumerator": {
+      "rva": "0x41000",
+      "bytes": "00000000002c9540",
+      "value": 1355.0
+    },
+    "compressionDenominator": {
+      "rva": "0x41008",
+      "bytes": "000000000026db40",
+      "value": 27800.0
+    }
+  },
+  "functions": {
+    "KGItemInfoList_AttribStrength": {
+      "startRva": "0x216c0",
+      "endRvaExclusive": "0x217e7",
+      "bytes": "4883ec384d8bc8448bd24d85c07532488d0d4a15020041b94302000048894c24204c8d0558150200b903000000488d156cee0100ff1506e9010033c04883c438c3418b104c8b8108010000498bc8498b400880781900751739501c7306488b4010eb06488bc8488b008078190074e98079190075053b511c7303498bc8493bc80f84970000008b41208b512485c0750885d20f848500000066410f6ecaf30fe6c94183fa067f0af20f590d693e0200eb18f20f590d4ff80100f20f5c0d57f80100f20f590d47f80100f20f10156ff80100f20f101d6ff8010085c0741e66410f6e4104f30fe6c0f20f59c1f20f59c2f20f5ec3f20f2cc04189410485d2741e66410f6e4108f30fe6c0f20f59c1f20f59c2f20f5ec3f20f2cc041894108b8010000004883c438c3",
+      "sha256": "4c6b92444087d7cd43e7aa85c1523ac0541f59a927fb55e49407d20a96053e89"
+    },
+    "KGLuaItemInfo_LuaGetSlotAttrib": {
+      "startRva": "0x351f0",
+      "endRvaExclusive": "0x353da",
+      "bytes": "48895c24185556574883ec50488b05e5a501004833c44889442448488bd9488bfa488bcae8770a000083f802741241b96a0100004c8d051d080100e962010000ba01000000488bcfe8e3110000f20f2cf083fe020f873b010000ba02000000488bcfe8c9110000f20f2ce885ed791241b9700100004c8d05ec070100e921010000837b0c00741241b9720100004c8d05ec140100e909010000488b8bd00000004885c90f84170100004863c68b9481fc00000085d20f8405010000488b0daeaa01004885c90f84f50000004c8d4c24304533c0e8c8e8feff85c00f84e0000000488b0d89aa01004c8d4424308bd5e8ddc3feff85c00f84c50000004533c033d2488bcfe888080000488bcfe890090000488d150d030100488bcf8bd8e88f0c0000660f6e4c2430488bcff30fe6c9e85d0c00008bd3488bcfe8430f0000488d1538070100488bcfe8640c0000660f6e4c2434488bcff30fe6c9e8320c00008bd3488bcfe8180f0000488d1515070100488bcfe8390c0000660f6e4c2438488bcff30fe6c9e8070c00008bd3488bcfe8ed0e0000eb3341b96d0100004c8d05aeb90000488d05ef130100b903000000488d15bbb100004889442420ff1550ac0000488bcfe8a80b0000b801000000488b4c24484833cce8d68c0000488b9c24800000004883c4505f5e5dc3",
+      "sha256": "608518534c0ec568893a1a37b3b2c94bf94b5aa4822abb3000ef068c176ed6aa"
+    },
+    "KGItem_LuaGetSlotAttrib": {
+      "startRva": "0x33300",
+      "endRvaExclusive": "0x334e4",
+      "bytes": "48895c24185556574883ec50488b05d5c401004833c44889442448488bd9488bfa488bcae86729000083f802741241b9430200004c8d050d270100e95c010000ba01000000488bcfe8d3300000f20f2cf083fe020f8735010000ba02000000488bcfe8b9300000f20f2ce885ed791241b9490200004c8d05dc260100e91b010000488b431083780c00741241b94c0200004c8d0588d80000e9ff0000004863c68b9483c000000085d20f840b010000448b43284c8d4c2430488b0da1c90100e8cc07ffff85c00f84ee000000488b034c8d4424308bd5488bcbff905001000085c0751241b9560200004c8d0548d30000e9a70000004533c033d2488bcfe87e270000488bcfe886280000488d1503220100488bcf8bd8e8852b0000660f6e4c2430488bcff30fe6c9e8532b00008bd3488bcfe8392e0000488d152e260100488bcfe85a2b0000660f6e4c2434488bcff30fe6c9e8282b00008bd3488bcfe80e2e0000488d150b260100488bcfe82f2b0000660f6e4c2438488bcff30fe6c9e8fd2a00008bd3488bcfe8e32d0000eb3341b9460200004c8d05a4d80000488d0585250100b903000000488d15b1d000004889442420ff1546cb0000488bcfe89e2a0000b801000000488b4c24484833cce8ccab0000488b9c24800000004883c4505f5e5dc3",
+      "sha256": "88e7f6ffdd930ebc7e4ddf5e0d9efe3eac03ed339b840925e478c8469777cbfa"
+    },
+    "KGItem_AttribStrengthWrapper": {
+      "startRva": "0x3550",
+      "endRvaExclusive": "0x356a",
+      "bytes": "4883ec28488b0d05c80400e860e10100b8010000004883c428c3",
+      "sha256": "ded2d645c8a8a2cc42d5029ef8141f56dad1c48f9bc09d75cb9cdd107e17ec32"
+    },
+    "GetAttributeValue": {
+      "startRva": "0x23b90",
+      "endRvaExclusive": "0x23cc4",
+      "bytes": "48896c2410565741564883ec50458bf033f64c8b81c8000000498be9498bc8498b400840387019751e0f1f800000000039501c7306488b4010eb06488bc8488b004038701974e94038711975053b511c7303498bc8493bc8488d7920480f44fe4885ff7539488d05f4ef010041b9c20100004c8d0507f001004889442420488d154bc901008d4f03ff15e2c301008bc6488b6c24784883c450415e5f5ec348895c2470ff15efc30100418bce8bd8ff15dcc301008b4f04448b4710442b470c894c24304183f8018bce4889742440418d50010f4dcaff15a5c3010003470c8b4f182b4f1483f901894424348d41010f4df08bceff1587c30100f20f104c24408bcb034714894424380f104424300f114500f20f114d10ff1574c30100488b5c2470b801000000488b6c24784883c450415e5f5ec3",
+      "sha256": "36e6a26fd88acbd7da0b07c0298476406bd59e73e40dbecbd6f2e6d8298ad9b9"
+    }
+  },
+  "callChain": [
+    "KGLuaItemInfo::LuaGetSlotAttrib RVA351F0 reads slot's DiamondAttributeID, calls RVA23B90 with seed0 to get raw attribute, calls RVA216C0 with diamond level and attribute",
+    "KGItem::LuaGetSlotAttrib RVA33300 calls RVA23B90 with item seed, then vtable+0x150",
+    "KGItem RTTI vtable RVA41170+0x150 contains RVA3550; wrapper calls the same RVA216C0"
+  ],
+  "formula": {
+    "factor": "level <= 6 ? level * .195 : (level * .65 - 3.2) * 1.3",
+    "value": "int_truncate_toward_zero(((double(rawParam) * factor) * 1355.0) / 27800.0)",
+    "condition": "StrengthableAttrib.tab AttribType match; Value1Strable modifies Param0, Value2Strable modifies Param1; absent/zero flags leave that param unchanged",
+    "itemDependence": "No item level, quality, equip requirement, white damage or refinement level is read by RVA216C0",
+    "truncationRva": [
+      "0x217b3",
+      "0x217d5"
+    ]
+  },
+  "examples225": {
+    "0": 0,
+    "1": 2,
+    "2": 4,
+    "3": 6,
+    "4": 8,
+    "5": 10,
+    "6": 12,
+    "7": 19,
+    "8": 28
+  },
+  "boundaries": "This proves local client getter behavior. Runtime/server comparison is outside this static audit; the DLL is retained only in ignored local backups."
+}

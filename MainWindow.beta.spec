@@ -24,7 +24,8 @@ beta_datas = [
 
 # The beta reads the verified 50-level item snapshot separately from legacy data.
 for file in ("Custom_Trinket.tab", "Custom_Armor.tab", "Custom_Weapon.tab",
-             "attrib.tab", "enchant.tab", "item.txt", "other.tab", "Set.tab"):
+             "attrib.tab", "enchant.tab", "item.txt", "other.tab", "Set.tab",
+             "StrengthableAttrib.tab", "xinfa50.json", "luoyang_npc_defense.json"):
     beta_datas.append(("equip/resources/cangshengtf/" + file, "equip/resources/cangshengtf"))
 
 

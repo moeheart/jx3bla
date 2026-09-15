@@ -88,6 +88,41 @@
       "bytes": 1014365,
       "mtime_ns": 1789472424598656000,
       "sha256": "da2be3fd6b4a6683c9dc21f2a156985a15c63feba78c90b79b67b15626e2f2f7"
+    },
+    {
+      "name": "StrengthableAttrib.tab",
+      "bytes": 1656,
+      "sha256": "b0f6603c4bf7f6a837adafb6372eb1f08a34a1a33bbad0b305207c71e2f1d456"
+    },
+    {
+      "name": "xinfa50.json",
+      "bytes": 260813,
+      "sha256": "1c88413bc743ae8ef25c0ef87aaed0b356690b63afc5dbd882579e755410f09d"
+    },
+    {
+      "name": "xinfa_buff_evidence.json",
+      "bytes": 169719,
+      "sha256": "5577acd4f8ca2b85a066fd9d8e3bfeaa62dcfd566a0b6e4b0de12bd3cb87c783"
+    },
+    {
+      "name": "luoyang_npc_defense.json",
+      "bytes": 40088,
+      "sha256": "12d4f14191682e88a707ab1ba3a74ed13893c8e32e0ec3b435cfd29166e52c62"
+    },
+    {
+      "name": "role_attribute.luac",
+      "bytes": 51150,
+      "sha256": "162d3e5041f08419cc22f6f6f0d3c54315b6d72537313ca166ae70b85301b0cb"
+    },
+    {
+      "name": "role_panel_evidence.json",
+      "bytes": 45061,
+      "sha256": "7ebf64c911cfc2372421e142b1078a16a6b871572af758702fef625fae69f199"
+    },
+    {
+      "name": "native_gem_evidence.json",
+      "bytes": 6673,
+      "sha256": "14c22938bcb4bd8fd1c4f902813eb5ddbf7db420e7ef8adfdeb92c639292d5ba"
     }
   ],
   "parameters": {
@@ -192,7 +227,7 @@
   },
   "generated_tables": {
     "SKILL_NAME": 69384,
-    "BOOST_DICT": 13487,
+    "BOOST_DICT": 14805,
     "ABSORB_DICT": 1579,
     "RESIST_DICT": 1304,
     "RESIST_BY_SCHOOL_DICT": 3431,
@@ -201,8 +236,10 @@
   "runtime_status": {
     "buff_tables": "current_9503",
     "equipment_source": "current_9503",
-    "level50_panel_and_rdps": "incomplete",
-    "therapy_attribution": "not_implemented"
+    "level50_panel_and_rdps": "enabled_for_verified_25_normal_luoyang_profiles",
+    "therapy_attribution": "not_implemented",
+    "kungfu": "31_current_original_scripts_at_level_5",
+    "gem_scaling": "native_1355_div_27800"
   },
   "parameter_extraction": {
     "tool": "C:\\Develop\\26\\jx3decrypt\\unpack.exe",
@@ -214,5 +251,18 @@
     "mode": "zhcn_exp",
     "result": "init PakV4 result: 1; exit code 0",
     "initial_restricted_attempt": "init PakV4 result: 0; retry with client file access succeeded"
+  },
+  "attribute_evidence": {
+    "kungfu": "xinfa50.json",
+    "kungfu_originals": "xinfa_evidence/source_manifest.json",
+    "npc": "luoyang_npc_defense.json",
+    "default_base_and_refinement": "role_panel_evidence.json",
+    "gems": "native_gem_evidence.json",
+    "limitations": [
+      "JCL body type unavailable; current client default primary baseline",
+      "No manual comparison to live game panel",
+      "Script/enchant triggers require combat events; static equipment calculation does not invent trigger effects",
+      "10-player and heroic NPC defense profiles are not yet verified"
+    ]
   }
 }

@@ -1,0 +1,258 @@
+[
+  {
+    "SkillID": "10002",
+    "SkillName": "洗髓经",
+    "MaxLevel": "14",
+    "KindType": "None",
+    "ScriptFile": "少林\\少林_套路_洗髓经.lua",
+    "KungfuMountID": "3"
+  },
+  {
+    "SkillID": "10003",
+    "SkillName": "易筋经",
+    "MaxLevel": "14",
+    "KindType": "None",
+    "ScriptFile": "少林\\少林_套路_易筋经.lua",
+    "KungfuMountID": "3"
+  },
+  {
+    "SkillID": "10014",
+    "SkillName": "紫霞功",
+    "MaxLevel": "14",
+    "KindType": "None",
+    "ScriptFile": "纯阳\\纯阳_套路_紫霞功.lua",
+    "KungfuMountID": "2"
+  },
+  {
+    "SkillID": "10015",
+    "SkillName": "太虚剑意",
+    "MaxLevel": "14",
+    "KindType": "None",
+    "ScriptFile": "纯阳\\纯阳_套路_太虚剑意.lua",
+    "KungfuMountID": "2"
+  },
+  {
+    "SkillID": "10021",
+    "SkillName": "花间游",
+    "MaxLevel": "14",
+    "KindType": "None",
+    "ScriptFile": "万花\\万花_内功_花间游.lua",
+    "KungfuMountID": "4"
+  },
+  {
+    "SkillID": "10026",
+    "SkillName": "傲血战意",
+    "MaxLevel": "14",
+    "KindType": "None",
+    "ScriptFile": "天策\\天策_套路_内功_傲血战意.lua",
+    "KungfuMountID": "1"
+  },
+  {
+    "SkillID": "10028",
+    "SkillName": "离经易道",
+    "MaxLevel": "14",
+    "KindType": "None",
+    "ScriptFile": "万花/万花_内功_离经易道.lua",
+    "KungfuMountID": "4"
+  },
+  {
+    "SkillID": "10062",
+    "SkillName": "铁牢律",
+    "MaxLevel": "14",
+    "KindType": "None",
+    "ScriptFile": "天策\\天策_套路_内功_铁牢律.lua",
+    "KungfuMountID": "1"
+  },
+  {
+    "SkillID": "10080",
+    "SkillName": "云裳心经",
+    "MaxLevel": "14",
+    "KindType": "None",
+    "ScriptFile": "七秀\\七秀_内功_云裳心经.lua",
+    "KungfuMountID": "5"
+  },
+  {
+    "SkillID": "10081",
+    "SkillName": "冰心诀",
+    "MaxLevel": "14",
+    "KindType": "None",
+    "ScriptFile": "七秀\\七秀_内功_冰心诀.lua",
+    "KungfuMountID": "5"
+  },
+  {
+    "SkillID": "10144",
+    "SkillName": "问水诀",
+    "MaxLevel": "14",
+    "KindType": "None",
+    "ScriptFile": "藏剑\\藏剑_套路_内功_问水诀.lua",
+    "KungfuMountID": "6"
+  },
+  {
+    "SkillID": "10145",
+    "SkillName": "山居剑意",
+    "MaxLevel": "14",
+    "KindType": "None",
+    "ScriptFile": "藏剑\\藏剑_套路_内功_山居剑意.lua",
+    "KungfuMountID": "7"
+  },
+  {
+    "SkillID": "10175",
+    "SkillName": "毒经",
+    "MaxLevel": "14",
+    "KindType": "Physics",
+    "ScriptFile": "五毒\\五毒_内功_毒经.lua",
+    "KungfuMountID": "8"
+  },
+  {
+    "SkillID": "10176",
+    "SkillName": "补天诀",
+    "MaxLevel": "14",
+    "KindType": "Physics",
+    "ScriptFile": "五毒\\五毒_内功_补天诀.lua",
+    "KungfuMountID": "8"
+  },
+  {
+    "SkillID": "10224",
+    "SkillName": "惊羽诀",
+    "MaxLevel": "14",
+    "KindType": "Physics",
+    "ScriptFile": "唐门\\唐门_内功_箭弩.lua",
+    "KungfuMountID": "9"
+  },
+  {
+    "SkillID": "10225",
+    "SkillName": "天罗诡道",
+    "MaxLevel": "14",
+    "KindType": "Physics",
+    "ScriptFile": "唐门\\唐门_内功_机关.lua",
+    "KungfuMountID": "9"
+  },
+  {
+    "SkillID": "10242",
+    "SkillName": "焚影圣诀",
+    "MaxLevel": "14",
+    "KindType": "Physics",
+    "ScriptFile": "明教\\明教_套路_内功_焚影圣诀.lua",
+    "KungfuMountID": "10"
+  },
+  {
+    "SkillID": "10243",
+    "SkillName": "明尊琉璃体",
+    "MaxLevel": "14",
+    "KindType": "Physics",
+    "ScriptFile": "明教\\明教_套路_内功_明尊琉璃体.lua",
+    "KungfuMountID": "10"
+  },
+  {
+    "SkillID": "10268",
+    "SkillName": "笑尘诀",
+    "MaxLevel": "14",
+    "KindType": "Physics",
+    "ScriptFile": "丐帮\\丐帮_内功.lua",
+    "KungfuMountID": "11"
+  },
+  {
+    "SkillID": "10389",
+    "SkillName": "铁骨衣",
+    "MaxLevel": "14",
+    "KindType": "Physics",
+    "ScriptFile": "苍云\\套路及子技能\\内功_铁骨衣.lua",
+    "KungfuMountID": "12"
+  },
+  {
+    "SkillID": "10390",
+    "SkillName": "分山劲",
+    "MaxLevel": "14",
+    "KindType": "Physics",
+    "ScriptFile": "苍云\\套路及子技能\\内功_分山劲.lua",
+    "KungfuMountID": "12"
+  },
+  {
+    "SkillID": "10447",
+    "SkillName": "莫问",
+    "MaxLevel": "14",
+    "KindType": "LunarMagic",
+    "ScriptFile": "长歌\\套路及子技能\\内功_莫问.lua",
+    "KungfuMountID": "13"
+  },
+  {
+    "SkillID": "10448",
+    "SkillName": "相知",
+    "MaxLevel": "14",
+    "KindType": "LunarMagic",
+    "ScriptFile": "长歌\\套路及子技能\\内功_相知.lua",
+    "KungfuMountID": "13"
+  },
+  {
+    "SkillID": "10464",
+    "SkillName": "北傲诀",
+    "MaxLevel": "14",
+    "KindType": "None",
+    "ScriptFile": "霸刀\\霸刀_套路_内功_输出心法.lua",
+    "KungfuMountID": "14"
+  },
+  {
+    "SkillID": "10533",
+    "SkillName": "凌海诀",
+    "MaxLevel": "14",
+    "KindType": "None",
+    "ScriptFile": "蓬莱\\蓬莱_套路_内功_输出心法.lua",
+    "KungfuMountID": "15"
+  },
+  {
+    "SkillID": "10585",
+    "SkillName": "隐龙诀",
+    "MaxLevel": "14",
+    "KindType": "None",
+    "ScriptFile": "凌雪阁\\凌雪阁_套路_内功_输出心法.lua",
+    "KungfuMountID": "16"
+  },
+  {
+    "SkillID": "10615",
+    "SkillName": "太玄经",
+    "MaxLevel": "14",
+    "KindType": "None",
+    "ScriptFile": "衍天/衍天_套路_太玄经.lua",
+    "KungfuMountID": "17"
+  },
+  {
+    "SkillID": "10626",
+    "SkillName": "灵素",
+    "MaxLevel": "14",
+    "KindType": "Physics",
+    "ScriptFile": "北天药宗\\北天药宗_套路_内功_灵素.lua",
+    "KungfuMountID": "18"
+  },
+  {
+    "SkillID": "10627",
+    "SkillName": "无方",
+    "MaxLevel": "14",
+    "KindType": "Physics",
+    "ScriptFile": "北天药宗\\北天药宗_套路_内功_无方.lua",
+    "KungfuMountID": "18"
+  },
+  {
+    "SkillID": "10698",
+    "SkillName": "孤锋诀",
+    "MaxLevel": "14",
+    "KindType": "LunarMagic",
+    "ScriptFile": "刀宗\\套路及子技能\\内功_刀宗.lua",
+    "KungfuMountID": "19"
+  },
+  {
+    "SkillID": "10756",
+    "SkillName": "山海心诀",
+    "MaxLevel": "14",
+    "KindType": "Physics",
+    "ScriptFile": "万灵山庄\\万灵山庄_套路_内功_万灵山庄.lua",
+    "KungfuMountID": "20"
+  },
+  {
+    "SkillID": "10786",
+    "SkillName": "周天功",
+    "MaxLevel": "14",
+    "KindType": "Physics",
+    "ScriptFile": "段氏/段氏技能/段氏心法用脚本.lua",
+    "KungfuMountID": "21"
+  }
+]

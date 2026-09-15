@@ -452,6 +452,9 @@ class ActorProReplayer(ReplayerBase):
                     self.jsonEquip[id] = jsonEquip2
                     self.strEquip[id] = strEquip2
                     self.equipmentDict[id] = jsonEquip2
+                    if isLuoyangMap(self.mapDetail):
+                        strEquip = strEquip2
+                        flag = True
                 else:
                     # 尝试从服务器空手套白狼
                     flag = True
@@ -474,12 +477,18 @@ class ActorProReplayer(ReplayerBase):
                 self.jsonEquip[id] = jsonEquip
                 self.strEquip[id] = strEquip
 
+                if isLuoyangMap(self.mapDetail):
+                    # Rebuild with the current season and kungfu even when gear
+                    # is unchanged between two boss attempts.
+                    flag = True
+
                 # print("[playID]", self.bld.info.getName(id))
                 # print("[TestJsonEquip]", jsonEquip)
                 # print("[strEquip]", strEquip)
 
             if flag:  # 需要向服务器请求
-                self.window.playerEquipment[id] = self.bld.info.player[id].equip
+                if self.bld.info.player[id].equip:
+                    self.window.playerEquipment[id] = self.bld.info.player[id].equip
                 requests["players"].append(
                     {"equipStr": strEquip, "id": id, "name": self.bld.info.getName(id), "occ": occDetailList[id],
                      "server": self.bld.info.server, "score": self.bld.info.player[id].equipScore})
@@ -498,6 +507,8 @@ class ActorProReplayer(ReplayerBase):
                 results[playerEquip["id"]] = {}
                 results[playerEquip["id"]]["base"] = ad.GetBaseAttrib(playerEquip["equipStr"], playerEquip["occ"])
                 results[playerEquip["id"]]["panel"] = ad.GetPanelAttrib(playerEquip["equipStr"], playerEquip["occ"])
+                results[playerEquip["id"]]["status"] = "calculated" if results[playerEquip["id"]]["base"] is not None else "notfound"
+                results[playerEquip["id"]]["gameEdition"] = self.gameEdition
 
             # print("[Checkpoint2]", self.window.playerEquipmentAnalysed)
 
@@ -1614,6 +1625,8 @@ class ActorProReplayer(ReplayerBase):
 
         combatTracker.export(self.battleTime, self.bh.sumTime("dps"), self.bh.sumTime("healer"), self.stunCounter)
         self.combatTracker = combatTracker
+        if combatTracker.isCangsheng and combatTracker.rdpsStatus.get("status") == "incomplete":
+            self.attributeStatus.update(combatTracker.rdpsStatus)
         if self.attributeStatus.get("status") == "incomplete":
             self.detail["rdpsStatus"] = getattr(combatTracker, "rdpsStatus", self.attributeStatus)
             byName = {self.bld.info.getName(player): player for player in self.bld.info.player}

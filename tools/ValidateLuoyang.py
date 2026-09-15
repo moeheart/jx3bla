@@ -79,10 +79,12 @@ def check_windows(actor):
             tracker = CombatTrackerWindow(actor.combatTracker)
             tracker.loadWindow()
             tracker.setStat("rdps")
-            assert "待校准" in tracker.rightTitle.cget("text")
+            supported = actor.combatTracker.rdpsStatus['status'] == 'supported'
+            assert ("待校准" not in tracker.rightTitle.cget("text")) == supported
             tracker.setStat("ndps")
             root.update_idletasks()
-            return {"bossWindow": type(window).__name__, "widgets": "constructed", "rdps": "marked incomplete"}
+            return {"bossWindow": type(window).__name__, "widgets": "constructed",
+                    "rdps": actor.combatTracker.rdpsStatus['status']}
     finally:
         root.destroy()
 
@@ -109,8 +111,9 @@ def main():
         if hashlib.sha256(path.read_bytes()).hexdigest() != row["sha256"].lower():
             raise AssertionError("Source changed since backup: " + path.name)
         with patch("socket.socket.connect", side_effect=AssertionError("Network disabled in validation")):
-            with contextlib.redirect_stdout(io.StringIO()):
-                actor = replay(path, window, args.healers)
+            with patch('replayer.ActorReplayPro.ActorProReplayer.prepareUpload'), patch('replayer.ReplayerBase.ReplayerBase.prepareUpload'):
+                with contextlib.redirect_stdout(io.StringIO()):
+                    actor = replay(path, window, args.healers)
         assert actor.bossAnalyseName == getJclEncounter(path)[1]
         assert actor.bossAnalyser.__class__.__module__.startswith("replayer.boss.luoyangzhizhan.")
         assert 0 < actor.battleTime <= actor.bld.log[-1].time - actor.bld.log[0].time + 6001
@@ -118,11 +121,10 @@ def main():
         assert actor.win in (0, 1)
         assert all(len(record) == 7 for record in actor.potList), "Battle-event rows must fit the seven-field UI contract"
         assert actor.combatTracker.rdpsStatus["gameEdition"] == 160
-        assert actor.combatTracker.rdpsStatus["status"] == "incomplete"
-        assert not actor.combatTracker.rdps["player"]
+        assert actor.combatTracker.rdpsStatus["status"] == "supported", actor.combatTracker.rdpsStatus
         assert all(counter.buffTimeIntegral() <= actor.battleTime + 1 for counter in actor.battleDict.values())
         assert all(event["start"] <= actor.finalTime for event in actor.bh.log["environment"])
-        metrics = {key: getattr(actor.combatTracker, key)["sum"] for key in ("ndps", "mndps", "hps", "ahps", "rhps")}
+        metrics = {key: getattr(actor.combatTracker, key)["sum"] for key in ("ndps", "mndps", "rdps", "mrdps", "hps", "ahps", "rhps")}
         assert all(math.isfinite(value) and value >= 0 for value in metrics.values())
         summary = {
             "file": path.name, "sha256": row["sha256"].lower(),

@@ -2,3 +2,5 @@
 equip/resources/cangshengtf/*.tab -text
 equip/resources/cangshengtf/*.txt -text
 equip/resources/cangshengtf/*.luac -text
+equip/resources/cangshengtf/*.json -text
+equip/resources/cangshengtf/xinfa_evidence/** -text

@@ -5,6 +5,11 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 import re
 from tools.Attribute import ATTRIB_TYPE
+from equip.CangshengAttributeData import conversion_spec
+
+EXTRA_ATTRIBUTE_TYPES = {'atPVXAllRound', 'atTherapyPVXAllRound',
+                       'atMaxLifeBase', 'atMaxLifePercentAdd', 'atTherapyPowerBasePercentAdd',
+                       'atDstNpcDamageCoefficient', 'atUnlimitCriticalDamagePowerKiloNumRate'}
 
 DAMAGE_SCHOOLS = ('Physics', 'Solar', 'Neutral', 'Lunar', 'Poison')
 ABSORB_ATTRIBUTES = {
@@ -61,7 +66,8 @@ def parse_buff(row):
     absorb = False
     for attribute, value in begin_attributes(row):
         absorb = absorb or attribute in ABSORB_ATTRIBUTES
-        relevant = (attribute in ATTRIB_TYPE or attribute in THERAPY_ATTRIBUTES
+        is_boost = attribute in ATTRIB_TYPE or attribute in EXTRA_ATTRIBUTE_TYPES or conversion_spec(attribute) is not None
+        relevant = (is_boost or attribute in THERAPY_ATTRIBUTES
                     or attribute == 'atGlobalResistPercent'
                     or any(attribute in ('at%sDamageCoefficient' % school,
                                          'at%sResistPercent' % (school if school == 'Physics' else school + 'Magic'))
@@ -70,7 +76,7 @@ def parse_buff(row):
             continue
         number = numeric(value, 'buff %s.%s %s' % (row['ID'], row['Level'], attribute))
         raw[attribute] = raw.get(attribute, 0) + number
-        if attribute in ATTRIB_TYPE:
+        if is_boost:
             boost[attribute] = boost.get(attribute, 0) + number
         if attribute in THERAPY_ATTRIBUTES:
             therapy[attribute] = therapy.get(attribute, 0) + number
@@ -118,13 +124,16 @@ def build_tables(resources):
 
 
 def write_tables(tables, output):
-    with Path(output).open('w', encoding='utf-8', newline='\n') as stream:
+    output = Path(output)
+    temporary = output.with_suffix(output.suffix + '.tmp')
+    with temporary.open('w', encoding='utf-8', newline='\n') as stream:
         stream.write('# [Auto-Generated File] See release/NameGenerator.py and source_manifest.json.\n')
         for name, mapping in tables.items():
             stream.write(name + ' = {\n')
             for key, value in mapping.items():
                 stream.write('    %r: %r,\n' % (key, value))
             stream.write('}\n')
+    temporary.replace(output)
 
 
 def main():

@@ -55,6 +55,7 @@ Beta 离线版额外打包的资源：
 - `equip/resources/Set.tab`
 - `icons/`
 - `equip/resources/cangshengtf/` 下对应八份独立装备表（8.16 体服版）
+- `equip/resources/cangshengtf/StrengthableAttrib.tab`、`xinfa50.json`、`luoyang_npc_defense.json`
 
 8.16 的增益表重生成命令：
 
@@ -62,7 +63,7 @@ Beta 离线版额外打包的资源：
 python -m release.NameGenerator --resources equip/resources/cangshengtf --output replayer/NameCangsheng.py
 ```
 
-旧版 `replayer/Name.py` 保留用于旧赛季，不用新源覆盖。苍生铸世面板和 rDPS 的未校准状态详见 `docs/160/苍生铸世接入手册.md`。
+旧版 `replayer/Name.py` 保留用于旧赛季，不用新源覆盖。苍生铸世面板和 rDPS 的启用范围与验证边界详见 `docs/160/苍生铸世接入手册.md`。心法原件、原生机器码和审计工具用于开发复核，无需随运行包发布。
 
 说明：
 

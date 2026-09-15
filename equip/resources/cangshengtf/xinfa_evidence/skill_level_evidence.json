@@ -1,0 +1,258 @@
+{
+  "10081": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10081",
+    "SkillLevel": "5",
+    "Desc": "冰心诀",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10080": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10080",
+    "SkillLevel": "5",
+    "Desc": "素女心经",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10756": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10756",
+    "SkillLevel": "5",
+    "Desc": "山海心诀",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10021": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10021",
+    "SkillLevel": "5",
+    "Desc": "武经：花间游",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10028": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10028",
+    "SkillLevel": "5",
+    "Desc": "医经：离经易道",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10268": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10268",
+    "SkillLevel": "5",
+    "Desc": "笑尘诀",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10176": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10176",
+    "SkillLevel": "5",
+    "Desc": "补天诀",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10175": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10175",
+    "SkillLevel": "5",
+    "Desc": "毒经",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10585": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10585",
+    "SkillLevel": "5",
+    "Desc": "隐龙诀",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10698": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10698",
+    "SkillLevel": "5",
+    "Desc": "孤锋诀",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10627": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10627",
+    "SkillLevel": "5",
+    "Desc": "无方",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10626": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10626",
+    "SkillLevel": "5",
+    "Desc": "灵素",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10225": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10225",
+    "SkillLevel": "5",
+    "Desc": "天罗诡道",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10224": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10224",
+    "SkillLevel": "5",
+    "Desc": "惊羽诀",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10062": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10062",
+    "SkillLevel": "5",
+    "Desc": "铁牢律",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10026": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10026",
+    "SkillLevel": "5",
+    "Desc": "傲血战意",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10003": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10003",
+    "SkillLevel": "5",
+    "Desc": "易筋经",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10002": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10002",
+    "SkillLevel": "5",
+    "Desc": "洗髓经",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10243": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10243",
+    "SkillLevel": "5",
+    "Desc": "明尊琉璃体",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10242": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10242",
+    "SkillLevel": "5",
+    "Desc": "焚影圣诀",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10786": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10786",
+    "SkillLevel": "5",
+    "Desc": "周天功",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10015": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10015",
+    "SkillLevel": "5",
+    "Desc": "太虚剑意",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10014": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10014",
+    "SkillLevel": "5",
+    "Desc": "紫霞功",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10390": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10390",
+    "SkillLevel": "5",
+    "Desc": "分山劲",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10389": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10389",
+    "SkillLevel": "5",
+    "Desc": "铁骨衣",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10533": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10533",
+    "SkillLevel": "5",
+    "Desc": "凌海诀",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10144": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10144",
+    "SkillLevel": "5",
+    "Desc": "问水诀",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10145": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10145",
+    "SkillLevel": "5",
+    "Desc": "山居剑意",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10615": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10615",
+    "SkillLevel": "5",
+    "Desc": "太玄经",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10447": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10447",
+    "SkillLevel": "5",
+    "Desc": "莫问",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10448": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10448",
+    "SkillLevel": "5",
+    "Desc": "相知",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  },
+  "10464": {
+    "RequirePlayerLevel": "50",
+    "SkillID": "10464",
+    "SkillLevel": "5",
+    "Desc": "北傲诀",
+    "IsEnableAutoLearning": "1",
+    "CostTrain": "0"
+  }
+}

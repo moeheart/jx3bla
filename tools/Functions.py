@@ -1070,10 +1070,12 @@ def finalCluster(teamLog):
 
     return teamCluster, numCluster
 
-def getCoefficient(coeff):
+def getCoefficient(coeff, gameEdition=0):
     '''
     获取对应变量的等级系数.
     '''
+    if int(gameEdition or 0) >= 160:
+        return COEFF50.get(coeff, 1)
     if CHAPTER == 110:
         if coeff in COEFF110:
             return COEFF110[coeff]

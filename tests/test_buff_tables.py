@@ -164,6 +164,53 @@ class ReplayProfileTests(unittest.TestCase):
         self.assertEqual(new.resistBuff["target"], {})
         self.assertIn("2,33086,999", old.resistBuff["target"])
 
+    def test_qiusu_removing_old_slot_preserves_new_live_instance(self):
+        tracker = self.tracker("25人普通洛阳之战", players=True)
+        tracker.recordBuff(self.event(source='a', slot='81635', id='29294', level=1, stack=81, valid=True))
+        counter = tracker.boostCounter['target']
+        # The actual clear deletes another slot while 81635 is still active.
+        tracker.recordBuff(self.event(source='a', slot='81771', id='29294', level=1, stack=0, time=1100))
+        key = ('2,29294,1', 'slot', '81635')
+        self.assertEqual(counter.boost[key]['effect']['atStrainBase'], 567)
+        tracker.recordBuff(self.event(source='a', slot='81635', id='29294', level=1, stack=81, valid=False, time=1200))
+        self.assertEqual(counter.boost, {})
+        tracker.recordBuff(self.event(source='a', slot='81635', id='29294', level=1, stack=81, valid=True, time=1300))
+        self.assertIn(key, counter.boost)
+
+    def test_boost_expiry_and_refresh_use_log_end_frame(self):
+        tracker = self.tracker('25人普通洛阳之战', players=True)
+        buff = self.event(id='29294', level=1, stack=81)
+        buff.frame, buff.end = 100, 116  # One second remaining at t=1000.
+        tracker.recordBuff(buff)
+        counter = tracker.boostCounter['target']
+        tracker.checkRemoveBuff(1999)
+        self.assertTrue(counter.boost)
+        buff.time, buff.frame, buff.end = 1900, 114, 146
+        tracker.recordBuff(buff)  # Refreshed expiry is t=3900, not t=2000.
+        tracker.checkRemoveBuff(2000)
+        self.assertTrue(counter.boost)
+        tracker.checkRemoveBuff(3900)
+        self.assertFalse(counter.boost)
+
+    def test_other_zyhr_cast_cannot_replace_existing_buff_provider(self):
+        tracker = self.tracker('25人普通洛阳之战', players=True)
+        tracker.recordBuff(self.event(source='a', id='20854', level=1, stack=84))
+        cast = SimpleNamespace(id='27674', level=1, scheme=1, full_id='1,27674,1', caster='b',
+            target='target', time=1100, damage=0, damageEff=0, heal=0, healEff=0, effect=0, fullResult={})
+        tracker.recordSkill(cast)
+        self.assertEqual(tracker.boostCounter['target'].zyhr, 'a')
+        tracker.recordBuff(self.event(source='b', slot='2', id='20854', level=1, stack=84, time=1200))
+        self.assertEqual(tracker.boostCounter['target'].zyhr, 'b')
+
+    def test_first_zyhr_proc_uses_cast_until_buff_record_arrives(self):
+        tracker = self.tracker('25人普通洛阳之战', players=True)
+        cast = SimpleNamespace(id='27674', level=1, scheme=1, full_id='1,27674,1', caster='b',
+            target='target', time=1100, damage=0, damageEff=0, heal=0, healEff=0, effect=0, fullResult={})
+        tracker.recordSkill(cast)
+        self.assertEqual(tracker.boostCounter['target'].zyhr, 'b')
+        tracker.recordBuff(self.event(source='a', id='20854', level=1, stack=84, time=1200))
+        self.assertEqual(tracker.boostCounter['target'].zyhr, 'a')
+
     def test_nonzero_stack_invalid_instance_stops_immediately_and_can_reactivate(self):
         tracker = self.tracker("25人普通洛阳之战", players=True)
         tracker.recordBuff(self.event(slot="248", valid=True))
@@ -195,12 +242,11 @@ class ReplayProfileTests(unittest.TestCase):
 
     def test_new_equipment_does_not_make_up_a_panel(self):
         display = AttributeDisplay(gameEdition=160)
-        self.assertEqual(display.status["status"], "incomplete")
+        self.assertEqual(display.status["status"], "supported")
         self.assertIsNone(display.GetBaseAttrib("", "22h"))
         self.assertIsNone(display.GetPanelAttrib("", "22h"))
         self.assertIsNone(display.Display("", "22h"))
-        with self.assertRaises(NotImplementedError):
-            display.ac.CalculateAll("")
+        self.assertEqual(display.ac.CalculateAll(""), {})
         self.assertEqual(display.GetRawEquipmentFeature("7,112206")["atPhysicsShieldBase"], 29)
         with self.assertRaises(KeyError):
             display.GetRawEquipmentFeature("7,999999999")

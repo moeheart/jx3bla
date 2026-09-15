@@ -3,7 +3,7 @@
 # 这个属性计算只计算装备提供的属性，需要与AttributeDisplay配合计算心法的属性得到最终结果。这个命名逻辑以后再调整。
 
 from equip.EquipmentInfo import EquipmentInfo
-from equip.EquipmentExport import ImportExcelEquipment, getPlug
+from equip.EquipmentExport import ImportExcelEquipment
 
 class AttributeCal():
     '''
@@ -38,16 +38,24 @@ class AttributeCal():
         通过字符串形式的装备信息计算属性.
         格式由这一标准定义：https://www.jx3box.com/bbs/22011
         '''
-        if self.gameEdition >= 160:
-            raise NotImplementedError("50级装备到面板换算尚未完整核实，请使用原始装备词条接口。")
-        equips = self.im.importData(attrStr)
+        self.equipmentInfo.unsupportedEffects.clear()
+        self.lastWarnings = []
+        if not attrStr.strip():
+            return {}
+        equips = self.im.importData(attrStr.rstrip('\r\n'))
         sumAttrib = {}
         sumPlug = 0
         sumPlugLvl = 0
         setCount = {}  # 套装统计
         for line in equips:
+            if equips[line].get('id', '').strip() in ('', '0'):
+                continue
             #计算基础属性
-            feature = self.equipmentInfo.getFeature(equips[line]["id_full"])
+            refineLvl = int(equips[line].get("star", 0))
+            if not 0 <= refineLvl <= 8:
+                raise ValueError("装备精炼等级超出0至8: %s" % refineLvl)
+            feature = self.equipmentInfo.getFeature(
+                equips[line]["id_full"], refineLvl if self.gameEdition >= 160 else 0)
             if feature == 0:
                 continue
 
@@ -60,11 +68,10 @@ class AttributeCal():
             singleAttrib = self.attribMerge(singleAttrib, feature)
 
             #计算精炼
-            refineLvl = int(equips[line].get("star", 0))
-            # refineLvl = 6  # 强制精6
             refineRate = [0, 0.005, 0.013, 0.024, 0.038, 0.055, 0.075, 0.098, 0.124][refineLvl]
-            for attrib in singleAttrib:
-                singleAttrib[attrib] = int(singleAttrib[attrib] * (1 + refineRate) + 0.5)
+            if self.gameEdition < 160:
+                for attrib in singleAttrib:
+                    singleAttrib[attrib] = int(singleAttrib[attrib] * (1 + refineRate) + 0.5)
 
             #计算镶嵌
             for i in range(1, 4):
@@ -73,17 +80,12 @@ class AttributeCal():
                     plugLvl = 0
                 else:
                     plugLvl = int(plugLvl)
-                if plugLvl != 0:
-                    sumPlug += 1
-                    sumPlugLvl += plugLvl
-                # plugLvl = 8  # 强制插8
-                # plugRate = [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.2, 1.55][plugLvl]
-                plugRate = [0, 0.19, 0.39, 0.585, 0.78, 0.975, 1.17, 1.75, 2.6][plugLvl]
                 plugID = feature['DiamondAttributeID%d' % i]
-                if plugID == '' or plugLvl == 0 or plugID == 0:
+                if plugID in ('', '0', 0) or plugLvl == 0:
                     continue
-                plugAttribInfo = self.equipmentInfo.attrib[plugID]
-                plugAttrib = {plugAttribInfo[0]: int(int(plugAttribInfo[1]) * plugRate)}
+                sumPlug += 1
+                sumPlugLvl += plugLvl
+                plugAttrib = self.equipmentInfo.getGemAttribute(plugID, plugLvl)
                 singleAttrib = self.attribMerge(singleAttrib, plugAttrib)
 
             #计算附魔
@@ -91,49 +93,50 @@ class AttributeCal():
                 magicID = equips[line].get("magic%d"%i, '0')
                 if magicID in ['', ' ', '0']:
                     continue
-                if magicID in ["11272"]:  # 治疗鞋大附魔
+                if magicID in ["11272"] and self.gameEdition < 160:  # 旧版本治疗鞋大附魔
                     magicAttrib = {'atTherapyPowerBase': 241}  #TODO 记得改
-                elif magicID in self.equipmentInfo.enchant:
-                    magicAttribInfo = self.equipmentInfo.enchant[magicID]
-                    if magicAttribInfo[0] in ["atExecuteScript"]:
-                        continue
-                    magicAttrib = {magicAttribInfo[0]: int(magicAttribInfo[1])}
+                elif magicID in self.equipmentInfo.enchantAttributes:
+                    magicAttrib = {}
+                    for name, value in self.equipmentInfo.enchantAttributes[magicID]:
+                        magicAttrib = self.attribMerge(magicAttrib, self.equipmentInfo.staticAttribute(
+                            name, value, "附魔%s" % magicID))
                 else:
+                    if self.gameEdition >= 160:
+                        raise KeyError("附魔未收录于当前体服底表: %s" % magicID)
                     magicAttrib = {}
                 singleAttrib = self.attribMerge(singleAttrib, magicAttrib)
             sumAttrib = self.attribMerge(singleAttrib, sumAttrib)
 
         #计算五彩石
         if "0" in equips:
-            colorID = equips["0"]["plug0"]
+            colorID = equips["0"].get("plug0", "0")
             if colorID in self.equipmentInfo.color:
                 colorAttrib = self.equipmentInfo.color[colorID]
-                # print("[colorID]", colorID)
-                # print("[colorAttrib]", colorAttrib)
                 for i in range(3):  # 按属性个数排序
-                    # if i*4+3 > len(colorAttrib) or colorAttrib[i*4+2] == "" or colorAttrib[i*4+1] == "":
-                    #     continue
                     if colorAttrib[i*4+2] == "" or colorAttrib[i*4+1] == "":
                         continue
                     if sumPlug >= int(colorAttrib[i*4+2]) and sumPlugLvl >= int(colorAttrib[i*4+3]):
-                        colorSingleAttrib = {colorAttrib[i*4]: int(colorAttrib[i*4+1])}
+                        colorSingleAttrib = self.equipmentInfo.staticAttribute(
+                            colorAttrib[i*4], colorAttrib[i*4+1], "五彩石%s" % colorID)
                         sumAttrib = self.attribMerge(colorSingleAttrib, sumAttrib)
+            elif self.gameEdition >= 160 and colorID.strip() not in ('', '0'):
+                raise KeyError("五彩石未收录于当前体服底表: %s" % colorID)
 
         #计算套装
         for line in setCount:
             if line not in self.equipmentInfo.set:
                 continue
             setInfo = self.equipmentInfo.set[line]
-            for i in range(10):
-                setN = int(2 + i / 2)
+            for setN, setAttribID in setInfo:
                 if setCount[line] >= setN:  # 满足套装数量条件
-                    setAttribID = setInfo[i]
                     if setAttribID in ['', "0", 0]:
                         continue
                     setAttribRes = self.equipmentInfo.attrib[setAttribID]
-                    setAttrib = {setAttribRes[0]: int(setAttribRes[1])}
+                    setAttrib = self.equipmentInfo.staticAttribute(
+                        setAttribRes[0], setAttribRes[1], "套装%s/%s件" % (line, setN))
                     sumAttrib = self.attribMerge(setAttrib, sumAttrib)
 
+        self.lastWarnings = sorted(self.equipmentInfo.unsupportedEffects)
         return sumAttrib
 
     def __init__(self, gameEdition=0):
@@ -141,6 +144,7 @@ class AttributeCal():
         self.equipmentInfo = EquipmentInfo(gameEdition=gameEdition)
         self.equipmentInfo.LoadFromStaticData()
         self.im = ImportExcelEquipment()
+        self.lastWarnings = []
 
 if __name__ == "__main__":
     str = """25441	6	11163	0	6	 	 	 
