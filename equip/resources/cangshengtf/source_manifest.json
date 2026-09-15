@@ -1,0 +1,218 @@
+{
+  "season": "苍生铸世",
+  "game_edition": 160,
+  "client_version": "1.6.0.9503",
+  "client_mode": "zhcn_exp",
+  "source_root": "C:\\Develop\\26\\jx3decrypt\\critical_files\\result_exp",
+  "files": [
+    {
+      "name": "buff.tab",
+      "bytes": 15459043,
+      "mtime_ns": 1789472424405178400,
+      "sha256": "1222607f700a5ce6a97c2595012f86b470c4c610dd67707293ea7d7fea04d73c"
+    },
+    {
+      "name": "buff2.tab",
+      "bytes": 1809091,
+      "mtime_ns": 1789472424414187100,
+      "sha256": "6830f3e053b1a30ae7f072892489442f665514e3b574aa177d391590a3273a2b"
+    },
+    {
+      "name": "buff.txt",
+      "bytes": 3433802,
+      "mtime_ns": 1789472424429709800,
+      "sha256": "f6f7c2585be431a3238c6681d9284798a5dccd8c3f557f04d0fb7c24f9a904ba"
+    },
+    {
+      "name": "buff2.txt",
+      "bytes": 667352,
+      "mtime_ns": 1789472424435219700,
+      "sha256": "6fc02e74693df9b19463ebe4060348ffeb0857cb827f8680ae22bb6b140fe412"
+    },
+    {
+      "name": "skill.txt",
+      "bytes": 6224674,
+      "mtime_ns": 1789472424353504700,
+      "sha256": "44e9d91b148d2b6905bc676ebf0e4db2fd0abbab2561f37bfa1dd0e1c57e22a9"
+    },
+    {
+      "name": "skill2.txt",
+      "bytes": 331175,
+      "mtime_ns": 1789472424358593000,
+      "sha256": "7518e4a66f703eed0d63129e5759cd9744ff5b764fb4606efff7693f5f0a229b"
+    },
+    {
+      "name": "Custom_Armor.tab",
+      "bytes": 27378505,
+      "mtime_ns": 1789472424673239300,
+      "sha256": "d200f8d8764be2ddbf0996451b34cc730cba281948cbea9125af8c76174fc85a"
+    },
+    {
+      "name": "Custom_Trinket.tab",
+      "bytes": 13677068,
+      "mtime_ns": 1789472424765078400,
+      "sha256": "843760b3ee0a362a028f7732e27fd223cf4b4873c26b48e66bb3f13353511fe9"
+    },
+    {
+      "name": "Custom_Weapon.tab",
+      "bytes": 18508764,
+      "mtime_ns": 1789472424724298100,
+      "sha256": "82fb0a2507de9a4efbb7e00ce05b0bb781d6c70e695eea69d3b6784d03badbc0"
+    },
+    {
+      "name": "attrib.tab",
+      "bytes": 6157649,
+      "mtime_ns": 1789472424442227500,
+      "sha256": "7480ff3bdd0485c6c755624579b599b6dbce910e9b4523726476222857dad476"
+    },
+    {
+      "name": "enchant.tab",
+      "bytes": 2138023,
+      "mtime_ns": 1789472424452244000,
+      "sha256": "a0cf9abb7df5717955b38163fd354419b9c39567d60c05126c0fd5c1c3552f93"
+    },
+    {
+      "name": "item.txt",
+      "bytes": 41945359,
+      "mtime_ns": 1789472424556453000,
+      "sha256": "2a6b421eb387c153c9e2a4aed0dcd4332b0824d28dc9df17942b55b82f52a174"
+    },
+    {
+      "name": "other.tab",
+      "bytes": 11918798,
+      "mtime_ns": 1789472424591639500,
+      "sha256": "f7ab3899016a77793ecac379831722463a5fc85fbf4c06b79717c37038b335c5"
+    },
+    {
+      "name": "Set.tab",
+      "bytes": 1014365,
+      "mtime_ns": 1789472424598656000,
+      "sha256": "da2be3fd6b4a6683c9dc21f2a156985a15c63feba78c90b79b67b15626e2f2f7"
+    }
+  ],
+  "parameters": {
+    "scripts/Include/数值压缩参数.lua": {
+      "sha256": "8fda354e40846288f577374a6c843102f3f364e07c55ba0b94be16fff2e0173c",
+      "bytes": 3311,
+      "source_path": "C:\\Develop\\21\\jx3bla\\backups\\luoyang-20260915\\parameter-verification\\unpack_result\\scripts\\Include\\数值压缩参数.lua",
+      "mtime_ns": 1789509743700805100,
+      "values": {
+        "fPlayerCriticalCof": 0.75,
+        "fCriticalStrikeParam": 9.609,
+        "fCriticalStrikePowerParam": 3.54,
+        "fDefCriticalStrikeParam": 19.218,
+        "fDecriticalStrikePowerParam": 5.2,
+        "fHitValueParam": 9.195,
+        "fDodgeParam": 13.491,
+        "fParryParam": 15.833,
+        "fInsightParam": 7.117,
+        "fPhysicsShieldParam": 10.912,
+        "fMagicShieldParam": 10.912,
+        "fOvercomeParam": 10.483,
+        "fHasteRate": 10.21,
+        "fToughnessDecirDamageCof": 9.518,
+        "fSurplusParam": 24.558,
+        "fAssistedPowerCof": 9.609
+      },
+      "level_factors": {
+        "30": 330.0,
+        "31": 363.0,
+        "50": 990.0,
+        "51": 1023.0,
+        "52": 1056.0,
+        "53": 1089.0,
+        "54": 1122.0
+      },
+      "client_version": "1.6.0.9503",
+      "extraction_date": "2026-09-15",
+      "verification_9503": "verified: isolated unpack with client file access succeeded; SHA256 identical to the 9479 snapshot",
+      "previous_extraction": {
+        "source_path": "C:\\Develop\\26\\jx3decrypt\\unpack_result_exp\\scripts\\Include\\数值压缩参数.lua",
+        "mtime_ns": 1788862034435552100,
+        "client_version": "1.6.0.9479",
+        "extraction_date": "2026-09-08"
+      },
+      "verified_utc": "2026-09-15T22:03:19.059022+00:00"
+    },
+    "scripts/skill/GlobalParam.lua": {
+      "sha256": "979874a262d1f50cb81109b4a2490d8ea5fe0d58969fb84eafe25faa2865bfc3",
+      "bytes": 3045,
+      "source_path": "C:\\Develop\\21\\jx3bla\\backups\\luoyang-20260915\\parameter-verification\\unpack_result\\scripts\\skill\\GlobalParam.lua",
+      "mtime_ns": 1789509743702309200,
+      "values": {
+        "fPlayerCriticalCof": 0.75,
+        "fCriticalStrikeParam": 9.609,
+        "fCriticalStrikePowerParam": 3.54,
+        "fDefCriticalStrikeParam": 19.218,
+        "fDecriticalStrikePowerParam": 5.2,
+        "fHitValueParam": 9.195,
+        "fDodgeParam": 13.491,
+        "fParryParam": 15.833,
+        "fInsightParam": 7.117,
+        "fPhysicsShieldParam": 10.912,
+        "fMagicShieldParam": 10.912,
+        "fOvercomeParam": 10.483,
+        "fHasteRate": 10.21,
+        "fToughnessDecirDamageCof": 9.518,
+        "fSurplusParam": 24.558,
+        "fAssistedPowerCof": 9.609,
+        "fDecriticalDamagePowerToPhysicsAttackPowerCof": 0.525,
+        "fDecriticalDamagePowerToMagicAttackPowerCof": 0.584,
+        "fDecriticalDamagePowerToMaxLifeBaseCof": 10.0,
+        "nMaxDecriticalDamagePowerEableConvert": 58800.0,
+        "fDecriticalDamagePVPCof": 0.9,
+        "nPhysicsAPToMagicAPCof": 1024.0,
+        "nWeaponToMagicAPCof": 6144.0,
+        "nPhysicsAPToDPS": 8992.534,
+        "nMagicAPToDPS": 9704.743,
+        "nTherapyAPToDPS": 5331.663,
+        "nStrengthToPhysicsAPCof": 195.0,
+        "nStrengthToPhysicsOvercomeCof": 61.0,
+        "nAgilityToPhysicsCriticalCof": 250.0,
+        "nVitalityToMaxLifeCof": 10000.0,
+        "nSpiritToMagicCriticalCof": 250.0,
+        "nSpunkToMagicAPCof": 195.0,
+        "nSpunkToMagicOvercomeCof": 61.0,
+        "nPVXAllRoundToDecriticalDamagePowerCof": 1000.0,
+        "nPVXAllRoundToSurplusValueCof": 0.0,
+        "nPVXAllRoundToStrainCof": 1220.0,
+        "nPVXAllRoundToTherapyPowerCof": 150.0
+      },
+      "client_version": "1.6.0.9503",
+      "extraction_date": "2026-09-15",
+      "verification_9503": "verified: isolated unpack with client file access succeeded; SHA256 identical to the 9479 snapshot",
+      "previous_extraction": {
+        "source_path": "C:\\Develop\\26\\jx3decrypt\\unpack_result_exp\\scripts\\skill\\GlobalParam.lua",
+        "mtime_ns": 1788861907029062400,
+        "client_version": "1.6.0.9479",
+        "extraction_date": "2026-09-08"
+      },
+      "verified_utc": "2026-09-15T22:03:19.059093+00:00"
+    }
+  },
+  "generated_tables": {
+    "SKILL_NAME": 69384,
+    "BOOST_DICT": 13487,
+    "ABSORB_DICT": 1579,
+    "RESIST_DICT": 1304,
+    "RESIST_BY_SCHOOL_DICT": 3431,
+    "THERAPY_DICT": 3052
+  },
+  "runtime_status": {
+    "buff_tables": "current_9503",
+    "equipment_source": "current_9503",
+    "level50_panel_and_rdps": "incomplete",
+    "therapy_attribution": "not_implemented"
+  },
+  "parameter_extraction": {
+    "tool": "C:\\Develop\\26\\jx3decrypt\\unpack.exe",
+    "arguments": [
+      "paths.txt"
+    ],
+    "working_directory": "C:\\Develop\\21\\jx3bla\\backups\\luoyang-20260915\\parameter-verification",
+    "game_root": "C:\\SeasunGame\\Game\\JX3_EXP",
+    "mode": "zhcn_exp",
+    "result": "init PakV4 result: 1; exit code 0",
+    "initial_restricted_attempt": "init PakV4 result: 0; retry with client file access succeeded"
+  }
+}

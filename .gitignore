@@ -33,3 +33,5 @@ venv
 myenv
 node_modules
 .bash_profile
+/backups/
+!equip/resources/cangshengtf/*.txt

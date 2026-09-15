@@ -1,7 +1,7 @@
 python -m release.GeneratorGenerator
 python -m release.EquipmentTypeGenerator
 python -m release.JsonGenerator
-python -m release.NameGenerator
+python -m release.NameGenerator --resources equip/resources/cangshengtf --output replayer/NameCangsheng.py
 git add *.py *.md *.spec release/*.ps1 release/*.md
 git commit -m "[Auto]Update as the log"
 git push origin

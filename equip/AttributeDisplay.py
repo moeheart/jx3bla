@@ -18,6 +18,8 @@ class AttributeDisplay():
         - res: 整理得到的基础属性.
         '''
 
+        if self.gameEdition >= 160:
+            return None
         attrib = self.ac.CalculateAll(str)
 
         # 全心法的基础属性
@@ -61,6 +63,8 @@ class AttributeDisplay():
 
         # 根据装备计算属性
         baseAttrib = self.GetBaseAttrib(str, occ)
+        if baseAttrib is None:
+            return None
         finalAttrib = baseAttrib.copy()
         mainAttribExtra = getExtraAttrib(occ, finalAttrib)
         for attrib in mainAttribExtra:
@@ -91,6 +95,8 @@ class AttributeDisplay():
         属性结果
         '''
 
+        if self.gameEdition >= 160:
+            return None
         result = {}
 
         # 根据装备计算属性
@@ -172,8 +178,16 @@ class AttributeDisplay():
 
         return result
 
-    def __init__(self):
-        self.ac = AttributeCal()
+    def __init__(self, gameEdition=0):
+        self.gameEdition = int(gameEdition or 0)
+        self.status = {"status": "supported", "gameEdition": self.gameEdition}
+        if self.gameEdition >= 160:
+            self.status.update(status="incomplete", reason="50级心法基础属性、装备换算和首领防御尚未完整核实，暂不推算面板与rDPS。")
+        self.ac = AttributeCal(gameEdition=self.gameEdition)
+
+    def GetRawEquipmentFeature(self, full_id):
+        """Return verified item-table fields without pretending they are a panel."""
+        return self.ac.equipmentInfo.getFeature(full_id)
 
 if __name__ == "__main__":
     str = """27106	0	0	0	4			

@@ -95,6 +95,9 @@ class SpecificBossWindow(Window):
         window.geometry(size)
         window.protocol('WM_DELETE_WINDOW', self.final)
         self.window = window
+        status = self.detail.get("attributeStatus", {})
+        if status.get("status") == "incomplete":
+            tk.Label(window, text=status["reason"], fg="#995500", wraplength=1080).pack()
 
     def constructCommonHeader(self, tb, stunDescription=""):
         '''
@@ -104,7 +107,10 @@ class SpecificBossWindow(Window):
         - stunDescription: 被控栏的描述.
         '''
         tb.AppendHeader("玩家名", "", width=13)
-        tb.AppendHeader("rDPS/分数", "对于DPS或T心法显示rDPS，表示将所有增益转移到对应来源之后的每秒伤害。\n对于治疗心法显示综合评分，表示综合技能数、战斗效率、增益覆盖、rHPS的评分。")
+        if self.detail.get("attributeStatus", {}).get("status") == "incomplete":
+            tb.AppendHeader("实测DPS/HPS", "显示日志实测伤害或有效治疗。50级属性尚未完整校准，rDPS、心法评分和排名暂不展示。")
+        else:
+            tb.AppendHeader("rDPS/分数", "对于DPS或T心法显示rDPS，表示将所有增益转移到对应来源之后的每秒伤害。\n对于治疗心法显示综合评分，表示综合技能数、战斗效率、增益覆盖、rHPS的评分。")
         tb.AppendHeader("排名", "前一项的排名，表示超过了百分之多少的玩家。\n有时这个排名会与详细复盘中不一致，这是因为这里是“全时刻排名”，而详细复盘中是“即时排名”。")
         tb.AppendHeader("装分", "玩家的装分，可能会获取失败。\n被星号标记的装分表示对应的装备已经获取失败，但服务器可以从最近的战斗记录中读取到缓存。")
         tb.AppendHeader("详情", "装备详细描述。")
@@ -149,7 +155,11 @@ class SpecificBossWindow(Window):
         color = getColor(line["occ"])
         tb.AppendContext(name, color=color, width=13)
 
-        if getOccType(line["occ"]) != "healer":
+        if line.get("rdpsStatus") == "incomplete":
+            value = line.get("hps", 0) if getOccType(line["occ"]) == "healer" else line.get("ndps", 0)
+            tb.AppendContext(str(value), color="#000000")
+            text3, color3 = "待校准", "#995500"
+        elif getOccType(line["occ"]) != "healer":
             tb.AppendContext(str(line["rdps"]), color="#000000")
             text3 = str(line["rdpsRank"])
             color3 = getRankColor(line["rdpsRank"])

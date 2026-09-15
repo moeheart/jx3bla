@@ -22,6 +22,11 @@ beta_datas = [
     ("equip/resources/Set.tab", "equip/resources"),
 ] + icon_datas
 
+# The beta reads the verified 50-level item snapshot separately from legacy data.
+for file in ("Custom_Trinket.tab", "Custom_Armor.tab", "Custom_Weapon.tab",
+             "attrib.tab", "enchant.tab", "item.txt", "other.tab", "Set.tab"):
+    beta_datas.append(("equip/resources/cangshengtf/" + file, "equip/resources/cangshengtf"))
+
 
 a = Analysis(
     ['MainWindow.py'],

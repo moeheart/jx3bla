@@ -38,6 +38,8 @@ class AttributeCal():
         通过字符串形式的装备信息计算属性.
         格式由这一标准定义：https://www.jx3box.com/bbs/22011
         '''
+        if self.gameEdition >= 160:
+            raise NotImplementedError("50级装备到面板换算尚未完整核实，请使用原始装备词条接口。")
         equips = self.im.importData(attrStr)
         sumAttrib = {}
         sumPlug = 0
@@ -134,8 +136,9 @@ class AttributeCal():
 
         return sumAttrib
 
-    def __init__(self):
-        self.equipmentInfo = EquipmentInfo()
+    def __init__(self, gameEdition=0):
+        self.gameEdition = int(gameEdition or 0)
+        self.equipmentInfo = EquipmentInfo(gameEdition=gameEdition)
         self.equipmentInfo.LoadFromStaticData()
         self.im = ImportExcelEquipment()
 

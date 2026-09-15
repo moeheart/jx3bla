@@ -82,12 +82,12 @@ class BattleLogData():
         firstBattleInfo = True
 
         print("读取文件：%s" % filePath)
+        with open(filePath, "rb") as f:
+            raw = f.read()
         try:
-            f = open(filePath, "r")
-            s = f.read()
-        except:
-            f = open(filePath, "r", encoding='utf-8')
-            s = f.read()
+            s = raw.decode("utf-8-sig")
+        except UnicodeDecodeError:
+            s = raw.decode("gb18030")
         jclRaw = s.strip('\n').split('\n')
 
         maxN = len(jclRaw)
@@ -190,15 +190,7 @@ class BattleLogData():
 
         #读取全局数据
         self.info.skill = {}
-        map_origin = filePath.split('/')[-1].split('\\')[-1].split('-')[6].split('(')[0]
-        if map_origin in MAP_TRADITIONAL:
-            self.info.map = MAP_TRADITIONAL[map_origin]
-        else:
-            self.info.map = map_origin
-        try:
-            self.info.boss = filePath.split('/')[-1].split('\\')[-1].split('-')[7].split('.')[0].split('(')[0]
-        except:
-            self.info.boss = "未知"
+        self.info.map, self.info.boss = getJclEncounter(filePath)
         print("[Map]", self.info.map)
         print("[Boss]", self.info.boss)
 

@@ -68,6 +68,12 @@ from replayer.boss.langfengxuancheng.AshinaChengqing import AshinaChengqingWindo
 from replayer.boss.langfengxuancheng.TangHuairen import TangHuairenWindow
 from replayer.boss.langfengxuancheng.LuNianxue import LuNianxueWindow
 from replayer.boss.langfengxuancheng.Qianjiyuanshu import QianjiyuanshuWindow
+from replayer.boss.luoyangzhizhan.TuliHeshun import TuliHeshunWindow
+from replayer.boss.luoyangzhizhan.TianChengsi import TianChengsiWindow
+from replayer.boss.luoyangzhizhan.YimanTwins import YimanTwinsWindow
+from replayer.boss.luoyangzhizhan.AshinaChengqing import LuoyangAshinaChengqingWindow
+from replayer.boss.luoyangzhizhan.ShiChaoyi import ShiChaoyiWindow
+from tools.Names import isLuoyangMap
 
 from window.PotExtendWindow import PotExtendWindow
 from window.Window import Window
@@ -233,7 +239,17 @@ class SingleBossWindow(Window):
         if "boss" in detail:
             print("[Detail-boss]", detail["boss"])
 
-            if detail["boss"] == "张景超":
+            luoyangWindows = {
+                "突利和顺": TuliHeshunWindow,
+                "田承嗣": TianChengsiWindow,
+                "伊曼双子": YimanTwinsWindow,
+                "阿史那承庆": LuoyangAshinaChengqingWindow,
+                "史朝义": ShiChaoyiWindow,
+            }
+            if isLuoyangMap(detail.get("map", "")) and detail["boss"] in luoyangWindows:
+                self.specificBossWindow = luoyangWindows[detail["boss"]](
+                    self.mainWindow.config, effectiveDPSList, detail, occResult, analysedBattleData)
+            elif detail["boss"] == "张景超":
                 self.specificBossWindow = ZhangJingchaoWindow(self.mainWindow.config, effectiveDPSList, detail, occResult,
                                                          analysedBattleData)
             elif detail["boss"] == "刘展":

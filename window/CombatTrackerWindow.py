@@ -73,6 +73,14 @@ class CombatTrackerWindow(Window):
             data = self.act.mndps
             self.rightTitle.configure(text="mnDPS")
         self.data = data
+        if data.get("status") == "incomplete":
+            self.rightTitle.configure(text="%s：待校准" % stat)
+            for table in (self.table, self.table2):
+                for row in table:
+                    for cell in row:
+                        cell.configure(text="")
+            self.table[0][0].configure(text="50级属性待校准")
+            self.highlightPlayer = ""
         dataT = []
         for key in data["player"]:
             dataT.append([key, data["player"][key]])
@@ -121,6 +129,8 @@ class CombatTrackerWindow(Window):
         使右半部分显示对应玩家的统计类型.
         '''
         data = self.data
+        if id not in data["player"]:
+            return
         dataT = []
         for key in data["player"][id]["namedSkill"]:
             dataT.append([key, data["player"][id]["namedSkill"][key]])

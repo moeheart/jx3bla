@@ -50,7 +50,10 @@ class FileLookUp():
         由剑三路径获取MY_DATA数据文件夹路径.
         '''
         resDir = ""
-        pathList = ['Game', 'JX3', 'bin', 'zhcn_hd', 'interface', 'MY#DATA']
+        pathLists = [
+            ['Game', 'JX3', 'bin', 'zhcn_hd', 'interface', 'MY#DATA'],
+            ['Game', 'JX3_EXP', 'bin', 'zhcn_exp', 'interface', 'MY#DATA'],
+        ]
 
         if self.jx3path == "":
             self.getPathFromWinreg()
@@ -59,10 +62,13 @@ class FileLookUp():
         self.jx3path = self.jx3path.strip('/').replace('/', '\\')
 
         flag = 0
-        for i in range(len(pathList)):
-            datapath = "%s\\%s" % (self.jx3path, '\\'.join(pathList[i:]))
-            if os.path.exists(datapath):
-                flag = 1
+        for pathList in pathLists:
+            for i in range(len(pathList)):
+                datapath = "%s\\%s" % (self.jx3path, '\\'.join(pathList[i:]))
+                if os.path.exists(datapath):
+                    flag = 1
+                    break
+            if flag:
                 break
 
         if not flag:
@@ -165,6 +171,32 @@ class FileLookUp():
                 if line[-6:] == self.dataType or line[-3:] == self.dataType:
                     selectFileList.append(line)
 
+        selectFileList = sorted(selectFileList)
+        if self.dataType == "jcl" and selectFileList:
+            if self.specifiedFiles:
+                # Explicit selection may intentionally span days or raids.
+                # Preserve every selected attempt instead of applying the
+                # automatic "latest session" filter to the user's choices.
+                finalList, finalListAll = [], []
+                lastKey, lastNum = None, 0
+                for name in selectFileList:
+                    mapName, bossName = getJclEncounter(name)
+                    key = (self.getJclSessionKey(name), bossName)
+                    if key != lastKey:
+                        if finalListAll:
+                            finalListAll[-1][2] = 1
+                            finalList.append([finalListAll[-1][0], 0, 1])
+                        lastKey, lastNum = key, 0
+                    else:
+                        lastNum += 1
+                    finalListAll.append([name, lastNum, 0])
+                finalListAll[-1][2] = 1
+                finalList.append([finalListAll[-1][0], 0, 1])
+                return finalList, finalListAll, MAP_ORIGINAL.get(getIDFromMap(mapName), mapName)
+            latestSession = self.getJclSessionKey(selectFileList[-1])
+            if latestSession is not None:
+                selectFileList = [name for name in selectFileList
+                                  if self.getJclSessionKey(name) == latestSession]
         bossDict = BOSS_DICT
         mapDict = MAP_DICT
         mapNameList = MAP_NAME_LIST
@@ -179,8 +211,12 @@ class FileLookUp():
             if self.dataType == "jx3dat":
                 bossname = getNickToBoss(selectFileList[i].split('_')[1])
             else:
-                bossname = getNickToBoss(selectFileList[i].split('-')[-1].split('.')[0])
+                _, bossname = getJclEncounter(selectFileList[i])
             if bossname in bossDict:
+                if self.dataType == "jcl" and nowBoss != 7 and bossDict[bossname] > nowBoss + 1:
+                    # Reverse progression has crossed into an earlier run of
+                    # this raid on the same day (e.g. ...5, then a new 1...5).
+                    break
                 if bossDict[bossname] <= nowBoss:
                     bossPos[bossDict[bossname]] = i
                     bossList[i] = bossDict[bossname]
@@ -203,7 +239,7 @@ class FileLookUp():
                 if self.dataType == "jx3dat":
                     bossname = selectFileList[i].split('_')[1]
                 else:
-                    bossname = selectFileList[i].split('-')[-1].split('.')[0]
+                    _, bossname = getJclEncounter(selectFileList[i])
                 if bossname != lastName:
                     lastName = bossname
                     lastNum = 0
@@ -225,14 +261,27 @@ class FileLookUp():
         if self.dataType == "jx3dat":
             finalBossName = finalFileName.split('_')[1]
         else:
-            finalBossName = finalFileName.split('-')[-1].split('.')[0]
+            finalMapName, finalBossName = getJclEncounter(finalFileName)
 
-        if finalBossName in mapDict:
+        if self.dataType == "jcl":
+            mapID = getIDFromMap(finalMapName)
+            finalMap = MAP_ORIGINAL.get(mapID, finalMapName)
+        elif finalBossName in mapDict:
             finalMap = mapNameList[mapDict[finalBossName]]
         else:
             finalMap = "未知"
 
         return finalList, finalListAll, finalMap
+
+    @staticmethod
+    def getJclSessionKey(filename):
+        """The automatic latest batch is scoped to the filename's raid/date."""
+        basename = str(filename).replace("\\", "/").rsplit("/", 1)[-1]
+        parts = basename.split("-", 7)
+        if len(parts) < 8:
+            return None
+        mapName, _ = getJclEncounter(basename)
+        return mapName, "-".join(parts[:3])
         
     def initFromConfig(self, config):
         '''
@@ -257,6 +306,7 @@ class FileLookUp():
         return self.basepath
             
     def __init__(self):
+        self.specifiedFiles = []
         self.dataType = "jx3dat"
         self.jx3path = ""
         self.datapath = ""
@@ -279,8 +329,17 @@ class FileSelector():
             if (line[-6:] == self.dataType or line[-3:] == self.dataType) and line != "config.jx3dat":
                 optionList.append(line)
 
+        optionList.sort()
         if len(optionList) > 50:
-            optionList = optionList[-50:]
+            # A progression session can exceed 50 attempts. Keep its early
+            # bosses selectable, while retaining the usual recent-file list.
+            lookup = FileLookUp()
+            lookup.basepath = self.basepath
+            lookup.dataType = self.dataType
+            _, attempts, _ = lookup.getLocalFile()
+            retained = set(optionList[-50:])
+            retained.update(row[0] for row in attempts)
+            optionList = [name for name in optionList if name in retained]
         return optionList
 
     def final(self):

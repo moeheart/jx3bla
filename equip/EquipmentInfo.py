@@ -64,11 +64,13 @@ class EquipmentInfo():
         result = {}
         result["name"] = self.getAttribute(full_id, "Name")
         result["set"] = self.getAttribute(full_id, "SetID")
-        for i in range(1, 11):
+        if self.gameEdition >= 160 and full_id not in self.data:
+            raise KeyError("装备未收录于当前体服底表: %s" % full_id)
+        for i in range(1, 17):
             attribName = "Magic%dType"%i
             attribID = self.getAttribute(full_id, attribName)
             if attribID in ["", "0", 0, "atInvalid"]:
-                break
+                continue
             attribRes = self.attrib[attribID]
             attribValue = 0
             if attribRes[1] != '':
@@ -81,7 +83,7 @@ class EquipmentInfo():
             attribVName = "Base%dMax"%i
             attribValue = self.getAttribute(full_id, attribVName)
             if attribValue in ["", "0", 0, "atInvalid"]:
-                break
+                continue
             if attribType not in result:
                 result[attribType] = int(attribValue)
             else:
@@ -121,14 +123,14 @@ class EquipmentInfo():
         '''
         从解包中读取所有装备的属性。
         '''
-        TRINKET_PATH = 'equip/resources/Custom_Trinket.tab'
-        ARMOR_PATH = 'equip/resources/Custom_Armor.tab'
-        WEAPON_PATH = 'equip/resources/Custom_Weapon.tab'
+        TRINKET_PATH = self.resourceRoot + '/Custom_Trinket.tab'
+        ARMOR_PATH = self.resourceRoot + '/Custom_Armor.tab'
+        WEAPON_PATH = self.resourceRoot + '/Custom_Weapon.tab'
         self.loadSingleFile(TRINKET_PATH, 6)
         self.loadSingleFile(ARMOR_PATH, 7)
         self.loadSingleFile(WEAPON_PATH, 8)
 
-        ATTRIB_PATH = 'equip/resources/Attrib.tab'
+        ATTRIB_PATH = self.resourceRoot + '/attrib.tab'
         first = True
         with self.openTextFile(ATTRIB_PATH) as f:
             for line in f:
@@ -138,7 +140,7 @@ class EquipmentInfo():
                     content = line.strip('\n').split('\t')
                     self.attrib[content[0]] = [content[2], content[3]]  # 只记录最简单的形式
 
-        ENCHANT_PATH = 'equip/resources/Enchant.tab'
+        ENCHANT_PATH = self.resourceRoot + '/enchant.tab'
         first = True
         with self.openTextFile(ENCHANT_PATH) as f:
             for line in f:
@@ -154,7 +156,7 @@ class EquipmentInfo():
                                                     content[12], content[13], content[17], content[18],
                                                     content[19], content[20], content[24], content[25]]
 
-        ITEM_PATH = 'equip/resources/item.txt'
+        ITEM_PATH = self.resourceRoot + '/item.txt'
         first = True
         with self.openTextFile(ITEM_PATH) as f:
             for line in f:
@@ -169,7 +171,7 @@ class EquipmentInfo():
                         number = res.group(1)
                         self.itemColor[id] = number
 
-        OTHER_PATH = 'equip/resources/Other.tab'
+        OTHER_PATH = self.resourceRoot + '/other.tab'
         first = True
         with self.openTextFile(OTHER_PATH) as f:
             for line in f:
@@ -180,7 +182,7 @@ class EquipmentInfo():
                     if content[3] in self.itemColor:
                         self.color[content[0]] = self.enchant[self.itemColor[content[3]]]  # 记录五彩石
 
-        SET_PATH = 'equip/resources/Set.tab'
+        SET_PATH = self.resourceRoot + '/Set.tab'
         first = True
         with self.openTextFile(SET_PATH) as f:
             for line in f:
@@ -190,7 +192,9 @@ class EquipmentInfo():
                     content = line.strip('\n').split('\t')
                     self.set[content[0]] = content[4:14]
 
-    def __init__(self):
+    def __init__(self, gameEdition=0):
+        self.gameEdition = int(gameEdition or 0)
+        self.resourceRoot = 'equip/resources/cangshengtf' if self.gameEdition >= 160 else 'equip/resources'
         self.data = {}
         self.attrib = {}
         self.enchant = {}

@@ -1,0 +1,4 @@
+# Preserve extracted source bytes so source_manifest.json hashes survive checkout.
+equip/resources/cangshengtf/*.tab -text
+equip/resources/cangshengtf/*.txt -text
+equip/resources/cangshengtf/*.luac -text

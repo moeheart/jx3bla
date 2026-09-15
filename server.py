@@ -899,28 +899,10 @@ def getMapsfunc():
 
 @app.route('/getBossesFromMap', methods=['GET'])
 def getBossesFromMapfunc():
-    result = {}
     map = request.args.get('map')
-    mapid = getIDFromMap(map)
-    if mapid == "未知":
+    result = getBossesForMap(map)
+    if not result:
         return jsonify({'available': 0, 'text': "地图不存在"})
-    baseMap = "未知"
-    baseid = 0
-    for item in MAP_RAW:
-        if int(mapid) - MAP_RAW[item][0] <= 2 and int(mapid) - MAP_RAW[item][0] >= 0:
-            baseMap = item
-            baseid = MAP_RAW[item][0]
-            break
-    if baseMap == "未知":
-        return jsonify({'available': 0, 'text': "地图不存在"})
-    maporder = 0
-    for i in range(len(MAP_NAME_LIST)):
-        if MAP_NAME_LIST[i] == baseMap:
-            maporder = i
-            break
-    for item in BOSS_RAW:
-        if BOSS_RAW[item][0] == maporder:
-            result[item] = BOSS_RAW[item][1]
     return jsonify({'available': 1, 'text': "请求成功", 'result': result})
 
 @app.route('/getGameEditionFromMap', methods=['GET'])

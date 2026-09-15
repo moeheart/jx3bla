@@ -3,6 +3,9 @@
 
 from tools.Functions import *
 from replayer.Name import *
+from replayer import Name as LegacyName
+from replayer import NameCangsheng
+from tools.Names import getGameEditionFromTime, getIDFromMap
 from equip.AttributeData import *
 import time
 
@@ -12,6 +15,47 @@ SUM2 = 0
 SUM3 = 0
 SUM4 = 0
 SUM5 = 0
+
+
+def getResistedAmounts(fullResult, buffs, damage, absorb=0):
+    """Estimate reduction per damage school using the existing additive model.
+
+    JCL result 0..4 are physical, solar, neutral, lunar and poison damage.
+    A completely absorbed hit has no identifiable school. Attribution is
+    possible only when every active effect is identical for all five schools.
+    """
+    schools = ("Physics", "Solar", "Neutral", "Lunar", "Poison")
+    portions = [(school, int(fullResult.get(str(index), 0)))
+                for index, school in enumerate(schools)
+                if int(fullResult.get(str(index), 0)) > 0]
+    if len(portions) == 1:
+        portions = [(portions[0][0], portions[0][1] + absorb)]
+    elif not portions:
+        if any(len({buff[2].get(school, 0) for school in schools}) != 1
+               for buff in buffs.values()):
+            return {}
+        portions = [(None, damage + absorb)]
+    # For mixed-school hits, the log gives no per-school absorbed amounts.
+    # Attribute the recorded damage only instead of guessing that split.
+    amounts = {}
+    for school, value in portions:
+        coefficients = {}
+        for key, buff in buffs.items():
+            profile = buff[2]
+            if school is not None:
+                coefficient = profile.get(school, 0)
+            else:
+                values = [profile.get(item, 0) for item in schools]
+                coefficient = values[0] if len(set(values)) == 1 else 0
+            coefficients[key] = coefficient
+        total = sum(coefficients.values())
+        if total >= 1024:
+            continue
+        origin = value / (1 - total / 1024)
+        for key, coefficient in coefficients.items():
+            if coefficient > 0:
+                amounts[key] = amounts.get(key, 0) + origin * coefficient / 1024
+    return {key: int(value) for key, value in amounts.items() if value > 0}
 
 def getDamageCoeff(occ, attrib, targetBoosts, lvl=114, isPoZhao=0, isSangRou=1, isPiaoHuang=0, debug=0):
     '''
@@ -832,6 +876,7 @@ class CombatTracker():
         for t in res:
             for p in res[t]["player"]:
                 del res[t]["player"][p]["skill"]
+        res["rdpsStatus"] = self.rdpsStatus.copy()
         return res
         
     def getStatInHps(self, objSource, objTarget, totalTime=-1):
@@ -968,6 +1013,9 @@ class CombatTracker():
         mrdps = {"sum": 0, "player": {}}
         self.getStatInDps(self.mrdpsCast, mrdps, "source", self.boostCounter)
         self.mrdps = mrdps
+        if self.isCangsheng:
+            self.rdps.update(self.rdpsStatus)
+            self.mrdps.update(self.rdpsStatus)
 
         # print("[ohps]", self.ohps)
         # print("[chps]", self.chps)
@@ -981,10 +1029,23 @@ class CombatTracker():
         #     print("[NameBuff]", event.time, event.id, event.caster, event.target, event.full_id, event.stack)
 
         full_id = event.full_id.strip('"')
-        lvl0_id = ','.join(full_id.split(',')[0:2])+',0'
+        active = event.stack != 0
+        if self.isCangsheng:
+            active = active and getattr(event, "isValid", True) and event.delete not in (True, "true", "1", 1)
+        # Keep raw stacks available to boss timelines. Only the current
+        # profile's numeric accounting consumes the instance validity flag.
+        inactiveInstance = self.isCangsheng and not getattr(event, "isValid", True)
+        instanceKey = full_id
+        if self.isCangsheng:
+            instance = getattr(event, "instanceID", None)
+            instanceKey = (full_id, "slot", str(instance)) if instance is not None else (full_id, "source", event.caster)
+        # Runtime buff rows in the current client have exact levels only.
+        # UI names at level zero do not authorize a numeric-effect fallback.
+        lvl0_id = full_id if self.isCangsheng else ','.join(full_id.split(',')[0:2])+',0'
+        isMeihuaShield = event.id == "9334" and (not self.isCangsheng or event.level in (1, 2, 3, 4))
 
         # 记录一些单独的buff
-        if event.id == "9334" and event.target in self.boostCounter:  # 记录梅花三弄的来源
+        if isMeihuaShield and event.target in self.boostCounter and (active or not self.isCangsheng):  # 记录梅花三弄的来源
             self.shieldDict[event.target] = event.caster
             self.boostCounter[event.target].setSpecificSkill("mhsn", event.caster)
             # 检查庄周梦效果，用独立的方式判定
@@ -992,7 +1053,7 @@ class CombatTracker():
             # 群侠万变版本庄周梦逻辑修改，这里暂时关闭
             # if event.level in [2, 4]:
             #     effect_id = "2,23543,1"
-            #     boostValue = BOOST_DICT[effect_id]
+            #     boostValue = self.boostDict[effect_id]
             #     source = event.caster
             #     self.boostCounter[event.target].addBoost(effect_id, boostValue, source, event.stack, event.time)
                 # print("[AddShield]", self.boostCounter[event.target].boost)
@@ -1011,60 +1072,85 @@ class CombatTracker():
                 event.caster = self.hlsjCaster  # 对号令三军不准确的情况进行强制修正
 
         # 记录化解buff
-        if (full_id in ABSORB_DICT or lvl0_id in ABSORB_DICT or event.id == "9334") and event.target in self.absorbBuff:
-            if event.stack != 0:
-                self.absorbBuff[event.target][full_id] = [event.caster, event.time]
-                if full_id in self.buffRemove[event.target]:
-                    del self.buffRemove[event.target][full_id]
+        if (full_id in self.absorbDict or lvl0_id in self.absorbDict or isMeihuaShield) and event.target in self.absorbBuff:
+            if active:
+                record = [event.caster, event.time]
+                if self.isCangsheng:
+                    record.append(full_id)
+                self.absorbBuff[event.target][instanceKey] = record
+                if instanceKey in self.buffRemove[event.target]:
+                    del self.buffRemove[event.target][instanceKey]
                     self.updateRemoveTime()
 
                 # print("[GetAbsorbBuff]", event.id, event.time, event.target, event.caster)
-            elif full_id in self.absorbBuff[event.target]:
+            elif instanceKey in self.absorbBuff[event.target]:
                 # 进行延迟移除
-                if event.id != "9334":
-                    self.buffRemove[event.target][full_id] = {"time": event.time + 50}
+                if inactiveInstance:
+                    self.absorbBuff[event.target].pop(instanceKey, None)
+                    self.buffRemove[event.target].pop(instanceKey, None)
+                    self.updateRemoveTime()
+                elif event.id != "9334":
+                    self.buffRemove[event.target][instanceKey] = {"time": event.time + 50}
                     self.updateRemoveTime()
                 else:  # 盾有更长的黏着时间
-                    self.buffRemove[event.target][full_id] = {"time": event.time + 500}
+                    self.buffRemove[event.target][instanceKey] = {"time": event.time + 500}
                     self.updateRemoveTime()
                 # del self.absorbBuff[event.target][full_id]
                 # print("[DelAbsorbBuff]", event.id, event.time, event.target, event.caster)
 
         # 记录减伤buff
-        if (full_id in RESIST_DICT or lvl0_id in RESIST_DICT) and event.target in self.resistBuff:
-            if full_id in RESIST_DICT:
-                resistValue = RESIST_DICT[full_id]
+        if (full_id in self.resistDict or lvl0_id in self.resistDict) and event.target in self.resistBuff:
+            # 33086 is shared by many skills and can coexist. A removal
+            # must remove only its own slot, not every copy at that level.
+            resistKey = instanceKey
+            if full_id in self.resistDict:
+                resistValue = self.resistDict[full_id]
             else:
-                resistValue = RESIST_DICT[lvl0_id]
-            if event.stack != 0:
-                if event.id == "9336" or event.id == "9337":
+                resistValue = self.resistDict[lvl0_id]
+            if active:
+                # Only legacy Meihua parent buffs have that special source
+                # correction. 33086 also represents Chun Ni, Tian Di, etc.
+                if event.id in ["9336", "9337"] and self.shieldDict.get(event.target, "0") != "0":
                     event.caster = self.shieldDict[event.target]
                 if event.id == "8424":
                     event.caster = event.target
-                self.resistBuff[event.target][full_id] = [event.caster, event.time, resistValue]
-                if full_id in self.buffRemove[event.target]:
-                    del self.buffRemove[event.target][full_id]
-            elif full_id in self.resistBuff[event.target]:
+                if self.isCangsheng:
+                    resistValue = {school: value * event.stack for school, value in resistValue.items()}
+                record = [event.caster, event.time, resistValue]
+                if self.isCangsheng:
+                    record.append(full_id)
+                self.resistBuff[event.target][resistKey] = record
+                if resistKey in self.buffRemove[event.target]:
+                    del self.buffRemove[event.target][resistKey]
+            elif inactiveInstance:
+                # Invalidated (for example superseded) buffs still have a
+                # stack. Their numerical effects stop immediately.
+                self.resistBuff[event.target].pop(resistKey, None)
+                self.buffRemove[event.target].pop(resistKey, None)
+                self.updateRemoveTime()
+            elif resistKey in self.resistBuff[event.target]:
                 # 进行延迟移除
-                self.buffRemove[event.target][full_id] = {"time": event.time + 50}
+                self.buffRemove[event.target][resistKey] = {"time": event.time + 50}
+                if self.isCangsheng:
+                    self.removeTime = min(self.removeTime, event.time + 50)
                 self.updateRemoveTime()
             # if event.id == "9336":
             #     print("[Buff9336]", event.time, event.id, event.stack)
 
         # 记录蛊惑
         if event.id in ["2316"]:  # 蛊惑众生
-            if event.stack == 1:
+            if event.stack == 1 and active:
                 self.guHuoTarget[event.caster] = event.target
             else:
                 self.guHuoTarget[event.caster] = "0"
 
         # 记录增益buff
-        if (full_id in BOOST_DICT or lvl0_id in BOOST_DICT) and event.target in self.boostCounter:
+        if (full_id in self.boostDict or lvl0_id in self.boostDict) and event.target in self.boostCounter:
             skipFlag = False
             effect_id = full_id
-            if full_id not in BOOST_DICT:
+            if full_id not in self.boostDict:
                 effect_id = lvl0_id
-            boostValue = BOOST_DICT[effect_id]
+            boostValue = self.boostDict[effect_id]
             source = event.caster
             if event.caster not in self.rdpsCast:
                 source = event.target
@@ -1089,7 +1175,7 @@ class CombatTracker():
             elif event.id in ZHENYAN_DICT:
                 skipFlag = True
             if not skipFlag:
-                if event.stack != 0:
+                if active:
                     self.boostCounter[event.target].addBoost(effect_id, boostValue, source, event.stack, event.time)
                 else:
                     self.boostCounter[event.target].removeBoost(effect_id, event.time)
@@ -1183,7 +1269,7 @@ class CombatTracker():
                 self.boostCounter[event.caster].removeBoost(full_id, event.time)
             if plus != "0":
                 full_id = "2,%s,%d" % (plus, ZHENYAN_DICT[plus][5])
-                boostValue = BOOST_DICT[full_id]
+                boostValue = self.boostDict[full_id]
                 self.boostCounter[event.caster].addBoost(full_id, boostValue, "*阵眼增益", 1, event.time)
                 zhenyanName = "%s阵" % ZHENYAN_DICT[plus][0]
                 self.rdpsCast["*阵眼增益"].addNote(full_id, zhenyanName)
@@ -1306,8 +1392,11 @@ class CombatTracker():
                 calcBuff = ["0", "0", 0]
                 for key in self.absorbBuff[event.target]:
                     res = self.absorbBuff[event.target][key]
-                    if calcBuff[1] == "0" or "9334" in calcBuff[0] or ("9334" not in key and res[1] > calcBuff[2]):
-                        calcBuff = [key, res[0], res[1]]
+                    effectID = res[2] if self.isCangsheng else key
+                    if self.isCangsheng and res[0] not in self.ahpsCast:
+                        continue
+                    if calcBuff[1] == "0" or "9334" in calcBuff[0] or ("9334" not in effectID and res[1] > calcBuff[2]):
+                        calcBuff = [effectID, res[0], res[1]]
                 # TODO 2,2542,1 这种npc来源的buff也可以统计一下，但是现在占比不高先无限期延期吧
                 if calcBuff[1] != "0":
                     # 记录化解
@@ -1323,24 +1412,25 @@ class CombatTracker():
         if sumDamage > 0 and event.target in self.resistBuff and not self.excludeStatusHealer and event.id not in self.penetrationID:
             # print("[Damage]", event.time, event.target, sumDamage)
             # 考虑所有减伤，如果减伤之和大于100%，则不做统计，这种情况一般不可能发生.
-            resistSum = 0
-            for key in self.resistBuff[event.target]:
-                resistSum += self.resistBuff[event.target][key][2]
-            if resistSum > 0 and resistSum < 1024:
-                damageOrigin = sumDamage / (1 - resistSum / 1024)
-                for key in self.resistBuff[event.target]:
-                    res = self.resistBuff[event.target][key]
-                    damageResist = int(damageOrigin * (res[2] / 1024))
-                    # print("[ResistRes]", key, sumDamage, resistSum, damageOrigin, damageResist, res)
-                    source = res[0]
-                    if key == "2,2573,1":
-                        source = "*团队增益"
-                    if res[0] in self.ahpsCast and damageResist < 1000000:
-                        self.ahpsCast[source].record(event.target, "2," + key, damageResist)
-                        self.rhpsRecorder.record(source, event.target, damageResist, damageResist, "2," + key,
-                                                 self.hpStatus[event.target]["status"])
-                        if self.critStatusHealer:
-                            self.chpsCast[source].record(event.target, "2," + key, damageResist)
+            if self.isCangsheng:
+                resisted = getResistedAmounts(event.fullResult, self.resistBuff[event.target], event.damage, absorb)
+            else:
+                resistSum = sum(buff[2] for buff in self.resistBuff[event.target].values())
+                resisted = {}
+                if 0 < resistSum < 1024:
+                    damageOrigin = sumDamage / (1 - resistSum / 1024)
+                    resisted = {key: int(damageOrigin * buff[2] / 1024)
+                                for key, buff in self.resistBuff[event.target].items()}
+            for key, damageResist in resisted.items():
+                res = self.resistBuff[event.target][key]
+                effectID = res[3] if self.isCangsheng else key
+                source = "*团队增益" if effectID == "2,2573,1" else res[0]
+                if source in self.ahpsCast and damageResist < 1000000:
+                    self.ahpsCast[source].record(event.target, "2," + effectID, damageResist)
+                    self.rhpsRecorder.record(source, event.target, damageResist, damageResist, "2," + effectID,
+                                             self.hpStatus[event.target]["status"])
+                    if self.critStatusHealer:
+                        self.chpsCast[source].record(event.target, "2," + effectID, damageResist)
 
         # 从吸血推测HPS
         xixue = int(event.fullResult.get("7", 0))
@@ -1375,7 +1465,7 @@ class CombatTracker():
                 # if event.target in self.boostCounter[player].targetBoost and "2,23305,1" in self.boostCounter[player].targetBoost[event.target]:
                 #     continue  # 在有秋肃时跳过结算
                 effect_id = "2,4058,1"
-                boostValue = BOOST_DICT[effect_id]
+                boostValue = self.boostDict[effect_id]
                 self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, event.caster, 1, event.time)
                 self.boostRemove[effect_id + event.target] = {"time": event.time + 15000, "target": event.target, "boost": effect_id}
                 self.updateRemoveTime()
@@ -1385,7 +1475,7 @@ class CombatTracker():
         #         if event.target in self.boostCounter[player].targetBoost and "2,4058,1" in self.boostCounter[player].targetBoost[event.target]:
         #             self.boostCounter[player].removeTargetBoost(event.target, "2,4058,1", event.time)  # 在有戒火斩时移除
         #         effect_id = "2,23305,1"
-        #         boostValue = BOOST_DICT[effect_id]
+        #         boostValue = self.boostDict[effect_id]
         #         self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, event.caster, 1, event.time)
         #         self.boostRemove[effect_id + event.target] = {"time": event.time + 40000, "target": event.target, "boost": effect_id}
         #         self.updateRemoveTime()
@@ -1395,7 +1485,7 @@ class CombatTracker():
                 if event.target in self.boostCounter[player].targetBoost and "2,12717,30" in self.boostCounter[player].targetBoost[event.target]:
                     continue  # 在有高等级时跳过结算
                 effect_id = "2,661,30"
-                boostValue = BOOST_DICT[effect_id]
+                boostValue = self.boostDict[effect_id]
                 self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, "*低等级增益", 1, event.time)
                 self.boostRemove[effect_id + event.target] = {"time": event.time + 14000, "target": event.target, "boost": effect_id}
                 self.updateRemoveTime()
@@ -1405,7 +1495,7 @@ class CombatTracker():
                 if event.target in self.boostCounter[player].targetBoost and "2,661,30" in self.boostCounter[player].targetBoost[event.target]:
                     self.boostCounter[player].removeTargetBoost(event.target, "2,661,30", event.time)  # 在有低等级时移除
                 effect_id = "2,12717,30"
-                boostValue = BOOST_DICT[effect_id]
+                boostValue = self.boostDict[effect_id]
                 self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, event.caster, 1, event.time)
                 self.boostRemove[effect_id + event.target] = {"time": event.time + 14000, "target": event.target, "boost": effect_id}
                 self.updateRemoveTime()
@@ -1416,7 +1506,7 @@ class CombatTracker():
                 source = "*低等级增益"
             for player in self.boostCounter:
                 effect_id = "2,3465,1"
-                boostValue = BOOST_DICT[effect_id]
+                boostValue = self.boostDict[effect_id]
                 self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, source, 1, event.time)
                 self.boostRemove[effect_id + event.target] = {"time": event.time + 10000, "target": event.target, "boost": effect_id}
                 self.updateRemoveTime()
@@ -1445,7 +1535,7 @@ class CombatTracker():
                         if event.target in self.boostCounter[player].targetBoost and id in self.boostCounter[player].targetBoost[event.target]:
                             self.boostCounter[player].removeTargetBoost(event.target, id, event.time)  # 在有低等级时移除
                     effect_id = "2,%d,6" % (563 + postLvl)
-                    boostValue = BOOST_DICT[effect_id]
+                    boostValue = self.boostDict[effect_id]
                     self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, event.caster, postStack, event.time)  # 注意层数判定
                     self.boostRemove[effect_id + event.target] = {"time": event.time + 20000, "target": event.target, "boost": effect_id}
                     self.updateRemoveTime()
@@ -1465,14 +1555,14 @@ class CombatTracker():
                     old_id = "2,8248,1"
                     if event.target in self.boostCounter[player].targetBoost and old_id in self.boostCounter[player].targetBoost[event.target]:
                         self.boostCounter[player].removeTargetBoost(event.target, old_id, event.time)
-                boostValue = BOOST_DICT[effect_id]
+                boostValue = self.boostDict[effect_id]
                 self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, source, 1, event.time)
                 self.boostRemove[effect_id + event.target] = {"time": event.time + 25000, "target": event.target, "boost": effect_id}
                 self.updateRemoveTime()
         elif event.id in ["100869"]:  # 戒火斩·悟
             for player in self.boostCounter:
                 effect_id = "2,70188,2"  # 无界的通用伤害提高
-                boostValue = BOOST_DICT[effect_id]
+                boostValue = self.boostDict[effect_id]
                 self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, event.caster, 1, event.time)
                 self.boostRemove[effect_id + event.target] = {"time": event.time + 15000, "target": event.target, "boost": effect_id}
                 self.updateRemoveTime()
@@ -1483,7 +1573,7 @@ class CombatTracker():
         #         source = "*低等级增益"
         #     for player in self.boostCounter:
         #         effect_id = "2,4418,1"
-        #         boostValue = BOOST_DICT[effect_id]
+        #         boostValue = self.boostDict[effect_id]
         #         self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, source, 1, event.time)
         #         self.boostRemove[effect_id + event.target] = {"time": event.time + 12000, "target": event.target, "boost": effect_id}
         #         self.updateRemoveTime()
@@ -1496,7 +1586,7 @@ class CombatTracker():
             # print("[DpsRecord]", event.time, event.damageEff)
             # rDPS
             if event.caster in self.boostCounter:
-                rdpsRate = self.boostCounter[event.caster].getRate(event.target, event.full_id, self.info.getSkillName(event.full_id))
+                rdpsRate = {} if self.isCangsheng else self.boostCounter[event.caster].getRate(event.target, event.full_id, self.info.getSkillName(event.full_id))
 
                 # if self.info.getSkillName(event.full_id) == "破" and '2,20938,1' in rdpsRate:
                 #     print("[PoZyhr]", rdpsRate, event.caster, self.info.getName(event.caster), event.damageEff)
@@ -1546,7 +1636,7 @@ class CombatTracker():
             for bossid in bossID:
                 for player in self.info.player:
                     effect_id = "2,24973,1"
-                    boostValue = BOOST_DICT[effect_id]
+                    boostValue = self.boostDict[effect_id]
                     self.boostCounter[player].addTargetBoost(bossid, effect_id, boostValue, "*环境增益", self.bossYishang, event.time)
         if event.content in ['"可恶，偏偏在这个时候..."', '"可惡，偏偏在這個時候..."']:
             bossID = []
@@ -1555,7 +1645,7 @@ class CombatTracker():
                     bossID.append(id)
             for bossid in bossID:
                 effect_id = "2,25715,1"
-                boostValue = BOOST_DICT[effect_id]
+                boostValue = self.boostDict[effect_id]
                 for player in self.info.player:
                     self.boostCounter[player].addTargetBoost(bossid, effect_id, boostValue, "*环境增益", 1, event.time)
                 self.boostRemove[effect_id + bossid] = {"time": event.time + 20000, "target": bossid, "boost": effect_id}
@@ -1566,7 +1656,7 @@ class CombatTracker():
                     bossID.append(id)
             for bossid in bossID:
                 effect_id = "2,26734,1"
-                boostValue = BOOST_DICT[effect_id]
+                boostValue = self.boostDict[effect_id]
                 for player in self.info.player:
                     self.boostCounter[player].addTargetBoost(bossid, effect_id, boostValue, "*环境增益", 1, event.time)
                 self.boostRemove[effect_id + bossid] = {"time": event.time + 40000, "target": bossid, "boost": effect_id}
@@ -1585,6 +1675,16 @@ class CombatTracker():
         - TODO 还要扩充装备表，之后应该会整理成一个全的
         '''
         self.info = info
+        self.gameEdition = int(getGameEditionFromTime(getIDFromMap(info.map), info.battleTime) or 0)
+        self.isCangsheng = self.gameEdition >= 160
+        tables = NameCangsheng if self.isCangsheng else LegacyName
+        self.boostDict = tables.BOOST_DICT
+        self.absorbDict = tables.ABSORB_DICT
+        self.resistDict = tables.RESIST_BY_SCHOOL_DICT if self.isCangsheng else tables.RESIST_DICT
+        self.therapyDict = NameCangsheng.THERAPY_DICT if self.isCangsheng else {}
+        self.rdpsStatus = {"status": "supported", "gameEdition": self.gameEdition}
+        if self.isCangsheng:
+            self.rdpsStatus.update(status="incomplete", reason="50级心法基础属性、装备换算和首领防御尚未完整核实，暂不推算面板与rDPS。")
         self.occDetailList = occDetailList
 
         self.hpsCast = {}
@@ -1646,7 +1746,7 @@ class CombatTracker():
             for symbolid in ZHENYAN_DICT[baseid][4]:
                 self.zhenyanExclude[symbolid] = ZHENYAN_DICT[baseid][0]
 
-        self.bosslvl = CHAPTER + 3
+        self.bosslvl = (50 if self.isCangsheng else CHAPTER) + 3
         if "10人" in info.map:
             self.bosslvl -= 1
         elif "英雄" in info.map:
@@ -1715,22 +1815,22 @@ class CombatTracker():
             self.zyhrDict[player] = "0"
             if boostPredict["zxyz"]["id"] != "0":  # 计算第一次左旋右转
                 effect_id = "2,20938,1"
-                boostValue = BOOST_DICT[effect_id]
+                boostValue = self.boostDict[effect_id]
                 source = boostPredict["zxyz"]["id"]
                 self.boostCounter[player].addBoost(effect_id, boostValue, source, boostPredict["zxyz"]["stack"], bh.startTime)
             if boostPredict["qs"]["id"] != "0":  # 计算第一次秋肃
                 effect_id = "2,29294,1"
-                boostValue = BOOST_DICT[effect_id]
+                boostValue = self.boostDict[effect_id]
                 source = boostPredict["qs"]["id"]
                 self.boostCounter[player].addBoost(effect_id, boostValue, source, boostPredict["qs"]["stack"], bh.startTime)
             if boostPredict["zzm"]["id"] != "0":  # 计算第一次庄周梦
                 effect_id = "2,23543,1"
-                boostValue = BOOST_DICT[effect_id]
+                boostValue = self.boostDict[effect_id]
                 source = boostPredict["zzm"]["id"]
                 self.boostCounter[player].addBoost(effect_id, boostValue, source, boostPredict["zzm"]["stack"], bh.startTime)
             if numTiance > 0:
                 effect_id = "2,362,8"
-                boostValue = BOOST_DICT[effect_id]
+                boostValue = self.boostDict[effect_id]
                 self.boostCounter[player].addBoost(effect_id, boostValue, "*团队增益", 1, bh.startTime)
                 # if numTielao == 1:
                 #     self.boostCounter[player].addBoost(effect_id, boostValue, tielaoID, 1, bh.startTime)
@@ -1738,7 +1838,7 @@ class CombatTracker():
                 #     self.boostCounter[player].addBoost(effect_id, boostValue, "*低等级增益", 1, bh.startTime)
             if numQixiu > 0:
                 effect_id = "2,673,11"
-                boostValue = BOOST_DICT[effect_id]
+                boostValue = self.boostDict[effect_id]
                 self.boostCounter[player].addBoost(effect_id, boostValue, "*团队增益", 1, bh.startTime)
                 # if numYunchang == 1:
                 #     self.boostCounter[player].addBoost(effect_id, boostValue, yunchangID, 1, bh.startTime)

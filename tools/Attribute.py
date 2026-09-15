@@ -50,6 +50,16 @@ COEFF130 = {
 }
 
 # 各种属性词条的实际作用方式，尽量记录全
+# 苍生铸世：GlobalParam.lua 参数 * GetCofValue50ByLevel(50)=990。
+# 原始 Lua 字节码和 SHA256 见 equip/resources/cangshengtf/source_manifest.json。
+# 只代表等级换算分母，不能据此假定心法基础属性或 NPC 防御已完成适配。
+COEFF50 = {
+    '会心': 9512.91, '会心效果': 3504.6, '破防': 10378.17,
+    '加速': 10107.9, '无双': 7045.83, '防御': 10802.88,
+    '招架': 15674.67, '闪避': 13356.09, '御劲': 19025.82,
+    '御劲减会伤': 9422.82, '化劲': 5148, '气血': 1,
+}
+
 # 内容为：属性意义、是否为“基础值”、影响外功、影响阳性内功、影响阴性内功、影响混元内功、影响毒性内功、直接提升最终值的系数
 ATTRIB_TYPE = {
     # 会心
@@ -67,6 +77,7 @@ ATTRIB_TYPE = {
     "atPoisonCriticalStrikeBaseRate": ["会心", 1, 0, 0, 0, 0, 1, 0.0001],
     # 会心效果
     "atCriticalDamagePowerBase": ["会心效果", 1, 1, 1, 1, 1, 1, 0],
+    "atAllTypeCriticalDamagePowerBase": ["会心效果", 1, 1, 1, 1, 1, 1, 0],
     "atPhysicsCriticalDamagePowerBase": ["会心效果", 1, 1, 0, 0, 0, 0, 0],
     "atMagicCriticalDamagePowerBase": ["会心效果", 1, 0, 1, 1, 1, 1, 0],
     "atSolarCriticalDamagePowerBase": ["会心效果", 1, 0, 1, 0, 0, 0, 0],
@@ -81,6 +92,7 @@ ATTRIB_TYPE = {
     "atPoisonCriticalDamagePowerBaseKiloNumRate": ["会心效果", 1, 0, 0, 0, 0, 1, 1/1024],
     # 破防
     "atPhysicsOvercomeBase": ["破防", 1, 1, 0, 0, 0, 0, 0],
+    "atAllTypeOvercomeBase": ["破防", 1, 1, 1, 1, 1, 1, 0],
     "atMagicOvercome": ["破防", 1, 0, 1, 1, 1, 1, 0],
     "atSolarOvercomeBase": ["破防", 1, 0, 1, 0, 0, 0, 0],
     "atLunarOvercomeBase": ["破防", 1, 0, 0, 1, 0, 0, 0],
@@ -113,6 +125,7 @@ ATTRIB_TYPE = {
     "atBasePotentialAdd": ["全属性", 1, 1, 1, 1, 1, 1, 0],
     # 攻击
     "atPhysicsAttackPowerBase": ["攻击", 1, 1, 0, 0, 0, 0, 0],
+    "atAllTypeAttackPowerBase": ["攻击", 1, 1, 1, 1, 1, 1, 0],
     "atMagicAttackPowerBase": ["攻击", 1, 0, 1, 1, 1, 1, 0],
     "atSolarAttackPowerBase": ["攻击", 1, 0, 1, 0, 0, 0, 0],
     "atLunarAttackPowerBase": ["攻击", 1, 0, 0, 1, 0, 0, 0],
@@ -132,6 +145,10 @@ ATTRIB_TYPE = {
     "atSurplusValueBase": ["破招", 1, 1, 1, 1, 1, 1, 0],
     # 防御
     "atPhysicsShieldBase": ["防御", 1, 1, 0, 0, 0, 0, 0],
+    "atSolarMagicShieldBase": ["防御", 1, 0, 1, 0, 0, 0, 0],
+    "atLunarMagicShieldBase": ["防御", 1, 0, 0, 1, 0, 0, 0],
+    "atNeutralMagicShieldBase": ["防御", 1, 0, 0, 0, 1, 0, 0],
+    "atPoisonMagicShieldBase": ["防御", 1, 0, 0, 0, 0, 1, 0],
     "atSolarShieldBase": ["防御", 1, 1, 1, 0, 0, 0, 0],
     "atLunarShieldBase": ["防御", 1, 1, 0, 1, 0, 0, 0],
     "atNeutralShieldBase": ["防御", 1, 1, 0, 0, 1, 0, 0],

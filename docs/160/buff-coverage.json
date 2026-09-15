@@ -1,0 +1,45 @@
+{
+  "client_version": "1.6.0.9503",
+  "logs": 61,
+  "buff_events": 2293867,
+  "distinct_buff_levels": 1017,
+  "exact_source_matches": 1016,
+  "level_zero_fallbacks": {},
+  "missing_source_buff_levels": {
+    "2,0,0": 17652
+  },
+  "generated_attribute_mismatches": [],
+  "recognized_observed_classes": {
+    "BOOST_DICT": 154,
+    "RESIST_BY_SCHOOL_DICT": 28,
+    "ABSORB_DICT": 13,
+    "THERAPY_DICT": 26
+  },
+  "shared_reduction_and_meihua_levels": {
+    "2,33086,15": 24823,
+    "2,33086,25": 447,
+    "2,33086,30": 4772,
+    "2,33086,60": 820,
+    "2,33086,45": 357,
+    "2,33086,40": 20024,
+    "2,33086,20": 2987,
+    "2,33086,50": 4042,
+    "2,33086,80": 269,
+    "2,33086,10": 409,
+    "2,9334,1": 8537,
+    "2,9336,1": 2073,
+    "2,33086,35": 301,
+    "2,33086,55": 336,
+    "2,33086,70": 5
+  },
+  "shared_reduction_instance_audit": {
+    "logs": 61,
+    "logs_with_shared_reduction": 61,
+    "logs_with_same_level_valid_coexistence": 45,
+    "max_concurrent_same_level_valid_instances": 16,
+    "logs_with_invalid_shared_reduction": 61,
+    "shared_reduction_invalid_nonzero_events": 13902,
+    "shared_reduction_events_with_unknown_caster": 447
+  },
+  "buff_event_schema_source": "https://github.com/tinymins/JX3MY/wiki/MY-Combat-Log-DS"
+}

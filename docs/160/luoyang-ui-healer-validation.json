@@ -1,0 +1,186 @@
+{
+  "network": "disabled",
+  "count": 5,
+  "results": [
+    {
+      "file": "2026-09-15-20-12-21-25人普通洛阳之战(835)-突利和顺(139306).jcl",
+      "sha256": "56f3bd74fd1a2ca71bfe2ce4c0c81bcddb626e57ea97e498cde2d44fbca3c528",
+      "boss": "突利和顺",
+      "class": "TuliHeshunReplayer",
+      "win": 1,
+      "seconds": 425.038,
+      "players": 25,
+      "timelineEvents": 28,
+      "calls": 60,
+      "mechanicRecords": 26,
+      "mainTargets": 1,
+      "attributeStatus": {
+        "status": "incomplete",
+        "gameEdition": 160,
+        "reason": "50级心法基础属性、装备换算和首领防御尚未完整核实，暂不推算面板与rDPS。"
+      },
+      "rdpsStatus": {
+        "status": "incomplete",
+        "gameEdition": 160,
+        "reason": "50级心法基础属性、装备换算和首领防御尚未完整核实，暂不推算面板与rDPS。"
+      },
+      "healerReplays": 6,
+      "metricTotalsPerSecond": {
+        "ndps": 621081.1033366427,
+        "mndps": 621081.1033366427,
+        "hps": 8073.415788705951,
+        "ahps": 9635.21379264913,
+        "rhps": 17590.150762990605
+      },
+      "ui": {
+        "bossWindow": "TuliHeshunWindow",
+        "widgets": "constructed",
+        "rdps": "marked incomplete"
+      }
+    },
+    {
+      "file": "2026-09-15-20-33-51-25人普通洛阳之战(835)-田承嗣(139329).jcl",
+      "sha256": "ecdf3e34a185930ffa8247340553806e034c382f84845ae8f3f805cd5cd11dfb",
+      "boss": "田承嗣",
+      "class": "TianChengsiReplayer",
+      "win": 1,
+      "seconds": 360.793,
+      "players": 25,
+      "timelineEvents": 48,
+      "calls": 43,
+      "mechanicRecords": 52,
+      "mainTargets": 1,
+      "attributeStatus": {
+        "status": "incomplete",
+        "gameEdition": 160,
+        "reason": "50级心法基础属性、装备换算和首领防御尚未完整核实，暂不推算面板与rDPS。"
+      },
+      "rdpsStatus": {
+        "status": "incomplete",
+        "gameEdition": 160,
+        "reason": "50级心法基础属性、装备换算和首领防御尚未完整核实，暂不推算面板与rDPS。"
+      },
+      "healerReplays": 6,
+      "metricTotalsPerSecond": {
+        "ndps": 598913.9903599782,
+        "mndps": 556729.1364409719,
+        "hps": 17305.470172647478,
+        "ahps": 12327.905549116607,
+        "rhps": 29637.57154663416
+      },
+      "ui": {
+        "bossWindow": "TianChengsiWindow",
+        "widgets": "constructed",
+        "rdps": "marked incomplete"
+      }
+    },
+    {
+      "file": "2026-09-15-20-42-55-25人普通洛阳之战(835)-伊曼·寂夜(139319).jcl",
+      "sha256": "671a25aa1cbce2e0cfca7cee028be858c8126b19967272b572561609c18e1493",
+      "boss": "伊曼双子",
+      "class": "YimanTwinsReplayer",
+      "win": 1,
+      "seconds": 375.7,
+      "players": 25,
+      "timelineEvents": 73,
+      "calls": 13,
+      "mechanicRecords": 52,
+      "mainTargets": 2,
+      "attributeStatus": {
+        "status": "incomplete",
+        "gameEdition": 160,
+        "reason": "50级心法基础属性、装备换算和首领防御尚未完整核实，暂不推算面板与rDPS。"
+      },
+      "rdpsStatus": {
+        "status": "incomplete",
+        "gameEdition": 160,
+        "reason": "50级心法基础属性、装备换算和首领防御尚未完整核实，暂不推算面板与rDPS。"
+      },
+      "healerReplays": 6,
+      "metricTotalsPerSecond": {
+        "ndps": 843526.2108954255,
+        "mndps": 704374.640311687,
+        "hps": 21068.000710127624,
+        "ahps": 6851.111195272453,
+        "rhps": 28155.81881164513
+      },
+      "ui": {
+        "bossWindow": "YimanTwinsWindow",
+        "widgets": "constructed",
+        "rdps": "marked incomplete"
+      }
+    },
+    {
+      "file": "2026-09-15-21-18-36-25人普通洛阳之战(835)-阿史那承庆(139323).jcl",
+      "sha256": "0ae3962d84935053c50868083c87fb783b570d5d75a4438c4a83e26f31b7e0ce",
+      "boss": "阿史那承庆",
+      "class": "LuoyangAshinaChengqingReplayer",
+      "win": 1,
+      "seconds": 380.878,
+      "players": 25,
+      "timelineEvents": 67,
+      "calls": 31,
+      "mechanicRecords": 50,
+      "mainTargets": 1,
+      "attributeStatus": {
+        "status": "incomplete",
+        "gameEdition": 160,
+        "reason": "50级心法基础属性、装备换算和首领防御尚未完整核实，暂不推算面板与rDPS。"
+      },
+      "rdpsStatus": {
+        "status": "incomplete",
+        "gameEdition": 160,
+        "reason": "50级心法基础属性、装备换算和首领防御尚未完整核实，暂不推算面板与rDPS。"
+      },
+      "healerReplays": 6,
+      "metricTotalsPerSecond": {
+        "ndps": 761603.824479206,
+        "mndps": 739530.8742199033,
+        "hps": 26961.66689088781,
+        "ahps": 18349.958765210595,
+        "rhps": 46090.17802904141
+      },
+      "ui": {
+        "bossWindow": "LuoyangAshinaChengqingWindow",
+        "widgets": "constructed",
+        "rdps": "marked incomplete"
+      }
+    },
+    {
+      "file": "2026-09-15-23-40-33-25人普通洛阳之战(835)-史朝义(139312).jcl",
+      "sha256": "49489d2604e5e4168f89bf6b32a63b88e8faef3e31eddd22fbe6c03cd9ef7c62",
+      "boss": "史朝义",
+      "class": "ShiChaoyiReplayer",
+      "win": 1,
+      "seconds": 443.644,
+      "players": 25,
+      "timelineEvents": 137,
+      "calls": 110,
+      "mechanicRecords": 44,
+      "mainTargets": 1,
+      "attributeStatus": {
+        "status": "incomplete",
+        "gameEdition": 160,
+        "reason": "50级心法基础属性、装备换算和首领防御尚未完整核实，暂不推算面板与rDPS。"
+      },
+      "rdpsStatus": {
+        "status": "incomplete",
+        "gameEdition": 160,
+        "reason": "50级心法基础属性、装备换算和首领防御尚未完整核实，暂不推算面板与rDPS。"
+      },
+      "healerReplays": 6,
+      "metricTotalsPerSecond": {
+        "ndps": 492466.61286977853,
+        "mndps": 403207.6890479753,
+        "hps": 26632.36852070579,
+        "ahps": 7778.2884474939365,
+        "rhps": 35152.29666128698
+      },
+      "ui": {
+        "bossWindow": "ShiChaoyiWindow",
+        "widgets": "constructed",
+        "rdps": "marked incomplete"
+      }
+    }
+  ]
+}

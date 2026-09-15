@@ -2,6 +2,8 @@
 # 复盘日志内容集合，主要包含复盘的全局数据与单条数据的通用形式，兼容jx3dat与jcl。
 
 from replayer.Name import *
+from replayer.NameCangsheng import SKILL_NAME as CANGSHENG_SKILL_NAME
+from tools.Names import isLuoyangMap
 
 class SingleData():
     '''
@@ -40,6 +42,7 @@ class SingleDataBuff(SingleData):
       stack: buff层数，对应jx3dat[11], jcl[6][6]
       end: 消亡预计的逻辑帧，对应jx3dat[12], jcl[6][7]
       cancel: 是否可以点掉，对应jx3dat[13], jcl[6][4]
+      isValid: JCL 当前实例是否生效，对应jcl[6][11]；旧格式缺失时默认有效
     '''
 
     def setByJcl(self, item):
@@ -50,6 +53,11 @@ class SingleDataBuff(SingleData):
         '''
         self.time = int(item[3])
         self.frame = int(item[1])
+        # JCL Buff slot identifies concurrent instances of the same ID/level.
+        self.instanceID = item[5].get("3")
+        # The plugin's BUFF_UPDATE schema calls field 11 bIsValid. An
+        # inactive instance can retain nonzero stacks until it is deleted.
+        self.isValid = item[5].get("11", "true") not in (False, "false", "0", 0)
         self.caster = item[5]["10"]
         self.target = item[5]["1"]
         self.id = item[5]["5"]
@@ -416,12 +424,14 @@ class OverallData():
         lvl0_id = ','.join(full_id.split(',')[0:2])+',0'
         if full_id in self.skill:
             return self.skill[full_id]["1"].strip('"')
+        if isLuoyangMap(getattr(self, "map", "")):
+            return CANGSHENG_SKILL_NAME.get(full_id, CANGSHENG_SKILL_NAME.get(lvl0_id, full_id))
         elif full_id in SKILL_NAME:
             return SKILL_NAME[full_id]
         elif lvl0_id in SKILL_NAME:
             return SKILL_NAME[lvl0_id]
         else:
-            return full_id
+            return CANGSHENG_SKILL_NAME.get(full_id, CANGSHENG_SKILL_NAME.get(lvl0_id, full_id))
 
     def getOcc(self, key):
         '''

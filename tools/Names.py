@@ -90,6 +90,11 @@ BOSS_RAW = {"未知": [0, 1, []],
             "唐怀仁": [17, 5, ["须罗巨傀"]],
             "鲁念雪": [18, 1, []],
             "千机源枢": [18, 2, []],
+            "突利和顺": [19, 1, ["突利和順"]],
+            "田承嗣": [19, 2, []],
+            "伊曼双子": [19, 3, ["伊曼·寂夜", "伊曼·逐焰", "伊曼寂夜", "伊曼逐焰"]],
+            # 阿史那承庆在阆风悬城、洛阳之战均为四号；由地图选择复盘类。
+            "史朝义": [19, 5, ["史朝義"]],
             }
 
 MAP_NAME_LIST = ["未知地图",  # 0
@@ -111,6 +116,7 @@ MAP_NAME_LIST = ["未知地图",  # 0
                  "缚罪之渊",  # 16
                  "阆风悬城",  # 17
                  "挑战阆风悬城",  # 18
+                 "洛阳之战",  # 19
                  ]
 
 # 地图ID, logs得分系数, 别名
@@ -133,6 +139,7 @@ MAP_RAW = {"未知地图": [0, 0, [], "未知版本", "0-0"],
            "缚罪之渊": [720, 6, ["縛罪之淵"], "山海源流", "130-3"],
            "阆风悬城": [793, 1, [], "阆风悬城", "130-4"],
            "挑战阆风悬城": [796, 1, ["阆风悬城·元心殿"], "挑战阆风悬城", "130-4"],
+           "洛阳之战": [828, 1, ["洛陽之戰"], "苍生铸世", "50-1", [828, 835, 836]],
            }
 
 # 版本号，涉及的地图，合理的时间范围（开始时间戳，结束时间戳）
@@ -160,6 +167,7 @@ GAMEEDITION_RAW = {
     "150": ["阆风悬城（体服）", ["793", "794", "795", "796", "804"], [[0, 1776898800]]],
     "151": ["暗影千机（初版）", ["793", "794", "795", "796", "804"], [[1776898800, 1779663600]]],
     "152": ["暗影千机（一削）", ["793", "794", "795", "796", "804"], [[1779663600, 2147483647]]],
+    "160": ["苍生铸世（体服）", ["828", "835", "836"], [[0, 2147483647]]],
 }
 
 BOSS_DICT = {}
@@ -200,11 +208,33 @@ for line in BOSS_RAW:
 #         bossDictR = [""]
 #     return bossDict, bossDictR
 
-def getNickToBoss(nick):
+def isLuoyangMap(mapName):
+    return str(mapName) in ("828", "835", "836") or "洛阳之战" in str(mapName) or "洛陽之戰" in str(mapName)
+
+
+def getNickToBoss(nick, mapName=None, templateID=None):
+    if isLuoyangMap(mapName):
+        # 史朝义的分身/友方目标会成为茗伊文件名。限定地图，避免污染其它遭遇。
+        if nick in ("煞将", "煞將", "李复", "李復") or str(templateID) in ("139308", "139312", "139324", "139332"):
+            return "史朝义"
     if nick in NICK_TO_BOSS:
         return NICK_TO_BOSS[nick]
     else:
         return nick
+
+
+def getJclEncounter(filename):
+    """从标准 JCL 文件名读取地图和首领，保留副本上下文与 NPC 模板。"""
+    name = str(filename).replace("\\", "/").rsplit("/", 1)[-1]
+    parts = name.rsplit(".jcl", 1)[0].split("-", 7)
+    if len(parts) < 8:
+        return "未知", "未知"
+    mapName = parts[6].split("(", 1)[0]
+    mapName = MAP_TRADITIONAL.get(mapName, mapName)
+    bossPart = parts[7]
+    bossName = bossPart.split("(", 1)[0]
+    templateID = bossPart.rsplit("(", 1)[-1].rstrip(")") if "(" in bossPart else None
+    return mapName, getNickToBoss(bossName, mapName, templateID)
 
 
 def getGameEditionFromTime(map, time):
@@ -226,34 +256,35 @@ MAP_DICT_RECORD_LOGS = {}
 for map in MAP_RAW:
     if MAP_RAW[map][0] != 0:
         mapid = MAP_RAW[map][0]
+        difficultyIDs = MAP_RAW[map][5] if len(MAP_RAW[map]) > 5 else [mapid, mapid + 1, mapid + 2]
         if MAP_RAW[map][1] == 5:
             MAP_DICT[str(mapid)] = "25人挑战%s·上" % map
-            MAP_DICT[str(mapid + 1)] = "25人挑战%s·下" % map
+            MAP_DICT[str(difficultyIDs[1])] = "25人挑战%s·下" % map
             MAP_ORIGINAL[str(mapid)] = map
-            MAP_ORIGINAL[str(mapid + 1)] = map
+            MAP_ORIGINAL[str(difficultyIDs[1])] = map
         elif MAP_RAW[map][1] != 6:
             MAP_DICT[str(mapid)] = "10人普通%s" % map
-            MAP_DICT[str(mapid + 1)] = "25人普通%s" % map
-            MAP_DICT[str(mapid + 2)] = "25人英雄%s" % map
+            MAP_DICT[str(difficultyIDs[1])] = "25人普通%s" % map
+            MAP_DICT[str(difficultyIDs[2])] = "25人英雄%s" % map
             MAP_ORIGINAL[str(mapid)] = map
-            MAP_ORIGINAL[str(mapid + 1)] = map
-            MAP_ORIGINAL[str(mapid + 2)] = map
+            MAP_ORIGINAL[str(difficultyIDs[1])] = map
+            MAP_ORIGINAL[str(difficultyIDs[2])] = map
         else:
             MAP_DICT[str(mapid)] = map
             MAP_ORIGINAL[str(mapid)] = map
         if MAP_RAW[map][1] == 1:
             MAP_DICT_RECORD_LOGS[str(mapid)] = int(MAP_RAW[map][1])
-            MAP_DICT_RECORD_LOGS[str(mapid + 1)] = int(MAP_RAW[map][1] * 2)
-            MAP_DICT_RECORD_LOGS[str(mapid + 2)] = int(MAP_RAW[map][1] * 4)
+            MAP_DICT_RECORD_LOGS[str(difficultyIDs[1])] = int(MAP_RAW[map][1] * 2)
+            MAP_DICT_RECORD_LOGS[str(difficultyIDs[2])] = int(MAP_RAW[map][1] * 4)
         MAP_DICT_REVERSE[map] = str(mapid)
         if MAP_RAW[map][1] == 5:
             MAP_DICT_RECORD_LOGS[str(mapid)] = int(MAP_RAW[map][1])
             MAP_DICT_REVERSE["25人挑战%s·上" % map] = str(mapid)
-            MAP_DICT_REVERSE["25人挑战%s·下" % map] = str(mapid + 1)
+            MAP_DICT_REVERSE["25人挑战%s·下" % map] = str(difficultyIDs[1])
         elif MAP_RAW[map][1] != 6:
             MAP_DICT_REVERSE["10人普通%s" % map] = str(mapid)
-            MAP_DICT_REVERSE["25人普通%s" % map] = str(mapid + 1)
-            MAP_DICT_REVERSE["25人英雄%s" % map] = str(mapid + 2)
+            MAP_DICT_REVERSE["25人普通%s" % map] = str(difficultyIDs[1])
+            MAP_DICT_REVERSE["25人英雄%s" % map] = str(difficultyIDs[2])
         else:
             MAP_DICT_RECORD_LOGS[str(mapid)] = int(MAP_RAW[map][1])
             MAP_DICT_REVERSE[map] = str(mapid)
@@ -317,6 +348,19 @@ def getIDFromMap(map):
         return MAP_DICT_REVERSE[map]
     else:
         return "未知"
+
+
+def getBossesForMap(mapName):
+    """地图内的首领顺序，允许不同副本有同名首领和不连续地图 ID。"""
+    mapID = str(mapName) if str(mapName) in MAP_ORIGINAL else getIDFromMap(mapName)
+    baseMap = MAP_ORIGINAL.get(mapID)
+    if baseMap == "洛阳之战":
+        return {name: index for index, name in enumerate(
+            ("突利和顺", "田承嗣", "伊曼双子", "阿史那承庆", "史朝义"), 1)}
+    if baseMap not in MAP_NAME_LIST:
+        return {}
+    mapOrder = MAP_NAME_LIST.index(baseMap)
+    return {name: row[1] for name, row in BOSS_RAW.items() if row[0] == mapOrder}
 
 
 

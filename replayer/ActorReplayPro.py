@@ -83,6 +83,11 @@ from replayer.boss.langfengxuancheng.AshinaChengqing import AshinaChengqingRepla
 from replayer.boss.langfengxuancheng.TangHuairen import TangHuairenReplayer
 from replayer.boss.langfengxuancheng.LuNianxue import LuNianxueReplayer
 from replayer.boss.langfengxuancheng.Qianjiyuanshu import QianjiyuanshuReplayer
+from replayer.boss.luoyangzhizhan.TuliHeshun import TuliHeshunReplayer
+from replayer.boss.luoyangzhizhan.TianChengsi import TianChengsiReplayer
+from replayer.boss.luoyangzhizhan.YimanTwins import YimanTwinsReplayer
+from replayer.boss.luoyangzhizhan.AshinaChengqing import LuoyangAshinaChengqingReplayer
+from replayer.boss.luoyangzhizhan.ShiChaoyi import ShiChaoyiReplayer
 
 from replayer.occ.XiangZhi import XiangZhiProReplayer
 from replayer.occ.LingSu import LingSuReplayer
@@ -124,7 +129,7 @@ class ActorProReplayer(ReplayerBase):
         '''
         # if "beta" in EDITION:
         #     return
-        if self.win == 0:  # 未通关时不上传
+        if self.win == 0 or getattr(self, "attributeStatus", {}).get("status") == "incomplete":
             return
         result = {}
         server = self.bld.info.server
@@ -410,7 +415,7 @@ class ActorProReplayer(ReplayerBase):
                     self.finalTime = event.time + 5000  # 防止脱战失败导致数据延长
 
         # 如果进行了时间修剪，就调整battletime的逻辑，否则battletime就使用复盘数据中附带的结果
-        if abs(self.finalTime - self.startTime - self.battleTime) > 6000:
+        if isLuoyangMap(self.mapDetail) or abs(self.finalTime - self.startTime - self.battleTime) > 6000:
             self.battleTime = self.finalTime - self.startTime
 
         for id in self.bld.info.player:
@@ -480,9 +485,15 @@ class ActorProReplayer(ReplayerBase):
                      "server": self.bld.info.server, "score": self.bld.info.player[id].equipScore})
 
         # 向服务器请求. 这里先从本地计算，以后再改为服务器请求的逻辑.
-        if parseEdition(EDITION) == 0:
+        self.attributeStatus = {}
+        if parseEdition(EDITION) == 0 or isLuoyangMap(self.mapDetail):
             results = {}
-            ad = AttributeDisplay()
+            ad = AttributeDisplay(gameEdition=self.gameEdition)
+            self.attributeStatus = getattr(ad, "status", {})
+            if isLuoyangMap(self.mapDetail):
+                # 同一角色跨赛季缓存不能套用在压缩后的 50 级属性上。
+                for player in self.bld.info.player:
+                    self.window.playerEquipmentAnalysed.pop(player, None)
             for playerEquip in requests["players"]:
                 results[playerEquip["id"]] = {}
                 results[playerEquip["id"]]["base"] = ad.GetBaseAttrib(playerEquip["equipStr"], playerEquip["occ"])
@@ -573,7 +584,18 @@ class ActorProReplayer(ReplayerBase):
 
         print("[bossAnalyseName]", self.bossAnalyseName)
 
-        if self.bossAnalyseName == "张景超":
+        luoyangReplayers = {
+            "突利和顺": TuliHeshunReplayer,
+            "田承嗣": TianChengsiReplayer,
+            "伊曼双子": YimanTwinsReplayer,
+            "阿史那承庆": LuoyangAshinaChengqingReplayer,
+            "史朝义": ShiChaoyiReplayer,
+        }
+        if isLuoyangMap(self.mapDetail) and self.bossAnalyseName in luoyangReplayers:
+            bossAnalyser = luoyangReplayers[self.bossAnalyseName](
+                self.bld, occDetailList, self.startTime, self.finalTime,
+                self.battleTime, self.bossNamePrint, self.config)
+        elif self.bossAnalyseName == "张景超":
             bossAnalyser = ZhangJingchaoReplayer(self.bld, occDetailList, self.startTime,
                                                  self.finalTime, self.battleTime, self.bossNamePrint, self.config)
         elif self.bossAnalyseName == "刘展":
@@ -759,6 +781,10 @@ class ActorProReplayer(ReplayerBase):
 
         if not self.lastTry:
             self.finalTime -= self.failThreshold * 1000
+            if isLuoyangMap(self.mapDetail):
+                self.finalTime = max(self.startTime + 1, self.finalTime)
+                bossAnalyser.trimmedFinalTime = self.finalTime
+                bossAnalyser.bh.setBadPeriod(self.finalTime, bossAnalyser.bh.finalTime, True, True)
 
         for key in self.bld.info.npc:
             if self.bld.info.npc[key].templateID in ["105143", "105308", "105309", "105310", "105311", "105312"]:
@@ -900,6 +926,11 @@ class ActorProReplayer(ReplayerBase):
                 continue
 
             self.bossAnalyser.analyseSecondStage(event)
+            if isLuoyangMap(self.mapDetail) and self.bossAnalyser.trimmedFinalTime:
+                # 已确认通关后立即截断公共死亡/战斗状态统计，防止尾录下一场。
+                self.finalTime = min(self.finalTime, self.bossAnalyser.trimmedFinalTime)
+                if event.time > self.finalTime:
+                    continue
 
             if event.dataType == "Skill":
 
@@ -1316,6 +1347,11 @@ class ActorProReplayer(ReplayerBase):
         self.potList = potList
         self.win = self.bossAnalyser.win
         self.stunCounter = stunCounter
+        if isLuoyangMap(self.mapDetail):
+            for counters in (self.battleDict, self.stunCounter):
+                for counter in counters.values():
+                    counter.finalTime = self.finalTime
+                    counter.shrink(0)
 
         # recordGORate = 1
         # sumDPS = 0
@@ -1456,6 +1492,9 @@ class ActorProReplayer(ReplayerBase):
                 line.append([])
 
         detail["win"] = self.win
+        detail["map"] = self.mapDetail
+        if self.attributeStatus:
+            detail["attributeStatus"] = self.attributeStatus
         if "boss" not in detail:
             detail["boss"] = ""
         if self.bossAnalyseName not in ["", "未知"]:
@@ -1575,6 +1614,14 @@ class ActorProReplayer(ReplayerBase):
 
         combatTracker.export(self.battleTime, self.bh.sumTime("dps"), self.bh.sumTime("healer"), self.stunCounter)
         self.combatTracker = combatTracker
+        if self.attributeStatus.get("status") == "incomplete":
+            self.detail["rdpsStatus"] = getattr(combatTracker, "rdpsStatus", self.attributeStatus)
+            byName = {self.bld.info.getName(player): player for player in self.bld.info.player}
+            for row in self.statDict:
+                player = byName[row["name"]]
+                row["ndps"] = int(combatTracker.getRdps(player, "ndps"))
+                row["hps"] = int(combatTracker.getRhps(player, "hps"))
+                row["rdpsStatus"] = "incomplete"
 
         # for key in self.bld.info.player:
         #     print("[Player]", key, self.bld.info.getName(key))
@@ -1626,6 +1673,7 @@ class ActorProReplayer(ReplayerBase):
         actorData["equip"] = self.panelAttribDict
         actorData["jsonEquip"] = self.jsonEquip
         actorData["strEquip"] = self.strEquip
+        actorData["attributeStatus"] = self.attributeStatus
         # actorData["zhenyanInfer"] = self.zhenyanInfer  # TODO 在dps统计中可能会用到
         for id in self.bld.info.player:
             name = self.bld.info.player[id].name
@@ -1673,7 +1721,7 @@ class ActorProReplayer(ReplayerBase):
                         self.statDict[i]["score"] = score
                         self.statDict[i]["rdpsRank"] = rdpsRank["percent"]
                         self.statDict[i]["scoreRank"] = scoreRank["percent"]
-        self.statDict.sort(key=lambda x: -x["rdps"])
+        self.statDict.sort(key=lambda x: -x.get("ndps", 0) if self.attributeStatus.get("status") == "incomplete" else -x["rdps"])
 
     def replay(self):
         '''
@@ -1706,8 +1754,9 @@ class ActorProReplayer(ReplayerBase):
         self.fileNameInfo = fileNameInfo
         self.path = path
         self.bld = bldDict[fileNameInfo[0]]
-        self.bossname = getNickToBoss(self.bld.info.boss)
+        self.bossname = getNickToBoss(self.bld.info.boss, self.bld.info.map)
         self.mapDetail = self.bld.info.map
+        self.gameEdition = int(getGameEditionFromTime(getIDFromMap(self.mapDetail), self.bld.info.battleTime))
         self.battleDate = time.strftime("%Y-%m-%d", time.localtime(self.bld.info.battleTime))
         self.numTry = 0  # TODO 修改为战斗次数
         if self.numTry == 0:
@@ -1722,6 +1771,8 @@ class ActorProReplayer(ReplayerBase):
         self.equipmentDict = {}
         self.available = True  # 暂时用来判定月泉淮中间分片
         self.bossAnalyseName = "未知"
+        if isLuoyangMap(self.mapDetail) and self.bossname in ("突利和顺", "田承嗣", "伊曼双子", "阿史那承庆", "史朝义"):
+            self.bossAnalyseName = self.bossname
         self.occDetailList = {}
         self.occResult = {}
         self.actorData = {}

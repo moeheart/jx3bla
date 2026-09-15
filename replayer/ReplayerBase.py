@@ -174,7 +174,7 @@ class ReplayerBase():
         '''
         # if "beta" in EDITION:
         #     return
-        if self.win == 0:  # 未通关时不上传
+        if self.win == 0 or self.actorData.get("attributeStatus", {}).get("status") == "incomplete":
             return
         upload = {}
         upload["server"] = self.result["overall"]["server"]
