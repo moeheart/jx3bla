@@ -73,7 +73,13 @@ class XinfaEvidenceTest(unittest.TestCase):
 
     def test_dynamic_buff_evidence_matches_source_and_does_not_rescale(self):
         data = export(ROOT)
-        self.assertEqual(data, json.loads((ROOT / 'xinfa_buff_evidence.json').read_text(encoding='utf-8')))
+        retained = json.loads((ROOT / 'xinfa_buff_evidence.json').read_text(encoding='utf-8'))
+        # The snapshot keeps its original 9503 provenance. Unrelated rows in the
+        # refreshed 9506 tables change whole-file hashes; every saved evidence
+        # object (including the complete source row and tooltip) must still match.
+        self.assertEqual(retained['client_version'], '1.6.0.9503')
+        for group in ('conversion_rows', 'critical_effect_rows', 'interpretation'):
+            self.assertEqual(data[group], retained[group], group)
         self.assertEqual(len(data['conversion_rows']), 72)
         self.assertEqual(len(data['critical_effect_rows']), 30)
         rows = {(row['buff_id'], row['level']): row for row in data['conversion_rows']}

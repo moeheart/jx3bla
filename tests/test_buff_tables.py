@@ -53,9 +53,21 @@ class BuffGenerationTests(unittest.TestCase):
 
     def test_current_source_and_verified_regressions(self):
         manifest = json.loads((RESOURCE / "source_manifest.json").read_text(encoding="utf-8"))
-        self.assertEqual(manifest["client_version"], "1.6.0.9503")
+        self.assertEqual(manifest["client_version"], "1.6.0.9506")
+        core_files = set(manifest["core_update"]["files"])
+        self.assertEqual(len(core_files), 14)
         for source in manifest["files"]:
             self.assertEqual(hashlib.sha256((RESOURCE / source["name"]).read_bytes()).hexdigest(), source["sha256"])
+            if source["name"] in core_files:
+                self.assertEqual(source["client_version"], "1.6.0.9506")
+                self.assertEqual(source["extraction_date"], "2026-09-20")
+                self.assertIn("luoyangzhizhan-0920-check", source["source_path"])
+            else:
+                self.assertEqual(source["client_version"], "1.6.0.9503")
+                self.assertFalse(source["reextracted_for_release_8_16_0"])
+        # These same-name strain buffs must stay on their precise IDs/levels.
+        for identifier in (29294, 20938, 23543):
+            self.assertEqual(NameCangsheng.BOOST_DICT["2,%d,1" % identifier], {"atStrainBase": 7})
         self.assertEqual(NameCangsheng.BOOST_DICT["2,23107,1"]["atStrainBase"], 34)
         self.assertEqual(NameCangsheng.BOOST_DICT["2,2197,4"]["atAgilityBasePercentAdd"], 307)
         self.assertEqual(NameCangsheng.BOOST_DICT["2,22847,5"]["atPhysicsShieldBase"], 0)

@@ -1,3 +1,10 @@
+import sys
+
+if __name__ == "__main__" and "--release-smoke-test" in sys.argv:
+    from release.SmokeTest import main as release_smoke_test
+    release_smoke_test()
+    raise SystemExit(0)
+
 import tkinter as tk
 from tkinter import messagebox
 import threading

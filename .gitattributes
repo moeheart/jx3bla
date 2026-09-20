@@ -1,6 +1,7 @@
 # Preserve extracted source bytes so source_manifest.json hashes survive checkout.
-equip/resources/cangshengtf/*.tab -text
-equip/resources/cangshengtf/*.txt -text
+# Trailing tabs are empty source columns; keep the extraction byte-for-byte.
+equip/resources/cangshengtf/*.tab -text -whitespace
+equip/resources/cangshengtf/*.txt -text -whitespace
 equip/resources/cangshengtf/*.luac -text
 equip/resources/cangshengtf/*.json -text
 equip/resources/cangshengtf/xinfa_evidence/** -text

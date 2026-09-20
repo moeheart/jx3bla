@@ -8,9 +8,9 @@ if __name__ == "__main__":
     pathDict = ['icons']  # 打包icons下的全部文件
     fileDict = {}
 
-    l = os.listdir('icons')
+    l = sorted(os.listdir('icons'))
     for line in l:
-        if line == "rate.dat":
+        if not line.lower().endswith(('.png', '.ico')):
             continue
         fileName = 'icons/%s'%line
         f = open(fileName, "rb")

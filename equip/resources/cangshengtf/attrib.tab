@@ -115608,3 +115608,65 @@ ID	Value	ModifyType	Param1Min	Param1Max	Param2Min	Param2Max	Group1	Group2	Group3
 115848		atPhysicsShieldBase	10581	10581												
 115849		atHasteBase	2116	2116												
 115850		atToughnessBase	1587	1587												
+115851		atSolarAttackPowerBase	624	624												
+115852		atSolarAndLunarAttackPowerBase	624	624												
+115853		atNeutralCriticalStrike	302	302												
+115854		atPoisonCriticalStrike	302	302												
+115855		atPoisonOvercomeBase	388	388												
+115856		atSolarCriticalStrike	432	432												
+115857		atPVXAllRound	388	388	1	1										
+115858		atPVXAllRound	349	349	1	1										
+115859		atPVXAllRound	318	318	1	1										
+115860		atPVXAllRound	454	454												
+115861		atPVXAllRound	454	454	1	1										
+115862		atPVXAllRound	409	409												
+115863		atPVXAllRound	409	409	1	1										
+115864		atLunarCriticalStrike	411	411												
+115865		atLunarCriticalStrike	657	657												
+115866		atSolarOvercomeBase	700	700												
+115867		atNeutralOvercomeBase	700	700												
+115868		atLunarOvercomeBase	700	700												
+115869		atSolarCriticalStrike	700	700												
+115870		atNeutralCriticalStrike	700	700												
+115871		atNeutralCriticalStrike	610	610												
+115872		atLunarCriticalStrike	700	700												
+115873		atLunarCriticalStrike	610	610												
+115874		atPoisonCriticalStrike	700	700												
+115875		atPoisonCriticalStrike	610	610												
+115876		atPVXAllRound	116	116												
+115877		atPVXAllRound	116	116	1	1										
+115878		atLunarAttackPowerBase	955	955												
+115879		atPoisonAttackPowerBase	955	955												
+115880		atSolarAndLunarAttackPowerBase	955	955												
+115881		atPVXAllRound	273	273												
+115882		atPVXAllRound	273	273	1	1										
+115883		atSolarAttackPowerBase	1118	1118												
+115884		atSolarOvercomeBase	627	627												
+115885		atNeutralAttackPowerBase	1118	1118												
+115886		atLunarAttackPowerBase	1118	1118												
+115887		atPoisonAttackPowerBase	1118	1118												
+115888		atSolarAndLunarAttackPowerBase	1118	1118												
+115889		atNeutralAttackPowerBase	1050	1050												
+115890		atPhysicsAttackPowerBase	1088	1088												
+115891		atSolarAttackPowerBase	1231	1231												
+115892		atNeutralAttackPowerBase	1217	1217												
+115893		atNeutralAttackPowerBase	1175	1175												
+115894		atLunarAttackPowerBase	1217	1217												
+115895		atPoisonAttackPowerBase	1175	1175												
+115896		atSolarAndLunarAttackPowerBase	1175	1175												
+115897		atLunarAttackPowerBase	1175	1175												
+115898		atNeutralAttackPowerBase	1200	1200												
+115899		atNeutralAttackPowerBase	1248	1248												
+115900		atSolarAndLunarAttackPowerBase	1248	1248												
+115901		atStrainBase	1200	1200												
+115902		atNeutralAttackPowerBase	1350	1350												
+115903		atPVXAllRound	194	194												
+115904		atPVXAllRound	194	194	1	1										
+115905		atPVXAllRound	227	227	1	1										
+115911		atSkillEventHandler	3237	3237												
+115910		atSkillEventHandler	3236	3236												
+115909		atSkillEventHandler	3235	3235												
+115912		atSkillEventHandler	3238	3238												
+115907		atSkillEventHandler	3233	3233												
+115908		atSkillEventHandler	3234	3234												
+115906		atSkillEventHandler	3232	3232												

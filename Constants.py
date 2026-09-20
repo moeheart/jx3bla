@@ -3,8 +3,8 @@
 
 from ServerAddress import get_address_config, get_api_url, get_logs_url
 
-EDITION = "8.16.0-beta.2"
-ANNOUNCEMENT = "苍生铸世体服适配：50级属性与洛阳之战rDPS计算更新。"
+EDITION = "8.16.0"
+ANNOUNCEMENT = "8.16.0：支持苍生铸世体服洛阳之战1-5复盘与50级属性/rDPS，更新至1.6.0.9506增益和装备数据。"
 # IP is kept for old compatibility. New HTTP requests should use get_api_url()
 # or get_logs_url().
 IP = get_address_config()["api"]["host"]
