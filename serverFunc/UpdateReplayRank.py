@@ -14,6 +14,26 @@ from tools.Functions import parseEdition
 STAT_ID = {"score": 3, "rhps": 18, "hps": 20, "rdps": 22, "ndps": 24, "mrdps": 26, "mndps": 28}
 RANK_ID = {"score": 17, "rhps": 19, "hps": 21, "rdps": 23, "ndps": 25, "mrdps": 27, "mndps": 29}
 
+DEFAULT_MIN_RANK_CLIENT = "8.13.0"
+MIN_RANK_CLIENT_BY_GAME_EDITION = {
+    "160": "8.16.0",
+    "161": "8.16.0",
+    "162": "8.16.0",
+}
+
+
+def isReplayRankEligible(record):
+    """Keep uncalibrated older clients out of Cangsheng percentile samples."""
+    edition = record[10]
+    minimum = MIN_RANK_CLIENT_BY_GAME_EDITION.get(str(record[31]), DEFAULT_MIN_RANK_CLIENT)
+    if not isinstance(edition, str) or "beta" in edition.lower():
+        return False
+    try:
+        return parseEdition(edition) >= parseEdition(minimum)
+    except (ValueError, IndexError):
+        return False
+
+
 def getDirection(key):
     if "delay" in key:
         return -1
@@ -21,6 +41,8 @@ def getDirection(key):
         return 1
 
 def getSingleStat(record):
+    if not isReplayRankEligible(record):
+        return {}
     res = {}
     key1 = record[2]
     key2 = getIDFromMap(record[5])
@@ -160,13 +182,15 @@ def updatePercent(raw_rank, cursor, db):
     直接使用计算的结果更新数据库大项的百分位排名.
     '''
     
-    edition = "8.13.0"
+    edition = DEFAULT_MIN_RANK_CLIENT
     
     sql = """SELECT * FROM ReplayProStat WHERE editionFull>=%d AND hold=1""" % parseEdition(edition)
     cursor.execute(sql)
     result = cursor.fetchall()
     
     for record in result:
+        if not isReplayRankEligible(record):
+            continue
         key1 = record[2]
         key2 = getIDFromMap(record[5])
         key3 = record[6]
@@ -216,7 +240,7 @@ def RefreshStat():
     db = pymysql.connect(host=ip, user=dbname, password=dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
 
-    edition = "8.13.0"
+    edition = DEFAULT_MIN_RANK_CLIENT
 
     sql = """SELECT * FROM ReplayProStat WHERE editionFull>=%d""" % parseEdition(edition)
     cursor.execute(sql)

@@ -22,6 +22,7 @@ from tools.Names import *
 from equip.AttributeDisplay import AttributeDisplay
 from tools.painter import XiangZhiPainter
 from replayer.ReplayerBase import RankCalculator
+from serverFunc.UpdateReplayRank import MIN_RANK_CLIENT_BY_GAME_EDITION, isReplayRankEligible
 
 version = EDITION
 ip = "127.0.0.1" # IP
@@ -306,7 +307,6 @@ def receiveBattle(jdata, cursor):
     length = jdata.get("length", 0)
     statistics = str(jdata["statistics"]).replace('"', '`')
     map = getIDFromMap(mapName)
-    gameEdition = getGameEditionFromTime(map, jdata["begintime"])
 
     print("[Battle]", team, length, hash)
 
@@ -326,6 +326,7 @@ def receiveBattle(jdata, cursor):
 
     submitTime = jdata["time"]
     battleTime = jdata["begintime"]
+    gameEdition = getGameEditionFromTime(map, battleTime)
     userID = jdata["userid"]
     editionFull = parseEdition(edition)
 
@@ -425,7 +426,15 @@ def uploadActorData():
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
 
-    res = receiveBattle(jdata, cursor)
+    try:
+        res = receiveBattle(jdata, cursor)
+        db.commit()
+    except Exception:
+        db.rollback()
+        traceback.print_exc()
+        return jsonify({'result': 'fail'})
+    finally:
+        db.close()
     return jsonify(res)
     
 def getRank(value, table):
@@ -580,13 +589,14 @@ def uploadReplayPro():
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     try:
-        res = receiveReplay(jdata, cursor, "-1")
+        res = receiveReplay(jdata, cursor)
         db.commit()
-        db.close()
     except Exception as e:
+        db.rollback()
         traceback.print_exc()
-        db.close()
         return jsonify({'result': 'fail', 'num': 0, 'numOver': 0, 'shortID': 0, 'scoreRank': 0})
+    finally:
+        db.close()
     print("UploadReplay complete!")
     return jsonify(res)
 
@@ -611,11 +621,12 @@ def uploadCombinedData():
                 res["id"] = line["id"]
                 groupRes["data"].append(res)
         db.commit()
-        db.close()
     except Exception as e:
+        db.rollback()
         traceback.print_exc()
-        db.close()
         groupRes["status"] = "fail"
+    finally:
+        db.close()
     return jsonify(groupRes)
 
 
@@ -908,6 +919,7 @@ def getBossesFromMapfunc():
 @app.route('/getGameEditionFromMap', methods=['GET'])
 def getGameEditionFromMapfunc():
     result = {}
+    ranges = {}
     map = request.args.get('map')
     mapid = getIDFromMap(map)
     if mapid == "未知":
@@ -915,7 +927,10 @@ def getGameEditionFromMapfunc():
     for item in GAMEEDITION_RAW:
         if mapid in GAMEEDITION_RAW[item][1]:
             result[item] = GAMEEDITION_RAW[item][0]
-    return jsonify({'available': 1, 'text': "请求成功", 'result': result})
+            ranges[item] = GAMEEDITION_RAW[item][2]
+    return jsonify({'available': 1, 'text': "请求成功", 'result': result,
+                    'current': getGameEditionFromTime(mapid, time.time()),
+                    'ranges': ranges, 'timezone': 'UTC+08:00'})
 
 @app.route('/getHoFRank', methods=['GET'])
 def getHoFfunc():
@@ -1075,6 +1090,8 @@ def getRankfunc():
     result = list(result)
     result_var = []
     for line in result:
+        if str(line[31]) in MIN_RANK_CLIENT_BY_GAME_EDITION and not isReplayRankEligible(line):
+            continue
         line_var = list(line)
         if parseEdition(line[10]) < parseEdition("8.1.0") and occ in ["lingsu", "butianjue", "yunchangxinjing"]:
             line_var[3] -= 10000
