@@ -181,8 +181,18 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     report = audit(args.evidence_root, args.deps)
+    # Current portable mobile evidence must survive a full ordinary regeneration.
+    mobile_evidence = args.evidence_root.parent / 'wujie_evidence'
+    if mobile_evidence.is_dir():
+        from release.GenerateWujieXinfa50 import audit as audit_mobile, merge_profiles
+        mobile_profiles = audit_mobile(mobile_evidence, args.deps)
+        report = merge_profiles(report, mobile_profiles)
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    newline = '\r\n' if args.output.is_file() and b'\r\n' in args.output.read_bytes() else '\n'
+    args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline=newline)
+    if mobile_evidence.is_dir() and (args.output.parent / 'source_manifest.json').is_file():
+        from release.GenerateWujieXinfa50 import update_resource_manifest
+        update_resource_manifest(args.output.parent, args.output, mobile_profiles)
     print(json.dumps({'occupations': len(report['occupations']), 'output': str(args.output)}))
 
 

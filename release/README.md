@@ -1,6 +1,6 @@
 # 发布构建说明
 
-## 8.16.0 正式版
+## 8.16.1 正式版
 
 苍生铸世（游戏版本 160 起）的 Actor 在正式版和 beta 版中都会使用本地属性计算。正式 EXE 必须带入对应装备表、50 级心法和首领防御数据。版本名不含 `beta` 并不代表新赛季可以省略这些数据。
 
@@ -48,17 +48,21 @@ python -m release.ValidateRelease --exe dist/j3jz.exe
 
 ```powershell
 ./release/Release.ps1 -Python C:/Python314/python.exe `
-  -ReplayManifest backups/luoyang-20260915/manifest.json
+  -ReplayManifest backups/luoyang-20260915/manifest.json `
+  -WujieLog "C:/Develop/21/jx3bla/backups/wujie-20261006/2026-10-06-22-24-47-25人普通洛阳之战(835)-史朝义(139312).jcl"
 ```
 
 也可把最终 EXE 复制到一个新的空目录，从该目录执行以下命令（清单使用绝对路径）：
 
 ```powershell
 ./j3jz.exe --release-smoke-test --report ./release-smoke.json `
-  --manifest C:/Develop/21/jx3bla/backups/luoyang-20260915/manifest.json
+  --manifest C:/Develop/21/jx3bla/backups/luoyang-20260915/manifest.json `
+  --wujie-log "C:/Develop/21/jx3bla/backups/wujie-20261006/2026-10-06-22-24-47-25人普通洛阳之战(835)-史朝义(139312).jcl"
 ```
 
 省略 `--manifest` 只做基础冒烟。报告必须同时包含 `status: passed` 和 `frozen: true`；失败时命令返回非零。日志和身份明细保留在本地验证目录。EXE 冒烟不等于游戏内手工验收。
+
+`--wujie-log`（构建参数为 `-WujieLog`）单独验证本次无界样例，不替换五场回归清单中的史朝义记录。检查完整解析、25 人属性、无界伤害守恒和隐藏统计窗口，并将详情保存在同目录的 `wujie-report.json`。该样例仍有普通藏剑武器特效的既有未标定警告，检查只允许这一条精确匹配的警告，不放宽无界检查。
 
 ## 提交、上传与公告
 
@@ -73,7 +77,7 @@ python -m release.ValidateRelease --exe dist/j3jz.exe
 
 ## Beta 离线包边界
 
-`MainWindow.beta.spec` 还会打包旧赛季八份大型装备表和图标，适用于需要旧赛季离线计算的 beta 包；正式 8.16.0 使用 `MainWindow.spec`。历史 `ReleaseBeta.ps1` 仍含自动 Git 步骤，本次标准发布不调用它。
+`MainWindow.beta.spec` 还会打包旧赛季八份大型装备表和图标，适用于需要旧赛季离线计算的 beta 包；正式 8.16.1 使用 `MainWindow.spec`。历史 `ReleaseBeta.ps1` 仍含自动 Git 步骤，本次标准发布不调用它。
 
 新赛季增益表的独立生成命令是：
 

@@ -17,6 +17,7 @@ def main():
     parser.add_argument('--release-smoke-test', action='store_true')
     parser.add_argument('--report', type=Path, required=True)
     parser.add_argument('--manifest', type=Path)
+    parser.add_argument('--wujie-log', type=Path)
     args = parser.parse_args()
     report_path = args.report.resolve()
     report_path.parent.mkdir(parents=True, exist_ok=True)
@@ -41,7 +42,12 @@ def main():
             resources[name] = {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
         display = AttributeDisplay(gameEdition=160)
         assert display.status['status'] == 'supported', display.status
-        assert len(kungfu_data()['occupations']) == 31
+        profiles = kungfu_data()['occupations']
+        assert len(profiles) == 64
+        from tools.Functions import getOccDetailFromXinfaCode
+        for occ in ('24w', '2hw', '10tw', '34w'):
+            assert occ in profiles and profiles[occ]['raw_attributes']
+            assert getOccDetailFromXinfaCode(str(profiles[occ]['skill_id'])) == occ
         assert npc_data()['profiles']
         for buff_id, value in ((29294, 7), (20938, 7), (23543, 7), (20854, 8)):
             assert NameCangsheng.BOOST_DICT['2,%s,1' % buff_id]['atStrainBase'] == value
@@ -56,7 +62,7 @@ def main():
         root.destroy()
         result = {'version': EDITION, 'frozen': frozen, 'network': 'disabled',
                   'upload': 'disabled', 'resources': resources, 'attributeStatus': display.status,
-                  'kungfus': 31, 'npcProfiles': len(npc_data()['profiles']),
+                  'kungfus': len(profiles), 'npcProfiles': len(npc_data()['profiles']),
                   'buffChecks': 'passed', 'tk': 'constructed',
                   'mainWindow': 'initialized', 'status': 'passed'}
         if args.manifest:
@@ -67,6 +73,11 @@ def main():
             with patch.object(sys, 'argv', argv):
                 validate_rdps()
             result['replayReport'] = str(output / 'clear-rdps.json')
+        if args.wujie_log:
+            from tools.ValidateWujie import validate_wujie_log, write_report
+            wujie_report = report_path.parent / 'wujie-report.json'
+            write_report(validate_wujie_log(args.wujie_log, ui=True), wujie_report)
+            result['wujieReport'] = str(wujie_report)
         report_path.write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
         print('Release smoke test passed: ' + str(report_path))
 

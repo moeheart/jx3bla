@@ -106,6 +106,8 @@ class CombatTrackerWindow(Window):
                 self.bars[i][1]['value'] = rate
                 occ = dataT[i][1]["occ"]
 
+                if occ.endswith("w"):
+                    occ = occ[:-1]
                 if occ[-1] in ["d", "t", "h", "p", "m"]:
                     occ = occ[:-1]
                 self.bars[i][1].configure(style="bar%s.Horizontal.TProgressbar" % occ)

@@ -10,6 +10,7 @@ from pathlib import Path
 import re
 
 from tools.Attribute import ATTRIB_TYPE, COEFF50
+from tools.Functions import getOccType
 
 RESOURCE_ROOT = Path(__file__).parent / 'resources' / 'cangshengtf'
 SCHOOLS = {1: 'Physics', 2: 'Solar', 3: 'Lunar', 4: 'Neutral', 5: 'Poison'}
@@ -105,9 +106,13 @@ class CangshengAttributeData:
 
 
 def profile_school(occ):
+    # New kungfus retain their own client evidence, including mobile variants.
+    school = get_profile(occ).get('school')
+    if school:
+        return school
     # Select only the attack school from the legacy lookup, never its numbers.
     from equip.AttributeData import OCC_ATTRIB
-    return SCHOOLS[2 if occ == '10t' else OCC_ATTRIB[occ]['类型']]
+    return SCHOOLS[2 if occ in ('10t', '10tw') else OCC_ATTRIB[occ]['类型']]
 
 
 def school_matches(required, actual):
@@ -126,17 +131,50 @@ def static_attributes(occ):
         name = enum_attribute(row['attribute'])
         if (name in ATTRIB_TYPE or conversion_spec(name) or name in (
                 'atMaxLifeBase', 'atMaxLifePercentAdd', 'atDecriticalDamagePowerBaseKiloNumRate',
-                'atDstNpcDamageCoefficient')):
+                'atDstNpcDamageCoefficient', 'atAdaptAttributeType')):
             if isinstance(row['value_a'], (int, float)):
                 result[name] += row['value_a']
     return dict(result)
+
+
+def adapt_youluo_equipment(equipment):
+    """Client panel child21 adapts equipment before adding naked attributes."""
+    result = equipment.copy()
+    sources = ('atStrengthBase', 'atSpunkBase', 'atAgilityBase')
+    result['atSpiritBase'] = result.get('atSpiritBase', 0) + max(
+        0, *(result.pop(key, 0) for key in sources))
+    return result
+
+
+def adapt_youluo_ratings(raw):
+    """Client panel child31 takes the largest alternate-school contribution.
+
+    Both Youluo kungfus enable ADAPT_ATTRIBUTE_TYPE=1. Preserve raw input so
+    boost removal recalculates the winning source rather than subtracting a
+    previously adapted number. See wujie_evidence/youluo_panel_evidence.json.
+    """
+    result = raw.copy()
+    for suffix in ('AttackPowerBase', 'CriticalStrike', 'CriticalDamagePowerBase', 'OvercomeBase'):
+        sources = tuple('at' + school + suffix for school in ('Solar', 'Neutral', 'Poison', 'Physics'))
+        candidate = max(0, *(result.get(key, 0) for key in sources if key != 'atPhysicsAttackPowerBase'))
+        if suffix == 'AttackPowerBase':
+            candidate = max(candidate, result.get('atPhysicsAttackPowerBase', 0) + 6 * (
+                result.get('atMeleeWeaponDamageBase', 0) + result.get('atMeleeWeaponDamageRand', 0) / 2))
+        for key in sources:
+            result.pop(key, None)
+        target = 'atLunar' + suffix
+        result[target] = result.get(target, 0) + candidate
+    return result
 
 
 def make_base_attributes(equipment, occ):
     # Current role_attribute.lua R54 provides the default base attributes.
     general = {'atVitalityBase': 18, 'atStrengthBase': 17, 'atAgilityBase': 18,
                'atSpiritBase': 18, 'atSpunkBase': 17, 'atMaxLifeBase': 3956}
-    raw = merge_attributes(equipment, general, static_attributes(occ))
+    static = static_attributes(occ)
+    if static.get('atAdaptAttributeType') == 1:
+        equipment = adapt_youluo_equipment(equipment)
+    raw = merge_attributes(equipment, general, static)
     result = calculate_attributes(raw, occ, include_conversions=False)
     result['_raw'] = raw
     result['_baseSource'] = 'current role_attribute.lua R54; JCL body type unavailable'
@@ -146,6 +184,8 @@ def make_base_attributes(equipment, occ):
 def calculate_attributes(raw, occ, include_conversions=True, school=None, include_secondary=True):
     """Apply flat values, base multipliers, then main-stat conversions."""
     school = school or profile_school(occ)
+    if raw.get('atAdaptAttributeType') == 1:
+        raw = adapt_youluo_ratings(raw)
     player_type = next(key for key, value in SCHOOLS.items() if value == school)
     result = defaultdict(float)
     ratings, rates, multipliers = defaultdict(float), defaultdict(float), defaultdict(float)
@@ -198,7 +238,7 @@ def calculate_attributes(raw, occ, include_conversions=True, school=None, includ
             ratings['破防'] += result['元气'] * 0.061
             ratings['会心'] += result['根骨'] * 0.25
         # The all-round treatment toggle is controlled by the healer kungfu.
-        if occ.endswith('h'):
+        if getOccType(occ) == 'healer':
             result['治疗'] += result['全能'] * 0.15
         else:
             ratings['无双'] += result['全能'] * 1.22

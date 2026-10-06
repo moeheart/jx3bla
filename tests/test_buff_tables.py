@@ -62,6 +62,11 @@ class BuffGenerationTests(unittest.TestCase):
                 self.assertEqual(source["client_version"], "1.6.0.9506")
                 self.assertEqual(source["extraction_date"], "2026-09-20")
                 self.assertIn("luoyangzhizhan-0920-check", source["source_path"])
+            elif source['name'] == 'xinfa50.json':
+                self.assertEqual(source['client_version'], 'mixed: 1.6.0.9503 + 1.6.0.9517')
+                self.assertEqual(source['added_profile_client_version'], '1.6.0.9517')
+                self.assertEqual(source['added_profile_count'], 33)
+                self.assertTrue(source['retained_evidence'])
             else:
                 self.assertEqual(source["client_version"], "1.6.0.9503")
                 self.assertFalse(source["reextracted_for_release_8_16_0"])

@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
     [string]$Python = "python",
-    [string]$ReplayManifest = ""
+    [string]$ReplayManifest = "",
+    [string]$WujieLog = ""
 )
 
 Set-StrictMode -Version Latest
@@ -21,6 +22,7 @@ try {
     Invoke-ReleasePython -Arguments @("-m", "PyInstaller", "--version")
     Invoke-ReleasePython -Arguments @("-m", "release.ValidateRelease", "--inputs-only")
     $resolvedManifest = if ($ReplayManifest) { (Resolve-Path -LiteralPath $ReplayManifest).ProviderPath } else { "" }
+    $resolvedWujieLog = if ($WujieLog) { (Resolve-Path -LiteralPath $WujieLog).ProviderPath } else { "" }
 
     Invoke-ReleasePython -Arguments @("-m", "release.GeneratorGenerator")
     Invoke-ReleasePython -Arguments @("-m", "release.EquipmentTypeGenerator")
@@ -48,6 +50,7 @@ try {
     $smokeReport = Join-Path $smokeDirectory "release-smoke.json"
     $smokeArguments = @("--release-smoke-test", "--report", $smokeReport)
     if ($resolvedManifest) { $smokeArguments += @("--manifest", $resolvedManifest) }
+    if ($resolvedWujieLog) { $smokeArguments += @("--wujie-log", $resolvedWujieLog) }
     Push-Location -LiteralPath $smokeDirectory
     try {
         & $smokeExecutable @smokeArguments

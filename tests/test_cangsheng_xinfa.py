@@ -16,7 +16,10 @@ class XinfaEvidenceTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.data = json.loads((ROOT / 'xinfa50.json').read_text(encoding='utf-8'))
-        cls.profiles = cls.data['occupations']
+        # These tests audit the retained 9503 originals. The mobile/9517
+        # evidence has its own regression suite and provenance.
+        cls.profiles = {occ: profile for occ, profile in cls.data['occupations'].items()
+                        if not occ.endswith('w') and occ != '34'}
 
     def test_portable_originals_match_manifest_and_bytecode_roundtrip(self):
         manifest = json.loads((EVIDENCE / 'source_manifest.json').read_text(encoding='utf-8'))

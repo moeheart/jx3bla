@@ -169,11 +169,15 @@
     },
     {
       "name": "xinfa50.json",
-      "bytes": 260813,
-      "sha256": "1c88413bc743ae8ef25c0ef87aaed0b356690b63afc5dbd882579e755410f09d",
-      "client_version": "1.6.0.9503",
+      "bytes": 515926,
+      "sha256": "614e16f896755a4162f5765d0ab61585f802d3fcd4ca595abd5ab2c59bbc90d3",
+      "client_version": "mixed: 1.6.0.9503 + 1.6.0.9517",
       "retained_evidence": true,
-      "reextracted_for_release_8_16_0": false
+      "reextracted_for_release_8_16_0": false,
+      "added_profile_client_version": "1.6.0.9517",
+      "added_profile_count": 33,
+      "added_profile_source": "wujie_evidence/source_manifest.json",
+      "extraction_date": "2026-10-06"
     },
     {
       "name": "xinfa_buff_evidence.json",
@@ -329,7 +333,7 @@
     "equipment_source": "current_9506",
     "level50_panel_and_rdps": "enabled_for_verified_25_normal_luoyang_profiles",
     "therapy_attribution": "not_implemented",
-    "kungfu": "31_current_original_scripts_at_level_5",
+    "kungfu": "64_verified_profiles: 31_retained_9503 + 32_wujie_and_1_youluo_9517",
     "gem_scaling": "native_1355_div_27800"
   },
   "parameter_extraction": {
@@ -356,9 +360,12 @@
       "10-player and heroic NPC defense profiles are not yet verified"
     ],
     "verified_client_version": "1.6.0.9503",
-    "reextracted_for_release_8_16_0": false
+    "reextracted_for_release_8_16_0": false,
+    "wujie_originals": "wujie_evidence/source_manifest.json",
+    "kungfu_client_version_scope": "31 retained 9503 ordinary profiles; 32 Wujie + ordinary 34 verified from 9517",
+    "youluo_adaptive_panel": "wujie_evidence/youluo_panel_evidence.json"
   },
-  "client_version_scope": "14 core tables updated from 2026-09-20 extraction; retained evidence has its own earlier version",
+  "client_version_scope": "14 core tables retained from 2026-09-20 extraction (9506); 31 ordinary kungfus, NPC and other retained evidence from 9503; 32 Wujie kungfus and ordinary 34 added from 2026-10-06 extraction (9517)",
   "extraction_date": "2026-09-20",
   "release_version": "8.16.0",
   "core_update": {
@@ -387,6 +394,6 @@
   "retained_evidence": {
     "client_version": "1.6.0.9503",
     "reextracted": false,
-    "description": "Kungfu, NPC defenses, parameter Lua, role panel and native gem evidence remain from the prior verified extraction; this release refreshed the 14 core tables only."
+    "description": "The 31 prior ordinary kungfu profiles, NPC defenses, parameter Lua, role panel and native gem evidence remain from 9503. The 14 core tables remain from 9506. Only 32 Wujie kungfu profiles and ordinary Youluo were added from the isolated 9517 extraction."
   }
 }
