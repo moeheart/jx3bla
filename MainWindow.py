@@ -381,6 +381,9 @@ class MainWindow():
     def manual_update(self):
         if self.lock.state():
             return
+        messagebox.showinfo(title='更新下载说明',
+                            message=self.announcement + '\n\n点击“确定”后打开下载页面。',
+                            parent=self.window)
         webbrowser.open(self.updateurl)
         
     def checkConfig(self):
