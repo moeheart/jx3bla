@@ -6,5 +6,8 @@ CANGSHENG_FILES = tuple(
         "Custom_Trinket.tab", "Custom_Armor.tab", "Custom_Weapon.tab",
         "attrib.tab", "enchant.tab", "item.txt", "other.tab", "Set.tab",
         "StrengthableAttrib.tab", "xinfa50.json", "luoyang_npc_defense.json",
+        "cangsheng_test_equipment.zip",
+        "xinfa50_hd.json", "global_parameters_hd.json",
+        "luoyang_npc_defense_hd.json",
     )
 )

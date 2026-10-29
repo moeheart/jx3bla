@@ -4,7 +4,7 @@
 from tools.Functions import *
 from replayer.Name import *
 from replayer import Name as LegacyName
-from replayer import NameCangsheng
+from replayer import NameCangsheng, NameCangshengTest
 from tools.Names import getGameEditionFromTime, getIDFromMap
 from equip.AttributeData import *
 from equip.CangshengAttributeData import CangshengAttributeData, get_target_profiles
@@ -536,8 +536,9 @@ class BoostCounter():
         self.rdpsRate = {}
         self.basicAttribute = {}
         attributeClass = CangshengAttributeData if self.gameEdition >= 160 else AttributeData
-        self.attributeData = attributeClass(occ)
-        self.attributeData2 = attributeClass(occ)
+        attributeOptions = {"gameEdition": self.gameEdition} if self.gameEdition >= 160 else {}
+        self.attributeData = attributeClass(occ, **attributeOptions)
+        self.attributeData2 = attributeClass(occ, **attributeOptions)
         if baseAttribute is not None:
             self.attributeData.baseAttrib = baseAttribute
             self.attributeData2.baseAttrib = baseAttribute
@@ -1820,13 +1821,14 @@ class CombatTracker():
         self.info = info
         self.gameEdition = int(getGameEditionFromTime(getIDFromMap(info.map), info.battleTime) or 0)
         self.isCangsheng = self.gameEdition >= 160
-        tables = NameCangsheng if self.isCangsheng else LegacyName
+        tables = (NameCangsheng if self.gameEdition >= 161 else
+                  NameCangshengTest if self.gameEdition == 160 else LegacyName)
         self.boostDict = tables.BOOST_DICT
         self.absorbDict = tables.ABSORB_DICT
         self.resistDict = tables.RESIST_BY_SCHOOL_DICT if self.isCangsheng else tables.RESIST_DICT
-        self.therapyDict = NameCangsheng.THERAPY_DICT if self.isCangsheng else {}
+        self.therapyDict = tables.THERAPY_DICT if self.isCangsheng else {}
         self.rdpsStatus = {"status": "supported", "gameEdition": self.gameEdition}
-        self.targetProfiles = get_target_profiles(info) if self.isCangsheng else {}
+        self.targetProfiles = get_target_profiles(info, self.gameEdition) if self.isCangsheng else {}
         if self.isCangsheng and (not self.targetProfiles or any(value is None or value.get('_warnings') for value in baseAttribDict.values())):
             self.rdpsStatus.update(status="incomplete", reason="部分玩家装备或当前地图首领属性缺少验证数据。")
         self.occDetailList = occDetailList

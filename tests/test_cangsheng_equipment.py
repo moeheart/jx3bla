@@ -1,6 +1,10 @@
 """50 级装备源表与导入链路回归；不把推算值冒充游戏面板实测值。"""
 import unittest
+import hashlib
+import json
+from pathlib import Path
 from unittest.mock import patch
+from zipfile import ZipFile
 
 from equip.AttributeCal import AttributeCal
 from equip.EquipmentExport import ImportExcelEquipment
@@ -49,6 +53,24 @@ class CangshengEquipmentTests(unittest.TestCase):
         self.assertEqual(result['atSpiritBase'], 177 + 12)
         old_ids = self.ac.CalculateAll(equipment_text({'12': [111692, 6, 0, 0, 24449, 24447, 0, 0]}))
         self.assertEqual(result, old_ids)
+
+    def test_formal_equipment_changes_do_not_rewrite_test_server_logs(self):
+        text = equipment_text({'12': [111692, 6, 0, 0, 8, 6, 0, 0]})
+        formal = AttributeCal(161).CalculateAll(text)
+        historical = self.ac.CalculateAll(text)
+        self.assertEqual(formal['atMagicOvercome'], 38)
+        self.assertEqual(historical['atMagicOvercome'], 28)
+
+    def test_historical_equipment_archive_matches_verified_source(self):
+        archive_path = Path(__file__).resolve().parents[1] / 'equip/resources/cangshengtf/cangsheng_test_equipment.zip'
+        with ZipFile(archive_path) as archive:
+            manifest = json.loads(archive.read('source_manifest.json'))
+            self.assertEqual(manifest['client_version'], '1.6.0.9506')
+            self.assertEqual(len(manifest['files']), 8)
+            for row in manifest['files']:
+                data = archive.read(row['name'])
+                self.assertEqual(len(data), row['bytes'])
+                self.assertEqual(hashlib.sha256(data).hexdigest(), row['sha256'])
 
     def test_native_gem_levels_and_scaling_flags(self):
         info = self.ac.equipmentInfo

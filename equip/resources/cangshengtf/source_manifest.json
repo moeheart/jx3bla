@@ -1,163 +1,163 @@
 {
   "season": "苍生铸世",
   "game_edition": 160,
-  "client_version": "1.6.0.9506",
-  "client_mode": "zhcn_exp",
-  "source_root": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\source\\critical_files",
+  "client_version": "1.6.0.10009",
+  "client_mode": "zhcn_hd",
+  "source_root": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\critical_files",
   "files": [
     {
       "name": "buff.tab",
-      "bytes": 15476199,
-      "mtime_ns": 1789883742925180500,
-      "sha256": "627558ceb3022f544287db7f7d6532ba1437a1a2578fb0a41a5890311018e692",
-      "client_version": "1.6.0.9506",
-      "client_mode": "zhcn_exp",
-      "extraction_date": "2026-09-20",
-      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\source\\critical_files\\buff.tab",
-      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\validation\\source_manifest.json"
+      "bytes": 15634147,
+      "mtime_ns": 1793295645178018700,
+      "sha256": "d1a1ad978d38d1b182ad30643dc5302fd462a124dd688b99f856f1a5f8179b56",
+      "client_version": "1.6.0.10009",
+      "client_mode": "zhcn_hd",
+      "extraction_date": "2026-10-29",
+      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\critical_files\\buff.tab",
+      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\fresh-authorized-01\\manifest.json"
     },
     {
       "name": "buff2.tab",
-      "bytes": 1809091,
-      "mtime_ns": 1789883742935179700,
-      "sha256": "6830f3e053b1a30ae7f072892489442f665514e3b574aa177d391590a3273a2b",
-      "client_version": "1.6.0.9506",
-      "client_mode": "zhcn_exp",
-      "extraction_date": "2026-09-20",
-      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\source\\critical_files\\buff2.tab",
-      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\validation\\source_manifest.json"
+      "bytes": 1815021,
+      "mtime_ns": 1793295645199538700,
+      "sha256": "cff5abe795c2a23f8e42e1be15ec34fc764b9a2243cf424d6591d339aa086939",
+      "client_version": "1.6.0.10009",
+      "client_mode": "zhcn_hd",
+      "extraction_date": "2026-10-29",
+      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\critical_files\\buff2.tab",
+      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\fresh-authorized-01\\manifest.json"
     },
     {
       "name": "buff.txt",
-      "bytes": 3435993,
-      "mtime_ns": 1789883742949177100,
-      "sha256": "3dbab52b590f89d7bae482dc87ee577ed30ad027765ba13a739cbed1373f0284",
-      "client_version": "1.6.0.9506",
-      "client_mode": "zhcn_exp",
-      "extraction_date": "2026-09-20",
-      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\source\\critical_files\\buff.txt",
-      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\validation\\source_manifest.json"
+      "bytes": 3492648,
+      "mtime_ns": 1793295645212044900,
+      "sha256": "f19c452e8722f213a547d349250efd6eb1046c026baab60837da276e5534e348",
+      "client_version": "1.6.0.10009",
+      "client_mode": "zhcn_hd",
+      "extraction_date": "2026-10-29",
+      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\critical_files\\buff.txt",
+      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\fresh-authorized-01\\manifest.json"
     },
     {
       "name": "buff2.txt",
-      "bytes": 667351,
-      "mtime_ns": 1789883742954176700,
-      "sha256": "dd2601a9c1c6bbcd1be7a2ff808ee3e3477948f1414e3fee98bc87b0bd1100bf",
-      "client_version": "1.6.0.9506",
-      "client_mode": "zhcn_exp",
-      "extraction_date": "2026-09-20",
-      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\source\\critical_files\\buff2.txt",
-      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\validation\\source_manifest.json"
+      "bytes": 668697,
+      "mtime_ns": 1793295645223549700,
+      "sha256": "10037abf1e3e76964c64e779fd83d58fde3025bf66e3f1d37b6f95cee9fe02f2",
+      "client_version": "1.6.0.10009",
+      "client_mode": "zhcn_hd",
+      "extraction_date": "2026-10-29",
+      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\critical_files\\buff2.txt",
+      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\fresh-authorized-01\\manifest.json"
     },
     {
       "name": "skill.txt",
-      "bytes": 6225390,
-      "mtime_ns": 1789883742878187500,
-      "sha256": "d60504b1e414b433a772408d5992c0c24a90b516a171c3195397c234d08ba61e",
-      "client_version": "1.6.0.9506",
-      "client_mode": "zhcn_exp",
-      "extraction_date": "2026-09-20",
-      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\source\\critical_files\\skill.txt",
-      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\validation\\source_manifest.json"
+      "bytes": 6256877,
+      "mtime_ns": 1793295645246718300,
+      "sha256": "b05c54dccdcdc0ef008d8a29f36b7aa39fe99244af15fdf61c3f57753100a555",
+      "client_version": "1.6.0.10009",
+      "client_mode": "zhcn_hd",
+      "extraction_date": "2026-10-29",
+      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\critical_files\\skill.txt",
+      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\fresh-authorized-01\\manifest.json"
     },
     {
       "name": "skill2.txt",
-      "bytes": 330928,
-      "mtime_ns": 1789883742883186700,
-      "sha256": "bc68f1510ae95897a141383d88dd3fa8de4e8cdba3426b361b27608eb402d209",
-      "client_version": "1.6.0.9506",
-      "client_mode": "zhcn_exp",
-      "extraction_date": "2026-09-20",
-      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\source\\critical_files\\skill2.txt",
-      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\validation\\source_manifest.json"
+      "bytes": 335178,
+      "mtime_ns": 1793295645258228200,
+      "sha256": "793277334736ac304e65e73db3fee239192e334a7423e87e156ce9f28a4bb405",
+      "client_version": "1.6.0.10009",
+      "client_mode": "zhcn_hd",
+      "extraction_date": "2026-10-29",
+      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\critical_files\\skill2.txt",
+      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\fresh-authorized-01\\manifest.json"
     },
     {
       "name": "Custom_Armor.tab",
-      "bytes": 27391752,
-      "mtime_ns": 1789883743182145300,
-      "sha256": "114b3b952cdc75e858e198bac099ae7578a1e31220b5445bbf88bdbbf8603b2c",
-      "client_version": "1.6.0.9506",
-      "client_mode": "zhcn_exp",
-      "extraction_date": "2026-09-20",
-      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\source\\critical_files\\Custom_Armor.tab",
-      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\validation\\source_manifest.json"
+      "bytes": 27486424,
+      "mtime_ns": 1793295645293309400,
+      "sha256": "ddaabb7850467ecdb1a8a0302fcdfdab7d5d08d38b42aa1b0103e50c5814c7fb",
+      "client_version": "1.6.0.10009",
+      "client_mode": "zhcn_hd",
+      "extraction_date": "2026-10-29",
+      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\critical_files\\Custom_Armor.tab",
+      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\fresh-authorized-01\\manifest.json"
     },
     {
       "name": "Custom_Trinket.tab",
-      "bytes": 13683946,
-      "mtime_ns": 1789883743272132900,
-      "sha256": "6af6294bc8629f7b1360cf5d3219b8923cca12e2ba7148fee051ea873496b3fd",
-      "client_version": "1.6.0.9506",
-      "client_mode": "zhcn_exp",
-      "extraction_date": "2026-09-20",
-      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\source\\critical_files\\Custom_Trinket.tab",
-      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\validation\\source_manifest.json"
+      "bytes": 13789663,
+      "mtime_ns": 1793295645332452100,
+      "sha256": "91192ceed58863780b5373294b03174121c95d5f646fc219092c9adc5f34ef9a",
+      "client_version": "1.6.0.10009",
+      "client_mode": "zhcn_hd",
+      "extraction_date": "2026-10-29",
+      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\critical_files\\Custom_Trinket.tab",
+      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\fresh-authorized-01\\manifest.json"
     },
     {
       "name": "Custom_Weapon.tab",
-      "bytes": 18511921,
-      "mtime_ns": 1789883743233138400,
-      "sha256": "2feddf7f9a8496c7587fa7888e10299ed179f340471a8af1d54b6a76c5c30779",
-      "client_version": "1.6.0.9506",
-      "client_mode": "zhcn_exp",
-      "extraction_date": "2026-09-20",
-      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\source\\critical_files\\Custom_Weapon.tab",
-      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\validation\\source_manifest.json"
+      "bytes": 18766981,
+      "mtime_ns": 1793295645367001900,
+      "sha256": "fa564dd85b1cc582f409996540e814a1905dc8b59d4fd07e05bb8451c63a7ee7",
+      "client_version": "1.6.0.10009",
+      "client_mode": "zhcn_hd",
+      "extraction_date": "2026-10-29",
+      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\critical_files\\Custom_Weapon.tab",
+      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\fresh-authorized-01\\manifest.json"
     },
     {
       "name": "attrib.tab",
-      "bytes": 6160830,
-      "mtime_ns": 1789883742962175300,
-      "sha256": "b3508a0d14c337c0032d255809313564d9819a55bd1cfbbe5cb907c3d4a39bc2",
-      "client_version": "1.6.0.9506",
-      "client_mode": "zhcn_exp",
-      "extraction_date": "2026-09-20",
-      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\source\\critical_files\\attrib.tab",
-      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\validation\\source_manifest.json"
+      "bytes": 6178832,
+      "mtime_ns": 1793295645392525700,
+      "sha256": "8f5573900c0d9bffdd5380c3b5cdf6d19f3d7b554609851d0d617cea27453d00",
+      "client_version": "1.6.0.10009",
+      "client_mode": "zhcn_hd",
+      "extraction_date": "2026-10-29",
+      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\critical_files\\attrib.tab",
+      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\fresh-authorized-01\\manifest.json"
     },
     {
       "name": "enchant.tab",
-      "bytes": 2138023,
-      "mtime_ns": 1789883742970174900,
-      "sha256": "a0cf9abb7df5717955b38163fd354419b9c39567d60c05126c0fd5c1c3552f93",
-      "client_version": "1.6.0.9506",
-      "client_mode": "zhcn_exp",
-      "extraction_date": "2026-09-20",
-      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\source\\critical_files\\enchant.tab",
-      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\validation\\source_manifest.json"
+      "bytes": 2136009,
+      "mtime_ns": 1793295645408046500,
+      "sha256": "7bc7e8fda89287952abaf50178d81fb4045cd67d9726970bb17adcca6ab67062",
+      "client_version": "1.6.0.10009",
+      "client_mode": "zhcn_hd",
+      "extraction_date": "2026-10-29",
+      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\critical_files\\enchant.tab",
+      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\fresh-authorized-01\\manifest.json"
     },
     {
       "name": "item.txt",
-      "bytes": 41948010,
-      "mtime_ns": 1789883743068160800,
-      "sha256": "93eedb2367d8cf9003c36a6fc015cbb931ce48dc2ea93a73f429474b029e8255",
-      "client_version": "1.6.0.9506",
-      "client_mode": "zhcn_exp",
-      "extraction_date": "2026-09-20",
-      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\source\\critical_files\\item.txt",
-      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\validation\\source_manifest.json"
+      "bytes": 42292544,
+      "mtime_ns": 1793295645455077900,
+      "sha256": "bb34690620c7795dfce7a905134f1c0ce2c56bb21a1880db96cdb6eb74466401",
+      "client_version": "1.6.0.10009",
+      "client_mode": "zhcn_hd",
+      "extraction_date": "2026-10-29",
+      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\critical_files\\item.txt",
+      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\fresh-authorized-01\\manifest.json"
     },
     {
       "name": "other.tab",
-      "bytes": 11920829,
-      "mtime_ns": 1789883743103156200,
-      "sha256": "27d298475b036c4c51ef3c662d2db325d563f2f2ba67dca7322041c8bde624ad",
-      "client_version": "1.6.0.9506",
-      "client_mode": "zhcn_exp",
-      "extraction_date": "2026-09-20",
-      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\source\\critical_files\\other.tab",
-      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\validation\\source_manifest.json"
+      "bytes": 11993290,
+      "mtime_ns": 1793295645500116700,
+      "sha256": "b493e2b67d7ec241193520af969fe0eea9252998847299164960682b8f56e0b9",
+      "client_version": "1.6.0.10009",
+      "client_mode": "zhcn_hd",
+      "extraction_date": "2026-10-29",
+      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\critical_files\\other.tab",
+      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\fresh-authorized-01\\manifest.json"
     },
     {
       "name": "Set.tab",
-      "bytes": 1014365,
-      "mtime_ns": 1789883743111155500,
-      "sha256": "da2be3fd6b4a6683c9dc21f2a156985a15c63feba78c90b79b67b15626e2f2f7",
-      "client_version": "1.6.0.9506",
-      "client_mode": "zhcn_exp",
-      "extraction_date": "2026-09-20",
-      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\source\\critical_files\\Set.tab",
-      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\validation\\source_manifest.json"
+      "bytes": 1017643,
+      "mtime_ns": 1793295645517128100,
+      "sha256": "6a40eba5a4e935f374c54dbbbcc7672827578f7160d910d750576164856ba0cb",
+      "client_version": "1.6.0.10009",
+      "client_mode": "zhcn_hd",
+      "extraction_date": "2026-10-29",
+      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\critical_files\\Set.tab",
+      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\fresh-authorized-01\\manifest.json"
     },
     {
       "name": "StrengthableAttrib.tab",
@@ -218,6 +218,56 @@
       "client_version": "1.6.0.9503",
       "retained_evidence": true,
       "reextracted_for_release_8_16_0": false
+    },
+    {
+      "name": "xinfa50_hd.json",
+      "bytes": 517377,
+      "sha256": "bf89219e8d18e155d49cdbebf52506816757f9015101a93eb1cb9065bf1bf5d0",
+      "client_version": "1.6.0.10009",
+      "client_mode": "zhcn_hd",
+      "extraction_date": "2026-10-29",
+      "source_manifest": "xinfa10009_evidence/source_manifest.json",
+      "generation": "release.GenerateFormalXinfa50",
+      "runtime_game_edition_minimum": 161
+    },
+    {
+      "name": "global_parameters_hd.json",
+      "bytes": 1902,
+      "sha256": "d7a3f3e3aa0f5c1f070a8916566959ed230f98152f110999966f44b36a1def81",
+      "client_version": "1.6.0.10009",
+      "client_mode": "zhcn_hd",
+      "extraction_date": "2026-10-29",
+      "source_manifest": "xinfa10009_evidence/source_manifest.json",
+      "generation": "release.GenerateFormalXinfa50",
+      "runtime_game_edition_minimum": 161
+    },
+    {
+      "name": "luoyang_npc_defense_hd.json",
+      "bytes": 43093,
+      "sha256": "2d50d206f7c1f46bbd839aaa8a5d4fd0f80aba8bb36ff8582ec9bbf182c0e6fc",
+      "client_version": "1.6.0.10009",
+      "client_mode": "zhcn_hd",
+      "extraction_date": "2026-10-29",
+      "source_manifest": "xinfa10009_evidence/source_manifest.json",
+      "generation": "release.GenerateFormalXinfa50",
+      "runtime_game_edition_minimum": 161
+    },
+    {
+      "name": "cangsheng_test_equipment.zip",
+      "bytes": 12809578,
+      "sha256": "9362c7023dae38239c8621d08552ce9e9f186bf6a66ce14c6fd7e2002f7adafe",
+      "client_version": "1.6.0.9506",
+      "client_mode": "zhcn_exp",
+      "runtime_game_edition": 160,
+      "source_manifest": "cangsheng_test_equipment.zip/source_manifest.json"
+    },
+    {
+      "name": "xinfa_buff_evidence_hd.json",
+      "bytes": 169720,
+      "sha256": "c791b5bce48b0ed95e0f8a82938efada7bf50472f7d47c051bde1f60a6050c5a",
+      "client_version": "1.6.0.10009",
+      "client_mode": "zhcn_hd",
+      "generation": "release.GenerateXinfaBuffEvidence"
     }
   ],
   "parameters": {
@@ -321,20 +371,21 @@
     }
   },
   "generated_tables": {
-    "SKILL_NAME": 69402,
-    "BOOST_DICT": 14843,
-    "ABSORB_DICT": 1581,
-    "RESIST_DICT": 1305,
-    "RESIST_BY_SCHOOL_DICT": 3432,
-    "THERAPY_DICT": 3074
+    "SKILL_NAME": 70035,
+    "ABSORB_DICT": 1591,
+    "RESIST_DICT": 1270,
+    "BOOST_DICT": 14975,
+    "RESIST_BY_SCHOOL_DICT": 3407,
+    "THERAPY_DICT": 3124
   },
   "runtime_status": {
-    "buff_tables": "current_9506",
-    "equipment_source": "current_9506",
+    "buff_tables": "current_10009_hd; edition_160_retains_9506",
+    "equipment_source": "161+:10009;160:verified9506 archive",
     "level50_panel_and_rdps": "enabled_for_verified_25_normal_luoyang_profiles",
     "therapy_attribution": "not_implemented",
-    "kungfu": "64_verified_profiles: 31_retained_9503 + 32_wujie_and_1_youluo_9517",
-    "gem_scaling": "native_1355_div_27800"
+    "kungfu": "160:64 retained mixed9503/9517;161+:64 verified10009",
+    "gem_scaling": "native_1355_div_27800",
+    "npc": "160:90 retained9503;161+:102 verified10009"
   },
   "parameter_extraction": {
     "tool": "C:\\Develop\\26\\jx3decrypt\\unpack.exe",
@@ -363,14 +414,18 @@
     "reextracted_for_release_8_16_0": false,
     "wujie_originals": "wujie_evidence/source_manifest.json",
     "kungfu_client_version_scope": "31 retained 9503 ordinary profiles; 32 Wujie + ordinary 34 verified from 9517",
-    "youluo_adaptive_panel": "wujie_evidence/youluo_panel_evidence.json"
+    "youluo_adaptive_panel": "wujie_evidence/youluo_panel_evidence.json",
+    "formal_originals": "xinfa10009_evidence/source_manifest.json",
+    "formal_global_parameters": "global_parameters_hd.json",
+    "formal_npc": "luoyang_npc_defense_hd.json"
   },
-  "client_version_scope": "14 core tables retained from 2026-09-20 extraction (9506); 31 ordinary kungfus, NPC and other retained evidence from 9503; 32 Wujie kungfus and ordinary 34 added from 2026-10-06 extraction (9517)",
-  "extraction_date": "2026-09-20",
-  "release_version": "8.16.0",
+  "client_version_scope": "Formal logs (161+) use 14 core tables, 64 kungfus plus Shanju, GlobalParam and 102 normal-Luoyang NPC profiles verified from 10009. Test logs (160) retain 9506 buff/equipment and mixed 9503/9517 kungfu, 9503 NPC snapshots. StrengthableAttrib is unchanged against fresh 10009 bytes.",
+  "extraction_date": "2026-10-29",
+  "release_version": "8.16.2",
   "core_update": {
-    "source_report": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check",
-    "report_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-0920-check\\validation\\source_manifest.json",
+    "source_report": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029",
+    "report_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\fresh-authorized-01\\manifest.json",
+    "report_manifest_sha256": "37de2cd3b98bf083a996565b85107ee6c247a1737c2cec872168875a89ae401f",
     "files": [
       "buff.tab",
       "buff2.tab",
@@ -387,13 +442,28 @@
       "other.tab",
       "Set.tab"
     ],
-    "backup": "C:\\Develop\\21\\jx3bla\\backups\\release-8.16.0\\before-data",
     "verified_source_files": 14,
-    "sha256_changed_files": 11
+    "sha256_changed_files": 14,
+    "changed_files": [
+      "buff.tab",
+      "buff2.tab",
+      "buff.txt",
+      "buff2.txt",
+      "skill.txt",
+      "skill2.txt",
+      "Custom_Armor.tab",
+      "Custom_Trinket.tab",
+      "Custom_Weapon.tab",
+      "attrib.tab",
+      "enchant.tab",
+      "item.txt",
+      "other.tab",
+      "Set.tab"
+    ]
   },
   "retained_evidence": {
     "client_version": "1.6.0.9503",
     "reextracted": false,
-    "description": "The 31 prior ordinary kungfu profiles, NPC defenses, parameter Lua, role panel and native gem evidence remain from 9503. The 14 core tables remain from 9506. Only 32 Wujie kungfu profiles and ordinary Youluo were added from the isolated 9517 extraction."
+    "description": "Original 9503/9517 evidence and profiles are kept for edition160; formal 161+ uses separate fresh 10009 profiles. The 9506 equipment archive contains its original per-file hash manifest."
   }
 }

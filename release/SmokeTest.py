@@ -27,7 +27,7 @@ def main():
         from Constants import EDITION
         from equip.AttributeDisplay import AttributeDisplay
         from equip.CangshengAttributeData import RESOURCE_ROOT, kungfu_data, npc_data
-        from replayer import NameCangsheng
+        from replayer import NameCangsheng, NameCangshengTest
         from GenerateFiles import checkAndWriteFiles
         from MainWindow import MainWindow
         import tkinter as tk
@@ -40,18 +40,20 @@ def main():
             path = RESOURCE_ROOT / name
             data = path.read_bytes()
             resources[name] = {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
-        display = AttributeDisplay(gameEdition=160)
+        display = AttributeDisplay(gameEdition=161)
         assert display.status['status'] == 'supported', display.status
-        profiles = kungfu_data()['occupations']
+        profiles = kungfu_data(161)['occupations']
+        assert kungfu_data(160)['occupations']['2h']['base_attributes']['atTherapyPowerBase'] == 6367
         assert len(profiles) == 64
         from tools.Functions import getOccDetailFromXinfaCode
         for occ in ('24w', '2hw', '10tw', '34w'):
             assert occ in profiles and profiles[occ]['raw_attributes']
             assert getOccDetailFromXinfaCode(str(profiles[occ]['skill_id'])) == occ
-        assert npc_data()['profiles']
-        for buff_id, value in ((29294, 7), (20938, 7), (23543, 7), (20854, 8)):
+        assert npc_data(161)['profiles']
+        for buff_id, value in ((29294, 7), (20938, 7), (23543, 7), (20854, 10), (24742, 26)):
             assert NameCangsheng.BOOST_DICT['2,%s,1' % buff_id]['atStrainBase'] == value
-        for level, value in zip(range(18, 23), range(15, 20)):
+        assert NameCangshengTest.BOOST_DICT['2,20854,1']['atStrainBase'] == 8
+        for level, value in zip(range(18, 23), (20, 22, 25, 27, 29)):
             assert NameCangsheng.BOOST_DICT['2,29608,%s' % level]['atStrainBase'] == value
         checkAndWriteFiles()
         application = MainWindow()
@@ -62,8 +64,9 @@ def main():
         root.destroy()
         result = {'version': EDITION, 'frozen': frozen, 'network': 'disabled',
                   'upload': 'disabled', 'resources': resources, 'attributeStatus': display.status,
-                  'kungfus': len(profiles), 'npcProfiles': len(npc_data()['profiles']),
-                  'buffChecks': 'passed', 'tk': 'constructed',
+                  'kungfus': len(profiles), 'npcProfiles': len(npc_data(161)['profiles']),
+                  'buffChecks': 'passed', 'historicalBuffChecks': 'passed',
+                  'attributeGameEdition': 161, 'tk': 'constructed',
                   'mainWindow': 'initialized', 'status': 'passed'}
         if args.manifest:
             from tools.ValidateLuoyangRdps import main as validate_rdps

@@ -2,7 +2,10 @@
 # 维护装备信息类.
 
 import csv
+import io
 import re
+from pathlib import Path
+from zipfile import ZipFile
 
 from tools.ResourcePath import get_resource_path
 
@@ -16,6 +19,10 @@ class EquipmentInfo():
         兼容读取不同编码的静态资源文件。
         目前优先尝试 utf-8 / utf-8-sig，失败后回退到 gbk。
         '''
+        if self.gameEdition == 160 and Path(path).name in self.TEST_EQUIPMENT_FILES:
+            archive_path = get_resource_path(self.resourceRoot + '/cangsheng_test_equipment.zip')
+            with ZipFile(archive_path) as archive:
+                return io.StringIO(archive.read(Path(path).name).decode('utf-8-sig'), newline=None)
         path = get_resource_path(path)
         last_error = None
         for encoding in ["utf-8", "utf-8-sig", "gbk"]:
@@ -251,6 +258,9 @@ class EquipmentInfo():
         self.headerID = {}
         self.strengthable = set()
         self.unsupportedEffects = set()
+
+    TEST_EQUIPMENT_FILES = frozenset(('Custom_Trinket.tab', 'Custom_Armor.tab', 'Custom_Weapon.tab',
+        'attrib.tab', 'enchant.tab', 'item.txt', 'other.tab', 'Set.tab'))
 
 if __name__ == "__main__":
     t = EquipmentInfo()

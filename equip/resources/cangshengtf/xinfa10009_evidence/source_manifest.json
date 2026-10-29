@@ -1,0 +1,589 @@
+{
+  "client_version": "1.6.0.10009",
+  "client_mode": "zhcn_hd",
+  "extraction_date": "2026-10-29",
+  "started_ns": 1793295767991510200,
+  "ended_ns": 1793295770973032900,
+  "version_cfg_sha256": "372ea0bd9f8d060d2b2f72d0b70cb9b461e0ff71bc203b4334e80ab69fc0d32b",
+  "files": [
+    {
+      "origin": "scripts/Include/Skill.lh",
+      "sha256": "c64c70addb123e59d55c5df4b70336342103f574e85d8a37b7bc3636577682ae",
+      "bytes": 160013
+    },
+    {
+      "origin": "scripts/Include/数值压缩参数.lua",
+      "sha256": "3150f0921d9348345d7242d7199a137916fe4cf3eca9ea044f3445dcec371d4a",
+      "bytes": 3371
+    },
+    {
+      "origin": "scripts/skill/GlobalParam.lua",
+      "sha256": "ae93fb6f71aa3055fcb61bd17eca7889160a38ec9d678d291109ec0455ff1a61",
+      "bytes": 3036
+    },
+    {
+      "origin": "scripts/skill/include/kungfuConst.lh",
+      "sha256": "32484f8180d03b02f1c9171db4e2a502099dbc167f75daeefd5b7e12479def22",
+      "bytes": 3263
+    },
+    {
+      "origin": "scripts/skill/七秀/七秀_内功_云裳心经.lua",
+      "sha256": "b28a21b8c6de6d6d9fb6c0169420ec0f05852c59a0a65aaf5ef1fbfbad5ac2f7",
+      "bytes": 4381
+    },
+    {
+      "origin": "scripts/skill/七秀/七秀_内功_冰心诀.lua",
+      "sha256": "0cacb18ef0a03efb80a57dec747d33071a2840bb5ee3d7675fe6e7cb6df45823",
+      "bytes": 4579
+    },
+    {
+      "origin": "scripts/skill/万灵山庄/万灵山庄_套路_内功_万灵山庄.lua",
+      "sha256": "2589bd2519ca0da2c4c085f266669041840ee24e17f3e9ece5cd253c29ebd1a5",
+      "bytes": 5010
+    },
+    {
+      "origin": "scripts/skill/万花/万花_内功_离经易道.lua",
+      "sha256": "ac0e68bf62956b50cc4e92acc60c17b8f8df6ff8874a48cb8c9688483d55050c",
+      "bytes": 4539
+    },
+    {
+      "origin": "scripts/skill/万花/万花_内功_花间游.lua",
+      "sha256": "b8fd76f832a9d0cfc579ada8d5cfbfd5724a2f1a774ee56212d42b7386dc5d96",
+      "bytes": 4565
+    },
+    {
+      "origin": "scripts/skill/丐帮/丐帮_内功.lua",
+      "sha256": "4ca59016b891aa8811d7fd29de66aade1263a9629f1ab1cce39f1a845b7651e5",
+      "bytes": 4482
+    },
+    {
+      "origin": "scripts/skill/五毒/五毒_内功_毒经.lua",
+      "sha256": "f1f78a204cb361e4d412a661d3e17378d857e844715d0c455235cf60407dcdf7",
+      "bytes": 4807
+    },
+    {
+      "origin": "scripts/skill/五毒/五毒_内功_补天诀.lua",
+      "sha256": "94bd865c27ab40b904acbcb984206aca2d11852a92d344bc57d2dc182c15bcd6",
+      "bytes": 4544
+    },
+    {
+      "origin": "scripts/skill/凌雪阁/凌雪阁_套路_内功_输出心法.lua",
+      "sha256": "f01cd7bad39bc8e1a8b571144ff28789ebc19f44d49563b449e60f50d95766cb",
+      "bytes": 3882
+    },
+    {
+      "origin": "scripts/skill/刀宗/套路及子技能/内功_刀宗.lua",
+      "sha256": "aad12c11267f27790dc000742a66eada335a0469172e33f93f4a6920aa4e1d77",
+      "bytes": 3801
+    },
+    {
+      "origin": "scripts/skill/北天药宗/北天药宗_套路_内功_无方.lua",
+      "sha256": "f27d392fa2773dceb69363a6e414ecd8c479ffcf79ed94f2470b453fd59132f9",
+      "bytes": 4074
+    },
+    {
+      "origin": "scripts/skill/北天药宗/北天药宗_套路_内功_灵素.lua",
+      "sha256": "4605345ec037ec222cc05a4341eb995f1d5a0731a0c9721e529dfc96bb3e7574",
+      "bytes": 3966
+    },
+    {
+      "origin": "scripts/skill/唐门/唐门_内功_机关.lua",
+      "sha256": "2ff331b3a6e7792a2b76491e8c999760bdb8f0aa44b1d4b77041ddce76dd93b7",
+      "bytes": 4432
+    },
+    {
+      "origin": "scripts/skill/唐门/唐门_内功_箭弩.lua",
+      "sha256": "99bde6390730b805679c43faf93818a3e77922adf7d30624835c3ed41e72300d",
+      "bytes": 4541
+    },
+    {
+      "origin": "scripts/skill/天策/天策_套路_内功_傲血战意.lua",
+      "sha256": "19b8c2669f412236a997d245a2da97f04d12ec068a5d7b3dcf602593a5846447",
+      "bytes": 4358
+    },
+    {
+      "origin": "scripts/skill/天策/天策_套路_内功_铁牢律.lua",
+      "sha256": "578f00cc10cb319f7be37904f110909b3f0aa4bc7d05d305fa477ff864e639fb",
+      "bytes": 4783
+    },
+    {
+      "origin": "scripts/skill/少林/少林_套路_易筋经.lua",
+      "sha256": "e38b2653127e83f996f89006fcab1615fedddf6d55de336c6ccea0a8554ffce0",
+      "bytes": 4467
+    },
+    {
+      "origin": "scripts/skill/少林/少林_套路_洗髓经.lua",
+      "sha256": "549ddc0fae14cda2c8544223e18d1d20bc9a0a986bb69b3675f6fef90a83e506",
+      "bytes": 4531
+    },
+    {
+      "origin": "scripts/skill/无相楼/无相楼心法.lua",
+      "sha256": "76ea088db36c2cd5490c103459f418780eb1e1e4b6ba852678aa61d63d118590",
+      "bytes": 4998
+    },
+    {
+      "origin": "scripts/skill/明教/明教_套路_内功_明尊琉璃体.lua",
+      "sha256": "bb00b5b4c26492a76610c490762c1dfc77f03087735629d40a60681e258be57c",
+      "bytes": 4544
+    },
+    {
+      "origin": "scripts/skill/明教/明教_套路_内功_焚影圣诀.lua",
+      "sha256": "f653d3748b2680cea1366b9a7ae68a3a841fdee962ef621b3913a887a5913362",
+      "bytes": 4679
+    },
+    {
+      "origin": "scripts/skill/段氏/段氏技能/段氏心法用脚本.lua",
+      "sha256": "7b3b3daef1ada538baf830dce7354557cbf7d1506d447d8642e808e24f09d381",
+      "bytes": 4301
+    },
+    {
+      "origin": "scripts/skill/纯阳/纯阳_套路_太虚剑意.lua",
+      "sha256": "279f0e90e0da9da0b588c95deb4a1ec93ad014e0649decfe043336751603c2fd",
+      "bytes": 5030
+    },
+    {
+      "origin": "scripts/skill/纯阳/纯阳_套路_紫霞功.lua",
+      "sha256": "8434f3d42db2cc71c6b6d27460425f735d0610e624d88219f8e9fd715e84b484",
+      "bytes": 4652
+    },
+    {
+      "origin": "scripts/skill/苍云/套路及子技能/内功_分山劲.lua",
+      "sha256": "88d2cf4353b0fca2a9ee211becc7d57a04c8d94a4f0a2d68550830d3c03df088",
+      "bytes": 4180
+    },
+    {
+      "origin": "scripts/skill/苍云/套路及子技能/内功_铁骨衣.lua",
+      "sha256": "aa767e4e0c4962a3531a96dceb41079af643fb7c5612b04e605978b8307cd5db",
+      "bytes": 4197
+    },
+    {
+      "origin": "scripts/skill/蓬莱/蓬莱_套路_内功_输出心法.lua",
+      "sha256": "e5528d44f431dca9d65b83fe4e0378e96a57872388483a2eec947177ee2f0d53",
+      "bytes": 4277
+    },
+    {
+      "origin": "scripts/skill/藏剑/藏剑_套路_内功_山居剑意.lua",
+      "sha256": "f43579733f7f3c2f5fa3267e327cad829b2c88d56e9e4a9c8813b5d1f40cda63",
+      "bytes": 4251
+    },
+    {
+      "origin": "scripts/skill/藏剑/藏剑_套路_内功_问水诀.lua",
+      "sha256": "531b227878565390a6084bc6f8ea3aaa2640602e9a529e0d05d1b386d4da790b",
+      "bytes": 4417
+    },
+    {
+      "origin": "scripts/skill/衍天/衍天_套路_太玄经.lua",
+      "sha256": "63f82f5a53913a2bed681df8f41db249ff7853396ab1ce9d8e038407f6a4a43b",
+      "bytes": 4161
+    },
+    {
+      "origin": "scripts/skill/长歌/套路及子技能/内功_相知.lua",
+      "sha256": "8ce9d51925eef1be69200b1336386e8890839401593fca44b16b4e4fa265a7c3",
+      "bytes": 5326
+    },
+    {
+      "origin": "scripts/skill/长歌/套路及子技能/内功_莫问.lua",
+      "sha256": "d728113f626d8668da425c2d32ca06c242da2282de92eb7d12bf21f320d7fd67",
+      "bytes": 5656
+    },
+    {
+      "origin": "scripts/skill/霸刀/霸刀_套路_内功_输出心法.lua",
+      "sha256": "4de6733879500011a0ee2e3afb27035c37c9c631388221923da4f2c75a8c86d2",
+      "bytes": 4451
+    },
+    {
+      "origin": "scripts/skill_mobile/七秀/移动端_心法_云裳心经.lua",
+      "sha256": "7c0800bfe3188eac84028a8a11334ffa8340ce84ed912c0035286b399af8878d",
+      "bytes": 5150
+    },
+    {
+      "origin": "scripts/skill_mobile/七秀/移动端_心法_冰心诀.lua",
+      "sha256": "caa69c4ba80006641f15f0dd60d7f8c66a5dd751d16d9329588d25f38a9ea386",
+      "bytes": 4772
+    },
+    {
+      "origin": "scripts/skill_mobile/万灵山庄/移动端_山海心诀_心法.lua",
+      "sha256": "571568b89c4165ca12fa3cd0ff98f607b2d0f03b935b53a9d2b5c51e1e1deffd",
+      "bytes": 4584
+    },
+    {
+      "origin": "scripts/skill_mobile/万花/移动端_离经易道_心法.lua",
+      "sha256": "1147706fc9b99d3da0e82d678f1cd3d968b53beef355eb5b7fb78dfb3e0404e3",
+      "bytes": 4484
+    },
+    {
+      "origin": "scripts/skill_mobile/万花/移动端_花间游_心法.lua",
+      "sha256": "8702e659da9a1fa5e532984614f36c61e92d4250d954f85ab57d3ee2176e872a",
+      "bytes": 4560
+    },
+    {
+      "origin": "scripts/skill_mobile/丐帮/移动端_笑尘诀_心法.lua",
+      "sha256": "4bc48fbd73408249d787fab1b6bddc74de95adf3c3c4a03279fd3e90d8626ef0",
+      "bytes": 4597
+    },
+    {
+      "origin": "scripts/skill_mobile/五毒/移动端_毒经_心法.lua",
+      "sha256": "1f19fb79e33b046d0177c9fe20df98da9265cab25bad9455a2e01d7497fffc8b",
+      "bytes": 4849
+    },
+    {
+      "origin": "scripts/skill_mobile/五毒/移动端_补天诀_心法.lua",
+      "sha256": "b0bacc4533eece62334c270f662fca404d11c162421af26b75c87fb145e53ca2",
+      "bytes": 4806
+    },
+    {
+      "origin": "scripts/skill_mobile/凌雪阁/移动端_隐龙诀_心法.lua",
+      "sha256": "99863b67f904571fc8f6de7e8d127b0fcbc27acc370f95064297623db0987ce8",
+      "bytes": 4356
+    },
+    {
+      "origin": "scripts/skill_mobile/刀宗/移动端_孤锋诀.lua",
+      "sha256": "ad8f951011384f054ee923a3d52e12a4f73632312147b3faf67454ea5fc018d0",
+      "bytes": 4845
+    },
+    {
+      "origin": "scripts/skill_mobile/北天药宗/移动端_无方_心法.lua",
+      "sha256": "389603c4061773a3a048769e3ded06ae6dba930ba82b4df93b722703e9ef4ef8",
+      "bytes": 4511
+    },
+    {
+      "origin": "scripts/skill_mobile/北天药宗/移动端_灵素_心法.lua",
+      "sha256": "bd0c9a672db8e695d4d1c56dbe7919ec34e49cf8ed16f9ecef84046e01d18fc0",
+      "bytes": 4457
+    },
+    {
+      "origin": "scripts/skill_mobile/唐门/移动端_天罗诡道_心法.lua",
+      "sha256": "d48c7b5951fd3d1a9c479879d2c36af3b5e1e782a336cac66f03c9a3e3f3ec22",
+      "bytes": 4257
+    },
+    {
+      "origin": "scripts/skill_mobile/唐门/移动端_惊羽诀_心法.lua",
+      "sha256": "08c8e530013b874fe96f989411604378073c753be8489217fce1b4b0cf4ea6fc",
+      "bytes": 4024
+    },
+    {
+      "origin": "scripts/skill_mobile/天策/移动端_傲血战意_心法.lua",
+      "sha256": "c25d5519dfd681fea189c4abef19a793ca871d0c4d5c966da4329f45c4f3af32",
+      "bytes": 4980
+    },
+    {
+      "origin": "scripts/skill_mobile/天策/移动端_铁牢律_心法.lua",
+      "sha256": "85ac9e7b6523696fc71c104637350a8f21406924e452d47e02248d2057b93f74",
+      "bytes": 4479
+    },
+    {
+      "origin": "scripts/skill_mobile/少林/移动端_易筋经_心法.lua",
+      "sha256": "0c07c0b79c6e6a0923661a425854c1c6c0f15cd2d1e2f9a361b9b30752ebf103",
+      "bytes": 4627
+    },
+    {
+      "origin": "scripts/skill_mobile/少林/移动端_洗髓经_心法.lua",
+      "sha256": "544eb4861cd7b0c1a7fcc869b25134cfbe34702b522247ef9ca7ea70885a5847",
+      "bytes": 4261
+    },
+    {
+      "origin": "scripts/skill_mobile/无相楼/移动端_心法_幽罗引.lua",
+      "sha256": "1e0d20267700cce3d36ba67c1b6b15c1b760343d32cf4fc11b0a9ad49e3cca06",
+      "bytes": 4935
+    },
+    {
+      "origin": "scripts/skill_mobile/明教/移动端_明尊琉璃体_心法.lua",
+      "sha256": "d8360891ac10797978de2024e476bbcfcebcff80a208adb9ae0a63efac46683f",
+      "bytes": 4310
+    },
+    {
+      "origin": "scripts/skill_mobile/明教/移动端_焚影圣诀_心法.lua",
+      "sha256": "89bc95fc00be7272739b927c305d4547cb92f318428292242030ef369bc3381c",
+      "bytes": 4546
+    },
+    {
+      "origin": "scripts/skill_mobile/段氏/移动端_段氏_心法.lua",
+      "sha256": "1522eacebacca5d344cd05e835098c2a39adf12e6549545cd1d3c838d06d68b5",
+      "bytes": 4724
+    },
+    {
+      "origin": "scripts/skill_mobile/纯阳/移动端_太虚剑意_心法.lua",
+      "sha256": "e28b47b9dd9f8889b7ba17dcf218a1016ab71540a8538014c356677b70d6d0b9",
+      "bytes": 4200
+    },
+    {
+      "origin": "scripts/skill_mobile/纯阳/移动端_紫霞功_心法.lua",
+      "sha256": "07ef8bd56273fe5e14552e613b4fda7804cd160e14ed66f7354ee432098096b0",
+      "bytes": 4299
+    },
+    {
+      "origin": "scripts/skill_mobile/苍云/移动端_心法_分山劲.lua",
+      "sha256": "ae0ab19ba21f79b7f2c79ff0233a8c168677a4d9dc46f068c1695086854443f7",
+      "bytes": 4258
+    },
+    {
+      "origin": "scripts/skill_mobile/苍云/移动端_心法_铁骨衣.lua",
+      "sha256": "1290465f19a17510d61682dece24e2c01efb13f003b4465c01eb26bd0985f93f",
+      "bytes": 3671
+    },
+    {
+      "origin": "scripts/skill_mobile/蓬莱/移动端_心法_凌海决.lua",
+      "sha256": "b9e34fd092cf45fe8d5ed2261802d90f0e4f808e53bf1de6c13865d4a6be765e",
+      "bytes": 4766
+    },
+    {
+      "origin": "scripts/skill_mobile/藏剑/移动端_心法_问水诀.lua",
+      "sha256": "e951ec6e7e1d759bb596e695cf249b3087e6a4a543dc5a9acb0a8e3547534857",
+      "bytes": 4396
+    },
+    {
+      "origin": "scripts/skill_mobile/衍天/移动端_心法_太玄经.lua",
+      "sha256": "02347068a2d36994c5c3c4b381eedfcf7000dd223bd41067edc0274775087cbc",
+      "bytes": 4404
+    },
+    {
+      "origin": "scripts/skill_mobile/长歌/移动端_相知_心法.lua",
+      "sha256": "7c61f52d2185223d98b2afa99806e5f23723b5d8df8df4fadb818130bd9a2e82",
+      "bytes": 5006
+    },
+    {
+      "origin": "scripts/skill_mobile/长歌/移动端_莫问_心法.lua",
+      "sha256": "feeaacc61abd7ffab0621a54b52797c0e7a7f818d6fff699c8c5184f7fc66e8d",
+      "bytes": 5002
+    },
+    {
+      "origin": "scripts/skill_mobile/霸刀/移动端_北傲决.lua",
+      "sha256": "b0a37fdfa539ecbd64c88be2712a698b2196e83adecae41cffefbe075222237f",
+      "bytes": 4248
+    },
+    {
+      "origin": "settings/item/StrengthableAttrib.tab",
+      "sha256": "b0f6603c4bf7f6a837adafb6372eb1f08a34a1a33bbad0b305207c71e2f1d456",
+      "bytes": 1656
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/七秀.tab",
+      "sha256": "2d28072a27baf0adbb78005e00788120a451ba456920fb068394c54f22c1f500",
+      "bytes": 1570
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/万灵山庄.tab",
+      "sha256": "766aad003af8d584b8e71bc5d8305b42ab752f6c78e529428fc2cb5eeaf669b6",
+      "bytes": 1167
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/万花.tab",
+      "sha256": "e2a4580f4992b3cc6f852a08d8b19d6fd0ad57fc094fea27a46b38d0cb7123d4",
+      "bytes": 1730
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/丐帮.tab",
+      "sha256": "7ff1e3a2def90869b59c7432bc270a963eadf29cf959f3ee41d7cc539c86ab02",
+      "bytes": 1233
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/五毒.tab",
+      "sha256": "98bcc5edd0ac2a83254a514ba8712b59d6f22aaeb27a8074ae79c039bb8029b0",
+      "bytes": 1565
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/凌雪阁.tab",
+      "sha256": "0464c852010effb9b56eb7f845ef1834b53e623c3460245464f3f172e52ab914",
+      "bytes": 1000
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/刀宗.tab",
+      "sha256": "f15b11d6811c044b14142988e8ae51663322872ad6fbf2e9a9e34ba1cb74f5d3",
+      "bytes": 947
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/北天药宗.tab",
+      "sha256": "d2d7d65404f72c011110de30a78acb95a003a69fd2d4181b29bb9550df8b0f96",
+      "bytes": 1572
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/唐门.tab",
+      "sha256": "b8d495a27b1be8180f3e2178ae6696fd2c02c239713d92fdac67d89e587cdb79",
+      "bytes": 1553
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/天策.tab",
+      "sha256": "200e7aa052885d884a5426313ab910224bf4b586717ec83c1c67aa35bdff4248",
+      "bytes": 1459
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/少林.tab",
+      "sha256": "087a6cbb27cc748c7c68f7f53ea89deb8496c2e7ed56eefc388557a64e5f2e71",
+      "bytes": 1449
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/无相楼.tab",
+      "sha256": "cdf938b684b9d15685721274c27eb0bf7124f87b9ed40b0fc7075c2d3d9ad809",
+      "bytes": 1130
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/明教.tab",
+      "sha256": "31aaf03a5c0306b4e41abda861bc8da3315a5f5c5fb3486039e16bbe2ece0861",
+      "bytes": 1574
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/段氏.tab",
+      "sha256": "701e9d55d0f1ed4acc6ac6fce2dce0c41c177296093e5bbba9393520618b9843",
+      "bytes": 951
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/纯阳.tab",
+      "sha256": "3164347345ee483921f205e10247edd30c79f4ce2af3119e47f097fb47c91f55",
+      "bytes": 1764
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/苍云.tab",
+      "sha256": "a44a5de7601642ba41edac55f53c374d3c604d086977a1d70dc2cd8e41c693f7",
+      "bytes": 1157
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/蓬莱.tab",
+      "sha256": "e7b44b19cbf1e1c6a086b150eb57c384324520f14cf75fe0c7c2247f973a5030",
+      "bytes": 922
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/藏剑.tab",
+      "sha256": "b034fac0afb4874d11ffffa6f7ee08a81d88f7dc578b5d6c38c7d765adcfa80a",
+      "bytes": 1338
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/衍天.tab",
+      "sha256": "3a8bfc6118099fa624bc6e72e3cc0aa8ef3914b7dfe8bc36ac870add3c408bc1",
+      "bytes": 951
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/长歌.tab",
+      "sha256": "07f54fa1bdf7755a5356b4bc01aaf0d4332290db140041ef2534edc2dc066d9b",
+      "bytes": 1805
+    },
+    {
+      "origin": "settings/skill/SkillAutoLearning/霸刀.tab",
+      "sha256": "c2f72f82fb6cb23e434d4cdc17453ecfbe072861d4ba98baced738ffcacd398e",
+      "bytes": 1207
+    },
+    {
+      "origin": "settings/skill_mobile/SkillAutoLearning/七秀.tab",
+      "sha256": "7b07fe0d04c0c9333ac2582d67b27cee73f9f9d69869129a9a09cd2237df683f",
+      "bytes": 2005
+    },
+    {
+      "origin": "settings/skill_mobile/SkillAutoLearning/万灵山庄.tab",
+      "sha256": "bd86cca478c6234483b3062efbc9d0626b171409bc67291cbea55c761177a4b7",
+      "bytes": 1115
+    },
+    {
+      "origin": "settings/skill_mobile/SkillAutoLearning/万花.tab",
+      "sha256": "7084e862431dcb194950642f3710ddf468cc2edf26b85b771bf9811a28a153ac",
+      "bytes": 1677
+    },
+    {
+      "origin": "settings/skill_mobile/SkillAutoLearning/丐帮.tab",
+      "sha256": "dfd1d3233c084777936702a617d85ada549e0ec168d15ad943e057e5dddee428",
+      "bytes": 1054
+    },
+    {
+      "origin": "settings/skill_mobile/SkillAutoLearning/五毒.tab",
+      "sha256": "e476858d318e0acf5a7aac3d4f3c81386b9db22d7324b712cc80b75c88bd936d",
+      "bytes": 1635
+    },
+    {
+      "origin": "settings/skill_mobile/SkillAutoLearning/凌雪阁.tab",
+      "sha256": "75b6badeb54bf44ea0bbbc8e9a663a90b4db8a8f716a6c5cec20a819869e0129",
+      "bytes": 1140
+    },
+    {
+      "origin": "settings/skill_mobile/SkillAutoLearning/刀宗.tab",
+      "sha256": "3bda0c965d95e7c9eda748e56563d253202f70a7c036972907c82dcc41658c76",
+      "bytes": 1085
+    },
+    {
+      "origin": "settings/skill_mobile/SkillAutoLearning/北天药宗.tab",
+      "sha256": "e383e1c3cdeed8ea8affb72fe3a843849db2aeac16cc047cf619eedd2137be51",
+      "bytes": 1601
+    },
+    {
+      "origin": "settings/skill_mobile/SkillAutoLearning/唐门.tab",
+      "sha256": "5d0d512dd77f558d52ac936b2614504745ced0712dc8ea64c6af6bdb1c771218",
+      "bytes": 1908
+    },
+    {
+      "origin": "settings/skill_mobile/SkillAutoLearning/天策.tab",
+      "sha256": "9bb59e78bd8e3f668c4cd67085c1606e22db18ae773533c2299ae8b4d031b7ab",
+      "bytes": 1718
+    },
+    {
+      "origin": "settings/skill_mobile/SkillAutoLearning/少林.tab",
+      "sha256": "bc67c5129bb7f38e933574a21cdf0349cf71050c3b6ee533895d1946b67133c4",
+      "bytes": 1714
+    },
+    {
+      "origin": "settings/skill_mobile/SkillAutoLearning/无相楼.tab",
+      "sha256": "531802f26c29953f5abb8c2716692d007119ba8e03ab4325da2e94c11ecb229a",
+      "bytes": 1044
+    },
+    {
+      "origin": "settings/skill_mobile/SkillAutoLearning/明教.tab",
+      "sha256": "677e7e524853b03868852933dedc5cead30988a2b1d902328a4644cc559a1317",
+      "bytes": 2165
+    },
+    {
+      "origin": "settings/skill_mobile/SkillAutoLearning/段氏.tab",
+      "sha256": "ec1c5ac7a6d0d5684d61ffbbd54eecfa36d7a4a68a5b9f0d5ce412ff4cc1e758",
+      "bytes": 1002
+    },
+    {
+      "origin": "settings/skill_mobile/SkillAutoLearning/纯阳.tab",
+      "sha256": "7f588fc711836374c8e25b95f6a209e9efb37de931788cd2fbf3f0b60b24250d",
+      "bytes": 1862
+    },
+    {
+      "origin": "settings/skill_mobile/SkillAutoLearning/苍云.tab",
+      "sha256": "d4672870669d4276c891be238234da25f2fff2f9c931efcc4e5b5c80b7c63b94",
+      "bytes": 2162
+    },
+    {
+      "origin": "settings/skill_mobile/SkillAutoLearning/蓬莱.tab",
+      "sha256": "297dd953cde432f42ba951c2bc515bd72363fd7d7b7404b6914fd8b918ff66bd",
+      "bytes": 1276
+    },
+    {
+      "origin": "settings/skill_mobile/SkillAutoLearning/藏剑.tab",
+      "sha256": "f865c81c5dda59243ae3c74dd774e56412d39993ff7046bc26f38c5955774709",
+      "bytes": 1046
+    },
+    {
+      "origin": "settings/skill_mobile/SkillAutoLearning/衍天.tab",
+      "sha256": "2071719e56a4b6bf436f08390c9530791604261d1faf8c81879d8a741765c3cb",
+      "bytes": 1256
+    },
+    {
+      "origin": "settings/skill_mobile/SkillAutoLearning/长歌.tab",
+      "sha256": "a488ae6048bdad274fbb99c1c143533e3f662dd72b55d1af0e00c29b90763c22",
+      "bytes": 1865
+    },
+    {
+      "origin": "settings/skill_mobile/SkillAutoLearning/霸刀.tab",
+      "sha256": "1d752e67bd18a66cb91e7a865bb3b4d7528c5701e985c743fee9edb22165e354",
+      "bytes": 974
+    },
+    {
+      "origin": "ui/Script/common/role_attribute.lua",
+      "sha256": "d7987af32bf1df9bd865f69a8edec91b21555023ef2e9aefca55e569550af25f",
+      "bytes": 51137
+    },
+    {
+      "origin": "settings/NpcTemplate/25RenPuTongLuoYangZhiZhan/sNpcTemplate.tab",
+      "sha256": "e9720a705ff64d03b2a4e11e1cb2072b1c195188095f70a5ab9deae18da675e3",
+      "bytes": 80279,
+      "source_manifest": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-1029\\validation\\source_export_manifest.json",
+      "source_manifest_sha256": "4e391fe687d9ee436c9205934299aba16510028991a90961edd9755ee52b1d76",
+      "source_path": "C:\\Develop\\26\\jx3decrypt\\reports\\luoyangzhizhan-1029\\source\\npc_templates\\settings\\NpcTemplate\\25RenPuTongLuoYangZhiZhan\\sNpcTemplate.tab",
+      "extraction": "Independent 10009 dungeon extraction, not the 113-file kungfu batch"
+    }
+  ],
+  "selection_sha256": "cc82fe4c002b6171c27a0114fc26166f4897fabae30b6f6861adc830c625fcf8",
+  "table_source_manifest": "C:/Develop/26/jx3decrypt/reports/hd-20261029/source/fresh-authorized-01/manifest.json",
+  "table_source_manifest_sha256": "37de2cd3b98bf083a996565b85107ee6c247a1737c2cec872168875a89ae401f",
+  "extractor_sha256": "5b97228ce8bbbc9114aca4d4dd7accbcd308d0e6d1836fe3f54aa4b1050e7d99",
+  "unpack_log_sha256": "52aad3588fd328ed64fd3296a9e4606fe91510e3546484fff306357f77d03dbc"
+}

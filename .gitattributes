@@ -3,8 +3,9 @@
 equip/resources/cangshengtf/*.tab -text -whitespace
 equip/resources/cangshengtf/*.txt -text -whitespace
 equip/resources/cangshengtf/*.luac -text
-equip/resources/cangshengtf/*.json -text
+equip/resources/cangshengtf/*.json -text whitespace=cr-at-eol
 equip/resources/cangshengtf/xinfa_evidence/** -text
 equip/resources/cangshengtf/wujie_evidence/** -text whitespace=cr-at-eol
 equip/resources/cangshengtf/wujie_evidence/**/*.tab -whitespace
 equip/resources/cangshengtf/xinfa50.json whitespace=cr-at-eol
+equip/resources/cangshengtf/xinfa10009_evidence/** -text -whitespace

@@ -16,6 +16,7 @@ CRITICAL_EFFECTS = {'atUnlimitCriticalDamagePowerKiloNumRate',
 
 
 def export(root):
+    provenance = json.loads((root / 'source_manifest.json').read_text(encoding='utf-8'))
     names = {}
     with (root / 'buff.txt').open(encoding='utf-8-sig', newline='') as stream:
         for row in csv.DictReader(stream, delimiter='\t'):
@@ -47,7 +48,7 @@ def export(root):
                 critical.append(record)
             if any(item['attribute'] not in CRITICAL_EFFECTS for item in effects):
                 conversions.append(record)
-    return dict(schema_version=1, game_edition=160, client_version='1.6.0.9503',
+    return dict(schema_version=1, game_edition=161, client_version=provenance['client_version'],
         sources=[dict(file=name, sha256=hashlib.sha256((root / name).read_bytes()).hexdigest())
                  for name in ('buff.tab', 'buff.txt')],
         conversion_rows=conversions, critical_effect_rows=critical,
@@ -63,9 +64,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--resources', type=Path, default=Path('equip/resources/cangshengtf'))
     parser.add_argument('--check', action='store_true')
+    parser.add_argument('--output', type=Path)
     args = parser.parse_args()
     data = export(args.resources)
-    path = args.resources / 'xinfa_buff_evidence.json'
+    path = args.output or args.resources / 'xinfa_buff_evidence_hd.json'
     if args.check:
         assert json.loads(path.read_text(encoding='utf-8')) == data, 'Buff evidence differs from current tables'
     else:

@@ -22,9 +22,9 @@ class ReleaseBundleTest(unittest.TestCase):
         self.files = {name: name.encode("utf-8") for name in CANGSHENG_FILES}
         self.hashes = {name: hashlib.sha256(data).hexdigest() for name, data in self.files.items()}
 
-    def test_windows_paths_match_all_eleven_resources(self):
+    def test_windows_paths_match_all_required_resources(self):
         archive = ArchiveFixture({name.replace("/", "\\"): data for name, data in self.files.items()})
-        self.assertEqual(validate_archive(archive, self.hashes), 11)
+        self.assertEqual(validate_archive(archive, self.hashes), len(CANGSHENG_FILES))
 
     def test_missing_required_resource_is_rejected(self):
         del self.files[CANGSHENG_FILES[-1]]

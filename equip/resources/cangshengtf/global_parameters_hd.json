@@ -1,0 +1,62 @@
+{
+  "client_version": "1.6.0.10009",
+  "game_edition": 161,
+  "values": {
+    "nMaxDecriticalDamagePowerEableConvert": 4140,
+    "nStrengthToPhysicsAPCof": 190,
+    "fDefCriticalStrikeParam": 19.218,
+    "fDecriticalDamagePVPCof": 0.9,
+    "nAgilityToPhysicsCriticalCof": 250,
+    "fDecriticalStrikePowerParam": 5.2,
+    "nStrengthToPhysicsOvercomeCof": 60,
+    "fDecriticalDamagePowerToPhysicsAttackPowerCof": 0.786,
+    "fCriticalStrikePowerParam": 3.54,
+    "nPVXAllRoundToDecriticalDamagePowerCof": 1000,
+    "fInsightParam": 7.117,
+    "fOvercomeParam": 10.483,
+    "fCriticalStrikeParam": 9.609,
+    "nMagicAPToDPS": 9704.743,
+    "nTherapyAPToDPS": 5331.663,
+    "fToughnessDecirDamageCof": 9.518,
+    "nPhysicsAPToMagicAPCof": 1024,
+    "fDodgeParam": 13.491,
+    "fDecriticalDamagePowerToMagicAttackPowerCof": 0.786,
+    "nPVXAllRoundToTherapyPowerCof": 150,
+    "fHasteRate": 10.21,
+    "nPVXAllRoundToStrainCof": 1220,
+    "nPVXAllRoundToSurplusValueCof": 0,
+    "nSpunkToMagicOvercomeCof": 60,
+    "nSpunkToMagicAPCof": 190,
+    "fSurplusParam": 24.558,
+    "fAssistedPowerCof": 9.609,
+    "nSpiritToMagicCriticalCof": 250,
+    "fMagicShieldParam": 10.912,
+    "fPlayerCriticalCof": 0.75,
+    "fDecriticalDamagePowerToMaxLifeBaseCof": 3.5,
+    "nPhysicsAPToDPS": 8992.534,
+    "fParryParam": 15.833,
+    "nWeaponToMagicAPCof": 6144,
+    "fHitValueParam": 9.195,
+    "fPhysicsShieldParam": 10.912,
+    "nVitalityToMaxLifeCof": 10000
+  },
+  "level_factors": {
+    "30": 330,
+    "31": 363,
+    "50": 990,
+    "51": 1023,
+    "52": 1056,
+    "53": 1089,
+    "54": 1122
+  },
+  "sources": [
+    {
+      "origin": "scripts/skill/GlobalParam.lua",
+      "sha256": "ae93fb6f71aa3055fcb61bd17eca7889160a38ec9d678d291109ec0455ff1a61"
+    },
+    {
+      "origin": "scripts/Include/数值压缩参数.lua",
+      "sha256": "3150f0921d9348345d7242d7199a137916fe4cf3eca9ea044f3445dcec371d4a"
+    }
+  ]
+}

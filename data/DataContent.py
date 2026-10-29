@@ -3,7 +3,8 @@
 
 from replayer.Name import *
 from replayer.NameCangsheng import SKILL_NAME as CANGSHENG_SKILL_NAME
-from tools.Names import isLuoyangMap
+from replayer.NameCangshengTest import SKILL_NAME as CANGSHENG_TEST_SKILL_NAME
+from tools.Names import isLuoyangMap, getGameEditionFromTime, getIDFromMap
 
 class SingleData():
     '''
@@ -425,7 +426,9 @@ class OverallData():
         if full_id in self.skill:
             return self.skill[full_id]["1"].strip('"')
         if isLuoyangMap(getattr(self, "map", "")):
-            return CANGSHENG_SKILL_NAME.get(full_id, CANGSHENG_SKILL_NAME.get(lvl0_id, full_id))
+            edition = int(getGameEditionFromTime(getIDFromMap(self.map), self.battleTime) or 0)
+            names = CANGSHENG_TEST_SKILL_NAME if edition == 160 else CANGSHENG_SKILL_NAME
+            return names.get(full_id, names.get(lvl0_id, full_id))
         elif full_id in SKILL_NAME:
             return SKILL_NAME[full_id]
         elif lvl0_id in SKILL_NAME:

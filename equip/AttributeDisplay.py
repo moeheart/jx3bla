@@ -25,7 +25,7 @@ class AttributeDisplay():
             equipment = self.ac.CalculateAll(str)
             if not equipment:
                 return None
-            base = make_base_attributes(equipment, occ)
+            base = make_base_attributes(equipment, occ, gameEdition=self.gameEdition)
             if self.ac.lastWarnings:
                 base['_warnings'] = list(self.ac.lastWarnings)
                 warnings = sorted(set(self.status.get('warnings', []) + self.ac.lastWarnings))
@@ -77,7 +77,7 @@ class AttributeDisplay():
         if baseAttrib is None:
             return None
         if self.gameEdition >= 160:
-            panel = calculate_attributes(baseAttrib['_raw'], occ)
+            panel = calculate_attributes(baseAttrib['_raw'], occ, gameEdition=self.gameEdition)
             panel['_baseSource'] = baseAttrib['_baseSource']
             if baseAttrib.get('_warnings'):
                 panel['_warnings'] = baseAttrib['_warnings']
