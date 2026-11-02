@@ -1,5 +1,6 @@
 """洛阳之战阿史那承庆：玄隼、邪渊、聚邪循环（与阆风悬城独立）。"""
 from replayer.boss.luoyangzhizhan.EncounterSupport import EncounterReplayer, EncounterWindow
+from replayer.boss.luoyangzhizhan.LuoyangEvidence import record_shout, finalize_phase_periods
 
 
 class LuoyangAshinaChengqingWindow(EncounterWindow):
@@ -18,7 +19,18 @@ class LuoyangAshinaChengqingReplayer(EncounterReplayer):
     BOSS = "阿史那承庆"
     MAIN_IDS = ("139323", "139378", "138376")
     # Other construct template IDs are deliberately matched by their exact names below.
-    CONSTRUCT_NAMES = ("玄隼金刚", "炽虎金刚", "伏焰金刚")
+    CONSTRUCT_NAMES = ("玄隼", "玄隼金刚", "炽虎金刚", "伏焰金刚")
+    CONSTRUCT_IDS = ("139349",)
+    SHOUTS = {
+        "冤家路窄！断手之痛，就由尔等偿还！": "开战",
+        "亡魂附骨，至死方休！": "染魂", "一刀入渊！": "凝渊刀",
+        "玄隼……去！": "召唤玄隼", "瞄准……轰炸！": "玄隼轰炸",
+        "莫急，渊中恶气，自会寻上尔等！": "邪魂散",
+        "阴山旧血，今日未冷！": "阴山旧血",
+        "什么！？废物！": "蓄能机枢受损",
+        "唐廷走狗，原本还想留你们一个全尸——现在，我要碾碎你们！": "机枢受损后宣言",
+        "聚邪成渊，尔命休矣！": "聚邪凝渊",
+    }
     CHEST_IDS = tuple(str(x) for x in range(140057, 140063)) + tuple(str(x) for x in range(140098, 140104))
     CALLS = {
         "34208": ("凝渊", "3399"), "34251": ("聚邪", "4492"),
@@ -41,28 +53,47 @@ class LuoyangAshinaChengqingReplayer(EncounterReplayer):
         self.abyssFailures = set()
         self.constructStart = {}
         self.detail["soulPeriods"] = []
+        self.detail["phaseTransitions"] = [{"time": self.startTime, "phase": 1, "name": "常规"}]
         self.detail["constructPeriods"] = []
-        self.detail["phaseEvidence"] = "常规与聚邪循环；聚邪从45916读条到本轮聚邪点名全部结束。"
+        self.detail["phaseEvidence"] = "常规与聚邪循环；聚邪优先采用45916读条，缺失时采用本体专属喊话，至本轮聚邪点名全部结束。"
         self.detail["mechanicNote"] = "玄隼弹爆、邪魂散、黄泉斩仅记录受击；失魂达到5层、已有邪魂入体再中聚邪才记录机制失败。常规与聚邪均计有效时间。"
         self.bhBlackList.extend(["s34061", "s34259", "s46376", "b34061", "b34259"])
         self.bhBlackList.extend("c"+x for x in self.CASTS)
         self.bhBlackList.extend("b"+x for x in self.CALLS)
+
+    def isConstruct(self, npc_id):
+        return (self.template(npc_id) in self.CONSTRUCT_IDS
+                or (npc_id in self.bld.info.npc and self.bld.info.getName(npc_id) in self.CONSTRUCT_NAMES))
+
+    def beginSoul(self, time, source):
+        if self.soulStart is not None:
+            if time-self.soulStart < 1000:
+                return
+            self.finishSoul(time)
+        self.soulStart = time
+        self.soulResolved = False
+        self.changePhase(time, 2)
+        self.detail["phaseTransitions"].append({"time": time, "phase": 2, "name": "聚邪", "source": source})
+        self.bh.setEnvironment("45916", "聚邪阶段", "4492", time, 0, 1, source, "phase", "#9944bb")
 
     def finishSoul(self, time):
         if self.soulStart is None:
             return
         self.detail["soulPeriods"].append({"start": self.soulStart, "end": time})
         self.changePhase(time, 1)
+        self.detail["phaseTransitions"].append({"time": time, "phase": 1, "name": "常规", "source": "聚邪点名结束"})
+        self.bh.setEnvironment("0", "常规阶段", "3399", time, 0, 1, "聚邪结束", "phase", "#666699")
         self.soulStart = None
         self.soulHolders.clear()
 
     def analyseSecondStage(self, event):
         if self.confirmedEnd is not None and event.time > self.confirmedEnd:
             return
+        self.observeCombatEnd(event)
         if event.dataType == "Skill":
             self.recordDamage(event, self.MAIN_IDS, "mainDamage")
             if (event.caster in self.statDict and event.target in self.bld.info.npc
-                    and self.bld.info.getName(event.target) in self.CONSTRUCT_NAMES and event.damageEff > 0):
+                    and self.isConstruct(event.target) and event.damageEff > 0):
                 self.recordContribution(event, "constructDamage")
             if event.caster in self.bld.info.npc:
                 if event.id == "45954":
@@ -108,15 +139,18 @@ class LuoyangAshinaChengqingReplayer(EncounterReplayer):
             if event.id in self.CASTS:
                 self.bh.setEnvironment(event.id, self.CASTS[event.id], "3399", event.time, 0, 1, "首领运功", "cast", "#9944bb")
             if event.id == "45916":
-                self.finishSoul(event.time)
-                self.soulStart = event.time
-                self.soulResolved = False
-                self.changePhase(event.time, 2)
+                self.beginSoul(event.time, "45916读条")
+        elif event.dataType == "Shout" and self.template(event.id) in self.MAIN_IDS:
+            content = event.content.strip('"')
+            if content in self.SHOUTS:
+                record_shout(self, event, self.SHOUTS[content])
+                if content == "聚邪成渊，尔命休矣！":
+                    self.beginSoul(event.time, "本体喊话")
         elif event.dataType == "Scene":
             name = self.bld.info.getName(event.id)
             if event.enter and self.template(event.id) in self.CHEST_IDS and self.lastMainDamage is not None:
                 self.confirmWin(event.time, "boss_chest")
-            if name in self.CONSTRUCT_NAMES:
+            if self.isConstruct(event.id):
                 if event.enter and event.id not in self.constructStart:
                     self.constructStart[event.id] = (event.time, name)
                     self.bh.setEnvironment(self.template(event.id), name, "14157", event.time, 0, 1, "金刚入场", "npc", "#cc8800")
@@ -143,6 +177,7 @@ class LuoyangAshinaChengqingReplayer(EncounterReplayer):
             self.finishConstruct(npc_id, end)
         self.finishEncounter()
         super().countFinal()
+        finalize_phase_periods(self, {1: "常规", 2: "聚邪"})
         self.detail["P1Time"] = round(self.phaseTime[1]/1000, 2)
         self.detail["P2Time"] = round(self.phaseTime[2]/1000, 2)
         self.detail["phaseTimes"] = {"常规": self.detail["P1Time"], "聚邪": self.detail["P2Time"]}

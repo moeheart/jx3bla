@@ -3,7 +3,7 @@ from replayer.boss.General import GeneralReplayer
 from window.SpecificBossWindow import SpecificBossWindow
 from replayer.boss.luoyangzhizhan.LuoyangEvidence import (
     npc_matches, record_target_damage, record_call_buff, set_confirmed_win,
-    record_environment, record_hit, record_phase, finalize_evidence, render_boss_window,
+    record_environment, record_hit, record_phase, record_shout, finalize_evidence, render_boss_window,
 )
 
 
@@ -34,14 +34,28 @@ class YimanTwinsReplayer(GeneralReplayer):
         ("Skill", "45908"): ("焚天炽焰", "12452", "#cc3333"),
     }
 
+    NIGHT_SHOUTS = {
+        "天锁垂落，罪冤退散！": "链坠天崩",
+        "鞭打众生，哀鸣荡尽！": "锁链横扫",
+        "妹妹！让无尽的圣火，熊熊燃烧吧！": "链舞火环准备",
+    }
+    FIRE_SHOUTS = {
+        "跑啊！跑快点！": "逐焰追击",
+        "抬头，接火！": "逐猎爆弹",
+        "早就迫不及待了！": "圣火回应",
+        "姐姐！！—炸碎你们,统统炸碎！！！": "逐焰独战",
+        "竟敢伤我们到这种程度。黑暗，定会吞噬你们！": "双子战败",
+    }
+
     def initBattle(self):
         super().initBattle()
         self.activeBoss = "伊曼双子"
-        self.initPhase(2, 1)
+        self.initPhase(4, 1)
+        self.lastMainDamage = None
         self.activeRings = set()
         self.deadBosses = set()
         self.detail["phaseTransitions"] = [{"time": self.startTime, "phase": 1, "name": "双子交战"}]
-        self.detail["limitations"] = "阶段仅标注日志可见火环区间；不能从单只首领退场、血量阈值或文件顺序推断双子通关。"
+        self.detail["limitations"] = "火环准备按寂夜喊话、火环实体按场景事件、逐焰独战按逐焰喊话划段；不从单体退场或血量阈值推断通关。"
         for npc_id in self.bld.info.npc:
             if npc_matches(self, npc_id, self.MAIN):
                 self.bh.setMainTarget(npc_id)
@@ -50,6 +64,18 @@ class YimanTwinsReplayer(GeneralReplayer):
         if event.dataType == "Shout" and npc_matches(self, event.id, ("139327",)):
             if event.content.strip('"') == "一切都结束了":
                 set_confirmed_win(self, event.time, "双子场控结束喊话")
+        elif event.dataType == "Shout" and npc_matches(self, event.id, self.MAIN):
+            content = event.content.strip('"')
+            mapping = self.NIGHT_SHOUTS if npc_matches(self, event.id, self.NIGHT) else self.FIRE_SHOUTS
+            label = mapping.get(content)
+            if label and not (self.win and event.time > self.winTime):
+                record_shout(self, event, label)
+                if label == "链舞火环准备" and self.phase != 4:
+                    record_phase(self, event.time, 3, label)
+                elif label == "逐焰独战":
+                    record_phase(self, event.time, 4, label)
+                elif label == "双子战败" and self.lastMainDamage is not None and 0 <= event.time - self.lastMainDamage <= 5000:
+                    set_confirmed_win(self, event.time, "逐焰本体战败喊话及近期本体伤害")
         elif event.dataType in ("Scene", "Death"):
             if npc_matches(self, event.id, ("140056",)) and (event.dataType == "Death" or event.enter):
                 set_confirmed_win(self, event.time, "伊曼专属宝箱")
@@ -62,12 +88,16 @@ class YimanTwinsReplayer(GeneralReplayer):
         if event.dataType == "Scene" and npc_matches(self, event.id, ("139718",)):
             if event.enter:
                 self.activeRings.add(event.id)
-                record_phase(self, event.time, 2, "链舞火环")
+                if self.phase != 4:
+                    record_phase(self, event.time, 2, "链舞火环")
             else:
                 self.activeRings.discard(event.id)
-                if not self.activeRings:
+                if not self.activeRings and self.phase == 2:
                     record_phase(self, event.time, 1, "双子交战")
         elif event.dataType == "Skill":
+            if (npc_matches(self, event.target, self.MAIN) and
+                    event.caster in self.statDict and event.damageEff > 0):
+                self.lastMainDamage = event.time
             if npc_matches(self, event.target, self.NIGHT):
                 record_target_damage(self, event, "nightDamage")
             elif npc_matches(self, event.target, self.FIRE):
@@ -92,5 +122,5 @@ class YimanTwinsReplayer(GeneralReplayer):
 
     def countFinal(self):
         super().countFinal()
-        finalize_evidence(self, {1: "双子交战", 2: "链舞火环"},
+        finalize_evidence(self, {1: "双子交战", 2: "链舞火环", 3: "链舞火环准备", 4: "逐焰独战"},
                           ("nightDamage", "fireDamage", "inertDamage"))

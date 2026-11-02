@@ -2,7 +2,8 @@
 param(
     [string]$Python = "python",
     [string]$ReplayManifest = "",
-    [string]$WujieLog = ""
+    [string]$WujieLog = "",
+    [string]$LiveManifest = ""
 )
 
 Set-StrictMode -Version Latest
@@ -23,6 +24,8 @@ try {
     Invoke-ReleasePython -Arguments @("-m", "release.ValidateRelease", "--inputs-only")
     $resolvedManifest = if ($ReplayManifest) { (Resolve-Path -LiteralPath $ReplayManifest).ProviderPath } else { "" }
     $resolvedWujieLog = if ($WujieLog) { (Resolve-Path -LiteralPath $WujieLog).ProviderPath } else { "" }
+
+    $resolvedLiveManifest = if ($LiveManifest) { (Resolve-Path -LiteralPath $LiveManifest).ProviderPath } else { "" }
 
     Invoke-ReleasePython -Arguments @("-m", "release.GeneratorGenerator")
     Invoke-ReleasePython -Arguments @("-m", "release.EquipmentTypeGenerator")
@@ -51,6 +54,7 @@ try {
     $smokeArguments = @("--release-smoke-test", "--report", $smokeReport)
     if ($resolvedManifest) { $smokeArguments += @("--manifest", $resolvedManifest) }
     if ($resolvedWujieLog) { $smokeArguments += @("--wujie-log", $resolvedWujieLog) }
+    if ($resolvedLiveManifest) { $smokeArguments += @("--live-manifest", $resolvedLiveManifest) }
     Push-Location -LiteralPath $smokeDirectory
     try {
         & $smokeExecutable @smokeArguments

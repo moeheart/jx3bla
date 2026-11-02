@@ -1,5 +1,6 @@
 """洛阳之战史朝义：煞将/剑符、红黑煞与后续剑招。"""
 from replayer.boss.luoyangzhizhan.EncounterSupport import EncounterReplayer, EncounterWindow
+from replayer.boss.luoyangzhizhan.LuoyangEvidence import record_shout, finalize_phase_periods
 
 
 class ShiChaoyiWindow(EncounterWindow):
@@ -36,6 +37,17 @@ class ShiChaoyiReplayer(EncounterReplayer):
         "34278": ("携带剑碎片", "16396"),
     }
 
+    TRANSITION_START = "此痛朕记下了，煞…甲…归…身！"
+    TRANSITION_END = "狂妄的唐廷贼子！让你们见识一下真正的帝煞威仪！"
+    SHOUTS = {
+        "尔等命数到此！": "杀机", "暂留尔等残命！": "杀机结束",
+        "利刃出鞘！": "利刃", "刀锋噬骨！": "刃轮",
+        TRANSITION_START: "煞甲归身转场", TRANSITION_END: "帝煞威仪宣言",
+        "万…煞…奔…流！": "戾芒天坠",
+        "朕先斩你！哈！一刀断命！": "裂峰斩",
+        "一斩…索命！": "幽影斩", "尔等，罪当伏诛": "戾煞",
+    }
+
     def initBattle(self):
         super().initBattle()
         self.initPhase(3, 1)
@@ -43,10 +55,12 @@ class ShiChaoyiReplayer(EncounterReplayer):
         self.mainExit = None
         self.invasionFailure = set()
         self.shaStart = {}
+        self.transitionStart = None
+        self.detail["transitionPeriods"] = []
         self.detail["phaseChanges"] = []
         self.detail["shaPeriods"] = []
-        self.detail["phaseEvidence"] = "阶段边界为日志首次出现对应阶段专属招式的时间，可能晚于服务器实际转阶段。三阶段仅按明确的三阶段招式识别。"
-        self.detail["mechanicNote"] = "红黑煞消融、分流强爆、煞骸崩陨只记录受击，不将受害者当作责任人。三阶段来自解包配置，9月15日样本尚无三阶段招式；其时长保持0。剑符与煞将阶段仍计有效时间。"
+        self.detail["phaseEvidence"] = "二阶段优先使用本体煞甲归身喊话，缺失时回退首次阶段专属招式；转场区间按两条本体喊话观测，不据此推断完整无敌时长或扣除有效时间。三阶段仅按明确专属招式识别。"
+        self.detail["mechanicNote"] = "红黑煞消融、分流强爆、煞骸崩陨只记录受击，不将受害者当作责任人。未观测到明确三阶段招式时，三阶段时长保持0。剑符、煞将与转场仍计有效时间。"
         self.bhBlackList.extend(["s45517", "s45532", "s45607", "s45684", "b34025", "b34027", "b34619"])
         self.bhBlackList.extend("c"+x for x in self.CASTS)
         self.bhBlackList.extend("b"+x for x in self.CALLS)
@@ -74,6 +88,7 @@ class ShiChaoyiReplayer(EncounterReplayer):
     def analyseSecondStage(self, event):
         if self.confirmedEnd is not None and event.time > self.confirmedEnd:
             return
+        self.observeCombatEnd(event)
         self.observePhase(event)
         if event.dataType == "Skill":
             self.recordDamage(event, self.MAIN_IDS, "mainDamage")
@@ -117,6 +132,19 @@ class ShiChaoyiReplayer(EncounterReplayer):
                 elif event.stack == 0:
                     self.invasionFailure.discard(event.target)
         elif event.dataType == "Shout":
+            if self.template(event.id) in self.MAIN_IDS:
+                content = event.content.strip('"')
+                if content in self.SHOUTS:
+                    record_shout(self, event, self.SHOUTS[content])
+                if content == self.TRANSITION_START and self.phase == 1:
+                    self.changePhase(event.time, 2)
+                    self.detail["phaseChanges"].append({"time": event.time, "phase": 2,
+                        "source": "本体煞甲归身喊话"})
+                    self.bh.setEnvironment("0", "本体红黑煞阶段", "16371", event.time,
+                        0, 1, "本体煞甲归身喊话", "phase", "#9944bb")
+                    self.transitionStart = event.time
+                elif content == self.TRANSITION_END and self.transitionStart is not None:
+                    self.finishTransition(event.time, False)
             if (str(event.id) == "0" and "洛阳之战" in self.bld.info.map
                     and "侠士完成【击杀25人普通秘境首领】" in event.content
                     and self.lastMainDamage is not None):
@@ -142,6 +170,17 @@ class ShiChaoyiReplayer(EncounterReplayer):
             self.finishSha(event.id, event.time)
         super().analyseSecondStage(event)
 
+    def finishTransition(self, time, truncated):
+        if self.transitionStart is None:
+            return
+        start = self.transitionStart
+        self.detail["transitionPeriods"].append({"start": start, "end": max(start, time),
+            "name": "煞甲归身转场（喊话观测）", "duration": round(max(0, time-start)/1000, 3),
+            "truncated": truncated})
+        self.bh.setEnvironment("0", "煞甲归身转场（喊话观测）", "16371", start,
+            max(0, time-start), 1, "双本体喊话边界；未据此扣除有效时间", "transition", "#9944bb")
+        self.transitionStart = None
+
     def finishSha(self, npc_id, time):
         if npc_id in self.shaStart:
             self.detail["shaPeriods"].append({"start": self.shaStart.pop(npc_id), "end": time})
@@ -156,12 +195,14 @@ class ShiChaoyiReplayer(EncounterReplayer):
         self.finalized = True
         self.resolveRewardWin()
         end = self.encounterEnd()
+        self.finishTransition(end, True)
         for npc_id in list(self.shaStart):
             self.finishSha(npc_id, end)
         self.finishEncounter()
         super().countFinal()
+        finalize_phase_periods(self, {1: "煞将/剑符", 2: "本体红黑煞", 3: "三阶段"}, "phaseChanges")
         for phase in range(1, 4):
             self.detail["P%dTime" % phase] = round(self.phaseTime[phase]/1000, 2)
         self.detail["phaseTimes"] = {"煞将/剑符": self.detail["P1Time"], "本体红黑煞": self.detail["P2Time"], "三阶段": self.detail["P3Time"]}
-        self.detail["phaseSummary"] = "煞将/剑符 %.1f秒 / 本体红黑煞 %.1f秒 / 三阶段 %.1f秒（首次招式边界）" % (
+        self.detail["phaseSummary"] = "煞将/剑符 %.1f秒 / 本体红黑煞 %.1f秒 / 三阶段 %.1f秒（喊话优先/招式回退）" % (
             self.detail["P1Time"], self.detail["P2Time"], self.detail["P3Time"])

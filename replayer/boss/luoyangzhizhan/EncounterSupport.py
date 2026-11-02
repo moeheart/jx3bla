@@ -31,6 +31,8 @@ class EncounterReplayer(GeneralReplayer):
         self.detail["winEvidence"] = []
         self.finalized = False
         self.lastMainDamage = None
+        self.pendingCombatEnd = None
+        self.detail["endEvidence"] = []
         self.damageContributions = []
         # Identity exists independently of whether the party managed to hit it.
         for npc_id in self.bld.info.npc:
@@ -51,6 +53,7 @@ class EncounterReplayer(GeneralReplayer):
                 and event.damageEff > 0):
             self.recordContribution(event, key)
             if targets == self.MAIN_IDS:
+                self.pendingCombatEnd = None
                 self.lastMainDamage = event.time
                 self.bh.setMainTarget(event.target)
             return True
@@ -93,11 +96,38 @@ class EncounterReplayer(GeneralReplayer):
             self.detail["winEvidence"].append(evidence)
         if self.confirmedEnd is None or time < self.confirmedEnd:
             self.confirmedEnd = time
-            self.trimmedFinalTime = time
+            self.trimmedFinalTime = min(self.trimmedFinalTime or time, time)
         self.win = 1
         self.detail["winReason"] = rule
 
+    def observeCombatEnd(self, event):
+        """Keep a candidate until all events rule out a temporary combat exit."""
+        if event.dataType != "Battle" or self.template(event.id) not in self.MAIN_IDS:
+            return
+        if event.fight != 0:
+            self.pendingCombatEnd = None
+        elif (self.lastMainDamage is not None
+              and 0 <= event.time-self.lastMainDamage <= 5000):
+            self.pendingCombatEnd = {"time": event.time, "rule": "main_npc_left_combat",
+                "template": self.template(event.id), "lastMainDamage": self.lastMainDamage}
+
+    def applyCombatEnd(self):
+        candidate = self.pendingCombatEnd
+        if candidate is None:
+            return
+        previous = min(self.finalTime, self.trimmedFinalTime or self.finalTime)
+        if candidate["time"] <= previous:
+            self.trimmedFinalTime = candidate["time"]
+            if candidate not in self.detail["endEvidence"]:
+                self.detail["endEvidence"].append(candidate)
+            self.detail["endReason"] = "本体脱战；未据此确认通关"
+
+    def trimTime(self):
+        self.applyCombatEnd()
+        return super().trimTime()
+
     def encounterEnd(self):
+        self.applyCombatEnd()
         end = min(self.finalTime, self.trimmedFinalTime or self.finalTime,
                   self.confirmedEnd if self.confirmedEnd is not None else self.finalTime)
         return max(self.startTime, end)
@@ -115,13 +145,14 @@ class EncounterReplayer(GeneralReplayer):
             self.bh.log["call"][player] = [entry for entry in calls if entry["start"] <= end]
             for entry in self.bh.log["call"][player]:
                 entry["duration"] = min(entry["duration"], max(0, end-entry["start"]))
-        for key in ("mechanics", "soulPeriods", "constructPeriods", "shaPeriods"):
+        for key in ("mechanics", "soulPeriods", "constructPeriods", "shaPeriods", "transitionPeriods"):
             if key in self.detail:
                 self.detail[key] = [entry for entry in self.detail[key] if entry["start"] <= end]
                 for entry in self.detail[key]:
-                    if key == "mechanics" and entry["end"] > end:
+                    if key in ("mechanics", "transitionPeriods") and entry["end"] > end:
                         entry["truncated"] = True
                     entry["end"] = max(entry["start"], min(entry["end"], end))
+                    entry["duration"] = round((entry["end"]-entry["start"])/1000, 3)
         for time, player, key, amount in self.damageContributions:
             if time > end:
                 self.increment(player, key, -amount)

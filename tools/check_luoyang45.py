@@ -26,6 +26,7 @@ def event(kind, time, **kwargs):
 def replayer(cls, templates=None):
     bld = BattleLogData()
     bld.info.map = "25人普通洛阳之战"
+    bld.info.battleTime = 1789430400  # Historical test-server fixture (edition 160).
     bld.info.skill = {}
     bld.info.addPlayer("p", '"测试"', "2", "0")
     for key, template, name in templates or [("boss", cls.MAIN_IDS[0], cls.BOSS)]:

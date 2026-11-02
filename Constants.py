@@ -3,8 +3,8 @@
 
 from ServerAddress import get_address_config, get_api_url, get_logs_url
 
-EDITION = "8.16.2"
-ANNOUNCEMENT = "蓝奏云下载密码：1234。8.16.2：同步苍生铸世正式服解包数据，修正逐云寒蕊（飘黄）无双增益为10，更新神兵无双、装备和属性计算；按日志版本保留体验服增益数值。"
+EDITION = "8.16.3"
+ANNOUNCEMENT = "蓝奏云下载密码：1234。8.16.3：适配正式服25人普通洛阳之战日志，补充五首领喊话与逐段计时，修正死水、火环、聚邪和史朝义转阶段识别，补齐玄隼伤害与存续，修复宠物首击归属，按本体脱战裁剪尾录；缺少明确胜利事件时保留未确认通关。"
 # IP is kept for old compatibility. New HTTP requests should use get_api_url()
 # or get_logs_url().
 IP = get_address_config()["api"]["host"]

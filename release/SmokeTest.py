@@ -18,6 +18,7 @@ def main():
     parser.add_argument('--report', type=Path, required=True)
     parser.add_argument('--manifest', type=Path)
     parser.add_argument('--wujie-log', type=Path)
+    parser.add_argument('--live-manifest', type=Path)
     args = parser.parse_args()
     report_path = args.report.resolve()
     report_path.parent.mkdir(parents=True, exist_ok=True)
@@ -81,6 +82,11 @@ def main():
             wujie_report = report_path.parent / 'wujie-report.json'
             write_report(validate_wujie_log(args.wujie_log, ui=True), wujie_report)
             result['wujieReport'] = str(wujie_report)
+        if args.live_manifest:
+            from tools.ValidateLuoyangLive import validate_live_manifest, write_report
+            live_report = report_path.parent / 'luoyang-live.json'
+            write_report(validate_live_manifest(args.live_manifest, healers=True, ui=True), live_report)
+            result['liveReplayReport'] = str(live_report)
         report_path.write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
         print('Release smoke test passed: ' + str(report_path))
 

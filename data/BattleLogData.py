@@ -96,6 +96,9 @@ class BattleLogData():
 
         playerNameDict = {}
         summonDict = {}
+        # A JCL damage event can precede its NPC snapshot. Keep explicit owner
+        # evidence separately from display-name guesses for the final repair.
+        summonOwnerEvidence = {}
 
         for line in jclRaw:
             # 维护进度条
@@ -166,6 +169,8 @@ class BattleLogData():
                         self.info.npc[jclItem[5]["1"]].firstX = int(jclItem[5]["5"])
                         self.info.npc[jclItem[5]["1"]].firstY = int(jclItem[5]["6"])
                         self.info.npc[jclItem[5]["1"]].firstZ = int(jclItem[5]["7"])
+                    summonOwnerEvidence.setdefault(jclItem[5]["1"], set()).add(
+                        (jclItem[5]["4"], jclItem[5]["3"]))
                     # 判断召唤物
                     if '的' in jclItem[5]["2"]:
                         possiblePlayerName = '的'.join(jclItem[5]["2"].strip('"').split('的')[:-1])
@@ -184,6 +189,20 @@ class BattleLogData():
                 continue
             singleData.setByJcl(jclItem)
             self.log.append(singleData)
+
+        # Repair only events that still carry an NPC ID. A unique explicit
+        # player owner (and unchanged template) is required across this log.
+        # Reused IDs, unknown owners and non-player owners remain untouched;
+        # an NPC's display name is not evidence for retrospective ownership.
+        lateOwners = {}
+        for npc_id, evidence in summonOwnerEvidence.items():
+            if len(evidence) == 1:
+                owner, template = next(iter(evidence))
+                if owner in self.info.player and npc_id not in self.info.player:
+                    lateOwners[npc_id] = owner
+        for event in self.log:
+            if event.dataType == "Skill" and event.caster in lateOwners:
+                event.caster = lateOwners[event.caster]
 
         # print(playerNameDict)
         # print(summonDict)

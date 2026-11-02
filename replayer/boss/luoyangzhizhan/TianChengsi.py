@@ -3,7 +3,7 @@ from replayer.boss.General import GeneralReplayer
 from window.SpecificBossWindow import SpecificBossWindow
 from replayer.boss.luoyangzhizhan.LuoyangEvidence import (
     npc_matches, record_target_damage, record_call_buff, set_confirmed_win,
-    record_environment, record_hit, record_phase, finalize_evidence, render_boss_window,
+    record_environment, record_hit, record_phase, record_shout, finalize_evidence, render_boss_window,
 )
 
 
@@ -34,15 +34,29 @@ class TianChengsiReplayer(GeneralReplayer):
         ("Skill", "46001"): ("枪林突刺", "340", "#3377aa"),
     }
 
+    SHOUTS = {
+        "来战！正好让本将看看唐廷的斤两！": "开战",
+        "长枪兵！列阵准备，捅穿他们！": "长枪兵列阵",
+        "弓箭手！放箭！一个活口都别留！": "弓箭手放箭",
+        "狼牙军！听我号令！": "狼牙军号令",
+        "抬头看好了——这一剑，送你们上路！": "天陨一剑准备",
+        "小看你们了，狼牙军，全军准备！": "全军准备",
+        "垂死挣扎！将士们，给我砸碎他们！": "军阵号令·砸碎",
+        "呵呵，就这点本事？将士们，给我捅穿了他们！": "军阵号令·捅穿",
+        "看你们能撑多久！将士们，给我射穿他们！": "军阵号令·射穿",
+    }
+
     def initBattle(self):
         super().initBattle()
         self.activeBoss = "田承嗣"
-        self.initPhase(4, 1)
+        self.initPhase(5, 1)
+        self.lastMainDamage = None
+        self.combatEndCandidate = None
         self.openingSeen = False
         self.detail["phaseTransitions"] = [{"time": self.startTime, "phase": 1, "name": "交战"}]
         self.detail["swords"] = []
         self.swordRecords = {}
-        self.detail["limitations"] = "按喊话、巨剑出场与重伤划段；受击只作观察，不推断重叠分摊的责任人。"
+        self.detail["limitations"] = "按喊话、巨剑出场与重伤划段；本体脱战可裁剪尾录，但无宝箱、重伤或结束喊话时不确认通关。"
         for npc_id in self.bld.info.npc:
             if npc_matches(self, npc_id, self.MAIN):
                 self.bh.setMainTarget(npc_id)
@@ -57,7 +71,12 @@ class TianChengsiReplayer(GeneralReplayer):
             return
         if event.dataType == "Shout" and npc_matches(self, event.id, self.MAIN):
             content = event.content.strip('"')
-            if content == "小看你们了，狼牙军，全军准备！":
+            label = self.SHOUTS.get(content)
+            if label:
+                record_shout(self, event, label)
+            if content == "抬头看好了——这一剑，送你们上路！":
+                record_phase(self, event.time, 5, "天陨一剑准备")
+            elif content == "小看你们了，狼牙军，全军准备！":
                 record_phase(self, event.time, 2, "全军准备")
             elif content == "来战！正好让本将看看唐廷的斤两！":
                 if self.openingSeen and event.time - self.startTime > 10000:
@@ -65,6 +84,13 @@ class TianChengsiReplayer(GeneralReplayer):
                     self.trimmedFinalTime = event.time
                     self.bh.setBadPeriod(event.time, self.finalTime, True, True)
                 self.openingSeen = True
+        elif event.dataType == "Battle" and npc_matches(self, event.id, self.MAIN):
+            if event.fight:
+                self.combatEndCandidate = None
+            elif (self.lastMainDamage is not None and
+                  0 <= event.time - self.lastMainDamage <= 5000 and
+                  event.time - self.startTime > 10000):
+                self.combatEndCandidate = event.time
         elif event.dataType in ("Scene", "Death") and npc_matches(self, event.id, self.SWORD):
             if event.dataType == "Scene" and event.enter:
                 record_phase(self, event.time, 3, "天陨巨剑")
@@ -76,6 +102,9 @@ class TianChengsiReplayer(GeneralReplayer):
         elif event.dataType == "Skill":
             if npc_matches(self, event.target, self.MAIN):
                 record_target_damage(self, event, "bossDamage")
+                if event.caster in self.statDict and event.damageEff > 0:
+                    self.lastMainDamage = event.time
+                    self.combatEndCandidate = None
             elif npc_matches(self, event.target, self.SWORD):
                 record_target_damage(self, event, "swordDamage")
             if npc_matches(self, event.caster, self.SOURCES):
@@ -97,10 +126,28 @@ class TianChengsiReplayer(GeneralReplayer):
                 if event.id == "34329" and event.target in self.stunCounter:
                     self.stunCounter[event.target].setState(event.time, int(event.stack > 0))
 
+    def trimTime(self):
+        if self.combatEndCandidate is not None and not self.win and not self.detail.get("resetTime"):
+            self.trimmedFinalTime = min(self.trimmedFinalTime or self.combatEndCandidate,
+                                        self.combatEndCandidate)
+            self.detail["combatEndEvidence"] = {
+                "time": self.combatEndCandidate,
+                "rule": "近期本体有效伤害后本体脱战；仅裁剪尾录，未据此确认通关",
+            }
+            self.bh.setBadPeriod(self.combatEndCandidate, self.finalTime, True, True)
+        return super().trimTime()
+
     def countFinal(self):
         for npc_id, record in self.swordRecords.items():
-            self.detail["swords"].append(dict(record, npcID=npc_id,
-                                             duration=((record.get("end") or self.finalTime) - record["start"]) / 1000))
+            if record["start"] > self.finalTime:
+                continue
+            observed_end = record.get("end")
+            end = min(observed_end or self.finalTime, self.finalTime)
+            self.detail["swords"].append(dict(
+                record, npcID=npc_id, end=end,
+                killed=bool(record.get("killed") and observed_end is not None and observed_end <= self.finalTime),
+                truncated=observed_end is None or observed_end > self.finalTime,
+                duration=max(0, end-record["start"]) / 1000))
         super().countFinal()
-        finalize_evidence(self, {1: "交战", 2: "全军准备", 3: "天陨巨剑", 4: "巨剑击破后"},
+        finalize_evidence(self, {1: "交战", 2: "全军准备", 3: "天陨巨剑", 4: "巨剑击破后", 5: "天陨一剑准备"},
                           ("bossDamage", "swordDamage"))

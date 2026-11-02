@@ -111,8 +111,68 @@ def record_phase(replayer, time, phase, label):
     replayer.bh.setEnvironment("0", label, "340", time, 0, 1, "事件确认阶段切换", "phase", "#9467bd")
 
 
+def record_shout(replayer, event, label):
+    """Record dialogue after the encounter has checked speaker and exact content."""
+    content = event.content.strip('"')
+    key = (str(event.id), content)
+    seen = replayer.__dict__.setdefault("_luoyangShoutTimes", {})
+    if event.time - seen.get(key, -10**15) < 1000:
+        return False
+    seen[key] = event.time
+    npc = replayer.bld.info.npc.get(event.id)
+    replayer.detail.setdefault("shouts", []).append({
+        "time": event.time, "name": label, "content": content,
+        "sourceTemplate": str(npc.templateID) if npc else "",
+    })
+    replayer.bh.setEnvironment("0", label, "340", event.time, 0, 1,
+                               content, "shout", "#996633")
+    return True
+
+
+def finalize_phase_periods(replayer, phase_names, transitions_key="phaseTransitions"):
+    """Keep each observed phase interval, including repeated cycles and cutoffs."""
+    start, end = replayer.startTime, replayer.finalTime
+    transitions = [{"time": start, "phase": 1, "name": phase_names.get(1, "阶段1")}]
+    for entry in sorted(replayer.detail.get(transitions_key, []), key=lambda item: item["time"]):
+        if entry.get("phase") not in phase_names or entry["time"] > end:
+            continue
+        entry = dict(entry, time=max(start, entry["time"]))
+        entry.setdefault("name", phase_names[entry["phase"]])
+        if entry["time"] == transitions[-1]["time"]:
+            transitions[-1] = entry
+        elif entry["phase"] != transitions[-1]["phase"]:
+            transitions.append(entry)
+    periods = []
+    for index, entry in enumerate(transitions):
+        finish = transitions[index+1]["time"] if index+1 < len(transitions) else end
+        if finish <= entry["time"]:
+            continue
+        periods.append(dict(entry, start=entry["time"], end=finish,
+                            duration=round((finish-entry["time"])/1000, 3)))
+    replayer.detail["phasePeriods"] = periods
+    # A boundary can be confirmed after later events were observed. Rebuild the
+    # phase totals from the clipped intervals so summaries and bars agree.
+    replayer.phaseTime = [0] * max(len(replayer.phaseTime), max(phase_names, default=0)+1)
+    for period in periods:
+        replayer.phaseTime[period["phase"]] += period["end"]-period["start"]
+    # Existing phase markers become interval bars on the replay timeline.
+    by_start = {entry["start"]: entry for entry in periods}
+    for entry in replayer.bh.log["environment"]:
+        if entry["type"] == "phase" and entry["start"] in by_start:
+            entry["duration"] = by_start[entry["start"]]["end"] - entry["start"]
+    # All timeline entries obey the same confirmed encounter boundary.
+    for key in ("shouts", "phaseTransitions", "phaseChanges"):
+        if key in replayer.detail:
+            replayer.detail[key] = [entry for entry in replayer.detail[key] if entry["time"] <= end]
+    replayer.bh.log["environment"] = [entry for entry in replayer.bh.log["environment"]
+                                      if entry["start"] <= end]
+    for entry in replayer.bh.log["environment"]:
+        entry["duration"] = min(entry["duration"], max(0, end-entry["start"]))
+
+
 def finalize_evidence(replayer, phase_names, damage_keys=()):
     finish_calls(replayer)
+    finalize_phase_periods(replayer, phase_names)
     for counter in replayer.stunCounter.values():
         counter.finalTime = replayer.finalTime
     replayer.detail["win"] = replayer.win
@@ -141,6 +201,19 @@ def render_boss_window(window, title, columns):
                          for name, value in window.detail.get("phaseTimes", {}).items())
     tk.Label(window.window, text=("通关" if window.detail.get("win") else "未确认通关") +
              "  |  " + phases + "  |  点名与命中详情见时间轴、战斗事件记录").pack()
+    periods = window.detail.get("phasePeriods", [])
+    if periods:
+        text = "分段：" + " / ".join("%s %s—%s（%.3f秒）" % (
+            entry["name"], parseTime((entry["start"]-periods[0]["start"])/1000),
+            parseTime((entry["end"]-periods[0]["start"])/1000), entry["duration"])
+            for entry in periods)
+        tk.Label(window.window, text=text, wraplength=1400, justify="left").pack()
+    transitions = window.detail.get("transitionPeriods", [])
+    if transitions:
+        tk.Label(window.window, text="转场观测：" + " / ".join(
+            "%s %.3f秒%s" % (entry["name"], entry["duration"],
+                              "（截至记录结束）" if entry.get("truncated") else "")
+            for entry in transitions), wraplength=1400, justify="left").pack()
     frame = tk.Frame(window.window)
     frame.pack()
     table = TableConstructorMeta(window.config, frame)
