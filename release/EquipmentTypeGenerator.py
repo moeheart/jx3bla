@@ -8,7 +8,7 @@ if __name__ == "__main__":
     # 数据准备
     resultDict = {}
 
-    with open('equip/resources/Custom_Armor.tab', 'r', encoding='utf-8')as f:
+    with open('equip/resources/cangshengtf/Custom_Armor.tab', 'r', encoding='utf-8')as f:
 
         data_7 = []
         f_csv = csv.reader(f, delimiter='\t')
@@ -22,8 +22,6 @@ if __name__ == "__main__":
             data_7.append(line)
 
         for line in data_7:
-            if int(line["Level"]) < 4000:
-                continue
             name = line["Name"]
             id = "7,%s" % line["ID"]
             attr = ""
@@ -43,13 +41,13 @@ if __name__ == "__main__":
                 attr = "灵源"
             if line["GetType"] == "生活技能":
                 attr = "切糕"
-            if int(line["MaxStrengthLevel"]) < 6:
+            if line["MaxStrengthLevel"] and int(line["MaxStrengthLevel"]) < 6:
                 attr = "精简"
 
             if attr != "":
                 resultDict[id] = attr
 
-    with open('equip/resources/Custom_Weapon.tab', 'r', encoding='utf-8')as f:
+    with open('equip/resources/cangshengtf/Custom_Weapon.tab', 'r', encoding='utf-8')as f:
 
         data_6 = []
         f_csv = csv.reader(f, delimiter='\t')
@@ -63,12 +61,10 @@ if __name__ == "__main__":
             data_6.append(line)
 
         for line in data_6:
-            if int(line["Level"]) < 4000:
-                continue
             name = line["Name"]
             id = "6,%s" % line["ID"]
             attr = ""
-            if int(line["MaxStrengthLevel"]) < 6:
+            if line["MaxStrengthLevel"] and int(line["MaxStrengthLevel"]) < 6:
                 attr = "精简"
             if line["_IsSpecialMagicType"] == "1":
                 attr = "特效武器"
@@ -80,7 +76,7 @@ if __name__ == "__main__":
             if attr != "":
                 resultDict[id] = attr
 
-    with open('equip/resources/Custom_Trinket.tab', 'r', encoding='utf-8')as f:
+    with open('equip/resources/cangshengtf/Custom_Trinket.tab', 'r', encoding='utf-8')as f:
 
         data_8 = []
         f_csv = csv.reader(f, delimiter='\t')
@@ -94,8 +90,6 @@ if __name__ == "__main__":
             data_8.append(line)
 
         for line in data_8:
-            if line["Level"] == "" or int(line["Level"]) < 4000:
-                continue
             name = line["Name"]
             id = "8,%s" % line["ID"]
             attr = ""
@@ -110,7 +104,7 @@ if __name__ == "__main__":
     # 读取附魔等级
     enchantDict = {}
 
-    with open('equip/resources/Enchant.tab', 'r', encoding='utf-8')as f:
+    with open('equip/resources/cangshengtf/enchant.tab', 'r', encoding='utf-8')as f:
         f_csv = csv.reader(f, delimiter='\t')
         lvl = 0
         for row in f_csv:
@@ -134,7 +128,7 @@ if __name__ == "__main__":
     # 读取五彩石等级
     colorDict = {}
 
-    with open('equip/resources/Other.tab', 'r', encoding='utf-8')as f:
+    with open('equip/resources/cangshengtf/other.tab', 'r', encoding='utf-8')as f:
         f_csv = csv.reader(f, delimiter='\t')
         lvl = 0
         for row in f_csv:

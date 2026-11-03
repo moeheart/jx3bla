@@ -1,6 +1,6 @@
 """Live Luoyang evidence: source identity, measured phases, and non-kill exits."""
 import unittest
-from tools.check_luoyang45 import replayer, event, damage
+from tools.ValidateLuoyangLastTwo import replayer, event, damage
 from replayer.boss.luoyangzhizhan.AshinaChengqing import LuoyangAshinaChengqingReplayer as Ashina
 from replayer.boss.luoyangzhizhan.ShiChaoyi import ShiChaoyiReplayer as Shi
 

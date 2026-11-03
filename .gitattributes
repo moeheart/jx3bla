@@ -2,10 +2,14 @@
 # Trailing tabs are empty source columns; keep the extraction byte-for-byte.
 equip/resources/cangshengtf/*.tab -text -whitespace
 equip/resources/cangshengtf/*.txt -text -whitespace
-equip/resources/cangshengtf/*.luac -text
-equip/resources/cangshengtf/*.json -text whitespace=cr-at-eol
-equip/resources/cangshengtf/xinfa_evidence/** -text
-equip/resources/cangshengtf/wujie_evidence/** -text whitespace=cr-at-eol
-equip/resources/cangshengtf/wujie_evidence/**/*.tab -whitespace
+equip/resources/cangshengtf/*.json -text
 equip/resources/cangshengtf/xinfa50.json whitespace=cr-at-eol
-equip/resources/cangshengtf/xinfa10009_evidence/** -text -whitespace
+docs/160/evidence/*.luac -text
+docs/160/evidence/*.json -text
+docs/160/evidence/xinfa_evidence/** -text
+docs/160/evidence/wujie_evidence/** -text whitespace=cr-at-eol
+docs/160/evidence/wujie_evidence/**/*.tab -whitespace
+docs/160/evidence/xinfa10009_evidence/** -text
+docs/160/evidence/xinfa10009_evidence/*.json whitespace=cr-at-eol
+docs/160/evidence/xinfa10009_evidence/**/*.tab -whitespace
+docs/160/evidence/legacy9506/*.json -text whitespace=cr-at-eol

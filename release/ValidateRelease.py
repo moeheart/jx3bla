@@ -4,7 +4,7 @@ import ast
 import hashlib
 from pathlib import Path
 
-from release.ReleaseResources import CANGSHENG_FILES
+from release.ReleaseResources import CANGSHENG_FILES, EXCLUDED_MODULES, OBSOLETE_MODULES
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -36,7 +36,8 @@ def validate_archive(archive, expected_hashes):
     """Compare embedded bytes and reject old-season tables or accidental evidence files."""
     entries = {normalized_path(name): name for name in archive.toc}
     expected = {normalized_path(name): digest for name, digest in expected_hashes.items()}
-    packaged_resources = {name for name in entries if name.startswith("equip/resources/")}
+    packaged_resources = {name for name in entries
+                          if name.startswith(("equip/resources/", "docs/"))}
     missing = set(expected) - packaged_resources
     extra = packaged_resources - set(expected)
     if missing or extra:
@@ -46,6 +47,19 @@ def validate_archive(archive, expected_hashes):
         if hashlib.sha256(data).hexdigest() != digest:
             raise ValueError("Bundled resource differs from current source: " + filename)
     return len(expected)
+
+
+def validate_dependencies(archive):
+    """Reject optional scientific/image codecs that silently inflate the client."""
+    modules = archive.open_embedded_archive("PYZ.pyz").toc
+    unexpected = []
+    for name in tuple(archive.toc) + tuple(modules):
+        module = normalized_path(name).replace("/", ".")
+        if any(module == excluded.casefold() or module.startswith(excluded.casefold() + ".")
+               for excluded in EXCLUDED_MODULES + OBSOLETE_MODULES) or module.startswith("numpy-"):
+            unexpected.append(name)
+    if unexpected:
+        raise ValueError("Unexpected optional bundled dependencies: " + ", ".join(sorted(unexpected)))
 
 
 def main():
@@ -58,7 +72,9 @@ def main():
     if args.exe:
         # PyInstaller's archive reader opens the binary as data; it never launches it.
         from PyInstaller.archive.readers import CArchiveReader
-        count = validate_archive(CArchiveReader(str(args.exe)), hashes)
+        archive = CArchiveReader(str(args.exe))
+        count = validate_archive(archive, hashes)
+        validate_dependencies(archive)
         print("Verified %s: %d bundled runtime resources match current SHA256 hashes" % (edition, count))
     else:
         print("Verified %s: %d non-empty runtime inputs" % (edition, len(hashes)))

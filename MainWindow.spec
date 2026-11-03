@@ -1,17 +1,12 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-from pathlib import Path
 import sys
 
 sys.path.insert(0, SPECPATH)
-from release.ReleaseResources import CANGSHENG_FILES
+from release.ReleaseResources import EXCLUDED_MODULES, bundle_datas
 
-# Game edition 160 uses the local calculator in both standard and beta builds.
-# Keep the standard bundle limited to its required, versioned runtime snapshot.
-runtime_datas = [
-    (str(Path(SPECPATH) / filename), str(Path(filename).parent))
-    for filename in CANGSHENG_FILES
-]
+# Both entries use the current 50-level formal-server calculator and tables.
+runtime_datas = bundle_datas(SPECPATH)
 
 a = Analysis(
     ['MainWindow.py'],
@@ -22,7 +17,7 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=list(EXCLUDED_MODULES),
     noarchive=False,
     optimize=0,
 )

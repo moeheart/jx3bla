@@ -1,82 +1,52 @@
 # 发布构建说明
 
-## 8.16.3 正式版
+## 支持范围
 
-苍生铸世（游戏版本 160 起）的 Actor 在正式版和 beta 版中都会使用本地属性计算。正式 EXE 必须带入对应装备表、50 级心法和首领防御数据。版本名不含 `beta` 并不代表新赛季可以省略这些数据。
+新版仅适配 50 级苍生铸世正式服，使用 2026-10-29 的 `1.6.0.10009` 数据。输入约定为 10 月 29 日以后正式服日志；客户端不检查或拦截日志日期，不再按日期、地图或版本号切换体服/旧等级公式。排名与服务端统计的时间分区保留原有定义。
 
-正式构建使用 `MainWindow.spec`；该文件必须随代码版本管理。构建前完成版本号、公告、数据与测试更新，再执行：
+## 构建
+
+正式入口仍为 `MainWindow.spec` 和 `release/Release.ps1`：
 
 ```powershell
-./release/Release.ps1
-# 指定同一套 Python 环境：
 ./release/Release.ps1 -Python C:/Python314/python.exe
 ```
 
-脚本自动切到仓库根目录，所有 Python 步骤使用同一个解释器，失败即停止。流水线为：
+所有 Python 步骤使用同一个解释器，失败即停止。脚本依次生成图标、当前装备分类、复盘说明和 `replayer/Name.py`，在独立的 `build/release-*` 中构建，核对资源 SHA256 与依赖清单，并在空目录执行冻结 EXE 的心法、增益、PNG/ICO + Tk 和 Excel 读写检查。全部通过后才替换 `dist/j3jz.exe`。
 
-1. 检查 PyInstaller、正式版本号和 15 份运行资源。
-2. 依次运行 `GeneratorGenerator`（图标）、`EquipmentTypeGenerator`（已有装备分类）、`JsonGenerator`（复盘说明）。
-3. 以 `equip/resources/cangshengtf` 为输入生成 `replayer/NameCangsheng.py`。旧赛季 `replayer/Name.py` 保留。
-4. 通过 `python -m PyInstaller` 在独立的 `build/release-*` 目录构建。
-5. 读取 EXE 内部归档，逐份核对 15 个资源的 SHA256，检查没有额外混入旧装备表、原始 buff 表或开发取证文件。
-6. 从新建的空工作目录执行 EXE 内置冒烟检查：资源、心法、关键增益及隐藏 Tk 窗口。测试阻断网络和上传。
-7. 全部通过后替换 `dist/j3jz.exe`，打印 EXE SHA256 和冒烟报告位置。之前任一步失败，都保留原有 `dist/j3jz.exe`。
+`MainWindow.beta.spec` 保留为旧命令入口，使用完全相同的当前资源；`ReleaseBeta.ps1` 转调上述构建脚本，输出同一个 `dist/j3jz.exe`。两个入口均不执行 Git 提交、推送、网盘上传或服务器公告更新。
 
-脚本只负责生成、构建和验证，不执行 Git 操作、不上传网盘、不更新服务器公告。失败目录保留在忽略的 `build/` 下，便于检查日志。重新运行会使用新的临时产物目录。
+## 包内资源
 
-### 正式包内数据
-
-唯一清单为 `release/ReleaseResources.py` 的 `CANGSHENG_FILES`，正式 spec、验包和冒烟检查共用该清单。均位于 `equip/resources/cangshengtf/`：
+唯一清单为 `release/ReleaseResources.py` 的 `CANGSHENG_FILES`。资源仍位于 `equip/resources/cangshengtf/`，保留既有赛季目录名称：
 
 - `Custom_Trinket.tab`、`Custom_Armor.tab`、`Custom_Weapon.tab`
 - `attrib.tab`、`enchant.tab`、`item.txt`、`other.tab`、`Set.tab`
-- `StrengthableAttrib.tab`、`xinfa50.json`、`luoyang_npc_defense.json`
-- `xinfa50_hd.json`、`global_parameters_hd.json`、`luoyang_npc_defense_hd.json`
-- `cangsheng_test_equipment.zip`（9506 的八张装备表及来源清单，供版本 160 历史回放）
+- `StrengthableAttrib.tab`、`xinfa50.json`、`global_parameters.json`
+- `luoyang_npc_defense.json`
 
-正式服 161 起使用 10009 数据，160 保留原装备、心法与增益快照。增益和技能名称使用编译入包的 `NameCangsheng.py` 与 `NameCangshengTest.py`；原始 `buff*.tab`、`buff*.txt`、`skill*.txt` 仅供生成时使用。旧赛季的大型静态表不进入正式包。图标由 `GenerateFiles.py` 写到运行目录；`icons/rate.dat` 是可写缓存。
+名称和增益统一由原有 `replayer/Name.py` 提供。正式服 JSON 使用单一名称，不再同时保留 `_hd` 与体服运行副本。旧赛季原表、体服装备 zip、旧名称表和开发证据不进入安装包。图标由 `GenerateFiles.py` 写入运行目录，`icons/rate.dat` 为运行时缓存。
 
-可以单独检查现有 EXE 内的资源，无需启动它：
+原始 `buff*.tab`、`buff*.txt`、`skill*.txt` 用于生成名称表。来源清单和 `docs/160/evidence/` 中的原件用于开发复核；历史取证资料不承担客户端兼容功能。
 
 ```powershell
+python -m release.NameGenerator
 python -m release.ValidateRelease --exe dist/j3jz.exe
 ```
 
-该检查要求源码快照与目标 EXE 对应；换过底表后，旧 EXE 应当校验失败。
+验包要求源码与目标 EXE 对应，并拒绝混入旧运行模块、旧资源、文档及 NumPy/AVIF 可选依赖。
 
-### 打包后真实日志验证
+## 本地回放验证
 
-有本地备份清单时，可让构建流程在发布产物前追加五场通关、各心法/治疗复盘和隐藏窗口验证：
+可通过 `-ReplayManifest` 传入当前正式服日志清单。清单是 JSON 数组，每项含 `source` 绝对路径及可选 `sha256`；构建脚本会追加实际复盘、治疗模块、伤害守恒和隐藏窗口检查。`-WujieLog` 可追加单个当前日志，原有参数入口保留。
 
-```powershell
-./release/Release.ps1 -Python C:/Python314/python.exe `
-  -ReplayManifest backups/luoyang-20260915/manifest.json `
-  -WujieLog "C:/Develop/21/jx3bla/backups/wujie-20261006/2026-10-06-22-24-47-25人普通洛阳之战(835)-史朝义(139312).jcl"
-```
-
-也可把最终 EXE 复制到一个新的空目录，从该目录执行以下命令（清单使用绝对路径）：
+也可从空目录运行已经构建的 EXE：
 
 ```powershell
-./j3jz.exe --release-smoke-test --report ./release-smoke.json `
-  --manifest C:/Develop/21/jx3bla/backups/luoyang-20260915/manifest.json `
-  --wujie-log "C:/Develop/21/jx3bla/backups/wujie-20261006/2026-10-06-22-24-47-25人普通洛阳之战(835)-史朝义(139312).jcl"
+./MainWindow.exe --release-smoke-test --report ./report.json --manifest C:/验证资料/formal-manifest.json
 ```
 
-省略日志清单参数只做基础冒烟。报告必须同时包含 `status: passed` 和 `frozen: true`；失败时命令返回非零。日志和身份明细保留在本地验证目录。EXE 冒烟不等于游戏内手工验收。
-
-8.16.3 新增正式服五首领验证，可与历史五场回归同时执行：
-
-```powershell
-./release/Release.ps1 -Python C:/Python314/python.exe `
-  -LiveManifest backups/luoyang-live-20261102/manifest.json
-# 已构建的 EXE：
-./j3jz.exe --release-smoke-test --report ./release-smoke.json `
-  --live-manifest C:/path/to/luoyang-live-20261102/manifest.json
-```
-
-正式日志验证检查实际证据对应的胜负、逐段计时、统一截尾、属性完整性边界和伤害归属，不要求缺少胜利事件的日志被判为通关。
-
-`--wujie-log`（构建参数为 `-WujieLog`）单独验证本次无界样例，不替换五场回归清单中的史朝义记录。检查完整解析、25 人属性、无界伤害守恒和隐藏统计窗口，并将详情保存在同目录的 `wujie-report.json`。该样例仍有普通藏剑武器特效的既有未标定警告，检查只允许这一条精确匹配的警告，不放宽无界检查。
+报告要求 `status: passed` 和 `frozen: true`。回放检查阻断网络与上传，记录未标定装备/目标的已有提示；它不等同于游戏内手工验收，也不为旧日志提供兼容承诺。
 
 ## 提交、上传与公告
 
@@ -89,14 +59,31 @@ python -m release.ValidateRelease --exe dist/j3jz.exe
 
 构建成功本身不代表下载链接、网盘文件或服务器公告已经更新。
 
-## Beta 离线包边界
+## 数据生成与体积
 
-`MainWindow.beta.spec` 还会打包旧赛季八份大型装备表和图标，适用于需要旧赛季离线计算的 beta 包；正式 8.16.3 使用 `MainWindow.spec`。历史 `ReleaseBeta.ps1` 仍含自动 Git 步骤，本次标准发布不调用它。
+生成器保留在 `release/`，采用原有 `*Generator.py` 命名：
 
-新赛季增益表的独立生成命令是：
+| 入口 | 用途 |
+| --- | --- |
+| `NameGenerator` | 正式表生成 `replayer/Name.py` |
+| `FormalXinfa50Generator` | 10009 原件生成或校验心法、全局参数和首领防御 |
+| `SyncCangshengTables` | 核对提取凭据后更新正式源表及名称表 |
+| `Xinfa50Generator`、`WujieXinfa50Generator` | 仅复核 `docs/160/evidence/legacy9506/` 历史证据，不作为当前构建步骤 |
+
+
+心法重生成或校验需要与所用 Python 版本匹配、包含 `lupa.lua51` 的 Lupa。可先在该解释器环境安装 `lupa`；已有独立依赖目录时，通过 `--deps <目录>` 提供。客户端运行与普通构建不需要 Lupa。
 
 ```powershell
-python -m release.NameGenerator --resources equip/resources/cangshengtf --output replayer/NameCangsheng.py
+python -m release.FormalXinfa50Generator --check
+# 若依赖位于独立目录，改用：
+python -m release.FormalXinfa50Generator --deps C:/开发依赖/python-deps --check
+python -m unittest discover -s tests
 ```
 
-心法原始字节码、原生机器码与审计工具用于开发复核，无需随运行包发布。数据启用范围与验证边界见 `docs/160/苍生铸世接入手册.md`。
+rDPS 报告工具需要显式传入 `--manifest`，例如 `python -m tools.ValidateLuoyangRdps --manifest C:/验证资料/formal-manifest.json`，默认输出到 `build/validation/luoyang-rdps/`。
+
+两个 spec 都排除 Excel 库的可选 NumPy 适配和未使用的 AVIF 解码器；专项绘图脚本仍可在源码环境使用 NumPy。新版进一步去掉体服兼容 zip 和重复名称/公式模块。旧版 8.16.3 的依赖瘦身对照保存在 `build/structure-size-20261103/`；当前仅正式服的构建验证记录在 `build/formal50-only-20261103/`。
+
+2026-11-03 在上游 8.16.3 基础上整合并验收，保留其公告与首领修复。验证包为 35,855,099 字节（34.19 MiB），比原 8.16.3 的 63.12 MiB 减少约 45.8%；对比包含支持范围缩减与依赖精简。196 项自动测试通过，1 项因缺少可选本地日志跳过；12 项运行资源、内嵌源码、PNG/ICO + Tk、Excel 和五场正式服日志的冻结 EXE 回放全部通过。原有装备脚本未解析提示保留。
+
+本次提交不含工作区原有、尚未提交的平均装备估算或独立来源目标增益功能；这些改动及其分析资料仍保留在原工作区。验证包位于 `build/submission-20261103/artifact/MainWindow.exe`，整合回执为 `build/submission-20261103/summary.json`；未替换原发布包或更新线上公告。

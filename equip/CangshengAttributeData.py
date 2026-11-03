@@ -1,4 +1,4 @@
-"""50-level attribute calculations isolated from the legacy CHAPTER profile.
+"""Current formal-server 50-level attribute calculations.
 
 The input remains the game's raw at* attributes. This keeps percentage boosts
 and temporary main-stat conversions correct when a base value is zero.
@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 import re
 
-from tools.Attribute import ATTRIB_TYPE, COEFF50
+from tools.Attribute import ATTRIB_TYPE, COEFF50, CURRENT_GAME_EDITION
 from tools.Functions import getOccType
 
 RESOURCE_ROOT = Path(__file__).parent / 'resources' / 'cangshengtf'
@@ -17,46 +17,57 @@ SCHOOLS = {1: 'Physics', 2: 'Solar', 3: 'Lunar', 4: 'Neutral', 5: 'Poison'}
 PRIMARY = {'Vitality': '体质', 'Strength': '力道', 'Agility': '身法', 'Spunk': '元气', 'Spirit': '根骨'}
 ATTACK_SOURCES = {'混元攻击': 'Neutral', '阴性攻击': 'Lunar', '毒性攻击': 'Poison'}
 
+# Ordinary kungfu evidence predates the explicit school field. Keep only this
+# classification here; no old-level attribute values enter the runtime.
+OCC_SCHOOLS = {
+    '1d': 'Solar', '1t': 'Solar', '2d': 'Neutral', '2h': 'Neutral',
+    '3d': 'Physics', '3t': 'Physics', '4p': 'Physics', '4m': 'Neutral',
+    '5d': 'Lunar', '5h': 'Lunar', '6d': 'Poison', '6h': 'Poison',
+    '7p': 'Physics', '7m': 'Poison', '8': 'Physics', '9': 'Physics',
+    '10d': 'Solar', '10t': 'Solar', '21d': 'Physics', '21t': 'Physics',
+    '22d': 'Lunar', '22h': 'Lunar', '23': 'Physics', '24': 'Physics',
+    '25': 'Physics', '211': 'Neutral', '212d': 'Poison', '212h': 'Poison',
+    '213': 'Physics', '214': 'Physics', '215': 'Neutral',
+}
 
-@lru_cache(maxsize=2)
-def kungfu_data(gameEdition=160):
-    filename = 'xinfa50_hd.json' if gameEdition >= 161 else 'xinfa50.json'
-    return json.loads((RESOURCE_ROOT / filename).read_text(encoding='utf-8'))
+
+@lru_cache(maxsize=1)
+def kungfu_data():
+    return json.loads((RESOURCE_ROOT / 'xinfa50.json').read_text(encoding='utf-8'))
 
 
 @lru_cache(maxsize=1)
 def formal_parameters():
-    return json.loads((RESOURCE_ROOT / 'global_parameters_hd.json').read_text(encoding='utf-8'))['values']
+    return json.loads((RESOURCE_ROOT / 'global_parameters.json').read_text(encoding='utf-8'))['values']
 
 
-def get_profile(occ, gameEdition=160):
-    profiles = kungfu_data(gameEdition)['occupations']
+def get_profile(occ):
+    profiles = kungfu_data()['occupations']
     if occ not in profiles:
         raise ValueError('尚无当前客户端心法属性证据：' + occ)
     return profiles[occ]
 
 
-@lru_cache(maxsize=2)
-def npc_data(gameEdition=160):
-    filename = 'luoyang_npc_defense_hd.json' if gameEdition >= 161 else 'luoyang_npc_defense.json'
-    return json.loads((RESOURCE_ROOT / filename).read_text(encoding='utf-8'))
+@lru_cache(maxsize=1)
+def npc_data():
+    return json.loads((RESOURCE_ROOT / 'luoyang_npc_defense.json').read_text(encoding='utf-8'))
 
 
-def get_target_profiles(info, gameEdition=160):
-    if info.map != npc_data(gameEdition)['map']:
+def get_target_profiles(info):
+    if info.map != npc_data()['map']:
         return {}
-    rows = npc_data(gameEdition)['profiles']
+    rows = npc_data()['profiles']
+
     def complete(profile):
         level = profile.get('level')
         shields = profile.get('shieldBase')
         if not isinstance(level, int) or isinstance(level, bool) or level <= 0 or not isinstance(shields, dict):
             return False
-        # Null/missing defense is unavailable client evidence, never zero.
-        # Leave these targets unresolved so BoostCounter preserves their damage
-        # and reports incomplete rDPS instead of attempting an invalid profile.
+        # Missing client defense is unresolved evidence, never a zero defense.
         return all(isinstance(shields.get(school), (int, float))
                    and not isinstance(shields[school], bool)
                    and 0 <= shields[school] < float('inf') for school in SCHOOLS.values())
+
     return {npc_id: rows[str(npc.templateID)] for npc_id, npc in info.npc.items()
             if str(npc.templateID) in rows and complete(rows[str(npc.templateID)])}
 
@@ -94,9 +105,9 @@ def conversion_spec(attribute):
 
 class CangshengAttributeData:
     """BoostCounter-compatible calculator using a complete raw attribute sum."""
-    def __init__(self, occ, gameEdition=160):
+    def __init__(self, occ, gameEdition=CURRENT_GAME_EDITION):
         self.occ = occ
-        self.gameEdition = gameEdition
+        self.gameEdition = CURRENT_GAME_EDITION
         self.baseAttrib = None
         self.boosts = []
         self.combined = {}
@@ -109,29 +120,24 @@ class CangshengAttributeData:
         if not self.baseAttrib or '_raw' not in self.baseAttrib:
             raise ValueError('50级属性计算缺少真实装备和心法输入：' + self.occ)
         self.combined = merge_attributes(self.baseAttrib['_raw'], *self.boosts)
-        return calculate_attributes(self.combined, self.occ, school=self.school, gameEdition=self.gameEdition)
+        return calculate_attributes(self.combined, self.occ, school=self.school)
 
     def removeBoostAndGetAttrib(self, boost):
         for key, value in boost.items():
             if key.startswith('at'):
                 self.combined[key] = self.combined.get(key, 0) - value
-        return calculate_attributes(self.combined, self.occ, school=self.school, gameEdition=self.gameEdition)
+        return calculate_attributes(self.combined, self.occ, school=self.school)
 
     def addBoostAndGetAttrib(self, boost):
         for key, value in boost.items():
             if key.startswith('at'):
                 self.combined[key] = self.combined.get(key, 0) + value
-        return calculate_attributes(self.combined, self.occ, school=self.school, gameEdition=self.gameEdition)
+        return calculate_attributes(self.combined, self.occ, school=self.school)
 
 
-def profile_school(occ, gameEdition=160):
-    # New kungfus retain their own client evidence, including mobile variants.
-    school = get_profile(occ, gameEdition).get('school')
-    if school:
-        return school
-    # Select only the attack school from the legacy lookup, never its numbers.
-    from equip.AttributeData import OCC_ATTRIB
-    return SCHOOLS[2 if occ in ('10t', '10tw') else OCC_ATTRIB[occ]['类型']]
+def profile_school(occ):
+    profile = get_profile(occ)
+    return profile.get('school') or OCC_SCHOOLS[occ]
 
 
 def school_matches(required, actual):
@@ -144,9 +150,9 @@ def enum_attribute(enum):
     return name.replace('Parryvalue', 'ParryValue').replace('Kilonum', 'KiloNum')
 
 
-def static_attributes(occ, gameEdition=160):
+def static_attributes(occ):
     result = defaultdict(float)
-    for row in get_profile(occ, gameEdition)['raw_attributes']:
+    for row in get_profile(occ)['raw_attributes']:
         name = enum_attribute(row['attribute'])
         if (name in ATTRIB_TYPE or conversion_spec(name) or name in (
                 'atMaxLifeBase', 'atMaxLifePercentAdd', 'atDecriticalDamagePowerBaseKiloNumRate',
@@ -170,7 +176,7 @@ def adapt_youluo_ratings(raw):
 
     Both Youluo kungfus enable ADAPT_ATTRIBUTE_TYPE=1. Preserve raw input so
     boost removal recalculates the winning source rather than subtracting a
-    previously adapted number. See wujie_evidence/youluo_panel_evidence.json.
+    previously adapted number. See docs/160/evidence/wujie_evidence/youluo_panel_evidence.json.
     """
     result = raw.copy()
     for suffix in ('AttackPowerBase', 'CriticalStrike', 'CriticalDamagePowerBase', 'OvercomeBase'):
@@ -186,23 +192,23 @@ def adapt_youluo_ratings(raw):
     return result
 
 
-def make_base_attributes(equipment, occ, gameEdition=160):
+def make_base_attributes(equipment, occ):
     # Current role_attribute.lua R54 provides the default base attributes.
     general = {'atVitalityBase': 18, 'atStrengthBase': 17, 'atAgilityBase': 18,
                'atSpiritBase': 18, 'atSpunkBase': 17, 'atMaxLifeBase': 3956}
-    static = static_attributes(occ, gameEdition)
+    static = static_attributes(occ)
     if static.get('atAdaptAttributeType') == 1:
         equipment = adapt_youluo_equipment(equipment)
     raw = merge_attributes(equipment, general, static)
-    result = calculate_attributes(raw, occ, include_conversions=False, gameEdition=gameEdition)
+    result = calculate_attributes(raw, occ, include_conversions=False)
     result['_raw'] = raw
-    result['_baseSource'] = 'current role_attribute.lua R54; JCL body type unavailable'
+    result['_baseSource'] = 'formal client 1.6.0.10009 role_attribute.lua R54; JCL body type unavailable'
     return result
 
 
-def calculate_attributes(raw, occ, include_conversions=True, school=None, include_secondary=True, gameEdition=160):
+def calculate_attributes(raw, occ, include_conversions=True, school=None, include_secondary=True):
     """Apply flat values, base multipliers, then main-stat conversions."""
-    school = school or profile_school(occ, gameEdition)
+    school = school or profile_school(occ)
     if raw.get('atAdaptAttributeType') == 1:
         raw = adapt_youluo_ratings(raw)
     player_type = next(key for key, value in SCHOOLS.items() if value == school)
@@ -246,27 +252,23 @@ def calculate_attributes(raw, occ, include_conversions=True, school=None, includ
     result['非侠士伤害系数'] = 1 + raw.get('atDstNpcDamageCoefficient', 0) / 1024
     result['气血'] = raw.get('atMaxLifeBase', 0)
     if include_conversions:
-        # GlobalParam stores these general conversions in thousandths.
-        parameters = formal_parameters() if gameEdition >= 161 else {}
-        attack_cof = parameters.get('nStrengthToPhysicsAPCof', 195) / 1000
-        overcome_cof = parameters.get('nStrengthToPhysicsOvercomeCof', 61) / 1000
-        magic_attack_cof = parameters.get('nSpunkToMagicAPCof', 195) / 1000
-        magic_overcome_cof = parameters.get('nSpunkToMagicOvercomeCof', 61) / 1000
-        result['气血'] += result['体质'] * 10
+        # Read the formal 10009 parameters directly; no test-server fallback.
+        parameters = formal_parameters()
+        result['气血'] += result['体质'] * (parameters['nVitalityToMaxLifeCof'] / 1000)
         if school == 'Physics':
-            result['攻击'] += result['力道'] * attack_cof
-            ratings['破防'] += result['力道'] * overcome_cof
-            ratings['会心'] += result['身法'] * 0.25
+            result['攻击'] += result['力道'] * (parameters['nStrengthToPhysicsAPCof'] / 1000)
+            ratings['破防'] += result['力道'] * (parameters['nStrengthToPhysicsOvercomeCof'] / 1000)
+            ratings['会心'] += result['身法'] * (parameters['nAgilityToPhysicsCriticalCof'] / 1000)
         else:
-            result['攻击'] += result['元气'] * magic_attack_cof
-            ratings['破防'] += result['元气'] * magic_overcome_cof
-            ratings['会心'] += result['根骨'] * 0.25
+            result['攻击'] += result['元气'] * (parameters['nSpunkToMagicAPCof'] / 1000)
+            ratings['破防'] += result['元气'] * (parameters['nSpunkToMagicOvercomeCof'] / 1000)
+            ratings['会心'] += result['根骨'] * (parameters['nSpiritToMagicCriticalCof'] / 1000)
         # The all-round treatment toggle is controlled by the healer kungfu.
         if getOccType(occ) == 'healer':
-            result['治疗'] += result['全能'] * 0.15
+            result['治疗'] += result['全能'] * (parameters['nPVXAllRoundToTherapyPowerCof'] / 1000)
         else:
-            ratings['无双'] += result['全能'] * 1.22
-        ratings['化劲'] += result['全能']
+            ratings['无双'] += result['全能'] * (parameters['nPVXAllRoundToStrainCof'] / 1000)
+        ratings['化劲'] += result['全能'] * (parameters['nPVXAllRoundToDecriticalDamagePowerCof'] / 1000)
 
     # Retain the AP/therapy basis used by percentage buffs. The global innate
     # conversion above is included in base AP, unlike the kungfu extra AP.
@@ -303,7 +305,7 @@ def calculate_attributes(raw, occ, include_conversions=True, school=None, includ
             if spec is not None and spec[0] in ATTACK_SOURCES:
                 source_school = ATTACK_SOURCES[spec[0]]
                 attack_sources[spec[0]] = (result['攻击'] if source_school == school else
-                    calculate_attributes(raw, occ, school=source_school, include_secondary=False, gameEdition=gameEdition)['攻击'])
+                    calculate_attributes(raw, occ, school=source_school, include_secondary=False)['攻击'])
         for sources in (set(ATTACK_SOURCES), {'治疗', '气血', '拆招'}):
             secondary = defaultdict(float)
             for key, value in raw.items():

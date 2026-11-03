@@ -2,12 +2,10 @@
 # 维护装备信息类.
 
 import csv
-import io
 import re
-from pathlib import Path
-from zipfile import ZipFile
 
 from tools.ResourcePath import get_resource_path
+from tools.Attribute import CURRENT_GAME_EDITION
 
 class EquipmentInfo():
     '''
@@ -19,10 +17,6 @@ class EquipmentInfo():
         兼容读取不同编码的静态资源文件。
         目前优先尝试 utf-8 / utf-8-sig，失败后回退到 gbk。
         '''
-        if self.gameEdition == 160 and Path(path).name in self.TEST_EQUIPMENT_FILES:
-            archive_path = get_resource_path(self.resourceRoot + '/cangsheng_test_equipment.zip')
-            with ZipFile(archive_path) as archive:
-                return io.StringIO(archive.read(Path(path).name).decode('utf-8-sig'), newline=None)
         path = get_resource_path(path)
         last_error = None
         for encoding in ["utf-8", "utf-8-sig", "gbk"]:
@@ -72,8 +66,8 @@ class EquipmentInfo():
         result = {}
         result["name"] = self.getAttribute(full_id, "Name")
         result["set"] = self.getAttribute(full_id, "SetID")
-        if self.gameEdition >= 160 and full_id not in self.data:
-            raise KeyError("装备未收录于当前体服底表: %s" % full_id)
+        if full_id not in self.data:
+            raise KeyError("装备未收录于当前正式服底表: %s" % full_id)
         for i in range(1, 17):
             attribName = "Magic%dType"%i
             attribID = self.getAttribute(full_id, attribName)
@@ -83,7 +77,7 @@ class EquipmentInfo():
             attributes = self.staticAttribute(attribRes[0], attribRes[1], "装备%s词条%s" % (full_id, attribID))
             for name, value in attributes.items():
                 # 当前客户端只精炼 Magic 词条；白字武器伤害、攻速、基础防御不参与。
-                if self.gameEdition >= 160 and name in self.strengthable:
+                if name in self.strengthable:
                     rate = self.REFINE_PERMILLE[refineLevel]
                     value = (value * (1000 + rate) + 500) // 1000
                 result[name] = result.get(name, 0) + value
@@ -116,18 +110,14 @@ class EquipmentInfo():
         attributes = self.staticAttribute(name, value, "镶嵌词条%s" % attribID)
         result = {}
         for name, value in attributes.items():
-            if self.gameEdition >= 160:
-                # SO3ItemHouseX64.dll 1.6.0.9503 RVA 216C0：仅缩放 Value1Strable。
-                # 原生依次做 double 乘法/除法，最后 cvttsd2si 向零截断，不能提前取整。
-                if name in self.strengthable:
-                    factor = level * 0.195 if level <= 6 else (level * 0.65 - 3.2) * 1.3
-                    scaled = float(value) * factor
-                    scaled *= 1355.0
-                    scaled /= 27800.0
-                    value = int(scaled)
-            else:
-                rate = (0, 190, 390, 585, 780, 975, 1170, 1750, 2600)[level]
-                value = value * rate // 1000
+            # SO3ItemHouseX64.dll 1.6.0.9503 RVA 216C0：仅缩放 Value1Strable。
+            # 原生依次做 double 乘法/除法，最后 cvttsd2si 向零截断，不能提前取整。
+            if name in self.strengthable:
+                factor = level * 0.195 if level <= 6 else (level * 0.65 - 3.2) * 1.3
+                scaled = float(value) * factor
+                scaled *= 1355.0
+                scaled /= 27800.0
+                value = int(scaled)
             result[name] = value
         return result
 
@@ -240,14 +230,13 @@ class EquipmentInfo():
                 if re.fullmatch(r'\d+_\d+', column) and value not in ('', '0', None)
             ]
 
-        if self.gameEdition >= 160:
-            for row in self.readRows(self.resourceRoot + '/StrengthableAttrib.tab'):
-                if row['Value1Strable'] == '1':
-                    self.strengthable.add(row['AttribType'])
+        for row in self.readRows(self.resourceRoot + '/StrengthableAttrib.tab'):
+            if row['Value1Strable'] == '1':
+                self.strengthable.add(row['AttribType'])
 
-    def __init__(self, gameEdition=0):
-        self.gameEdition = int(gameEdition or 0)
-        self.resourceRoot = 'equip/resources/cangshengtf' if self.gameEdition >= 160 else 'equip/resources'
+    def __init__(self, gameEdition=CURRENT_GAME_EDITION):
+        self.gameEdition = CURRENT_GAME_EDITION
+        self.resourceRoot = 'equip/resources/cangshengtf'
         self.data = {}
         self.attrib = {}
         self.enchant = {}
@@ -258,15 +247,3 @@ class EquipmentInfo():
         self.headerID = {}
         self.strengthable = set()
         self.unsupportedEffects = set()
-
-    TEST_EQUIPMENT_FILES = frozenset(('Custom_Trinket.tab', 'Custom_Armor.tab', 'Custom_Weapon.tab',
-        'attrib.tab', 'enchant.tab', 'item.txt', 'other.tab', 'Set.tab'))
-
-if __name__ == "__main__":
-    t = EquipmentInfo()
-    print("准备读取")
-    t.LoadFromStaticData()
-    print("读取完成")
-    print(t.getFeature("7,50953"))
-
-

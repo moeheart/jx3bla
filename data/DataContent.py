@@ -1,10 +1,7 @@
 # Created by moeheart at 09/03/2021
 # 复盘日志内容集合，主要包含复盘的全局数据与单条数据的通用形式，兼容jx3dat与jcl。
 
-from replayer.Name import *
-from replayer.NameCangsheng import SKILL_NAME as CANGSHENG_SKILL_NAME
-from replayer.NameCangshengTest import SKILL_NAME as CANGSHENG_TEST_SKILL_NAME
-from tools.Names import isLuoyangMap, getGameEditionFromTime, getIDFromMap
+from replayer.Name import SKILL_NAME
 
 class SingleData():
     '''
@@ -425,16 +422,7 @@ class OverallData():
         lvl0_id = ','.join(full_id.split(',')[0:2])+',0'
         if full_id in self.skill:
             return self.skill[full_id]["1"].strip('"')
-        if isLuoyangMap(getattr(self, "map", "")):
-            edition = int(getGameEditionFromTime(getIDFromMap(self.map), self.battleTime) or 0)
-            names = CANGSHENG_TEST_SKILL_NAME if edition == 160 else CANGSHENG_SKILL_NAME
-            return names.get(full_id, names.get(lvl0_id, full_id))
-        elif full_id in SKILL_NAME:
-            return SKILL_NAME[full_id]
-        elif lvl0_id in SKILL_NAME:
-            return SKILL_NAME[lvl0_id]
-        else:
-            return CANGSHENG_SKILL_NAME.get(full_id, CANGSHENG_SKILL_NAME.get(lvl0_id, full_id))
+        return SKILL_NAME.get(full_id, SKILL_NAME.get(lvl0_id, full_id))
 
     def getOcc(self, key):
         '''

@@ -1,14 +1,14 @@
-"""Formal-server Buff application preserves launch boundaries and damage credit."""
+"""Formal-server Buff application preserves damage credit without date routing."""
 from types import SimpleNamespace
 import unittest
 
 from data.DataContent import OverallData, SingleDataBuff
-from replayer import Name, NameCangsheng, NameCangshengTest
+from replayer import Name
 from replayer.CombatTracker import CombatTracker
-from tools.Attribute import COEFF50
+from tools.Attribute import COEFF50, CURRENT_GAME_EDITION
 
 
-LAUNCH = 1793228400  # 2026-10-29 07:00:00 Asia/Shanghai.
+TIMESTAMPS = (0, 1793228400)
 PROFILE = {"level": 53, "shieldBase": {school: 6399 for school in
            ("Physics", "Solar", "Neutral", "Lunar", "Poison")}}
 
@@ -48,28 +48,25 @@ class FormalServerBuffTests(unittest.TestCase):
                                damageEff=10000, heal=0, healEff=0, effect=0,
                                fullResult={"0": "10000"})
 
-    def test_all_difficulties_select_tables_at_launch(self):
+    def test_all_difficulties_use_formal_tables_without_date_routing(self):
         for difficulty in ("10人普通", "25人普通", "25人英雄"):
-            for timestamp, edition, table in (
-                    (LAUNCH - 1, 160, NameCangshengTest),
-                    (LAUNCH, 161, NameCangsheng),
-                    (LAUNCH + 1, 161, NameCangsheng)):
+            for timestamp in TIMESTAMPS:
                 with self.subTest(difficulty=difficulty, timestamp=timestamp):
                     tracker = self.tracker(timestamp, difficulty + "洛阳之战")
-                    self.assertEqual(tracker.gameEdition, edition)
-                    self.assertIs(tracker.boostDict, table.BOOST_DICT)
-                    self.assertIs(tracker.absorbDict, table.ABSORB_DICT)
-                    self.assertIs(tracker.resistDict, table.RESIST_BY_SCHOOL_DICT)
-                    self.assertIs(tracker.therapyDict, table.THERAPY_DICT)
-        legacy = self.tracker(LAUNCH, "25人普通阆风悬城")
-        self.assertIs(legacy.boostDict, Name.BOOST_DICT)
+                    self.assertEqual(tracker.rdpsStatus['gameEdition'], CURRENT_GAME_EDITION)
+                    self.assertTrue(all(counter.gameEdition == CURRENT_GAME_EDITION
+                                        for counter in tracker.boostCounter.values()))
+                    self.assertIs(tracker.boostDict, Name.BOOST_DICT)
+                    self.assertIs(tracker.absorbDict, Name.ABSORB_DICT)
+                    self.assertIs(tracker.resistDict, Name.RESIST_BY_SCHOOL_DICT)
+                    self.assertIs(tracker.therapyDict, Name.THERAPY_DICT)
 
     def test_logged_piaohuang_stack_changes_credit_and_preserves_total_damage(self):
-        credited = {}
-        # Interleave instances so a formal replay cannot mutate a historical replay.
-        trackers = [(160, 8, self.tracker(LAUNCH - 1)),
-                    (161, 10, self.tracker(LAUNCH))]
-        for edition, per_stack, tracker in trackers:
+        credited = []
+        # Interleave independent instances to detect mutation of shared tables.
+        trackers = [self.tracker(timestamp) for timestamp in TIMESTAMPS]
+        per_stack = 10
+        for tracker in trackers:
             tracker.recordBuff(self.buff())
             active = tracker.boostCounter["target"].boost
             instance = ("2,20854,1", "slot", "17")
@@ -87,24 +84,20 @@ class FormalServerBuffTests(unittest.TestCase):
             tracker.recordSkill(self.damage(time=4000))
             self.assertAlmostEqual(tracker.rdpsCast["provider"].skill["6,2,20854,1"]["sum"], provider)
             self.assertAlmostEqual(tracker.rdpsCast["target"].skill["1,999999,1"]["sum"], own + 10000)
-            credited[edition] = provider
-        self.assertGreater(credited[161], credited[160])
-        self.assertEqual(NameCangshengTest.BOOST_DICT["2,20854,1"], {"atStrainBase": 8})
-        self.assertEqual(NameCangsheng.BOOST_DICT["2,20854,1"], {"atStrainBase": 10})
+            credited.append(provider)
+        self.assertEqual(credited[0], credited[1])
+        self.assertEqual(Name.BOOST_DICT["2,20854,1"], {"atStrainBase": 10})
 
     def test_other_healer_strain_buffs_keep_their_own_values(self):
         for identifier in (29294, 20938, 23543):
-            self.assertEqual(NameCangsheng.BOOST_DICT["2,%d,1" % identifier], {"atStrainBase": 7})
-        self.assertEqual(NameCangsheng.BOOST_DICT["2,24742,1"], {"atStrainBase": 26})
-        self.assertEqual(NameCangshengTest.BOOST_DICT["2,24742,1"], {"atStrainBase": 28})
+            self.assertEqual(Name.BOOST_DICT["2,%d,1" % identifier], {"atStrainBase": 7})
+        self.assertEqual(Name.BOOST_DICT["2,24742,1"], {"atStrainBase": 26})
 
-    def test_names_follow_log_version_but_explicit_log_names_take_priority(self):
-        old = self.tracker(LAUNCH - 1).info
-        current = self.tracker(LAUNCH).info
+    def test_formal_names_preserve_explicit_log_name_priority(self):
         key = "2,30605,1"
-        self.assertEqual(old.getSkillName(key), "测试服阆风悬城竞速")
-        self.assertEqual(current.getSkillName(key), "测试服洛阳之战竞速")
-        for info in (old, current):
+        for timestamp in TIMESTAMPS:
+            info = self.tracker(timestamp).info
+            self.assertEqual(info.getSkillName(key), "测试服洛阳之战竞速")
             info.skill[key] = {"1": "日志记录的名称"}
             self.assertEqual(info.getSkillName(key), "日志记录的名称")
 

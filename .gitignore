@@ -34,5 +34,5 @@ myenv
 node_modules
 .bash_profile
 /backups/
+/.tmp/
 !equip/resources/cangshengtf/*.txt
-!equip/resources/cangshengtf/cangsheng_test_equipment.zip

@@ -1,32 +1,13 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-import os
+import sys
+
+sys.path.insert(0, SPECPATH)
+from release.ReleaseResources import EXCLUDED_MODULES, bundle_datas
 
 
-icon_datas = []
-for root, _dirs, files in os.walk("icons"):
-    for file in files:
-        src = os.path.join(root, file)
-        dest = os.path.dirname(src)
-        icon_datas.append((src, dest))
-
-
-beta_datas = [
-    ("equip/resources/Custom_Trinket.tab", "equip/resources"),
-    ("equip/resources/Custom_Armor.tab", "equip/resources"),
-    ("equip/resources/Custom_Weapon.tab", "equip/resources"),
-    ("equip/resources/Attrib.tab", "equip/resources"),
-    ("equip/resources/Enchant.tab", "equip/resources"),
-    ("equip/resources/item.txt", "equip/resources"),
-    ("equip/resources/Other.tab", "equip/resources"),
-    ("equip/resources/Set.tab", "equip/resources"),
-] + icon_datas
-
-# The beta reads the verified 50-level item snapshot separately from legacy data.
-for file in ("Custom_Trinket.tab", "Custom_Armor.tab", "Custom_Weapon.tab",
-             "attrib.tab", "enchant.tab", "item.txt", "other.tab", "Set.tab",
-             "StrengthableAttrib.tab", "xinfa50.json", "luoyang_npc_defense.json"):
-    beta_datas.append(("equip/resources/cangshengtf/" + file, "equip/resources/cangshengtf"))
+# The beta entry uses the same formal-server data as the standard client.
+beta_datas = bundle_datas(SPECPATH)
 
 
 a = Analysis(
@@ -38,7 +19,7 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=list(EXCLUDED_MODULES),
     noarchive=False,
     optimize=0,
 )

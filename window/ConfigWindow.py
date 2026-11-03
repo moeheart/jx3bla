@@ -3,8 +3,10 @@
 
 import threading
 import json
+import os
 import tkinter as tk
 import urllib.request
+from types import SimpleNamespace
 
 from tkinter import ttk
 from tkinter import messagebox
@@ -91,15 +93,23 @@ class ConfigWindow(Window):
         self.frameInfo["Frame1"]["basepath"]["entry"].delete(0, tk.END)
 
     def get_path(self):
-        self.config.item["general"]["playername"] = self.frameInfo["Frame1"]["playername"]["entry"].get()
-        self.config.item["general"]["jx3path"] = self.frameInfo["Frame1"]["jx3path"]["entry"].get()
-        self.config.item["general"]["basepath"] = ""
-        self.config.item["general"]["datatype"] = self.frameInfo["Frame1"]["datatype"]["var"].get()
+        general = dict(self.config.item["general"])
+        general.update(
+            playername=self.frameInfo["Frame1"]["playername"]["entry"].get(),
+            jx3path=self.frameInfo["Frame1"]["jx3path"]["entry"].get(),
+            basepath="",
+            datatype=self.frameInfo["Frame1"]["datatype"]["var"].get(),
+        )
         fileLookUp = FileLookUp()
-        res = fileLookUp.initFromConfig(self.config)
-        if res != "":
+        res = fileLookUp.initFromConfig(SimpleNamespace(item={"general": general}))
+        self.frameInfo["Frame1"]["playername"]["entry"]["values"] = fileLookUp.getAllPlayers()
+        if not general["playername"].strip():
+            messagebox.showwarning(title="自动获取失败", message="请先选择或填写记录者角色名。")
+        elif res and os.path.isdir(res):
             self.frameInfo["Frame1"]["basepath"]["entry"].delete(0, tk.END)
             self.frameInfo["Frame1"]["basepath"]["entry"].insert(0, res)
+        else:
+            messagebox.showwarning(title="自动获取失败", message=res or "未找到日志目录，请检查剑三路径和记录者角色名。")
 
     def init_checkbox(self, box, value):
         if value == 0:
@@ -276,10 +286,10 @@ class ConfigWindow(Window):
                             "在当前电脑上线的角色的ID，同时也是记录者。\n通常情况下，只需要指定此项。\n如果指定了基准路径，则无需指定此项。",
                             "general", "playername", playerIDList)
         self.constructEntry("Frame1", frame1, "剑三路径",
-                            "剑三路径，一般是名为JX3的文件夹，一般可以右键剑三的快捷方式找到，例如C:\\JX3。\n有时客户端并非标准安装方式（如体服），这时也可以使用MY#DATA的任意上层文件夹代替，例如C:\\SeasunGame\\Game\\JX3_EXP\\bin\\zhcn_exp。\n此项会尝试自动从注册表获取，如果获取失败，才需要手动指定。\n指定此项时，必须指定角色名。\n如果指定了基准路径，则无需指定此项。",
+                            "正式服客户端目录，例如C:\\JX3\\Game\\JX3，也可以使用MY#DATA目录或其任意上层目录。\n留空时自动读取西山居启动器登记的正式服安装位置；启动器目录可能与游戏目录不同。\n手动填写的路径优先使用。\n按角色推导日志目录时，必须指定角色名。\n如果指定了基准路径，则无需指定此项。",
                             "general", "jx3path")
         self.constructEntry("Frame1", frame1, "基准路径",
-                            "基准路径，一般为Game\\JX3\\bin\\zhcn_hd\\interface\\MY#DATA\\一串数字@zhcn\\userdata\\fight_stat\n必备选项，可以点击右侧的自动获取来从角色名自动推导。\n如果留空，则会在运行时自动推导。推导失败时将以当前目录作为基准目录。",
+                            "JCL日志目录通常为Game\\JX3\\bin\\zhcn_hd\\interface\\MY#DATA\\一串数字@zhcn\\userdata\\combat_logs。\njx3dat格式使用同级fight_stat目录。\n可以点击右侧的自动获取，按角色名和数据格式推导；失败时保留原填写内容。\n留空时在运行时自动推导，未指定角色时使用当前目录。",
                             "general", "basepath")
         self.constructCheck("Frame1", frame1, "名称打码",
                             "是否在生成的图片中将ID打码。\n这一选项同样会影响上传的数据，如果开启，则上传的数据也会打码。",
@@ -309,7 +319,7 @@ class ConfigWindow(Window):
         self.frameInfo["Frame1"]["datatype"]["rb"][0].bind('<Button-1>', self.clear_basepath)
         self.frameInfo["Frame1"]["datatype"]["rb"][1].bind('<Button-1>', self.clear_basepath)
 
-        ToolTip(self.frameInfo["Frame1"]["playername"]["entry"], "自动显示最近登录过的角色。注意，如果修改了剑三路径，那么需要重新打开设置面板才能正确加载。")
+        ToolTip(self.frameInfo["Frame1"]["playername"]["entry"], "自动显示最近登录过的角色。修改剑三路径后，点击自动获取可刷新角色列表。")
         tk.Button(frame1, text='自动获取', command=self.get_path).grid(row=2, column=2)
 
         # 演员复盘页面

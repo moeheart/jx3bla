@@ -1,12 +1,14 @@
 """Formula and attribution regressions for current raw client attributes."""
 import unittest
 from types import SimpleNamespace
+from unittest.mock import patch
 
 from equip.CangshengAttributeData import (
-    CangshengAttributeData, calculate_attributes, make_base_attributes, static_attributes,
+    CangshengAttributeData, calculate_attributes, make_base_attributes, static_attributes, get_target_profiles,
 )
 from replayer.CombatTracker import BoostCounter, getDamageCoeff
-from tools.Attribute import COEFF50
+from tools.Attribute import COEFF50, CURRENT_GAME_EDITION
+from tools.Functions import getCoefficient
 from equip.AttributeDisplay import AttributeDisplay
 
 
@@ -15,6 +17,35 @@ PROFILE = {'level': 53, 'shieldBase': {school: 6399 for school in
 
 
 class CangshengAttributeTests(unittest.TestCase):
+    def test_formal_main_stat_conversions_and_default_level_coefficients(self):
+        for school, primary, occ in (('Physics', 'atStrengthBase', '3d'),
+                                     ('Neutral', 'atSpunkBase', '2d')):
+            panel = calculate_attributes({primary: 1000}, occ, school=school)
+            self.assertEqual(panel['攻击'], 190)
+            self.assertEqual(panel['破防等级'], 60)
+        for label in (None, 0, 130, 160, 161):
+            self.assertEqual(getCoefficient('加速', label), COEFF50['加速'])
+        self.assertEqual(getCoefficient('会心'), COEFF50['会心'])
+
+    def test_old_log_label_does_not_choose_an_old_attribute_profile(self):
+        from tests.test_cangsheng_equipment import equipment_text
+        display = AttributeDisplay(gameEdition=130)
+        self.assertEqual(display.gameEdition, CURRENT_GAME_EDITION)
+        self.assertEqual(display.ac.equipmentInfo.gameEdition, CURRENT_GAME_EDITION)
+        text = equipment_text({'12': [111692, 0, 0, 0, 0, 0, 0, 0]})
+        self.assertIn('_raw', display.GetBaseAttrib(text, '6h'))
+        self.assertEqual(display.status['source'], 'formal client 1.6.0.10009 Lua and item tables')
+
+    def test_missing_npc_defense_is_unresolved_but_verified_zero_is_valid(self):
+        good = {'level': 53, 'shieldBase': {name: 0 for name in PROFILE['shieldBase']}}
+        rows = {'1': good}
+        for index, value in enumerate((None, True, -1, float('inf'), float('nan')), 2):
+            rows[str(index)] = {'level': 53, 'shieldBase': dict(good['shieldBase'], Solar=value)}
+        rows['7'] = {'level': True, 'shieldBase': good['shieldBase']}
+        info = SimpleNamespace(map='test map', npc={key: SimpleNamespace(templateID=key) for key in rows})
+        with patch('equip.CangshengAttributeData.npc_data', return_value={'map': 'test map', 'profiles': rows}):
+            self.assertEqual(get_target_profiles(info), {'1': good})
+
     def test_base_rate_adds_six_percentage_points_at_zero_parry(self):
         panel = calculate_attributes({'atParryBaseRate': 600}, '21t')
         self.assertAlmostEqual(panel['招架'], .09)
@@ -56,11 +87,11 @@ class CangshengAttributeTests(unittest.TestCase):
 
     def test_empty_equipment_rows_do_not_create_guessed_panel(self):
         text = '\n'.join('\t'.join(['0'] * 8) for _ in range(13))
-        self.assertIsNone(AttributeDisplay(160).GetPanelAttrib(text, '6h'))
+        self.assertIsNone(AttributeDisplay().GetPanelAttrib(text, '6h'))
 
     def test_unknown_equipment_script_is_visible_and_marks_incomplete(self):
         from tests.test_cangsheng_equipment import equipment_text
-        display = AttributeDisplay(160)
+        display = AttributeDisplay()
         panel = display.GetPanelAttrib(equipment_text({'12': [111692, 0, 11272, 0, 0, 0, 0, 0]}), '6h')
         self.assertEqual(display.status['status'], 'incomplete')
         self.assertEqual(panel['_warnings'], ['附魔11272: atExecuteScript'])
@@ -74,7 +105,7 @@ class CangshengAttributeTests(unittest.TestCase):
     def test_percentage_is_applied_to_base_before_kungfu_extra(self):
         raw = {'atPhysicsAttackPowerBase': 1000, 'atStrengthBase': 1000,
                'atPhysicsAttackPowerPercent': 1024, 'atStrengthToPhysicsAttackPowerCof': 512}
-        self.assertEqual(calculate_attributes(raw, '3d')['攻击'], (1000 + 195) * 2 + 500)
+        self.assertEqual(calculate_attributes(raw, '3d')['攻击'], (1000 + 190) * 2 + 500)
 
     def test_allround_uses_healer_and_damage_branches(self):
         raw = {'atPVXAllRound': 1000}
@@ -98,13 +129,13 @@ class CangshengAttributeTests(unittest.TestCase):
         plain = calculate_attributes(raw, '3d')
         boosted = calculate_attributes(dict(raw, atDstNpcDamageCoefficient=1024,
                                            atUnlimitCriticalDamagePowerKiloNumRate=512), '3d')
-        a = getDamageCoeff('3d', plain, [], isSangRou=0, gameEdition=160, targetProfile=PROFILE)
-        b = getDamageCoeff('3d', boosted, [], isSangRou=0, gameEdition=160, targetProfile=PROFILE)
+        a = getDamageCoeff('3d', plain, [], isSangRou=0, gameEdition=CURRENT_GAME_EDITION, targetProfile=PROFILE)
+        b = getDamageCoeff('3d', boosted, [], isSangRou=0, gameEdition=CURRENT_GAME_EDITION, targetProfile=PROFILE)
         self.assertAlmostEqual(b / a, 2 * 3.5 / 3)
 
     def counter(self):
         base = {'_raw': {'atSolarAttackPowerBase': 1000, 'atLunarAttackPowerBase': 1000}}
-        return BoostCounter('self', '10t', 0, 10000, base, gameEdition=160, targetProfiles={'boss': PROFILE})
+        return BoostCounter('self', '10t', 0, 10000, base, gameEdition=CURRENT_GAME_EDITION, targetProfiles={'boss': PROFILE})
 
     def test_mixed_school_attribution_matches_weighted_results(self):
         counter = self.counter()

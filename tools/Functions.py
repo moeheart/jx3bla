@@ -1070,28 +1070,11 @@ def finalCluster(teamLog):
 
     return teamCluster, numCluster
 
-def getCoefficient(coeff, gameEdition=0):
-    '''
-    获取对应变量的等级系数.
-    '''
-    if int(gameEdition or 0) >= 160:
-        return COEFF50.get(coeff, 1)
-    if CHAPTER == 110:
-        if coeff in COEFF110:
-            return COEFF110[coeff]
-        else:
-            return 1
-    elif CHAPTER == 120:
-        if coeff in COEFF120:
-            return COEFF120[coeff]
-        else:
-            return 1
-    elif CHAPTER == 130:
-        if coeff in COEFF130:
-            return COEFF130[coeff]
-        else:
-            return 1
-        
+def getCoefficient(coeff, gameEdition=CURRENT_GAME_EDITION):
+    """Return current 50-level coefficients, independent of log date labels."""
+    return COEFF50.get(coeff, 1)
+
+
 def checkOccDetailBySkill(default, skillID, damage):
     '''
     根据特征技能判定双心法门派的具体心法.

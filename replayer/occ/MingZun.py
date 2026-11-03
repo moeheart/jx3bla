@@ -6,7 +6,7 @@ from replayer.TableConstructor import TableConstructor, ToolTip
 from tools.Names import *
 from Constants import *
 from tools.Functions import *
-from equip.AttributeDisplayRemote import AttributeDisplayRemote
+from equip.AttributeDisplay import AttributeDisplay
 from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
 from replayer.Name import *
 from replayer.occ.Display import HealerDisplayWindow, SingleSkillDisplayer
@@ -122,24 +122,27 @@ class MingZunReplayer(ReplayerBase):
             jsonEquip = ea.convert2(self.bld.info.player[self.mykey].equip, self.bld.info.player[self.mykey].equipScore)
             eee = ExcelExportEquipment()
             strEquip = eee.export(jsonEquip)
-            adr = AttributeDisplayRemote()
+            adr = AttributeDisplay()
             res = adr.Display(strEquip, "10t")
             print('$$$$$$$$$$$$$$')
             objprint(jsonEquip)
             self.result["equip"]["score"] = int(self.bld.info.player[self.mykey].equipScore)
             self.result["equip"]["sketch"] = jsonEquip["sketch"]
             self.result["equip"]["forge"] = jsonEquip["forge"]
-            self.result["equip"]["spirit"] = res["根骨"]
-            self.result["equip"]["heal"] = res["治疗"]
-            self.result["equip"]["healBase"] = res["基础治疗"]
-            self.result["equip"]["critPercent"] = res["会心"]
-            self.result["equip"]["crit"] = res["会心等级"]
-            self.result["equip"]["critpowPercent"] = res["会效"]
-            self.result["equip"]["critpow"] = res["会效等级"]
-            self.result["equip"]["hastePercent"] = res["加速"]
-            self.result["equip"]["haste"] = res["加速等级"]
-            if not self.config.item["lingsu"]["speedforce"]:
-                self.haste = self.result["equip"]["haste"]
+            if res is None:
+                self.result["equip"]["available"] = 0
+            else:
+                self.result["equip"]["spirit"] = res["根骨"]
+                self.result["equip"]["heal"] = res["治疗"]
+                self.result["equip"]["healBase"] = res["基础治疗"]
+                self.result["equip"]["critPercent"] = res["会心"]
+                self.result["equip"]["crit"] = res["会心等级"]
+                self.result["equip"]["critpowPercent"] = res["会效"]
+                self.result["equip"]["critpow"] = res["会效等级"]
+                self.result["equip"]["hastePercent"] = res["加速"]
+                self.result["equip"]["haste"] = res["加速等级"]
+                if not self.config.item["lingsu"]["speedforce"]:
+                    self.haste = self.result["equip"]["haste"]
             self.result["equip"]["raw"] = strEquip
 
         self.result["qixue"] = {"available": 0}

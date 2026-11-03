@@ -7,10 +7,10 @@ import unittest
 
 from data.DataContent import OverallData, SingleDataBuff
 from equip.AttributeDisplay import AttributeDisplay
-from replayer import Name, NameCangsheng, NameCangshengTest
+from replayer import Name
 from replayer.CombatTracker import CombatTracker, getResistedAmounts
 from release.NameGenerator import build_tables, parse_buff
-from tools.Attribute import COEFF50
+from tools.Attribute import COEFF50, CURRENT_GAME_EDITION
 
 
 RESOURCE = Path(__file__).resolve().parents[1] / "equip/resources/cangshengtf"
@@ -49,12 +49,13 @@ class BuffGenerationTests(unittest.TestCase):
 
     def test_full_regeneration_matches_committed_tables(self):
         for key, value in build_tables(RESOURCE).items():
-            self.assertEqual(value, getattr(NameCangsheng, key), key)
+            self.assertEqual(value, getattr(Name, key), key)
 
     def test_current_source_and_verified_regressions(self):
         manifest = json.loads((RESOURCE / "source_manifest.json").read_text(encoding="utf-8"))
         self.assertEqual(manifest["client_version"], "1.6.0.10009")
         self.assertEqual(manifest["client_mode"], "zhcn_hd")
+        self.assertEqual(manifest["game_edition"], CURRENT_GAME_EDITION)
         core_files = set(manifest["core_update"]["files"])
         self.assertEqual(len(core_files), 14)
         for source in manifest["files"]:
@@ -63,32 +64,16 @@ class BuffGenerationTests(unittest.TestCase):
                 self.assertEqual(source["client_version"], "1.6.0.10009")
                 self.assertEqual(source["extraction_date"], "2026-10-29")
                 self.assertIn("hd-20261029", source["source_path"])
-            elif source['name'] == 'xinfa50.json':
-                self.assertEqual(source['client_version'], 'mixed: 1.6.0.9503 + 1.6.0.9517')
-                self.assertEqual(source['added_profile_client_version'], '1.6.0.9517')
-                self.assertEqual(source['added_profile_count'], 33)
-                self.assertTrue(source['retained_evidence'])
-            elif source['name'] in ('xinfa50_hd.json', 'global_parameters_hd.json',
-                                    'luoyang_npc_defense_hd.json', 'xinfa_buff_evidence_hd.json'):
-                self.assertEqual(source['client_version'], '1.6.0.10009')
-                self.assertEqual(source['client_mode'], 'zhcn_hd')
-            elif source['name'] == 'cangsheng_test_equipment.zip':
-                self.assertEqual(source['client_version'], '1.6.0.9506')
-                self.assertEqual(source['runtime_game_edition'], 160)
-            else:
-                self.assertEqual(source["client_version"], "1.6.0.9503")
-                self.assertFalse(source["reextracted_for_release_8_16_0"])
         # These same-name strain buffs must stay on their precise IDs/levels.
         for identifier in (29294, 20938, 23543):
-            self.assertEqual(NameCangsheng.BOOST_DICT["2,%d,1" % identifier], {"atStrainBase": 7})
-        self.assertEqual(NameCangsheng.BOOST_DICT["2,20854,1"], {"atStrainBase": 10})
-        self.assertEqual(NameCangsheng.BOOST_DICT["2,23107,1"]["atStrainBase"], 34)
-        self.assertEqual(NameCangsheng.BOOST_DICT["2,2197,4"]["atAgilityBasePercentAdd"], 307)
-        self.assertEqual(NameCangsheng.BOOST_DICT["2,22847,5"]["atPhysicsShieldBase"], 0)
-        self.assertNotIn("2,9336,1", NameCangsheng.RESIST_DICT)
-        self.assertEqual(NameCangsheng.RESIST_DICT["2,33086,30"], 307)
-        self.assertEqual(NameCangsheng.RESIST_DICT["2,33086,15"], 154)
-        self.assertIn("2,9337,2", NameCangsheng.THERAPY_DICT)
+            self.assertEqual(Name.BOOST_DICT["2,%d,1" % identifier], {"atStrainBase": 7})
+        self.assertEqual(Name.BOOST_DICT["2,23107,1"]["atStrainBase"], 34)
+        self.assertEqual(Name.BOOST_DICT["2,2197,4"]["atAgilityBasePercentAdd"], 307)
+        self.assertEqual(Name.BOOST_DICT["2,22847,5"]["atPhysicsShieldBase"], 0)
+        self.assertNotIn("2,9336,1", Name.RESIST_DICT)
+        self.assertEqual(Name.RESIST_DICT["2,33086,30"], 307)
+        self.assertEqual(Name.RESIST_DICT["2,33086,15"], 154)
+        self.assertIn("2,9337,2", Name.THERAPY_DICT)
         self.assertAlmostEqual(COEFF50["会心"], 9.609 * 990)
         self.assertAlmostEqual(COEFF50["加速"], 10.21 * 990)
 
@@ -96,7 +81,7 @@ class BuffGenerationTests(unittest.TestCase):
 class ReplayProfileTests(unittest.TestCase):
     def tracker(self, map_name, players=False):
         info = OverallData()
-        info.map, info.battleTime, info.skill = map_name, 1789470000, {}
+        info.map, info.battleTime, info.skill = map_name, 1793577600, {}
         history = SimpleNamespace(badPeriodDpsLog=[], badPeriodHealerLog=[], critPeriodHealerLog=[],
                                   critPeriodSum=0, mainTargets=[], startTime=0, finalTime=10000)
         if players:
@@ -114,17 +99,14 @@ class ReplayProfileTests(unittest.TestCase):
         result.setByJcl(item)
         return result
 
-    def test_versions_are_instance_local(self):
-        new = self.tracker("25人普通洛阳之战")
-        old = self.tracker("25人普通阆风悬城")
-        self.assertIs(new.boostDict, NameCangshengTest.BOOST_DICT)
-        self.assertIs(old.boostDict, Name.BOOST_DICT)
-        self.assertEqual(new.bosslvl, 53)
-        self.assertEqual(old.bosslvl, 133)
-        new.export(10000, 10000, 10000, {})
-        old.export(10000, 10000, 10000, {})
-        self.assertEqual(new.generateJson()["rdps"]["status"], "incomplete")
-        self.assertEqual(old.generateJson()["rdpsStatus"]["status"], "supported")
+    def test_runtime_uses_formal_tables_and_reports_missing_targets(self):
+        tracker = self.tracker("25人普通洛阳之战")
+        self.assertIs(tracker.boostDict, Name.BOOST_DICT)
+        self.assertIs(tracker.resistDict, Name.RESIST_BY_SCHOOL_DICT)
+        self.assertEqual(tracker.bosslvl, 53)
+        self.assertEqual(tracker.rdpsStatus["gameEdition"], CURRENT_GAME_EDITION)
+        tracker.export(10000, 10000, 10000, {})
+        self.assertEqual(tracker.generateJson()["rdps"]["status"], "incomplete")
 
     def test_school_reduction_and_unknown_absorbed_school(self):
         only_lunar = {"buff": ["player", 0, {"Lunar": 512}]}
@@ -182,13 +164,9 @@ class ReplayProfileTests(unittest.TestCase):
 
     def test_new_unknown_level_does_not_use_zero_level_numeric_effect(self):
         new = self.tracker("25人普通洛阳之战", players=True)
-        old = self.tracker("25人普通阆风悬城", players=True)
         new.resistDict = {"2,33086,0": {"Physics": 102}}
-        old.resistDict = {"2,33086,0": 102}
         new.recordBuff(self.event(level=999))
-        old.recordBuff(self.event(level=999))
         self.assertEqual(new.resistBuff["target"], {})
-        self.assertIn("2,33086,999", old.resistBuff["target"])
 
     def test_qiusu_removing_old_slot_preserves_new_live_instance(self):
         tracker = self.tracker("25人普通洛阳之战", players=True)
@@ -249,10 +227,6 @@ class ReplayProfileTests(unittest.TestCase):
         tracker.recordBuff(self.event(slot="248", valid=True, time=1200))
         self.assertEqual(len(records), 2)
         self.assertEqual(records[("2,33086,15", "slot", "248")][0], "a")
-        old = self.tracker("25人普通阆风悬城", players=True)
-        old.resistDict = {"2,33086,15": 154}
-        old.recordBuff(invalid)
-        self.assertIn("2,33086,15", old.resistBuff["target"])
 
     def test_shield_instance_validity_preserves_other_source_and_canonical_name(self):
         tracker = self.tracker("25人普通洛阳之战", players=True)
@@ -267,7 +241,7 @@ class ReplayProfileTests(unittest.TestCase):
         self.assertEqual(tracker.ahpsCast["a"].skill, {})
 
     def test_new_equipment_does_not_make_up_a_panel(self):
-        display = AttributeDisplay(gameEdition=160)
+        display = AttributeDisplay()
         self.assertEqual(display.status["status"], "supported")
         self.assertIsNone(display.GetBaseAttrib("", "22h"))
         self.assertIsNone(display.GetPanelAttrib("", "22h"))

@@ -1,4 +1,4 @@
-"""Calculate all five backed-up clears through Actor and export a local rDPS report."""
+"""Calculate explicitly selected formal-server clears and export a local rDPS report."""
 import argparse
 import contextlib
 import gc
@@ -19,8 +19,9 @@ from equip.CangshengAttributeData import get_profile
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--manifest', type=Path, default=Path('backups/luoyang-20260915/manifest.json'))
-    parser.add_argument('--output', type=Path, default=Path('backups/luoyang-20260915/rdps'))
+    parser.add_argument('--manifest', type=Path, required=True,
+                        help='Explicit manifest of selected current formal-server logs')
+    parser.add_argument('--output', type=Path, default=Path('build/validation/luoyang-rdps'))
     parser.add_argument('--boss', help='Replay only one named boss for a targeted regression')
     parser.add_argument('--healers', action='store_true')
     parser.add_argument('--ui', action='store_true')
@@ -97,13 +98,23 @@ def main():
         gc.collect()
         if args.boss:
             break
-    write_reports(results, args.output)
+    if not results:
+        raise ValueError('No encounters selected from the supplied manifest')
+    write_reports(results, args.output, args.manifest)
 
 
-def write_reports(results, output):
+def write_reports(results, output, manifest_path=None):
     output.mkdir(parents=True, exist_ok=True)
-    (output / 'clear-rdps.json').write_text(json.dumps({'network': 'disabled', 'upload': 'disabled', 'results': results}, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-    lines = ['# 洛阳之战五场通关 rDPS', '', '依据 2026-09-15 25 人普通体服 JCL；网络及上传均禁用。', '']
+    provenance = {'network': 'disabled', 'upload': 'disabled', 'results': results,
+                  'model': '50-level formal client 1.6.0.10009'}
+    if manifest_path is not None:
+        provenance['manifest'] = str(manifest_path.resolve())
+    (output / 'clear-rdps.json').write_text(json.dumps(provenance, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    lines = ['# 洛阳之战 rDPS', '', '按当前 50 级正式服模型计算以下输入日志；网络及上传均禁用。', '']
+    if manifest_path is not None:
+        lines.extend(['输入清单：`%s`。' % manifest_path, ''])
+    lines.extend('- `%s`' % result['file'] for result in results)
+    lines.append('')
     lines.extend(['## T 与治疗对照', '', '| 心法 | ' + ' | '.join(r['boss'] for r in results) + ' |',
                   '| --- | ' + ' | '.join('---:' for _ in results) + ' |'])
     roles = [row['occ'] for row in results[0]['players'] if row['role'] != 'dps']

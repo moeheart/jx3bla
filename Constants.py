@@ -8,7 +8,7 @@ ANNOUNCEMENT = "蓝奏云下载密码：1234。8.16.3：适配正式服25人普�
 # IP is kept for old compatibility. New HTTP requests should use get_api_url()
 # or get_logs_url().
 IP = get_address_config()["api"]["host"]
-CHAPTER = 130
+CHAPTER = 50
 
 LVLTABLE = [0, 30, 100, 200, 300, 500, 700, 900, 1200, 1500, 1800, 2400, 3000, 999999]
 LVLNAME = ["二级警员", "一级警员", "三级警司", "二级警司", "一级警司", "三级警督", "二级警督", "一级警督", "三级警监", "二级警监", "一级警监", "副总警监", "总警监", "最高等级"]

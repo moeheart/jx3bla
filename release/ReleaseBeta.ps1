@@ -1,9 +1,9 @@
-python -m release.GeneratorGenerator
-python -m release.EquipmentTypeGenerator
-python -m release.JsonGenerator
-python -m release.NameGenerator --resources equip/resources/cangshengtf --output replayer/NameCangsheng.py
-git add *.py *.md *.spec release/*.ps1 release/*.md
-git commit -m "[Auto]Update as the log"
-git push origin
-pyinstaller MainWindow.beta.spec
-mv dist/MainWindow.exe dist/j3jz-beta.exe
+# Retained command entry; both builds now use the same level-50 formal data.
+[CmdletBinding()]
+param(
+    [string]$Python = "python",
+    [string]$ReplayManifest = "",
+    [string]$WujieLog = ""
+)
+
+& (Join-Path $PSScriptRoot "Release.ps1") @PSBoundParameters

@@ -15,6 +15,7 @@ from equip.CangshengAttributeData import (
     profile_school, static_attributes,
 )
 from replayer.CombatTracker import BoostCounter
+from tools.Attribute import CURRENT_GAME_EDITION
 from tests.test_cangsheng_equipment import equipment_text
 
 
@@ -46,13 +47,14 @@ class WujieAttributeTests(unittest.TestCase):
                 self.assertIn('悟', wujie['name'])
                 self.assertTrue(wujie['raw_attributes'])
                 self.assertTrue(static_attributes(occ))
-                self.assertEqual(wujie['source']['evidence_root'], 'wujie_evidence')
-                evidence = ROOT / 'equip/resources/cangshengtf/wujie_evidence/unpack_result'
+                self.assertEqual(wujie['source']['evidence_root'], 'xinfa10009_evidence')
+                self.assertEqual(wujie['client_version'], '1.6.0.10009')
+                evidence = ROOT / 'docs/160/evidence/xinfa10009_evidence/unpack_result'
                 source = (evidence / wujie['source']['origin']).read_bytes()
                 self.assertEqual(hashlib.sha256(source).hexdigest(), wujie['source']['sha256'])
 
     def test_portable_wujie_originals_match_their_manifest(self):
-        evidence = ROOT / 'equip/resources/cangshengtf/wujie_evidence'
+        evidence = ROOT / 'docs/160/evidence/wujie_evidence'
         manifest = json.loads((evidence / 'source_manifest.json').read_text(encoding='utf-8'))
         self.assertTrue(manifest['files'])
         for row in manifest['files']:
@@ -68,7 +70,7 @@ class WujieAttributeTests(unittest.TestCase):
                                  'atPhysicsCriticalStrike': 147,
                                  'atAgilityToPhysicsAttackPowerCof': 707,
                                  'atAgilityToPhysicsCriticalStrikeCof': 61,
-                                 'atDstNpcDamageCoefficient': 860,
+                                 'atDstNpcDamageCoefficient': 922,
                                  'atAllShieldIgnorePercent': 614}.items():
             self.assertEqual(raw[attribute], value, attribute)
         self.assertNotEqual(raw['atDstNpcDamageCoefficient'], static_attributes('24')['atDstNpcDamageCoefficient'])
@@ -134,7 +136,7 @@ class WujieAttributeTests(unittest.TestCase):
     def test_mingzun_wujie_attributes_lunar_events_to_lunar_boost(self):
         base = {'_raw': {'atSolarAttackPowerBase': 1000, 'atLunarAttackPowerBase': 1000}}
         counter = BoostCounter('self', '10tw', 0, 10000, base,
-                               gameEdition=160, targetProfiles={'boss': TARGET})
+                               gameEdition=CURRENT_GAME_EDITION, targetProfiles={'boss': TARGET})
         counter.addBoost('lunar', {'atLunarAttackPowerPercent': 1024}, 'other', 1, 0)
         event = SimpleNamespace(target='boss', full_id='1,1,1', fullResult={'3': 100})
         rate = counter.getRateForEvent(event, 'damage')
@@ -151,14 +153,14 @@ class WujieAttributeTests(unittest.TestCase):
         self.assertEqual(raw['atMagicShield'], 444)
         self.assertEqual(raw['atSpiritToLunarAttackPowerCof'], 717)
         self.assertEqual(raw['atSpiritToLunarCriticalStrikeCof'], 51)
-        self.assertEqual(raw['atDstNpcDamageCoefficient'], 860)
+        self.assertEqual(raw['atDstNpcDamageCoefficient'], 963)
         self.assertEqual(raw['atAllShieldIgnorePercent'], 614)
-        self.assertEqual(static_attributes('34')['atDstNpcDamageCoefficient'], 471)
+        self.assertEqual(static_attributes('34')['atDstNpcDamageCoefficient'], 532)
         panel = calculate_attributes(dict(raw, atSpiritBase=1024), '34w')
         self.assertEqual(panel['攻击'], 2611 + 717)
         self.assertEqual(panel['会心等级'], 34 + 256 + 51)
         gear = equipment_text({'12': [111692, 0, 0, 0, 0, 0, 0, 0]})
-        displayed = AttributeDisplay(160).GetPanelAttrib(gear, '34w')
+        displayed = AttributeDisplay().GetPanelAttrib(gear, '34w')
         self.assertIsNotNone(displayed)
         self.assertEqual(displayed['类型'], 3)
         self.assertGreater(displayed['攻击'], 2611)
@@ -227,7 +229,7 @@ class WujieAttributeTests(unittest.TestCase):
         base = {'_raw': {'atAdaptAttributeType': 1, 'atLunarAttackPowerBase': 100,
                         'atSolarAttackPowerBase': 200, 'atPoisonAttackPowerBase': 300}}
         counter = BoostCounter('self', '34w', 0, 10000, base,
-                               gameEdition=160, targetProfiles={'boss': TARGET})
+                               gameEdition=CURRENT_GAME_EDITION, targetProfiles={'boss': TARGET})
         counter.addBoost('solar', {'atSolarAttackPowerBase': 200}, 'a', 1, 0)
         rates = counter.getRate('boss', '1,1,1', 'damage', 'Lunar')
         self.assertAlmostEqual(rates['solar']['rate'], .2)

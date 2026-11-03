@@ -1,6 +1,6 @@
 {
   "season": "苍生铸世",
-  "game_edition": 160,
+  "game_edition": 161,
   "client_version": "1.6.0.10009",
   "client_mode": "zhcn_hd",
   "source_root": "C:\\Develop\\26\\jx3decrypt\\reports\\hd-20261029\\source\\critical_files",
@@ -163,106 +163,49 @@
       "name": "StrengthableAttrib.tab",
       "bytes": 1656,
       "sha256": "b0f6603c4bf7f6a837adafb6372eb1f08a34a1a33bbad0b305207c71e2f1d456",
-      "client_version": "1.6.0.9503",
+      "client_version": "1.6.0.10009",
       "retained_evidence": true,
-      "reextracted_for_release_8_16_0": false
+      "reextracted_for_release_8_16_0": false,
+      "verified_original": "../../../docs/160/evidence/xinfa10009_evidence/unpack_result/settings/item/StrengthableAttrib.tab"
     },
     {
       "name": "xinfa50.json",
-      "bytes": 515926,
-      "sha256": "614e16f896755a4162f5765d0ab61585f802d3fcd4ca595abd5ab2c59bbc90d3",
-      "client_version": "mixed: 1.6.0.9503 + 1.6.0.9517",
-      "retained_evidence": true,
-      "reextracted_for_release_8_16_0": false,
-      "added_profile_client_version": "1.6.0.9517",
-      "added_profile_count": 33,
-      "added_profile_source": "wujie_evidence/source_manifest.json",
-      "extraction_date": "2026-10-06"
-    },
-    {
-      "name": "xinfa_buff_evidence.json",
-      "bytes": 169719,
-      "sha256": "5577acd4f8ca2b85a066fd9d8e3bfeaa62dcfd566a0b6e4b0de12bd3cb87c783",
-      "client_version": "1.6.0.9503",
-      "retained_evidence": true,
-      "reextracted_for_release_8_16_0": false
-    },
-    {
-      "name": "luoyang_npc_defense.json",
-      "bytes": 40088,
-      "sha256": "12d4f14191682e88a707ab1ba3a74ed13893c8e32e0ec3b435cfd29166e52c62",
-      "client_version": "1.6.0.9503",
-      "retained_evidence": true,
-      "reextracted_for_release_8_16_0": false
-    },
-    {
-      "name": "role_attribute.luac",
-      "bytes": 51150,
-      "sha256": "162d3e5041f08419cc22f6f6f0d3c54315b6d72537313ca166ae70b85301b0cb",
-      "client_version": "1.6.0.9503",
-      "retained_evidence": true,
-      "reextracted_for_release_8_16_0": false
-    },
-    {
-      "name": "role_panel_evidence.json",
-      "bytes": 45061,
-      "sha256": "7ebf64c911cfc2372421e142b1078a16a6b871572af758702fef625fae69f199",
-      "client_version": "1.6.0.9503",
-      "retained_evidence": true,
-      "reextracted_for_release_8_16_0": false
-    },
-    {
-      "name": "native_gem_evidence.json",
-      "bytes": 6673,
-      "sha256": "14c22938bcb4bd8fd1c4f902813eb5ddbf7db420e7ef8adfdeb92c639292d5ba",
-      "client_version": "1.6.0.9503",
-      "retained_evidence": true,
-      "reextracted_for_release_8_16_0": false
-    },
-    {
-      "name": "xinfa50_hd.json",
       "bytes": 517377,
       "sha256": "bf89219e8d18e155d49cdbebf52506816757f9015101a93eb1cb9065bf1bf5d0",
       "client_version": "1.6.0.10009",
       "client_mode": "zhcn_hd",
       "extraction_date": "2026-10-29",
-      "source_manifest": "xinfa10009_evidence/source_manifest.json",
+      "source_manifest": "../../../docs/160/evidence/xinfa10009_evidence/source_manifest.json",
       "generation": "release.GenerateFormalXinfa50",
-      "runtime_game_edition_minimum": 161
+      "runtime_game_edition_minimum": 161,
+      "upstream_name": "xinfa50_hd.json"
     },
     {
-      "name": "global_parameters_hd.json",
+      "name": "global_parameters.json",
       "bytes": 1902,
       "sha256": "d7a3f3e3aa0f5c1f070a8916566959ed230f98152f110999966f44b36a1def81",
       "client_version": "1.6.0.10009",
       "client_mode": "zhcn_hd",
       "extraction_date": "2026-10-29",
-      "source_manifest": "xinfa10009_evidence/source_manifest.json",
+      "source_manifest": "../../../docs/160/evidence/xinfa10009_evidence/source_manifest.json",
       "generation": "release.GenerateFormalXinfa50",
-      "runtime_game_edition_minimum": 161
+      "runtime_game_edition_minimum": 161,
+      "upstream_name": "global_parameters_hd.json"
     },
     {
-      "name": "luoyang_npc_defense_hd.json",
+      "name": "luoyang_npc_defense.json",
       "bytes": 43093,
       "sha256": "2d50d206f7c1f46bbd839aaa8a5d4fd0f80aba8bb36ff8582ec9bbf182c0e6fc",
       "client_version": "1.6.0.10009",
       "client_mode": "zhcn_hd",
       "extraction_date": "2026-10-29",
-      "source_manifest": "xinfa10009_evidence/source_manifest.json",
+      "source_manifest": "../../../docs/160/evidence/xinfa10009_evidence/source_manifest.json",
       "generation": "release.GenerateFormalXinfa50",
-      "runtime_game_edition_minimum": 161
+      "runtime_game_edition_minimum": 161,
+      "upstream_name": "luoyang_npc_defense_hd.json"
     },
     {
-      "name": "cangsheng_test_equipment.zip",
-      "bytes": 12809578,
-      "sha256": "9362c7023dae38239c8621d08552ce9e9f186bf6a66ce14c6fd7e2002f7adafe",
-      "client_version": "1.6.0.9506",
-      "client_mode": "zhcn_exp",
-      "runtime_game_edition": 160,
-      "source_manifest": "cangsheng_test_equipment.zip/source_manifest.json"
-    },
-    {
-      "name": "xinfa_buff_evidence_hd.json",
+      "name": "../../../docs/160/evidence/xinfa10009_evidence/xinfa_buff_evidence.json",
       "bytes": 169720,
       "sha256": "c791b5bce48b0ed95e0f8a82938efada7bf50472f7d47c051bde1f60a6050c5a",
       "client_version": "1.6.0.10009",
@@ -271,103 +214,63 @@
     }
   ],
   "parameters": {
-    "scripts/Include/数值压缩参数.lua": {
-      "sha256": "8fda354e40846288f577374a6c843102f3f364e07c55ba0b94be16fff2e0173c",
-      "bytes": 3311,
-      "source_path": "C:\\Develop\\21\\jx3bla\\backups\\luoyang-20260915\\parameter-verification\\unpack_result\\scripts\\Include\\数值压缩参数.lua",
-      "mtime_ns": 1789509743700805100,
-      "values": {
-        "fPlayerCriticalCof": 0.75,
-        "fCriticalStrikeParam": 9.609,
-        "fCriticalStrikePowerParam": 3.54,
-        "fDefCriticalStrikeParam": 19.218,
-        "fDecriticalStrikePowerParam": 5.2,
-        "fHitValueParam": 9.195,
-        "fDodgeParam": 13.491,
-        "fParryParam": 15.833,
-        "fInsightParam": 7.117,
-        "fPhysicsShieldParam": 10.912,
-        "fMagicShieldParam": 10.912,
-        "fOvercomeParam": 10.483,
-        "fHasteRate": 10.21,
-        "fToughnessDecirDamageCof": 9.518,
-        "fSurplusParam": 24.558,
-        "fAssistedPowerCof": 9.609
-      },
-      "level_factors": {
-        "30": 330.0,
-        "31": 363.0,
-        "50": 990.0,
-        "51": 1023.0,
-        "52": 1056.0,
-        "53": 1089.0,
-        "54": 1122.0
-      },
-      "client_version": "1.6.0.9503",
-      "extraction_date": "2026-09-15",
-      "verification_9503": "verified: isolated unpack with client file access succeeded; SHA256 identical to the 9479 snapshot",
-      "previous_extraction": {
-        "source_path": "C:\\Develop\\26\\jx3decrypt\\unpack_result_exp\\scripts\\Include\\数值压缩参数.lua",
-        "mtime_ns": 1788862034435552100,
-        "client_version": "1.6.0.9479",
-        "extraction_date": "2026-09-08"
-      },
-      "verified_utc": "2026-09-15T22:03:19.059022+00:00"
-    },
     "scripts/skill/GlobalParam.lua": {
-      "sha256": "979874a262d1f50cb81109b4a2490d8ea5fe0d58969fb84eafe25faa2865bfc3",
-      "bytes": 3045,
-      "source_path": "C:\\Develop\\21\\jx3bla\\backups\\luoyang-20260915\\parameter-verification\\unpack_result\\scripts\\skill\\GlobalParam.lua",
-      "mtime_ns": 1789509743702309200,
+      "sha256": "ae93fb6f71aa3055fcb61bd17eca7889160a38ec9d678d291109ec0455ff1a61",
+      "client_version": "1.6.0.10009",
       "values": {
-        "fPlayerCriticalCof": 0.75,
-        "fCriticalStrikeParam": 9.609,
-        "fCriticalStrikePowerParam": 3.54,
+        "nMaxDecriticalDamagePowerEableConvert": 4140,
+        "nStrengthToPhysicsAPCof": 190,
         "fDefCriticalStrikeParam": 19.218,
-        "fDecriticalStrikePowerParam": 5.2,
-        "fHitValueParam": 9.195,
-        "fDodgeParam": 13.491,
-        "fParryParam": 15.833,
-        "fInsightParam": 7.117,
-        "fPhysicsShieldParam": 10.912,
-        "fMagicShieldParam": 10.912,
-        "fOvercomeParam": 10.483,
-        "fHasteRate": 10.21,
-        "fToughnessDecirDamageCof": 9.518,
-        "fSurplusParam": 24.558,
-        "fAssistedPowerCof": 9.609,
-        "fDecriticalDamagePowerToPhysicsAttackPowerCof": 0.525,
-        "fDecriticalDamagePowerToMagicAttackPowerCof": 0.584,
-        "fDecriticalDamagePowerToMaxLifeBaseCof": 10.0,
-        "nMaxDecriticalDamagePowerEableConvert": 58800.0,
         "fDecriticalDamagePVPCof": 0.9,
-        "nPhysicsAPToMagicAPCof": 1024.0,
-        "nWeaponToMagicAPCof": 6144.0,
-        "nPhysicsAPToDPS": 8992.534,
+        "nAgilityToPhysicsCriticalCof": 250,
+        "fDecriticalStrikePowerParam": 5.2,
+        "nStrengthToPhysicsOvercomeCof": 60,
+        "fDecriticalDamagePowerToPhysicsAttackPowerCof": 0.786,
+        "fCriticalStrikePowerParam": 3.54,
+        "nPVXAllRoundToDecriticalDamagePowerCof": 1000,
+        "fInsightParam": 7.117,
+        "fOvercomeParam": 10.483,
+        "fCriticalStrikeParam": 9.609,
         "nMagicAPToDPS": 9704.743,
         "nTherapyAPToDPS": 5331.663,
-        "nStrengthToPhysicsAPCof": 195.0,
-        "nStrengthToPhysicsOvercomeCof": 61.0,
-        "nAgilityToPhysicsCriticalCof": 250.0,
-        "nVitalityToMaxLifeCof": 10000.0,
-        "nSpiritToMagicCriticalCof": 250.0,
-        "nSpunkToMagicAPCof": 195.0,
-        "nSpunkToMagicOvercomeCof": 61.0,
-        "nPVXAllRoundToDecriticalDamagePowerCof": 1000.0,
-        "nPVXAllRoundToSurplusValueCof": 0.0,
-        "nPVXAllRoundToStrainCof": 1220.0,
-        "nPVXAllRoundToTherapyPowerCof": 150.0
+        "fToughnessDecirDamageCof": 9.518,
+        "nPhysicsAPToMagicAPCof": 1024,
+        "fDodgeParam": 13.491,
+        "fDecriticalDamagePowerToMagicAttackPowerCof": 0.786,
+        "nPVXAllRoundToTherapyPowerCof": 150,
+        "fHasteRate": 10.21,
+        "nPVXAllRoundToStrainCof": 1220,
+        "nPVXAllRoundToSurplusValueCof": 0,
+        "nSpunkToMagicOvercomeCof": 60,
+        "nSpunkToMagicAPCof": 190,
+        "fSurplusParam": 24.558,
+        "fAssistedPowerCof": 9.609,
+        "nSpiritToMagicCriticalCof": 250,
+        "fMagicShieldParam": 10.912,
+        "fPlayerCriticalCof": 0.75,
+        "fDecriticalDamagePowerToMaxLifeBaseCof": 3.5,
+        "nPhysicsAPToDPS": 8992.534,
+        "fParryParam": 15.833,
+        "nWeaponToMagicAPCof": 6144,
+        "fHitValueParam": 9.195,
+        "fPhysicsShieldParam": 10.912,
+        "nVitalityToMaxLifeCof": 10000
       },
-      "client_version": "1.6.0.9503",
-      "extraction_date": "2026-09-15",
-      "verification_9503": "verified: isolated unpack with client file access succeeded; SHA256 identical to the 9479 snapshot",
-      "previous_extraction": {
-        "source_path": "C:\\Develop\\26\\jx3decrypt\\unpack_result_exp\\scripts\\skill\\GlobalParam.lua",
-        "mtime_ns": 1788861907029062400,
-        "client_version": "1.6.0.9479",
-        "extraction_date": "2026-09-08"
+      "local_path": "../../../docs/160/evidence/xinfa10009_evidence/unpack_result/scripts/skill/GlobalParam.lua"
+    },
+    "scripts/Include/数值压缩参数.lua": {
+      "sha256": "3150f0921d9348345d7242d7199a137916fe4cf3eca9ea044f3445dcec371d4a",
+      "client_version": "1.6.0.10009",
+      "level_factors": {
+        "30": 330,
+        "31": 363,
+        "50": 990,
+        "51": 1023,
+        "52": 1056,
+        "53": 1089,
+        "54": 1122
       },
-      "verified_utc": "2026-09-15T22:03:19.059093+00:00"
+      "local_path": "../../../docs/160/evidence/xinfa10009_evidence/unpack_result/scripts/Include/数值压缩参数.lua"
     }
   },
   "generated_tables": {
@@ -379,47 +282,33 @@
     "THERAPY_DICT": 3124
   },
   "runtime_status": {
-    "buff_tables": "current_10009_hd; edition_160_retains_9506",
-    "equipment_source": "161+:10009;160:verified9506 archive",
+    "buff_tables": "current_10009_hd",
+    "equipment_source": "current_10009_hd",
     "level50_panel_and_rdps": "enabled_for_verified_25_normal_luoyang_profiles",
     "therapy_attribution": "not_implemented",
-    "kungfu": "160:64 retained mixed9503/9517;161+:64 verified10009",
+    "kungfu": "64_verified10009_plus_shanju",
     "gem_scaling": "native_1355_div_27800",
-    "npc": "160:90 retained9503;161+:102 verified10009"
+    "npc": "102_verified10009"
   },
   "parameter_extraction": {
-    "tool": "C:\\Develop\\26\\jx3decrypt\\unpack.exe",
-    "arguments": [
-      "paths.txt"
-    ],
-    "working_directory": "C:\\Develop\\21\\jx3bla\\backups\\luoyang-20260915\\parameter-verification",
-    "game_root": "C:\\SeasunGame\\Game\\JX3_EXP",
-    "mode": "zhcn_exp",
-    "result": "init PakV4 result: 1; exit code 0",
-    "initial_restricted_attempt": "init PakV4 result: 0; retry with client file access succeeded"
+    "client_version": "1.6.0.10009",
+    "source_manifest": "../../../docs/160/evidence/xinfa10009_evidence/source_manifest.json"
   },
   "attribute_evidence": {
     "kungfu": "xinfa50.json",
-    "kungfu_originals": "xinfa_evidence/source_manifest.json",
+    "kungfu_originals": "../../../docs/160/evidence/xinfa10009_evidence/source_manifest.json",
     "npc": "luoyang_npc_defense.json",
-    "default_base_and_refinement": "role_panel_evidence.json",
-    "gems": "native_gem_evidence.json",
+    "global_parameters": "global_parameters.json",
+    "retained_panel_crosscheck": "../../../docs/160/evidence/role_panel_evidence.json",
+    "retained_gem_crosscheck": "../../../docs/160/evidence/native_gem_evidence.json",
     "limitations": [
       "JCL body type unavailable; current client default primary baseline",
       "No manual comparison to live game panel",
       "Script/enchant triggers require combat events; static equipment calculation does not invent trigger effects",
       "10-player and heroic NPC defense profiles are not yet verified"
-    ],
-    "verified_client_version": "1.6.0.9503",
-    "reextracted_for_release_8_16_0": false,
-    "wujie_originals": "wujie_evidence/source_manifest.json",
-    "kungfu_client_version_scope": "31 retained 9503 ordinary profiles; 32 Wujie + ordinary 34 verified from 9517",
-    "youluo_adaptive_panel": "wujie_evidence/youluo_panel_evidence.json",
-    "formal_originals": "xinfa10009_evidence/source_manifest.json",
-    "formal_global_parameters": "global_parameters_hd.json",
-    "formal_npc": "luoyang_npc_defense_hd.json"
+    ]
   },
-  "client_version_scope": "Formal logs (161+) use 14 core tables, 64 kungfus plus Shanju, GlobalParam and 102 normal-Luoyang NPC profiles verified from 10009. Test logs (160) retain 9506 buff/equipment and mixed 9503/9517 kungfu, 9503 NPC snapshots. StrengthableAttrib is unchanged against fresh 10009 bytes.",
+  "client_version_scope": "Only formal level-50 data: 14 core tables, 64 kungfus plus Shanju, GlobalParam and 102 normal-Luoyang NPC profiles from client 1.6.0.10009. Historical extraction evidence is retained under docs/160/evidence and is not used at runtime.",
   "extraction_date": "2026-10-29",
   "release_version": "8.16.2",
   "core_update": {
@@ -462,8 +351,9 @@
     ]
   },
   "retained_evidence": {
-    "client_version": "1.6.0.9503",
-    "reextracted": false,
-    "description": "Original 9503/9517 evidence and profiles are kept for edition160; formal 161+ uses separate fresh 10009 profiles. The 9506 equipment archive contains its original per-file hash manifest."
-  }
+    "runtime": false,
+    "source_manifest": "../../../docs/160/evidence/legacy9506/source_manifest.json",
+    "description": "Historical manifest and derived profiles retain their original bytes. Its file names describe the pre-migration resource layout, whose core table bytes are preserved in git revision ae046c3; this historical manifest is not the current runtime file list."
+  },
+  "evidence_root": "../../../docs/160/evidence"
 }

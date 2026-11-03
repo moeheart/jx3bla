@@ -56,7 +56,7 @@ JCL 缺体型字段，采用当前客户端默认裸属性基线；未与游戏�
 ## 重现与明细
 
 - `python -X utf8 -m tools.ValidateLuoyangRdps --healers --ui`
-- `python -X utf8 -m tools.analyze_lingsu_rdps`
+- `python -X utf8 -m tools.AnalyzeLingsuRdps`
 - [心法属性来源审计](心法属性来源审计.md)
 - [50级装备属性取证](50级装备属性取证.md)
-- [原始字节码与原生公式证据](../../equip/resources/cangshengtf/RDPS_EVIDENCE.md)
+- [原始字节码与原生公式证据](evidence/RDPS_EVIDENCE.md)

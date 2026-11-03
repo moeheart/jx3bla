@@ -7,7 +7,6 @@ from replayer.TableConstructor import TableConstructor, ToolTip
 from tools.Names import *
 from Constants import *
 from tools.Functions import *
-from equip.AttributeDisplayRemote import AttributeDisplayRemote
 from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
 from replayer.Name import *
 from window.HealerDisplayWindow import HealerDisplayWindow, SingleSkillDisplayer

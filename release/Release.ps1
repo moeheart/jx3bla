@@ -2,8 +2,7 @@
 param(
     [string]$Python = "python",
     [string]$ReplayManifest = "",
-    [string]$WujieLog = "",
-    [string]$LiveManifest = ""
+    [string]$WujieLog = ""
 )
 
 Set-StrictMode -Version Latest
@@ -25,14 +24,12 @@ try {
     $resolvedManifest = if ($ReplayManifest) { (Resolve-Path -LiteralPath $ReplayManifest).ProviderPath } else { "" }
     $resolvedWujieLog = if ($WujieLog) { (Resolve-Path -LiteralPath $WujieLog).ProviderPath } else { "" }
 
-    $resolvedLiveManifest = if ($LiveManifest) { (Resolve-Path -LiteralPath $LiveManifest).ProviderPath } else { "" }
-
     Invoke-ReleasePython -Arguments @("-m", "release.GeneratorGenerator")
     Invoke-ReleasePython -Arguments @("-m", "release.EquipmentTypeGenerator")
     Invoke-ReleasePython -Arguments @("-m", "release.JsonGenerator")
     Invoke-ReleasePython -Arguments @(
         "-m", "release.NameGenerator", "--resources", "equip/resources/cangshengtf",
-        "--output", "replayer/NameCangsheng.py"
+        "--output", "replayer/Name.py"
     )
 
     # A failed build or validation never replaces the previous published EXE.
@@ -54,7 +51,6 @@ try {
     $smokeArguments = @("--release-smoke-test", "--report", $smokeReport)
     if ($resolvedManifest) { $smokeArguments += @("--manifest", $resolvedManifest) }
     if ($resolvedWujieLog) { $smokeArguments += @("--wujie-log", $resolvedWujieLog) }
-    if ($resolvedLiveManifest) { $smokeArguments += @("--live-manifest", $resolvedLiveManifest) }
     Push-Location -LiteralPath $smokeDirectory
     try {
         & $smokeExecutable @smokeArguments

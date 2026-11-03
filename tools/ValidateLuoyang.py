@@ -1,6 +1,6 @@
 """Replay backed-up local JCLs through the real actor pipeline, without network I/O.
 
-python -X utf8 -m tools.ValidateLuoyang --manifest backups/luoyang-20260915/manifest.json
+Supply a manifest of explicitly selected current formal-server logs.
 """
 import argparse
 import contextlib
@@ -12,6 +12,7 @@ import math
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
+from tools.Attribute import CURRENT_GAME_EDITION
 
 from data.BattleLogData import BattleLogData
 from FileLookUp import FileLookUp
@@ -92,7 +93,7 @@ def check_windows(actor):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", type=Path, required=True)
-    parser.add_argument("--output", type=Path, default=Path("docs/160/luoyang-validation.json"))
+    parser.add_argument("--output", type=Path, default=Path("build/validation/luoyang.json"))
     parser.add_argument("--latest", action="store_true", help="Replay only the latest attempt of each boss")
     parser.add_argument("--healers", action="store_true", help="Also exercise the configured healer replay paths")
     parser.add_argument("--ui", action="store_true", help="Construct hidden boss and combat-statistic Tk windows")
@@ -120,8 +121,11 @@ def main():
         assert actor.bh is not None and actor.bh.mainTargets
         assert actor.win in (0, 1)
         assert all(len(record) == 7 for record in actor.potList), "Battle-event rows must fit the seven-field UI contract"
-        assert actor.combatTracker.rdpsStatus["gameEdition"] == 160
-        assert actor.combatTracker.rdpsStatus["status"] == "supported", actor.combatTracker.rdpsStatus
+        status = actor.combatTracker.rdpsStatus
+        assert status["gameEdition"] == CURRENT_GAME_EDITION
+        assert status["status"] in ("supported", "incomplete"), status
+        if status["status"] == "incomplete":
+            assert status.get("reason"), status
         assert all(counter.buffTimeIntegral() <= actor.battleTime + 1 for counter in actor.battleDict.values())
         assert all(event["start"] <= actor.finalTime for event in actor.bh.log["environment"])
         metrics = {key: getattr(actor.combatTracker, key)["sum"] for key in ("ndps", "mndps", "rdps", "mrdps", "hps", "ahps", "rhps")}

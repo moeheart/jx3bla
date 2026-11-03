@@ -3,23 +3,36 @@ import json
 from pathlib import Path
 import unittest
 
-from release.GenerateXinfa50 import skill_level_evidence
-from release.GenerateXinfaBuffEvidence import export
+from release.Xinfa50Generator import skill_level_evidence
+from release.XinfaBuffEvidenceGenerator import export
 from release.Lua51Evidence import Chunk
 
 
 ROOT = Path(__file__).resolve().parents[1] / 'equip/resources/cangshengtf'
-EVIDENCE = ROOT / 'xinfa_evidence'
+EVIDENCE_ROOT = Path(__file__).resolve().parents[1] / 'docs/160/evidence'
+EVIDENCE = EVIDENCE_ROOT / 'xinfa_evidence'
 
 
 class XinfaEvidenceTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.data = json.loads((ROOT / 'xinfa50.json').read_text(encoding='utf-8'))
+        cls.data = json.loads((EVIDENCE_ROOT / 'legacy9506/xinfa50.json').read_text(encoding='utf-8'))
         # These tests audit the retained 9503 originals. The mobile/9517
         # evidence has its own regression suite and provenance.
         cls.profiles = {occ: profile for occ, profile in cls.data['occupations'].items()
                         if not occ.endswith('w') and occ != '34'}
+
+    def test_current_profiles_match_formal_originals_without_old_source_fallback(self):
+        current = json.loads((ROOT / 'xinfa50.json').read_text(encoding='utf-8'))
+        self.assertEqual(current['client_version'], '1.6.0.10009')
+        self.assertEqual(current['game_edition'], 161)
+        self.assertEqual(len(current['occupations']), 64)
+        for occ, profile in current['occupations'].items():
+            with self.subTest(occ=occ):
+                source = profile['source']
+                self.assertEqual(source['evidence_root'], 'xinfa10009_evidence')
+                original = EVIDENCE_ROOT / source['evidence_root'] / 'unpack_result' / source['origin']
+                self.assertEqual(hashlib.sha256(original.read_bytes()).hexdigest(), source['sha256'])
 
     def test_portable_originals_match_manifest_and_bytecode_roundtrip(self):
         manifest = json.loads((EVIDENCE / 'source_manifest.json').read_text(encoding='utf-8'))
@@ -76,11 +89,9 @@ class XinfaEvidenceTest(unittest.TestCase):
 
     def test_dynamic_buff_evidence_matches_source_and_does_not_rescale(self):
         data = export(ROOT)
-        retained = json.loads((ROOT / 'xinfa_buff_evidence_hd.json').read_text(encoding='utf-8'))
-        # Current evidence follows the formal tables; the original 9503 audit
-        # remains a separate file and is never re-labelled as a fresh extraction.
+        retained = json.loads((EVIDENCE_ROOT / 'xinfa10009_evidence/xinfa_buff_evidence.json').read_text(encoding='utf-8'))
+        # Runtime buff tables and this retained export share the formal snapshot.
         self.assertEqual(retained['client_version'], '1.6.0.10009')
-        self.assertEqual(data['sources'], retained['sources'])
         for group in ('conversion_rows', 'critical_effect_rows', 'interpretation'):
             self.assertEqual(data[group], retained[group], group)
         self.assertEqual(len(data['conversion_rows']), 72)

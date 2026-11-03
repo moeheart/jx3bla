@@ -4,6 +4,7 @@
 
 from equip.EquipmentInfo import EquipmentInfo
 from equip.EquipmentExport import ImportExcelEquipment
+from tools.Attribute import CURRENT_GAME_EDITION
 
 class AttributeCal():
     '''
@@ -55,7 +56,7 @@ class AttributeCal():
             if not 0 <= refineLvl <= 8:
                 raise ValueError("装备精炼等级超出0至8: %s" % refineLvl)
             feature = self.equipmentInfo.getFeature(
-                equips[line]["id_full"], refineLvl if self.gameEdition >= 160 else 0)
+                equips[line]["id_full"], refineLvl)
             if feature == 0:
                 continue
 
@@ -66,12 +67,6 @@ class AttributeCal():
                     setCount[feature["set"]] += 1
             singleAttrib = {}
             singleAttrib = self.attribMerge(singleAttrib, feature)
-
-            #计算精炼
-            refineRate = [0, 0.005, 0.013, 0.024, 0.038, 0.055, 0.075, 0.098, 0.124][refineLvl]
-            if self.gameEdition < 160:
-                for attrib in singleAttrib:
-                    singleAttrib[attrib] = int(singleAttrib[attrib] * (1 + refineRate) + 0.5)
 
             #计算镶嵌
             for i in range(1, 4):
@@ -93,17 +88,13 @@ class AttributeCal():
                 magicID = equips[line].get("magic%d"%i, '0')
                 if magicID in ['', ' ', '0']:
                     continue
-                if magicID in ["11272"] and self.gameEdition < 160:  # 旧版本治疗鞋大附魔
-                    magicAttrib = {'atTherapyPowerBase': 241}  #TODO 记得改
-                elif magicID in self.equipmentInfo.enchantAttributes:
+                if magicID in self.equipmentInfo.enchantAttributes:
                     magicAttrib = {}
                     for name, value in self.equipmentInfo.enchantAttributes[magicID]:
                         magicAttrib = self.attribMerge(magicAttrib, self.equipmentInfo.staticAttribute(
                             name, value, "附魔%s" % magicID))
                 else:
-                    if self.gameEdition >= 160:
-                        raise KeyError("附魔未收录于当前体服底表: %s" % magicID)
-                    magicAttrib = {}
+                    raise KeyError("附魔未收录于当前正式服底表: %s" % magicID)
                 singleAttrib = self.attribMerge(singleAttrib, magicAttrib)
             sumAttrib = self.attribMerge(singleAttrib, sumAttrib)
 
@@ -119,8 +110,8 @@ class AttributeCal():
                         colorSingleAttrib = self.equipmentInfo.staticAttribute(
                             colorAttrib[i*4], colorAttrib[i*4+1], "五彩石%s" % colorID)
                         sumAttrib = self.attribMerge(colorSingleAttrib, sumAttrib)
-            elif self.gameEdition >= 160 and colorID.strip() not in ('', '0'):
-                raise KeyError("五彩石未收录于当前体服底表: %s" % colorID)
+            elif colorID.strip() not in ('', '0'):
+                raise KeyError("五彩石未收录于当前正式服底表: %s" % colorID)
 
         #计算套装
         for line in setCount:
@@ -139,72 +130,9 @@ class AttributeCal():
         self.lastWarnings = sorted(self.equipmentInfo.unsupportedEffects)
         return sumAttrib
 
-    def __init__(self, gameEdition=0):
-        self.gameEdition = int(gameEdition or 0)
-        self.equipmentInfo = EquipmentInfo(gameEdition=gameEdition)
+    def __init__(self, gameEdition=CURRENT_GAME_EDITION):
+        self.gameEdition = CURRENT_GAME_EDITION
+        self.equipmentInfo = EquipmentInfo()
         self.equipmentInfo.LoadFromStaticData()
         self.im = ImportExcelEquipment()
         self.lastWarnings = []
-
-if __name__ == "__main__":
-    str = """25441	6	11163	0	6	 	 	 
-50953	6	11189	11145	6	6	 	 
-50927	6	11051	11146	6	6	 	 
-29491	6	11148	0	6	 	 	 
-29509	6	11156	0	 	 	 	 
-29399	6	11156	0	 	 	 	 
-50875	6	11191	11142	6	6	 	 
-29423	4	11149	0	6	 	 	 
-51071	4	11022	0	6	6	 	 
-50901	6	11083	0	6	6	 	 
-51057	4	11077	11144	6	6	 	 
-25481	4	11011	0	6	6	6	13686"""
-    str = """27106	0	0	0	4			
-51011	0	0	0	4	4		
-54043	0	0	0	4	4		
-30907	0	0	0	4			
-29330	0	0	0				
-29330	0	0	0				
-54025	0	0	0	4	4		
-29396	0	0	0	4			
-53509	0	0	0	4	4		
-51029	0	0	0	4	4		
-50981	0	0	0	4	4		
-26782	0	0	0	4	4	4	25692"""
-    str = "27891\t0\t0\t0\t4\t\t\t\n50103\t0\t0\t0\t\t\t\t\n50169\t0\t0\t0\t\t\t\t\n31668\t0\t0\t0\t4\t\t\t\n31680\t0\t0\t0\t\t\t\t\n31680\t0\t0\t0\t\t\t\t\n50079\t0\t0\t0\t\t\t\t\n31674\t0\t0\t0\t4\t\t\t\n55389\t0\t0\t0\t4\t4\t\t\n50157\t0\t0\t0\t\t\t\t\n55371\t0\t0\t0\t4\t4\t\t\n24995\t0\t0\t0\t\t\t\t"
-
-#     str = """好鱼 32774	0	11664	0
-# 90563	0	0	0
-# 90835	0	11531	11684
-# 34407	0	0	0
-# 36130	0	11662	0
-# 34443	0	11657	0
-# 90611	0	0	0
-# 34413	0	0	0
-# 90383	0	11547	0
-# 90545	0	11613	0
-# 90918	0	11579	11682
-# 32569	0	11568	0				12095"""
-
-    str = """38888	6	12357	0	8			25469
-100876	6	12285	0	8	8		25469
-100834	6	12227	0	8	8		25469
-41221	6	12346	0	8			25469
-41197	6	12350	0				25469
-41197	6	12350	0				25469
-100816	6	12230	0	8	8		25469
-41209	6	12348	0	8			25469
-100900	6	12219	0	8	8		25469
-100858	6	12282	0	8	8		25469
-100810	6	12274	0	8	8		25469
-38855	6	12213	0	8	8	8	25469"""
-
-    ac = AttributeCal()
-    res = ac.CalculateAll(str)
-    print(res)
-    # im = ImportExcelEquipment()
-    # equips = im.importData(str)
-    # print(equips)
-
-# [colorID] 73408
-# [colorAttrib] ['atHasteBase', '1463']

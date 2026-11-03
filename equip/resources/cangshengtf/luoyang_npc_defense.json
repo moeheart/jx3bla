@@ -1,34 +1,33 @@
 {
   "schemaVersion": 1,
-  "gameEdition": 160,
-  "clientVersion": "1.6.0.9503",
+  "gameEdition": 161,
+  "clientVersion": "1.6.0.10009",
   "map": "25人普通洛阳之战",
   "mapId": "835",
   "playerLevel": 50,
   "source": {
-    "path": "C:\\Develop\\26\\jx3decrypt\\unpack_result_exp\\settings\\NpcTemplate\\25RenPuTongLuoYangZhiZhan\\sNpcTemplate.tab",
-    "encoding": "gb18030",
-    "sha256": "3a4e5d17c5bd981b7d88bde592e6f76079b137a0aa047707d04962539990075e",
-    "bytes": 70578,
-    "mtimeUtc": "2026-09-15T11:40:51.112407+00:00"
+    "path": "xinfa10009_evidence/unpack_result/settings/NpcTemplate/25RenPuTongLuoYangZhiZhan/sNpcTemplate.tab",
+    "encoding": "utf-8-sig",
+    "sha256": "e9720a705ff64d03b2a4e11e1cb2072b1c195188095f70a5ab9deae18da675e3",
+    "bytes": 80279
   },
   "scope": "Raw client NPC base values, before encounter scripts and logged defense debuffs; null means absent, not zero.",
-  "staleCacheWarning": "critical_files/result_exp/npc_templates contains older rows and is not the source of this export.",
+  "staleCacheWarning": "Uses preserved 10009 raw client table; no shared NPC cache.",
   "parameters": {
     "physicsShieldParam": 10.912,
     "magicShieldParam": 10.912,
     "strainParam": 7.117,
     "levelFactors": {
-      "30": 330.0,
-      "31": 363.0,
-      "50": 990.0,
-      "51": 1023.0,
-      "52": 1056.0,
-      "53": 1089.0,
-      "54": 1122.0
+      "30": 330,
+      "31": 363,
+      "50": 990,
+      "51": 1023,
+      "52": 1056,
+      "53": 1089,
+      "54": 1122
     },
-    "globalParamsSha256": "979874a262d1f50cb81109b4a2490d8ea5fe0d58969fb84eafe25faa2865bfc3",
-    "compressionParamsSha256": "8fda354e40846288f577374a6c843102f3f364e07c55ba0b94be16fff2e0173c"
+    "globalParamsSha256": "ae93fb6f71aa3055fcb61bd17eca7889160a38ec9d678d291109ec0455ff1a61",
+    "compressionParamsSha256": "3150f0921d9348345d7242d7199a137916fe4cf3eca9ea044f3445dcec371d4a"
   },
   "mainTemplates": [
     "139306",
@@ -43,7 +42,7 @@
       "name": "突利和顺",
       "level": 53,
       "adjustLevel": null,
-      "maxLife": 263810000,
+      "maxLife": 236760000,
       "shieldBase": {
         "Physics": 6399,
         "Solar": 6399,
@@ -230,7 +229,7 @@
       "name": "",
       "level": 30,
       "adjustLevel": null,
-      "maxLife": 27056,
+      "maxLife": 99999999,
       "shieldBase": {
         "Physics": 143472,
         "Solar": 13692,
@@ -264,7 +263,7 @@
       "name": "伊曼·寂夜",
       "level": 53,
       "adjustLevel": null,
-      "maxLife": 201010000,
+      "maxLife": 210920000,
       "shieldBase": {
         "Physics": 6399,
         "Solar": 6399,
@@ -315,7 +314,7 @@
       "name": "伊曼·逐焰",
       "level": 53,
       "adjustLevel": null,
-      "maxLife": 63550000,
+      "maxLife": 68280000,
       "shieldBase": {
         "Physics": 6399,
         "Solar": 6399,
@@ -332,7 +331,7 @@
       "name": "阿史那承庆",
       "level": 53,
       "adjustLevel": null,
-      "maxLife": 281230000,
+      "maxLife": 318810000,
       "shieldBase": {
         "Physics": 6399,
         "Solar": 6399,
@@ -397,7 +396,7 @@
       "damageCompressCoef": null
     },
     "139327": {
-      "name": "3号_场控",
+      "name": "",
       "level": null,
       "adjustLevel": null,
       "maxLife": 13,
@@ -434,7 +433,7 @@
       "name": "田承嗣",
       "level": 53,
       "adjustLevel": null,
-      "maxLife": 200800000,
+      "maxLife": 243000000,
       "shieldBase": {
         "Physics": 6399,
         "Solar": 6399,
@@ -567,7 +566,7 @@
       "damageCompressCoef": null
     },
     "139337": {
-      "name": "破煞剑符",
+      "name": "玄天剑符",
       "level": 53,
       "adjustLevel": null,
       "maxLife": 212520000,
@@ -578,7 +577,7 @@
         "Neutral": 6399,
         "Poison": 6399
       },
-      "script": "",
+      "script": "scripts/Map/洛阳之战/npc/史朝义破煞剑符.lua",
       "sourceLine": 33,
       "decreaseDamagePercent": null,
       "damageCompressCoef": null
@@ -601,7 +600,7 @@
       "damageCompressCoef": null
     },
     "139339": {
-      "name": "伏焰金刚",
+      "name": "伏焰",
       "level": 53,
       "adjustLevel": null,
       "maxLife": 8951404,
@@ -635,7 +634,7 @@
       "damageCompressCoef": null
     },
     "139341": {
-      "name": "狼牙军黑煞催城团弓兵",
+      "name": "狼牙军黑煞摧城团弓兵",
       "level": 53,
       "adjustLevel": null,
       "maxLife": 286444949,
@@ -669,7 +668,7 @@
       "damageCompressCoef": null
     },
     "139343": {
-      "name": "狼牙军黑煞催城团枪兵",
+      "name": "狼牙军黑煞摧城团枪兵",
       "level": 53,
       "adjustLevel": null,
       "maxLife": 286444949,
@@ -686,7 +685,7 @@
       "damageCompressCoef": null
     },
     "139344": {
-      "name": "炽虎金刚",
+      "name": "炽虎",
       "level": 53,
       "adjustLevel": null,
       "maxLife": 17902809,
@@ -703,7 +702,7 @@
       "damageCompressCoef": null
     },
     "139345": {
-      "name": "狼牙军黑煞催城团骨朵兵",
+      "name": "狼牙军黑煞摧城团骨朵兵",
       "level": 53,
       "adjustLevel": null,
       "maxLife": 286444949,
@@ -771,7 +770,7 @@
       "damageCompressCoef": null
     },
     "139349": {
-      "name": "玄隼金刚",
+      "name": "玄隼",
       "level": 53,
       "adjustLevel": null,
       "maxLife": 3840000,
@@ -1009,7 +1008,7 @@
       "damageCompressCoef": null
     },
     "140039": {
-      "name": "突利和顺宝箱1",
+      "name": "突利和顺宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1026,7 +1025,7 @@
       "damageCompressCoef": null
     },
     "140040": {
-      "name": "突利和顺宝箱2",
+      "name": "突利和顺宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1043,7 +1042,7 @@
       "damageCompressCoef": null
     },
     "140041": {
-      "name": "突利和顺宝箱3",
+      "name": "突利和顺宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1060,7 +1059,7 @@
       "damageCompressCoef": null
     },
     "140042": {
-      "name": "突利和顺宝箱4",
+      "name": "突利和顺宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1077,7 +1076,7 @@
       "damageCompressCoef": null
     },
     "140043": {
-      "name": "突利和顺宝箱5",
+      "name": "突利和顺宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1094,7 +1093,7 @@
       "damageCompressCoef": null
     },
     "140044": {
-      "name": "突利和顺宝箱6",
+      "name": "突利和顺宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1111,7 +1110,7 @@
       "damageCompressCoef": null
     },
     "140045": {
-      "name": "田承嗣宝箱1",
+      "name": "田承嗣宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1128,7 +1127,7 @@
       "damageCompressCoef": null
     },
     "140046": {
-      "name": "田承嗣宝箱2",
+      "name": "田承嗣宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1145,7 +1144,7 @@
       "damageCompressCoef": null
     },
     "140047": {
-      "name": "田承嗣宝箱3",
+      "name": "田承嗣宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1162,7 +1161,7 @@
       "damageCompressCoef": null
     },
     "140048": {
-      "name": "田承嗣宝箱4",
+      "name": "田承嗣宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1179,7 +1178,7 @@
       "damageCompressCoef": null
     },
     "140049": {
-      "name": "田承嗣宝箱5",
+      "name": "田承嗣宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1196,7 +1195,7 @@
       "damageCompressCoef": null
     },
     "140050": {
-      "name": "田承嗣宝箱6",
+      "name": "田承嗣宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1213,7 +1212,7 @@
       "damageCompressCoef": null
     },
     "140051": {
-      "name": "伊曼寂夜宝箱1",
+      "name": "伊曼寂夜宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1230,7 +1229,7 @@
       "damageCompressCoef": null
     },
     "140052": {
-      "name": "伊曼寂夜宝箱2",
+      "name": "伊曼寂夜宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1247,7 +1246,7 @@
       "damageCompressCoef": null
     },
     "140053": {
-      "name": "伊曼寂夜宝箱3",
+      "name": "伊曼寂夜宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1264,7 +1263,7 @@
       "damageCompressCoef": null
     },
     "140054": {
-      "name": "伊曼寂夜宝箱4",
+      "name": "伊曼寂夜宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1281,7 +1280,7 @@
       "damageCompressCoef": null
     },
     "140055": {
-      "name": "伊曼寂夜宝箱5",
+      "name": "伊曼寂夜宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1298,7 +1297,7 @@
       "damageCompressCoef": null
     },
     "140056": {
-      "name": "伊曼寂夜宝箱6",
+      "name": "伊曼寂夜宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1315,7 +1314,7 @@
       "damageCompressCoef": null
     },
     "140057": {
-      "name": "阿史那承庆宝箱1",
+      "name": "阿史那承庆宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1332,7 +1331,7 @@
       "damageCompressCoef": null
     },
     "140058": {
-      "name": "阿史那承庆宝箱2",
+      "name": "阿史那承庆宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1349,7 +1348,7 @@
       "damageCompressCoef": null
     },
     "140059": {
-      "name": "阿史那承庆宝箱3",
+      "name": "阿史那承庆宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1366,7 +1365,7 @@
       "damageCompressCoef": null
     },
     "140060": {
-      "name": "阿史那承庆宝箱4",
+      "name": "阿史那承庆宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1383,7 +1382,7 @@
       "damageCompressCoef": null
     },
     "140061": {
-      "name": "阿史那承庆宝箱5",
+      "name": "阿史那承庆宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1400,7 +1399,7 @@
       "damageCompressCoef": null
     },
     "140062": {
-      "name": "阿史那承庆宝箱6",
+      "name": "阿史那承庆宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1417,7 +1416,7 @@
       "damageCompressCoef": null
     },
     "140063": {
-      "name": "史朝义宝箱1",
+      "name": "史朝义宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1434,7 +1433,7 @@
       "damageCompressCoef": null
     },
     "140064": {
-      "name": "史朝义宝箱2",
+      "name": "史朝义宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1451,7 +1450,7 @@
       "damageCompressCoef": null
     },
     "140065": {
-      "name": "史朝义宝箱3",
+      "name": "史朝义宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1468,7 +1467,7 @@
       "damageCompressCoef": null
     },
     "140066": {
-      "name": "史朝义宝箱4",
+      "name": "史朝义宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1485,7 +1484,7 @@
       "damageCompressCoef": null
     },
     "140067": {
-      "name": "史朝义宝箱5",
+      "name": "史朝义宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1502,7 +1501,7 @@
       "damageCompressCoef": null
     },
     "140068": {
-      "name": "史朝义宝箱6",
+      "name": "史朝义宝箱",
       "level": 50,
       "adjustLevel": 0,
       "maxLife": 3250774,
@@ -1539,7 +1538,7 @@
       "name": "天陨巨剑",
       "level": 53,
       "adjustLevel": null,
-      "maxLife": 15220000,
+      "maxLife": 13388000,
       "shieldBase": {
         "Physics": 26317,
         "Solar": 26317,
@@ -1566,6 +1565,210 @@
       },
       "script": "",
       "sourceLine": 91,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140665": {
+      "name": "",
+      "level": 50,
+      "adjustLevel": null,
+      "maxLife": 999999999,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "",
+      "sourceLine": 92,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140666": {
+      "name": "拜火燎原团士兵",
+      "level": 52,
+      "adjustLevel": null,
+      "maxLife": 1413500,
+      "shieldBase": {
+        "Physics": 3961,
+        "Solar": 3961,
+        "Lunar": 3961,
+        "Neutral": 3961,
+        "Poison": 3961
+      },
+      "script": "",
+      "sourceLine": 93,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140667": {
+      "name": "拜火燎原团神使",
+      "level": 52,
+      "adjustLevel": null,
+      "maxLife": 1554850,
+      "shieldBase": {
+        "Physics": 3961,
+        "Solar": 3961,
+        "Lunar": 3961,
+        "Neutral": 3961,
+        "Poison": 3961
+      },
+      "script": "",
+      "sourceLine": 94,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140668": {
+      "name": "被洗脑的百姓",
+      "level": 51,
+      "adjustLevel": null,
+      "maxLife": 218370,
+      "shieldBase": {
+        "Physics": 52,
+        "Solar": 5,
+        "Lunar": 5,
+        "Neutral": 5,
+        "Poison": 5
+      },
+      "script": "",
+      "sourceLine": 95,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140669": {
+      "name": "被洗脑的百姓",
+      "level": 51,
+      "adjustLevel": null,
+      "maxLife": 218370,
+      "shieldBase": {
+        "Physics": 52,
+        "Solar": 5,
+        "Lunar": 5,
+        "Neutral": 5,
+        "Poison": 5
+      },
+      "script": "",
+      "sourceLine": 96,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140670": {
+      "name": "拜火燎原团校尉",
+      "level": 51,
+      "adjustLevel": null,
+      "maxLife": 1965331,
+      "shieldBase": {
+        "Physics": 2881,
+        "Solar": 2881,
+        "Lunar": 2881,
+        "Neutral": 2881,
+        "Poison": 2881
+      },
+      "script": "",
+      "sourceLine": 97,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140671": {
+      "name": "开小肝",
+      "level": 51,
+      "adjustLevel": null,
+      "maxLife": 1965331,
+      "shieldBase": {
+        "Physics": 2881,
+        "Solar": 2881,
+        "Lunar": 2881,
+        "Neutral": 2881,
+        "Poison": 2881
+      },
+      "script": "",
+      "sourceLine": 98,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140672": {
+      "name": "王征北",
+      "level": 52,
+      "adjustLevel": null,
+      "maxLife": 920612933,
+      "shieldBase": {
+        "Physics": 178,
+        "Solar": 15,
+        "Lunar": 15,
+        "Neutral": 15,
+        "Poison": 15
+      },
+      "script": "",
+      "sourceLine": 99,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140673": {
+      "name": "李复",
+      "level": 52,
+      "adjustLevel": null,
+      "maxLife": 920612933,
+      "shieldBase": {
+        "Physics": 178,
+        "Solar": 15,
+        "Lunar": 15,
+        "Neutral": 15,
+        "Poison": 15
+      },
+      "script": "",
+      "sourceLine": 100,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140674": {
+      "name": "唐军士兵",
+      "level": 52,
+      "adjustLevel": null,
+      "maxLife": 2416608,
+      "shieldBase": {
+        "Physics": 3841,
+        "Solar": 3841,
+        "Lunar": 3841,
+        "Neutral": 3841,
+        "Poison": 3841
+      },
+      "script": "",
+      "sourceLine": 101,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "141647": {
+      "name": "垂天浮屠宝箱",
+      "level": 52,
+      "adjustLevel": 0,
+      "maxLife": 32700094,
+      "shieldBase": {
+        "Physics": 3841,
+        "Solar": 3841,
+        "Lunar": 3841,
+        "Neutral": 3841,
+        "Poison": 3841
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/关卡宝箱.lua",
+      "sourceLine": 102,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "141688": {
+      "name": "开小肝",
+      "level": 52,
+      "adjustLevel": null,
+      "maxLife": 6168000,
+      "shieldBase": {
+        "Physics": 3841,
+        "Solar": 3841,
+        "Lunar": 3841,
+        "Neutral": 3841,
+        "Poison": 3841
+      },
+      "script": "",
+      "sourceLine": 103,
       "decreaseDamagePercent": null,
       "damageCompressCoef": null
     }

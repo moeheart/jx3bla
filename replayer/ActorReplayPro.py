@@ -13,10 +13,10 @@ from replayer.boss.taijigong.Litan import LitanReplayer
 from tools.Functions import *
 from Constants import *
 from tools.Names import *
-from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment, ImportExcelEquipment
+from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
 
 from equip.AttributeDisplay import AttributeDisplay  # 以后需要改为从服务器实现
-from equip.AttributeDisplayRemote import AttributeDisplayRemote
+from tools.Attribute import CURRENT_GAME_EDITION
 
 from replayer.ReplayerBase import ReplayerBase
 
@@ -452,11 +452,10 @@ class ActorProReplayer(ReplayerBase):
                     self.jsonEquip[id] = jsonEquip2
                     self.strEquip[id] = strEquip2
                     self.equipmentDict[id] = jsonEquip2
-                    if isLuoyangMap(self.mapDetail):
-                        strEquip = strEquip2
-                        flag = True
+                    strEquip = strEquip2
+                    flag = True
                 else:
-                    # 尝试从服务器空手套白狼
+                    # 保留缺失装备信息，属性无法计算时明确标记不完整。
                     flag = True
                     jsonEquip = {"score": self.bld.info.player[id].equipScore, "sketch": "", "forge": ""}
                     self.jsonEquip[id] = jsonEquip
@@ -477,65 +476,39 @@ class ActorProReplayer(ReplayerBase):
                 self.jsonEquip[id] = jsonEquip
                 self.strEquip[id] = strEquip
 
-                if isLuoyangMap(self.mapDetail):
-                    # Rebuild with the current season and kungfu even when gear
-                    # is unchanged between two boss attempts.
-                    flag = True
+                # Rebuild with the current season and kungfu even when gear
+                # is unchanged between two boss attempts.
+                flag = True
 
                 # print("[playID]", self.bld.info.getName(id))
                 # print("[TestJsonEquip]", jsonEquip)
                 # print("[strEquip]", strEquip)
 
-            if flag:  # 需要向服务器请求
+            if flag:  # 需要重新计算装备属性
                 if self.bld.info.player[id].equip:
                     self.window.playerEquipment[id] = self.bld.info.player[id].equip
                 requests["players"].append(
                     {"equipStr": strEquip, "id": id, "name": self.bld.info.getName(id), "occ": occDetailList[id],
                      "server": self.bld.info.server, "score": self.bld.info.player[id].equipScore})
 
-        # 向服务器请求. 这里先从本地计算，以后再改为服务器请求的逻辑.
+        # 属性统一使用当前正式服底表在本地计算。
         self.attributeStatus = {}
-        if parseEdition(EDITION) == 0 or isLuoyangMap(self.mapDetail):
-            results = {}
-            ad = AttributeDisplay(gameEdition=self.gameEdition)
-            self.attributeStatus = getattr(ad, "status", {})
-            if isLuoyangMap(self.mapDetail):
-                # 同一角色跨赛季缓存不能套用在压缩后的 50 级属性上。
-                for player in self.bld.info.player:
-                    self.window.playerEquipmentAnalysed.pop(player, None)
-            for playerEquip in requests["players"]:
-                results[playerEquip["id"]] = {}
-                results[playerEquip["id"]]["base"] = ad.GetBaseAttrib(playerEquip["equipStr"], playerEquip["occ"])
-                results[playerEquip["id"]]["panel"] = ad.GetPanelAttrib(playerEquip["equipStr"], playerEquip["occ"])
-                results[playerEquip["id"]]["status"] = "calculated" if results[playerEquip["id"]]["base"] is not None else "notfound"
-                results[playerEquip["id"]]["gameEdition"] = self.gameEdition
-
-            # print("[Checkpoint2]", self.window.playerEquipmentAnalysed)
-
-        # TODO 改回来
-        else:
-            adr = AttributeDisplayRemote()
-            results = adr.GetGroupAttributeAttrib(requests)
+        results = {}
+        ad = AttributeDisplay()
+        self.attributeStatus = getattr(ad, "status", {})
+        # 每场按实际心法与当前底表重算，避免复用旧面板缓存。
+        for player in self.bld.info.player:
+            self.window.playerEquipmentAnalysed.pop(player, None)
+        for playerEquip in requests["players"]:
+            results[playerEquip["id"]] = {}
+            results[playerEquip["id"]]["base"] = ad.GetBaseAttrib(playerEquip["equipStr"], playerEquip["occ"])
+            results[playerEquip["id"]]["panel"] = ad.GetPanelAttrib(playerEquip["equipStr"], playerEquip["occ"])
+            results[playerEquip["id"]]["status"] = "calculated" if results[playerEquip["id"]]["base"] is not None else "notfound"
+            results[playerEquip["id"]]["gameEdition"] = CURRENT_GAME_EDITION
         # 结束
 
-        iee = ImportExcelEquipment()
-
-        # print("[Checkpoint3]", self.window.playerEquipmentAnalysed)
-
-        # 记录服务器返回的结果
+        # 记录本地计算结果
         for id in results:
-            if results[id].get("status", "") == "cached":
-                # 记录缓存的装备
-                # print("获取缓存装备！", id, results[id]["equipStr"])
-                self.strEquip[id] = results[id]["equipStr"]
-                jsonEquip = iee.importData(results[id]["equipStr"])
-                jsonEquip["cached"] = 1
-                jsonEquip["score"] = results[id]["score"]
-                jsonEquip["sketch"] = ea.getSketch(jsonEquip)
-                jsonEquip["forge"] = ea.getForge(jsonEquip)
-                self.jsonEquip[id] = jsonEquip
-                self.equipmentDict[id] = jsonEquip
-                # print("[Equip1]", jsonEquip)
             self.window.playerEquipmentAnalysed[id] = results[id]
 
         # print("[Checkpoint4]", self.window.playerEquipmentAnalysed)
@@ -1625,7 +1598,7 @@ class ActorProReplayer(ReplayerBase):
 
         combatTracker.export(self.battleTime, self.bh.sumTime("dps"), self.bh.sumTime("healer"), self.stunCounter)
         self.combatTracker = combatTracker
-        if combatTracker.isCangsheng and combatTracker.rdpsStatus.get("status") == "incomplete":
+        if combatTracker.rdpsStatus.get("status") == "incomplete":
             self.attributeStatus.update(combatTracker.rdpsStatus)
         if self.attributeStatus.get("status") == "incomplete":
             self.detail["rdpsStatus"] = getattr(combatTracker, "rdpsStatus", self.attributeStatus)

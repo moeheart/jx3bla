@@ -25,58 +25,71 @@ class FileLookUp():
         self.specifiedFiles = sorted(files, key=functools.cmp_to_key(compare))
 
     def getPathFromWinreg(self):
-        '''
-        从注册表获取剑三的目录。这种方式有可能失败。
-        '''
-        pathres = ""
-        try:
-            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\Kingsoft\JX3', )
-            pathres = winreg.QueryValueEx(key, "InstallPath")[0]
-        except:
-            pass
-        if pathres == "":
-            try:
-                key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\JX3Installer', )
-                pathres = winreg.QueryValueEx(key, "InstPath")[0]
-            except:
-                pass
-        if pathres == "":
-            print("自动获取目录失败，请手动指定剑三目录")
-            self.basepath = "自动获取目录失败，请手动指定剑三目录"
-        self.jx3path = pathres
+        '''读取正式服安装记录，优先使用西山居启动器的独立游戏目录。'''
+        self.jx3path = ""
+        self.datapath = ""
+        # SeasunGame's own InstPath is the launcher, not the installed game.
+        # Only JX3 is the formal client; EXP, CLASSIC and WJ are other products.
+        locations = (
+            (r'SOFTWARE\Kingsoft\SeasunGame\JX3', 'InstallPath'),
+            (r'SOFTWARE\Kingsoft\JX3', 'InstallPath'),
+            (r'SOFTWARE\JX3Installer', 'InstPath'),
+        )
+        seen = set()
+        for location, value_name in locations:
+            for hive in (winreg.HKEY_LOCAL_MACHINE, winreg.HKEY_CURRENT_USER):
+                for view in (winreg.KEY_WOW64_64KEY, winreg.KEY_WOW64_32KEY):
+                    try:
+                        with winreg.OpenKey(hive, location, 0, winreg.KEY_READ | view) as key:
+                            value, value_type = winreg.QueryValueEx(key, value_name)
+                    except OSError:
+                        continue
+                    if value_type not in (winreg.REG_SZ, winreg.REG_EXPAND_SZ) or not isinstance(value, str):
+                        continue
+                    path = self.normalizePath(value)
+                    if not path or os.path.normcase(path) in seen:
+                        continue
+                    seen.add(os.path.normcase(path))
+                    datapath = self.findDataFolder(path)
+                    if datapath:
+                        self.jx3path, self.datapath = path, datapath
+                        return path
+        self.basepath = "自动获取目录失败，请手动指定剑三目录"
+        print(self.basepath)
+        return ""
+
+    @staticmethod
+    def normalizePath(path):
+        path = os.path.expandvars(path.strip().strip('"').strip())
+        return os.path.normpath(path) if path else ""
+
+    @staticmethod
+    def findDataFolder(path):
+        '''接受正式服安装根目录、MY#DATA 的任意上层目录或它本身。'''
+        if not path:
+            return ""
+        if os.path.basename(path).casefold() == 'my#data' and os.path.isdir(path):
+            return path
+        parts = ('Game', 'JX3', 'bin', 'zhcn_hd', 'interface', 'MY#DATA')
+        for index in range(len(parts)):
+            candidate = os.path.join(path, *parts[index:])
+            if os.path.isdir(candidate):
+                return candidate
+        return ""
 
     def getDataFolder(self):
         '''
         由剑三路径获取MY_DATA数据文件夹路径.
         '''
-        resDir = ""
-        pathLists = [
-            ['Game', 'JX3', 'bin', 'zhcn_hd', 'interface', 'MY#DATA'],
-            ['Game', 'JX3_EXP', 'bin', 'zhcn_exp', 'interface', 'MY#DATA'],
-        ]
-
-        if self.jx3path == "":
-            self.getPathFromWinreg()
-
-        datapath = ""
-        self.jx3path = self.jx3path.strip('/').replace('/', '\\')
-
-        flag = 0
-        for pathList in pathLists:
-            for i in range(len(pathList)):
-                datapath = "%s\\%s" % (self.jx3path, '\\'.join(pathList[i:]))
-                if os.path.exists(datapath):
-                    flag = 1
-                    break
-            if flag:
-                break
-
-        if not flag:
+        self.datapath = ""
+        self.jx3path = self.normalizePath(self.jx3path)
+        if not self.jx3path and not self.getPathFromWinreg():
+            return ""
+        self.datapath = self.findDataFolder(self.jx3path)
+        if not self.datapath:
             print("自动读取剑三路径失败，请尝试手动输入剑三路径。")
             self.basepath = "自动读取剑三路径失败，请尝试手动输入剑三路径。"
-            return
-
-        self.datapath = datapath.strip('/').replace('/', '\\')
+        return self.datapath
 
     def getBasePath(self, playerName):
         '''
@@ -84,32 +97,30 @@ class FileLookUp():
         params
         - playerName 玩家名。
         '''
-        # l1 = os.listdir(self.jx3path)
-        # datapath = "%s\\Game\\JX3\\bin\\zhcn_hd\\interface\\MY#DATA" % self.jx3path
-        # l = os.listdir(datapath)
-
-        self.getDataFolder()
-        datapath = self.datapath
-        if not os.path.exists(datapath):
-            self.basepath = ""
+        if not self.getDataFolder():
             return
-        l = os.listdir(datapath)
+        datapath = self.datapath
+        try:
+            l = os.listdir(datapath)
+        except OSError:
+            self.basepath = "无法读取剑三日志目录，请检查目录访问权限。"
+            return
 
         resTime = 0
 
         resDir = ""
         for name in l:
-            path2 = "%s\\%s" % (datapath, name)
-            if os.path.isdir(path2):
-                l2 = os.listdir(path2)
-                if playerName in l2:
+            path2 = os.path.join(datapath, name)
+            logFolder = 'combat_logs' if self.dataType == 'jcl' else 'fight_stat'
+            candidate = os.path.join(path2, 'userdata', logFolder)
+            if os.path.isdir(os.path.join(path2, playerName)) and os.path.isdir(candidate):
+                try:
                     newresTime = os.path.getmtime(path2)
-                    if newresTime > resTime:
-                        resTime = newresTime
-                        if self.dataType == "jcl":
-                            resDir = "%s\\userdata\\combat_logs" % path2
-                        else:
-                            resDir = "%s\\userdata\\fight_stat" % path2
+                except OSError:
+                    continue
+                if newresTime > resTime:
+                    resTime = newresTime
+                    resDir = candidate
         self.basepath = resDir
         print("自动推导的基准路径：", self.basepath)
         if resDir == "":
@@ -120,30 +131,42 @@ class FileLookUp():
         '''
         尝试通过当前的剑三路径查找所有可能的角色名.
         '''
-        self.getDataFolder()
-        datapath = self.datapath
-        if datapath == "":
+        if not self.getDataFolder():
             return []
-
-        l = os.listdir(datapath)
+        datapath = self.datapath
+        try:
+            l = os.listdir(datapath)
+        except OSError:
+            return []
 
         res = []
 
         for name in l:
             path2 = "%s\\%s" % (datapath, name)
             if os.path.isdir(path2):
-                l2 = os.listdir(path2)
+                try:
+                    l2 = os.listdir(path2)
+                except OSError:
+                    continue
                 resTime = 0
                 bestPlayer = ""
                 bestTime = 0
                 for playerName in l2:
                     if playerName not in ['audio', 'cache', 'config', 'export', 'font', 'info.jx3dat', 'manifest.jx3dat', 'temporary', 'userdata', 'logs', 'decode', 'curl']:
-                        newresTime = os.path.getmtime("%s\\%s" % (path2, playerName))
+                        playerPath = os.path.join(path2, playerName)
+                        if not os.path.isdir(playerPath):
+                            continue
+                        try:
+                            newresTime = os.path.getmtime(playerPath)
+                        except OSError:
+                            continue
                         if newresTime > resTime:
                             resTime = newresTime
                             bestPlayer = playerName
-                if os.path.exists("%s\\manifest.jx3dat" % path2):
-                    bestTime = os.path.getmtime("%s\\manifest.jx3dat" % path2)
+                try:
+                    bestTime = os.path.getmtime(os.path.join(path2, 'manifest.jx3dat'))
+                except OSError:
+                    pass
                 if bestPlayer != "":
                     res.append([bestPlayer, bestTime])
         res.sort(key=lambda x: -x[1])
@@ -290,6 +313,10 @@ class FileLookUp():
         - config 设置类
         '''
         self.dataType = config.item["general"]["datatype"]
+        # Settings also use this object to list characters, even when the log
+        # directory is explicit or no character has been selected yet.
+        self.jx3path = self.normalizePath(config.item["general"]["jx3path"])
+        self.datapath = ""
         if config.item["general"]["basepath"] != "":
             self.basepath = config.item["general"]["basepath"]
             # print("指定基准目录，使用：%s" % self.basepath)
@@ -298,10 +325,6 @@ class FileLookUp():
             self.basepath = '.'
             print("没有指定记录者角色名，将查找当前目录下的文件……")
         else:
-            if config.item["general"]["jx3path"] != "":
-                self.jx3path = config.item["general"]["jx3path"]
-            else:
-                self.getPathFromWinreg()
             self.getBasePath(config.item["general"]["playername"])
         return self.basepath
             

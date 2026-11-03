@@ -15,6 +15,7 @@ import sys
 from unittest.mock import patch
 
 from FileLookUp import FileLookUp
+from release.SmokeTest import check_damage_conservation
 from tools.Functions import getOccType
 from tools.Names import getJclEncounter
 from tools.ValidateLuoyang import ValidationWindow, check_windows, replay
@@ -92,9 +93,13 @@ def actor_summary(actor, entry, healers=False, ui=False):
     check("event UI contract", all(len(record) == 7 for record in actor.potList))
     metrics = {key: getattr(tracker, key)["sum"] for key in ("ndps", "mndps", "rdps", "mrdps", "hps", "ahps", "rhps")}
     check("finite nonnegative metrics", all(math.isfinite(value) and value >= 0 for value in metrics.values()))
-    direct = sum(row.get("sum", 0) for row in tracker.ndps["player"].values())
-    redistributed = sum(row.get("sum", 0) for row in tracker.rdps["player"].values())
-    check("damage redistribution conservation", math.isclose(direct, redistributed, abs_tol=0.001, rel_tol=1e-12))
+    damage = {}
+    try:
+        damage = check_damage_conservation(tracker)
+    except AssertionError:
+        # Keep report-only mode useful while using the same raw-damage rule as
+        # the frozen smoke test. Displayed per-player DPS uses different times.
+        check("raw damage redistribution conservation", False)
     healer_count = sum(getOccType(row["occ"]) == "healer" for row in actor.occResult.values())
     roster_healers = sum(getOccType(occ) == "healer" for occ in actor.occDetailList.values())
     if healers:
@@ -129,9 +134,10 @@ def actor_summary(actor, entry, healers=False, ui=False):
         "timelineEvents": len(actor.bh.log["environment"]),
         "calls": sum(map(len, actor.bh.log["call"].values())),
         "mechanicRecords": len(actor.potList),
-        "directDamage": direct,
-        "redistributedDamage": redistributed,
-        "conservationError": redistributed-direct,
+        "directDamage": damage.get("directDamage"),
+        "redistributedDamage": damage.get("redistributedDamage"),
+        "conservationError": damage.get("conservationError"),
+        "damage": damage,
         "metricTotalsPerSecond": metrics,
         "errors": sorted(set(errors)),
     }

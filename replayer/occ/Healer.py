@@ -7,7 +7,6 @@ from replayer.BattleHistory import BattleHistory, SingleSkill
 from tools.Names import *
 from Constants import *
 from tools.Functions import *
-from equip.AttributeDisplayRemote import AttributeDisplayRemote
 from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
 from replayer.Name import *
 
@@ -618,7 +617,6 @@ class HealerReplay(ReplayerBase):
             # strEquip = eee.export(jsonEquip)
             jsonEquip = self.jsonEquip[self.mykey]
             strEquip = self.strEquip[self.mykey]
-            # adr = AttributeDisplayRemote()
             # res = adr.Display(strEquip, self.occCode)
             # self.result["equip"]["score"] = int(self.bld.info.player[self.mykey].equipScore)
             # self.result["equip"]["sketch"] = jsonEquip["sketch"]

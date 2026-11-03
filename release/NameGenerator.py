@@ -138,7 +138,7 @@ def write_tables(tables, output):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--resources', type=Path, default=Path('equip/resources'))
+    parser.add_argument('--resources', type=Path, default=Path('equip/resources/cangshengtf'))
     parser.add_argument('--output', type=Path, default=Path('replayer/Name.py'))
     args = parser.parse_args()
     tables = build_tables(args.resources)

@@ -49,17 +49,16 @@ def sync(report, resources):
                     source_root=str(report / 'source/critical_files'),
                     extraction_date='2026-10-29', release_version='8.16.2',
                     generated_tables={key: len(value) for key, value in tables.items()})
-    manifest['runtime_status'].update(buff_tables='current_10009_hd; edition_160_retains_9506',
-                                      equipment_source='161+:10009;160:verified9506 archive')
+    manifest['runtime_status'].update(buff_tables='current_10009_hd',
+                                      equipment_source='current_10009_hd')
     manifest['client_version_scope'] = (
-        '14 core tables from formal client 10009; edition 160 buff/equipment tables retain '
-        'the 9506 snapshot. Derived kungfu, NPC and parameter provenance is recorded '
+        '14 core tables from formal client 10009. Derived kungfu, NPC and parameter provenance is recorded '
         'separately in files and attribute_evidence; this importer does not regenerate them.')
     manifest['core_update'] = dict(source_report=str(report), report_manifest=str(source_manifest),
         report_manifest_sha256=digest(source_manifest), files=names,
         verified_source_files=len(verified), sha256_changed_files=len(changed), changed_files=changed)
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-    write_tables(tables, resources.parents[2] / 'replayer/NameCangsheng.py')
+    write_tables(tables, resources.parents[2] / 'replayer/Name.py')
     return dict(client_version=receipt['client_version'], changed_files=changed,
                 generated_tables=manifest['generated_tables'])
 
