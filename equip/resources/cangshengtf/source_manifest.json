@@ -211,6 +211,20 @@
       "client_version": "1.6.0.10009",
       "client_mode": "zhcn_hd",
       "generation": "release.GenerateXinfaBuffEvidence"
+    },
+    {
+      "name": "average_equipment.json",
+      "bytes": 8173,
+      "sha256": "f4f0a8f13ec75e62b4526b2ef82140337ed22a7752ee4c3abedde2d5fda554db",
+      "client_version": "1.6.0.10009",
+      "client_mode": "zhcn_hd",
+      "source_dates": [
+        "2026-11-02",
+        "2026-11-03"
+      ],
+      "source_files": 9,
+      "supported_samples": 6,
+      "method": "Arithmetic mean of equipment-only raw at* attributes, one latest complete supported snapshot per server+character name+kungfu. Runtime player IDs are not reused as cross-session identities; unnamed snapshots are not deduplicated across logs. Missing numeric fields contribute zero. Normal/mobile aliases share equipment only; own client kungfu attributes must be added at runtime."
     }
   ],
   "parameters": {

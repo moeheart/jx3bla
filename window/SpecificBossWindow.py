@@ -7,6 +7,7 @@ from window.Window import Window
 from window.CombatTrackerWindow import CombatTrackerWindow
 from window.TimelineWindow import TimelineWindow
 from tools.Functions import *
+from equip.EquipmentFallback import EQUIPMENT_FALLBACK_WARNING
 
 class SpecificBossWindow(Window):
     '''
@@ -96,8 +97,14 @@ class SpecificBossWindow(Window):
         window.protocol('WM_DELETE_WINDOW', self.final)
         self.window = window
         status = self.detail.get("attributeStatus", {})
-        if status.get("status") == "incomplete":
-            tk.Label(window, text=status["reason"], fg="#995500", wraplength=1080).pack()
+        estimated = status.get("status") == "estimated" or bool(status.get("estimatedPlayers"))
+        warnings = []
+        if estimated:
+            warnings.append(status.get("warning", EQUIPMENT_FALLBACK_WARNING))
+        if status.get("status") == "incomplete" and status.get("reason"):
+            warnings.append(status["reason"])
+        if warnings:
+            tk.Label(window, text="\n".join(warnings), fg="#995500", wraplength=1080).pack()
 
     def constructCommonHeader(self, tb, stunDescription=""):
         '''
@@ -106,8 +113,15 @@ class SpecificBossWindow(Window):
         - tb: 表格创建类.
         - stunDescription: 被控栏的描述.
         '''
-        tb.AppendHeader("玩家名", "", width=13)
-        if self.detail.get("attributeStatus", {}).get("status") == "incomplete":
+        tb.AppendHeader("玩家名", "星号表示该玩家装备读取失败，计算使用平均属性。", width=13)
+        status = self.detail.get("attributeStatus", {})
+        estimated = status.get("status") == "estimated" or bool(status.get("estimatedPlayers"))
+        if estimated:
+            hint = EQUIPMENT_FALLBACK_WARNING + "。缺失装备使用平均属性估算，全团增益分配数值仅供参考，排名暂不展示。"
+            if status.get("status") == "incomplete" and status.get("reason"):
+                hint += "\n" + status["reason"]
+            tb.AppendHeader("rDPS/分数（参考）", hint)
+        elif status.get("status") == "incomplete":
             tb.AppendHeader("实测DPS/HPS", "显示日志实测伤害或有效治疗。50级属性尚未完整校准，rDPS、心法评分和排名暂不展示。")
         else:
             tb.AppendHeader("rDPS/分数", "对于DPS或T心法显示rDPS，表示将所有增益转移到对应来源之后的每秒伤害。\n对于治疗心法显示综合评分，表示综合技能数、战斗效率、增益覆盖、rHPS的评分。")
@@ -153,9 +167,18 @@ class SpecificBossWindow(Window):
 
         name = self.getMaskName(line["name"])
         color = getColor(line["occ"])
+        if line.get("equipmentEstimated"):
+            name += "*"
         tb.AppendContext(name, color=color, width=13)
 
-        if line.get("rdpsStatus") == "incomplete":
+        status = self.detail.get("attributeStatus", {})
+        estimated = (status.get("status") == "estimated" or bool(status.get("estimatedPlayers"))
+                     or line.get("rdpsStatus") == "estimated" or bool(line.get("attributeEstimated")))
+        if estimated:
+            value = line.get("score", 0) if getOccType(line["occ"]) == "healer" else line.get("rdps", 0)
+            tb.AppendContext(str(value), color="#000000")
+            text3, color3 = "仅供参考", "#995500"
+        elif line.get("rdpsStatus") == "incomplete":
             value = line.get("hps", 0) if getOccType(line["occ"]) == "healer" else line.get("ndps", 0)
             tb.AppendContext(str(value), color="#000000")
             text3, color3 = "待校准", "#995500"

@@ -152,8 +152,11 @@ class BattleLogData():
                         self.info.player[jclItem[5]["1"]].equipScore = jclItem[5].get("5", 0)
                         if "6" in jclItem[5]:
                             self.info.player[jclItem[5]["1"]].equip = jclItem[5]["6"]
-                        if "7" in jclItem[5]:
-                            self.info.player[jclItem[5]["1"]].qx = jclItem[5]["7"]
+                    # Equipment may arrive before talents in repeated player
+                    # records. Keep the later nonempty talent snapshot even
+                    # when addPlayer no longer needs to update equipment.
+                    if jclItem[5].get("7"):
+                        self.info.player[jclItem[5]["1"]].qx = jclItem[5]["7"]
                     playerNameDict[self.info.player[jclItem[5]["1"]].name] = jclItem[5]["1"]
                 elif jclItem[4] == "8":
                     first = False

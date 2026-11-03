@@ -39,6 +39,9 @@ class RankCalculator():
         - num: 记录总数量.
         - percent: 排名百分位.
         '''
+        attributeStatus = self.result.get("overall", {}).get("attributeStatus", {})
+        if (attributeStatus.get("status") in ("incomplete", "estimated") or attributeStatus.get("estimatedPlayers")) and key in ("rdps", "mrdps", "score"):
+            return 0, -1
         value = getDirection(key) * value
         percent_key = "%s-%s-%s-%s-%s-%s" % (occ, map, boss, name, key, self.game_edition)
         # print("[key]", percent_key)
@@ -139,6 +142,9 @@ class ReplayerBase():
         params:
         - occ: 复盘心法.
         '''
+        status = getattr(self, "actorData", {}).get("attributeStatus", {})
+        if status:
+            self.result["overall"]["attributeStatus"] = status
         rc = RankCalculator(self.result, self.window.stat_percent, self.gameEdition)
         self.rank = rc.getRankFromStat(occ)
 
@@ -150,6 +156,9 @@ class ReplayerBase():
         returns:
         - res: score这一项的数量与排名.
         '''
+        status = getattr(self, "actorData", {}).get("attributeStatus", {})
+        if status:
+            self.result["overall"]["attributeStatus"] = status
         rc = RankCalculator(self.result, self.window.stat_percent, self.gameEdition)
         res = rc.getScoreRankFromStat(occ)
         return res
@@ -174,7 +183,8 @@ class ReplayerBase():
         '''
         # if "beta" in EDITION:
         #     return
-        if self.win == 0 or self.actorData.get("attributeStatus", {}).get("status") == "incomplete":
+        status = self.actorData.get("attributeStatus", {})
+        if self.win == 0 or status.get("status") in ("incomplete", "estimated") or status.get("estimatedPlayers"):
             return
         upload = {}
         upload["server"] = self.result["overall"]["server"]

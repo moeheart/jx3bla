@@ -17,6 +17,9 @@ from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
 
 from equip.AttributeDisplay import AttributeDisplay  # 以后需要改为从服务器实现
 from tools.Attribute import CURRENT_GAME_EDITION
+from equip.EquipmentFallback import (
+    make_average_base_attributes, missing_equipment_slots, EQUIPMENT_FALLBACK_WARNING,
+)
 
 from replayer.ReplayerBase import ReplayerBase
 
@@ -129,7 +132,8 @@ class ActorProReplayer(ReplayerBase):
         '''
         # if "beta" in EDITION:
         #     return
-        if self.win == 0 or getattr(self, "attributeStatus", {}).get("status") == "incomplete":
+        status = getattr(self, "attributeStatus", {})
+        if self.win == 0 or status.get("status") in ("incomplete", "estimated") or status.get("estimatedPlayers"):
             return
         result = {}
         server = self.bld.info.server
@@ -441,11 +445,19 @@ class ActorProReplayer(ReplayerBase):
         requests = {"server": self.bld.info.server, "players": []}
         ea = EquipmentAnalyser()
         eee = ExcelExportEquipment()
+        if not hasattr(self.window, "playerEquipmentOwners"):
+            self.window.playerEquipmentOwners = {}
         for id in self.bld.info.player:
+            # JCL actor IDs can be reused by a different character in a later
+            # session. Only reuse gear whose recorded owner still matches.
+            owner = (self.bld.info.server, self.bld.info.player[id].name)
+            cached = (bool(owner[0] and owner[1] and owner[1] != "未知")
+                      and self.window.playerEquipmentOwners.get(id) == owner
+                      and id in self.window.playerEquipment)
             flag = False  # 是否更新的标记
             strEquip = ""
             if self.bld.info.player[id].equip == {}:  # 跳过获取不到装备的玩家.
-                if id in self.window.playerEquipment:
+                if cached:
                     # 从之前的战斗中直接读取缓存
                     jsonEquip2 = ea.convert2(self.window.playerEquipment[id], self.bld.info.player[id].equipScore)
                     strEquip2 = eee.export(jsonEquip2)
@@ -455,7 +467,7 @@ class ActorProReplayer(ReplayerBase):
                     strEquip = strEquip2
                     flag = True
                 else:
-                    # 保留缺失装备信息，属性无法计算时明确标记不完整。
+                    # 保留缺失装备信息，后续尝试平均装备估算。
                     flag = True
                     jsonEquip = {"score": self.bld.info.player[id].equipScore, "sketch": "", "forge": ""}
                     self.jsonEquip[id] = jsonEquip
@@ -464,7 +476,7 @@ class ActorProReplayer(ReplayerBase):
                 jsonEquip = ea.convert2(self.bld.info.player[id].equip, self.bld.info.player[id].equipScore)
                 strEquip = eee.export(jsonEquip)
                 self.equipmentDict[id] = jsonEquip  # TODO 只留一个
-                if id not in self.window.playerEquipment:
+                if not cached:
                     # 是否从未出现过
                     flag = True
                 else:
@@ -487,6 +499,7 @@ class ActorProReplayer(ReplayerBase):
             if flag:  # 需要重新计算装备属性
                 if self.bld.info.player[id].equip:
                     self.window.playerEquipment[id] = self.bld.info.player[id].equip
+                    self.window.playerEquipmentOwners[id] = owner
                 requests["players"].append(
                     {"equipStr": strEquip, "id": id, "name": self.bld.info.getName(id), "occ": occDetailList[id],
                      "server": self.bld.info.server, "score": self.bld.info.player[id].equipScore})
@@ -525,6 +538,28 @@ class ActorProReplayer(ReplayerBase):
             else:
                 self.baseAttribDict[id] = None
                 self.panelAttribDict[id] = None
+
+        estimated = {}
+        for player, base in self.baseAttribDict.items():
+            missing_slots = missing_equipment_slots(self.jsonEquip.get(player, {}))
+            if base is None or missing_slots:
+                # Even when no reference exists for this kungfu, a partial
+                # equipment record must not be shown as a complete real panel.
+                self.panelAttribDict[player] = None
+                reference = make_average_base_attributes(self.occDetailList[player])
+                if reference is not None:
+                    reference["_estimated"]["missingSlots"] = missing_slots
+                    self.baseAttribDict[player] = reference
+                    self.panelAttribDict[player] = None
+                    estimated[player] = reference["_estimated"]
+                elif base is not None:
+                    base["_warnings"] = list(base.get("_warnings", [])) + [EQUIPMENT_FALLBACK_WARNING]
+        if estimated:
+            # Use the reference only for numerical attribution. Keep the
+            # missing equipment panel and real-equipment cache untouched.
+            status = "incomplete" if self.attributeStatus.get("status") == "incomplete" else "estimated"
+            self.attributeStatus.update(status=status, estimatedPlayers=estimated,
+                                        warning=EQUIPMENT_FALLBACK_WARNING)
 
         return 0  # 正确结束
 
@@ -1598,16 +1633,19 @@ class ActorProReplayer(ReplayerBase):
 
         combatTracker.export(self.battleTime, self.bh.sumTime("dps"), self.bh.sumTime("healer"), self.stunCounter)
         self.combatTracker = combatTracker
-        if combatTracker.rdpsStatus.get("status") == "incomplete":
+        if combatTracker.rdpsStatus.get("status") in ("incomplete", "estimated"):
             self.attributeStatus.update(combatTracker.rdpsStatus)
-        if self.attributeStatus.get("status") == "incomplete":
+        if self.attributeStatus.get("status") in ("incomplete", "estimated"):
             self.detail["rdpsStatus"] = getattr(combatTracker, "rdpsStatus", self.attributeStatus)
             byName = {self.bld.info.getName(player): player for player in self.bld.info.player}
             for row in self.statDict:
                 player = byName[row["name"]]
                 row["ndps"] = int(combatTracker.getRdps(player, "ndps"))
                 row["hps"] = int(combatTracker.getRhps(player, "hps"))
-                row["rdpsStatus"] = "incomplete"
+                row["rdpsStatus"] = self.attributeStatus["status"]
+                row["attributeEstimated"] = bool(self.attributeStatus.get("estimatedPlayers"))
+                if player in self.attributeStatus.get("estimatedPlayers", {}):
+                    row["equipmentEstimated"] = self.attributeStatus["estimatedPlayers"][player]
 
         # for key in self.bld.info.player:
         #     print("[Player]", key, self.bld.info.getName(key))
@@ -1707,7 +1745,8 @@ class ActorProReplayer(ReplayerBase):
                         self.statDict[i]["score"] = score
                         self.statDict[i]["rdpsRank"] = rdpsRank["percent"]
                         self.statDict[i]["scoreRank"] = scoreRank["percent"]
-        self.statDict.sort(key=lambda x: -x.get("ndps", 0) if self.attributeStatus.get("status") == "incomplete" else -x["rdps"])
+        measuredOnly = self.attributeStatus.get("status") == "incomplete" and not self.attributeStatus.get("estimatedPlayers")
+        self.statDict.sort(key=lambda x: -x.get("ndps", 0) if measuredOnly else -x["rdps"])
 
     def replay(self):
         '''

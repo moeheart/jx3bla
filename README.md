@@ -1,6 +1,6 @@
 # 剑三警长(原剑网三战斗日志分析、奶歌复盘)
 
-JX3 **B**attle **L**og **A**nalyser v8.16.0
+JX3 **B**attle **L**og **A**nalyser v8.16.4
 
 用于深入分析剑网三中茗伊战斗复盘的框架，包含对jcl/jx3dat复盘文件的支持。
 
@@ -21,6 +21,8 @@ JX3 **B**attle **L**og **A**nalyser v8.16.0
 ## 发布
 
 发布构建说明见 [release/README.md](release/README.md)。
+
+8.16.4 的修复内容与验收记录见 [版本记录](docs/160/8.16.4发布记录.md)。
 
 ## 项目结构
 

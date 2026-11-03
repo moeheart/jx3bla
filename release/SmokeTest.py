@@ -9,6 +9,7 @@ import math
 from io import BytesIO
 from pathlib import Path
 import sys
+from types import SimpleNamespace
 from unittest.mock import patch
 from release.ReleaseResources import CANGSHENG_FILES
 
@@ -79,6 +80,96 @@ def check_damage_conservation(tracker):
     return result
 
 
+def check_equipment_fallback(with_ui=False):
+    """Run missing-gear fixtures through the actual actor, ranks and upload guards."""
+    from data.BattleLogData import BattleLogData
+    from equip.CangshengAttributeData import kungfu_data
+    from equip.EquipmentFallback import average_equipment_data, EQUIPMENT_FALLBACK_WARNING
+    from replayer.ActorReplayPro import ActorProReplayer
+    from replayer.ReplayerBase import ReplayerBase
+    from tools.Attribute import CURRENT_GAME_EDITION
+    from tools.ValidateLuoyang import ValidationWindow, make_config, check_windows
+
+    profiles = kungfu_data()['occupations']
+    averages = average_equipment_data()
+    assert '6d' in averages['occupations']
+    unavailable = next(occ for occ in averages['unavailableOccupations']
+                       if not occ.endswith('w'))
+    scenarios = (('estimated', {'estimate': '6d'}, 'estimated'),
+                 ('unavailable', {'missing': unavailable}, 'incomplete'),
+                 ('mixed', {'estimate': '6d', 'missing': unavailable}, 'incomplete'))
+    results = {}
+    for name, occupations, expected_status in scenarios:
+        bld = BattleLogData()
+        bld.dataType = 'jcl'
+        bld.info.map, bld.info.boss = '25人普通洛阳之战', '田承嗣'
+        bld.info.server, bld.info.battleTime, bld.info.sumTime = 'release-smoke', 1793620894, 10000
+        bld.info.skill = {}
+        for player, occ in occupations.items():
+            bld.info.addPlayer(player, player, '0', str(profiles[occ]['skill_id']))
+        bld.info.addNPC('boss', '田承嗣')
+        bld.info.npc['boss'].templateID = '139329'
+        bld.log = [SimpleNamespace(dataType='Skill', time=time, caster=player, target='boss',
+                                  id='999999', level=1, scheme=1, full_id='1,999999,1',
+                                  damage=1000, damageEff=1000, heal=0, healEff=0,
+                                  effect=0, fullResult={'0': '1000'}, frame=time // 16)
+                   for time in (0, 5000) for player in occupations]
+        bld.log.append(SimpleNamespace(dataType='Death', time=10000, id='boss'))
+        window = ValidationWindow()  # Its real upload sink rejects any enqueue.
+        actor = ActorProReplayer(make_config(True), [name, 0, 1], '', {name: bld}, window)
+        with contextlib.redirect_stdout(io.StringIO()):
+            actor.replay()
+            # Do not patch either prepareUpload method: their actual guards must run.
+            actor.prepareUpload()
+        assert actor.win == 1
+        assert actor.attributeStatus['status'] == expected_status, actor.attributeStatus
+        assert actor.combatTracker.rdpsStatus['status'] == expected_status
+        assert all(panel is None for panel in actor.panelAttribDict.values())
+        assert window.playerEquipment == {}
+        assert all(not player.equip for player in bld.info.player.values())
+        if 'estimate' in occupations:
+            assert actor.baseAttribDict['estimate']['_estimated']['occ'] == '6d'
+            assert 'estimate' in actor.attributeStatus['estimatedPlayers']
+            assert actor.attributeStatus['warning'] == EQUIPMENT_FALLBACK_WARNING
+        if 'missing' in occupations:
+            assert actor.baseAttribDict['missing'] is None
+            assert 'missing' not in actor.attributeStatus.get('estimatedPlayers', {})
+        for replay in actor.occResult.values():
+            for key in ('rdps', 'mrdps'):
+                assert replay['rank']['general'][key]['percent'] == -1
+
+        # Use the real result propagation methods, with known percentile data
+        # so a hidden rank cannot pass merely because its table is absent.
+        percent_data = {'6d-835-田承嗣-%s-%s-%s' % (group, key, CURRENT_GAME_EDITION):
+                        {'num': 100, 'value': json.dumps(list(range(102)))}
+                        for group, key in (('general', 'rdps'), ('general', 'mrdps'),
+                                           ('general', 'ndps'), ('stat', 'score'))}
+        replay = ReplayerBase.__new__(ReplayerBase)
+        replay.win, replay.actorData, replay.window = 1, actor.actorData, window
+        replay.gameEdition = CURRENT_GAME_EDITION
+        window.stat_percent = percent_data
+        replay.result = {'overall': {'map': bld.info.map, 'boss': bld.info.boss},
+                         'skill': {'general': {'rdps': 70, 'mrdps': 70, 'ndps': 70}},
+                         'review': {'score': 70}}
+        replay.getRankFromStat('6d')
+        assert replay.rank['general']['rdps'] == {'num': 0, 'percent': -1}
+        assert replay.rank['general']['mrdps'] == {'num': 0, 'percent': -1}
+        assert replay.rank['general']['ndps'] == {'num': 100, 'percent': 70}
+        assert replay.getScoreRankFromStat('6d')['score'] == {'num': 0, 'percent': -1}
+        replay.prepareUpload()
+        assert window.uploadData == []
+        damage = check_damage_conservation(actor.combatTracker)
+        if with_ui:
+            check_windows(actor)
+        results[name] = {'status': expected_status,
+                         'estimatedPlayers': len(actor.attributeStatus.get('estimatedPlayers', {})),
+                         'missingPanelRetained': True, 'realEquipmentCacheUnchanged': True,
+                         'attributeRanks': 'blocked', 'directDamageRank': 'retained',
+                         'uploads': 'blocked', 'damage': damage,
+                         'ui': 'constructed' if with_ui else 'not requested'}
+    return results
+
+
 def check_replays(entries, report_path):
     """Exercise supplied current-season logs without enforcing a date boundary."""
     from tools.ValidateLuoyang import ValidationWindow, replay, check_windows
@@ -95,19 +186,34 @@ def check_replays(entries, report_path):
                 contextlib.redirect_stdout(io.StringIO()):
             actor = replay(path, ValidationWindow(), healers=True)
             assert actor.battleTime > 0 and actor.statDict
+            assert len(actor.occResult) == len(actor.statDict)
             tracker = actor.combatTracker
             assert tracker.rdpsStatus['gameEdition'] == CURRENT_GAME_EDITION
             totals = {name: getattr(tracker, name)['sum']
                       for name in ('ndps', 'mndps', 'rdps', 'mrdps', 'hps', 'ahps', 'rhps')}
             assert all(math.isfinite(value) and value >= 0 for value in totals.values())
             damage = check_damage_conservation(tracker)
+            metric = ('ndps' if actor.attributeStatus.get('status') == 'incomplete'
+                      and not actor.attributeStatus.get('estimatedPlayers') else 'rdps')
+            values = [row.get(metric, 0) for row in actor.statDict]
+            assert values == sorted(values, reverse=True), (actor.bossAnalyseName, metric)
+            wujie = []
+            for player, occ in actor.occDetailList.items():
+                if occ.endswith('w'):
+                    assert actor.bld.info.getName(player) in actor.occResult
+                    wujie.append({'occ': occ, 'damage': tracker.ndpsCast[player].sum,
+                                  'healing': tracker.hpsCast[player].sum})
+            for expected in entry.get('expectedWujie', []):
+                assert any(row['occ'] == expected['occ'] and row[expected['activity']] > 0
+                           for row in wujie), (expected, wujie)
             check_windows(actor)
         results.append({'file': path.name, 'boss': actor.bossAnalyseName,
                         'players': len(actor.statDict), 'specializationReplays': len(actor.occResult),
                         'seconds': actor.battleTime / 1000,
                         'attributeStatus': actor.detail.get('attributeStatus'),
                         'rdpsStatus': tracker.rdpsStatus, 'totals': totals,
-                        'damage': damage, 'ui': 'constructed'})
+                        'damage': damage, 'displayOrderMetric': metric,
+                        'wujie': wujie, 'ui': 'constructed'})
         report_path.write_text(json.dumps(results, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     return str(report_path)
 
@@ -164,11 +270,13 @@ def main():
         finally:
             root.destroy()
         excel_checks = check_excel()
+        fallback_checks = check_equipment_fallback(with_ui=True)
         result = {'version': EDITION, 'frozen': frozen, 'network': 'disabled',
                   'upload': 'disabled', 'resources': resources, 'attributeStatus': display.status,
                   'kungfus': len(profiles), 'npcProfiles': len(npc_data()['profiles']),
                   'buffChecks': 'passed', 'tk': 'constructed',
                   'mainWindow': 'initialized', 'icons': icon_checks, 'excel': excel_checks,
+                  'equipmentFallback': fallback_checks,
                   'status': 'passed'}
         if args.manifest:
             entries = json.loads(args.manifest.read_text(encoding='utf-8-sig'))

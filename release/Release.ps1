@@ -68,7 +68,10 @@ try {
     New-Item -ItemType Directory -Path $publishDirectory -Force | Out-Null
     $publishPath = Join-Path $publishDirectory "j3jz.exe"
     Move-Item -LiteralPath $candidatePath -Destination $publishPath -Force
-    $artifactHash = (Get-FileHash -LiteralPath $publishPath -Algorithm SHA256).Hash
+    $artifactHash = Invoke-ReleasePython -Arguments @(
+        "-c", "import hashlib, pathlib, sys; print(hashlib.sha256(pathlib.Path(sys.argv[1]).read_bytes()).hexdigest())",
+        $publishPath
+    )
     Write-Host "Build and resource verification completed: $publishPath"
     Write-Host "SHA256: $artifactHash"
     Write-Host "Smoke report: $smokeReport"

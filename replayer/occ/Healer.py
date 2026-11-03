@@ -112,14 +112,17 @@ class HealerReplay(ReplayerBase):
         sumScore = 0
         for key1 in self.result["rank"]:
             for key2 in self.result["rank"][key1]:
+                percent = self.result["rank"][key1][key2]["percent"]
+                if percent < 0:
+                    continue  # Estimated/unavailable ranks are not scoring inputs.
                 key = "%s-%s" % (key1, key2)
                 weight = 1
                 if key in self.specialKey:
                     weight = self.specialKey[key]
-                sumScore += self.result["rank"][key1][key2]["percent"] * weight
+                sumScore += percent * weight
                 sumWeight += weight
 
-        self.reviewScore = int((sumScore / sumWeight) ** 0.5 * 1000)
+        self.reviewScore = int(safe_divide(sumScore, sumWeight) ** 0.5 * 1000)
 
         # 计算专案组的公有部分.
 

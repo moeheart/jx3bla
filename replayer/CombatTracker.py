@@ -6,6 +6,7 @@ from replayer import Name
 from tools.Names import getGameEditionFromTime, getIDFromMap
 from tools.Attribute import ATTRIB_TYPE, CURRENT_GAME_EDITION
 from equip.CangshengAttributeData import CangshengAttributeData, get_target_profiles
+from equip.EquipmentFallback import EQUIPMENT_FALLBACK_WARNING
 import time
 
 SUM_TIME = 0
@@ -279,6 +280,7 @@ class BoostCounter():
             #     getDamageCoeff(self.occ, finalAttrib, targetBoosts2, isPoZhao=isPoZhao, debug=1, lvl=self.lvl)
 
             rdpsSeparateRate[baseBoost] = {"source": self.targetBoost[target][baseBoost]["source"],
+                                           "id": self.targetBoost[target][baseBoost].get("id", baseBoost),
                                            "amount": coeffAll - coeffSpecific}
 
         # 计算结果
@@ -370,8 +372,16 @@ class BoostCounter():
                 for skill in self.rdpsRate[target]:
                     self.needUpdate[target][skill] = True
 
+    def updateTargetBoostCover(self, id, time):
+        """Keep canonical coverage active while any independent copy remains."""
+        if id not in self.boostCover:
+            self.boostCover[id] = BuffCounter(id, self.startTime, self.finalTime)
+        remaining = max((boost.get("stack", 1)
+                         for boosts in self.targetBoost.values() for key, boost in boosts.items()
+                         if boost.get("id", key) == id), default=0)
+        self.boostCover[id].setState(time, remaining)
 
-    def removeTargetBoost(self, targetid, id, time):
+    def removeTargetBoost(self, targetid, id, time, instance=None):
         '''
         移除一个目标增益.
         params:
@@ -379,18 +389,23 @@ class BoostCounter():
         - id: 增益的id，一般是buffID.
         - time: 事件发生的时间.
         '''
+        key = instance if instance is not None else id
         if targetid not in self.targetBoost:
             self.targetBoost[targetid] = {}
-        elif id in self.targetBoost[targetid]:
-            del self.targetBoost[targetid][id]
+        elif key in self.targetBoost[targetid]:
+            id = self.targetBoost[targetid][key].get("id", id)
+            del self.targetBoost[targetid][key]
             if self.targetBoost[targetid] == {}:
                 del self.targetBoost[targetid]
             self.SetUpdateFlag(targetid)
-        if id not in self.boostCover:
-            self.boostCover[id] = BuffCounter(id, self.startTime, self.finalTime)
-        self.boostCover[id].setState(time, 0)
+        if instance is not None:
+            self.updateTargetBoostCover(id, time)
+        else:
+            if id not in self.boostCover:
+                self.boostCover[id] = BuffCounter(id, self.startTime, self.finalTime)
+            self.boostCover[id].setState(time, 0)
 
-    def addTargetBoost(self, targetid, id, effect, source, stack, time):
+    def addTargetBoost(self, targetid, id, effect, source, stack, time, instance=None):
         '''
         添加一个目标增益.
         params:
@@ -407,14 +422,23 @@ class BoostCounter():
             self.targetBoost[targetid] = {}
         effectCopy = effect.copy()
         tmp = {"effect": effectCopy, "source": source}
-        for key in tmp["effect"]:
-            tmp["effect"][key] *= stack
-        if id not in self.targetBoost[targetid] or tmp != self.targetBoost[targetid][id]:
-            self.targetBoost[targetid][id] = tmp
+        key = instance if instance is not None else id
+        old_id = self.targetBoost[targetid].get(key, {}).get("id", id)
+        if instance is not None:
+            tmp.update(id=id, stack=stack)
+        for attribute in tmp["effect"]:
+            tmp["effect"][attribute] *= stack
+        if key not in self.targetBoost[targetid] or tmp != self.targetBoost[targetid][key]:
+            self.targetBoost[targetid][key] = tmp
             self.SetUpdateFlag(targetid)
-        if id not in self.boostCover:
-            self.boostCover[id] = BuffCounter(id, self.startTime, self.finalTime)
-        self.boostCover[id].setState(time, stack)
+        if instance is not None:
+            if old_id != id:
+                self.updateTargetBoostCover(old_id, time)
+            self.updateTargetBoostCover(id, time)
+        else:
+            if id not in self.boostCover:
+                self.boostCover[id] = BuffCounter(id, self.startTime, self.finalTime)
+            self.boostCover[id].setState(time, stack)
 
     def removeBoost(self, id, time, instance=None):
         '''
@@ -1310,13 +1334,18 @@ class CombatTracker():
                     del self.resistBuff[target][id]
                 del self.buffRemove[target][id]
 
-        toRemove = []
-        for key in self.boostRemove:
-            if self.boostRemove[key]["time"] <= time:
-                # 执行移除
-                for player in self.boostCounter:
-                    self.boostCounter[player].removeTargetBoost(self.boostRemove[key]["target"], self.boostRemove[key]["boost"], time)
-                toRemove.append(key)
+        # A refresh can move the first inserted source's expiry past another
+        # source. Settle in expiry order so canonical coverage stays ordered
+        # even when the next event occurs after several copies have expired.
+        toRemove = sorted((key for key, pending in self.boostRemove.items()
+                           if pending["time"] <= time),
+                          key=lambda key: self.boostRemove[key]["time"])
+        for key in toRemove:
+            pending = self.boostRemove[key]
+            for player in self.boostCounter:
+                self.boostCounter[player].removeTargetBoost(pending["target"], pending["boost"],
+                    pending["time"] if "instance" in pending else time,
+                    instance=pending.get("instance"))
         for key in toRemove:
             del self.boostRemove[key]
 
@@ -1326,6 +1355,22 @@ class CombatTracker():
         # print(self.buffRemove)
         # print(self.boostRemove)
 
+    def addSourceTargetBoost(self, event, effect_id, duration):
+        """Infer an Exclude=0 NPC debuff from its triggering skill.
+
+        NPC buff changes are absent from the checked JCL samples. A repeated cast refreshes only
+        this caster's copy; other casters and targets retain their own expiry.
+        Key by buff ID rather than level so one caster's level change replaces
+        their previous effect without touching another caster's effect.
+        """
+        instance = (effect_id.split(",")[1], "source", event.caster)
+        for counter in self.boostCounter.values():
+            counter.addTargetBoost(event.target, effect_id, self.boostDict[effect_id],
+                                   event.caster, 1, event.time, instance=instance)
+        self.boostRemove[(event.target, instance)] = {
+            "time": event.time + duration, "target": event.target,
+            "boost": effect_id, "instance": instance}
+        self.updateRemoveTime()
 
     def recordSkill(self, event):
         '''
@@ -1590,53 +1635,17 @@ class CombatTracker():
                 self.updateRemoveTime()
         # elif event.id in ["211", "212", "213"]:  # 立地成佛
         elif event.id in ["201", "202", "203"]:  # 立地成佛，改为由韦陀献杵触发
-            # global SUM_TIME, SUM1, SUM2, SUM3, SUM4, SUM5
-            # print("[SUM_TIME]", SUM_TIME, SUM1, SUM2, SUM3, SUM4, SUM5)
-            # lvl = int(event.id) - 210
-            lvl = 3
-            postLvl = lvl
-            postStack = 1
-            change = 1
-            if event.target in self.lidiInfo and event.time - self.lidiInfo[event.target]["time"] < 20000:
-                preLvl = self.lidiInfo[event.target]["level"]
-                if preLvl > lvl:
-                    postLvl = preLvl
-                    postStack = self.lidiInfo[event.target]["stack"]
-                    change = 0
-                elif preLvl == lvl:
-                    postStack = min(self.lidiInfo[event.target]["stack"] + 1, 1)  # 最高1层
-            if change:
-                self.lidiInfo[event.target] = {"time": event.time, "stack": postStack, "level": postLvl}
-                for player in self.boostCounter:
-                    for i in range(postLvl):  # 移除低等级
-                        id = "2,%d,6" % (563 + i)
-                        if event.target in self.boostCounter[player].targetBoost and id in self.boostCounter[player].targetBoost[event.target]:
-                            self.boostCounter[player].removeTargetBoost(event.target, id, event.time)  # 在有低等级时移除
-                    effect_id = "2,%d,6" % (563 + postLvl)
-                    boostValue = self.boostDict[effect_id]
-                    self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, event.caster, postStack, event.time)  # 注意层数判定
-                    self.boostRemove[effect_id + event.target] = {"time": event.time + 20000, "target": event.target, "boost": effect_id}
-                    self.updateRemoveTime()
+            self.addSourceTargetBoost(event, "2,566,6", 20000)
         elif event.id in ["13050"]:  # 盾飞
-            # print("[YishangDetect]", event.time, event.id, event.caster, self.info.getName(event.caster))
-            source = event.caster
-            if self.occDetailList.get(event.caster, "") == "21d":
-                source = "*低等级增益"
             lvl = 1
-            if self.occDetailList.get(event.caster, "") == "21t" and self.buffAppearCounter[event.caster].get("9889", 0) == 0:
+            # Archived 13540 Lua checks 戍边 (44566/1), not specialization.
+            # Formal 10009 tables retain that skill mapping; NPC buff changes
+            # are unlogged, so the selected talent is our level inference.
+            qixue = getattr(self.info.player.get(event.caster), "qx", {})
+            if any(str(talent.get("2")) == "44566" and str(talent.get("3")) == "1"
+                   for talent in qixue.values()):
                 lvl = 2
-                # print("[DunfeiBoost]", event.time, event.target, "2,8248,2", self.boostCounter[event.caster].targetBoost.get(event.target, {}))
-            for player in self.boostCounter:
-                effect_id = "2,8248,%d" % lvl
-                if lvl == 2:
-                    # 移除低等级
-                    old_id = "2,8248,1"
-                    if event.target in self.boostCounter[player].targetBoost and old_id in self.boostCounter[player].targetBoost[event.target]:
-                        self.boostCounter[player].removeTargetBoost(event.target, old_id, event.time)
-                boostValue = self.boostDict[effect_id]
-                self.boostCounter[player].addTargetBoost(event.target, effect_id, boostValue, source, 1, event.time)
-                self.boostRemove[effect_id + event.target] = {"time": event.time + 25000, "target": event.target, "boost": effect_id}
-                self.updateRemoveTime()
+            self.addSourceTargetBoost(event, "2,8248,%d" % lvl, 25000)
         elif event.id in ["100869"]:  # 戒火斩·悟
             for player in self.boostCounter:
                 effect_id = "2,70188,2"  # 无界的通用伤害提高
@@ -1761,6 +1770,11 @@ class CombatTracker():
         self.therapyDict = Name.THERAPY_DICT
         self.rdpsStatus = {"status": "supported", "gameEdition": CURRENT_GAME_EDITION}
         self.targetProfiles = get_target_profiles(info)
+        estimated = {player: value["_estimated"] for player, value in baseAttribDict.items()
+                     if value is not None and value.get("_estimated")}
+        if estimated:
+            self.rdpsStatus.update(status="estimated", estimatedPlayers=estimated,
+                warning=EQUIPMENT_FALLBACK_WARNING, reason=EQUIPMENT_FALLBACK_WARNING)
         if not self.targetProfiles or any((value is None or value.get('_warnings') for value in baseAttribDict.values())):
             self.rdpsStatus.update(status="incomplete", reason="部分玩家装备或当前地图首领属性缺少验证数据。")
         self.occDetailList = occDetailList
@@ -1789,7 +1803,6 @@ class CombatTracker():
         self.zyhrDict = {}  # 逐云寒蕊记录
         self.zyhrCaster = "0"
         self.zxyzCaster = "0"  # 左旋右转
-        self.lidiInfo = {}  # 立地记录
         self.hlsjCaster = "0"  # 号令三军施放者暂存
         # TODO 这里直接做一个通用逻辑
 

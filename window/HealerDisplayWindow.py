@@ -8,6 +8,7 @@ import webbrowser
 import pyperclip
 
 from Constants import get_logs_url
+from equip.EquipmentFallback import EQUIPMENT_FALLBACK_WARNING
 from replayer.TableConstructor import TableConstructor
 from tools.Functions import *
 from window.ReviewWindow import ReviewerWindow
@@ -302,7 +303,18 @@ class HealerDisplayWindow(Window):
         tb.AppendContext(self.result["overall"]["sumTimePrint"])
         tb.EndOfLine()
         tb.AppendContext("数据种类：", justify="right")
-        tb.AppendContext(self.result["overall"]["dataType"])
+        status = self.result["overall"].get("attributeStatus", {})
+        estimated = status.get("status") == "estimated" or bool(status.get("estimatedPlayers"))
+        if estimated:
+            warning = status.get("warning", EQUIPMENT_FALLBACK_WARNING)
+            if status.get("status") == "incomplete" and status.get("reason"):
+                warning += "\n" + status["reason"]
+            tb.AppendHeader("%s/rDPS参考" % self.result["overall"]["dataType"], warning, color="#995500")
+        elif status.get("status") == "incomplete":
+            tb.AppendHeader("%s/rDPS待校准" % self.result["overall"]["dataType"],
+                            status.get("reason", "装备或目标属性缺少验证数据。"), color="#995500")
+        else:
+            tb.AppendContext(self.result["overall"]["dataType"])
         tb.EndOfLine()
 
     def renderEquipment(self):
@@ -316,8 +328,8 @@ class HealerDisplayWindow(Window):
         frame2sub = tk.Frame(frame2)
         frame2sub.place(x=0, y=0)
         if self.result["equip"]["available"] == 0:
-            text = "装备信息获取失败。\n在进入战斗后打开团队装分面板即可获取。\n如果是第一视角也可以自动获取。"
-            tk.Label(frame2, text=text, justify="left").place(x=0, y=0)
+            text = EQUIPMENT_FALLBACK_WARNING + "。\n在进入战斗后打开团队装分面板即可获取。\n如果是第一视角也可以自动获取。"
+            tk.Label(frame2, text=text, justify="left", wraplength=160).place(x=0, y=0)
         else:
             tb = TableConstructor(self.config, frame2sub)
             tb.AppendContext("装备分数：", justify="right")
@@ -480,9 +492,11 @@ class HealerDisplayWindow(Window):
 
         if "review" in self.result:
             # 支持专案组模块
-            tk.Label(frame8, text="综合评分：").place(x=30, y=20)
+            status = self.result.get("overall", {}).get("attributeStatus", {})
+            reference = status.get("status") in ("incomplete", "estimated") or bool(status.get("estimatedPlayers"))
+            tk.Label(frame8, text="参考评分：" if reference else "综合评分：").place(x=30, y=20)
             score = self.result["review"]["score"]
-            descText = "排名未知"
+            descText = "仅供参考，不参与正式排名。" if reference else "排名未知"
             color = "#aaaaaa"
             # if "numReplays" in self.result["overall"]:
             #     numReplays = self.result["overall"]["numReplays"]
@@ -490,7 +504,7 @@ class HealerDisplayWindow(Window):
             #     descText = "排名：%d%%\n数量：%d" % (scoreRank, numReplays)
             #     color = getRankColor(scoreRank)
 
-            if self.rank["review"]["score"]["num"] > 0:
+            if not reference and self.rank["review"]["score"]["num"] > 0:
                 numReplays = self.rank["review"]["score"]["num"]
                 scoreRank = self.rank["review"]["score"]["percent"]
                 descText = "排名：%d%%\n数量：%d" % (scoreRank, numReplays)

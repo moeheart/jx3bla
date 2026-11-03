@@ -30,9 +30,11 @@ def validate_wujie_log(path, ui=False):
             wujie = {player: occ for player, occ in actor.occDetailList.items() if occ.endswith('w')}
             assert wujie, 'The selected log contains no Wujie players'
             assert tracker.rdpsStatus['gameEdition'] == CURRENT_GAME_EDITION
-            assert tracker.rdpsStatus['status'] in ('supported', 'incomplete')
+            assert tracker.rdpsStatus['status'] in ('supported', 'incomplete', 'estimated')
             if tracker.rdpsStatus['status'] == 'incomplete':
                 assert tracker.rdpsStatus.get('reason')
+            if tracker.rdpsStatus['status'] == 'estimated':
+                assert tracker.rdpsStatus.get('estimatedPlayers') and tracker.rdpsStatus.get('warning')
             for player, occ in wujie.items():
                 assert str(get_profile(occ)['skill_id']) == str(actor.bld.info.player[player].xinfaCode)
                 assert player in tracker.boostCounter

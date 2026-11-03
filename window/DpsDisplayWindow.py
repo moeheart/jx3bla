@@ -8,6 +8,7 @@ import webbrowser
 import pyperclip
 
 from Constants import get_logs_url
+from equip.EquipmentFallback import EQUIPMENT_FALLBACK_WARNING
 from replayer.TableConstructor import TableConstructor
 from tools.Functions import *
 from window.ReviewWindow import ReviewerWindow
@@ -117,7 +118,18 @@ class DpsDisplayWindow(Window):
         tb.AppendContext(self.result["overall"]["sumTimePrint"])
         tb.EndOfLine()
         tb.AppendContext("数据种类：", justify="right")
-        tb.AppendContext(self.result["overall"]["dataType"])
+        status = self.result["overall"].get("attributeStatus", {})
+        estimated = status.get("status") == "estimated" or bool(status.get("estimatedPlayers"))
+        if estimated:
+            warning = status.get("warning", EQUIPMENT_FALLBACK_WARNING)
+            if status.get("status") == "incomplete" and status.get("reason"):
+                warning += "\n" + status["reason"]
+            tb.AppendHeader("%s/rDPS参考" % self.result["overall"]["dataType"], warning, color="#995500")
+        elif status.get("status") == "incomplete":
+            tb.AppendHeader("%s/rDPS待校准" % self.result["overall"]["dataType"],
+                            status.get("reason", "装备或目标属性缺少验证数据。"), color="#995500")
+        else:
+            tb.AppendContext(self.result["overall"]["dataType"])
         tb.EndOfLine()
 
     def renderEquipment(self):
@@ -131,8 +143,8 @@ class DpsDisplayWindow(Window):
         frame2sub = tk.Frame(frame2)
         frame2sub.place(x=0, y=0)
         if self.result["equip"]["available"] == 0:
-            text = "装备信息获取失败。\n在进入战斗后打开团队装分面板即可获取。\n如果是第一视角也可以自动获取。"
-            tk.Label(frame2, text=text, justify="left").place(x=0, y=0)
+            text = EQUIPMENT_FALLBACK_WARNING + "。\n在进入战斗后打开团队装分面板即可获取。\n如果是第一视角也可以自动获取。"
+            tk.Label(frame2, text=text, justify="left", wraplength=190).place(x=0, y=0)
         else:
             tb = TableConstructor(self.config, frame2sub)
             tb.AppendContext("装备分数：", justify="right")

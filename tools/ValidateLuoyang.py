@@ -81,7 +81,10 @@ def check_windows(actor):
             tracker.loadWindow()
             tracker.setStat("rdps")
             supported = actor.combatTracker.rdpsStatus['status'] == 'supported'
-            assert ("待校准" not in tracker.rightTitle.cget("text")) == supported
+            estimated = bool(actor.combatTracker.rdpsStatus.get('estimatedPlayers'))
+            assert ("待校准" not in tracker.rightTitle.cget("text")) == (supported or estimated)
+            if estimated:
+                assert "仅供参考" in tracker.rightTitle.cget("text")
             tracker.setStat("ndps")
             root.update_idletasks()
             return {"bossWindow": type(window).__name__, "widgets": "constructed",
@@ -123,9 +126,11 @@ def main():
         assert all(len(record) == 7 for record in actor.potList), "Battle-event rows must fit the seven-field UI contract"
         status = actor.combatTracker.rdpsStatus
         assert status["gameEdition"] == CURRENT_GAME_EDITION
-        assert status["status"] in ("supported", "incomplete"), status
+        assert status["status"] in ("supported", "incomplete", "estimated"), status
         if status["status"] == "incomplete":
             assert status.get("reason"), status
+        if status["status"] == "estimated":
+            assert status.get("estimatedPlayers") and status.get("warning"), status
         assert all(counter.buffTimeIntegral() <= actor.battleTime + 1 for counter in actor.battleDict.values())
         assert all(event["start"] <= actor.finalTime for event in actor.bh.log["environment"])
         metrics = {key: getattr(actor.combatTracker, key)["sum"] for key in ("ndps", "mndps", "rdps", "mrdps", "hps", "ahps", "rhps")}

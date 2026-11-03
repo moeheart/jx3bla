@@ -6,6 +6,7 @@ import subprocess
 import sys
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 from release.ReleaseResources import CANGSHENG_FILES, bundle_datas
 from release.ValidateRelease import validate_archive, validate_inputs, validate_dependencies
@@ -146,6 +147,28 @@ class ReleaseBundleTest(unittest.TestCase):
             cwd=Path(__file__).resolve().parents[1], capture_output=True, text=True,
         )
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_frozen_fallback_checks_run_real_actor_and_guards(self):
+        from release.SmokeTest import check_equipment_fallback
+        with patch('socket.socket.connect', side_effect=AssertionError('Network disabled')):
+            result = check_equipment_fallback()
+        self.assertEqual(result['estimated']['status'], 'estimated')
+        self.assertEqual(result['unavailable']['status'], 'incomplete')
+        self.assertEqual(result['mixed']['estimatedPlayers'], 1)
+        self.assertTrue(all(row['uploads'] == 'blocked' for row in result.values()))
+
+    def test_frozen_fallback_checks_reject_unfiltered_attribute_rank(self):
+        from release.SmokeTest import check_equipment_fallback
+        with patch('replayer.ReplayerBase.RankCalculator.getSkillPercent', return_value=(100, 70)):
+            with self.assertRaises(AssertionError):
+                check_equipment_fallback()
+
+    def test_frozen_fallback_checks_reject_an_upload_enqueue(self):
+        from release.SmokeTest import check_equipment_fallback
+        with patch('replayer.ActorReplayPro.ActorProReplayer.prepareUpload',
+                   lambda actor: actor.window.addUploadData({})):
+            with self.assertRaisesRegex(AssertionError, 'enqueue'):
+                check_equipment_fallback()
 
 
 if __name__ == "__main__":

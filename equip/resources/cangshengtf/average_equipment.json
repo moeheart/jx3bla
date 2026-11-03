@@ -1,0 +1,298 @@
+{
+  "schema": 1,
+  "gameEdition": 161,
+  "profile": "cangsheng50",
+  "level": 50,
+  "clientVersion": "1.6.0.10009",
+  "clientMode": "zhcn_hd",
+  "method": "Arithmetic mean of equipment-only raw at* attributes, one latest complete supported snapshot per server+character name+kungfu. Runtime player IDs are not reused as cross-session identities; unnamed snapshots are not deduplicated across logs. Missing numeric fields contribute zero. Normal/mobile aliases share equipment only; own client kungfu attributes must be added at runtime.",
+  "requiredSlots": [
+    "0",
+    "10",
+    "11",
+    "12",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9"
+  ],
+  "optionalSlots": [
+    "1"
+  ],
+  "sourceDates": [
+    "2026-11-02",
+    "2026-11-03"
+  ],
+  "sourceFiles": [
+    {
+      "file": "2026-11-02-20-01-34-25人普通洛阳之战(835)-突利和顺(139306).jcl",
+      "bytes": 18254941,
+      "sha256": "1bc04c976192b1784ec906725b82df00eb21389a0378f3489bbc0f2104bbcaeb",
+      "clientMode": "zhcn_hd"
+    },
+    {
+      "file": "2026-11-02-20-05-46-25人普通洛阳之战(835)-田承嗣(139329).jcl",
+      "bytes": 20605308,
+      "sha256": "ec184c380f2d487e7f10c82eb8476e6584daeff853c379cc8536b932d61e22ec",
+      "clientMode": "zhcn_hd"
+    },
+    {
+      "file": "2026-11-02-20-12-08-25人普通洛阳之战(835)-伊曼·寂夜(139319).jcl",
+      "bytes": 18286697,
+      "sha256": "58dce3209f1412d0104dd0b38c3e95fc253a55e91515f1f6c5889bccd01268b1",
+      "clientMode": "zhcn_hd"
+    },
+    {
+      "file": "2026-11-02-20-16-04-25人普通洛阳之战(835)-阿史那承庆(139323).jcl",
+      "bytes": 25771979,
+      "sha256": "99df0aa823deef3db5560411b235bd43b9706f6ff951a83ede439aba97576a3c",
+      "clientMode": "zhcn_hd"
+    },
+    {
+      "file": "2026-11-02-20-23-43-25人普通洛阳之战(835)-史朝义(139312).jcl",
+      "bytes": 24544004,
+      "sha256": "2e5d0fc856395e2ee73644ef5568f628474c0583165f0b12737f259e9977e5f2",
+      "clientMode": "zhcn_hd"
+    },
+    {
+      "file": "2026-11-02-20-25-42-25人普通洛阳之战(835)-阿史那承庆(139323).jcl",
+      "bytes": 38869140,
+      "sha256": "07678b2e4ec8491ece9bccb2e0b683059feb78d7ac4d81265e341e1f07c29493",
+      "clientMode": "zhcn_hd"
+    },
+    {
+      "file": "2026-11-02-20-55-19-25人普通洛阳之战(835)-史朝义(139312).jcl",
+      "bytes": 34582128,
+      "sha256": "24293301e6d485edb738bed35ffbaf3d3037e8a9da502dceb7651fbb784f1a0f",
+      "clientMode": "zhcn_hd"
+    },
+    {
+      "file": "2026-11-03-20-45-31-25人普通洛阳之战(835)-阿史那承庆(139323).jcl",
+      "bytes": 50513267,
+      "sha256": "fe17011a6337a87cc726bfa694b04b281b5e65e72efd188c0e074c2b63258d71",
+      "clientMode": "zhcn_hd"
+    },
+    {
+      "file": "2026-11-03-21-08-06-25人普通洛阳之战(835)-史朝义(139312).jcl",
+      "bytes": 39064089,
+      "sha256": "665eeb5c014d2d34fe86d53aff30a6c8f1dcfb130d07300bd074b3c9b29b19c7",
+      "clientMode": "zhcn_hd"
+    }
+  ],
+  "sourceFileCount": 9,
+  "sampleCount": 6,
+  "exclusionCounts": {
+    "unsupported_effects": 204,
+    "missing_equipment": 9
+  },
+  "occupations": {
+    "10t": {
+      "equipment": {
+        "atActiveThreatCoefficient": 0.0,
+        "atDodge": 51.0,
+        "atHasteBase": 911.0,
+        "atMagicShield": 2416.0,
+        "atMeleeWeaponAttackSpeedBase": 16.0,
+        "atMeleeWeaponDamageBase": 85.0,
+        "atMeleeWeaponDamageRand": 57.0,
+        "atPhysicsShieldBase": 5489.0,
+        "atRangeWeaponAttackSpeedBase": 24.0,
+        "atRangeWeaponDamageBase": 102.0,
+        "atRangeWeaponDamageRand": 68.0,
+        "atSpunkBase": 90.0,
+        "atStrainBase": 4020.0,
+        "atToughnessBase": 1287.0,
+        "atVitalityBase": 6270.0
+      },
+      "sampleCount": 1,
+      "sourceDates": [
+        "2026-11-03"
+      ],
+      "school": "Solar",
+      "role": "tank",
+      "completeSnapshotCount": 2
+    },
+    "22d": {
+      "equipment": {
+        "atHasteBase": 990.0,
+        "atLunarAttackPowerBase": 963.0,
+        "atLunarCriticalStrike": 38.0,
+        "atMagicAttackPowerBase": 2918.0,
+        "atMagicCriticalStrike": 1058.0,
+        "atMagicOvercome": 1481.0,
+        "atMagicShield": 178.0,
+        "atMeleeWeaponAttackSpeedBase": 16.0,
+        "atMeleeWeaponDamageBase": 43.0,
+        "atMeleeWeaponDamageRand": 28.0,
+        "atPhysicsShieldBase": 141.0,
+        "atRangeWeaponAttackSpeedBase": 24.0,
+        "atRangeWeaponDamageBase": 115.0,
+        "atRangeWeaponDamageRand": 77.0,
+        "atSpiritBase": 2222.0,
+        "atStrainBase": 4261.0,
+        "atVitalityBase": 4799.0
+      },
+      "sampleCount": 1,
+      "sourceDates": [
+        "2026-11-02"
+      ],
+      "school": "Lunar",
+      "role": "dps",
+      "completeSnapshotCount": 2
+    },
+    "22h": {
+      "equipment": {
+        "atHasteBase": 1992.0,
+        "atLunarCriticalStrike": 26.0,
+        "atMagicCriticalStrike": 1030.0,
+        "atMagicShield": 175.0,
+        "atMeleeWeaponAttackSpeedBase": 16.0,
+        "atMeleeWeaponDamageBase": 43.0,
+        "atMeleeWeaponDamageRand": 28.0,
+        "atPhysicsShieldBase": 139.0,
+        "atRangeWeaponAttackSpeedBase": 24.0,
+        "atRangeWeaponDamageBase": 102.0,
+        "atRangeWeaponDamageRand": 68.0,
+        "atSpiritBase": 2662.0,
+        "atTherapyPowerBase": 4855.0,
+        "atVitalityBase": 4472.0
+      },
+      "sampleCount": 1,
+      "sourceDates": [
+        "2026-11-03"
+      ],
+      "school": "Lunar",
+      "role": "healer",
+      "completeSnapshotCount": 2
+    },
+    "24": {
+      "equipment": {
+        "atAgilityBase": 2296.0,
+        "atAllTypeCriticalStrike": 32.0,
+        "atHasteBase": 524.0,
+        "atMagicShield": 135.0,
+        "atMeleeWeaponAttackSpeedBase": 24.0,
+        "atMeleeWeaponDamageBase": 128.0,
+        "atMeleeWeaponDamageRand": 85.0,
+        "atPVXAllRound": 195.0,
+        "atPhysicsAttackPowerBase": 3642.0,
+        "atPhysicsCriticalStrike": 734.0,
+        "atPhysicsOvercomeBase": 2064.0,
+        "atPhysicsShieldBase": 170.0,
+        "atRangeWeaponAttackSpeedBase": 24.0,
+        "atRangeWeaponDamageBase": 102.0,
+        "atRangeWeaponDamageRand": 68.0,
+        "atStrainBase": 3698.0,
+        "atVitalityBase": 4613.0
+      },
+      "sampleCount": 1,
+      "sourceDates": [
+        "2026-11-03"
+      ],
+      "school": "Physics",
+      "role": "dps",
+      "completeSnapshotCount": 2
+    },
+    "6d": {
+      "equipment": {
+        "atAllTypeCriticalStrike": 19.0,
+        "atHasteBase": 821.0,
+        "atMagicAttackPowerBase": 2726.5,
+        "atMagicCriticalDamagePowerBase": 19.0,
+        "atMagicCriticalStrike": 1368.0,
+        "atMagicOvercome": 912.5,
+        "atMagicShield": 170.5,
+        "atMaxLifeAdditional": 129.5,
+        "atMeleeWeaponAttackSpeedBase": 16.0,
+        "atMeleeWeaponDamageBase": 43.0,
+        "atMeleeWeaponDamageRand": 28.0,
+        "atPVXAllRound": 208.5,
+        "atPhysicsShieldBase": 135.0,
+        "atPoisonAttackPowerBase": 963.0,
+        "atPoisonCriticalStrike": 19.0,
+        "atPoisonOvercomeBase": 285.5,
+        "atRangeWeaponAttackSpeedBase": 24.0,
+        "atRangeWeaponDamageBase": 102.0,
+        "atRangeWeaponDamageRand": 68.0,
+        "atSpiritBase": 2230.0,
+        "atStrainBase": 3665.5,
+        "atVitalityBase": 4651.0
+      },
+      "sampleCount": 2,
+      "sourceDates": [
+        "2026-11-02",
+        "2026-11-03"
+      ],
+      "school": "Poison",
+      "role": "dps",
+      "completeSnapshotCount": 4
+    }
+  },
+  "aliases": {
+    "10tw": "10t",
+    "22dw": "22d",
+    "22hw": "22h",
+    "24w": "24",
+    "6dw": "6d"
+  },
+  "unavailableOccupations": [
+    "10d",
+    "10dw",
+    "1d",
+    "1dw",
+    "1t",
+    "1tw",
+    "211",
+    "211w",
+    "212d",
+    "212dw",
+    "212h",
+    "212hw",
+    "213",
+    "213w",
+    "214",
+    "214w",
+    "215",
+    "215w",
+    "21d",
+    "21dw",
+    "21t",
+    "21tw",
+    "23",
+    "23w",
+    "25",
+    "25w",
+    "2d",
+    "2dw",
+    "2h",
+    "2hw",
+    "34",
+    "34w",
+    "3d",
+    "3dw",
+    "3t",
+    "3tw",
+    "4m",
+    "4mw",
+    "4p",
+    "4pw",
+    "5d",
+    "5dw",
+    "5h",
+    "5hw",
+    "6h",
+    "6hw",
+    "7m",
+    "7mw",
+    "7p",
+    "7pw",
+    "8",
+    "8w",
+    "9",
+    "9w"
+  ]
+}

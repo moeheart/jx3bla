@@ -12,6 +12,7 @@ from tools.StaticJson import *
 from functools import partial
 from replayer.TableConstructor import ToolTip
 from window.Window import Window
+from equip.EquipmentFallback import EQUIPMENT_FALLBACK_WARNING
 import webbrowser
 
 class CombatTrackerWindow(Window):
@@ -73,7 +74,10 @@ class CombatTrackerWindow(Window):
             data = self.act.mndps
             self.rightTitle.configure(text="mnDPS")
         self.data = data
-        if data.get("status") == "incomplete":
+        estimated = data.get("status") == "estimated" or bool(data.get("estimatedPlayers"))
+        if estimated:
+            self.rightTitle.configure(text="%s：仅供参考" % self.rightTitle.cget("text"))
+        elif data.get("status") == "incomplete":
             self.rightTitle.configure(text="%s：待校准" % stat)
             for table in (self.table, self.table2):
                 for row in table:
@@ -230,6 +234,18 @@ class CombatTrackerWindow(Window):
         window.geometry('1140x750')
         window.protocol('WM_DELETE_WINDOW', self.final)
         self.window = window
+        status = getattr(self.act, "rdpsStatus", {})
+        estimated = status.get("status") == "estimated" or bool(status.get("estimatedPlayers"))
+        warnings = []
+        if estimated:
+            warnings.append(status.get("warning", EQUIPMENT_FALLBACK_WARNING))
+        if status.get("status") == "incomplete" and status.get("reason"):
+            warnings.append(status["reason"])
+        self.attributeWarningLabel = tk.Label(window, text="\n".join(warnings), fg="#995500",
+                                             justify="left", wraplength=1120)
+        self.attributeWarningLabel.place(x=10, y=720)
+        if len(warnings) > 1:
+            window.geometry('1140x780')
 
         # 柱状图部分
 
@@ -328,7 +344,7 @@ class CombatTrackerWindow(Window):
         self.rightTitle = l
 
         b = tk.Button(frameDown, text='详细介绍', height=1, command=self.show_right_help)
-        b.place(x=200, y=10)
+        b.place(x=430, y=10)
 
         canvas = tk.Canvas(frameDown, width=560, height=350, scrollregion=(0, 0, 540, 24*50)) #创建canvas
         canvas.place(x=0, y=50)  # 放置canvas的位置

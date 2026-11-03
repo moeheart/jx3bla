@@ -12,7 +12,7 @@
 ./release/Release.ps1 -Python C:/Python314/python.exe
 ```
 
-所有 Python 步骤使用同一个解释器，失败即停止。脚本依次生成图标、当前装备分类、复盘说明和 `replayer/Name.py`，在独立的 `build/release-*` 中构建，核对资源 SHA256 与依赖清单，并在空目录执行冻结 EXE 的心法、增益、PNG/ICO + Tk 和 Excel 读写检查。全部通过后才替换 `dist/j3jz.exe`。
+所有 Python 步骤使用同一个解释器，失败即停止。脚本依次生成图标、当前装备分类、复盘说明和 `replayer/Name.py`，在独立的 `build/release-*` 中构建，核对资源 SHA256 与依赖清单，并在空目录执行冻结 EXE 的心法、增益、PNG/ICO + Tk 和 Excel 读写检查。装备估算另走真实 Actor 流程，检查有样本、无样本和混合状态，确认属性排名与上传受到保护、实测伤害百分位仍可使用。全部通过后才替换 `dist/j3jz.exe`。
 
 `MainWindow.beta.spec` 保留为旧命令入口，使用完全相同的当前资源；`ReleaseBeta.ps1` 转调上述构建脚本，输出同一个 `dist/j3jz.exe`。两个入口均不执行 Git 提交、推送、网盘上传或服务器公告更新。
 
@@ -23,7 +23,7 @@
 - `Custom_Trinket.tab`、`Custom_Armor.tab`、`Custom_Weapon.tab`
 - `attrib.tab`、`enchant.tab`、`item.txt`、`other.tab`、`Set.tab`
 - `StrengthableAttrib.tab`、`xinfa50.json`、`global_parameters.json`
-- `luoyang_npc_defense.json`
+- `luoyang_npc_defense.json`、`average_equipment.json`
 
 名称和增益统一由原有 `replayer/Name.py` 提供。正式服 JSON 使用单一名称，不再同时保留 `_hd` 与体服运行副本。旧赛季原表、体服装备 zip、旧名称表和开发证据不进入安装包。图标由 `GenerateFiles.py` 写入运行目录，`icons/rate.dat` 为运行时缓存。
 
@@ -68,6 +68,7 @@ python -m release.ValidateRelease --exe dist/j3jz.exe
 | `NameGenerator` | 正式表生成 `replayer/Name.py` |
 | `FormalXinfa50Generator` | 10009 原件生成或校验心法、全局参数和首领防御 |
 | `SyncCangshengTables` | 核对提取凭据后更新正式源表及名称表 |
+| `AverageEquipmentGenerator` | 从 10 月 29 日起的正式服日志生成可用心法的平均装备参考；原始日志不入包 |
 | `Xinfa50Generator`、`WujieXinfa50Generator` | 仅复核 `docs/160/evidence/legacy9506/` 历史证据，不作为当前构建步骤 |
 
 
@@ -86,4 +87,4 @@ rDPS 报告工具需要显式传入 `--manifest`，例如 `python -m tools.Valid
 
 2026-11-03 在上游 8.16.3 基础上整合并验收，保留其公告与首领修复。验证包为 35,855,099 字节（34.19 MiB），比原 8.16.3 的 63.12 MiB 减少约 45.8%；对比包含支持范围缩减与依赖精简。196 项自动测试通过，1 项因缺少可选本地日志跳过；12 项运行资源、内嵌源码、PNG/ICO + Tk、Excel 和五场正式服日志的冻结 EXE 回放全部通过。原有装备脚本未解析提示保留。
 
-本次提交不含工作区原有、尚未提交的平均装备估算或独立来源目标增益功能；这些改动及其分析资料仍保留在原工作区。验证包位于 `build/submission-20261103/artifact/MainWindow.exe`，整合回执为 `build/submission-20261103/summary.json`；未替换原发布包或更新线上公告。
+上述 8.16.3 整合验收未包含平均装备估算和独立来源目标增益修复，验证包位于 `build/submission-20261103/artifact/MainWindow.exe`。8.16.4 在此基础上纳入这两项修复，运行资源共 13 项；最终构建、校验和发布状态见 [8.16.4 发布记录](../docs/160/8.16.4发布记录.md)。
