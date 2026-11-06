@@ -2,6 +2,7 @@
 # 维护属性展示类.
 
 from equip.AttributeCal import AttributeCal
+from equip.EquipmentInfo import is_unmodeled_effect_warning
 from tools.Attribute import CURRENT_GAME_EDITION
 from equip.CangshengAttributeData import make_base_attributes, calculate_attributes
 
@@ -18,7 +19,16 @@ class AttributeDisplay():
         if self.ac.lastWarnings:
             base['_warnings'] = list(self.ac.lastWarnings)
             warnings = sorted(set(self.status.get('warnings', []) + self.ac.lastWarnings))
-            self.status.update(status='incomplete', reason='装备含尚未解析的脚本或技能效果。', warnings=warnings)
+            unmodeled = [warning for warning in warnings if is_unmodeled_effect_warning(warning)]
+            invalid = [warning for warning in warnings if not is_unmodeled_effect_warning(warning)]
+            base['_unmodeledEffects'] = [warning for warning in self.ac.lastWarnings
+                                         if is_unmodeled_effect_warning(warning)]
+            self.status.update(status='incomplete', warnings=warnings,
+                               unmodeledEffects=unmodeled,
+                               staticAttributes='partial' if invalid else 'available',
+                               reason='部分装备数值无法解析。' if invalid else '特殊效果未建模；已知静态属性仍可用。')
+            if invalid:
+                self.status['unparsedAttributes'] = invalid
         return base
 
     def GetPanelAttrib(self, str, occ):
@@ -30,6 +40,8 @@ class AttributeDisplay():
         panel['_baseSource'] = baseAttrib['_baseSource']
         if baseAttrib.get('_warnings'):
             panel['_warnings'] = baseAttrib['_warnings']
+        if baseAttrib.get('_unmodeledEffects'):
+            panel['_unmodeledEffects'] = baseAttrib['_unmodeledEffects']
         return panel
 
 
@@ -40,7 +52,8 @@ class AttributeDisplay():
     def __init__(self, gameEdition=CURRENT_GAME_EDITION):
         # The argument remains accepted by callers; it does not select old rules.
         self.gameEdition = CURRENT_GAME_EDITION
-        self.status = {"status": "supported", "gameEdition": self.gameEdition,
+        self.status = {"status": "supported", "staticAttributes": "available",
+                       "gameEdition": self.gameEdition,
                        "profile": "cangsheng50", "source": "formal client 1.6.0.10009 Lua and item tables",
                        "assumptions": ["JCL未提供体型，裸属性采用当前客户端默认基线"]}
         self.ac = AttributeCal()

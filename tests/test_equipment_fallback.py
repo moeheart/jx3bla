@@ -8,6 +8,9 @@ from unittest.mock import Mock, patch
 import json
 import hashlib
 import math
+import io
+import http.client
+import urllib.parse
 
 from data.DataContent import OverallData
 from equip.CangshengAttributeData import make_base_attributes, static_attributes
@@ -217,6 +220,43 @@ class AverageEquipmentSamplingTests(unittest.TestCase):
                                                  'missing_equipment': 1, 'missing_attributes': 1})
 
 
+    def test_known_nonnumeric_effects_keep_static_samples_but_invalid_inputs_do_not(self):
+        class FakeCal:
+            def __init__(self, edition):
+                self.lastWarnings = []
+
+            def CalculateAll(self, equipment):
+                item = int(equipment.split('\t', 1)[0])
+                effects = ['atExecuteScript', 'atSetEquipmentRecipe',
+                           'atSkillEventHandler', 'atSetEquipmentSkill']
+                self.lastWarnings = ['装备7,%s词条1: %s' % (item, effects[item - 10])] if 10 <= item <= 13 else []
+                if item == 99:
+                    raise KeyError('Unknown item fixture')
+                if item == 98:
+                    return {'atPhysicsAttackPowerBase': float('nan')}
+                if item == 97:
+                    self.lastWarnings = ['装备7,97词条1: unrecognizedEffect']
+                return {'atPhysicsAttackPowerBase': item}
+
+        with self.temporary_directory() as directory:
+            path = self.write_log(directory, '03-00',
+                [player_record(i, 'Distinct%d' % i, item=i) for i in range(10, 14)] +
+                [player_record(99, 'Unknown', item=99), player_record(98, 'Nonfinite', item=98),
+                 player_record(97, 'Unrecognized', item=97),
+                 player_record(96, 'Partial', item=10, slots=[2])])
+            with patch('release.AverageEquipmentGenerator.AttributeCal', FakeCal):
+                data, audit = build_average_equipment([path])
+        self.assertEqual(data['sampleCount'], 4)
+        self.assertEqual(data['occupations']['3d']['equipment'], {'atPhysicsAttackPowerBase': 11.5})
+        self.assertEqual(data['occupations']['3d']['unmodeledEffectSampleCount'], 4)
+        self.assertEqual(len(data['occupations']['3d']['unmodeledEffectTypes']), 4)
+        self.assertEqual(len(audit['acceptedWithUnmodeledEffects']), 4)
+        self.assertEqual(len(audit['excludedSnapshots']), 4)
+        self.assertIn('invalid_attributes', data['exclusionCounts'])
+        self.assertIn('unsupported_effects', data['exclusionCounts'])
+        self.assertIn('missing_slots', data['exclusionCounts'])
+
+
 class EstimatedReplayTests(unittest.TestCase):
     def make_actor(self, scripted_gear=False):
         info = OverallData()
@@ -263,6 +303,8 @@ class EstimatedReplayTests(unittest.TestCase):
         actor = self.make_actor()
         actor.FirstStageAnalysis()
         self.assertEqual(actor.attributeStatus['status'], 'estimated')
+        self.assertEqual(actor.attributeStatus['staticAttributes'], 'estimated')
+        self.assertTrue(actor.attributeStatus['missingEquipmentPlayers']['missing']['hasReference'])
         self.assertEqual(set(actor.attributeStatus['estimatedPlayers']), {'missing'})
         self.assertIn('_estimated', actor.baseAttribDict['missing'])
         self.assertIsNone(actor.panelAttribDict['missing'])
@@ -362,21 +404,74 @@ class EstimatedReplayTests(unittest.TestCase):
         self.assertIsNone(actor.panelAttribDict['scripted'])
         self.assertEqual(self.tracker(actor).rdpsStatus['status'], 'incomplete')
 
-    def test_estimated_group_and_player_replays_never_enqueue_official_uploads(self):
-        for status in ({'status': 'estimated', 'estimatedPlayers': {'missing': {}}},
-                       {'status': 'incomplete'},
-                       {'status': 'supported', 'estimatedPlayers': {'missing': {}}}):
+    def test_quality_tagged_group_and_player_replays_enqueue_real_payloads(self):
+        for status in ({'status': 'estimated', 'staticAttributes': 'estimated',
+                        'estimatedPlayers': {'missing': {'sampleCount': 2}}},
+                       {'status': 'incomplete', 'staticAttributes': 'available',
+                        'unmodeledEffects': ['附魔11272: atExecuteScript']},
+                       {'status': 'incomplete', 'staticAttributes': 'missing',
+                        'missingEquipmentPlayers': {'missing': {'hasReference': False}}}):
             with self.subTest(status=status):
                 actor = ActorProReplayer.__new__(ActorProReplayer)
                 actor.win, actor.attributeStatus = 1, status
                 actor.window = SimpleNamespace(addUploadData=Mock())
+                actor.bld = SimpleNamespace(info=SimpleNamespace(server='test', map='25人普通洛阳之战'))
+                actor.bossname, actor.battleDate, actor.beginTime = '田承嗣', '2026-11-02', 1793620894
+                actor.battleTime = 10000
+                actor.config = SimpleNamespace(item={'user': {'uuid': 'fixture'},
+                    'general': {'team': 'fixture', 'mask': 0}})
+                actor.hashGroup = Mock(return_value='a' * 32)
+                actor.combatTracker = SimpleNamespace(generateJson=Mock(return_value={
+                    'rdpsStatus': deepcopy(status), 'ndps': {'sum': 70}, 'hps': {'sum': 50}}))
                 actor.prepareUpload()
-                actor.window.addUploadData.assert_not_called()
+                battle = actor.window.addUploadData.call_args.args[0]
+                self.assertEqual(battle['type'], 'battle')
+                self.assertEqual(battle['data']['statistics']['attributeStatus'], status)
+                self.assertEqual(battle['data']['statistics']['act']['ndps']['sum'], 70)
                 replay = ReplayerBase.__new__(ReplayerBase)
-                replay.win, replay.actorData = 1, {'attributeStatus': actor.attributeStatus}
-                replay.window = actor.window
+                replay.win, replay.actorData = 1, {'attributeStatus': status}
+                replay.window, replay.config = actor.window, actor.config
+                replay.public, replay.occ, replay.battleID = 1, '6d', 'a' * 32
+                replay.getHash = Mock(return_value='b' * 32)
+                replay.result = {'overall': {'server': 'test', 'playerID': 'fixture',
+                    'battleTime': 1793620894, 'map': actor.bld.info.map,
+                    'boss': actor.bossname, 'edition': 'fixture'},
+                    'review': {'score': 70}, 'skill': {'general': {'ndps': 70}}}
                 replay.prepareUpload()
-                replay.window.addUploadData.assert_not_called()
+                self.assertEqual(actor.window.addUploadData.call_count, 2)
+                payload = actor.window.addUploadData.call_args.args[0]
+                self.assertEqual(payload['type'], 'replay')
+                self.assertEqual(payload['data']['statistics']['overall']['attributeStatus'], status)
+                self.assertEqual(payload['data']['statistics']['skill']['general']['ndps'], 70)
+
+    def test_not_won_battle_still_does_not_enqueue(self):
+        for cls in (ActorProReplayer, ReplayerBase):
+            instance = cls.__new__(cls)
+            instance.win, instance.attributeStatus, instance.actorData = 0, {}, {}
+            instance.window = SimpleNamespace(addUploadData=Mock())
+            instance.prepareUpload()
+            instance.window.addUploadData.assert_not_called()
+
+    def test_complete_gear_keeps_static_panel_and_discloses_unmodeled_effects(self):
+        actor = self.make_actor(scripted_gear=True)
+        del actor.bld.info.player['missing']
+        actor.FirstStageAnalysis()
+        self.assertEqual(actor.attributeStatus['staticAttributes'], 'available')
+        self.assertEqual(actor.attributeStatus['unmodeledEffects'], ['附魔11272: atExecuteScript'])
+        self.assertIsNotNone(actor.panelAttribDict['scripted'])
+        self.assertNotIn('estimatedPlayers', actor.attributeStatus)
+        self.assertNotIn('missingEquipmentPlayers', actor.attributeStatus)
+
+    def test_unknown_item_does_not_abort_team_analysis_and_uses_reference(self):
+        actor = self.make_actor(scripted_gear=True)
+        del actor.bld.info.player['missing']
+        next(iter(actor.bld.info.player['scripted'].equip.values()))['3'] = '999999999'
+        actor.FirstStageAnalysis()
+        self.assertIn('scripted', actor.attributeStatus['equipmentErrors'])
+        self.assertEqual(actor.attributeStatus['staticAttributes'], 'estimated')
+        self.assertTrue(actor.attributeStatus['missingEquipmentPlayers']['scripted']['hasReference'])
+        self.assertIsNone(actor.panelAttribDict['scripted'])
+        self.assertIn('_estimated', actor.baseAttribDict['scripted'])
 
     def test_estimate_hides_attribute_rank_but_direct_damage_percentile_remains(self):
         percent_data = {'6d-835-田承嗣-stat-%s-161' % key: {'num': 100, 'value': json.dumps(list(range(102)))}
@@ -407,6 +502,64 @@ class EstimatedReplayTests(unittest.TestCase):
         self.assertEqual(replay.rank['stat']['rdps'], {'num': 0, 'percent': -1})
         self.assertEqual(replay.rank['stat']['ndps'], {'num': 100, 'percent': 70})
         self.assertEqual(replay.getScoreRankFromStat('6d')['score'], {'num': 0, 'percent': -1})
+
+
+class ClientUploadQueueTests(unittest.TestCase):
+    def test_empty_queue_has_notice_without_request(self):
+        from MainWindow import MainWindow
+        app = MainWindow.__new__(MainWindow)
+        app.uploadData, app.setNotice = [], Mock()
+        with patch('MainWindow.EDITION', '8.16.5'), patch('MainWindow.urllib.request.urlopen') as request:
+            app.executeUploadData()
+        request.assert_not_called()
+        self.assertIn('没有待上传', app.setNotice.call_args.args[0]['t1'])
+
+    def test_failed_upload_retains_queue_and_explains_retry(self):
+        from MainWindow import MainWindow
+        cases = (("network", OSError("offline")), ("timeout", TimeoutError("timed out")),
+                 ("incomplete_http", http.client.IncompleteRead(b"partial")),
+                 ("invalid_json", "{"), ("server_failure", json.dumps({"status": "fail"})),
+                 ("missing_records", json.dumps({"status": "success", "data": []})))
+        for name, response in cases:
+            with self.subTest(name=name):
+                app = MainWindow.__new__(MainWindow)
+                app.setNotice = Mock()
+                anchor = {"overall": {}}
+                queue = [{"id": 0, "type": "replay", "data": {"statistics": {}}, "anchor": anchor}]
+                app.uploadData = queue
+                arguments = {"side_effect": response} if isinstance(response, Exception) else {"return_value": io.StringIO(response)}
+                with patch("MainWindow.EDITION", "8.16.5"), \
+                        patch("MainWindow.get_api_url", return_value="offline://upload"), \
+                        patch("MainWindow.urllib.request.urlopen", **arguments) as request:
+                    app.executeUploadData()
+                self.assertIs(app.uploadData, queue)
+                self.assertEqual(anchor, {"overall": {}})
+                self.assertEqual(request.call_count, 1)
+                self.assertEqual(request.call_args.kwargs["timeout"], 30)
+                notice = app.setNotice.call_args.args[0]
+                self.assertIn("失败", notice["t1"])
+                self.assertIn("保留", notice["t2"])
+
+    def test_nonempty_queue_keeps_quality_in_form_payload_and_processes_response(self):
+        from MainWindow import MainWindow
+        status = {'status': 'estimated', 'staticAttributes': 'estimated'}
+        anchor = {'overall': {}}
+        app = MainWindow.__new__(MainWindow)
+        app.setNotice = Mock()
+        app.uploadData = [{'id': 0, 'type': 'replay',
+            'data': {'statistics': {'overall': {'attributeStatus': status}}},
+            'anchor': anchor}]
+        response = io.StringIO(json.dumps({'status': 'success', 'data': [
+            {'result': 'success', 'shortID': 123, 'num': 1, 'scoreRank': -1}]}))
+        with patch('MainWindow.EDITION', '8.16.5'), \
+                patch('MainWindow.get_api_url', return_value='offline://upload'), \
+                patch('MainWindow.urllib.request.urlopen', return_value=response) as request:
+            app.executeUploadData()
+        form = urllib.parse.parse_qs(request.call_args.kwargs['data'].decode('utf-8'))
+        payload = json.loads(form['jdata'][0])
+        self.assertEqual(payload['data'][0]['data']['statistics']['overall']['attributeStatus'], status)
+        self.assertEqual(anchor['overall']['shortID'], 123)
+        self.assertEqual(app.uploadData, [])
 
 
 if __name__ == '__main__':

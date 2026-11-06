@@ -4,7 +4,10 @@ Example:
     python -X utf8 -m release.AverageEquipmentGenerator combat_logs . --since 2026-10-29 \
         --audit .tmp/average-equipment-fallback/sampling-audit.json
 
-Only complete gear with fully supported attributes enters the average. Each
+Only complete gear with valid static attributes enters the average.
+The four known nonnumeric effect kinds are omitted from numeric calculations
+and disclosed separately; unknown items, malformed attributes and partial gear
+are never admitted. Each
 server+character name+kungfu contributes its latest such snapshot once, so repeated boss
 attempts do not increase that character's weight. Client kungfu/base attributes
 are deliberately omitted; the runtime must add the missing player's own profile.
@@ -13,9 +16,11 @@ import argparse
 from collections import Counter, defaultdict
 import hashlib
 import json
+import math
 from pathlib import Path
 
 from equip.AttributeCal import AttributeCal
+from equip.EquipmentInfo import is_unmodeled_effect_warning
 from equip.CangshengAttributeData import kungfu_data, profile_school
 from equip.EquipmentFallback import REQUIRED_EQUIPMENT_SLOTS
 from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
@@ -87,7 +92,7 @@ def build_average_equipment(paths):
     converter = EquipmentAnalyser()
     exporter = ExcelExportEquipment()
     profiles = kungfu_data()['occupations']
-    sources, excluded = [], []
+    sources, excluded, accepted_effects = [], [], []
     latest = {}
     seen_log_hashes = set()
     complete_snapshots = Counter()
@@ -118,10 +123,14 @@ def build_average_equipment(paths):
                         equip_str = exporter.export(equips)
                         raw_attributes = cal.CalculateAll(equip_str)
                         warnings = list(cal.lastWarnings)
-                        if warnings:
+                        if any(not is_unmodeled_effect_warning(warning) for warning in warnings):
                             reason = 'unsupported_effects'
                         elif not raw_attributes:
                             reason = 'missing_attributes'
+                        elif any(not key.startswith('at') or isinstance(value, bool)
+                                 or not isinstance(value, (int, float)) or not math.isfinite(value)
+                                 for key, value in raw_attributes.items()):
+                            reason = 'invalid_attributes'
                 except (KeyError, ValueError, IndexError, TypeError) as exc:
                     reason = 'calculation_error:' + str(exc)
             if reason:
@@ -129,6 +138,9 @@ def build_average_equipment(paths):
                                  'reason': reason, 'warnings': warnings, 'missingSlots': missing_slots})
                 continue
             complete_snapshots[occ] += 1
+            if warnings:
+                accepted_effects.append({'file': path.name, 'player': player_id, 'occ': occ,
+                                         'unmodeledEffects': warnings})
             # JCL runtime actor IDs can be reused between sessions. A nonempty
             # server+name is the stable character identity available in JCL.
             identity = (player.get('server', ''), player.get('name', ''))
@@ -138,6 +150,7 @@ def build_average_equipment(paths):
                                        'player': player_id, 'occ': occ,
                                        'characterKeySHA256': hashlib.sha256('\0'.join(identity).encode()).hexdigest(),
                                        'equipment': raw_attributes,
+                                       'unmodeledEffects': warnings,
                                        'equipStrSha256': hashlib.sha256(equip_str.encode()).hexdigest()}
     grouped = defaultdict(list)
     for sample in latest.values():
@@ -151,6 +164,10 @@ def build_average_equipment(paths):
             'sourceDates': sorted({sample['file'][:10] for sample in samples}),
             'school': profile_school(occ), 'role': getOccType(occ),
             'completeSnapshotCount': complete_snapshots[occ],
+            'staticOnly': True,
+            'unmodeledEffectSampleCount': sum(bool(sample['unmodeledEffects']) for sample in samples),
+            'unmodeledEffectTypes': sorted({warning.rsplit(': ', 1)[-1]
+                                           for sample in samples for warning in sample['unmodeledEffects']}),
         }
     aliases = {}
     for occ in sorted(set(profiles) - set(occupations)):
@@ -161,11 +178,12 @@ def build_average_equipment(paths):
     result = {
         'schema': 1, 'gameEdition': CURRENT_GAME_EDITION, 'profile': 'cangsheng50', 'level': 50,
         'clientVersion': '1.6.0.10009', 'clientMode': 'zhcn_hd',
-        'method': 'Arithmetic mean of equipment-only raw at* attributes, one latest complete supported snapshot per server+character name+kungfu. Runtime player IDs are not reused as cross-session identities; unnamed snapshots are not deduplicated across logs. Missing numeric fields contribute zero. Normal/mobile aliases share equipment only; own client kungfu attributes must be added at runtime.',
+        'method': 'Arithmetic mean of equipment-only numeric at* attributes, one latest complete static-attribute snapshot per server+character name+kungfu. The four known nonnumeric script/recipe/skill effects are omitted and disclosed; missing gear/slots, unknown IDs, malformed or nonfinite numeric attributes and calculation failures are excluded. Runtime actor IDs are not cross-session identities. Missing numeric fields contribute zero. Normal/mobile aliases share equipment only; their own client kungfu attributes are added at runtime.',
         'requiredSlots': sorted(REQUIRED_SLOTS), 'optionalSlots': ['1'],
         'sourceDates': sorted({source['file'][:10] for source in sources}),
         'sourceFiles': sources, 'sourceFileCount': len(sources),
         'sampleCount': len(latest), 'exclusionCounts': summary,
+        'acceptedUnmodeledEffectSnapshots': len(accepted_effects),
         'occupations': occupations, 'aliases': aliases,
         'unavailableOccupations': sorted(set(profiles) - set(occupations) - set(aliases)),
     }
@@ -175,6 +193,7 @@ def build_average_equipment(paths):
                        if path.name == source['file']]) for source in sources],
         'selectedSamples': [{key: value for key, value in sample.items() if key != 'equipment'} for sample in latest.values()],
         'excludedSnapshots': excluded, 'exclusionCounts': summary,
+        'acceptedWithUnmodeledEffects': accepted_effects,
     }
     return result, audit
 

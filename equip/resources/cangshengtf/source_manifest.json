@@ -214,8 +214,8 @@
     },
     {
       "name": "average_equipment.json",
-      "bytes": 8173,
-      "sha256": "f4f0a8f13ec75e62b4526b2ef82140337ed22a7752ee4c3abedde2d5fda554db",
+      "bytes": 38985,
+      "sha256": "a37e5e2b8fcf2623b5e7ffa36f178e378eccb19f1e85923954ef7d7f171c2d16",
       "client_version": "1.6.0.10009",
       "client_mode": "zhcn_hd",
       "source_dates": [
@@ -223,8 +223,8 @@
         "2026-11-03"
       ],
       "source_files": 9,
-      "supported_samples": 6,
-      "method": "Arithmetic mean of equipment-only raw at* attributes, one latest complete supported snapshot per server+character name+kungfu. Runtime player IDs are not reused as cross-session identities; unnamed snapshots are not deduplicated across logs. Missing numeric fields contribute zero. Normal/mobile aliases share equipment only; own client kungfu attributes must be added at runtime."
+      "supported_samples": 75,
+      "method": "Arithmetic mean of equipment-only numeric at* attributes, one latest complete static-attribute snapshot per server+character name+kungfu. The four known nonnumeric script/recipe/skill effects are omitted and disclosed; missing gear/slots, unknown IDs, malformed or nonfinite numeric attributes and calculation failures are excluded. Runtime actor IDs are not cross-session identities. Missing numeric fields contribute zero. Normal/mobile aliases share equipment only; their own client kungfu attributes are added at runtime."
     }
   ],
   "parameters": {

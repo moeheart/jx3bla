@@ -20,6 +20,13 @@ def replay_record(edition, game_edition="160", record_hash="sample"):
 
 
 class CangshengRankCollectionTests(unittest.TestCase):
+    def setUp(self):
+        # Synthetic rows below exercise edition policy; no raw files are present.
+        from tools.RecordQuality import get_record_quality
+        stub = patch("serverFunc.UpdateReplayRank.load_record_quality", return_value=get_record_quality({}))
+        stub.start()
+        self.addCleanup(stub.stop)
+
     def test_new_season_requires_8160_for_all_three_stages(self):
         for stage in ("160", "161", "162", 160, 161, 162):
             for client, eligible in (("8.15.5", False), ("8.16.0", True), ("8.16.1", True)):

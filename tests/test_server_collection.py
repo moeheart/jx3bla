@@ -68,6 +68,9 @@ class ServerCollectionTests(unittest.TestCase):
         self.stack.enter_context(patch('socket.socket.connect', side_effect=AssertionError('network forbidden')))
         self.stack.enter_context(patch('urllib.request.urlopen', side_effect=AssertionError('HTTP forbidden')))
         self.writer = self.stack.enter_context(patch.object(self.server, 'open', mock_open(), create=True))
+        self.real_atomic_writer = self.server._atomic_write_statistics
+        self.stack.enter_context(patch.object(self.server, '_atomic_write_statistics',
+            side_effect=lambda path, data: self.server.open(path, 'w', encoding='utf-8').write(data)))
         self.stack.enter_context(patch.object(self.server.app, 'dbname', 'mock-user', create=True))
         self.stack.enter_context(patch.object(self.server.app, 'dbpwd', 'mock-password', create=True))
         self.stack.enter_context(patch.object(self.server.app, 'percent_data', {}, create=True))
@@ -112,7 +115,7 @@ class ServerCollectionTests(unittest.TestCase):
                     row = self.cursor.inserted('ActorStat')
                     self.assertEqual((row[3], row[4], row[9], row[12]),
                                      (map_id, '8.16.0', str(when), expected))
-        self.writer.assert_any_call('database/ActorStat/battle-test-hash', 'w')
+        self.writer.assert_any_call('database/ActorStat/battle-test-hash', 'w', encoding='utf-8')
         self.assertTrue(self.writer().write.called)
 
     def test_old_battle_without_begin_time_uses_default(self):
@@ -133,7 +136,7 @@ class ServerCollectionTests(unittest.TestCase):
                     self.assertEqual((row[5], row[10], row[14], row[31]),
                                      (map_name, '8.16.0', str(when), expected))
                     self.assertEqual(int(row[11]), self.server.parseEdition('8.16.0'))
-        self.writer.assert_any_call('database/ReplayProStat/101', 'w')
+        self.writer.assert_any_call('database/ReplayProStat/101', 'w', encoding='utf-8')
 
     def test_all_three_upload_routes_commit_and_close(self):
         payloads = [('/uploadActorData', self.battle(), 'result'),
@@ -195,7 +198,7 @@ class ServerCollectionTests(unittest.TestCase):
                     self.assertEqual(data['timezone'], 'UTC+08:00')
 
     def test_announcement_returns_current_release_metadata(self):
-        self.assertEqual(self.server.EDITION, '8.16.4')
+        self.assertEqual(self.server.EDITION, '8.16.5')
         response = self.client.get('/getAnnouncement', query_string={'edition': '8.16.0'}).get_json()
         self.assertEqual(response['version'], '8.16.0')
         self.assertEqual(response['url'], 'https://example.invalid/j3jz.exe')
@@ -233,7 +236,8 @@ class ServerCollectionTests(unittest.TestCase):
             row[16] = 'battle-test-hash'
             row[30:32] = [1, '160']
             records.append(row)
-        with patch.object(self.cursor, 'fetchall', return_value=records):
+        # These version-policy fixtures have no physical replay files.
+        with patch.object(self.cursor, 'fetchall', return_value=records), patch.object(self.server, 'load_record_quality', return_value=self.server.get_record_quality({})):
             response = self.client.get('/getRank', query_string={
                 'map': MAPS['835'], 'boss': '史朝义', 'occ': 'lingsu', 'gameEdition': '160'}).get_json()
         self.assertEqual(response['available'], 1)

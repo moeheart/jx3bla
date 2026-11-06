@@ -133,7 +133,7 @@ class ActorProReplayer(ReplayerBase):
         # if "beta" in EDITION:
         #     return
         status = getattr(self, "attributeStatus", {})
-        if self.win == 0 or status.get("status") in ("incomplete", "estimated") or status.get("estimatedPlayers"):
+        if self.win == 0:
             return
         result = {}
         server = self.bld.info.server
@@ -160,6 +160,7 @@ class ActorProReplayer(ReplayerBase):
         allInfo["battleTime"] = self.battleTime
         allInfo["act"] = self.combatTracker.generateJson()
         allInfo["mask"] = self.config.item["general"]["mask"]
+        allInfo["attributeStatus"] = status
 
         result["statistics"] = allInfo
 
@@ -512,12 +513,19 @@ class ActorProReplayer(ReplayerBase):
         # 每场按实际心法与当前底表重算，避免复用旧面板缓存。
         for player in self.bld.info.player:
             self.window.playerEquipmentAnalysed.pop(player, None)
+        equipmentErrors = {}
         for playerEquip in requests["players"]:
-            results[playerEquip["id"]] = {}
-            results[playerEquip["id"]]["base"] = ad.GetBaseAttrib(playerEquip["equipStr"], playerEquip["occ"])
-            results[playerEquip["id"]]["panel"] = ad.GetPanelAttrib(playerEquip["equipStr"], playerEquip["occ"])
-            results[playerEquip["id"]]["status"] = "calculated" if results[playerEquip["id"]]["base"] is not None else "notfound"
-            results[playerEquip["id"]]["gameEdition"] = CURRENT_GAME_EDITION
+            result = {"base": None, "panel": None, "gameEdition": CURRENT_GAME_EDITION}
+            try:
+                result["base"] = ad.GetBaseAttrib(playerEquip["equipStr"], playerEquip["occ"])
+                result["panel"] = ad.GetPanelAttrib(playerEquip["equipStr"], playerEquip["occ"])
+            except (KeyError, ValueError, IndexError, TypeError) as error:
+                # A bad/missing item must not discard the team's measured log.
+                # The original gear remains intact; only this calculation falls back.
+                result["base"] = result["panel"] = None
+                equipmentErrors[playerEquip["id"]] = type(error).__name__ + ": " + str(error)
+            result["status"] = "calculated" if result["base"] is not None else "notfound"
+            results[playerEquip["id"]] = result
         # 结束
 
         # 记录本地计算结果
@@ -540,9 +548,17 @@ class ActorProReplayer(ReplayerBase):
                 self.panelAttribDict[id] = None
 
         estimated = {}
+        missingEquipment = {}
+        unresolvedEquipment = []
         for player, base in self.baseAttribDict.items():
             missing_slots = missing_equipment_slots(self.jsonEquip.get(player, {}))
             if base is None or missing_slots:
+                missingEquipment[player] = {
+                    "missingSlots": missing_slots,
+                    "hasEquipment": bool(self.bld.info.player[player].equip),
+                    "hasReference": False,
+                    "reason": "unparseable" if player in equipmentErrors else ("missing_slots" if missing_slots else "missing_attributes"),
+                }
                 # Even when no reference exists for this kungfu, a partial
                 # equipment record must not be shown as a complete real panel.
                 self.panelAttribDict[player] = None
@@ -552,14 +568,30 @@ class ActorProReplayer(ReplayerBase):
                     self.baseAttribDict[player] = reference
                     self.panelAttribDict[player] = None
                     estimated[player] = reference["_estimated"]
-                elif base is not None:
-                    base["_warnings"] = list(base.get("_warnings", [])) + [EQUIPMENT_FALLBACK_WARNING]
+                    missingEquipment[player]["hasReference"] = True
+                else:
+                    unresolvedEquipment.append(player)
+                    if base is not None:
+                        base["_warnings"] = list(base.get("_warnings", [])) + [EQUIPMENT_FALLBACK_WARNING]
         if estimated:
             # Use the reference only for numerical attribution. Keep the
             # missing equipment panel and real-equipment cache untouched.
             status = "incomplete" if self.attributeStatus.get("status") == "incomplete" else "estimated"
             self.attributeStatus.update(status=status, estimatedPlayers=estimated,
                                         warning=EQUIPMENT_FALLBACK_WARNING)
+        if missingEquipment:
+            self.attributeStatus["missingEquipmentPlayers"] = missingEquipment
+        if equipmentErrors:
+            self.attributeStatus["equipmentErrors"] = equipmentErrors
+        if unresolvedEquipment:
+            available = any(base is not None and player not in unresolvedEquipment
+                            for player, base in self.baseAttribDict.items())
+            self.attributeStatus.update(status="incomplete",
+                staticAttributes="partial" if available else "missing",
+                reason="部分玩家装备缺少同心法参考；保留实测战斗数据。")
+        else:
+            self.attributeStatus["staticAttributes"] = ("partial" if self.attributeStatus.get("unparsedAttributes")
+                                                        else "estimated" if estimated else "available")
 
         return 0  # 正确结束
 

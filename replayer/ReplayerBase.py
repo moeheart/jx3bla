@@ -4,6 +4,7 @@
 from tools.Functions import *
 from tools.LoadData import *
 from tools.Names import *
+from tools.RecordQuality import is_metric_rank_eligible
 from data.BattleLogData import RawDataLoader
 # from replayer.Percent import *
 from Constants import *
@@ -39,8 +40,7 @@ class RankCalculator():
         - num: 记录总数量.
         - percent: 排名百分位.
         '''
-        attributeStatus = self.result.get("overall", {}).get("attributeStatus", {})
-        if (attributeStatus.get("status") in ("incomplete", "estimated") or attributeStatus.get("estimatedPlayers")) and key in ("rdps", "mrdps", "score"):
+        if not is_metric_rank_eligible(self.result, key):
             return 0, -1
         value = getDirection(key) * value
         percent_key = "%s-%s-%s-%s-%s-%s" % (occ, map, boss, name, key, self.game_edition)
@@ -184,8 +184,10 @@ class ReplayerBase():
         # if "beta" in EDITION:
         #     return
         status = self.actorData.get("attributeStatus", {})
-        if self.win == 0 or status.get("status") in ("incomplete", "estimated") or status.get("estimatedPlayers"):
+        if self.win == 0:
             return
+        if status:
+            self.result["overall"]["attributeStatus"] = status
         upload = {}
         upload["server"] = self.result["overall"]["server"]
         upload["id"] = self.result["overall"]["playerID"]

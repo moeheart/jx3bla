@@ -155,7 +155,8 @@ class ReleaseBundleTest(unittest.TestCase):
         self.assertEqual(result['estimated']['status'], 'estimated')
         self.assertEqual(result['unavailable']['status'], 'incomplete')
         self.assertEqual(result['mixed']['estimatedPlayers'], 1)
-        self.assertTrue(all(row['uploads'] == 'blocked' for row in result.values()))
+        self.assertTrue(all(row['uploads'] == 'captured' and row['uploadQueue']['battle'] == 1
+                            and row['uploadQueue']['replay'] > 0 for row in result.values()))
 
     def test_frozen_fallback_checks_reject_unfiltered_attribute_rank(self):
         from release.SmokeTest import check_equipment_fallback
@@ -163,11 +164,11 @@ class ReleaseBundleTest(unittest.TestCase):
             with self.assertRaises(AssertionError):
                 check_equipment_fallback()
 
-    def test_frozen_fallback_checks_reject_an_upload_enqueue(self):
+    def test_frozen_fallback_checks_reject_missing_battle_upload(self):
         from release.SmokeTest import check_equipment_fallback
         with patch('replayer.ActorReplayPro.ActorProReplayer.prepareUpload',
-                   lambda actor: actor.window.addUploadData({})):
-            with self.assertRaisesRegex(AssertionError, 'enqueue'):
+                   lambda actor: None):
+            with self.assertRaisesRegex(AssertionError, 'battle upload'):
                 check_equipment_fallback()
 
 

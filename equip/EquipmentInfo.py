@@ -7,6 +7,18 @@ import re
 from tools.ResourcePath import get_resource_path
 from tools.Attribute import CURRENT_GAME_EDITION
 
+KNOWN_NON_NUMERIC_EFFECTS = frozenset({
+    "atExecuteScript", "atSetEquipmentRecipe", "atSkillEventHandler", "atSetEquipmentSkill",
+})
+
+
+def is_unmodeled_effect_warning(warning):
+    if not isinstance(warning, str):
+        return False
+    source, separator, effect = warning.rpartition(": ")
+    return bool(source and separator and effect in KNOWN_NON_NUMERIC_EFFECTS)
+
+
 class EquipmentInfo():
     '''
     装备信息类，包括属性的读取与获得。
@@ -125,7 +137,7 @@ class EquipmentInfo():
         """只返回可直接相加的数值；脚本/技能效果 ID 不能充当面板数值。"""
         if not name or name == "atInvalid":
             return {}
-        if name in {"atExecuteScript", "atSetEquipmentRecipe", "atSkillEventHandler", "atSetEquipmentSkill"}:
+        if name in KNOWN_NON_NUMERIC_EFFECTS:
             self.unsupportedEffects.add("%s: %s" % (source, name))
             return {}
         try:

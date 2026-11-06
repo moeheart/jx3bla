@@ -15,6 +15,10 @@ import hashlib
 import configparser
 import os
 import traceback
+import math
+import stat
+import tempfile
+from contextvars import ContextVar
 from Constants import *
 
 from tools.Functions import *
@@ -23,6 +27,8 @@ from equip.AttributeDisplay import AttributeDisplay
 from tools.painter import XiangZhiPainter
 from replayer.ReplayerBase import RankCalculator
 from serverFunc.UpdateReplayRank import MIN_RANK_CLIENT_BY_GAME_EDITION, isReplayRankEligible
+from tools.RecordQuality import (get_record_quality, is_metric_rank_eligible, quality_level,
+                                load_record_quality, invalidate_quality_cache, is_valid_rank, parse_statistics)
 
 version = EDITION
 ip = "127.0.0.1" # IP
@@ -37,6 +43,47 @@ app.ad = AttributeDisplay()
 # 数据库的屎山
 STAT_ID = {"score": 3, "rhps": 18, "hps": 20, "rdps": 22, "ndps": 24, "mrdps": 26, "mndps": 28}
 RANK_ID = {"score": 17, "rhps": 19, "hps": 21, "rdps": 23, "ndps": 25, "mrdps": 27, "mndps": 29}
+
+_statistics_undo = ContextVar("statistics_undo", default=None)
+
+
+def _atomic_write_statistics(path, contents):
+    """Publish a complete file while retaining an existing file's permissions."""
+    mode = stat.S_IMODE(os.stat(path).st_mode) if os.path.exists(path) else 0o644
+    descriptor, temporary = tempfile.mkstemp(prefix=".statistics-", dir=os.path.dirname(path))
+    try:
+        with os.fdopen(descriptor, "wb") as stream:
+            stream.write(contents)
+        os.chmod(temporary, mode)
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
+def _write_statistics(path, contents):
+    """Preserve overwritten raw data until the enclosing upload commits."""
+    journal = _statistics_undo.get()
+    if journal is not None and path not in journal:
+        try:
+            with open(path, "rb") as stream:
+                journal[path] = stream.read()
+        except FileNotFoundError:
+            journal[path] = None
+    _atomic_write_statistics(path, contents.encode("utf-8"))
+    invalidate_quality_cache(path)
+
+
+def _rollback_statistics():
+    for path, previous in reversed(list((_statistics_undo.get() or {}).items())):
+        if previous is None:
+            try:
+                os.unlink(path)
+            except FileNotFoundError:
+                pass
+        else:
+            _atomic_write_statistics(path, previous)
+        invalidate_quality_cache(path)
 
 def Response_headers(content):
     resp = Response(content)    
@@ -53,6 +100,7 @@ def getAnnouncement():
     sql = '''SELECT * FROM PreloadInfo;'''
     cursor.execute(sql)
     result = cursor.fetchall()
+
     dataDict = {}
     for line in result:
         dataDict[line[0]] = line[1]
@@ -305,7 +353,7 @@ def receiveBattle(jdata, cursor):
     hash = jdata["hash"]
     team = jdata.get("team", "")
     length = jdata.get("length", 0)
-    statistics = str(jdata["statistics"]).replace('"', '`')
+    statistics = json.dumps(jdata["statistics"], ensure_ascii=False)
     map = getIDFromMap(mapName)
 
     print("[Battle]", team, length, hash)
@@ -331,9 +379,11 @@ def receiveBattle(jdata, cursor):
     editionFull = parseEdition(edition)
 
     # 增加五个字段：editionfull INT, userid VARCHAR(32), battletime INT, submittime INT, instanceid VARCHAR(32)
-    sql = '''SELECT * from ActorStat WHERE hash = "%s"''' % hash
+    sql = '''SELECT * from ActorStat WHERE hash = "%s" FOR UPDATE''' % hash
     cursor.execute(sql)
     result = cursor.fetchall()
+    previous_quality = load_record_quality("database/ActorStat/%s" % hash) if result else None
+    incoming_quality = get_record_quality(jdata["statistics"])
 
     scoreSuccess = 1
     scoreAdd = 0
@@ -366,7 +416,16 @@ def receiveBattle(jdata, cursor):
                 scoreSuccess = 0
                 response['scoreStatus'] = 'expire'
 
-        if result[0][13] == "" and team != "":
+    if result:
+        previous_level = 3 if previous_quality["status"] == "unavailable" else quality_level(previous_quality)
+        incoming_level = quality_level(incoming_quality)
+        quality_upgrade = incoming_level > previous_level and editionFull >= parseEdition(result[0][4])
+        quality_repair = previous_quality["status"] == "unavailable" and incoming_quality["precise"] and editionFull >= parseEdition(result[0][4])
+        if incoming_level < previous_level:
+            dupID = 1
+        elif quality_upgrade or quality_repair:
+            pass
+        elif result[0][13] == "" and team != "":
             print("Update team")
         elif parseEdition(result[0][4]) >= parseEdition(edition):
             dupID = 1
@@ -400,8 +459,7 @@ def receiveBattle(jdata, cursor):
     sql = '''DELETE FROM ActorStat WHERE hash = "%s"''' % hash
     cursor.execute(sql)
 
-    with open("database/ActorStat/%s" % hash, "w") as f:
-        f.write(str(statistics))
+    _write_statistics("database/ActorStat/%s" % hash, str(statistics))
 
     sql = """INSERT INTO ActorStat VALUES ("%s", "%s", "%s", "%s", "%s", "%s", %d, %d, "%s", %d, %d, "", "%s", "%s", %d)""" % (
         server, boss, battleDate, mapDetail, edition, hash, win, editionFull, userID, battleTime, submitTime, gameEdition, team, length)
@@ -426,14 +484,19 @@ def uploadActorData():
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
 
+    journal_token = _statistics_undo.set({})
     try:
         res = receiveBattle(jdata, cursor)
         db.commit()
     except Exception:
-        db.rollback()
+        try:
+            _rollback_statistics()
+        finally:
+            db.rollback()
         traceback.print_exc()
         return jsonify({'result': 'fail'})
     finally:
+        _statistics_undo.reset(journal_token)
         db.close()
     return jsonify(res)
     
@@ -486,6 +549,7 @@ def receiveReplay(jdata, cursor):
     edition = jdata["edition"]
     hash = jdata["hash"]
     statistics = jdata["statistics"]
+    incoming_quality = get_record_quality(statistics)
     public = jdata["public"]
     submitTime = jdata["submittime"]
     battleTime = jdata["battletime"]
@@ -521,14 +585,21 @@ def receiveReplay(jdata, cursor):
 
     # print(num, numOver)
 
-    sql = '''SELECT shortID, public, editionfull, scoreRank from ReplayProStat WHERE hash = "%s"''' % hash
+    sql = '''SELECT shortID, public, editionfull, scoreRank from ReplayProStat WHERE hash = "%s" FOR UPDATE''' % hash
     cursor.execute(sql)
     result = cursor.fetchall()
+    existing_short_id = None
     if result:
-        if result[0][2] >= editionFull and (result[0][1] == 1 or public == 0):
+        existing_short_id = result[0][0]
+        previous_quality = load_record_quality("database/ReplayProStat/%d" % existing_short_id)
+        previous_level = 3 if previous_quality["status"] == "unavailable" else quality_level(previous_quality)
+        incoming_level = quality_level(incoming_quality)
+        quality_upgrade = incoming_level > previous_level and editionFull >= result[0][2]
+        quality_repair = previous_quality["status"] == "unavailable" and incoming_quality["precise"] and editionFull >= result[0][2]
+        if incoming_level < previous_level or (result[0][2] >= editionFull and (result[0][1] == 1 or public == 0) and not quality_upgrade and not quality_repair):
             print("Find Duplicated")
             shortID = result[0][0]
-            scoreRank = result[0][3]
+            scoreRank = result[0][3] if is_metric_rank_eligible(previous_quality, "score") else -1
             return {'result': 'dupid', 'num': 0, 'numOver': 0, 'shortID': shortID, 'scoreRank': scoreRank}
         else:
             print("Update edition")
@@ -538,33 +609,38 @@ def receiveReplay(jdata, cursor):
     sql = '''DELETE FROM ReplayProStat WHERE hash = "%s"''' % hash
     cursor.execute(sql)
 
-    # 更新数量
-    sql = '''SELECT * from ReplayProInfo WHERE dataname = "num"'''
-    cursor.execute(sql)
-    result = cursor.fetchall()
-    num = result[0][2]
-    shortID = num + 1
-    sql = """UPDATE ReplayProInfo SET datavalueint=%d WHERE dataname = "num";""" % shortID
-    cursor.execute(sql)
+    # Keep existing replay URLs stable when quality or client edition improves.
+    shortID = existing_short_id
+    if shortID is None:
+        sql = '''SELECT * from ReplayProInfo WHERE dataname = "num" FOR UPDATE'''
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        shortID = result[0][2] + 1
+        sql = """UPDATE ReplayProInfo SET datavalueint=%d WHERE dataname = "num";""" % shortID
+        cursor.execute(sql)
 
     statistics["overall"]["shortID"] = shortID
 
-    with open("database/ReplayProStat/%d" % shortID, "w") as f:
-        f.write(str(statistics))
+    _write_statistics("database/ReplayProStat/%d" % shortID, json.dumps(statistics, ensure_ascii=False))
 
-    scoreRank = getRankFromKeys(score, occ, map, boss, "stat", "score", gameEdition)
+    def metric_rank(metric, value):
+        if not is_metric_rank_eligible(incoming_quality, metric):
+            return -1
+        return getRankFromKeys(value, occ, map, boss, "stat", metric, gameEdition)
+
+    scoreRank = metric_rank("score", score)
     rhps = statistics["skill"]["healer"].get("rhps", 0)
-    rhpsRank = getRankFromKeys(score, occ, map, boss, "stat", "rhps", gameEdition)
+    rhpsRank = metric_rank("rhps", rhps)
     hps = statistics["skill"]["healer"].get("hps", 0)
-    hpsRank = getRankFromKeys(score, occ, map, boss, "stat", "hps", gameEdition)
+    hpsRank = metric_rank("hps", hps)
     rdps = statistics["skill"]["general"].get("rdps", 0)
-    rdpsRank = getRankFromKeys(score, occ, map, boss, "stat", "rdps", gameEdition)
+    rdpsRank = metric_rank("rdps", rdps)
     ndps = statistics["skill"]["general"].get("ndps", 0)
-    ndpsRank = getRankFromKeys(score, occ, map, boss, "stat", "ndps", gameEdition)
+    ndpsRank = metric_rank("ndps", ndps)
     mrdps = statistics["skill"]["general"].get("mrdps", 0)
-    mrdpsRank = getRankFromKeys(score, occ, map, boss, "stat", "mrdps", gameEdition)
+    mrdpsRank = metric_rank("mrdps", mrdps)
     mndps = statistics["skill"]["general"].get("mndps", 0)
-    mndpsRank = getRankFromKeys(score, occ, map, boss, "stat", "mndps", gameEdition)
+    mndpsRank = metric_rank("mndps", mndps)
     hold = 1
 
     del statistics
@@ -588,14 +664,19 @@ def uploadReplayPro():
     print("Starting uploadReplay...")
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
+    journal_token = _statistics_undo.set({})
     try:
         res = receiveReplay(jdata, cursor)
         db.commit()
     except Exception as e:
-        db.rollback()
+        try:
+            _rollback_statistics()
+        finally:
+            db.rollback()
         traceback.print_exc()
         return jsonify({'result': 'fail', 'num': 0, 'numOver': 0, 'shortID': 0, 'scoreRank': 0})
     finally:
+        _statistics_undo.reset(journal_token)
         db.close()
     print("UploadReplay complete!")
     return jsonify(res)
@@ -608,6 +689,7 @@ def uploadCombinedData():
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
     # battleID = "0"
+    journal_token = _statistics_undo.set({})
     try:
         for line in jdata["data"]:
             if line["type"] == "replay":
@@ -622,10 +704,14 @@ def uploadCombinedData():
                 groupRes["data"].append(res)
         db.commit()
     except Exception as e:
-        db.rollback()
+        try:
+            _rollback_statistics()
+        finally:
+            db.rollback()
         traceback.print_exc()
         groupRes["status"] = "fail"
     finally:
+        _statistics_undo.reset(journal_token)
         db.close()
     return jsonify(groupRes)
 
@@ -646,11 +732,9 @@ def showReplayPro():
     elif result[0][3] != "unknown": #in ["xiangzhi", "lingsu", "lijingyidao", "butianjue", "yunchangxinjing"]:
         # 生成复盘页面
         occ = result[0][3]
-        with open("database/ReplayProStat/%d" % result[0][0], "r") as f:
-            text = f.read().replace('\n', '\\n').replace('\t', '\\t')
-        # text = result[0][0].decode().replace('\n', '\\n').replace('\t', '\\t')
-        text1 = text.replace("'", '"')
-        jResult = json.loads(text1)
+        with open("database/ReplayProStat/%d" % result[0][0], "r", encoding="utf-8") as f:
+            jResult = parse_statistics(f.read())
+        text = json.dumps(jResult, ensure_ascii=False)
         rc = RankCalculator(jResult, app.percent_data)
         rank = rc.getRankFromStat(occ)
         rankStr = json.dumps(rank)
@@ -675,10 +759,9 @@ def getReplayPro():
     elif result[0][3] != "unknown":  # in ["xiangzhi", "lingsu", "lijingyidao", "butianjue", "yunchangxinjing"]:
         flag = 1
         occ = result[0][3]
-        with open("database/ReplayProStat/%d" % result[0][0], "r") as f:
-            text = f.read().replace('\n', '\\n').replace('\t', '\\t').replace("'", '"')
-        text1 = text
-        jResult = json.loads(text1)
+        with open("database/ReplayProStat/%d" % result[0][0], "r", encoding="utf-8") as f:
+            jResult = parse_statistics(f.read())
+        text1 = json.dumps(jResult, ensure_ascii=False)
         rc = RankCalculator(jResult, app.percent_data, result[0][5])
         rank = rc.getRankFromStat(occ)
         rankStr = json.dumps(rank)
@@ -698,7 +781,7 @@ def getReplayPro():
         text = "不支持的心法，请等待之后的版本更新."
     db.close()
     if flag:
-        return jsonify({'available': 1, 'text': "请求成功", 'raw': text1, 'rank': rankStr, 'teammate': str(teammateInfo), 'battleID': battleID, 'gameEdition': gameEdition})
+        return jsonify({'available': 1, 'text': "请求成功", 'raw': text1, 'rank': rankStr, 'teammate': str(teammateInfo), 'battleID': battleID, 'gameEdition': gameEdition, 'quality': get_record_quality(jResult)})
     else:
         return jsonify({'available': 0, 'text': text})
 
@@ -716,10 +799,9 @@ def getBattle():
         text = "结果未找到."
     else:
         flag = 1
-        with open("database/ActorStat/%s" % hash, "r") as f:
-            text = f.read().replace('\n', '\\n').replace('\t', '\\t').replace("'", '"')
-        text1 = text
-        jResult = json.loads(text1)
+        with open("database/ActorStat/%s" % hash, "r", encoding="utf-8") as f:
+            jResult = parse_statistics(f.read())
+        text1 = json.dumps(jResult, ensure_ascii=False)
         act = {"available": 0}
         if "act" in jResult:
             act["available"] = 1
@@ -728,178 +810,103 @@ def getBattle():
     if flag:
         return jsonify({'available': 1, 'text': "请求成功", "act": act, "server": result[0][0], "boss": result[0][1],
                         "battleDate": result[0][2], "mapDetail": result[0][3], "edition": result[0][4],
-                        "battleTime": result[0][5], "submitTime": result[0][6], "gameEdition": result[0][7]})
+                        "battleTime": result[0][5], "submitTime": result[0][6], "gameEdition": result[0][7], "quality": get_record_quality(jResult)})
     else:
         return jsonify({'available': 0, 'text': text})
+
+
+def _finite_metric(value):
+    try:
+        return value is not None and not isinstance(value, bool) and math.isfinite(value)
+    except TypeError:
+        return False
+
+
+def _replay_row(record, quality=None):
+    quality = quality if quality is not None else load_record_quality("database/ReplayProStat/%d" % record[8])
+    row = {"server": record[0], "id": record[1], "occ": record[2],
+           "score": record[3], "edition": record[10], "battleTime": record[14],
+           "submitTime": record[15], "battleID": record[16], "shortID": record[8],
+           "hold": record[30], "quality": quality}
+    for metric in STAT_ID:
+        row[metric] = record[STAT_ID[metric]]
+        rank = record[RANK_ID[metric]]
+        row[metric + "Rank"] = rank if is_metric_rank_eligible(quality, metric) and is_valid_rank(rank) else -1
+    return row
+
+
+def _summarize_replay_records(records):
+    """Keep every log, but aggregate only eligible finite values/ranks."""
+    tables = {}
+    for record in records:
+        tables.setdefault(record[6], []).append(_replay_row(record))
+    statistics = {}
+    rank_statistics = {metric: {"overallSum": 0, "overallAverage": None,
+                                "overallMaxSum": 0, "overallMaxAverage": None} for metric in RANK_ID}
+    maximum_scores = []
+    average_scores = []
+    for boss, rows in tables.items():
+        scores = [row["score"] for row in rows if is_metric_rank_eligible(row["quality"], "score") and _finite_metric(row["score"])]
+        statistics[boss] = {"highest": max(scores) if scores else None,
+                            "average": roundCent(sum(scores) / len(scores)) if scores else None,
+                            "num": len(rows), "eligibleNum": len(scores)}
+        if scores:
+            maximum_scores.append(max(scores))
+            average_scores.append(sum(scores) / len(scores))
+        for metric in RANK_ID:
+            values = [row[metric + "Rank"] for row in rows if is_valid_rank(row[metric + "Rank"])]
+            rank_statistics[metric][boss] = {"num": len(values), "sum": sum(values),
+                                             "highest": max(values) if values else None,
+                                             "average": sum(values) / len(values) if values else None}
+    statistics["overall"] = {"highest": roundCent(sum(maximum_scores) / len(maximum_scores)) if maximum_scores else None,
+                              "average": roundCent(sum(average_scores) / len(average_scores)) if average_scores else None,
+                              "num": len(tables), "eligibleNum": len(maximum_scores)}
+    for metric, summary in rank_statistics.items():
+        averages = [summary[boss]["average"] for boss in tables if summary[boss]["num"]]
+        maxima = [summary[boss]["highest"] for boss in tables if summary[boss]["num"]]
+        summary["overallSum"] = sum(averages)
+        summary["overallMaxSum"] = sum(maxima)
+        summary["overallAverage"] = roundCent(sum(averages) / len(averages)) if averages else None
+        summary["overallMaxAverage"] = roundCent(sum(maxima) / len(maxima)) if maxima else None
+    return {"stat": statistics, "rank": rank_statistics, "table": tables}
 
 
 @app.route('/getMultiPlayer', methods=['GET'])
 def getMultiPlayer():
     server = request.args.get('server')
-    ids = request.args.get('ids')
-    map = request.args.get('map')
-
+    ids = request.args.get('ids', '')
+    map_name = request.args.get('map')
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
-    ids_split = ids.split(' ')
+    result = {"server": server}
+    try:
+        for player_id in ids.split():
+            sql = '''SELECT * FROM ReplayProStat WHERE server = "%s" AND id = "%s" AND mapdetail = "%s" AND public = 1''' % (server, player_id, map_name)
+            cursor.execute(sql)
+            result[player_id] = _summarize_replay_records(cursor.fetchall())
+    finally:
+        db.close()
+    return jsonify({'available': 1, 'text': "请求成功", 'result': result})
 
-    overallResJson = {}
-    overallResJson["server"] = server
-    for id in ids_split:
-        sql = '''SELECT * FROM ReplayProStat WHERE server = "%s" AND id = "%s" AND mapdetail = "%s" AND public = 1''' % (server, id, map)
-        cursor.execute(sql)
-        result = cursor.fetchall()
-        resJson = {"stat": {}}
-        highestScore = {}
-        sumScore = {}
-        numRecord = {}
-        avgScore = {}
-
-        rankStat = {}
-        for stat_item in RANK_ID:
-            rankStat[stat_item] = {"overallSum": 0, "overallAverage": 0}
-
-        allResults = {}
-        for record in result:
-            score = record[3]
-            boss = record[6]
-            occ = record[2]
-            edition = record[11]
-            battleTime = record[15]
-            submitTime = record[16]
-            shortID = record[8]
-            if score > highestScore.get(boss, -1):
-                highestScore[boss] = score
-            numRecord[boss] = numRecord.get(boss, 0) + 1
-            sumScore[boss] = sumScore.get(boss, 0) + score
-            if boss not in allResults:
-                allResults[boss] = []
-            res = {"score": score, "occ": occ, "edition": edition, "battleTime": battleTime, "submitTime": submitTime,
-                   "shortID": shortID}
-            for stat_item in STAT_ID:
-                res[stat_item] = record[STAT_ID[stat_item]]
-            for stat_item in RANK_ID:
-                rank = record[RANK_ID[stat_item]]
-                res[stat_item + "Rank"] = rank
-                if boss not in rankStat[stat_item]:
-                    rankStat[stat_item][boss] = {"num": 0, "sum": 0, "highest": 0}
-                if rank is not None:
-                    rankStat[stat_item][boss]["num"] += 1
-                    rankStat[stat_item][boss]["sum"] += rank
-                    rankStat[stat_item][boss]["highest"] = max(rankStat[stat_item][boss]["highest"], rank)
-            allResults[boss].append(res)
-        numBoss = 0
-        sumHighestScore = 0
-        sumAverageScore = 0
-        for boss in sumScore:
-            numBoss += 1
-            avgScore[boss] = roundCent(safe_divide(sumScore[boss], numRecord[boss]))
-            sumHighestScore += highestScore[boss]
-            sumAverageScore += avgScore[boss]
-            resJson["stat"][boss] = {"highest": highestScore[boss], "average": avgScore[boss], "num": numRecord[boss]}
-            for stat_item in RANK_ID:
-                rankStat[stat_item][boss]["average"] = safe_divide(rankStat[stat_item][boss]["sum"], rankStat[stat_item][boss]["num"])
-                rankStat[stat_item]["overallSum"] += rankStat[stat_item][boss]["average"]
-
-        overallAverageScore = roundCent(safe_divide(sumAverageScore, numBoss))
-        overallHighestScore = roundCent(safe_divide(sumHighestScore, numBoss))
-        for stat_item in RANK_ID:
-            rankStat[stat_item]["overallAverage"] += roundCent(safe_divide(rankStat[stat_item]["overallSum"], numBoss))
-
-        resJson["stat"]["overall"] = {"highest": overallHighestScore, "average": overallAverageScore, "num": numBoss}
-        resJson["rank"] = rankStat
-        resJson["table"] = allResults
-
-        overallResJson[id] = resJson
-    db.close()
-    return jsonify({'available': 1, 'text': "请求成功", 'result': overallResJson})
 
 @app.route('/getSinglePlayer', methods=['GET'])
 def getSinglePlayer():
     server = request.args.get('server')
-    id = request.args.get('id')
-    map = request.args.get('map')
-    occ = request.args.get('occ')  # 如果以后要加限定心法, 就用这个参数；现在暂时用不上
-    gameEdition = request.args.get('gameEdition')
-
-    if occ is None:
-        occ = "all"
-    if gameEdition is None:
-        gameEdition = "all"
-
+    player_id = request.args.get('id')
+    map_name = request.args.get('map')
+    game_edition = request.args.get('gameEdition', 'all')
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
+    try:
+        sql = '''SELECT * FROM ReplayProStat WHERE server = "%s" AND id = "%s" AND mapdetail = "%s" AND public = 1''' % (server, player_id, map_name)
+        if game_edition != 'all':
+            sql += ''' AND gameEdition = "%s"''' % game_edition
+        cursor.execute(sql)
+        result = _summarize_replay_records(cursor.fetchall())
+    finally:
+        db.close()
+    return jsonify({'available': 1, 'text': "请求成功", 'result': result})
 
-    sql = '''SELECT * FROM ReplayProStat WHERE server = "%s" AND id = "%s" AND mapdetail = "%s" AND public = 1 AND gameEdition = "%s"''' % (server, id, map, gameEdition)
-    if gameEdition == "all":
-        sql = '''SELECT * FROM ReplayProStat WHERE server = "%s" AND id = "%s" AND mapdetail = "%s" AND public = 1''' % (server, id, map)
-    cursor.execute(sql)
-    result = cursor.fetchall()
-    resJson = {"stat": {}}
-    highestScore = {}
-    sumScore = {}
-    numRecord = {}
-    avgScore = {}
-
-    rankStat = {}
-    for stat_item in RANK_ID:
-        rankStat[stat_item] = {"overallSum": 0, "overallAverage": 0, "overallMaxSum": 0, "overallMaxAverage": 0}
-
-    allResults = {}
-    for record in result:
-        score = record[3]
-        boss = record[6]
-        occ = record[2]
-        edition = record[10]
-        battleTime = record[14]
-        submitTime = record[15]
-        battleID = record[16]
-        shortID = record[8]
-        if score > highestScore.get(boss, -1):
-            highestScore[boss] = score
-        numRecord[boss] = numRecord.get(boss, 0) + 1
-        sumScore[boss] = sumScore.get(boss, 0) + score
-        if boss not in allResults:
-            allResults[boss] = []
-        res = {"score": score, "occ": occ, "edition": edition, "battleTime": battleTime, "submitTime": submitTime, "shortID": shortID, "battleID": battleID}
-        for stat_item in STAT_ID:
-            res[stat_item] = record[STAT_ID[stat_item]]
-        for stat_item in RANK_ID:
-            rank = record[RANK_ID[stat_item]]
-            res[stat_item + "Rank"] = rank
-            if boss not in rankStat[stat_item]:
-                rankStat[stat_item][boss] = {"num": 0, "sum": 0, "highest": 0}
-            if rank is not None:
-                rankStat[stat_item][boss]["num"] += 1
-                rankStat[stat_item][boss]["sum"] += rank
-                rankStat[stat_item][boss]["highest"] = max(rankStat[stat_item][boss]["highest"], rank)
-        allResults[boss].append(res)
-    numBoss = 0
-    sumHighestScore = 0
-    sumAverageScore = 0
-    for boss in sumScore:
-        numBoss += 1
-        avgScore[boss] = roundCent(safe_divide(sumScore[boss], numRecord[boss]))
-        sumHighestScore += highestScore.get(boss, 0)
-        sumAverageScore += avgScore.get(boss, 0)
-        resJson["stat"][boss] = {"highest": highestScore.get(boss, 0), "average": avgScore.get(boss, 0), "num": numRecord.get(boss, 0)}
-        for stat_item in RANK_ID:
-            rankStat[stat_item][boss]["average"] = safe_divide(rankStat[stat_item][boss]["sum"], rankStat[stat_item][boss]["num"])
-            rankStat[stat_item]["overallSum"] += rankStat[stat_item][boss]["average"]
-            rankStat[stat_item]["overallMaxSum"] += rankStat[stat_item][boss]["highest"]
-
-    overallAverageScore = roundCent(safe_divide(sumAverageScore, numBoss))
-    overallHighestScore = roundCent(safe_divide(sumHighestScore, numBoss))
-    for stat_item in RANK_ID:
-        rankStat[stat_item]["overallAverage"] += roundCent(safe_divide(rankStat[stat_item]["overallSum"], numBoss))
-        rankStat[stat_item]["overallMaxAverage"] += roundCent(safe_divide(rankStat[stat_item]["overallMaxSum"], numBoss))
-
-    resJson["stat"]["overall"] = {"highest": overallHighestScore, "average": overallAverageScore, "num": numBoss}
-    resJson["rank"] = rankStat
-    resJson["table"] = allResults
-
-    db.close()
-    return jsonify({'available': 1, 'text': "请求成功", 'result': resJson})
 
 @app.route('/getMaps', methods=['GET'])
 def getMapsfunc():
@@ -978,10 +985,8 @@ def getHoFfunc():
     for item in resultList:
         players = []
         acrossServer = 0
-        with open("database/ActorStat/%s" % item["hash"], "r") as f:
-            text = f.read().replace('\n', '\\n').replace('\t', '\\t').replace("'", '"')
-            text1 = text
-            jResult = json.loads(text1)
+        with open("database/ActorStat/%s" % item["hash"], "r", encoding="utf-8") as f:
+            jResult = parse_statistics(f.read())
             act = {"available": 0}
             if "act" in jResult:
                 act["available"] = 1
@@ -1048,7 +1053,7 @@ def getRankfunc():
     occ = request.args.get("occ")
     page = request.args.get("page")
     orderby = request.args.get("orderby")
-    alltime = request.args.get("alltime")
+    alltime = request.args.get("alltime", "1").lower() not in ("0", "false")
     gameEdition = request.args.get("gameEdition")
     if page is None:
         page = 1
@@ -1056,15 +1061,13 @@ def getRankfunc():
         page = int(page)
     if orderby is None:
         orderby = "score"
-    if alltime is None:
-        alltime = 1
     if orderby not in ["score", "rhps", "hps", "rdps", "ndps", "mrdps", "mndps", "battletime"]:
         return jsonify({'available': 0, 'text': "排序方式不合法"})
     if gameEdition is None:
         gameEdition = "all"
 
     if orderby == "battletime":
-        order_id = 4
+        order_id = 14
     else:
         if alltime:
             order_id = STAT_ID[orderby]
@@ -1089,13 +1092,14 @@ def getRankfunc():
 
     result = list(result)
     result_var = []
+    qualities = {}
     for line in result:
         if str(line[31]) in MIN_RANK_CLIENT_BY_GAME_EDITION and not isReplayRankEligible(line):
             continue
         line_var = list(line)
         if parseEdition(line[10]) < parseEdition("8.1.0") and occ in ["lingsu", "butianjue", "yunchangxinjing"]:
             line_var[3] -= 10000
-        if line_var[order_id] is None:
+        if not _finite_metric(line_var[order_id]) or (not alltime and orderby != "battletime" and not is_valid_rank(line_var[order_id])):
             continue
         line_var.append(line_var[order_id])
         skip = 0
@@ -1107,6 +1111,11 @@ def getRankfunc():
                 occ in ["taixuanjing", "wenshuijue", "xiaochenjue", "beiaojue", "linghaijue", "yinlongjue", "gufengjue"]:
             skip = 1
         if not skip:
+            if orderby in ("score", "rdps", "mrdps"):
+                quality = load_record_quality("database/ReplayProStat/%d" % line[8])
+                qualities[line[8]] = quality
+                if not is_metric_rank_eligible(quality, orderby):
+                    continue
             result_var.append(line_var)
     result_var.sort(key=lambda x:-x[-1])
 
@@ -1130,13 +1139,7 @@ def getRankfunc():
             battleTime = record[14]
             submitTime = record[15]
             shortID = record[8]
-            res = {"score": score, "server": server, "edition": edition, "id": id, "battleTime": battleTime, "submitTime": submitTime, "shortID": shortID}
-            for id in STAT_ID:
-                res[id] = record[STAT_ID[id]]
-            for id in RANK_ID:
-                res[id+"Rank"] = record[RANK_ID[id]]
-            res["hold"] = record[30]
-            res["battleID"] = record[16]
+            res = _replay_row(record, qualities.get(record[8]))
             resJson["table"].append(res)
 
     resJson["num"] = len(result_nodup)

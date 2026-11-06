@@ -93,6 +93,18 @@ class EstimatedEquipmentWindowTests(unittest.TestCase):
         self.assertIn(EQUIPMENT_FALLBACK_WARNING, banner)
         self.assertIn(status["reason"], banner)
 
+    def test_complete_static_attributes_with_unmodeled_effects_are_not_missing_gear(self):
+        status = {"status": "incomplete", "staticAttributes": "available",
+                  "unmodeledEffects": ["附魔11272: atExecuteScript"],
+                  "reason": "特殊效果未建模；已知静态属性仍可用。"}
+        window = self.boss(status)
+        row = self.boss_row(window, estimated=False)
+        self.assertEqual(row[0], "玩家")
+        self.assertEqual(row[1], "987")
+        banner = "\n".join(label.cget("text") for label in labels(window.window))
+        self.assertIn(status["reason"], banner)
+        self.assertNotIn(EQUIPMENT_FALLBACK_WARNING, banner)
+
     def test_incomplete_without_estimate_keeps_measured_metric(self):
         window = self.boss({"status": "incomplete", "reason": "属性待校准"})
         row = self.boss_row(window, estimated=False)

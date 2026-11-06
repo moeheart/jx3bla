@@ -1,3 +1,4 @@
+import http.client
 import sys
 
 if __name__ == "__main__" and "--release-smoke-test" in sys.argv:
@@ -94,6 +95,10 @@ class MainWindow():
 
         if "beta" in EDITION:
             return
+        if not self.uploadData:
+            self.setNotice({"t1": "没有待上传的记录。", "c1": "#000000",
+                            "t2": "请先分析一场已通关的战斗。", "c2": "#000000"})
+            return
 
         actualData = {"data": []}
         for line in self.uploadData:
@@ -106,15 +111,37 @@ class MainWindow():
         Jdata = json.dumps(actualData)
         jpost = {'jdata': Jdata}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
-        resp = urllib.request.urlopen(get_api_url('/uploadCombinedData'), data=jparse)
-        res = json.load(resp)
+        try:
+            with urllib.request.urlopen(get_api_url('/uploadCombinedData'), data=jparse, timeout=30) as resp:
+                res = json.load(resp)
+            if not isinstance(res, dict) or res.get("status") not in ("success", "fail"):
+                raise ValueError("Invalid upload response")
+            if res["status"] == "success":
+                records = res.get("data")
+                if not isinstance(records, list) or len(records) != len(self.uploadData):
+                    raise ValueError("Incomplete upload response")
+                for pending, record in zip(self.uploadData, records):
+                    if not isinstance(record, dict):
+                        raise ValueError("Invalid upload result")
+                    if pending["type"] == "replay":
+                        required = {"result"} if record.get("result") == "fail" else {"result", "shortID", "num", "scoreRank"}
+                    else:
+                        required = {"scoreStatus", "scoreAdd"} if record.get("scoreStatus") == "success" else {"scoreStatus"}
+                    if not required.issubset(record):
+                        raise ValueError("Incomplete upload result")
+        except (OSError, ValueError, http.client.HTTPException):
+            self.setNotice({"t1": "上传数据失败。", "c1": "#ff0000",
+                            "t2": "待上传记录已保留，请稍后重试。", "c2": "#000000"})
+            return
 
         # print("[res]", res)
 
         # 解析返回的数据
 
         if res["status"] == "fail":
-            self.setNotice({"t2": "上传数据失败！", "c2": "#ff0000"})
+            self.setNotice({"t1": "上传数据失败。", "c1": "#ff0000",
+                            "t2": "待上传记录已保留，请稍后重试。", "c2": "#000000"})
+            return
         else:
             for i in range(len(self.uploadData)):
                 if self.uploadData[i]["type"] == "replay":

@@ -3,8 +3,8 @@
 
 from ServerAddress import get_address_config, get_api_url, get_logs_url
 
-EDITION = "8.16.4"
-ANNOUNCEMENT = "蓝奏云下载密码：1234。8.16.4 修复：修复新版启动器注册表导致的路径识别失败；修复装备缺失时的估算、跨场缓存及排名保护，估算结果仅供参考；修复多来源目标增益归属、刷新与到期计算；整理文件结构并精简重复资源和可选依赖，缩小安装包。仅适用于10月29日后的50级正式服数据。"
+EDITION = "8.16.5"
+ANNOUNCEMENT = "蓝奏云下载密码：1234。8.16.5 修复：装备缺失或特效未建模不再阻止战斗记录上传；缺装备时使用当前正式服同心法平均属性并标记参考来源；实测伤害治疗正常展示，估算 rDPS、mrDPS 与综合分数不参与精确排名；修复服务端即时排名及网页状态显示。仅适用于10月29日后的50级正式服数据。"
 # IP is kept for old compatibility. New HTTP requests should use get_api_url()
 # or get_logs_url().
 IP = get_address_config()["api"]["host"]

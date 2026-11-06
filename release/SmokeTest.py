@@ -80,8 +80,55 @@ def check_damage_conservation(tracker):
     return result
 
 
+def capture_uploads(window):
+    """Use the real prepareUpload methods with a local-only queue sink."""
+    def collect(data):
+        data["id"] = len(window.uploadData)
+        window.uploadData.append(data)
+    window.addUploadData = collect
+    return window
+
+
+def check_upload_payloads(window, actor):
+    """Check the actual combined-upload contract without sending any request."""
+    rows = window.uploadData
+    if not actor.win:
+        assert rows == [], "An unconfirmed victory must not enqueue uploads"
+        raw = json.dumps({"data": []}, sort_keys=True).encode("utf-8")
+        return {"count": 0, "battle": 0, "replay": 0, "eligible": False,
+                "reason": "victory_not_confirmed", "http": "disabled",
+                "sha256": hashlib.sha256(raw).hexdigest(), "bytes": len(raw)}, raw
+    battles = [row for row in rows if row.get("type") == "battle"]
+    replays = [row for row in rows if row.get("type") == "replay"]
+    assert len(battles) == 1, "Expected exactly one battle upload"
+    assert len(replays) == len(actor.occResult), "Missing personal replay uploads"
+    assert len(rows) == len(replays) + 1
+    status = actor.attributeStatus
+    assert status.get("staticAttributes"), "Missing static attribute quality"
+    battle = battles[0]["data"]
+    assert battle["statistics"]["attributeStatus"] == status, "Missing battle quality"
+    assert battle["statistics"]["act"]["rdpsStatus"] == actor.combatTracker.rdpsStatus
+    for name in ("ndps", "mndps", "hps", "rhps"):
+        value = battle["statistics"]["act"][name]["sum"]
+        assert math.isfinite(value) and value >= 0, (name, value)
+    for row in replays:
+        data = row["data"]
+        assert data["hash"] and data["battleID"] == battle["hash"]
+        assert data["statistics"]["overall"]["attributeStatus"] == status, "Missing replay quality"
+        for group, names in (("general", ("ndps", "mndps")), ("healer", ("hps", "rhps"))):
+            for name in names:
+                value = data["statistics"]["skill"][group][name]
+                assert math.isfinite(value) and value >= 0, (group, name, value)
+    assert [row["id"] for row in rows] == list(range(len(rows)))
+    payload = {"data": [{key: row[key] for key in ("type", "data", "id")} for row in rows]}
+    raw = json.dumps(payload, ensure_ascii=False, sort_keys=True, allow_nan=False).encode("utf-8")
+    return {"count": len(rows), "battle": len(battles), "replay": len(replays), "eligible": True,
+            "sha256": hashlib.sha256(raw).hexdigest(), "bytes": len(raw),
+            "quality": "retained", "observedMetrics": "retained", "http": "disabled"}, raw
+
+
 def check_equipment_fallback(with_ui=False):
-    """Run missing-gear fixtures through the actual actor, ranks and upload guards."""
+    """Run missing-gear fixtures through the actual actor, ranks and local upload queue."""
     from data.BattleLogData import BattleLogData
     from equip.CangshengAttributeData import kungfu_data
     from equip.EquipmentFallback import average_equipment_data, EQUIPMENT_FALLBACK_WARNING
@@ -115,12 +162,11 @@ def check_equipment_fallback(with_ui=False):
                                   effect=0, fullResult={'0': '1000'}, frame=time // 16)
                    for time in (0, 5000) for player in occupations]
         bld.log.append(SimpleNamespace(dataType='Death', time=10000, id='boss'))
-        window = ValidationWindow()  # Its real upload sink rejects any enqueue.
+        window = capture_uploads(ValidationWindow())
         actor = ActorProReplayer(make_config(True), [name, 0, 1], '', {name: bld}, window)
         with contextlib.redirect_stdout(io.StringIO()):
             actor.replay()
-            # Do not patch either prepareUpload method: their actual guards must run.
-            actor.prepareUpload()
+        queue_summary, _ = check_upload_payloads(window, actor)
         assert actor.win == 1
         assert actor.attributeStatus['status'] == expected_status, actor.attributeStatus
         assert actor.combatTracker.rdpsStatus['status'] == expected_status
@@ -148,7 +194,11 @@ def check_equipment_fallback(with_ui=False):
         replay.win, replay.actorData, replay.window = 1, actor.actorData, window
         replay.gameEdition = CURRENT_GAME_EDITION
         window.stat_percent = percent_data
-        replay.result = {'overall': {'map': bld.info.map, 'boss': bld.info.boss},
+        replay.config, replay.public, replay.occ = actor.config, 0, '6d'
+        replay.battleID, replay.getHash = actor.hashGroup(), lambda: 'local-rank-fixture'
+        replay.result = {'overall': {'map': bld.info.map, 'boss': bld.info.boss,
+                                     'server': bld.info.server, 'playerID': 'local-rank-fixture',
+                                     'battleTime': bld.info.battleTime, 'edition': 'local-smoke'},
                          'skill': {'general': {'rdps': 70, 'mrdps': 70, 'ndps': 70}},
                          'review': {'score': 70}}
         replay.getRankFromStat('6d')
@@ -156,8 +206,10 @@ def check_equipment_fallback(with_ui=False):
         assert replay.rank['general']['mrdps'] == {'num': 0, 'percent': -1}
         assert replay.rank['general']['ndps'] == {'num': 100, 'percent': 70}
         assert replay.getScoreRankFromStat('6d')['score'] == {'num': 0, 'percent': -1}
+        before_count = len(window.uploadData)
         replay.prepareUpload()
-        assert window.uploadData == []
+        assert len(window.uploadData) == before_count + 1
+        assert window.uploadData[-1]['data']['statistics']['overall']['attributeStatus'] == actor.attributeStatus
         damage = check_damage_conservation(actor.combatTracker)
         if with_ui:
             check_windows(actor)
@@ -165,7 +217,7 @@ def check_equipment_fallback(with_ui=False):
                          'estimatedPlayers': len(actor.attributeStatus.get('estimatedPlayers', {})),
                          'missingPanelRetained': True, 'realEquipmentCacheUnchanged': True,
                          'attributeRanks': 'blocked', 'directDamageRank': 'retained',
-                         'uploads': 'blocked', 'damage': damage,
+                         'uploads': 'captured', 'uploadQueue': queue_summary, 'damage': damage,
                          'ui': 'constructed' if with_ui else 'not requested'}
     return results
 
@@ -181,10 +233,12 @@ def check_replays(entries, report_path):
         print('Release replay: ' + path.name, flush=True)
         if entry.get('sha256'):
             assert hashlib.sha256(path.read_bytes()).hexdigest() == entry['sha256'].lower()
-        with patch('replayer.ActorReplayPro.ActorProReplayer.prepareUpload'), \
-                patch('replayer.ReplayerBase.ReplayerBase.prepareUpload'), \
+        window = capture_uploads(ValidationWindow())
+        with patch('socket.socket.connect', side_effect=AssertionError('Replay network disabled')), \
+                patch('urllib.request.urlopen', side_effect=AssertionError('Replay HTTP disabled')), \
                 contextlib.redirect_stdout(io.StringIO()):
-            actor = replay(path, ValidationWindow(), healers=True)
+            actor = replay(path, window, healers=True)
+            queue_summary, raw_payload = check_upload_payloads(window, actor)
             assert actor.battleTime > 0 and actor.statDict
             assert len(actor.occResult) == len(actor.statDict)
             tracker = actor.combatTracker
@@ -207,13 +261,19 @@ def check_replays(entries, report_path):
                 assert any(row['occ'] == expected['occ'] and row[expected['activity']] > 0
                            for row in wujie), (expected, wujie)
             check_windows(actor)
+        if not results:
+            # Local validation evidence only; release packaging excludes build outputs.
+            payload_path = report_path.with_name(report_path.stem + '-first-upload-payload.json')
+            payload_path.write_bytes(raw_payload)
+            queue_summary['localPayload'] = payload_path.name
         results.append({'file': path.name, 'boss': actor.bossAnalyseName,
                         'players': len(actor.statDict), 'specializationReplays': len(actor.occResult),
+                        'win': actor.win, 'uploadEnabled': bool(actor.upload),
                         'seconds': actor.battleTime / 1000,
                         'attributeStatus': actor.detail.get('attributeStatus'),
                         'rdpsStatus': tracker.rdpsStatus, 'totals': totals,
                         'damage': damage, 'displayOrderMetric': metric,
-                        'wujie': wujie, 'ui': 'constructed'})
+                        'wujie': wujie, 'uploadQueue': queue_summary, 'ui': 'constructed'})
         report_path.write_text(json.dumps(results, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     return str(report_path)
 

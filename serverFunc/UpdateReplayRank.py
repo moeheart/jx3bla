@@ -6,9 +6,12 @@ import pymysql
 import configparser
 import json
 import time
+import math
 import urllib.request
 from tools.Names import *
 from tools.Functions import parseEdition
+from tools.RecordQuality import (get_record_quality, is_metric_rank_eligible,
+                                load_record_quality, parse_statistics)
 
 # 数据库的屎山
 STAT_ID = {"score": 3, "rhps": 18, "hps": 20, "rdps": 22, "ndps": 24, "mrdps": 26, "mndps": 28}
@@ -57,8 +60,7 @@ def getSingleStat(record):
 
     try:
         with open("database/ReplayProStat/%d" % record[8], "r") as f:
-            s = f.read().replace('\n', '\\n').replace('\t', '\\t').replace("'", '"')
-        d = json.loads(s)
+            d = parse_statistics(f.read())
     except:
         print("Problem:", record[8])
         return {}
@@ -72,8 +74,11 @@ def getSingleStat(record):
         pass
 
     skillStat = d["skill"]
+    quality = get_record_quality(d)
     for skillName in skillStat:
         for item in skillStat[skillName]:
+            if not is_metric_rank_eligible(quality, item):
+                continue
             key4 = skillName
             key5 = item
             # if key4 == "qczl" and key5 in ["num", "numPerSec"] and record[11] < parseEdition("8.1.0"):
@@ -88,7 +93,10 @@ def getSingleStat(record):
             #         key1 in ["taixuanjing", "wenshuijue", "xiaochenjue", "beiaojue", "linghaijue", "yinlongjue", "gufengjue"]:
             #     continue
             key = "%s-%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5, key6)
-            value = skillStat[skillName][item] * getDirection(key)
+            raw_value = skillStat[skillName][item]
+            if not isinstance(raw_value, (int, float)) or not math.isfinite(raw_value):
+                continue
+            value = raw_value * getDirection(key)
             if "delay" in key and value == 0:
                 value = -9999
             res[key] = value
@@ -97,13 +105,19 @@ def getSingleStat(record):
             if line["name"] == record[1]:
                 key4 = "healer"
                 for key5 in ["heal", "healEff", "rhps", "hps", "ahps", "ohps", "chps"]:
+                    if not is_metric_rank_eligible(quality, key5):
+                        continue
                     if key5 not in line:
                         continue
                     key = "%s-%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5, key6)
+                    if not isinstance(line[key5], (int, float)) or not math.isfinite(line[key5]):
+                        continue
                     value = line[key5] * getDirection(key)
                     res[key] = value
 
     for id in STAT_ID:
+        if not is_metric_rank_eligible(quality, id):
+            continue
         skip = 0
         # if parseEdition(edition) < parseEdition("8.3.5") and id == "score":
         #     skip = 1
@@ -118,7 +132,7 @@ def getSingleStat(record):
             key4 = "stat"
             key5 = id
             value = record[STAT_ID[id]]
-            if value is None:
+            if value is None or not math.isfinite(value):
                 continue
             key = "%s-%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5, key6)
             res[key] = value
@@ -196,6 +210,7 @@ def updatePercent(raw_rank, cursor, db):
         key3 = record[6]
         shortID = record[8]
         hash = record[7]
+        quality = load_record_quality("database/ReplayProStat/%d" % shortID)
         gameEdition = record[31]
         key6 = gameEdition
 
@@ -209,6 +224,10 @@ def updatePercent(raw_rank, cursor, db):
             continue
 
         for id in STAT_ID:
+            if not is_metric_rank_eligible(quality, id):
+                if record[RANK_ID[id]] != -1:
+                    cursor.execute("UPDATE ReplayProStat SET %sRank = -1 WHERE hash = '%s'" % (id, hash))
+                continue
             key4 = "stat"
             key5 = id
             key = "%s-%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5, key6)

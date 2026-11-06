@@ -49,6 +49,8 @@ def make_average_base_attributes(occ):
         "sampleCount": sample["sampleCount"],
         "sourceDates": deepcopy(sample.get("sourceDates", data.get("sourceDates", []))),
         "warning": EQUIPMENT_FALLBACK_WARNING,
+        "staticOnly": True,
+        "unmodeledEffectTypes": deepcopy(sample.get("unmodeledEffectTypes", [])),
     }
     base["_baseSource"] += "; average equipment from current formal-server JCL"
     return base
