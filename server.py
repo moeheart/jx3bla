@@ -1,5 +1,5 @@
 # coding:utf-8
-from flask import Flask, render_template, url_for, request, redirect, session, make_response, jsonify, abort
+from flask import Flask, Request, current_app, render_template, url_for, request, redirect, session, make_response, jsonify, abort
 from flask import request    
 from flask import make_response,Response
 from flask_cors import CORS
@@ -33,7 +33,19 @@ from tools.RecordQuality import (get_record_quality, is_metric_rank_eligible, qu
 version = EDITION
 ip = "127.0.0.1" # IP
 announcement = "全新的DPS统计已出炉，大家可以关注一下，看一下各门派的表现~"
+
+
+class BattleLogRequest(Request):
+    @property
+    def max_form_memory_size(self):
+        # Flask <3.1 does not read MAX_FORM_MEMORY_SIZE itself. Werkzeug's
+        # 500 KB default otherwise rejects real combined replays before the
+        # upload handler runs, despite our configured 200 MiB request limit.
+        return current_app.config["MAX_FORM_MEMORY_SIZE"]
+
+
 app = Flask(__name__)
+app.request_class = BattleLogRequest
 CORS(app)
 app.config['JSON_AS_ASCII'] = False
 app.config['MAX_CONTENT_LENGTH'] = 200 * 1024 * 1024

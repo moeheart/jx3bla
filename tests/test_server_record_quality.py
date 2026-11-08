@@ -9,6 +9,7 @@ import unittest
 from unittest.mock import Mock, patch, mock_open
 
 import test_server_collection as fixtures
+import tools.RecordQuality as quality_module
 from tools.RecordQuality import get_record_quality, invalidate_quality_cache
 
 
@@ -205,6 +206,132 @@ class ServerRecordQualityTests(unittest.TestCase):
         calculator.game_edition = "161"
         self.assertEqual(calculator.getSkillPercent("lingsu", "835", "史朝义", "general", "rdps", 50), (0, -1))
         self.assertEqual(calculator.getSkillPercent("lingsu", "835", "史朝义", "healer", "hps", 50), (5, 50))
+
+    def test_same_version_model_upgrade_replaces_values_and_enters_both_rank_modes(self):
+        """A modeled replay replaces its old record, not merely its quality flag."""
+        payload = self.replay(when=fixtures.INITIAL + 3600)
+        payload.update(edition="8.16.6", editionfull=self.server.parseEdition("8.16.6"),
+                       replayedition="8.16.6", score=95)
+        payload["statistics"]["review"] = {"score": 95}
+        payload["statistics"]["skill"]["general"]["score"] = 95
+        payload["statistics"]["overall"]["attributeStatus"] = self.status("supported")
+        battle = self.battle(when=payload["battletime"])
+        battle["edition"] = payload["edition"]
+        battle["statistics"].update(attributeStatus=self.status("supported"),
+                                    act={"rdpsStatus": self.status("supported")})
+        old_status = {"status": "incomplete", "staticAttributes": "available",
+                      "unmodeledEffects": ["fixture equipment effect"]}
+        previous = copy.deepcopy(payload["statistics"])
+        previous["overall"]["attributeStatus"] = old_status
+        previous["review"]["score"] = 40
+        previous["skill"]["general"].update(score=40, rdps=1800)
+        replay_row = self.row(identifier=42, player=payload["id"], value=40)
+        replay_row[0:3] = [payload["server"], payload["id"], payload["occ"]]
+        replay_row[4:8] = [payload["battledate"], payload["mapdetail"], payload["boss"], payload["hash"]]
+        replay_row[10:17] = [payload["edition"], payload["editionfull"], payload["replayedition"],
+                             payload["userid"], payload["battletime"], payload["submittime"], payload["battleID"]]
+        replay_row[self.server.STAT_ID["rdps"]] = 1800
+        for metric in ("score", "rdps", "mrdps"):
+            replay_row[self.server.RANK_ID[metric]] = -1
+        battle_row = [battle["server"], battle["boss"], battle["battledate"], "835", battle["edition"],
+                      battle["hash"], 1, payload["editionfull"], battle["userid"], battle["begintime"],
+                      battle["time"], "", "161", battle["team"], battle["length"]]
+        state = {"replay": replay_row, "battle": battle_row}
+        original_execute, original_fetch = self.cursor.execute, self.cursor.fetchall
+
+        def execute(sql, *args):
+            original_execute(sql, *args)
+            if sql.startswith("INSERT INTO ReplayProStat "):
+                row = self.cursor.inserted("ReplayProStat")
+                for index in self.server.STAT_ID.values():
+                    row[index] = float(row[index])
+                for index in set(self.server.RANK_ID.values()) | {8, 9, 11, 14, 15, 30}:
+                    row[index] = int(row[index])
+                state["replay"] = row
+            elif sql.startswith("INSERT INTO ActorStat "):
+                row = self.cursor.inserted("ActorStat")
+                for index in (6, 7, 9, 10, 14):
+                    row[index] = int(row[index])
+                state["battle"] = row
+
+        def fetch():
+            if "SELECT shortID, public" in self.cursor.last:
+                row = state["replay"]
+                return [(row[8], row[9], row[11], row[17])]
+            if "SELECT * FROM ReplayProStat" in self.cursor.last:
+                return [state["replay"]]
+            if "SELECT * from ActorStat" in self.cursor.last:
+                return [state["battle"]]
+            if "from ScoreInfo" in self.cursor.last:
+                return [(1,)]  # The original upload already received its honor.
+            return original_fetch()
+
+        query = {"map": payload["mapdetail"], "boss": payload["boss"], "occ": payload["occ"],
+                 "gameEdition": "161"}
+        combined = {"data": [{"type": "replay", "id": 0, "data": payload},
+                              {"type": "battle", "id": 1, "data": battle}]}
+        table = {"lingsu-835-史朝义-stat-%s-161" % metric:
+                 {"num": 101, "value": json.dumps([index * (100 if metric != "score" else 1)
+                                                    for index in range(101)])}
+                 for metric in self.server.STAT_ID}
+        original_cwd = Path.cwd()
+        with tempfile.TemporaryDirectory(dir=Path(__file__).resolve().parents[1] / ".tmp") as directory, \
+                patch.object(self.server, "open", builtins.open), \
+                patch.object(self.server, "_atomic_write_statistics", self.real_atomic_writer), \
+                patch.object(self.server, "_write_statistics", wraps=self.server._write_statistics) as writer, \
+                patch.object(self.cursor, "execute", side_effect=execute), \
+                patch.object(self.cursor, "fetchall", side_effect=fetch), \
+                patch.object(self.server.app, "percent_data", table):
+            try:
+                os.chdir(directory)
+                replay_path = Path("database/ReplayProStat/42")
+                battle_path = Path("database/ActorStat") / battle["hash"]
+                for path, data in ((replay_path, previous), (battle_path, {"attributeStatus": old_status})):
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_text(json.dumps(data), encoding="utf-8")
+                    self.assertFalse(self.server.load_record_quality(path)["precise"])
+                    self.assertIn(str(path.resolve()), quality_module._quality_cache)
+                for metric in ("score", "rdps"):
+                    response = self.client.get("/getRank", query_string=dict(query, orderby=metric)).get_json()
+                    self.assertEqual(response["result"]["num"], 0)
+
+                self.db.reset_mock()
+                result = self.client.post("/uploadCombinedData", data={"jdata": json.dumps(combined)}).get_json()
+                self.assertEqual(result["status"], "success")
+                self.assertEqual([row["result"] for row in result["data"]], ["success", "success"])
+                self.assertEqual(result["data"][0]["shortID"], 42)
+                self.assertEqual(result["data"][1]["scoreStatus"], "dupid")
+                self.db.commit.assert_called_once_with()
+                self.db.rollback.assert_not_called()
+                self.assertEqual(writer.call_count, 2)
+                self.assertFalse(any("from ReplayProInfo" in sql for sql in self.cursor.queries))
+                for path in (replay_path, battle_path):
+                    self.assertNotIn(str(path.resolve()), quality_module._quality_cache)
+                    self.assertTrue(self.server.load_record_quality(path)["precise"])
+                saved = json.loads(replay_path.read_text(encoding="utf-8"))
+                self.assertEqual(saved["review"]["score"], 95)
+                self.assertEqual(saved["skill"]["general"]["rdps"], 2200)
+                self.assertEqual(state["replay"][3], 95)
+                self.assertEqual(state["replay"][22], 2200)
+                for metric in ("score", "rdps"):
+                    for alltime in ("1", "0"):
+                        response = self.client.get("/getRank", query_string=dict(query, orderby=metric, alltime=alltime)).get_json()
+                        rows = response["result"]["table"]
+                        self.assertEqual([row["shortID"] for row in rows], [42])
+                        self.assertEqual(rows[0][metric], payload["score"] if metric == "score" else 2200)
+                        self.assertGreaterEqual(rows[0][metric + "Rank"], 0)
+
+                saved_bytes = {path: path.read_bytes() for path in (replay_path, battle_path)}
+                self.cursor.queries.clear()
+                result = self.client.post("/uploadCombinedData", data={"jdata": json.dumps(combined)}).get_json()
+                self.assertEqual([row["result"] for row in result["data"]], ["dupid", "dupid"])
+                self.assertEqual(result["data"][0]["shortID"], 42)
+                self.assertEqual(writer.call_count, 2)
+                self.assertFalse(any(sql.startswith(("DELETE", "INSERT")) for sql in self.cursor.queries))
+                self.assertEqual({path: path.read_bytes() for path in saved_bytes}, saved_bytes)
+            finally:
+                os.chdir(original_cwd)
+                invalidate_quality_cache()
 
     def test_sql_failure_restores_overwrite_and_removes_new_combined_files(self):
         original_cwd = Path.cwd()

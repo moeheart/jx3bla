@@ -3,6 +3,7 @@
 
 from equip.AttributeCal import AttributeCal
 from equip.EquipmentInfo import is_unmodeled_effect_warning
+from equip.EquipmentEffects import resolve_equipment_effects
 from tools.Attribute import CURRENT_GAME_EDITION
 from equip.CangshengAttributeData import make_base_attributes, calculate_attributes
 
@@ -15,13 +16,22 @@ class AttributeDisplay():
         equipment = self.ac.CalculateAll(str)
         if not equipment:
             return None
+        effects = getattr(self.ac, 'lastEffects', [])
+        modeled, unresolved, extra = resolve_equipment_effects(effects, occ)
+        effect_warnings = {effect['warning'] for effect in effects}
+        current_warnings = [warning for warning in self.ac.lastWarnings
+                            if warning not in effect_warnings or warning in unresolved]
+        for name, value in extra.items():
+            equipment[name] = equipment.get(name, 0) + value
         base = make_base_attributes(equipment, occ)
-        if self.ac.lastWarnings:
-            base['_warnings'] = list(self.ac.lastWarnings)
-            warnings = sorted(set(self.status.get('warnings', []) + self.ac.lastWarnings))
+        if modeled:
+            base['_modeledEffects'] = modeled
+        if current_warnings:
+            base['_warnings'] = list(current_warnings)
+            warnings = sorted(set(self.status.get('warnings', []) + current_warnings))
             unmodeled = [warning for warning in warnings if is_unmodeled_effect_warning(warning)]
             invalid = [warning for warning in warnings if not is_unmodeled_effect_warning(warning)]
-            base['_unmodeledEffects'] = [warning for warning in self.ac.lastWarnings
+            base['_unmodeledEffects'] = [warning for warning in current_warnings
                                          if is_unmodeled_effect_warning(warning)]
             self.status.update(status='incomplete', warnings=warnings,
                                unmodeledEffects=unmodeled,
@@ -42,6 +52,8 @@ class AttributeDisplay():
             panel['_warnings'] = baseAttrib['_warnings']
         if baseAttrib.get('_unmodeledEffects'):
             panel['_unmodeledEffects'] = baseAttrib['_unmodeledEffects']
+        if baseAttrib.get('_modeledEffects'):
+            panel['_modeledEffects'] = baseAttrib['_modeledEffects']
         return panel
 
 

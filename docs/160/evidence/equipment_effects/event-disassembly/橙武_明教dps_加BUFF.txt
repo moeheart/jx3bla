@@ -1,0 +1,109 @@
+main lines=0:0 metadata=[0, 0, 2, 2]
+constants=["Include", "scripts/Include/Skill.lh", "tSkillData", "GetSkillLevelData", "CanCast", "OnSkillLevelUp", "Apply", "UnApply"]
+   1 GETGLOBAL  A=0 B=0 C=0 Bx=0 sBx=-131071 K='Include'
+   2 LOADK      A=1 B=0 C=1 Bx=1 sBx=-131070 K='scripts/Include/Skill.lh'
+   3 CALL       A=0 B=2 C=1 Bx=1025 sBx=-130046
+   4 NEWTABLE   A=0 B=0 C=0 Bx=0 sBx=-131071
+   5 SETGLOBAL  A=0 B=0 C=2 Bx=2 sBx=-131069 K='tSkillData'
+   6 CLOSURE    A=0 B=0 C=0 Bx=0 sBx=-131071
+   7 SETGLOBAL  A=0 B=0 C=3 Bx=3 sBx=-131068 K='GetSkillLevelData'
+   8 CLOSURE    A=0 B=0 C=1 Bx=1 sBx=-131070
+   9 SETGLOBAL  A=0 B=0 C=4 Bx=4 sBx=-131067 K='CanCast'
+  10 CLOSURE    A=0 B=0 C=2 Bx=2 sBx=-131069
+  11 SETGLOBAL  A=0 B=0 C=5 Bx=5 sBx=-131066 K='OnSkillLevelUp'
+  12 CLOSURE    A=0 B=0 C=3 Bx=3 sBx=-131068
+  13 SETGLOBAL  A=0 B=0 C=6 Bx=6 sBx=-131065 K='Apply'
+  14 CLOSURE    A=0 B=0 C=4 Bx=4 sBx=-131067
+  15 SETGLOBAL  A=0 B=0 C=7 Bx=7 sBx=-131064 K='UnApply'
+  16 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/0 lines=30:135 metadata=[0, 1, 0, 8]
+constants=["dwLevel", 8.0, "bIgnorePrepareState", true, "AddAttribute", "ATTRIBUTE_EFFECT_MODE", "EFFECT_TO_SELF_NOT_ROLLBACK", "ATTRIBUTE_TYPE", "EXECUTE_SCRIPT", "skill/item/OrangeWeaponSceneEntry.lua", 0.0, "EFFECT_TO_DEST_NOT_ROLLBACK", "EXECUTE_SCRIPT_WITH_PARAM", "skill/item/橙武_明教dps_加BUFF.lua", "AddSlowCheckSelfBuff", 2584.0, "BUFF_COMPARE_FLAG", "EQUAL", "GREATER_EQUAL", "BindBuff", 1.0, "SetNormalCoolDown", 5079.0, "nMaxRadius", "LENGTH_BASE", 10.0, "nAngleRange", 256.0]
+   1 GETTABLE   A=1 B=0 C=256 Bx=256 sBx=-130815 R0 'dwLevel'
+   2 LE         A=0 B=257 C=1 Bx=131585 sBx=514 8.0 R1
+   3 JMP        A=0 B=256 C=8 Bx=131080 sBx=9 =>13
+   4 SETTABLE   A=0 B=258 C=259 Bx=132355 sBx=1284 'bIgnorePrepareState' True
+   5 GETTABLE   A=1 B=0 C=260 Bx=260 sBx=-130811 R0 'AddAttribute'
+   6 GETGLOBAL  A=2 B=0 C=5 Bx=5 sBx=-131066 K='ATTRIBUTE_EFFECT_MODE'
+   7 GETTABLE   A=2 B=2 C=262 Bx=1286 sBx=-129785 R2 'EFFECT_TO_SELF_NOT_ROLLBACK'
+   8 GETGLOBAL  A=3 B=0 C=7 Bx=7 sBx=-131064 K='ATTRIBUTE_TYPE'
+   9 GETTABLE   A=3 B=3 C=264 Bx=1800 sBx=-129271 R3 'EXECUTE_SCRIPT'
+  10 LOADK      A=4 B=0 C=9 Bx=9 sBx=-131062 K='skill/item/OrangeWeaponSceneEntry.lua'
+  11 LOADK      A=5 B=0 C=10 Bx=10 sBx=-131061 K=0.0
+  12 CALL       A=1 B=5 C=1 Bx=2561 sBx=-128510
+  13 GETTABLE   A=1 B=0 C=256 Bx=256 sBx=-130815 R0 'dwLevel'
+  14 GETTABLE   A=2 B=0 C=260 Bx=260 sBx=-130811 R0 'AddAttribute'
+  15 GETGLOBAL  A=3 B=0 C=5 Bx=5 sBx=-131066 K='ATTRIBUTE_EFFECT_MODE'
+  16 GETTABLE   A=3 B=3 C=267 Bx=1803 sBx=-129268 R3 'EFFECT_TO_DEST_NOT_ROLLBACK'
+  17 GETGLOBAL  A=4 B=0 C=7 Bx=7 sBx=-131064 K='ATTRIBUTE_TYPE'
+  18 GETTABLE   A=4 B=4 C=268 Bx=2316 sBx=-128755 R4 'EXECUTE_SCRIPT_WITH_PARAM'
+  19 LOADK      A=5 B=0 C=13 Bx=13 sBx=-131058 K='skill/item/橙武_明教dps_加BUFF.lua'
+  20 MOVE       A=6 B=1 C=0 Bx=512 sBx=-130559
+  21 CALL       A=2 B=5 C=1 Bx=2561 sBx=-128510
+  22 GETTABLE   A=2 B=0 C=270 Bx=270 sBx=-130801 R0 'AddSlowCheckSelfBuff'
+  23 LOADK      A=3 B=0 C=15 Bx=15 sBx=-131056 K=2584.0
+  24 LOADK      A=4 B=0 C=10 Bx=10 sBx=-131061 K=0.0
+  25 GETGLOBAL  A=5 B=0 C=16 Bx=16 sBx=-131055 K='BUFF_COMPARE_FLAG'
+  26 GETTABLE   A=5 B=5 C=273 Bx=2833 sBx=-128238 R5 'EQUAL'
+  27 LOADK      A=6 B=0 C=10 Bx=10 sBx=-131061 K=0.0
+  28 GETGLOBAL  A=7 B=0 C=16 Bx=16 sBx=-131055 K='BUFF_COMPARE_FLAG'
+  29 GETTABLE   A=7 B=7 C=274 Bx=3858 sBx=-127213 R7 'GREATER_EQUAL'
+  30 CALL       A=2 B=6 C=1 Bx=3073 sBx=-127998
+  31 GETTABLE   A=2 B=0 C=275 Bx=275 sBx=-130796 R0 'BindBuff'
+  32 LOADK      A=3 B=0 C=20 Bx=20 sBx=-131051 K=1.0
+  33 LOADK      A=4 B=0 C=15 Bx=15 sBx=-131056 K=2584.0
+  34 LOADK      A=5 B=0 C=20 Bx=20 sBx=-131051 K=1.0
+  35 CALL       A=2 B=4 C=1 Bx=2049 sBx=-129022
+  36 LE         A=0 B=257 C=1 Bx=131585 sBx=514 8.0 R1
+  37 JMP        A=0 B=256 C=3 Bx=131075 sBx=4 =>42
+  38 GETTABLE   A=2 B=0 C=277 Bx=277 sBx=-130794 R0 'SetNormalCoolDown'
+  39 LOADK      A=3 B=0 C=20 Bx=20 sBx=-131051 K=1.0
+  40 LOADK      A=4 B=0 C=22 Bx=22 sBx=-131049 K=5079.0
+  41 CALL       A=2 B=3 C=1 Bx=1537 sBx=-129534
+  42 GETGLOBAL  A=2 B=0 C=24 Bx=24 sBx=-131047 K='LENGTH_BASE'
+  43 MUL        A=2 B=281 C=2 Bx=143874 sBx=12803 10.0 R2
+  44 SETTABLE   A=0 B=279 C=2 Bx=142850 sBx=11779 'nMaxRadius' R2
+  45 SETTABLE   A=0 B=282 C=283 Bx=144667 sBx=13596 'nAngleRange' 256.0
+  46 LOADBOOL   A=2 B=1 C=0 Bx=512 sBx=-130559
+  47 RETURN     A=2 B=2 C=0 Bx=1024 sBx=-130047
+  48 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/1 lines=142:144 metadata=[0, 2, 0, 2]
+constants=[]
+   1 RETURN     A=1 B=2 C=0 Bx=1024 sBx=-130047
+   2 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/2 lines=147:149 metadata=[0, 2, 0, 2]
+constants=[]
+   1 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/3 lines=152:160 metadata=[0, 2, 0, 11]
+constants=["GetPlayer", "nSkillPlatformType", "SKILL_PLATFORM_TYPE", "MOBILE", 1.0, 9.0, "DelGroupBuff", 4930.0, "AddBuff", "dwID", "nLevel", 0.0, 4.0]
+   1 GETGLOBAL  A=2 B=0 C=0 Bx=0 sBx=-131071 K='GetPlayer'
+   2 MOVE       A=3 B=0 C=0 Bx=0 sBx=-131071
+   3 CALL       A=2 B=2 C=2 Bx=1026 sBx=-130045
+   4 TEST       A=2 B=0 C=0 Bx=0 sBx=-131071
+   5 JMP        A=0 B=256 C=22 Bx=131094 sBx=23 =>29
+   6 GETTABLE   A=3 B=2 C=257 Bx=1281 sBx=-129790 R2 'nSkillPlatformType'
+   7 GETGLOBAL  A=4 B=0 C=2 Bx=2 sBx=-131069 K='SKILL_PLATFORM_TYPE'
+   8 GETTABLE   A=4 B=4 C=259 Bx=2307 sBx=-128764 R4 'MOBILE'
+   9 EQ         A=1 B=3 C=4 Bx=1540 sBx=-129531 R3 R4
+  10 JMP        A=0 B=256 C=17 Bx=131089 sBx=18 =>29
+  11 LOADK      A=3 B=0 C=4 Bx=4 sBx=-131067 K=1.0
+  12 LOADK      A=4 B=0 C=5 Bx=5 sBx=-131066 K=9.0
+  13 LOADK      A=5 B=0 C=4 Bx=4 sBx=-131067 K=1.0
+  14 FORPREP    A=3 B=256 C=3 Bx=131075 sBx=4
+  15 GETTABLE   A=7 B=2 C=262 Bx=1286 sBx=-129785 R2 'DelGroupBuff'
+  16 LOADK      A=8 B=0 C=7 Bx=7 sBx=-131064 K=4930.0
+  17 MOVE       A=9 B=6 C=0 Bx=3072 sBx=-127999
+  18 CALL       A=7 B=3 C=1 Bx=1537 sBx=-129534
+  19 FORLOOP    A=3 B=255 C=506 Bx=131066 sBx=-5
+  20 GETTABLE   A=3 B=2 C=264 Bx=1288 sBx=-129783 R2 'AddBuff'
+  21 GETTABLE   A=4 B=2 C=265 Bx=1289 sBx=-129782 R2 'dwID'
+  22 GETTABLE   A=5 B=2 C=266 Bx=1290 sBx=-129781 R2 'nLevel'
+  23 LOADK      A=6 B=0 C=7 Bx=7 sBx=-131064 K=4930.0
+  24 MOVE       A=7 B=1 C=0 Bx=512 sBx=-130559
+  25 LOADK      A=8 B=0 C=11 Bx=11 sBx=-131060 K=0.0
+  26 LOADK      A=9 B=0 C=11 Bx=11 sBx=-131060 K=0.0
+  27 LOADK      A=10 B=0 C=12 Bx=12 sBx=-131059 K=4.0
+  28 CALL       A=3 B=8 C=1 Bx=4097 sBx=-126974
+  29 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/4 lines=163:164 metadata=[0, 1, 0, 2]
+constants=[]
+   1 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559

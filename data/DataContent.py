@@ -228,6 +228,18 @@ class SingleDataShout(SingleData):
     def __init__(self):
         self.dataType = "Shout"
 
+class SingleDataSystem(SingleData):
+    """JCL type 18 local/system messages, distinct from NPC/player Shout."""
+
+    def setByJcl(self, item):
+        self.time = int(item[3])
+        self.content = item[5].get("1", "").strip('"')
+        self.channel = item[5].get("2", "").strip('"')
+
+    def __init__(self):
+        self.dataType = "System"
+
+
 class SingleDataBattle(SingleData):
     '''
     战斗状态变化事件，对应jx3dat-10, jcl-5/9

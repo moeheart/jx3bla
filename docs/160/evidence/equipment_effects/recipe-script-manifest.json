@@ -1,0 +1,16 @@
+{
+  "clientVersion": "1.6.0.10009",
+  "source": "hd-20261029/healers",
+  "files": [
+    {
+      "path": "raw/scripts/skill/五毒/秘笈/蝎心加伤害5.lua",
+      "sha256": "5989b935cf4d3c8f51ef25c22ed2b9c7417203aafbb0caef34cfe7393902076f",
+      "bytes": 824
+    },
+    {
+      "path": "readable/scripts/skill/五毒/秘笈/蝎心加伤害5.lua",
+      "sha256": "7618e5248b3d25a6cf4dad51ecdaa399c6b3c76c2b3f8f0f9984fc4d5dee93ad",
+      "bytes": 840
+    }
+  ]
+}

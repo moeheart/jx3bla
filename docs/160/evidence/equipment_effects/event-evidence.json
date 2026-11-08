@@ -1,0 +1,2389 @@
+{
+  "schema": 1,
+  "archiveVersion": "1.6.0.10009",
+  "scriptVersion": "1.6.0.10072",
+  "manifest": "event-source-manifest.json",
+  "rowComparison": {
+    "compared": "49 exact event rows and effective skill + referenced buff rows",
+    "differences": []
+  },
+  "derivedTalentRecipes": [
+    {
+      "RecipeName": "橙武触发听风保护调息",
+      "BelongSchool": "万花镇派",
+      "DesignLevel": "1",
+      "RecipeExplain": "",
+      "RecipeID": "4936",
+      "RecipeLevel": "1",
+      "Type": "3",
+      "IsSystemRecipe": "",
+      "IsEquipmentRecipe": "",
+      "SkillRecipeType": "2663",
+      "SkillRecipeTagMask": "",
+      "SkillType": "",
+      "SkillID": "2663",
+      "SkillLevel": "",
+      "PrepareFramesAdd": "",
+      "PrepareFramesPercent": "",
+      "CoolDownAdd1": "",
+      "CoolDownAdd2": "",
+      "CoolDownAdd3": "",
+      "MinRadiusAdd": "",
+      "MaxRadiusAdd": "",
+      "CostLifeAddPercent": "",
+      "CostManaAddPercent": "",
+      "CostRageAdd": "",
+      "CostEnergyAdd": "",
+      "CostStaminaAdd": "",
+      "CostTrainAdd": "",
+      "DamageAddPercent": "",
+      "ScriptFile": "万花\\镇派\\橙武触发听风保护调息.lua",
+      "LearnSkillID": "",
+      "LearnSkillLevel": "",
+      "SelfMoveStateMask1": "",
+      "SelfMoveStateMask2": "",
+      "TargetMoveStateMask1": "",
+      "TargetMoveStateMask2": ""
+    },
+    {
+      "RecipeName": "橙武万世加伤害",
+      "BelongSchool": "纯阳镇派",
+      "DesignLevel": "1",
+      "RecipeExplain": "减少调息时间",
+      "RecipeID": "5756",
+      "RecipeLevel": "1",
+      "Type": "3",
+      "IsSystemRecipe": "",
+      "IsEquipmentRecipe": "",
+      "SkillRecipeType": "18640",
+      "SkillRecipeTagMask": "",
+      "SkillType": "",
+      "SkillID": "18640",
+      "SkillLevel": "",
+      "PrepareFramesAdd": "",
+      "PrepareFramesPercent": "",
+      "CoolDownAdd1": "",
+      "CoolDownAdd2": "",
+      "CoolDownAdd3": "",
+      "MinRadiusAdd": "",
+      "MaxRadiusAdd": "",
+      "CostLifeAddPercent": "",
+      "CostManaAddPercent": "",
+      "CostRageAdd": "",
+      "CostEnergyAdd": "",
+      "CostStaminaAdd": "",
+      "CostTrainAdd": "",
+      "DamageAddPercent": "512",
+      "ScriptFile": "",
+      "LearnSkillID": "",
+      "LearnSkillLevel": "",
+      "SelfMoveStateMask1": "",
+      "SelfMoveStateMask2": "",
+      "TargetMoveStateMask1": "",
+      "TargetMoveStateMask2": ""
+    },
+    {
+      "RecipeName": "橙武八荒增伤",
+      "BelongSchool": "纯阳镇派",
+      "DesignLevel": "1",
+      "RecipeExplain": "减少调息时间",
+      "RecipeID": "5758",
+      "RecipeLevel": "1",
+      "Type": "3",
+      "IsSystemRecipe": "",
+      "IsEquipmentRecipe": "",
+      "SkillRecipeType": "2699",
+      "SkillRecipeTagMask": "",
+      "SkillType": "",
+      "SkillID": "2699",
+      "SkillLevel": "",
+      "PrepareFramesAdd": "",
+      "PrepareFramesPercent": "",
+      "CoolDownAdd1": "",
+      "CoolDownAdd2": "",
+      "CoolDownAdd3": "",
+      "MinRadiusAdd": "",
+      "MaxRadiusAdd": "",
+      "CostLifeAddPercent": "",
+      "CostManaAddPercent": "",
+      "CostRageAdd": "",
+      "CostEnergyAdd": "",
+      "CostStaminaAdd": "",
+      "CostTrainAdd": "",
+      "DamageAddPercent": "563",
+      "ScriptFile": "",
+      "LearnSkillID": "",
+      "LearnSkillLevel": "",
+      "SelfMoveStateMask1": "",
+      "SelfMoveStateMask2": "",
+      "TargetMoveStateMask1": "",
+      "TargetMoveStateMask2": ""
+    },
+    {
+      "RecipeName": "橙武追命加伤害无消耗",
+      "BelongSchool": "唐门镇派",
+      "DesignLevel": "1",
+      "RecipeExplain": "",
+      "RecipeID": "5759",
+      "RecipeLevel": "1",
+      "Type": "3",
+      "IsSystemRecipe": "0",
+      "IsEquipmentRecipe": "0",
+      "SkillRecipeType": "3096",
+      "SkillRecipeTagMask": "",
+      "SkillType": "0",
+      "SkillID": "3096",
+      "SkillLevel": "0",
+      "PrepareFramesAdd": "0",
+      "PrepareFramesPercent": "1024",
+      "CoolDownAdd1": "0",
+      "CoolDownAdd2": "0",
+      "CoolDownAdd3": "0",
+      "MinRadiusAdd": "0",
+      "MaxRadiusAdd": "0",
+      "CostLifeAddPercent": "0",
+      "CostManaAddPercent": "0",
+      "CostRageAdd": "0",
+      "CostEnergyAdd": "-40",
+      "CostStaminaAdd": "0",
+      "CostTrainAdd": "0",
+      "DamageAddPercent": "0",
+      "ScriptFile": "",
+      "LearnSkillID": "",
+      "LearnSkillLevel": "",
+      "SelfMoveStateMask1": "",
+      "SelfMoveStateMask2": "",
+      "TargetMoveStateMask1": "",
+      "TargetMoveStateMask2": ""
+    },
+    {
+      "RecipeName": "cw金戈加伤害",
+      "BelongSchool": "凌雪阁镇派",
+      "DesignLevel": "1",
+      "RecipeExplain": "",
+      "RecipeID": "5929",
+      "RecipeLevel": "1",
+      "Type": "3",
+      "IsSystemRecipe": "",
+      "IsEquipmentRecipe": "",
+      "SkillRecipeType": "22144",
+      "SkillRecipeTagMask": "",
+      "SkillType": "",
+      "SkillID": "22144",
+      "SkillLevel": "",
+      "PrepareFramesAdd": "",
+      "PrepareFramesPercent": "",
+      "CoolDownAdd1": "",
+      "CoolDownAdd2": "",
+      "CoolDownAdd3": "",
+      "MinRadiusAdd": "",
+      "MaxRadiusAdd": "",
+      "CostLifeAddPercent": "",
+      "CostManaAddPercent": "",
+      "CostRageAdd": "",
+      "CostEnergyAdd": "",
+      "CostStaminaAdd": "",
+      "CostTrainAdd": "",
+      "DamageAddPercent": "307",
+      "ScriptFile": "",
+      "LearnSkillID": "",
+      "LearnSkillLevel": "",
+      "SelfMoveStateMask1": "",
+      "SelfMoveStateMask2": "",
+      "TargetMoveStateMask1": "",
+      "TargetMoveStateMask2": ""
+    },
+    {
+      "RecipeName": "傲血CW伤害降低秘籍",
+      "BelongSchool": "天策镇派",
+      "DesignLevel": "1",
+      "RecipeExplain": "",
+      "RecipeID": "6442",
+      "RecipeLevel": "1",
+      "Type": "3",
+      "IsSystemRecipe": "",
+      "IsEquipmentRecipe": "",
+      "SkillRecipeType": "",
+      "SkillRecipeTagMask": "",
+      "SkillType": "",
+      "SkillID": "31031",
+      "SkillLevel": "",
+      "PrepareFramesAdd": "",
+      "PrepareFramesPercent": "",
+      "CoolDownAdd1": "",
+      "CoolDownAdd2": "",
+      "CoolDownAdd3": "",
+      "MinRadiusAdd": "",
+      "MaxRadiusAdd": "",
+      "CostLifeAddPercent": "",
+      "CostManaAddPercent": "",
+      "CostRageAdd": "",
+      "CostEnergyAdd": "",
+      "CostStaminaAdd": "",
+      "CostTrainAdd": "",
+      "DamageAddPercent": "512",
+      "ScriptFile": "",
+      "LearnSkillID": "",
+      "LearnSkillLevel": "",
+      "SelfMoveStateMask1": "",
+      "SelfMoveStateMask2": "",
+      "TargetMoveStateMask1": "",
+      "TargetMoveStateMask2": ""
+    },
+    {
+      "RecipeName": "大CW醉斩白蛇增伤",
+      "BelongSchool": "霸刀镇派",
+      "DesignLevel": "1",
+      "RecipeExplain": "",
+      "RecipeID": "6577",
+      "RecipeLevel": "1",
+      "Type": "3",
+      "IsSystemRecipe": "0",
+      "IsEquipmentRecipe": "0",
+      "SkillRecipeType": "16085",
+      "SkillRecipeTagMask": "0",
+      "SkillType": "0",
+      "SkillID": "0",
+      "SkillLevel": "0",
+      "PrepareFramesAdd": "0",
+      "PrepareFramesPercent": "1024",
+      "CoolDownAdd1": "0",
+      "CoolDownAdd2": "0",
+      "CoolDownAdd3": "0",
+      "MinRadiusAdd": "0",
+      "MaxRadiusAdd": "0",
+      "CostLifeAddPercent": "0",
+      "CostManaAddPercent": "0",
+      "CostRageAdd": "0",
+      "CostEnergyAdd": "",
+      "CostStaminaAdd": "0",
+      "CostTrainAdd": "0",
+      "DamageAddPercent": "2048",
+      "ScriptFile": "霸刀/秘笈/橙武_醉斩白蛇无消耗.lua",
+      "LearnSkillID": "0",
+      "LearnSkillLevel": "0",
+      "SelfMoveStateMask1": "0",
+      "SelfMoveStateMask2": "0",
+      "TargetMoveStateMask1": "",
+      "TargetMoveStateMask2": ""
+    }
+  ],
+  "1929": {
+    "effect": "atSkillEventHandler",
+    "value1": "1929",
+    "value2": "0",
+    "name": "110级新CW特效花间",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45303",
+        "name": "意真",
+        "field": "44028"
+      }
+    ],
+    "category": "recorded_damage",
+    "reason": "Dedicated child skill records final damage/heal amount; do not add unconditional equipment stats",
+    "eventSkillID": "25768",
+    "effectiveSkillID": "25768",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [
+      "25768"
+    ],
+    "buffs": [],
+    "script": "event-readable/scripts/skill/江湖/110CW新增特效花间游伤害子技能.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "1930": {
+    "effect": "atSkillEventHandler",
+    "value1": "1930",
+    "value2": "0",
+    "name": "110级新CW特效冰心",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45309",
+        "name": "龙鲤",
+        "field": "44034"
+      }
+    ],
+    "category": "recorded_damage",
+    "reason": "Dedicated child skill records final damage/heal amount; do not add unconditional equipment stats",
+    "eventSkillID": "25769",
+    "effectiveSkillID": "25769",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [
+      "25769"
+    ],
+    "buffs": [],
+    "script": "event-readable/scripts/skill/江湖/110CW新增特效冰心诀伤害子技能.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "1931": {
+    "effect": "atSkillEventHandler",
+    "value1": "1931",
+    "value2": "0",
+    "name": "110级新CW特效气纯",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45307",
+        "name": "仙灵",
+        "field": "44032"
+      }
+    ],
+    "category": "recorded_damage",
+    "reason": "Dedicated child skill records final damage/heal amount; do not add unconditional equipment stats",
+    "eventSkillID": "25770",
+    "effectiveSkillID": "25770",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [
+      "25770"
+    ],
+    "buffs": [],
+    "script": "event-readable/scripts/skill/江湖/110CW新增特效紫霞功.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "1932": {
+    "effect": "atSkillEventHandler",
+    "value1": "1932",
+    "value2": "0",
+    "name": "110级新CW特效剑纯",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45308",
+        "name": "镇恶",
+        "field": "44033"
+      }
+    ],
+    "category": "recorded_damage",
+    "reason": "Dedicated child skill records final damage/heal amount; do not add unconditional equipment stats",
+    "eventSkillID": "25771",
+    "effectiveSkillID": "25771",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [
+      "25771"
+    ],
+    "buffs": [],
+    "script": "event-readable/scripts/skill/江湖/110CW新增特效太虚剑意伤害子技能.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "1933": {
+    "effect": "atSkillEventHandler",
+    "value1": "1933",
+    "value2": "0",
+    "name": "110级新CW特效傲血",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,47736",
+        "name": "寒锋凌日",
+        "field": "44030"
+      }
+    ],
+    "category": "recorded_damage",
+    "reason": "Dedicated child skill records final damage/heal amount; do not add unconditional equipment stats",
+    "eventSkillID": "25772",
+    "effectiveSkillID": "25772",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [
+      "25772"
+    ],
+    "buffs": [],
+    "script": "event-readable/scripts/skill/江湖/110CW新增特效傲血战意伤害子技能.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "1934": {
+    "effect": "atSkillEventHandler",
+    "value1": "1934",
+    "value2": "0",
+    "name": "110级新CW特效毒经",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45311",
+        "name": "蜕骨",
+        "field": "44036"
+      }
+    ],
+    "category": "recorded_damage",
+    "reason": "Dedicated child skill records final damage/heal amount; do not add unconditional equipment stats",
+    "eventSkillID": "25773",
+    "effectiveSkillID": "25773",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [
+      "25773"
+    ],
+    "buffs": [],
+    "script": "event-readable/scripts/skill/江湖/110级CW新增特效毒经伤害子技能.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "1935": {
+    "effect": "atSkillEventHandler",
+    "value1": "1935",
+    "value2": "0",
+    "name": "110级新CW特效天罗",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45313",
+        "name": "碧岚幽炎",
+        "field": "44038"
+      }
+    ],
+    "category": "recorded_damage",
+    "reason": "Dedicated child skill records final damage/heal amount; do not add unconditional equipment stats",
+    "eventSkillID": "25774",
+    "effectiveSkillID": "25774",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [
+      "25774"
+    ],
+    "buffs": [],
+    "script": "event-readable/scripts/skill/江湖/110级CW新增特效天罗伤害子技能.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "1936": {
+    "effect": "atSkillEventHandler",
+    "value1": "1936",
+    "value2": "0",
+    "name": "110级新CW特效惊羽",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45314",
+        "name": "银羽雪辉",
+        "field": "44039"
+      }
+    ],
+    "category": "recorded_damage",
+    "reason": "Dedicated child skill records final damage/heal amount; do not add unconditional equipment stats",
+    "eventSkillID": "25775",
+    "effectiveSkillID": "25775",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [
+      "25775"
+    ],
+    "buffs": [],
+    "script": "event-readable/scripts/skill/江湖/110级CW新增特效惊羽伤害子技能.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "1938": {
+    "effect": "atSkillEventHandler",
+    "value1": "1938",
+    "value2": "0",
+    "name": "110级新CW特效焚影",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45318",
+        "name": "瀚海引",
+        "field": "44043"
+      }
+    ],
+    "category": "recorded_damage",
+    "reason": "Dedicated child skill records final damage/heal amount; do not add unconditional equipment stats",
+    "eventSkillID": "25777",
+    "effectiveSkillID": "25777",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [
+      "25777"
+    ],
+    "buffs": [],
+    "script": "event-readable/scripts/skill/江湖/110级CW新增特效焚影伤害子技能.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "1942": {
+    "effect": "atSkillEventHandler",
+    "value1": "1942",
+    "value2": "0",
+    "name": "110级新CW特效霸刀",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45324",
+        "name": "碧血豪侠",
+        "field": "44049"
+      }
+    ],
+    "category": "recorded_damage",
+    "reason": "Dedicated child skill records final damage/heal amount; do not add unconditional equipment stats",
+    "eventSkillID": "25782",
+    "effectiveSkillID": "25782",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [
+      "25782"
+    ],
+    "buffs": [],
+    "script": "event-readable/scripts/skill/江湖/110级CW新增特效霸刀伤害子技能.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "1943": {
+    "effect": "atSkillEventHandler",
+    "value1": "1943",
+    "value2": "0",
+    "name": "110级新CW特效蓬莱",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45693",
+        "name": "煞·七月嘉树",
+        "field": "44050"
+      }
+    ],
+    "category": "recorded_damage",
+    "reason": "Dedicated child skill records final damage/heal amount; do not add unconditional equipment stats",
+    "eventSkillID": "25783",
+    "effectiveSkillID": "25783",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [
+      "25783"
+    ],
+    "buffs": [],
+    "script": "event-readable/scripts/skill/江湖/110级CW新增特效蓬莱伤害子技能.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "1944": {
+    "effect": "atSkillEventHandler",
+    "value1": "1944",
+    "value2": "0",
+    "name": "110级新CW特效凌雪",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45326",
+        "name": "长安",
+        "field": "44051"
+      }
+    ],
+    "category": "recorded_damage",
+    "reason": "Dedicated child skill records final damage/heal amount; do not add unconditional equipment stats",
+    "eventSkillID": "25784",
+    "effectiveSkillID": "25784",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [
+      "25784"
+    ],
+    "buffs": [],
+    "script": "event-readable/scripts/skill/江湖/110级CW新增特效凌雪阁伤害子技能.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "1946": {
+    "effect": "atSkillEventHandler",
+    "value1": "1946",
+    "value2": "0",
+    "name": "110级新CW特效离经",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45304",
+        "name": "折枝花满",
+        "field": "44029"
+      }
+    ],
+    "category": "recorded_heal",
+    "reason": "Dedicated child skill records final damage/heal amount; do not add unconditional equipment stats",
+    "eventSkillID": "25788",
+    "effectiveSkillID": "25788",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [
+      "25788"
+    ],
+    "buffs": [],
+    "script": "event-readable/scripts/skill/江湖/110级CW新增特效离经易道子技能.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "1947": {
+    "effect": "atSkillEventHandler",
+    "value1": "1947",
+    "value2": "0",
+    "name": "110级新CW特效云裳",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45310",
+        "name": "钗蝶语双",
+        "field": "44035"
+      }
+    ],
+    "category": "recorded_heal",
+    "reason": "Dedicated child skill records final damage/heal amount; do not add unconditional equipment stats",
+    "eventSkillID": "25789",
+    "effectiveSkillID": "25789",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [
+      "25789"
+    ],
+    "buffs": [],
+    "script": "event-readable/scripts/skill/江湖/110级CW新增特效云裳心经子技能.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "1948": {
+    "effect": "atSkillEventHandler",
+    "value1": "1948",
+    "value2": "0",
+    "name": "110级新CW特效补天",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45312",
+        "name": "逾潮声",
+        "field": "44037"
+      }
+    ],
+    "category": "recorded_heal",
+    "reason": "Dedicated child skill records final damage/heal amount; do not add unconditional equipment stats",
+    "eventSkillID": "25790",
+    "effectiveSkillID": "25790",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [
+      "25790"
+    ],
+    "buffs": [],
+    "script": "event-readable/scripts/skill/江湖/110级CW新增特效补天诀子技能.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "2138": {
+    "effect": "atSkillEventHandler",
+    "value1": "2138",
+    "value2": "0",
+    "name": "110级CW新增特效无方",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45328",
+        "name": "烬灭",
+        "field": "47841"
+      }
+    ],
+    "category": "recorded_damage",
+    "reason": "Dedicated child skill records final damage/heal amount; do not add unconditional equipment stats",
+    "eventSkillID": "29698",
+    "effectiveSkillID": "29698",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [
+      "29698"
+    ],
+    "buffs": [],
+    "script": "event-readable/scripts/skill/江湖/110级CW新增特效无方伤害子技能.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "2139": {
+    "effect": "atSkillEventHandler",
+    "value1": "2139",
+    "value2": "0",
+    "name": "110级CW新增特效灵素",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45329",
+        "name": "幽微夜",
+        "field": "47847"
+      }
+    ],
+    "category": "recorded_heal",
+    "reason": "Dedicated child skill records final damage/heal amount; do not add unconditional equipment stats",
+    "eventSkillID": "29699",
+    "effectiveSkillID": "29699",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [
+      "29699"
+    ],
+    "buffs": [],
+    "script": "event-readable/scripts/skill/江湖/110级CW新增特效灵素子技能.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "2717": {
+    "effect": "atSkillEventHandler",
+    "value1": "2717",
+    "value2": "0",
+    "name": "130级毒经cw特效",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45311",
+        "name": "蜕骨",
+        "field": "93618"
+      }
+    ],
+    "category": "recorded_skill_state",
+    "reason": "OrangeWeaponSceneEntry checks PASSIVE mode; listed buffs change own cast/CD/resource or skill-specific recipes, final amount is recorded",
+    "eventSkillID": "19",
+    "effectiveSkillID": "3065",
+    "effectiveSkillLevel": "8",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "18511",
+        "level": "8",
+        "name": "130级cw_冰心诀_无限剑气长江带dot",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      },
+      {
+        "id": "2584",
+        "level": "1",
+        "name": "橙武CoolDown",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/item/橙武_毒经_加BUFF.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "item/OrangeWeaponSceneEntry.lua",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "2719": {
+    "effect": "atSkillEventHandler",
+    "value1": "2719",
+    "value2": "0",
+    "name": "130级橙武第三条冰心",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45309",
+        "name": "龙鲤",
+        "field": "93616"
+      }
+    ],
+    "category": "recorded_skill_state",
+    "reason": "OrangeWeaponSceneEntry checks PASSIVE mode; listed buffs change own cast/CD/resource or skill-specific recipes, final amount is recorded",
+    "eventSkillID": "19",
+    "effectiveSkillID": "1858",
+    "effectiveSkillLevel": "8",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "1913",
+        "level": "8",
+        "name": "130橙武_花间游_玉石附钟林毓秀",
+        "attributes": [
+          {
+            "name": "atClearCoolDown",
+            "value1": "176",
+            "value2": ""
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      },
+      {
+        "id": "2584",
+        "level": "1",
+        "name": "橙武CoolDown",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/item/橙武_冰心诀_加BUFF.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "item/OrangeWeaponSceneEntry.lua",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "2720": {
+    "effect": "atSkillEventHandler",
+    "value1": "2720",
+    "value2": "0",
+    "name": "130级奶秀cw描述",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45310",
+        "name": "钗蝶语双",
+        "field": "93634"
+      }
+    ],
+    "category": "recorded_skill_state",
+    "reason": "OrangeWeaponSceneEntry checks PASSIVE mode; listed buffs change own cast/CD/resource or skill-specific recipes, final amount is recorded",
+    "eventSkillID": "19",
+    "effectiveSkillID": "33324",
+    "effectiveSkillLevel": "2",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "12770",
+        "level": "8",
+        "name": "橙武_离经_彼针长针",
+        "attributes": [
+          {
+            "name": "atDirectCastMask",
+            "value1": "8192",
+            "value2": ""
+          },
+          {
+            "name": "atExecuteScript",
+            "value1": "skill\\万花\\90级奇穴\\橙武重置听风.lua",
+            "value2": ""
+          },
+          {
+            "name": "atSetTalentRecipe",
+            "value1": "4936",
+            "value2": "1"
+          },
+          {
+            "name": "atExecuteScript",
+            "value1": "skill\\万花\\90级奇穴\\橙武重置听风.lua",
+            "value2": ""
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/item/120级cw奶秀主动技能.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "item/OrangeWeaponSceneEntry.lua",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "2721": {
+    "effect": "atSkillEventHandler",
+    "value1": "2721",
+    "value2": "0",
+    "name": "130级奶毒cw描述",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45312",
+        "name": "逾潮声",
+        "field": "93636"
+      }
+    ],
+    "category": "recorded_skill_state",
+    "reason": "OrangeWeaponSceneEntry checks PASSIVE mode; listed buffs change own cast/CD/resource or skill-specific recipes, final amount is recorded",
+    "eventSkillID": "19",
+    "effectiveSkillID": "33318",
+    "effectiveSkillLevel": "2",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "12769",
+        "level": "8",
+        "name": "橙武_补天_重置圣手",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/item/补天120新橙武主动技能.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "item/OrangeWeaponSceneEntry.lua",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "2736": {
+    "effect": "atSkillEventHandler",
+    "value1": "2736",
+    "value2": "0",
+    "name": "130级天罗诡道CW特效第三条",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45313",
+        "name": "碧岚幽炎",
+        "field": "93620"
+      }
+    ],
+    "category": "recorded_skill_state",
+    "reason": "OrangeWeaponSceneEntry checks PASSIVE mode; listed buffs change own cast/CD/resource or skill-specific recipes, final amount is recorded",
+    "eventSkillID": "19",
+    "effectiveSkillID": "3477",
+    "effectiveSkillLevel": "8",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "3487",
+        "level": "8",
+        "name": "80橙武_惊羽_无限追命",
+        "attributes": [
+          {
+            "name": "atDirectCastMask",
+            "value1": "4096",
+            "value2": "0"
+          },
+          {
+            "name": "atSetTalentRecipe",
+            "value1": "5759",
+            "value2": "1"
+          },
+          {
+            "name": "atClearCoolDown",
+            "value1": "463",
+            "value2": ""
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      },
+      {
+        "id": "2584",
+        "level": "1",
+        "name": "橙武CoolDown",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/item/橙武_天罗诡道_加BUFF.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "item/OrangeWeaponSceneEntry.lua",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "2737": {
+    "effect": "atSkillEventHandler",
+    "value1": "2737",
+    "value2": "0",
+    "name": "130级惊羽诀CW特效第三条",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45314",
+        "name": "银羽雪辉",
+        "field": "93619"
+      }
+    ],
+    "category": "recorded_skill_state",
+    "reason": "OrangeWeaponSceneEntry checks PASSIVE mode; listed buffs change own cast/CD/resource or skill-specific recipes, final amount is recorded",
+    "eventSkillID": "19",
+    "effectiveSkillID": "3476",
+    "effectiveSkillLevel": "8",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "3488",
+        "level": "8",
+        "name": "80橙武_天罗_超级暴雨",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      },
+      {
+        "id": "2584",
+        "level": "1",
+        "name": "橙武CoolDown",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/item/橙武_惊羽诀_加BUFF.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "item/OrangeWeaponSceneEntry.lua",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "2739": {
+    "effect": "atSkillEventHandler",
+    "value1": "2739",
+    "value2": "0",
+    "name": "130级气纯Cw特效",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45307",
+        "name": "仙灵",
+        "field": "93612"
+      }
+    ],
+    "category": "recorded_skill_state",
+    "reason": "OrangeWeaponSceneEntry checks PASSIVE mode; listed buffs change own cast/CD/resource or skill-specific recipes, final amount is recorded",
+    "eventSkillID": "19",
+    "effectiveSkillID": "1853",
+    "effectiveSkillLevel": "8",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "1915",
+        "level": "8",
+        "name": "80橙武_太虚剑意_无我无剑回气",
+        "attributes": [
+          {
+            "name": "atExecuteScript",
+            "value1": "skill\\纯阳\\套路及子技能\\橙武重置八荒.lua",
+            "value2": ""
+          },
+          {
+            "name": "atSetTalentRecipe",
+            "value1": "5758",
+            "value2": "1"
+          },
+          {
+            "name": "atClearCoolDown",
+            "value1": "438",
+            "value2": ""
+          },
+          {
+            "name": "atClearCoolDown",
+            "value1": "3428",
+            "value2": ""
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      },
+      {
+        "id": "2584",
+        "level": "1",
+        "name": "橙武CoolDown",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/item/橙武_紫霞功_加buff.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "item/OrangeWeaponSceneEntry.lua",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "2740": {
+    "effect": "atSkillEventHandler",
+    "value1": "2740",
+    "value2": "0",
+    "name": "130级花间CW特效第三条",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45303",
+        "name": "意真",
+        "field": "93617"
+      }
+    ],
+    "category": "recorded_skill_state",
+    "reason": "OrangeWeaponSceneEntry checks PASSIVE mode; listed buffs change own cast/CD/resource or skill-specific recipes, final amount is recorded",
+    "eventSkillID": "19",
+    "effectiveSkillID": "1856",
+    "effectiveSkillLevel": "8",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "1916",
+        "level": "8",
+        "name": "80橙武_紫霞功_两仪化形回气",
+        "attributes": [
+          {
+            "name": "atExecuteScript",
+            "value1": "skill\\纯阳\\套路及子技能\\气纯瞬间满气剑.lua",
+            "value2": ""
+          },
+          {
+            "name": "atSetTalentRecipe",
+            "value1": "5756",
+            "value2": "1"
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      },
+      {
+        "id": "34903",
+        "level": "1",
+        "name": "气纯CW获得飞剑CD",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      },
+      {
+        "id": "2584",
+        "level": "1",
+        "name": "橙武CoolDown",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/item/橙武_花间游_加buff.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "item/OrangeWeaponSceneEntry.lua",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "2745": {
+    "effect": "atSkillEventHandler",
+    "value1": "2745",
+    "value2": "0",
+    "name": "130级凌雪cw特效",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45326",
+        "name": "长安",
+        "field": "93628"
+      }
+    ],
+    "category": "recorded_skill_state",
+    "reason": "OrangeWeaponSceneEntry checks PASSIVE mode; listed buffs change own cast/CD/resource or skill-specific recipes, final amount is recorded",
+    "eventSkillID": "19",
+    "effectiveSkillID": "23396",
+    "effectiveSkillLevel": "8",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "16482",
+        "level": "8",
+        "name": "130级凌雪阁大橙武特效",
+        "attributes": [
+          {
+            "name": "atSetTalentRecipe",
+            "value1": "5929",
+            "value2": "1"
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      },
+      {
+        "id": "2584",
+        "level": "1",
+        "name": "橙武CoolDown",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/item/橙武_凌雪阁_金戈回澜寂洪荒无CD.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "item/OrangeWeaponSceneEntry.lua",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "2749": {
+    "effect": "atSkillEventHandler",
+    "value1": "2749",
+    "value2": "0",
+    "name": "130级蓬莱cw特效",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45693",
+        "name": "煞·七月嘉树",
+        "field": "93629"
+      }
+    ],
+    "category": "recorded_skill_state",
+    "reason": "OrangeWeaponSceneEntry checks PASSIVE mode; listed buffs change own cast/CD/resource or skill-specific recipes, final amount is recorded",
+    "eventSkillID": "19",
+    "effectiveSkillID": "21185",
+    "effectiveSkillLevel": "8",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "14352",
+        "level": "8",
+        "name": "蓬莱大CW特效",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      },
+      {
+        "id": "2584",
+        "level": "1",
+        "name": "橙武CoolDown",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/item/橙武_蓬莱凌海诀_加buff.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "item/OrangeWeaponSceneEntry.lua",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "2751": {
+    "effect": "atSkillEventHandler",
+    "value1": "2751",
+    "value2": "0",
+    "name": "130级奶花cw描述",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45304",
+        "name": "折枝花满",
+        "field": "93635"
+      }
+    ],
+    "category": "recorded_skill_state",
+    "reason": "OrangeWeaponSceneEntry checks PASSIVE mode; listed buffs change own cast/CD/resource or skill-specific recipes, final amount is recorded",
+    "eventSkillID": "19",
+    "effectiveSkillID": "33295",
+    "effectiveSkillLevel": "2",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "12768",
+        "level": "6",
+        "name": "橙武_云裳_重置风袖",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/item/橙武_离经易道_主动听风长针彼针无cd.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "item/OrangeWeaponSceneEntry.lua",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "2752": {
+    "effect": "atSkillEventHandler",
+    "value1": "2752",
+    "value2": "0",
+    "name": "130级奶药cw描述",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45329",
+        "name": "幽微夜",
+        "field": "93638"
+      }
+    ],
+    "category": "recorded_skill_state",
+    "reason": "OrangeWeaponSceneEntry checks PASSIVE mode; listed buffs change own cast/CD/resource or skill-specific recipes, final amount is recorded",
+    "eventSkillID": "19",
+    "effectiveSkillID": "33316",
+    "effectiveSkillLevel": "2",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "21803",
+        "level": "8",
+        "name": "北天药宗灵素橙武特效实际BUFF",
+        "attributes": [
+          {
+            "name": "atExecuteScript",
+            "value1": "skill/北天药宗/重置赤芍当归调息.lua",
+            "value2": ""
+          },
+          {
+            "name": "atExecuteScript",
+            "value1": "skill/北天药宗/重置赤芍当归调息.lua",
+            "value2": ""
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/item/橙武_灵素_无限当归赤芍.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "item/OrangeWeaponSceneEntry.lua",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "2753": {
+    "effect": "atSkillEventHandler",
+    "value1": "2753",
+    "value2": "0",
+    "name": "130级剑纯cw特效",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45308",
+        "name": "镇恶",
+        "field": "93613"
+      }
+    ],
+    "category": "recorded_skill_state",
+    "reason": "OrangeWeaponSceneEntry checks PASSIVE mode; listed buffs change own cast/CD/resource or skill-specific recipes, final amount is recorded",
+    "eventSkillID": "19",
+    "effectiveSkillID": "1852",
+    "effectiveSkillLevel": "8",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "3028",
+        "level": "8",
+        "name": "130橙武_毒经_蝎心重置dot",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      },
+      {
+        "id": "2584",
+        "level": "1",
+        "name": "橙武CoolDown",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/item/橙武_太虚剑意_加buff.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "item/OrangeWeaponSceneEntry.lua",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "2759": {
+    "effect": "atSkillEventHandler",
+    "value1": "2759",
+    "value2": "0",
+    "name": "130级焚影cw特效",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45318",
+        "name": "瀚海引",
+        "field": "93621"
+      }
+    ],
+    "category": "recorded_skill_state",
+    "reason": "OrangeWeaponSceneEntry checks PASSIVE mode; listed buffs change own cast/CD/resource or skill-specific recipes, final amount is recorded",
+    "eventSkillID": "19",
+    "effectiveSkillID": "4940",
+    "effectiveSkillLevel": "8",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "4930",
+        "level": "8",
+        "name": "明教橙武_dps触发BUFF",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      },
+      {
+        "id": "2584",
+        "level": "1",
+        "name": "橙武CoolDown",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/item/橙武_明教dps_加BUFF.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "item/OrangeWeaponSceneEntry.lua",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "2761": {
+    "effect": "atSkillEventHandler",
+    "value1": "2761",
+    "value2": "0",
+    "name": "130级霸刀cw特效",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45324",
+        "name": "碧血豪侠",
+        "field": "93627"
+      }
+    ],
+    "category": "recorded_skill_state",
+    "reason": "OrangeWeaponSceneEntry checks PASSIVE mode; listed buffs change own cast/CD/resource or skill-specific recipes, final amount is recorded",
+    "eventSkillID": "19",
+    "effectiveSkillID": "16984",
+    "effectiveSkillLevel": "8",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "11376",
+        "level": "8",
+        "name": "霸刀130橙武buff",
+        "attributes": [
+          {
+            "name": "atSetTalentRecipe",
+            "value1": "6577",
+            "value2": "1"
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      },
+      {
+        "id": "2584",
+        "level": "1",
+        "name": "橙武CoolDown",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/item/橙武_霸刀北傲诀_加buff.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "item/OrangeWeaponSceneEntry.lua",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "2762": {
+    "effect": "atSkillEventHandler",
+    "value1": "2762",
+    "value2": "0",
+    "name": "130级无方CW特效第三条",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45328",
+        "name": "烬灭",
+        "field": "93631"
+      }
+    ],
+    "category": "recorded_skill_state",
+    "reason": "OrangeWeaponSceneEntry checks PASSIVE mode; listed buffs change own cast/CD/resource or skill-specific recipes, final amount is recorded",
+    "eventSkillID": "19",
+    "effectiveSkillID": "29694",
+    "effectiveSkillLevel": "8",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "21796",
+        "level": "8",
+        "name": "北天药宗橙武特效实际BUFF",
+        "attributes": [
+          {
+            "name": "atExecuteScript",
+            "value1": "skill/北天药宗/重置奚毒射罔调息.lua",
+            "value2": ""
+          },
+          {
+            "name": "atExecuteScript",
+            "value1": "skill/北天药宗/重置奚毒射罔调息.lua",
+            "value2": ""
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      },
+      {
+        "id": "2584",
+        "level": "1",
+        "name": "橙武CoolDown",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/item/橙武_无方_加buff.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "item/OrangeWeaponSceneEntry.lua",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "2911": {
+    "effect": "atSkillEventHandler",
+    "value1": "2911",
+    "value2": "0",
+    "name": "蝎心忘情",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,42496",
+        "name": "蝎心忘情",
+        "field": "99463"
+      }
+    ],
+    "category": "inapplicable_target",
+    "reason": "EventCaster player target contradicts skill19 TargetTypePlayer0/TargetTypeNpc1; SkillCastFlag0, IgnoreSelectCheck empty, no event script and CanCast returns nPreResult unchanged. No target-check bypass appears in the inspected client chain.",
+    "eventSkillID": "19",
+    "effectiveSkillID": "19",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "414",
+        "level": "1",
+        "name": "山贼营地投毒",
+        "attributes": [
+          {
+            "name": "atMaxLifePercentAdd",
+            "value1": "-512",
+            "value2": "0"
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/npc/NPC_weakness.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "non_combat",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "2923": {
+    "effect": "atSkillEventHandler",
+    "value1": "2923",
+    "value2": "0",
+    "name": "风雷瑶琴剑",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,42508",
+        "name": "风雷瑶琴剑",
+        "field": "99475"
+      }
+    ],
+    "category": "inapplicable_target",
+    "reason": "EventCaster player target contradicts skill19 TargetTypePlayer0/TargetTypeNpc1; SkillCastFlag0, IgnoreSelectCheck empty, no event script and CanCast returns nPreResult unchanged. No target-check bypass appears in the inspected client chain.",
+    "eventSkillID": "19",
+    "effectiveSkillID": "19",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "414",
+        "level": "1",
+        "name": "山贼营地投毒",
+        "attributes": [
+          {
+            "name": "atMaxLifePercentAdd",
+            "value1": "-512",
+            "value2": "0"
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/npc/NPC_weakness.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "non_combat",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "3149": {
+    "effect": "atSkillEventHandler",
+    "value1": "3149",
+    "value2": "",
+    "name": "34000CW无双",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,45303",
+        "name": "意真",
+        "field": "108126"
+      },
+      {
+        "kind": "equipment",
+        "id": "8,45307",
+        "name": "仙灵",
+        "field": "108126"
+      },
+      {
+        "kind": "equipment",
+        "id": "8,45308",
+        "name": "镇恶",
+        "field": "108126"
+      },
+      {
+        "kind": "equipment",
+        "id": "8,45309",
+        "name": "龙鲤",
+        "field": "108126"
+      },
+      {
+        "kind": "equipment",
+        "id": "8,45311",
+        "name": "蜕骨",
+        "field": "108126"
+      },
+      {
+        "kind": "equipment",
+        "id": "8,45313",
+        "name": "碧岚幽炎",
+        "field": "108126"
+      },
+      {
+        "kind": "equipment",
+        "id": "8,45314",
+        "name": "银羽雪辉",
+        "field": "108126"
+      },
+      {
+        "kind": "equipment",
+        "id": "8,45318",
+        "name": "瀚海引",
+        "field": "108126"
+      },
+      {
+        "kind": "equipment",
+        "id": "8,45324",
+        "name": "碧血豪侠",
+        "field": "108126"
+      },
+      {
+        "kind": "equipment",
+        "id": "8,45326",
+        "name": "长安",
+        "field": "108126"
+      },
+      {
+        "kind": "equipment",
+        "id": "8,45328",
+        "name": "烬灭",
+        "field": "108126"
+      },
+      {
+        "kind": "equipment",
+        "id": "8,45693",
+        "name": "煞·七月嘉树",
+        "field": "108126"
+      }
+    ],
+    "category": "dynamic_self_attribute",
+    "reason": "Buff29608/17 contributes strainBase15; runtime BOOST required",
+    "eventSkillID": "39088",
+    "effectiveSkillID": "39088",
+    "effectiveSkillLevel": "17",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "29608",
+        "level": "17",
+        "name": "34000CW无双黄字",
+        "attributes": [
+          {
+            "name": "atStrainBase",
+            "value1": "15",
+            "value2": ""
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/装备/130级橙武风.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "3203": {
+    "effect": "atSkillEventHandler",
+    "value1": "3203",
+    "value2": "",
+    "name": "苍生铸世输出腰带_1110",
+    "sources": [
+      {
+        "kind": "enchant",
+        "id": "16675",
+        "name": "定尘血石·伤·腰",
+        "field": "Attribute1"
+      }
+    ],
+    "category": "dynamic_self_attribute",
+    "reason": "Buff15455 levels1/2 add10/51 allDamageAddPercent; observed duration required",
+    "eventSkillID": "22169",
+    "effectiveSkillID": "22169",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "15455",
+        "level": "1",
+        "name": "输出伤害波动",
+        "attributes": [
+          {
+            "name": "atAllDamageAddPercent",
+            "value1": "10",
+            "value2": ""
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      },
+      {
+        "id": "15455",
+        "level": "2",
+        "name": "输出伤害波动",
+        "attributes": [
+          {
+            "name": "atAllDamageAddPercent",
+            "value1": "51",
+            "value2": ""
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      },
+      {
+        "id": "15456",
+        "level": "1",
+        "name": "伤害波动内置CD",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/装备/输出附魔伤害波动.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "3204": {
+    "effect": "atSkillEventHandler",
+    "value1": "3204",
+    "value2": "",
+    "name": "苍生铸世输出护手_1110",
+    "sources": [
+      {
+        "kind": "enchant",
+        "id": "16677",
+        "name": "定尘血石·伤·腕",
+        "field": "Attribute1"
+      }
+    ],
+    "category": "recorded_fixed_damage",
+    "reason": "Bytecode Apply calls Skill_SuperCustomDamageToPlayer37562; log already owns final amount",
+    "eventSkillID": "46463",
+    "effectiveSkillID": "46463",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [
+      "37562"
+    ],
+    "buffs": [
+      {
+        "id": "15453",
+        "level": "1",
+        "name": "输出额外伤害触发内置CD",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/装备/苍生铸世赛季输出护手固定伤害.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "3205": {
+    "effect": "atSkillEventHandler",
+    "value1": "3205",
+    "value2": "",
+    "name": "苍生铸世输出鞋子_1110",
+    "sources": [
+      {
+        "kind": "enchant",
+        "id": "16676",
+        "name": "定尘血石·伤·鞋",
+        "field": "Attribute1"
+      }
+    ],
+    "category": "recorded_fixed_damage",
+    "reason": "Bytecode Apply calls Skill_SuperCustomDamageToPlayer37561; log already owns final amount",
+    "eventSkillID": "46464",
+    "effectiveSkillID": "46464",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [
+      "37561"
+    ],
+    "buffs": [
+      {
+        "id": "24774",
+        "level": "1",
+        "name": "dps鞋子大附魔监控1",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/装备/苍生铸世赛季输出鞋子固定伤害.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "3206": {
+    "effect": "atSkillEventHandler",
+    "value1": "3206",
+    "value2": "",
+    "name": "苍生铸世治疗护手_1110",
+    "sources": [
+      {
+        "kind": "enchant",
+        "id": "16672",
+        "name": "定尘血石·疗·腕",
+        "field": "Attribute1"
+      }
+    ],
+    "category": "recorded_resist_buff",
+    "reason": "Buff15434 calls33086/20; ally reduction must use logged source and resistance tracker",
+    "eventSkillID": "22155",
+    "effectiveSkillID": "22155",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "15434",
+        "level": "1",
+        "name": "治疗招式额外触发减伤效果",
+        "attributes": [
+          {
+            "name": "atCallSubBuff",
+            "value1": "33086",
+            "value2": "20"
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      },
+      {
+        "id": "15469",
+        "level": "1",
+        "name": "治疗护腕内置CD",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      },
+      {
+        "id": "33086",
+        "level": "20",
+        "name": "主角技能可共存实际减伤",
+        "attributes": [
+          {
+            "name": "atGlobalResistPercent",
+            "value1": "205",
+            "value2": ""
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/item/新附魔_治疗额外减伤.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "3207": {
+    "effect": "atSkillEventHandler",
+    "value1": "3207",
+    "value2": "",
+    "name": "苍生铸世治疗衣服_1110",
+    "sources": [
+      {
+        "kind": "enchant",
+        "id": "16673",
+        "name": "定尘血石·疗·衣",
+        "field": "Attribute1"
+      }
+    ],
+    "category": "dynamic_self_attribute",
+    "reason": "Buff15475/2 magic crit chance3000 + magic critical power1500; requires BOOST even if absent in this sample",
+    "eventSkillID": "22211",
+    "effectiveSkillID": "22211",
+    "effectiveSkillLevel": "2",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "15474",
+        "level": "1",
+        "name": "治疗衣服内置CD",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      },
+      {
+        "id": "15475",
+        "level": "2",
+        "name": "治疗衣服加会心",
+        "attributes": [
+          {
+            "name": "atSolarCriticalStrikeBaseRate",
+            "value1": "3000",
+            "value2": ""
+          },
+          {
+            "name": "atNeutralCriticalStrikeBaseRate",
+            "value1": "3000",
+            "value2": ""
+          },
+          {
+            "name": "atLunarCriticalStrikeBaseRate",
+            "value1": "3000",
+            "value2": ""
+          },
+          {
+            "name": "atPoisonCriticalStrikeBaseRate",
+            "value1": "3000",
+            "value2": ""
+          },
+          {
+            "name": "atMagicCriticalDamagePowerPercent",
+            "value1": "1500",
+            "value2": ""
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/item/新附魔_治疗爆发加会心.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "3208": {
+    "effect": "atSkillEventHandler",
+    "value1": "3208",
+    "value2": "",
+    "name": "苍生铸世治疗腰带_1110",
+    "sources": [
+      {
+        "kind": "enchant",
+        "id": "16670",
+        "name": "定尘血石·疗·腰",
+        "field": "Attribute1"
+      }
+    ],
+    "category": "recorded_heal",
+    "reason": "Skill33613 direct extra healing;24793 cooldown marker",
+    "eventSkillID": "33248",
+    "effectiveSkillID": "33248",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [
+      "33613"
+    ],
+    "buffs": [
+      {
+        "id": "24793",
+        "level": "1",
+        "name": "奶妈腰带大附魔内置cd",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/装备/腰带_大附魔_高血量额外治疗及移速加成.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "3210": {
+    "effect": "atSkillEventHandler",
+    "value1": "3210",
+    "value2": "",
+    "name": "苍生铸世T护手_1110",
+    "sources": [
+      {
+        "kind": "enchant",
+        "id": "16667",
+        "name": "定尘血石·御·腕",
+        "field": "Attribute1"
+      }
+    ],
+    "category": "dynamic_self_attribute",
+    "reason": "24767/2 physical and magic damage +50; runtime BOOST required",
+    "eventSkillID": "46465",
+    "effectiveSkillID": "46465",
+    "effectiveSkillLevel": "1",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "24767",
+        "level": "2",
+        "name": "苍生铸世T护手增伤_5秒",
+        "attributes": [
+          {
+            "name": "atAllPhysicsDamageAddPercent",
+            "value1": "50",
+            "value2": ""
+          },
+          {
+            "name": "atAllMagicDamageAddPercent",
+            "value1": "50",
+            "value2": ""
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      },
+      {
+        "id": "24791",
+        "level": "1",
+        "name": "T手大附魔内置cd",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/装备/苍生铸世赛季T护手五秒增伤.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "3211": {
+    "effect": "atSkillEventHandler",
+    "value1": "3211",
+    "value2": "",
+    "name": "苍生铸世T衣服_1110",
+    "sources": [
+      {
+        "kind": "enchant",
+        "id": "16668",
+        "name": "定尘血石·御·衣",
+        "field": "Attribute1"
+      }
+    ],
+    "category": "recorded_absorb_buff",
+    "reason": "15415/18 absorb19656; actual absorption handled by tracker",
+    "eventSkillID": "22128",
+    "effectiveSkillID": "22128",
+    "effectiveSkillLevel": "18",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "15415",
+        "level": "18",
+        "name": "苍生铸世T衣护盾_1110",
+        "attributes": [
+          {
+            "name": "atGlobalDamageAbsorb",
+            "value1": "19656",
+            "value2": "0"
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      },
+      {
+        "id": "15416",
+        "level": "1",
+        "name": "新附魔T衣服内置CD",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/装备/新附魔T添加伤害吸收盾.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "3212": {
+    "effect": "atSkillEventHandler",
+    "value1": "3212",
+    "value2": "",
+    "name": "苍生铸世T帽子_1110",
+    "sources": [
+      {
+        "kind": "enchant",
+        "id": "16669",
+        "name": "定尘血石·御·帽",
+        "field": "Attribute1"
+      }
+    ],
+    "category": "dynamic_team_attribute",
+    "reason": "22122/18 binds15413/18 allTypeAttackPowerBase81 to up to5 targets within20chi; preserve logged recipient/caster and BOOST attribution, including allies",
+    "eventSkillID": "22122",
+    "effectiveSkillID": "22122",
+    "effectiveSkillLevel": "18",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "15413",
+        "level": "18",
+        "name": "苍生铸世T帽攻击_1110",
+        "attributes": [
+          {
+            "name": "atAllTypeAttackPowerBase",
+            "value1": "81",
+            "value2": ""
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      },
+      {
+        "id": "15414",
+        "level": "1",
+        "name": "新附魔T头增益内置CD",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/装备/新附魔T添加基础攻击.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "3213": {
+    "effect": "atSkillEventHandler",
+    "value1": "3213",
+    "value2": "",
+    "name": "苍生铸世治疗鞋子_1110",
+    "sources": [
+      {
+        "kind": "enchant",
+        "id": "16671",
+        "name": "定尘血石·疗·鞋",
+        "field": "Attribute1"
+      }
+    ],
+    "category": "dynamic_self_attribute",
+    "reason": "30601/4 therapyPowerBase72; damage unchanged, heal amount recorded",
+    "eventSkillID": "40511",
+    "effectiveSkillID": "40511",
+    "effectiveSkillLevel": "4",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "30601",
+        "level": "4",
+        "name": "苍生铸世治疗鞋疗效_1110",
+        "attributes": [
+          {
+            "name": "atTherapyPowerBase",
+            "value1": "72",
+            "value2": ""
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/装备/新治疗大附魔_鞋子会心加疗效.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "3216": {
+    "effect": "atSkillEventHandler",
+    "value1": "3216",
+    "value2": "",
+    "name": "苍生铸世输出护手_1280",
+    "sources": [
+      {
+        "kind": "enchant",
+        "id": "16692",
+        "name": "定尘血玉·伤·腕",
+        "field": "Attribute1"
+      }
+    ],
+    "category": "recorded_fixed_damage",
+    "reason": "Same37562 proc, skill46463 level2 base19745",
+    "eventSkillID": "46463",
+    "effectiveSkillID": "46463",
+    "effectiveSkillLevel": "2",
+    "recordedSkillIDs": [
+      "37562"
+    ],
+    "buffs": [
+      {
+        "id": "15453",
+        "level": "1",
+        "name": "输出额外伤害触发内置CD",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/装备/苍生铸世赛季输出护手固定伤害.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "3227": {
+    "effect": "atSkillEventHandler",
+    "value1": "3227",
+    "value2": "",
+    "name": "50级960品CW无双",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,47736",
+        "name": "寒锋凌日",
+        "field": "115837"
+      }
+    ],
+    "category": "dynamic_self_attribute",
+    "reason": "Buff29608/18 contributes strainBase20; runtime BOOST required",
+    "eventSkillID": "39088",
+    "effectiveSkillID": "39088",
+    "effectiveSkillLevel": "18",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "29608",
+        "level": "18",
+        "name": "50级960品CW无双黄字",
+        "attributes": [
+          {
+            "name": "atStrainBase",
+            "value1": "20",
+            "value2": ""
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/装备/130级橙武风.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "event_handler.lua",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  },
+  "3247": {
+    "effect": "atSkillEventHandler",
+    "value1": "3247",
+    "value2": "0",
+    "name": "50级橙武_掠炎_主特效",
+    "sources": [
+      {
+        "kind": "equipment",
+        "id": "8,47736",
+        "name": "寒锋凌日",
+        "field": "115921"
+      }
+    ],
+    "category": "recorded_skill_state",
+    "reason": "OrangeWeaponSceneEntry checks PASSIVE mode; listed buffs change own cast/CD/resource or skill-specific recipes, final amount is recorded",
+    "eventSkillID": "1850",
+    "effectiveSkillID": "1850",
+    "effectiveSkillLevel": "9",
+    "recordedSkillIDs": [],
+    "buffs": [
+      {
+        "id": "1911",
+        "level": "9",
+        "name": "50级橙武_掠炎_主特效",
+        "attributes": [
+          {
+            "name": "atSetTalentRecipe",
+            "value1": "6442",
+            "value2": "1"
+          },
+          {
+            "name": "atExecuteScript",
+            "value1": "skill\\天策\\重置龙吟调息.lua",
+            "value2": ""
+          },
+          {
+            "name": "atSkillEventHandler",
+            "value1": "573",
+            "value2": ""
+          }
+        ],
+        "tableUnchangedFrom10009": true
+      },
+      {
+        "id": "2584",
+        "level": "1",
+        "name": "橙武CoolDown",
+        "attributes": [],
+        "tableUnchangedFrom10009": true
+      }
+    ],
+    "script": "event-readable/scripts/skill/item/橙武_傲血战意_加buff.lua",
+    "eventTableUnchangedFrom10009": true,
+    "skillTableUnchangedFrom10009": true,
+    "scope": "ordinary client only; current10072 script; archived10009 association rows checked",
+    "sourceHandler": "item/OrangeWeaponSceneEntry.lua",
+    "ordinaryHandling": "logged_event",
+    "runtimeBoundary": "Requires existing/new runtime Buff or fixed-damage handler; this catalog is not a blanket success for unknown effect values."
+  }
+}

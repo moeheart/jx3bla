@@ -13,3 +13,5 @@ docs/160/evidence/xinfa10009_evidence/** -text
 docs/160/evidence/xinfa10009_evidence/*.json whitespace=cr-at-eol
 docs/160/evidence/xinfa10009_evidence/**/*.tab -whitespace
 docs/160/evidence/legacy9506/*.json -text whitespace=cr-at-eol
+# Audited equipment manifests hash both raw scripts and readable evidence.
+docs/160/evidence/equipment_effects/** -text -whitespace

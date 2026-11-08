@@ -2,15 +2,18 @@
 
 ## 支持范围
 
-新版仅适配 50 级苍生铸世正式服，使用 2026-10-29 的 `1.6.0.10009` 数据。输入约定为 10 月 29 日以后正式服日志；客户端不检查或拦截日志日期，不再按日期、地图或版本号切换体服/旧等级公式。排名与服务端统计的时间分区保留原有定义。
+新版仅适配 50 级苍生铸世正式服，基础表使用 2026-10-29 的 `1.6.0.10009` 数据。8.16.6 的装备特效补充使用 `1.6.0.10072` 正式客户端脚本，并逐行核对相关归档表关联；来源版本和边界记录在装备特效证据中。输入约定为 10 月 29 日以后正式服日志；客户端不检查或拦截日志日期，不再按日期、地图或版本号切换体服/旧等级公式。排名与服务端统计的时间分区保留原有定义。
 
 ## 构建
 
 正式入口仍为 `MainWindow.spec` 和 `release/Release.ps1`：
 
 ```powershell
+C:/Python314/python.exe -m release.EquipmentEffectGenerator --check
 ./release/Release.ps1 -Python C:/Python314/python.exe
 ```
+
+装备特效目录的生成与审核独立于 `Release.ps1`。修改已审核效果条目后，先运行 `python -m release.EquipmentEffectGenerator` 同步 `equipment_effects.json` 及来源清单，再运行上述 `--check`，确认精确效果参数和证据 SHA256 一致；构建不自动放行新效果。
 
 所有 Python 步骤使用同一个解释器，失败即停止。脚本依次生成图标、当前装备分类、复盘说明和 `replayer/Name.py`，在独立的 `build/release-*` 中构建，核对资源 SHA256 与依赖清单，并在空目录执行冻结 EXE 的心法、增益、PNG/ICO + Tk 和 Excel 读写检查。装备估算另走真实 Actor 流程，检查有样本、无样本和混合状态，确认属性排名与上传受到保护、实测伤害百分位仍可使用。全部通过后才替换 `dist/j3jz.exe`。
 
@@ -23,9 +26,11 @@
 - `Custom_Trinket.tab`、`Custom_Armor.tab`、`Custom_Weapon.tab`
 - `attrib.tab`、`enchant.tab`、`item.txt`、`other.tab`、`Set.tab`
 - `StrengthableAttrib.tab`、`xinfa50.json`、`global_parameters.json`
-- `luoyang_npc_defense.json`、`average_equipment.json`
+- `luoyang_npc_defense.json`、`average_equipment.json`、`equipment_effects.json`
 
 名称和增益统一由原有 `replayer/Name.py` 提供。正式服 JSON 使用单一名称，不再同时保留 `_hd` 与体服运行副本。旧赛季原表、体服装备 zip、旧名称表和开发证据不进入安装包。图标由 `GenerateFiles.py` 写入运行目录，`icons/rate.dat` 为运行时缓存。
+
+8.16.6 共包含 14 项上述运行资源。`equipment_effects.json` 是按精确类型、ID／脚本路径、参数生成的运行目录；对应 `docs/160/evidence/equipment_effects/` 原件和反汇编只用于开发复核，不进入安装包。该证据目录由 Git 保留原始字节，避免换行转换使清单 SHA256 失效。
 
 原始 `buff*.tab`、`buff*.txt`、`skill*.txt` 用于生成名称表。来源清单和 `docs/160/evidence/` 中的原件用于开发复核；历史取证资料不承担客户端兼容功能。
 
@@ -66,6 +71,7 @@ python -m release.ValidateRelease --exe dist/j3jz.exe
 | 入口 | 用途 |
 | --- | --- |
 | `NameGenerator` | 正式表生成 `replayer/Name.py` |
+| `EquipmentEffectGenerator` | 已审核装备特效证据生成或校验 `equipment_effects.json` 与来源 SHA256 |
 | `FormalXinfa50Generator` | 10009 原件生成或校验心法、全局参数和首领防御 |
 | `SyncCangshengTables` | 核对提取凭据后更新正式源表及名称表 |
 | `AverageEquipmentGenerator` | 从 10 月 29 日起的正式服日志生成可用心法的平均装备参考；原始日志不入包 |

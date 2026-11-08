@@ -1,0 +1,6457 @@
+{
+  "clientVersion": "1.6.0.10009",
+  "files": [
+    {
+      "sha256": "189c19c845383262b94efea0ae41934e6e9ce8e1fd102d23c05872e2637fad14",
+      "sourceFile": "hd-20261029/source/supplemental/recipeSkill.tab"
+    },
+    {
+      "sha256": "97f6407cca4040efe5e5ffb3e3e8f8e1eb16c6877663a425482d9574095703c8",
+      "sourceFile": "hd-20261029/source/critical_files/skills.tab"
+    },
+    {
+      "sha256": "a708e062237e746ec8daa5cfa7ab367b697a0aaa562699c2b1f434f48b5c1e2e",
+      "sourceFile": "fresh-10072-access/readable/settings/skill/recipeSkill.tab"
+    },
+    {
+      "sha256": "40408a2dfb4e2eb6a5695167da2a708e3efef7b00528449e2f03622903dbe21a",
+      "sourceFile": "fresh-10072-access/readable/settings/skill_mobile/recipeSkill.tab"
+    }
+  ],
+  "recipes": [
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1508",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,47736",
+          "name": "寒锋凌日",
+          "field": "23597"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级傲血橙武属性1",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1508",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "400",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "400",
+          "SkillName": "天策-穿云",
+          "RecipeType": "",
+          "ScriptFile": "天策\\天策_羽林枪法_穿云.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1509",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,47736",
+          "name": "寒锋凌日",
+          "field": "23598"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级傲血橙武属性2",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1509",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "403",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "403",
+          "SkillName": "天策-龙吟",
+          "RecipeType": "403",
+          "ScriptFile": "天策\\天策_羽林枪法_龙吟.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1516",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45303",
+          "name": "意真",
+          "field": "23605"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级花间橙武属性1",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1516",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "179",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "179",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "179",
+          "SkillName": "阳明指",
+          "RecipeType": "179",
+          "ScriptFile": "万花\\万花_点穴截脉_阳明指.lua"
+        },
+        {
+          "SkillID": "9038",
+          "SkillName": "万花_沃土_阳明指额外2层伤害",
+          "RecipeType": "179",
+          "ScriptFile": "万花\\万花_沃土_阳明指额外50%伤害.lua"
+        },
+        {
+          "SkillID": "9039",
+          "SkillName": "万花_沃土_阳明指额外3层伤害",
+          "RecipeType": "179",
+          "ScriptFile": "万花\\万花_沃土_阳明指额外75%伤害.lua"
+        },
+        {
+          "SkillID": "9040",
+          "SkillName": "万花_沃土_阳明指额外1层伤害",
+          "RecipeType": "179",
+          "ScriptFile": "万花\\万花_沃土_阳明指额外25%伤害.lua"
+        },
+        {
+          "SkillID": "9478",
+          "SkillName": "附魔_吞噬后额外伤害",
+          "RecipeType": "179",
+          "ScriptFile": "万花\\万花_附魔阳明额外伤害.lua"
+        },
+        {
+          "SkillID": "14941",
+          "SkillName": "正常阳明指伤害",
+          "RecipeType": "179",
+          "ScriptFile": "万花\\万花_点穴截脉_阳明指正常伤害.lua"
+        },
+        {
+          "SkillID": "14942",
+          "SkillName": "阳明指10%会心伤害",
+          "RecipeType": "179",
+          "ScriptFile": "万花\\万花_点穴截脉_阳明指10%会心伤害.lua"
+        },
+        {
+          "SkillID": "14943",
+          "SkillName": "阳明指20%会心",
+          "RecipeType": "179",
+          "ScriptFile": "万花\\万花_点穴截脉_阳明指20%会心伤害.lua"
+        },
+        {
+          "SkillID": "14944",
+          "SkillName": "阳明指30%会心",
+          "RecipeType": "179",
+          "ScriptFile": "万花\\万花_点穴截脉_阳明指30%会心伤害.lua"
+        },
+        {
+          "SkillID": "15834",
+          "SkillName": "陈月_阳明指",
+          "RecipeType": "179",
+          "ScriptFile": "Quest/ACT_四月洛阳/陈月_阳明指.lua"
+        },
+        {
+          "SkillID": "15858",
+          "SkillName": "陈月_商阳指",
+          "RecipeType": "179",
+          "ScriptFile": "Quest/ACT_四月洛阳/陈月_商阳指.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1517",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45303",
+          "name": "意真",
+          "field": "23606"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级花间橙武属性2",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1517",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "2636",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "2636",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "2636",
+          "SkillName": "快雪时晴",
+          "RecipeType": "2636",
+          "ScriptFile": "万花\\万花_百花拂穴手_雪舞轻尘.lua"
+        },
+        {
+          "SkillID": "6233",
+          "SkillName": "万花_快雪时晴伤害",
+          "RecipeType": "2636",
+          "ScriptFile": "万花\\快雪实际AOE.lua"
+        },
+        {
+          "SkillID": "6701",
+          "SkillName": "万花_快雪定身额外伤害",
+          "RecipeType": "2636",
+          "ScriptFile": "万花\\快雪实际AOE.lua"
+        },
+        {
+          "SkillID": "6900",
+          "SkillName": "万花_快雪定身锁足调用",
+          "RecipeType": "2636",
+          "ScriptFile": "万花\\快雪定身锁足调用.lua"
+        },
+        {
+          "SkillID": "9465",
+          "SkillName": "附魔_花间阳明叠快雪新快雪单体",
+          "RecipeType": "2636",
+          "ScriptFile": "万花\\万花_附魔快雪时晴单体伤害.lua"
+        },
+        {
+          "SkillID": "9466",
+          "SkillName": "附魔_花间阳明叠快雪新快雪群体",
+          "RecipeType": "2636",
+          "ScriptFile": "万花\\万花_附魔快雪时晴群体伤害.lua"
+        },
+        {
+          "SkillID": "14656",
+          "SkillName": "万花_快雪时晴伤害增强",
+          "RecipeType": "2636",
+          "ScriptFile": "万花\\快雪实际AOE_增强.lua"
+        },
+        {
+          "SkillID": "14657",
+          "SkillName": "万花_快雪定身锁足调用增强",
+          "RecipeType": "2636",
+          "ScriptFile": "万花\\快雪定身锁足调用_增强.lua"
+        },
+        {
+          "SkillID": "14658",
+          "SkillName": "万花_快雪定身额外伤害_增强",
+          "RecipeType": "2636",
+          "ScriptFile": "万花\\快雪实际AOE_增强.lua"
+        },
+        {
+          "SkillID": "33222",
+          "SkillName": "花间_雪弃单体",
+          "RecipeType": "2636",
+          "ScriptFile": "万花/新雪弃快雪时晴单体.lua"
+        },
+        {
+          "SkillID": "33231",
+          "SkillName": "花间_雪弃aoe",
+          "RecipeType": "2636",
+          "ScriptFile": "万花/新雪弃快雪时晴aoe.lua"
+        },
+        {
+          "SkillID": "36416",
+          "SkillName": "快雪时晴移动",
+          "RecipeType": "2636",
+          "ScriptFile": "万花/万花_百花拂穴手_雪舞轻尘移动.lua"
+        },
+        {
+          "SkillID": "38854",
+          "SkillName": "万花_新雪弃快雪时晴伤害增强",
+          "RecipeType": "2636",
+          "ScriptFile": "万花/新快雪实际aoe增强.lua"
+        },
+        {
+          "SkillID": "43935",
+          "SkillName": "花间_快雪时晴单体伤害子技能",
+          "RecipeType": "2636",
+          "ScriptFile": "万花/快雪时晴单体伤害.lua"
+        },
+        {
+          "SkillID": "43936",
+          "SkillName": "花间_快雪时晴单体伤害子技能_雪弃",
+          "RecipeType": "2636",
+          "ScriptFile": "万花/快雪时晴单体伤害_雪弃.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1518",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45304",
+          "name": "折枝花满",
+          "field": "23607"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级离经橙武属性1",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1518",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "138",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "138",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "138",
+          "SkillName": "提针",
+          "RecipeType": "138",
+          "ScriptFile": "万花\\万花_太素九针_提针.lua"
+        },
+        {
+          "SkillID": "16050",
+          "SkillName": "提针额外治疗自身",
+          "RecipeType": "138",
+          "ScriptFile": "万花\\万花_提针额外治疗自身判定.lua"
+        },
+        {
+          "SkillID": "16052",
+          "SkillName": "提针额外治疗实际效果",
+          "RecipeType": "138",
+          "ScriptFile": "万花\\万花_提针额外治疗自身实际效果.lua"
+        },
+        {
+          "SkillID": "22792",
+          "SkillName": "22792 提针低血量判定技能(无视脚本名字)",
+          "RecipeType": "138",
+          "ScriptFile": "万花\\万花_太素九针_提针低血量治疗判定.lua"
+        },
+        {
+          "SkillID": "22885",
+          "SkillName": "提针低血量40%会心加成",
+          "RecipeType": "138",
+          "ScriptFile": "万花\\渐催会心加成效果.lua"
+        },
+        {
+          "SkillID": "22886",
+          "SkillName": "提针有奇穴正常治疗效果",
+          "RecipeType": "138",
+          "ScriptFile": "万花\\渐催普通效果.lua"
+        },
+        {
+          "SkillID": "30649",
+          "SkillName": "提针移动",
+          "RecipeType": "138",
+          "ScriptFile": "万花/万花_太素九针_提针移动.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1519",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45304",
+          "name": "折枝花满",
+          "field": "23608"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级离经橙武属性2",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1519",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "140",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "140",
+          "SkillName": "彼针",
+          "RecipeType": "140",
+          "ScriptFile": "万花\\万花_太素九针_彼针.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1520",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45307",
+          "name": "仙灵",
+          "field": "23609"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级气纯橙武属性1",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1520",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "367",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "367",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "367",
+          "SkillName": "四象轮回",
+          "RecipeType": "367",
+          "ScriptFile": "纯阳\\北冥剑气_四象轮回.lua"
+        },
+        {
+          "SkillID": "896",
+          "SkillName": "四象轮回_普通",
+          "RecipeType": "367",
+          "ScriptFile": "纯阳\\子技能_四象轮回_非定身.lua"
+        },
+        {
+          "SkillID": "897",
+          "SkillName": "四象轮回_定身及冰环",
+          "RecipeType": "367",
+          "ScriptFile": "纯阳\\子技能_四象轮回_定身.lua"
+        },
+        {
+          "SkillID": "3413",
+          "SkillName": "四象轮回_捉影伤害",
+          "RecipeType": "367",
+          "ScriptFile": "纯阳\\四象轮回_捉影伤害.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1521",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45307",
+          "name": "仙灵",
+          "field": "23610"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级气纯橙武属性2",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1521",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "306",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "306",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "306",
+          "SkillName": "太极无极",
+          "RecipeType": "306",
+          "ScriptFile": "纯阳\\北冥剑气_太极无极.lua"
+        },
+        {
+          "SkillID": "2299",
+          "SkillName": "太极无极_锁足定身伤害",
+          "RecipeType": "306",
+          "ScriptFile": "纯阳\\北冥剑气_太极无极_锁足定身.lua"
+        },
+        {
+          "SkillID": "2329",
+          "SkillName": "太极无极_普通伤害",
+          "RecipeType": "306",
+          "ScriptFile": "纯阳\\北冥剑气_太极无极_非锁足定身.lua"
+        },
+        {
+          "SkillID": "3412",
+          "SkillName": "太极无极_捉影伤害",
+          "RecipeType": "306",
+          "ScriptFile": "纯阳\\太极无极_捉影伤害.lua"
+        },
+        {
+          "SkillID": "6864",
+          "SkillName": "纯阳_太极无极需求buff",
+          "RecipeType": "306",
+          "ScriptFile": "纯阳\\北冥剑气_太极无极_非锁足定身buff.lua"
+        },
+        {
+          "SkillID": "6917",
+          "SkillName": "纯阳_太极无极需求buff定身",
+          "RecipeType": "306",
+          "ScriptFile": "纯阳\\北冥剑气_太极无极_锁足定身buff.lua"
+        },
+        {
+          "SkillID": "9031",
+          "SkillName": "纯阳_太极无极普通需求buff2层",
+          "RecipeType": "306",
+          "ScriptFile": "纯阳\\北冥剑气_太极无极_非锁足定身buff2层.lua"
+        },
+        {
+          "SkillID": "9032",
+          "SkillName": "纯阳_太极无极普通需求buff3层",
+          "RecipeType": "306",
+          "ScriptFile": "纯阳\\北冥剑气_太极无极_非锁足定身buff3层.lua"
+        },
+        {
+          "SkillID": "9033",
+          "SkillName": "纯阳_太极无极需求buff2层定身",
+          "RecipeType": "306",
+          "ScriptFile": "纯阳\\北冥剑气_太极无极_锁足定身buff2层.lua"
+        },
+        {
+          "SkillID": "9034",
+          "SkillName": "纯阳_太极无极需求buff3层定身",
+          "RecipeType": "306",
+          "ScriptFile": "纯阳\\北冥剑气_太极无极_锁足定身buff3层.lua"
+        },
+        {
+          "SkillID": "28379",
+          "SkillName": "太极无极连续命中目标",
+          "RecipeType": "306",
+          "ScriptFile": "纯阳\\北冥剑气_太极无极连续命中_非锁足定身.lua"
+        },
+        {
+          "SkillID": "28380",
+          "SkillName": "太极无极命中锁足减速加成",
+          "RecipeType": "306",
+          "ScriptFile": "纯阳\\北冥剑气_太极无极连续命中_锁足定身.lua"
+        },
+        {
+          "SkillID": "28381",
+          "SkillName": "太极无极普通表现技能",
+          "RecipeType": "306",
+          "ScriptFile": "纯阳\\北冥剑气_太极无极普通表现.lua"
+        },
+        {
+          "SkillID": "28382",
+          "SkillName": "太极无极连续命中表现技能",
+          "RecipeType": "306",
+          "ScriptFile": "纯阳\\北冥剑气_太极无极连续表现.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1522",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45308",
+          "name": "镇恶",
+          "field": "23611"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级剑纯橙武属性1",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1522",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "365",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "365",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "365",
+          "SkillName": "无我无剑",
+          "RecipeType": "365",
+          "ScriptFile": "纯阳\\天道剑势_无我无剑.lua"
+        },
+        {
+          "SkillID": "383",
+          "SkillName": "无我无剑_1点气",
+          "RecipeType": "365",
+          "ScriptFile": "纯阳\\子技能_无我无剑_1点气.lua"
+        },
+        {
+          "SkillID": "386",
+          "SkillName": "无我无剑_2点气",
+          "RecipeType": "365",
+          "ScriptFile": "纯阳\\子技能_无我无剑_2点气.lua"
+        },
+        {
+          "SkillID": "387",
+          "SkillName": "无我无剑_3点气",
+          "RecipeType": "365",
+          "ScriptFile": "纯阳\\子技能_无我无剑_3点气.lua"
+        },
+        {
+          "SkillID": "388",
+          "SkillName": "无我无剑_4点气",
+          "RecipeType": "365",
+          "ScriptFile": "纯阳\\子技能_无我无剑_4点气.lua"
+        },
+        {
+          "SkillID": "389",
+          "SkillName": "无我无剑_5点气",
+          "RecipeType": "365",
+          "ScriptFile": "纯阳\\子技能_无我无剑_5点气.lua"
+        },
+        {
+          "SkillID": "390",
+          "SkillName": "无我无剑_6点气",
+          "RecipeType": "365",
+          "ScriptFile": "纯阳\\子技能_无我无剑_6点气.lua"
+        },
+        {
+          "SkillID": "391",
+          "SkillName": "无我无剑_7点气",
+          "RecipeType": "365",
+          "ScriptFile": "纯阳\\子技能_无我无剑_7点气.lua"
+        },
+        {
+          "SkillID": "392",
+          "SkillName": "无我无剑_8点气",
+          "RecipeType": "365",
+          "ScriptFile": "纯阳\\子技能_无我无剑_8点气.lua"
+        },
+        {
+          "SkillID": "393",
+          "SkillName": "无我无剑_9点气",
+          "RecipeType": "365",
+          "ScriptFile": "纯阳\\子技能_无我无剑_9点气.lua"
+        },
+        {
+          "SkillID": "394",
+          "SkillName": "无我无剑_10点气",
+          "RecipeType": "365",
+          "ScriptFile": "纯阳\\子技能_无我无剑_10点气.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1523",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45308",
+          "name": "镇恶",
+          "field": "23612"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级剑纯橙武属性2",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1523",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "2699",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "2699",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "2699",
+          "SkillName": "八荒归元",
+          "RecipeType": "2699",
+          "ScriptFile": "纯阳\\天道剑势_一剑封喉.lua"
+        },
+        {
+          "SkillID": "4954",
+          "SkillName": "纯阳_八荒归元_伤害",
+          "RecipeType": "2699",
+          "ScriptFile": "纯阳\\纯阳_八荒归元_伤害.lua"
+        },
+        {
+          "SkillID": "6442",
+          "SkillName": "纯阳_八荒_耗气调用",
+          "RecipeType": "2699",
+          "ScriptFile": "纯阳\\纯阳_八荒归元_伤害奇穴.lua"
+        },
+        {
+          "SkillID": "9068",
+          "SkillName": "纯阳_和光_八荒额外伤害",
+          "RecipeType": "2699",
+          "ScriptFile": "纯阳\\纯阳_八荒归元_和光八荒额外伤害.lua"
+        },
+        {
+          "SkillID": "13853",
+          "SkillName": "八荒一段伤害",
+          "RecipeType": "2699",
+          "ScriptFile": "纯阳\\纯阳_八荒归元_伤害一段.lua"
+        },
+        {
+          "SkillID": "14809",
+          "SkillName": "八荒归元额外25%伤害",
+          "RecipeType": "2699",
+          "ScriptFile": "纯阳\\纯阳_八荒归元_额外伤害伤害.lua"
+        },
+        {
+          "SkillID": "34693",
+          "SkillName": "剑入_触碰伤害",
+          "RecipeType": "2699",
+          "ScriptFile": "纯阳/套路及子技能/剑入_触碰伤害.lua"
+        },
+        {
+          "SkillID": "34694",
+          "SkillName": "剑入_引爆伤害",
+          "RecipeType": "2699",
+          "ScriptFile": "纯阳/套路及子技能/剑入_引爆伤害.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1524",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45309",
+          "name": "龙鲤",
+          "field": "23613"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级冰心橙武属性1",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1524",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "2707",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "2707",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "2707",
+          "SkillName": "玳弦急曲",
+          "RecipeType": "2707",
+          "ScriptFile": "七秀\\西河剑器_清音五岳.lua"
+        },
+        {
+          "SkillID": "3009",
+          "SkillName": "七秀_玳弦急曲_DOT",
+          "RecipeType": "2707",
+          "ScriptFile": "七秀\\七秀_玳弦急曲_DOT.lua"
+        },
+        {
+          "SkillID": "6234",
+          "SkillName": "七秀_玳弦急曲_实际伤害",
+          "RecipeType": "2707",
+          "ScriptFile": "七秀\\玳弦急曲实际伤害.lua"
+        },
+        {
+          "SkillID": "6554",
+          "SkillName": "七秀_玳弦急曲额外伤害",
+          "RecipeType": "2707",
+          "ScriptFile": "七秀\\玳弦急曲额外伤害.lua"
+        },
+        {
+          "SkillID": "6576",
+          "SkillName": "七秀蝶弄足急曲",
+          "RecipeType": "2707",
+          "ScriptFile": "七秀\\七秀_玳弦急曲_DOT_蝶弄足.lua"
+        },
+        {
+          "SkillID": "9146",
+          "SkillName": "七秀_玳弦急曲溢伤",
+          "RecipeType": "2707",
+          "ScriptFile": "七秀\\七秀_玳弦急曲_溢伤.lua"
+        },
+        {
+          "SkillID": "9347",
+          "SkillName": "七秀_附魔_玳弦急曲4层dot",
+          "RecipeType": "2707",
+          "ScriptFile": "七秀\\七秀_玳弦急曲_4层DOT.lua"
+        },
+        {
+          "SkillID": "15127",
+          "SkillName": "玳弦急曲移动",
+          "RecipeType": "2707",
+          "ScriptFile": "七秀\\西河剑器_清音五岳_移动.lua"
+        },
+        {
+          "SkillID": "18814",
+          "SkillName": "玳弦急曲_立即造成一次伤害",
+          "RecipeType": "2707",
+          "ScriptFile": "七秀\\玳弦急曲立即造成一次伤害.lua"
+        },
+        {
+          "SkillID": "34429",
+          "SkillName": "梦香菲_玳弦急曲",
+          "RecipeType": "2707",
+          "ScriptFile": "npc/副本BOSS/帮会领地战/梦香菲_玳弦急曲.lua"
+        },
+        {
+          "SkillID": "40207",
+          "SkillName": "玳弦急曲通道技能",
+          "RecipeType": "2707",
+          "ScriptFile": "七秀\\玳弦急曲通道技能.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1525",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45309",
+          "name": "龙鲤",
+          "field": "23614"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级冰心橙武属性2",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1525",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "553",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "553",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "553",
+          "SkillName": "江海凝光",
+          "RecipeType": "553",
+          "ScriptFile": "七秀\\西河剑器_江海凝光.lua"
+        },
+        {
+          "SkillID": "6559",
+          "SkillName": "江海凝光普通",
+          "RecipeType": "553",
+          "ScriptFile": "七秀\\西河剑器_江海凝光伤害.lua"
+        },
+        {
+          "SkillID": "6560",
+          "SkillName": "江海凝光锁足",
+          "RecipeType": "553",
+          "ScriptFile": "七秀\\西河剑器_江海凝光伤害.lua"
+        },
+        {
+          "SkillID": "9427",
+          "SkillName": "江海凝光爆4层急曲",
+          "RecipeType": "553",
+          "ScriptFile": "七秀\\西河剑器_江海凝光伤害4层急曲.lua"
+        },
+        {
+          "SkillID": "18203",
+          "SkillName": "江海凝光群爆实际",
+          "RecipeType": "553",
+          "ScriptFile": "七秀/镇派/江海凝光群爆实际.lua"
+        },
+        {
+          "SkillID": "25001",
+          "SkillName": "江海凝光一层急曲",
+          "RecipeType": "553",
+          "ScriptFile": "七秀\\西河剑器_江海凝光一层急曲.lua"
+        },
+        {
+          "SkillID": "25002",
+          "SkillName": "江海凝光两层急曲",
+          "RecipeType": "553",
+          "ScriptFile": "七秀\\西河剑器_江海凝光两层急曲.lua"
+        },
+        {
+          "SkillID": "25003",
+          "SkillName": "江海凝光三层急曲",
+          "RecipeType": "553",
+          "ScriptFile": "七秀\\西河剑器_江海凝光三层急曲.lua"
+        },
+        {
+          "SkillID": "25004",
+          "SkillName": "江海凝光没急曲",
+          "RecipeType": "553",
+          "ScriptFile": "七秀\\西河剑器_江海凝光没急曲.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1526",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45310",
+          "name": "钗蝶语双",
+          "field": "23615"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级云裳橙武属性1",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1526",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "565",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "565",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "565",
+          "SkillName": "回雪飘摇",
+          "RecipeType": "565",
+          "ScriptFile": "七秀\\霓裳羽衣_回雪飘摇.lua"
+        },
+        {
+          "SkillID": "6250",
+          "SkillName": "七秀_回雪飘摇实际治疗",
+          "RecipeType": "565",
+          "ScriptFile": "七秀\\回雪飘摇实际治疗.lua"
+        },
+        {
+          "SkillID": "6654",
+          "SkillName": "回雪飘摇翔舞",
+          "RecipeType": "565",
+          "ScriptFile": "七秀\\回雪飘摇实际治疗翔舞.lua"
+        },
+        {
+          "SkillID": "6655",
+          "SkillName": "回雪飘摇上元",
+          "RecipeType": "565",
+          "ScriptFile": "七秀\\回雪飘摇实际治疗上元.lua"
+        },
+        {
+          "SkillID": "6656",
+          "SkillName": "回雪飘摇2个",
+          "RecipeType": "565",
+          "ScriptFile": "七秀\\回雪飘摇实际治疗2个.lua"
+        },
+        {
+          "SkillID": "6657",
+          "SkillName": "回雪飘摇有镇派基础",
+          "RecipeType": "565",
+          "ScriptFile": "七秀\\回雪飘摇实际治疗有镇派.lua"
+        },
+        {
+          "SkillID": "18222",
+          "SkillName": "回血飘摇_移动",
+          "RecipeType": "565",
+          "ScriptFile": "七秀\\霓裳羽衣_回雪飘摇_移动.lua"
+        },
+        {
+          "SkillID": "40236",
+          "SkillName": "回雪飘摇通道技能",
+          "RecipeType": "565",
+          "ScriptFile": "七秀\\回雪飘摇通道技能.lua"
+        },
+        {
+          "SkillID": "40237",
+          "SkillName": "回血飘摇_移动通道技能",
+          "RecipeType": "565",
+          "ScriptFile": "七秀\\回血飘摇_移动通道技能.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1527",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45310",
+          "name": "钗蝶语双",
+          "field": "23616"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级云裳橙武属性2",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1527",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "569",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "569",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "569",
+          "SkillName": "王母挥袂",
+          "RecipeType": "569",
+          "ScriptFile": "七秀\\霓裳羽衣_王母挥袂.lua"
+        },
+        {
+          "SkillID": "2976",
+          "SkillName": "七秀_霓裳羽衣_王母挥袂_正常",
+          "RecipeType": "569",
+          "ScriptFile": "七秀\\七秀_霓裳羽衣_王母挥袂_正常.lua"
+        },
+        {
+          "SkillID": "2977",
+          "SkillName": "七秀_霓裳羽衣_王母挥袂_镇派",
+          "RecipeType": "569",
+          "ScriptFile": "七秀\\七秀_霓裳羽衣_王母挥袂_镇派.lua"
+        },
+        {
+          "SkillID": "6209",
+          "SkillName": "七秀_90级奇穴_王母挥袂aoe",
+          "RecipeType": "569",
+          "ScriptFile": "七秀\\90级奇穴\\王母AOE.lua"
+        },
+        {
+          "SkillID": "21275",
+          "SkillName": "新简势额外治疗王母",
+          "RecipeType": "569",
+          "ScriptFile": "七秀\\镇派\\新简势额外治疗子技能王母.lua"
+        },
+        {
+          "SkillID": "22736",
+          "SkillName": "王母挥袂额外正常治疗",
+          "RecipeType": "569",
+          "ScriptFile": "七秀\\七秀_霓裳羽衣_王母挥袂_额外正常治疗.lua"
+        },
+        {
+          "SkillID": "22737",
+          "SkillName": "王母挥袂额外增强治疗",
+          "RecipeType": "569",
+          "ScriptFile": "七秀\\七秀_霓裳羽衣_王母挥袂_额外增强治疗.lua"
+        },
+        {
+          "SkillID": "28771",
+          "SkillName": "王母低于50%血量额外治疗",
+          "RecipeType": "569",
+          "ScriptFile": "七秀/七秀_霓裳羽衣_王母低于50%血治疗.lua"
+        },
+        {
+          "SkillID": "28788",
+          "SkillName": "险韵低于50%血量对自身额外治疗",
+          "RecipeType": "569",
+          "ScriptFile": "七秀/险韵低于50%血量对自身额外治疗.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1528",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45311",
+          "name": "蜕骨",
+          "field": "23617"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级毒经橙武属性1",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1528",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "2209",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "2209",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "五毒\\秘笈\\蝎心加伤害5.lua",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "2209",
+          "SkillName": "蝎心",
+          "RecipeType": "2209",
+          "ScriptFile": "五毒\\五毒_五仙图录_蝎心.lua"
+        },
+        {
+          "SkillID": "2455",
+          "SkillName": "毒蛊触发_蝎心夺命",
+          "RecipeType": "2209",
+          "ScriptFile": "五毒\\五毒_毒蛊触发_蝎心夺命.lua"
+        },
+        {
+          "SkillID": "6621",
+          "SkillName": "蝎心_DOT",
+          "RecipeType": "2209",
+          "ScriptFile": "五毒\\五毒_五仙图录_蝎心DOT.lua"
+        },
+        {
+          "SkillID": "9331",
+          "SkillName": "附魔_蝎心正常伤害效果",
+          "RecipeType": "2209",
+          "ScriptFile": "五毒\\90级奇穴\\五毒_毒经_附魔后蝎心正常伤害.lua"
+        },
+        {
+          "SkillID": "9332",
+          "SkillName": "附魔_蝎心伤害带回血效果",
+          "RecipeType": "2209",
+          "ScriptFile": "五毒\\90级奇穴\\五毒_毒经_附魔后蝎心伤害附带回血效果.lua"
+        },
+        {
+          "SkillID": "9405",
+          "SkillName": "附魔_补天蝎心效果",
+          "RecipeType": "2209",
+          "ScriptFile": "五毒\\90级奇穴\\五毒_补天_附魔后蝎心正常伤害.lua"
+        },
+        {
+          "SkillID": "13476",
+          "SkillName": "毒经_蝎心dot伤害技能",
+          "RecipeType": "2209",
+          "ScriptFile": "五毒\\五毒_五仙图录_蝎心DOT持续伤害.lua"
+        },
+        {
+          "SkillID": "17242",
+          "SkillName": "五毒蝎心表现",
+          "RecipeType": "2209",
+          "ScriptFile": "Quest/五毒任务蝎心表现.lua"
+        },
+        {
+          "SkillID": "17308",
+          "SkillName": "五毒演武蝎心",
+          "RecipeType": "2209",
+          "ScriptFile": "五毒\\五毒_五仙图录_蝎心.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1529",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45311",
+          "name": "蜕骨",
+          "field": "23618"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级毒经橙武属性2",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1529",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "2212",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "2212",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "2212",
+          "SkillName": "百足",
+          "RecipeType": "2212",
+          "ScriptFile": "五毒\\五毒_五仙图录_百足.lua"
+        },
+        {
+          "SkillID": "6238",
+          "SkillName": "五毒_百足dot",
+          "RecipeType": "2212",
+          "ScriptFile": "五毒\\百足dot.lua"
+        },
+        {
+          "SkillID": "13472",
+          "SkillName": "毒经_百足瞬间伤害",
+          "RecipeType": "2212",
+          "ScriptFile": "五毒\\五毒_五仙图录_百足瞬间伤害.lua"
+        },
+        {
+          "SkillID": "18700",
+          "SkillName": "百足dot 伤害缩短",
+          "RecipeType": "2212",
+          "ScriptFile": "五毒\\百足dot_缩短.lua"
+        },
+        {
+          "SkillID": "30578",
+          "SkillName": "百足不僵",
+          "RecipeType": "2212",
+          "ScriptFile": "五毒/90级奇穴/毒经_不僵百足.lua"
+        },
+        {
+          "SkillID": "30579",
+          "SkillName": "百足不僵固灵",
+          "RecipeType": "2212",
+          "ScriptFile": "五毒/90级奇穴/毒经_不僵固灵百足.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1530",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45312",
+          "name": "逾潮声",
+          "field": "23619"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级补天橙武属性1",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1530",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "2232",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "2232",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "2232",
+          "SkillName": "冰蚕牵丝",
+          "RecipeType": "2232",
+          "ScriptFile": "五毒\\五毒_补天心经_冰蚕牵丝.lua"
+        },
+        {
+          "SkillID": "2526",
+          "SkillName": "五毒_冰蚕牵丝_治疗效果子技能",
+          "RecipeType": "2232",
+          "ScriptFile": "五毒\\五毒_冰蚕牵丝_治疗子技能.lua"
+        },
+        {
+          "SkillID": "6662",
+          "SkillName": "冰蚕牵丝_单体",
+          "RecipeType": "2232",
+          "ScriptFile": "五毒\\五毒_补天心经_冰蚕牵丝_单体.lua"
+        },
+        {
+          "SkillID": "27391",
+          "SkillName": "多人冰蚕子技能",
+          "RecipeType": "2232",
+          "ScriptFile": "五毒\\五毒_补天心经_多人冰蚕牵丝.lua"
+        },
+        {
+          "SkillID": "33103",
+          "SkillName": "五毒_补天_蝶翼昭明千蝶击退",
+          "RecipeType": "2232",
+          "ScriptFile": "五毒/90级奇穴/蝶翼昭明_击退母技能.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1531",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45312",
+          "name": "逾潮声",
+          "field": "23620"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级补天橙武属性2",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1531",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "2233",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "2233",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "2233",
+          "SkillName": "醉舞九天",
+          "RecipeType": "2233",
+          "ScriptFile": "五毒\\醉舞九天表现.lua"
+        },
+        {
+          "SkillID": "6252",
+          "SkillName": "五毒_蝶舞九天实际治疗",
+          "RecipeType": "2233",
+          "ScriptFile": "五毒\\醉舞实际治疗.lua"
+        },
+        {
+          "SkillID": "6675",
+          "SkillName": "醉舞九天_小队",
+          "RecipeType": "2233",
+          "ScriptFile": "五毒\\五毒_补天心经_蝶舞九天_小队.lua"
+        },
+        {
+          "SkillID": "33444",
+          "SkillName": "醉舞表现母技能",
+          "RecipeType": "2233",
+          "ScriptFile": "五毒\\五毒_补天心经_蝶舞九天.lua"
+        },
+        {
+          "SkillID": "37560",
+          "SkillName": "目标区域醉舞子技能",
+          "RecipeType": "2233",
+          "ScriptFile": "五毒\\五毒_补天心经_蝶舞九天_目标区域模式.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1532",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45313",
+          "name": "碧岚幽炎",
+          "field": "23621"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级天罗橙武属性1",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1532",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "3105",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "3105",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "3105",
+          "SkillName": "蚀肌弹",
+          "RecipeType": "3105",
+          "ScriptFile": "唐门\\唐门_机关_蚀肌弹.lua"
+        },
+        {
+          "SkillID": "18776",
+          "SkillName": "蚀肌弹_飞天",
+          "RecipeType": "3105",
+          "ScriptFile": "唐门\\唐门_机关_蚀肌弹_飞天.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1533",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45313",
+          "name": "碧岚幽炎",
+          "field": "23622"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级天罗橙武属性2",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1533",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "3108",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "3108",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "3108",
+          "SkillName": "天绝地灭",
+          "RecipeType": "3108",
+          "ScriptFile": "唐门/新机关/天绝地灭.lua"
+        },
+        {
+          "SkillID": "3301",
+          "SkillName": "天绝地灭_持续效果",
+          "RecipeType": "3108",
+          "ScriptFile": "唐门\\天绝地灭_持续效果.lua"
+        },
+        {
+          "SkillID": "3306",
+          "SkillName": "鲲鹏铁爪_玩家造成伤害",
+          "RecipeType": "3108",
+          "ScriptFile": "唐门\\鲲鹏铁爪_玩家造成伤害.lua"
+        },
+        {
+          "SkillID": "3359",
+          "SkillName": "鲲鹏铁爪_机关生效",
+          "RecipeType": "3108",
+          "ScriptFile": "唐门\\鲲鹏铁爪_机关生效.lua"
+        },
+        {
+          "SkillID": "6203",
+          "SkillName": "唐门_90级奇穴_天绝爆炸",
+          "RecipeType": "3108",
+          "ScriptFile": "唐门\\90级奇穴\\天绝爆炸.lua"
+        },
+        {
+          "SkillID": "6503",
+          "SkillName": "唐门_90奇穴_天绝地灭_消失定身",
+          "RecipeType": "3108",
+          "ScriptFile": "唐门\\90级奇穴\\唐门_90奇穴_天绝地灭_消失定身.lua"
+        },
+        {
+          "SkillID": "18267",
+          "SkillName": "天绝地灭_锁足拉人",
+          "RecipeType": "3108",
+          "ScriptFile": "唐门\\套路及子技能\\天绝地灭拉人.lua"
+        },
+        {
+          "SkillID": "18804",
+          "SkillName": "天绝地灭_飞天",
+          "RecipeType": "3108",
+          "ScriptFile": "唐门\\唐门_机关_天绝地灭_飞天.lua"
+        },
+        {
+          "SkillID": "19000",
+          "SkillName": "天绝地灭计数",
+          "RecipeType": "3108",
+          "ScriptFile": "唐门\\天绝地灭_衰减计数.lua"
+        },
+        {
+          "SkillID": "21962",
+          "SkillName": "天绝地灭·引爆",
+          "RecipeType": "3108",
+          "ScriptFile": "唐门\\唐门_机关_天绝地灭_引爆.lua"
+        },
+        {
+          "SkillID": "21963",
+          "SkillName": "天绝地灭二段伤害",
+          "RecipeType": "3108",
+          "ScriptFile": "唐门\\天绝地灭_二段爆炸.lua"
+        },
+        {
+          "SkillID": "22745",
+          "SkillName": "飞星创建天绝地灭",
+          "RecipeType": "3108",
+          "ScriptFile": "唐门\\唐门_机关_飞星发动天绝地灭.lua"
+        },
+        {
+          "SkillID": "28374",
+          "SkillName": "天绝命中化血目标额外伤害子技能",
+          "RecipeType": "3108",
+          "ScriptFile": "唐门/套路及子技能/天绝命中化血镖额外伤害.lua"
+        },
+        {
+          "SkillID": "30328",
+          "SkillName": "林寒涧肃拉人实际伤害",
+          "RecipeType": "3108",
+          "ScriptFile": "唐门\\林寒涧肃拉人实际伤害.lua"
+        },
+        {
+          "SkillID": "30727",
+          "SkillName": "天风汲雨天绝伤害",
+          "RecipeType": "3108",
+          "ScriptFile": "唐门\\天绝地灭_天风汲雨.lua"
+        },
+        {
+          "SkillID": "36502",
+          "SkillName": "天绝地灭共享伤害",
+          "RecipeType": "3108",
+          "ScriptFile": "唐门\\天绝地灭_共享伤害.lua"
+        },
+        {
+          "SkillID": "36534",
+          "SkillName": "天绝地灭共享林寒伤害",
+          "RecipeType": "3108",
+          "ScriptFile": "唐门\\天绝地灭_林寒共享伤害.lua"
+        },
+        {
+          "SkillID": "36633",
+          "SkillName": "天风汲雨打玩家",
+          "RecipeType": "3108",
+          "ScriptFile": "唐门\\天绝地灭_天风汲雨打玩家.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1534",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45314",
+          "name": "银羽雪辉",
+          "field": "23623"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级惊羽橙武属性1",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1534",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "3095",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "3095",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "3095",
+          "SkillName": "夺魄箭（记得改飞天）",
+          "RecipeType": "3095",
+          "ScriptFile": "唐门\\唐门_弓弩_夺魄箭.lua"
+        },
+        {
+          "SkillID": "18779",
+          "SkillName": "夺魄箭_飞天",
+          "RecipeType": "3095",
+          "ScriptFile": "唐门\\唐门_弓弩_夺魄箭_复制.lua"
+        },
+        {
+          "SkillID": "37504",
+          "SkillName": "夺魄箭（奇穴移动读条）",
+          "RecipeType": "3095",
+          "ScriptFile": "唐门\\唐门_弓弩_夺魄箭（奇穴移动读条）.lua"
+        },
+        {
+          "SkillID": "42439",
+          "SkillName": "夺魄箭伤害子技能",
+          "RecipeType": "3095",
+          "ScriptFile": "唐门/夺魄箭伤害子技能.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1535",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45314",
+          "name": "银羽雪辉",
+          "field": "23624"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级惊羽橙武属性2",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1535",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "3093",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "3093",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "3093",
+          "SkillName": "暴雨梨花针",
+          "RecipeType": "3093",
+          "ScriptFile": "唐门\\唐门_暗器_暴雨梨花针.lua"
+        },
+        {
+          "SkillID": "3227",
+          "SkillName": "暴雨梨花针_外功",
+          "RecipeType": "3093",
+          "ScriptFile": "唐门\\暴雨梨花针_外功.lua"
+        },
+        {
+          "SkillID": "3228",
+          "SkillName": "暴雨梨花针_内功",
+          "RecipeType": "3093",
+          "ScriptFile": "唐门\\暴雨梨花针_内功.lua"
+        },
+        {
+          "SkillID": "3479",
+          "SkillName": "天罗诡道_外功暴雨额外伤害",
+          "RecipeType": "3093",
+          "ScriptFile": "item\\天罗诡道_外功暴雨额外伤害.lua"
+        },
+        {
+          "SkillID": "6444",
+          "SkillName": "暴雨梨花针_AOE",
+          "RecipeType": "3093",
+          "ScriptFile": "唐门\\唐门_暗器_暴雨梨花针_AOE.lua"
+        },
+        {
+          "SkillID": "8467",
+          "SkillName": "唐门_暴雨外功奇穴1",
+          "RecipeType": "3093",
+          "ScriptFile": "唐门\\暴雨梨花针_外功1.lua"
+        },
+        {
+          "SkillID": "8468",
+          "SkillName": "唐门_暴雨外功奇穴2",
+          "RecipeType": "3093",
+          "ScriptFile": "唐门\\暴雨梨花针_外功2.lua"
+        },
+        {
+          "SkillID": "8469",
+          "SkillName": "唐门_暴雨外功奇穴3",
+          "RecipeType": "3093",
+          "ScriptFile": "唐门\\暴雨梨花针_外功3.lua"
+        },
+        {
+          "SkillID": "8470",
+          "SkillName": "唐门_暴雨外功奇穴4",
+          "RecipeType": "3093",
+          "ScriptFile": "唐门\\暴雨梨花针_外功4.lua"
+        },
+        {
+          "SkillID": "8471",
+          "SkillName": "唐门_暴雨内功奇穴1",
+          "RecipeType": "3093",
+          "ScriptFile": "唐门\\暴雨梨花针_内功1.lua"
+        },
+        {
+          "SkillID": "8472",
+          "SkillName": "唐门_暴雨内功奇穴2",
+          "RecipeType": "3093",
+          "ScriptFile": "唐门\\暴雨梨花针_内功2.lua"
+        },
+        {
+          "SkillID": "8473",
+          "SkillName": "唐门_暴雨内功奇穴3",
+          "RecipeType": "3093",
+          "ScriptFile": "唐门\\暴雨梨花针_内功3.lua"
+        },
+        {
+          "SkillID": "8474",
+          "SkillName": "唐门_暴雨内功奇穴4",
+          "RecipeType": "3093",
+          "ScriptFile": "唐门\\暴雨梨花针_内功4.lua"
+        },
+        {
+          "SkillID": "8593",
+          "SkillName": "唐门_暴雨AOE外功",
+          "RecipeType": "3093",
+          "ScriptFile": "唐门\\暴雨外功aoe.lua"
+        },
+        {
+          "SkillID": "8594",
+          "SkillName": "唐门_暴雨AOE内功",
+          "RecipeType": "3093",
+          "ScriptFile": "唐门\\暴雨内功aoe.lua"
+        },
+        {
+          "SkillID": "21840",
+          "SkillName": "惊羽_暴雨梨花针5",
+          "RecipeType": "3093",
+          "ScriptFile": "唐门\\暴雨梨花针_外功5.lua"
+        },
+        {
+          "SkillID": "21841",
+          "SkillName": "惊羽_暴雨梨花针6",
+          "RecipeType": "3093",
+          "ScriptFile": "唐门\\暴雨梨花针_外功6.lua"
+        },
+        {
+          "SkillID": "28513",
+          "SkillName": "山风满楼区域效果",
+          "RecipeType": "3093",
+          "ScriptFile": "唐门/套路及子技能/山风满楼aoe.lua"
+        },
+        {
+          "SkillID": "32878",
+          "SkillName": "生地出现眩晕",
+          "RecipeType": "3093",
+          "ScriptFile": "北天药宗\\北天药宗_生地出现眩晕.lua"
+        },
+        {
+          "SkillID": "45931",
+          "SkillName": "一石二鸟_暴雨梨花针弹射子技能",
+          "RecipeType": "3093",
+          "ScriptFile": "唐门\\一石二鸟_暴雨梨花针弹射.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1542",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45318",
+          "name": "瀚海引",
+          "field": "23631"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级焚影橙武属性1",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1542",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "3979",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "3979",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "3979",
+          "SkillName": "驱夜断愁",
+          "RecipeType": "3979",
+          "ScriptFile": "明教\\明教_驱夜断愁.lua"
+        },
+        {
+          "SkillID": "4480",
+          "SkillName": "明教_驱夜断愁_子技能",
+          "RecipeType": "3979",
+          "ScriptFile": "明教\\明教_驱夜断愁_子技能.lua"
+        },
+        {
+          "SkillID": "4481",
+          "SkillName": "已废弃_明教_驱夜断愁_子技能_神光",
+          "RecipeType": "3979",
+          "ScriptFile": "Default.lua"
+        },
+        {
+          "SkillID": "4482",
+          "SkillName": "已废弃_明教_驱夜断愁_背后2",
+          "RecipeType": "3979",
+          "ScriptFile": "Default.lua"
+        },
+        {
+          "SkillID": "25168",
+          "SkillName": "弃用_驱夜断愁_封轻功版",
+          "RecipeType": "3979",
+          "ScriptFile": "Default.lua"
+        },
+        {
+          "SkillID": "46457",
+          "SkillName": "明尊_驱夜断愁_怜世人",
+          "RecipeType": "3979",
+          "ScriptFile": "明教\\明教_驱夜断愁.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "1543",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45318",
+          "name": "瀚海引",
+          "field": "23632"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90级焚影橙武属性2",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "1543",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "3967",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "3967",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "3967",
+          "SkillName": "净世破魔击",
+          "RecipeType": "3967",
+          "ScriptFile": "明教\\明教_净世破魔击.lua"
+        },
+        {
+          "SkillID": "4038",
+          "SkillName": "明教_净世破魔击_月",
+          "RecipeType": "3967",
+          "ScriptFile": "明教\\明教_净世破魔击_月.lua"
+        },
+        {
+          "SkillID": "4476",
+          "SkillName": "明教_净世破魔击_月_伤害",
+          "RecipeType": "3967",
+          "ScriptFile": "明教\\明教_净世破魔击_月_伤害.lua"
+        },
+        {
+          "SkillID": "4483",
+          "SkillName": "明教_净世破魔击日_1个目标",
+          "RecipeType": "3967",
+          "ScriptFile": "明教\\明教_净世破魔击日_1个目标.lua"
+        },
+        {
+          "SkillID": "4484",
+          "SkillName": "明教_净世破魔击日_2个目标",
+          "RecipeType": "3967",
+          "ScriptFile": "明教\\明教_净世破魔击日_2个目标.lua"
+        },
+        {
+          "SkillID": "4485",
+          "SkillName": "明教_净世破魔击日_3个目标",
+          "RecipeType": "3967",
+          "ScriptFile": "明教\\明教_净世破魔击日_3个目标.lua"
+        },
+        {
+          "SkillID": "4486",
+          "SkillName": "明教_净世破魔击日_4个目标",
+          "RecipeType": "3967",
+          "ScriptFile": "明教\\明教_净世破魔击日_4个目标.lua"
+        },
+        {
+          "SkillID": "4487",
+          "SkillName": "明教_净世破魔击日_5个目标",
+          "RecipeType": "3967",
+          "ScriptFile": "明教\\明教_净世破魔击日_5个目标.lua"
+        },
+        {
+          "SkillID": "4488",
+          "SkillName": "明教_净世破魔击日_6个目标",
+          "RecipeType": "3967",
+          "ScriptFile": "明教\\明教_净世破魔击日_6个目标.lua"
+        },
+        {
+          "SkillID": "4489",
+          "SkillName": "明教_净世破魔击日_7个目标",
+          "RecipeType": "3967",
+          "ScriptFile": "明教\\明教_净世破魔击日_7个目标.lua"
+        },
+        {
+          "SkillID": "4490",
+          "SkillName": "明教_净世破魔击日_8个目标",
+          "RecipeType": "3967",
+          "ScriptFile": "明教\\明教_净世破魔击日_8个目标.lua"
+        },
+        {
+          "SkillID": "14701",
+          "SkillName": "净世破魔击·日直接打单目标最大AOE",
+          "RecipeType": "3967",
+          "ScriptFile": "明教\\明教_净世破魔击日_1个目标后最大群体AOE效果.lua"
+        },
+        {
+          "SkillID": "22890",
+          "SkillName": "交替破魔触发招式",
+          "RecipeType": "3967",
+          "ScriptFile": "明教\\明教_交替破魔触发伤害.lua"
+        },
+        {
+          "SkillID": "29933",
+          "SkillName": "火舞长空实际伤害子技能",
+          "RecipeType": "3967",
+          "ScriptFile": "明教\\明教_火舞长空伤害子技能.lua"
+        },
+        {
+          "SkillID": "34359",
+          "SkillName": "明教_影子月破魔伤害",
+          "RecipeType": "3967",
+          "ScriptFile": "明教/明教_影子月破魔伤害.lua"
+        },
+        {
+          "SkillID": "34361",
+          "SkillName": "明教_影子日破魔伤害",
+          "RecipeType": "3967",
+          "ScriptFile": "明教/明教_影子日破魔伤害.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17239",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45303",
+          "name": "意真",
+          "field": "63668"
+        },
+        {
+          "kind": "equipment",
+          "id": "8,45307",
+          "name": "仙灵",
+          "field": "63668"
+        },
+        {
+          "kind": "equipment",
+          "id": "8,45308",
+          "name": "镇恶",
+          "field": "63668"
+        },
+        {
+          "kind": "equipment",
+          "id": "8,45309",
+          "name": "龙鲤",
+          "field": "63668"
+        },
+        {
+          "kind": "equipment",
+          "id": "8,45311",
+          "name": "蜕骨",
+          "field": "63668"
+        },
+        {
+          "kind": "equipment",
+          "id": "8,45313",
+          "name": "碧岚幽炎",
+          "field": "63668"
+        },
+        {
+          "kind": "equipment",
+          "id": "8,45314",
+          "name": "银羽雪辉",
+          "field": "63668"
+        },
+        {
+          "kind": "equipment",
+          "id": "8,45318",
+          "name": "瀚海引",
+          "field": "63668"
+        },
+        {
+          "kind": "equipment",
+          "id": "8,45324",
+          "name": "碧血豪侠",
+          "field": "63668"
+        },
+        {
+          "kind": "equipment",
+          "id": "8,45326",
+          "name": "长安",
+          "field": "63668"
+        },
+        {
+          "kind": "equipment",
+          "id": "8,45328",
+          "name": "烬灭",
+          "field": "63668"
+        },
+        {
+          "kind": "equipment",
+          "id": "8,45693",
+          "name": "煞·七月嘉树",
+          "field": "63668"
+        },
+        {
+          "kind": "equipment",
+          "id": "8,47736",
+          "name": "寒锋凌日",
+          "field": "63668"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【套装】【对阵招式】伤害提高2%",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17239",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "",
+        "SkillRecipeTagMask": "4",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "21",
+        "ScriptFile": "",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17243",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45304",
+          "name": "折枝花满",
+          "field": "63672"
+        },
+        {
+          "kind": "equipment",
+          "id": "8,45310",
+          "name": "钗蝶语双",
+          "field": "63672"
+        },
+        {
+          "kind": "equipment",
+          "id": "8,45312",
+          "name": "逾潮声",
+          "field": "63672"
+        },
+        {
+          "kind": "equipment",
+          "id": "8,45329",
+          "name": "幽微夜",
+          "field": "63672"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【套装】【对阵招式】疗伤提高2%",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17243",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "8",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "21",
+        "ScriptFile": "",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17300",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45307",
+          "name": "仙灵",
+          "field": "65737"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【傍身招式】伤害提高2%（四象轮回·太极无极）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17300",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "",
+        "SkillRecipeTagMask": "1",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "21",
+        "ScriptFile": "",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17301",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45308",
+          "name": "镇恶",
+          "field": "65738"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【傍身招式】伤害提高2%（三环套月·无我无剑）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17301",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "",
+        "SkillRecipeTagMask": "1",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "21",
+        "ScriptFile": "",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17304",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45307",
+          "name": "仙灵",
+          "field": "65768"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】释放【绝技招式】伤害提高持续一段时间（气破鸿蒙·悟+镇山河·悟）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17304",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "16",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放绝技招式后伤害提高.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17305",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45308",
+          "name": "镇恶",
+          "field": "65769"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】释放【绝技招式】伤害提高持续一段时间（行剑千风·悟+乾坤剑来·悟）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17305",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "16",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放绝技招式后伤害提高.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17316",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45311",
+          "name": "蜕骨",
+          "field": "65741"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【傍身招式】伤害提高2%（毒经·蝎心+蛇影）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17316",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "",
+        "SkillRecipeTagMask": "1",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "21",
+        "ScriptFile": "",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17317",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45312",
+          "name": "逾潮声",
+          "field": "65742"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【傍身招式】伤害提高2%（补天·冰蚕+醉舞）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17317",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "2",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "21",
+        "ScriptFile": "",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17318",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45311",
+          "name": "蜕骨",
+          "field": "65772"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】释放【绝技招式】伤害提高持续一段时间（毒经·寂灭蛊+连缘蛊）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17318",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "16",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放绝技招式后伤害提高.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17319",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45312",
+          "name": "逾潮声",
+          "field": "65773"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】释放【绝技招式】治疗提高持续一段时间（补天·孔雀+千蝶）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17319",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "32",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放绝技招式后疗伤提高.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17324",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45326",
+          "name": "长安",
+          "field": "65756"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【傍身招式】伤害提高2%（凌雪·星垂平野+寂洪荒）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17324",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "",
+        "SkillRecipeTagMask": "1",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "21",
+        "ScriptFile": "",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17326",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45326",
+          "name": "长安",
+          "field": "65787"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】释放【绝技招式】伤害提高持续一段时间（凌雪·乱天狼+飞刃回转）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17326",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "16",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放绝技招式后伤害提高.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17329",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45311",
+          "name": "蜕骨",
+          "field": "65803"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【对阵招式】后减【绝技招式】调息时间（毒经）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17329",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "64",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17331",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45312",
+          "name": "逾潮声",
+          "field": "65804"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【对阵招式】后减【绝技招式】调息时间（补天）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17331",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "64",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17332",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45318",
+          "name": "瀚海引",
+          "field": "65748"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【傍身招式】伤害提高2%（焚影·赤日轮+幽月轮）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17332",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "",
+        "SkillRecipeTagMask": "1",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "21",
+        "ScriptFile": "",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17336",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45318",
+          "name": "瀚海引",
+          "field": "65779"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】释放【绝技招式】伤害提高持续一段时间（焚影·微妙风+日月晦）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17336",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "16",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放绝技招式后伤害提高.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17339",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45326",
+          "name": "长安",
+          "field": "65818"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【对阵招式】后减【绝技招式】调息时间（凌雪）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17339",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "64",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17340",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45307",
+          "name": "仙灵",
+          "field": "65799"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【对阵招式】后减【绝技招式】调息时间（紫霞）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17340",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "64",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17341",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45308",
+          "name": "镇恶",
+          "field": "65800"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【对阵招式】后减【绝技招式】调息时间（太虚）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17341",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "64",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17342",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45318",
+          "name": "瀚海引",
+          "field": "65810"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【对阵招式】后减【绝技招式】调息时间（焚影）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17342",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "64",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17345",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,42508",
+          "name": "风雷瑶琴剑",
+          "field": "65902"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【特殊武器】【绝技招式】后加会心会效（相知）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17345",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "48",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_会心率会心效果提高.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17346",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,42496",
+          "name": "蝎心忘情",
+          "field": "65891"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【特殊武器】【绝技招式】后加会心会效（毒经）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17346",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "48",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_会心率会心效果提高.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17362",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,47736",
+          "name": "寒锋凌日",
+          "field": "65735"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【傍身招式】伤害提高2%（穿云·雷行）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17362",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "",
+        "SkillRecipeTagMask": "1",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "21",
+        "ScriptFile": "",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17374",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45324",
+          "name": "碧血豪侠",
+          "field": "65754"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【傍身招式】伤害提高2%（项王击鼎+刀啸风吟）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17374",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "",
+        "SkillRecipeTagMask": "1",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "21",
+        "ScriptFile": "",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17377",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45324",
+          "name": "碧血豪侠",
+          "field": "65816"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【对阵招式】后减【绝技招式】调息时间（上将军印+横断山河）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17377",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "64",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17378",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45324",
+          "name": "碧血豪侠",
+          "field": "65785"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】释放【绝技招式】伤害提高持续一段时间（上将军印+横断山河）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17378",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "16",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放绝技招式后伤害提高.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17380",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45309",
+          "name": "龙鲤",
+          "field": "65739"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【傍身招式】伤害提高2%（玳弦急曲+江海凝光）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17380",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "",
+        "SkillRecipeTagMask": "1",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "21",
+        "ScriptFile": "",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17383",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45309",
+          "name": "龙鲤",
+          "field": "65801"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【对阵招式】后减【绝技招式】调息时间（合璧知意+霜天剑泠）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17383",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "64",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17384",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45309",
+          "name": "龙鲤",
+          "field": "65770"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】释放【绝技招式】伤害提高持续一段时间（合璧知意+霜天剑泠）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17384",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "16",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放绝技招式后伤害提高.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17386",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45310",
+          "name": "钗蝶语双",
+          "field": "65740"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【傍身招式】治疗提高2%（云裳心经·回雪飘摇+上元点鬟）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17386",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "",
+        "SkillRecipeTagMask": "2",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "21",
+        "ScriptFile": "",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17389",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45310",
+          "name": "钗蝶语双",
+          "field": "65802"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【对阵招式】后减【绝技招式】调息时间（（风袖低昂+九微飞花））",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17389",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "64",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17390",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45310",
+          "name": "钗蝶语双",
+          "field": "65771"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】释放【绝技招式】治疗提高持续一段时间（云裳心经·风袖低昂+九微飞花）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17390",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "32",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放绝技招式后疗伤提高.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17393",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,47736",
+          "name": "寒锋凌日",
+          "field": "65766"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】释放【绝技招式】伤害提高持续一段时间（力破万钧+破重围）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17393",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "16",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放绝技招式后伤害提高.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17394",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,47736",
+          "name": "寒锋凌日",
+          "field": "65797"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【对阵招式】后减【绝技招式】调息时间（傲血战意）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17394",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "64",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17399",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45303",
+          "name": "意真",
+          "field": "65733"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【傍身招式】伤害提高2%（快雪时晴·阳明指）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17399",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "",
+        "SkillRecipeTagMask": "1",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "21",
+        "ScriptFile": "",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17402",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45303",
+          "name": "意真",
+          "field": "65764"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】释放【绝技招式】伤害提高持续一段时间（水月无间+乱洒青荷）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17402",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "16",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放绝技招式后伤害提高.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17403",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45303",
+          "name": "意真",
+          "field": "65795"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【对阵招式】后减【绝技招式】调息时间（花间）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17403",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "64",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17404",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45304",
+          "name": "折枝花满",
+          "field": "65734"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【傍身招式】治疗提高2%（握针+提针）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17404",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "",
+        "SkillRecipeTagMask": "2",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "21",
+        "ScriptFile": "",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17407",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45304",
+          "name": "折枝花满",
+          "field": "65765"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】释放【绝技招式】治疗提高持续一段时间（大针+折叶笼花）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17407",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "32",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放绝技招式后疗伤提高.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17408",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45304",
+          "name": "折枝花满",
+          "field": "65796"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【对阵招式】后减【绝技招式】调息时间（大针+折叶笼花）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17408",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "64",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17409",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45693",
+          "name": "煞·七月嘉树",
+          "field": "65755"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【傍身招式】伤害提高2%（击水三千+木落雁归）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17409",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "",
+        "SkillRecipeTagMask": "1",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "21",
+        "ScriptFile": "",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17412",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45693",
+          "name": "煞·七月嘉树",
+          "field": "65786"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】释放【绝技招式】伤害提高持续一段时间（澹然若海+飞倾列缺）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17412",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "16",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放绝技招式后伤害提高.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17413",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45693",
+          "name": "煞·七月嘉树",
+          "field": "65817"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【对阵招式】后减【绝技招式】调息时间（澹然若海+飞倾列缺）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17413",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "64",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17429",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45313",
+          "name": "碧岚幽炎",
+          "field": "65743"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【傍身招式】伤害提高2%（蚀肌蛋+天女散花）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17429",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "",
+        "SkillRecipeTagMask": "1",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "21",
+        "ScriptFile": "",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17432",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45313",
+          "name": "碧岚幽炎",
+          "field": "65774"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武第三条】【绝技】释放绝技后提高8%伤害（鬼斧千机+暴雨梨花针）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17432",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "16",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放绝技招式后伤害提高.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17433",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45313",
+          "name": "碧岚幽炎",
+          "field": "65805"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武第四条】释放【对阵招式】降低绝技调息（鬼斧千机+暴雨梨花针）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17433",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "64",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17435",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45314",
+          "name": "银羽雪辉",
+          "field": "65744"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【傍身招式】伤害提高2%（夺魄箭+罡风镖·悟）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17435",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "",
+        "SkillRecipeTagMask": "1",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "21",
+        "ScriptFile": "",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17438",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45314",
+          "name": "银羽雪辉",
+          "field": "65775"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武第三条】【绝技】释放绝技后提高8%伤害（百里追魂+流火连星）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17438",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "16",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放绝技招式后伤害提高.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17439",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45314",
+          "name": "银羽雪辉",
+          "field": "65806"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武第四条】释放【对阵招式】降低绝技调息（百里追魂+流火连星）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17439",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "64",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17458",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45328",
+          "name": "烬灭",
+          "field": "65758"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【傍身招式】伤害提高2%（钩吻断肠+飞叶满襟）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17458",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "",
+        "SkillRecipeTagMask": "1",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "21",
+        "ScriptFile": "",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17461",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45328",
+          "name": "烬灭",
+          "field": "65789"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武第三条】【绝技】释放绝技后提高8%伤害（苍棘缚地+逐云寒蕊）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17461",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "16",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放绝技招式后伤害提高.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17462",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45328",
+          "name": "烬灭",
+          "field": "65820"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武第四条】释放【对阵招式】降低绝技调息（苍棘缚地+逐云寒蕊）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17462",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "64",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17464",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45329",
+          "name": "幽微夜",
+          "field": "65759"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武】【傍身招式】治疗提高2%（白芷含芳+银光照雪）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17464",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "",
+        "SkillRecipeTagMask": "1",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "21",
+        "ScriptFile": "",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17467",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45329",
+          "name": "幽微夜",
+          "field": "65790"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武第三条】【绝技】释放绝技后提高8%治疗（青川濯莲+逐云寒蕊）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17467",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "32",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放绝技招式后疗伤提高.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "17468",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45329",
+          "name": "幽微夜",
+          "field": "65821"
+        }
+      ],
+      "recipe": null,
+      "matchedSkills": [],
+      "classification": "inactive_mobile_recipe_for_ordinary_kungfu",
+      "mobileRecipe": {
+        "RecipeName": "【橙武第四条】释放【对阵招式】降低绝技调息（青川濯莲+逐云寒蕊）",
+        "BelongSchool": "移动端_通用",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "17468",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "0",
+        "SkillRecipeTagMask": "64",
+        "SkillType": "0",
+        "SkillID": "0",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "0",
+        "ScriptFile": "移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua",
+        "LearnSkillID": "0",
+        "LearnSkillLevel": "0",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      }
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "2842",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45328",
+          "name": "烬灭",
+          "field": "47837"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "北天药宗无方大橙武奚毒伤害5%",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "2842",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "27556",
+        "SkillRecipeTagMask": "",
+        "SkillType": "0",
+        "SkillID": "27556",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "27556",
+          "SkillName": "川乌射罔",
+          "RecipeType": "27556",
+          "ScriptFile": "北天药宗\\北天药宗_奚毒射罔.lua"
+        },
+        {
+          "SkillID": "27557",
+          "SkillName": "奚毒射罔伤害子技能",
+          "RecipeType": "27556",
+          "ScriptFile": "北天药宗\\套路及子技能\\北天药宗_奚毒射罔伤害子技能.lua"
+        },
+        {
+          "SkillID": "27575",
+          "SkillName": "奚毒射罔僵直子技能",
+          "RecipeType": "27556",
+          "ScriptFile": "北天药宗\\套路及子技能\\北天药宗_奚毒射罔僵直子技能.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "2843",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45328",
+          "name": "烬灭",
+          "field": "47838"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "北天药宗无方大橙武钩吻伤害5%",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "2843",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "27554",
+        "SkillRecipeTagMask": "",
+        "SkillType": "0",
+        "SkillID": "27554",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "27554",
+          "SkillName": "钩吻断肠",
+          "RecipeType": "27554",
+          "ScriptFile": "北天药宗\\北天药宗_钩吻断肠.lua"
+        },
+        {
+          "SkillID": "27555",
+          "SkillName": "钩吻断肠伤害子技能",
+          "RecipeType": "27554",
+          "ScriptFile": "北天药宗\\套路及子技能\\北天药宗_钩吻断肠伤害子技能.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "2846",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45329",
+          "name": "幽微夜",
+          "field": "47844"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "北天药宗灵素大橙武灵素中和治疗5%",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "2846",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "28082",
+        "SkillRecipeTagMask": "",
+        "SkillType": "0",
+        "SkillID": "28082",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "28082",
+          "SkillName": "灵素中和治疗效果",
+          "RecipeType": "28082",
+          "ScriptFile": "北天药宗\\套路及子技能\\北天药宗_灵素中和治疗效果子技能.lua"
+        },
+        {
+          "SkillID": "28083",
+          "SkillName": "灵素中和对目标治疗子技能",
+          "RecipeType": "28082",
+          "ScriptFile": "北天药宗\\套路及子技能\\北天药宗_灵素中和对目标治疗子技能.lua"
+        },
+        {
+          "SkillID": "28602",
+          "SkillName": "灵素反佐目标点范围中和治疗",
+          "RecipeType": "28082",
+          "ScriptFile": "北天药宗\\套路及子技能\\北天药宗_灵素反佐目标点范围中和治疗子技能.lua"
+        },
+        {
+          "SkillID": "28733",
+          "SkillName": "决明中和50以下",
+          "RecipeType": "28082",
+          "ScriptFile": "北天药宗\\套路及子技能\\北天药宗_灵素中和决明中和50以下子技能.lua"
+        },
+        {
+          "SkillID": "28734",
+          "SkillName": "决明中和50以上",
+          "RecipeType": "28082",
+          "ScriptFile": "北天药宗\\套路及子技能\\北天药宗_灵素中和决明中和50以上子技能.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "2847",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45329",
+          "name": "幽微夜",
+          "field": "47843"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "北天药宗灵素大橙武赤芍治疗5%",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "2847",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "27632",
+        "SkillRecipeTagMask": "",
+        "SkillType": "0",
+        "SkillID": "27632",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "27632",
+          "SkillName": "赤芍寒香",
+          "RecipeType": "27632",
+          "ScriptFile": "北天药宗\\北天药宗_赤芍温香.lua"
+        },
+        {
+          "SkillID": "27633",
+          "SkillName": "赤芍温香治疗子技能",
+          "RecipeType": "27632",
+          "ScriptFile": "北天药宗\\套路及子技能\\北天药宗_赤芍温香治疗子技能.lua"
+        },
+        {
+          "SkillID": "28640",
+          "SkillName": "赤芍寒香添加HOT",
+          "RecipeType": "27632",
+          "ScriptFile": "北天药宗\\套路及子技能\\北天药宗_赤芍寒香添加HOT子技能.lua"
+        },
+        {
+          "SkillID": "44393",
+          "SkillName": "借树生化hot子技能",
+          "RecipeType": "27632",
+          "ScriptFile": "北天药宗\\套路及子技能\\北天药宗_赤芍寒香添加HOT子技能.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "4294",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45324",
+          "name": "碧血豪侠",
+          "field": "29595"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90橙武霸刀属性1",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "4294",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "16085",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "16085",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "16085",
+          "SkillName": "醉斩白蛇",
+          "RecipeType": "16085",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_鞘刀_醉斩白蛇.lua"
+        },
+        {
+          "SkillID": "16137",
+          "SkillName": "拔刀子弹弹射子技能",
+          "RecipeType": "16085",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_拔刀_子弹弹射子技能.lua"
+        },
+        {
+          "SkillID": "16400",
+          "SkillName": "鞘刀沉秋风上dot",
+          "RecipeType": "16085",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_鞘刀沉秋风_造成持续伤害.lua"
+        },
+        {
+          "SkillID": "16401",
+          "SkillName": "鞘刀沉秋风有dot直接伤害",
+          "RecipeType": "16085",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_鞘刀沉秋风_造成一次性伤害.lua"
+        },
+        {
+          "SkillID": "16408",
+          "SkillName": "鞘刀沉秋风子弹表现技能",
+          "RecipeType": "16085",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_鞘刀_沉秋风子弹表现技能.lua"
+        },
+        {
+          "SkillID": "16438",
+          "SkillName": "鞘刀沉秋风实际上dot效果",
+          "RecipeType": "16085",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_鞘刀沉秋风_实际持续伤害.lua"
+        },
+        {
+          "SkillID": "16615",
+          "SkillName": "醉斩白蛇5尺伤害",
+          "RecipeType": "16085",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_鞘刀_醉斩白蛇5尺伤害.lua"
+        },
+        {
+          "SkillID": "16616",
+          "SkillName": "醉斩白蛇10尺伤害",
+          "RecipeType": "16085",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_鞘刀_醉斩白蛇10尺伤害.lua"
+        },
+        {
+          "SkillID": "16617",
+          "SkillName": "醉斩白蛇15尺伤害",
+          "RecipeType": "16085",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_鞘刀_醉斩白蛇15尺伤害.lua"
+        },
+        {
+          "SkillID": "16618",
+          "SkillName": "醉斩白蛇20尺伤害",
+          "RecipeType": "16085",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_鞘刀_醉斩白蛇20尺伤害.lua"
+        },
+        {
+          "SkillID": "16619",
+          "SkillName": "醉斩白蛇25尺伤害",
+          "RecipeType": "16085",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_鞘刀_醉斩白蛇25尺伤害.lua"
+        },
+        {
+          "SkillID": "16813",
+          "SkillName": "醉斩白蛇27尺伤害",
+          "RecipeType": "16085",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_鞘刀_醉斩白蛇27尺伤害.lua"
+        },
+        {
+          "SkillID": "16920",
+          "SkillName": "醉斩白蛇5尺伤害加强版",
+          "RecipeType": "16085",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_鞘刀_醉斩白蛇5尺伤害加强版.lua"
+        },
+        {
+          "SkillID": "16921",
+          "SkillName": "醉斩白蛇10尺伤害加强版",
+          "RecipeType": "16085",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_鞘刀_醉斩白蛇10尺伤害加强版.lua"
+        },
+        {
+          "SkillID": "16922",
+          "SkillName": "醉斩白蛇15尺伤害加强版",
+          "RecipeType": "16085",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_鞘刀_醉斩白蛇15尺伤害加强版.lua"
+        },
+        {
+          "SkillID": "16923",
+          "SkillName": "醉斩白蛇20尺伤害加强版",
+          "RecipeType": "16085",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_鞘刀_醉斩白蛇20尺伤害加强版.lua"
+        },
+        {
+          "SkillID": "16924",
+          "SkillName": "醉斩白蛇25尺伤害加强版",
+          "RecipeType": "16085",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_鞘刀_醉斩白蛇25尺伤害加强版.lua"
+        },
+        {
+          "SkillID": "16925",
+          "SkillName": "醉斩白蛇30尺伤害加强版",
+          "RecipeType": "16085",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_鞘刀_醉斩白蛇30尺伤害加强版.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "4295",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45324",
+          "name": "碧血豪侠",
+          "field": "29596"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "90橙武霸刀属性2",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "4295",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "",
+        "IsEquipmentRecipe": "",
+        "SkillRecipeType": "16601",
+        "SkillRecipeTagMask": "",
+        "SkillType": "",
+        "SkillID": "16601",
+        "SkillLevel": "",
+        "PrepareFramesAdd": "",
+        "PrepareFramesPercent": "",
+        "CoolDownAdd1": "",
+        "CoolDownAdd2": "",
+        "CoolDownAdd3": "",
+        "MinRadiusAdd": "",
+        "MaxRadiusAdd": "",
+        "CostLifeAddPercent": "",
+        "CostManaAddPercent": "",
+        "CostRageAdd": "",
+        "CostEnergyAdd": "",
+        "CostStaminaAdd": "",
+        "CostTrainAdd": "",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "16381",
+          "SkillName": "项王击鼎AOE通道",
+          "RecipeType": "16601",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_大刀_项王击鼎AOE母技能.lua"
+        },
+        {
+          "SkillID": "16382",
+          "SkillName": "项王击鼎AOE实际AOE伤害",
+          "RecipeType": "16601",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_大刀_项王击鼎AOE实际伤害.lua"
+        },
+        {
+          "SkillID": "16601",
+          "SkillName": "项王击鼎",
+          "RecipeType": "16601",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_大刀_项王击鼎.lua"
+        },
+        {
+          "SkillID": "16758",
+          "SkillName": "项王击鼎一段表现技能",
+          "RecipeType": "16601",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_大刀_项王击鼎一段.lua"
+        },
+        {
+          "SkillID": "16759",
+          "SkillName": "项王击鼎二段表现技能",
+          "RecipeType": "16601",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_大刀_项王击鼎二段.lua"
+        },
+        {
+          "SkillID": "16760",
+          "SkillName": "项王击鼎三段表现技能",
+          "RecipeType": "16601",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_大刀_项王击鼎三段.lua"
+        },
+        {
+          "SkillID": "17078",
+          "SkillName": "项王击鼎二段",
+          "RecipeType": "16601",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_大刀_项王击鼎二段母技能.lua"
+        },
+        {
+          "SkillID": "17079",
+          "SkillName": "项王击鼎三段",
+          "RecipeType": "16601",
+          "ScriptFile": "霸刀\\套路及子技能\\霸刀_大刀_项王击鼎三段母技能.lua"
+        },
+        {
+          "SkillID": "39160",
+          "SkillName": "掠关项王击鼎一段表现技能",
+          "RecipeType": "16601",
+          "ScriptFile": "霸刀/套路及子技能/霸刀_掠关项王一段.lua"
+        },
+        {
+          "SkillID": "39161",
+          "SkillName": "掠关项王击鼎二段表现技能",
+          "RecipeType": "16601",
+          "ScriptFile": "霸刀/套路及子技能/霸刀_掠关项王二段.lua"
+        },
+        {
+          "SkillID": "39162",
+          "SkillName": "掠关项王击鼎三段表现技能",
+          "RecipeType": "16601",
+          "ScriptFile": "霸刀/套路及子技能/霸刀_掠关项王三段.lua"
+        },
+        {
+          "SkillID": "39163",
+          "SkillName": "掠关项王击鼎一段实际伤害",
+          "RecipeType": "16601",
+          "ScriptFile": "霸刀/套路及子技能/掠关一段实际伤害.lua"
+        },
+        {
+          "SkillID": "39164",
+          "SkillName": "掠关项王击鼎二段实际伤害",
+          "RecipeType": "16601",
+          "ScriptFile": "霸刀/套路及子技能/掠关二段实际伤害.lua"
+        },
+        {
+          "SkillID": "39165",
+          "SkillName": "掠关项王击鼎三段实际伤害",
+          "RecipeType": "16601",
+          "ScriptFile": "霸刀/套路及子技能/掠关三段实际伤害.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "4818",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45693",
+          "name": "煞·七月嘉树",
+          "field": "34387"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "蓬莱大橙武木落雁归伤害5%、",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "4818",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "19818",
+        "SkillRecipeTagMask": "",
+        "SkillType": "0",
+        "SkillID": "19818",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "19818",
+          "SkillName": "木落雁归",
+          "RecipeType": "19818",
+          "ScriptFile": "蓬莱\\套路及子技能\\蓬莱_伞套路_基础技能二.lua"
+        },
+        {
+          "SkillID": "19819",
+          "SkillName": "木落雁归实际伤害",
+          "RecipeType": "19818",
+          "ScriptFile": "蓬莱\\套路及子技能\\蓬莱_伞套路_基础技能二实际伤害.lua"
+        },
+        {
+          "SkillID": "20055",
+          "SkillName": "掌法击落（废弃）",
+          "RecipeType": "19818",
+          "ScriptFile": "蓬莱\\套路及子技能\\蓬莱_裂涛拳_掌法击落.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "4819",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45693",
+          "name": "煞·七月嘉树",
+          "field": "34388"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "蓬莱大橙武翼绝云天伤害5%",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "4819",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "19827",
+        "SkillRecipeTagMask": "",
+        "SkillType": "0",
+        "SkillID": "19827",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "19827",
+          "SkillName": "翼绝云天",
+          "RecipeType": "19827",
+          "ScriptFile": "蓬莱\\套路及子技能\\蓬莱_长空破云_翼绝云天.lua"
+        },
+        {
+          "SkillID": "20016",
+          "SkillName": "翼绝云天伤害技能",
+          "RecipeType": "19827",
+          "ScriptFile": "蓬莱\\套路及子技能\\蓬莱_长空破云_翼绝云天伤害技能.lua"
+        },
+        {
+          "SkillID": "45098",
+          "SkillName": "翼绝云天天行版",
+          "RecipeType": "19827",
+          "ScriptFile": "蓬莱/套路及子技能/天行版本翼绝云天.lua"
+        },
+        {
+          "SkillID": "45100",
+          "SkillName": "天行额外伤害",
+          "RecipeType": "19827",
+          "ScriptFile": "蓬莱/套路及子技能/天行额外伤害.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "5091",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45326",
+          "name": "长安",
+          "field": "36127"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "凌雪阁大橙武星垂平野伤害5%",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "5091",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "22143",
+        "SkillRecipeTagMask": "",
+        "SkillType": "0",
+        "SkillID": "22143",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "22143",
+          "SkillName": "星垂平野",
+          "RecipeType": "22143",
+          "ScriptFile": "凌雪阁\\星垂平野.lua"
+        },
+        {
+          "SkillID": "22146",
+          "SkillName": "星垂平野二段",
+          "RecipeType": "22143",
+          "ScriptFile": "凌雪阁\\星垂平野二段.lua"
+        },
+        {
+          "SkillID": "22147",
+          "SkillName": "星垂平野三段",
+          "RecipeType": "22143",
+          "ScriptFile": "凌雪阁\\星垂平野三段.lua"
+        },
+        {
+          "SkillID": "22170",
+          "SkillName": "星垂平野伤害AOE",
+          "RecipeType": "22143",
+          "ScriptFile": "凌雪阁\\星垂平野伤害AOE.lua"
+        },
+        {
+          "SkillID": "22298",
+          "SkillName": "星垂平野链接额外伤害",
+          "RecipeType": "22143",
+          "ScriptFile": "凌雪阁\\星垂平野额外伤害.lua"
+        },
+        {
+          "SkillID": "22550",
+          "SkillName": "星垂平野二段AOE",
+          "RecipeType": "22143",
+          "ScriptFile": "凌雪阁\\星垂平野伤害二段AOE.lua"
+        },
+        {
+          "SkillID": "22551",
+          "SkillName": "星垂平野三段AOE",
+          "RecipeType": "22143",
+          "ScriptFile": "凌雪阁\\星垂平野伤害三段AOE.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    },
+    {
+      "effect": "atSetEquipmentRecipe",
+      "value1": "5092",
+      "value2": "1",
+      "sources": [
+        {
+          "kind": "equipment",
+          "id": "8,45326",
+          "name": "长安",
+          "field": "36128"
+        }
+      ],
+      "recipe": {
+        "RecipeName": "凌雪阁大橙武寂洪荒伤害5%",
+        "BelongSchool": "装备",
+        "DesignLevel": "1",
+        "RecipeExplain": "",
+        "RecipeID": "5092",
+        "RecipeLevel": "1",
+        "Type": "1",
+        "IsSystemRecipe": "0",
+        "IsEquipmentRecipe": "0",
+        "SkillRecipeType": "22327",
+        "SkillRecipeTagMask": "",
+        "SkillType": "0",
+        "SkillID": "22327",
+        "SkillLevel": "0",
+        "PrepareFramesAdd": "0",
+        "PrepareFramesPercent": "1024",
+        "CoolDownAdd1": "0",
+        "CoolDownAdd2": "0",
+        "CoolDownAdd3": "0",
+        "MinRadiusAdd": "0",
+        "MaxRadiusAdd": "0",
+        "CostLifeAddPercent": "0",
+        "CostManaAddPercent": "0",
+        "CostRageAdd": "0",
+        "CostEnergyAdd": "0",
+        "CostStaminaAdd": "0",
+        "CostTrainAdd": "0",
+        "DamageAddPercent": "51",
+        "ScriptFile": "",
+        "LearnSkillID": "",
+        "LearnSkillLevel": "",
+        "SelfMoveStateMask1": "",
+        "SelfMoveStateMask2": "",
+        "TargetMoveStateMask1": "",
+        "TargetMoveStateMask2": ""
+      },
+      "matchedSkills": [
+        {
+          "SkillID": "22327",
+          "SkillName": "寂洪荒",
+          "RecipeType": "22327",
+          "ScriptFile": "凌雪阁\\寂洪荒.lua"
+        },
+        {
+          "SkillID": "22328",
+          "SkillName": "寂洪荒普通伤害",
+          "RecipeType": "22327",
+          "ScriptFile": "凌雪阁\\寂洪荒普通伤害.lua"
+        },
+        {
+          "SkillID": "22329",
+          "SkillName": "寂洪荒两次伤害",
+          "RecipeType": "22327",
+          "ScriptFile": "凌雪阁\\寂洪荒额外伤害.lua"
+        },
+        {
+          "SkillID": "22330",
+          "SkillName": "寂洪荒附带持续伤害",
+          "RecipeType": "22327",
+          "ScriptFile": "凌雪阁\\寂洪荒附带持续伤害.lua"
+        },
+        {
+          "SkillID": "22604",
+          "SkillName": "寂洪荒远距离伤害",
+          "RecipeType": "22327",
+          "ScriptFile": "凌雪阁\\寂洪荒远距离伤害.lua"
+        },
+        {
+          "SkillID": "22605",
+          "SkillName": "寂洪荒远距离额外伤害",
+          "RecipeType": "22327",
+          "ScriptFile": "凌雪阁\\寂洪荒远距离额外伤害.lua"
+        },
+        {
+          "SkillID": "22635",
+          "SkillName": "寂洪荒矩形范围",
+          "RecipeType": "22327",
+          "ScriptFile": "凌雪阁\\寂洪荒矩形范围.lua"
+        },
+        {
+          "SkillID": "36267",
+          "SkillName": "寂洪荒远距遗恨伤害子技能",
+          "RecipeType": "22327",
+          "ScriptFile": "凌雪阁/套路及子技能/寂洪荒远距离伤害加强.lua"
+        },
+        {
+          "SkillID": "36268",
+          "SkillName": "寂洪荒遗恨远距离副手伤害子技能",
+          "RecipeType": "22327",
+          "ScriptFile": "凌雪阁/套路及子技能/寂洪荒远距离额外伤害加强.lua"
+        }
+      ],
+      "classification": "recorded_skill_damage_coefficient"
+    }
+  ],
+  "boundary": "34 ordinary recipe rows are identical between archived 10009 and fresh 10072; 55 mobile rows are identified from fresh 10072 and resolved as inactive for ordinary kungfu only. Actual logged damage/healing is never regenerated or multiplied."
+}

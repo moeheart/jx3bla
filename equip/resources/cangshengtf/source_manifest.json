@@ -225,6 +225,18 @@
       "source_files": 9,
       "supported_samples": 75,
       "method": "Arithmetic mean of equipment-only numeric at* attributes, one latest complete static-attribute snapshot per server+character name+kungfu. The four known nonnumeric script/recipe/skill effects are omitted and disclosed; missing gear/slots, unknown IDs, malformed or nonfinite numeric attributes and calculation failures are excluded. Runtime actor IDs are not cross-session identities. Missing numeric fields contribute zero. Normal/mobile aliases share equipment only; their own client kungfu attributes are added at runtime."
+    },
+    {
+      "name": "equipment_effects.json",
+      "bytes": 36789,
+      "sha256": "3bd0f6130cc1b0193bc0824a8ed18ff8c1b1b20aed97382d0830fec2228c73f2",
+      "client_versions": [
+        "1.6.0.10009",
+        "1.6.0.10072"
+      ],
+      "client_mode": "zhcn_hd",
+      "generation": "release.EquipmentEffectGenerator",
+      "evidence": "../../../docs/160/evidence/equipment_effects"
     }
   ],
   "parameters": {
@@ -291,7 +303,7 @@
     "SKILL_NAME": 70035,
     "ABSORB_DICT": 1591,
     "RESIST_DICT": 1270,
-    "BOOST_DICT": 14975,
+    "BOOST_DICT": 15044,
     "RESIST_BY_SCHOOL_DICT": 3407,
     "THERAPY_DICT": 3124
   },
@@ -302,7 +314,8 @@
     "therapy_attribution": "not_implemented",
     "kungfu": "64_verified10009_plus_shanju",
     "gem_scaling": "native_1355_div_27800",
-    "npc": "102_verified10009"
+    "npc": "102_verified10009",
+    "equipment_effects": "audited_exact_identities_for_ordinary_kungfu"
   },
   "parameter_extraction": {
     "client_version": "1.6.0.10009",
@@ -369,5 +382,14 @@
     "source_manifest": "../../../docs/160/evidence/legacy9506/source_manifest.json",
     "description": "Historical manifest and derived profiles retain their original bytes. Its file names describe the pre-migration resource layout, whose core table bytes are preserved in git revision ae046c3; this historical manifest is not the current runtime file list."
   },
-  "evidence_root": "../../../docs/160/evidence"
+  "evidence_root": "../../../docs/160/evidence",
+  "equipment_effect_update": {
+    "prepared_version": "8.16.6",
+    "published": false,
+    "source_versions": [
+      "1.6.0.10009",
+      "1.6.0.10072"
+    ],
+    "boundary": "Relevant archived and fresh table rows compared; newly extracted Lua bodies are 10072 evidence. Wujie effects and unlisted identities stay unverified."
+  }
 }

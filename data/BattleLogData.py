@@ -122,6 +122,13 @@ class BattleLogData():
                 singleData = SingleDataDeath()
             elif jclItem[4] == "14":
                 singleData = SingleDataShout()
+            elif jclItem[4] == "18":
+                singleData = SingleDataSystem()
+                singleData.setByJcl(jclItem)
+                # Messages may precede/follow combat. Retain them for evidence
+                # without changing log[0]/log[-1] used by every replay mode.
+                self.systemMessages.append(singleData)
+                continue
             elif jclItem[4] in ["5"]:
                 singleData = SingleDataBattle()
                 if jclItem[5]["1"] not in self.info.player:
@@ -295,10 +302,12 @@ class BattleLogData():
         self.info.player = concatDict(self.info.player, bld2.info.player)
         self.info.npc = concatDict(self.info.npc, bld2.info.npc)
         self.log = bld2.log + self.log
+        self.systemMessages = bld2.systemMessages + self.systemMessages
         return 0
 
     def __init__(self, window=None):
         self.log = []
+        self.systemMessages = []
         self.window = window
         self.info = OverallData()
         self.dataType = "unknown"

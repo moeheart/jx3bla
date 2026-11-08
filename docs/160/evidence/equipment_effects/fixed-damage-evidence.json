@@ -1,0 +1,877 @@
+{
+  "clientVersion": "1.6.0.10072",
+  "archivedBuffTables": "1.6.0.10009",
+  "boundary": "Fresh script bytes are 10072. They do not establish identity of unavailable 10009 Lua bytes. Runtime uses observed damage, not the fresh fixed base amount.",
+  "identities": [
+    "1,37561,1",
+    "1,37562,1"
+  ],
+  "scope": "ordinary specializations, NPC damage only",
+  "sourceCalls": [
+    {
+      "child": "1,37561,1",
+      "script": "event-raw/scripts/skill/装备/苍生铸世赛季输出鞋子固定伤害.lua",
+      "disassembly": "event-disassembly/苍生铸世赛季输出鞋子固定伤害.txt",
+      "function": "main/4",
+      "instructions": "71-81"
+    },
+    {
+      "child": "1,37562,1",
+      "script": "event-raw/scripts/skill/装备/苍生铸世赛季输出护手固定伤害.lua",
+      "disassembly": "event-disassembly/苍生铸世赛季输出护手固定伤害.txt",
+      "function": "main/4",
+      "instructions": "71-81"
+    }
+  ],
+  "helper": "fixed-damage-helper-manifest.json",
+  "npcFormula": "script fixed base * (1 + source.nGamePlayDamageFinalCof / 1024) * (1 + source.nActivityDamageFinalCof / 1024)",
+  "attribution": "Use only the two independent additive final pools for own/all/remove-one coefficient ratios. Do not recompute observed fixed damage. AP, expected critical, overcome, strain, ordinary damage bonuses, NPC damage coefficient, shield and target vulnerabilities are absent from the helper NPC branch.",
+  "nativeBoundary": "SuperCustomDamage is a native API. Its level adjustment and effective-damage truncation remain in the measured JCL amount and are not simulated here.",
+  "sourceBuffHashes": {
+    "equip/resources/cangshengtf/buff.tab": "d1a1ad978d38d1b182ad30643dc5302fd462a124dd688b99f856f1a5f8179b56",
+    "equip/resources/cangshengtf/buff2.tab": "cff5abe795c2a23f8e42e1be15ec34fc764b9a2243cf424d6591d339aa086939"
+  },
+  "finalPoolBuffDefinitions": {
+    "3220/10": {
+      "name": "英雄结义_共战江湖_队友",
+      "effects": {
+        "atActivityDamageFinalCof": "51"
+      },
+      "source": "buff.tab"
+    },
+    "3682/1": {
+      "name": "春节_开眼·朱雀",
+      "effects": {
+        "atActivityDamageFinalCof": "409"
+      },
+      "source": "buff.tab"
+    },
+    "12853/1": {
+      "name": "女侠节_副本增加伤害",
+      "effects": {
+        "atActivityDamageFinalCof": "10"
+      },
+      "source": "buff.tab"
+    },
+    "29947/1": {
+      "name": "4号_李系_龙气增伤",
+      "effects": {
+        "atGamePlayDamageFinalCof": "204"
+      },
+      "source": "buff.tab"
+    },
+    "29947/2": {
+      "name": "4号_李系_龙气增伤",
+      "effects": {
+        "atGamePlayDamageFinalCof": "204"
+      },
+      "source": "buff.tab"
+    },
+    "29947/3": {
+      "name": "4号_李系_龙气增伤",
+      "effects": {
+        "atGamePlayDamageFinalCof": "204"
+      },
+      "source": "buff.tab"
+    },
+    "29985/1": {
+      "name": "3号_侯青_攻击增益",
+      "effects": {
+        "atGamePlayDamageFinalCof": "205"
+      },
+      "source": "buff.tab"
+    },
+    "30166/1": {
+      "name": "2号_李倓_双龙破崩云",
+      "effects": {
+        "atGamePlayDamageFinalCof": "102"
+      },
+      "source": "buff.tab"
+    },
+    "30209/1": {
+      "name": "4号_李系_大龙气增伤",
+      "effects": {
+        "atGamePlayDamageFinalCof": "102"
+      },
+      "source": "buff.tab"
+    },
+    "30209/2": {
+      "name": "4号_李系_大龙气增伤",
+      "effects": {
+        "atGamePlayDamageFinalCof": "102"
+      },
+      "source": "buff.tab"
+    },
+    "30209/3": {
+      "name": "4号_李系_大龙气增伤",
+      "effects": {
+        "atGamePlayDamageFinalCof": "102"
+      },
+      "source": "buff.tab"
+    },
+    "30255/1": {
+      "name": "6号_薛琢玉_陷阱强化",
+      "effects": {
+        "atGamePlayDamageFinalCof": "207"
+      },
+      "source": "buff.tab"
+    },
+    "30620/1": {
+      "name": "2号_李倓_伤害增加",
+      "effects": {
+        "atGamePlayDamageFinalCof": "1024"
+      },
+      "source": "buff.tab"
+    },
+    "30659/1": {
+      "name": "寻宝_祭天",
+      "effects": {
+        "atActivityDamageFinalCof": "1229"
+      },
+      "source": "buff.tab"
+    },
+    "30979/1": {
+      "name": "伤害提高10%",
+      "effects": {
+        "atActivityDamageFinalCof": "102"
+      },
+      "source": "buff.tab"
+    },
+    "30992/1": {
+      "name": "困难模式小怪",
+      "effects": {
+        "atActivityDamageFinalCof": "256"
+      },
+      "source": "buff.tab"
+    },
+    "30993/1": {
+      "name": "困难模式BOSS",
+      "effects": {
+        "atActivityDamageFinalCof": "358"
+      },
+      "source": "buff.tab"
+    },
+    "31407/1": {
+      "name": "5号_尹雪尘_破阵曲_羽玩家持续",
+      "effects": {
+        "atGamePlayDamageFinalCof": "307"
+      },
+      "source": "buff.tab"
+    },
+    "31506/1": {
+      "name": "4号_叶葵_寒冰",
+      "effects": {
+        "atGamePlayDamageFinalCof": "-102"
+      },
+      "source": "buff.tab"
+    },
+    "31671/1": {
+      "name": "绝境战场·乱武",
+      "effects": {
+        "atActivityDamageFinalCof": "1546"
+      },
+      "source": "buff.tab"
+    },
+    "31875/1": {
+      "name": "1号巴图仁钦_六字大明咒降低伤害",
+      "effects": {
+        "atGamePlayDamageFinalCof": "-410"
+      },
+      "source": "buff.tab"
+    },
+    "31875/2": {
+      "name": "1号巴图仁钦_六字大明咒降低伤害",
+      "effects": {
+        "atGamePlayDamageFinalCof": "-820"
+      },
+      "source": "buff.tab"
+    },
+    "31948/1": {
+      "name": "3号_图南子_化身强化",
+      "effects": {
+        "atGamePlayDamageFinalCof": "204"
+      },
+      "source": "buff.tab"
+    },
+    "32127/1": {
+      "name": "1号_巴图仁钦_伤害增加buff",
+      "effects": {
+        "atGamePlayDamageFinalCof": "51"
+      },
+      "source": "buff.tab"
+    },
+    "32718/1": {
+      "name": "2号_阿萨辛_攻击提升",
+      "effects": {
+        "atGamePlayDamageFinalCof": "102"
+      },
+      "source": "buff.tab"
+    },
+    "32931/1": {
+      "name": "禁入主流本附带减伤害治疗",
+      "effects": {
+        "atActivityDamageFinalCof": "-208"
+      },
+      "source": "buff.tab"
+    },
+    "32939/1": {
+      "name": "4号_阿史_唤醒增伤",
+      "effects": {
+        "atActivityDamageFinalCof": "20"
+      },
+      "source": "buff.tab"
+    },
+    "32939/2": {
+      "name": "4号_阿史_唤醒增伤",
+      "effects": {
+        "atActivityDamageFinalCof": "20"
+      },
+      "source": "buff.tab"
+    },
+    "33067/1": {
+      "name": "1号_鲁念雪_雷电强化",
+      "effects": {
+        "atGamePlayDamageFinalCof": "307"
+      },
+      "source": "buff.tab"
+    },
+    "33275/1": {
+      "name": "火元素点",
+      "effects": {
+        "atGamePlayDamageFinalCof": "20"
+      },
+      "source": "buff.tab"
+    },
+    "33312/1": {
+      "name": "最终伤害治疗提高5%(火系专属)",
+      "effects": {
+        "atGamePlayDamageFinalCof": "51"
+      },
+      "source": "buff.tab"
+    },
+    "33324/1": {
+      "name": "炙祝_烧牌额外增伤增疗",
+      "effects": {
+        "atGamePlayDamageFinalCof": "205"
+      },
+      "source": "buff.tab"
+    },
+    "33344/1": {
+      "name": "斩杀伤害提高（火）",
+      "effects": {
+        "atGamePlayDamageFinalCof": "307"
+      },
+      "source": "buff.tab"
+    },
+    "33344/2": {
+      "name": "斩杀伤害提高（火）",
+      "effects": {
+        "atGamePlayDamageFinalCof": "461"
+      },
+      "source": "buff.tab"
+    },
+    "33346/1": {
+      "name": "扬刀大会机器人能力修正1",
+      "effects": {
+        "atGamePlayDamageFinalCof": "-102"
+      },
+      "source": "buff.tab"
+    },
+    "33346/2": {
+      "name": "扬刀大会机器人能力修正1",
+      "effects": {
+        "atGamePlayDamageFinalCof": "-9"
+      },
+      "source": "buff.tab"
+    },
+    "33346/3": {
+      "name": "扬刀大会机器人能力修正1",
+      "effects": {
+        "atGamePlayDamageFinalCof": "218"
+      },
+      "source": "buff.tab"
+    },
+    "33346/4": {
+      "name": "扬刀大会机器人能力修正1",
+      "effects": {
+        "atGamePlayDamageFinalCof": "316"
+      },
+      "source": "buff.tab"
+    },
+    "33346/5": {
+      "name": "扬刀大会机器人能力修正1",
+      "effects": {
+        "atGamePlayDamageFinalCof": "482"
+      },
+      "source": "buff.tab"
+    },
+    "33346/6": {
+      "name": "扬刀大会机器人能力修正1",
+      "effects": {
+        "atGamePlayDamageFinalCof": "801"
+      },
+      "source": "buff.tab"
+    },
+    "33346/7": {
+      "name": "扬刀大会机器人能力修正1",
+      "effects": {
+        "atGamePlayDamageFinalCof": "913"
+      },
+      "source": "buff.tab"
+    },
+    "33346/8": {
+      "name": "扬刀大会机器人能力修正1",
+      "effects": {
+        "atGamePlayDamageFinalCof": "1108"
+      },
+      "source": "buff.tab"
+    },
+    "33346/9": {
+      "name": "扬刀大会机器人能力修正1",
+      "effects": {
+        "atGamePlayDamageFinalCof": "1524"
+      },
+      "source": "buff.tab"
+    },
+    "33346/10": {
+      "name": "扬刀大会机器人能力修正1",
+      "effects": {
+        "atGamePlayDamageFinalCof": "2062"
+      },
+      "source": "buff.tab"
+    },
+    "33346/11": {
+      "name": "扬刀大会机器人能力修正1",
+      "effects": {
+        "atGamePlayDamageFinalCof": "2523"
+      },
+      "source": "buff.tab"
+    },
+    "33346/12": {
+      "name": "扬刀大会机器人能力修正1",
+      "effects": {
+        "atGamePlayDamageFinalCof": "2971"
+      },
+      "source": "buff.tab"
+    },
+    "33347/1": {
+      "name": "扬刀大会机器人能力修正2",
+      "effects": {
+        "atGamePlayDamageFinalCof": "73"
+      },
+      "source": "buff.tab"
+    },
+    "33347/2": {
+      "name": "扬刀大会机器人能力修正2",
+      "effects": {
+        "atGamePlayDamageFinalCof": "183"
+      },
+      "source": "buff.tab"
+    },
+    "33347/3": {
+      "name": "扬刀大会机器人能力修正2",
+      "effects": {
+        "atGamePlayDamageFinalCof": "455"
+      },
+      "source": "buff.tab"
+    },
+    "33347/4": {
+      "name": "扬刀大会机器人能力修正2",
+      "effects": {
+        "atGamePlayDamageFinalCof": "571"
+      },
+      "source": "buff.tab"
+    },
+    "33347/5": {
+      "name": "扬刀大会机器人能力修正2",
+      "effects": {
+        "atGamePlayDamageFinalCof": "769"
+      },
+      "source": "buff.tab"
+    },
+    "33347/6": {
+      "name": "扬刀大会机器人能力修正2",
+      "effects": {
+        "atGamePlayDamageFinalCof": "1147"
+      },
+      "source": "buff.tab"
+    },
+    "33347/7": {
+      "name": "扬刀大会机器人能力修正2",
+      "effects": {
+        "atGamePlayDamageFinalCof": "1282"
+      },
+      "source": "buff.tab"
+    },
+    "33347/8": {
+      "name": "扬刀大会机器人能力修正2",
+      "effects": {
+        "atGamePlayDamageFinalCof": "1513"
+      },
+      "source": "buff.tab"
+    },
+    "33347/9": {
+      "name": "扬刀大会机器人能力修正2",
+      "effects": {
+        "atGamePlayDamageFinalCof": "2008"
+      },
+      "source": "buff.tab"
+    },
+    "33347/10": {
+      "name": "扬刀大会机器人能力修正2",
+      "effects": {
+        "atGamePlayDamageFinalCof": "2315"
+      },
+      "source": "buff.tab"
+    },
+    "33347/11": {
+      "name": "扬刀大会机器人能力修正2",
+      "effects": {
+        "atGamePlayDamageFinalCof": "2813"
+      },
+      "source": "buff.tab"
+    },
+    "33347/12": {
+      "name": "扬刀大会机器人能力修正2",
+      "effects": {
+        "atGamePlayDamageFinalCof": "3994"
+      },
+      "source": "buff.tab"
+    },
+    "33383/1": {
+      "name": "火_1分钟增伤",
+      "effects": {
+        "atGamePlayDamageFinalCof": "205"
+      },
+      "source": "buff.tab"
+    },
+    "33383/2": {
+      "name": "火_1分钟增伤",
+      "effects": {
+        "atGamePlayDamageFinalCof": "410"
+      },
+      "source": "buff.tab"
+    },
+    "33449/1": {
+      "name": "火_化为烈火",
+      "effects": {
+        "atGamePlayDamageFinalCof": "358"
+      },
+      "source": "buff.tab"
+    },
+    "33464/1": {
+      "name": "火_奇穴失效但增伤",
+      "effects": {
+        "atGamePlayDamageFinalCof": "1024"
+      },
+      "source": "buff.tab"
+    },
+    "33467/1": {
+      "name": "芒印",
+      "effects": {
+        "atGamePlayDamageFinalCof": "-10"
+      },
+      "source": "buff.tab"
+    },
+    "33605/1": {
+      "name": "火核心被动增益",
+      "effects": {
+        "atGamePlayDamageFinalCof": "31"
+      },
+      "source": "buff.tab"
+    },
+    "33687/1": {
+      "name": "5号_唐怀仁_强化",
+      "effects": {
+        "atGamePlayDamageFinalCof": "1229"
+      },
+      "source": "buff.tab"
+    },
+    "34293/1": {
+      "name": "陕州_塔防_玩家伤害降低",
+      "effects": {
+        "atGamePlayDamageFinalCof": "-975"
+      },
+      "source": "buff.tab"
+    },
+    "34529/1": {
+      "name": "3号_伊曼寂夜_钉柱炼狱_增强",
+      "effects": {
+        "atGamePlayDamageFinalCof": "103"
+      },
+      "source": "buff.tab"
+    },
+    "34529/2": {
+      "name": "3号_伊曼寂夜_钉柱炼狱_增强",
+      "effects": {
+        "atGamePlayDamageFinalCof": "103"
+      },
+      "source": "buff.tab"
+    },
+    "34529/3": {
+      "name": "3号_伊曼寂夜_钉柱炼狱_增强",
+      "effects": {
+        "atGamePlayDamageFinalCof": "205"
+      },
+      "source": "buff.tab"
+    },
+    "34751/1": {
+      "name": "4号_阿史那_机枢升压",
+      "effects": {
+        "atGamePlayDamageFinalCof": "1024"
+      },
+      "source": "buff.tab"
+    },
+    "71532/1": {
+      "name": "移动端_PVP环境统一增伤",
+      "effects": {
+        "atGamePlayDamageFinalCof": "102"
+      },
+      "source": "buff2.tab"
+    }
+  },
+  "originalTeamObservedBuffs": [
+    {
+      "file": "2026-11-02-20-01-34-25人普通洛阳之战(835)-突利和顺(139306).jcl",
+      "sha256": "1bc04c976192b1784ec906725b82df00eb21389a0378f3489bbc0f2104bbcaeb",
+      "finalCoefficientBuffs": {},
+      "childIdentities": {
+        "1,37561,1": 237,
+        "1,37562,1": 165
+      }
+    },
+    {
+      "file": "2026-11-02-20-05-46-25人普通洛阳之战(835)-田承嗣(139329).jcl",
+      "sha256": "ec184c380f2d487e7f10c82eb8476e6584daeff853c379cc8536b932d61e22ec",
+      "finalCoefficientBuffs": {},
+      "childIdentities": {
+        "1,37561,1": 279,
+        "1,37562,1": 213
+      }
+    },
+    {
+      "file": "2026-11-02-20-12-08-25人普通洛阳之战(835)-伊曼·寂夜(139319).jcl",
+      "sha256": "58dce3209f1412d0104dd0b38c3e95fc253a55e91515f1f6c5889bccd01268b1",
+      "finalCoefficientBuffs": {},
+      "childIdentities": {
+        "1,37562,1": 189,
+        "1,37561,1": 267
+      }
+    },
+    {
+      "file": "2026-11-02-20-16-04-25人普通洛阳之战(835)-阿史那承庆(139323).jcl",
+      "sha256": "99df0aa823deef3db5560411b235bd43b9706f6ff951a83ede439aba97576a3c",
+      "finalCoefficientBuffs": {},
+      "childIdentities": {
+        "1,37561,1": 340,
+        "1,37562,1": 254
+      }
+    },
+    {
+      "file": "2026-11-02-20-23-43-25人普通洛阳之战(835)-史朝义(139312).jcl",
+      "sha256": "2e5d0fc856395e2ee73644ef5568f628474c0583165f0b12737f259e9977e5f2",
+      "finalCoefficientBuffs": {},
+      "childIdentities": {
+        "1,37562,1": 212,
+        "1,37561,1": 293
+      }
+    }
+  ],
+  "tests": "tests/test_equipment_effect_runtime.py",
+  "originalTeamChildDamage": [
+    {
+      "kind": "Skill",
+      "id": "37561",
+      "bosses": [
+        {
+          "boss": "突利和顺",
+          "observations": [
+            {
+              "kind": "Skill",
+              "id": "37561",
+              "level": 1,
+              "count": 237,
+              "activeCount": 237,
+              "damageEff": 1816368,
+              "healEff": 0,
+              "relations": {
+                "playerToNpc": 237
+              },
+              "distinctCasters": 17,
+              "distinctTargets": 1
+            }
+          ]
+        },
+        {
+          "boss": "田承嗣",
+          "observations": [
+            {
+              "kind": "Skill",
+              "id": "37561",
+              "level": 1,
+              "count": 279,
+              "activeCount": 279,
+              "damageEff": 2138256,
+              "healEff": 0,
+              "relations": {
+                "playerToNpc": 279
+              },
+              "distinctCasters": 17,
+              "distinctTargets": 2
+            }
+          ]
+        },
+        {
+          "boss": "伊曼双子",
+          "observations": [
+            {
+              "kind": "Skill",
+              "id": "37561",
+              "level": 1,
+              "count": 267,
+              "activeCount": 267,
+              "damageEff": 2046288,
+              "healEff": 0,
+              "relations": {
+                "playerToNpc": 267
+              },
+              "distinctCasters": 17,
+              "distinctTargets": 2
+            }
+          ]
+        },
+        {
+          "boss": "阿史那承庆",
+          "observations": [
+            {
+              "kind": "Skill",
+              "id": "37561",
+              "level": 1,
+              "count": 340,
+              "activeCount": 340,
+              "damageEff": 2590434,
+              "healEff": 0,
+              "relations": {
+                "playerToNpc": 340
+              },
+              "distinctCasters": 17,
+              "distinctTargets": 3
+            }
+          ]
+        },
+        {
+          "boss": "史朝义",
+          "observations": [
+            {
+              "kind": "Skill",
+              "id": "37561",
+              "level": 1,
+              "count": 293,
+              "activeCount": 293,
+              "damageEff": 2207236,
+              "healEff": 0,
+              "relations": {
+                "playerToNpc": 293
+              },
+              "distinctCasters": 17,
+              "distinctTargets": 6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "Skill",
+      "id": "37562",
+      "bosses": [
+        {
+          "boss": "突利和顺",
+          "observations": [
+            {
+              "kind": "Skill",
+              "id": "37562",
+              "level": 1,
+              "count": 165,
+              "activeCount": 165,
+              "damageEff": 1896675,
+              "healEff": 0,
+              "relations": {
+                "playerToNpc": 165
+              },
+              "distinctCasters": 16,
+              "distinctTargets": 1
+            }
+          ]
+        },
+        {
+          "boss": "田承嗣",
+          "observations": [
+            {
+              "kind": "Skill",
+              "id": "37562",
+              "level": 1,
+              "count": 213,
+              "activeCount": 213,
+              "damageEff": 2522467,
+              "healEff": 0,
+              "relations": {
+                "playerToNpc": 213
+              },
+              "distinctCasters": 17,
+              "distinctTargets": 2
+            }
+          ]
+        },
+        {
+          "boss": "伊曼双子",
+          "observations": [
+            {
+              "kind": "Skill",
+              "id": "37562",
+              "level": 1,
+              "count": 189,
+              "activeCount": 189,
+              "damageEff": 2251875,
+              "healEff": 0,
+              "relations": {
+                "playerToNpc": 189
+              },
+              "distinctCasters": 17,
+              "distinctTargets": 2
+            }
+          ]
+        },
+        {
+          "boss": "阿史那承庆",
+          "observations": [
+            {
+              "kind": "Skill",
+              "id": "37562",
+              "level": 1,
+              "count": 254,
+              "activeCount": 254,
+              "damageEff": 2991926,
+              "healEff": 0,
+              "relations": {
+                "playerToNpc": 254
+              },
+              "distinctCasters": 17,
+              "distinctTargets": 3
+            }
+          ]
+        },
+        {
+          "boss": "史朝义",
+          "observations": [
+            {
+              "kind": "Skill",
+              "id": "37562",
+              "level": 1,
+              "count": 212,
+              "activeCount": 212,
+              "damageEff": 2476490,
+              "healEff": 0,
+              "relations": {
+                "playerToNpc": 212
+              },
+              "distinctCasters": 17,
+              "distinctTargets": 6
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "positiveDamageRuntimeAudit": {
+    "observations": [
+      {
+        "boss": "突利和顺",
+        "skills": {
+          "37561": {
+            "events": 237,
+            "quotedFullIDs": 237,
+            "effectiveDamage": 1816368,
+            "eventsWithOrdinaryExternalBoosts": 237
+          },
+          "37562": {
+            "events": 165,
+            "quotedFullIDs": 165,
+            "effectiveDamage": 1896675,
+            "eventsWithOrdinaryExternalBoosts": 165
+          }
+        }
+      },
+      {
+        "boss": "田承嗣",
+        "skills": {
+          "37561": {
+            "events": 279,
+            "quotedFullIDs": 279,
+            "effectiveDamage": 2138256,
+            "eventsWithOrdinaryExternalBoosts": 279
+          },
+          "37562": {
+            "events": 213,
+            "quotedFullIDs": 213,
+            "effectiveDamage": 2522467,
+            "eventsWithOrdinaryExternalBoosts": 213
+          }
+        }
+      },
+      {
+        "boss": "伊曼双子",
+        "skills": {
+          "37562": {
+            "events": 189,
+            "quotedFullIDs": 189,
+            "effectiveDamage": 2251875,
+            "eventsWithOrdinaryExternalBoosts": 189
+          },
+          "37561": {
+            "events": 267,
+            "quotedFullIDs": 267,
+            "effectiveDamage": 2046288,
+            "eventsWithOrdinaryExternalBoosts": 267
+          }
+        }
+      },
+      {
+        "boss": "阿史那承庆",
+        "skills": {
+          "37561": {
+            "events": 340,
+            "quotedFullIDs": 340,
+            "effectiveDamage": 2590434,
+            "eventsWithOrdinaryExternalBoosts": 340
+          },
+          "37562": {
+            "events": 254,
+            "quotedFullIDs": 254,
+            "effectiveDamage": 2991926,
+            "eventsWithOrdinaryExternalBoosts": 254
+          }
+        }
+      },
+      {
+        "boss": "史朝义",
+        "skills": {
+          "37562": {
+            "events": 212,
+            "quotedFullIDs": 212,
+            "effectiveDamage": 2476490,
+            "eventsWithOrdinaryExternalBoosts": 212
+          },
+          "37561": {
+            "events": 292,
+            "quotedFullIDs": 292,
+            "effectiveDamage": 2207236,
+            "eventsWithOrdinaryExternalBoosts": 292
+          }
+        }
+      }
+    ],
+    "sourceStable": true,
+    "directMetricsUnchanged": true,
+    "note": "37561 has 1416 raw skill events but only 1415 positive-effective-damage attribution calls; the remaining event has zero effective damage. 37562 has 1033 positive-damage calls. All 2448 positive calls had ordinary external buffs active and none credited those ordinary multipliers."
+  }
+}

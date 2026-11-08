@@ -1,0 +1,1159 @@
+{
+  "schemaVersion": 1,
+  "profile": "cangsheng50",
+  "scope": "Audited ordinary-kungfu effects; Wujie and unknown identities remain unverified.",
+  "sourceVersions": [
+    "1.6.0.10009",
+    "1.6.0.10072"
+  ],
+  "evidenceSources": [
+    {
+      "file": "recipe-models.json",
+      "sha256": "59ec8f3730cb8a2c4e10512bf8c9caae9d9fdb57145fd24ed337248c1b287a7e"
+    },
+    {
+      "file": "script-models.json",
+      "sha256": "7394e2e25101ef811ec817a2192e732de4ce489f9c503b7563f3dfd80e07e1b4"
+    },
+    {
+      "file": "event-models.json",
+      "sha256": "b02e7c29fce7692dc54b682a443bafbbdd7ff8f87392a8140637d514b19c8ec8"
+    }
+  ],
+  "effects": [
+    {
+      "type": "atExecuteScript",
+      "value1": "skill/装备/帽子_新附魔_治疗非战斗附魔减读条.lua",
+      "value2": "0",
+      "name": "定尘血石·疗·帽",
+      "ordinaryHandling": "non_combat",
+      "staticAttributes": {},
+      "evidence": "script-evidence.json#16674"
+    },
+    {
+      "type": "atExecuteScript",
+      "value1": "skill/装备/苍生铸世赛季输出帽子附魔_1110.lua",
+      "value2": "0",
+      "name": "定尘血石·伤·帽",
+      "ordinaryHandling": "logged_event",
+      "staticAttributes": {},
+      "evidence": "script-evidence.json#16679"
+    },
+    {
+      "type": "atExecuteScript",
+      "value1": "skill/装备/苍生铸世赛季输出衣服附魔_1110.lua",
+      "value2": "0",
+      "name": "定尘血石·伤·衣",
+      "ordinaryHandling": "static_attributes",
+      "staticAttributes": {
+        "atAllTypeAttackPowerBase": 81,
+        "atBeTherapyCoefficient": -102
+      },
+      "evidence": "script-evidence.json#16678"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1508",
+      "value2": "1",
+      "name": "90级傲血橙武属性1",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1508/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1509",
+      "value2": "1",
+      "name": "90级傲血橙武属性2",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1509/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1516",
+      "value2": "1",
+      "name": "90级花间橙武属性1",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1516/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1517",
+      "value2": "1",
+      "name": "90级花间橙武属性2",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1517/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1518",
+      "value2": "1",
+      "name": "90级离经橙武属性1",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1518/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1519",
+      "value2": "1",
+      "name": "90级离经橙武属性2",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1519/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1520",
+      "value2": "1",
+      "name": "90级气纯橙武属性1",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1520/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1521",
+      "value2": "1",
+      "name": "90级气纯橙武属性2",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1521/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1522",
+      "value2": "1",
+      "name": "90级剑纯橙武属性1",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1522/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1523",
+      "value2": "1",
+      "name": "90级剑纯橙武属性2",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1523/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1524",
+      "value2": "1",
+      "name": "90级冰心橙武属性1",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1524/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1525",
+      "value2": "1",
+      "name": "90级冰心橙武属性2",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1525/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1526",
+      "value2": "1",
+      "name": "90级云裳橙武属性1",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1526/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1527",
+      "value2": "1",
+      "name": "90级云裳橙武属性2",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1527/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1528",
+      "value2": "1",
+      "name": "90级毒经橙武属性1",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1528/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1529",
+      "value2": "1",
+      "name": "90级毒经橙武属性2",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1529/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1530",
+      "value2": "1",
+      "name": "90级补天橙武属性1",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1530/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1531",
+      "value2": "1",
+      "name": "90级补天橙武属性2",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1531/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1532",
+      "value2": "1",
+      "name": "90级天罗橙武属性1",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1532/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1533",
+      "value2": "1",
+      "name": "90级天罗橙武属性2",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1533/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1534",
+      "value2": "1",
+      "name": "90级惊羽橙武属性1",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1534/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1535",
+      "value2": "1",
+      "name": "90级惊羽橙武属性2",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1535/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1542",
+      "value2": "1",
+      "name": "90级焚影橙武属性1",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1542/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1543",
+      "value2": "1",
+      "name": "90级焚影橙武属性2",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#1543/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17239",
+      "value2": "1",
+      "name": "【套装】【对阵招式】伤害提高2%",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17239/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17243",
+      "value2": "1",
+      "name": "【套装】【对阵招式】疗伤提高2%",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17243/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17300",
+      "value2": "1",
+      "name": "【橙武】【傍身招式】伤害提高2%（四象轮回·太极无极）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17300/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17301",
+      "value2": "1",
+      "name": "【橙武】【傍身招式】伤害提高2%（三环套月·无我无剑）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17301/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17304",
+      "value2": "1",
+      "name": "【橙武】释放【绝技招式】伤害提高持续一段时间（气破鸿蒙·悟+镇山河·悟）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17304/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17305",
+      "value2": "1",
+      "name": "【橙武】释放【绝技招式】伤害提高持续一段时间（行剑千风·悟+乾坤剑来·悟）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17305/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17316",
+      "value2": "1",
+      "name": "【橙武】【傍身招式】伤害提高2%（毒经·蝎心+蛇影）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17316/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17317",
+      "value2": "1",
+      "name": "【橙武】【傍身招式】伤害提高2%（补天·冰蚕+醉舞）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17317/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17318",
+      "value2": "1",
+      "name": "【橙武】释放【绝技招式】伤害提高持续一段时间（毒经·寂灭蛊+连缘蛊）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17318/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17319",
+      "value2": "1",
+      "name": "【橙武】释放【绝技招式】治疗提高持续一段时间（补天·孔雀+千蝶）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17319/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17324",
+      "value2": "1",
+      "name": "【橙武】【傍身招式】伤害提高2%（凌雪·星垂平野+寂洪荒）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17324/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17326",
+      "value2": "1",
+      "name": "【橙武】释放【绝技招式】伤害提高持续一段时间（凌雪·乱天狼+飞刃回转）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17326/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17329",
+      "value2": "1",
+      "name": "【橙武】【对阵招式】后减【绝技招式】调息时间（毒经）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17329/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17331",
+      "value2": "1",
+      "name": "【橙武】【对阵招式】后减【绝技招式】调息时间（补天）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17331/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17332",
+      "value2": "1",
+      "name": "【橙武】【傍身招式】伤害提高2%（焚影·赤日轮+幽月轮）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17332/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17336",
+      "value2": "1",
+      "name": "【橙武】释放【绝技招式】伤害提高持续一段时间（焚影·微妙风+日月晦）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17336/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17339",
+      "value2": "1",
+      "name": "【橙武】【对阵招式】后减【绝技招式】调息时间（凌雪）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17339/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17340",
+      "value2": "1",
+      "name": "【橙武】【对阵招式】后减【绝技招式】调息时间（紫霞）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17340/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17341",
+      "value2": "1",
+      "name": "【橙武】【对阵招式】后减【绝技招式】调息时间（太虚）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17341/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17342",
+      "value2": "1",
+      "name": "【橙武】【对阵招式】后减【绝技招式】调息时间（焚影）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17342/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17345",
+      "value2": "1",
+      "name": "【特殊武器】【绝技招式】后加会心会效（相知）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17345/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17346",
+      "value2": "1",
+      "name": "【特殊武器】【绝技招式】后加会心会效（毒经）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17346/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17362",
+      "value2": "1",
+      "name": "【橙武】【傍身招式】伤害提高2%（穿云·雷行）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17362/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17374",
+      "value2": "1",
+      "name": "【橙武】【傍身招式】伤害提高2%（项王击鼎+刀啸风吟）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17374/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17377",
+      "value2": "1",
+      "name": "【橙武】【对阵招式】后减【绝技招式】调息时间（上将军印+横断山河）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17377/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17378",
+      "value2": "1",
+      "name": "【橙武】释放【绝技招式】伤害提高持续一段时间（上将军印+横断山河）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17378/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17380",
+      "value2": "1",
+      "name": "【橙武】【傍身招式】伤害提高2%（玳弦急曲+江海凝光）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17380/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17383",
+      "value2": "1",
+      "name": "【橙武】【对阵招式】后减【绝技招式】调息时间（合璧知意+霜天剑泠）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17383/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17384",
+      "value2": "1",
+      "name": "【橙武】释放【绝技招式】伤害提高持续一段时间（合璧知意+霜天剑泠）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17384/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17386",
+      "value2": "1",
+      "name": "【橙武】【傍身招式】治疗提高2%（云裳心经·回雪飘摇+上元点鬟）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17386/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17389",
+      "value2": "1",
+      "name": "【橙武】【对阵招式】后减【绝技招式】调息时间（（风袖低昂+九微飞花））",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17389/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17390",
+      "value2": "1",
+      "name": "【橙武】释放【绝技招式】治疗提高持续一段时间（云裳心经·风袖低昂+九微飞花）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17390/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17393",
+      "value2": "1",
+      "name": "【橙武】释放【绝技招式】伤害提高持续一段时间（力破万钧+破重围）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17393/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17394",
+      "value2": "1",
+      "name": "【橙武】【对阵招式】后减【绝技招式】调息时间（傲血战意）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17394/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17399",
+      "value2": "1",
+      "name": "【橙武】【傍身招式】伤害提高2%（快雪时晴·阳明指）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17399/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17402",
+      "value2": "1",
+      "name": "【橙武】释放【绝技招式】伤害提高持续一段时间（水月无间+乱洒青荷）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17402/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17403",
+      "value2": "1",
+      "name": "【橙武】【对阵招式】后减【绝技招式】调息时间（花间）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17403/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17404",
+      "value2": "1",
+      "name": "【橙武】【傍身招式】治疗提高2%（握针+提针）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17404/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17407",
+      "value2": "1",
+      "name": "【橙武】释放【绝技招式】治疗提高持续一段时间（大针+折叶笼花）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17407/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17408",
+      "value2": "1",
+      "name": "【橙武】【对阵招式】后减【绝技招式】调息时间（大针+折叶笼花）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17408/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17409",
+      "value2": "1",
+      "name": "【橙武】【傍身招式】伤害提高2%（击水三千+木落雁归）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17409/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17412",
+      "value2": "1",
+      "name": "【橙武】释放【绝技招式】伤害提高持续一段时间（澹然若海+飞倾列缺）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17412/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17413",
+      "value2": "1",
+      "name": "【橙武】【对阵招式】后减【绝技招式】调息时间（澹然若海+飞倾列缺）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17413/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17429",
+      "value2": "1",
+      "name": "【橙武】【傍身招式】伤害提高2%（蚀肌蛋+天女散花）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17429/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17432",
+      "value2": "1",
+      "name": "【橙武第三条】【绝技】释放绝技后提高8%伤害（鬼斧千机+暴雨梨花针）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17432/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17433",
+      "value2": "1",
+      "name": "【橙武第四条】释放【对阵招式】降低绝技调息（鬼斧千机+暴雨梨花针）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17433/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17435",
+      "value2": "1",
+      "name": "【橙武】【傍身招式】伤害提高2%（夺魄箭+罡风镖·悟）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17435/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17438",
+      "value2": "1",
+      "name": "【橙武第三条】【绝技】释放绝技后提高8%伤害（百里追魂+流火连星）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17438/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17439",
+      "value2": "1",
+      "name": "【橙武第四条】释放【对阵招式】降低绝技调息（百里追魂+流火连星）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17439/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17458",
+      "value2": "1",
+      "name": "【橙武】【傍身招式】伤害提高2%（钩吻断肠+飞叶满襟）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17458/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17461",
+      "value2": "1",
+      "name": "【橙武第三条】【绝技】释放绝技后提高8%伤害（苍棘缚地+逐云寒蕊）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17461/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17462",
+      "value2": "1",
+      "name": "【橙武第四条】释放【对阵招式】降低绝技调息（苍棘缚地+逐云寒蕊）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17462/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17464",
+      "value2": "1",
+      "name": "【橙武】【傍身招式】治疗提高2%（白芷含芳+银光照雪）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17464/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17467",
+      "value2": "1",
+      "name": "【橙武第三条】【绝技】释放绝技后提高8%治疗（青川濯莲+逐云寒蕊）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17467/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17468",
+      "value2": "1",
+      "name": "【橙武第四条】释放【对阵招式】降低绝技调息（青川濯莲+逐云寒蕊）",
+      "ordinaryHandling": "inactive_mobile",
+      "evidence": "recipe-evidence.json#17468/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "2842",
+      "value2": "1",
+      "name": "北天药宗无方大橙武奚毒伤害5%",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#2842/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "2843",
+      "value2": "1",
+      "name": "北天药宗无方大橙武钩吻伤害5%",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#2843/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "2846",
+      "value2": "1",
+      "name": "北天药宗灵素大橙武灵素中和治疗5%",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#2846/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "2847",
+      "value2": "1",
+      "name": "北天药宗灵素大橙武赤芍治疗5%",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#2847/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "4294",
+      "value2": "1",
+      "name": "90橙武霸刀属性1",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#4294/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "4295",
+      "value2": "1",
+      "name": "90橙武霸刀属性2",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#4295/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "4818",
+      "value2": "1",
+      "name": "蓬莱大橙武木落雁归伤害5%、",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#4818/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "4819",
+      "value2": "1",
+      "name": "蓬莱大橙武翼绝云天伤害5%",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#4819/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "5091",
+      "value2": "1",
+      "name": "凌雪阁大橙武星垂平野伤害5%",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#5091/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "5092",
+      "value2": "1",
+      "name": "凌雪阁大橙武寂洪荒伤害5%",
+      "ordinaryHandling": "skill_coefficient",
+      "evidence": "recipe-evidence.json#5092/1"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "1929",
+      "value2": "0",
+      "name": "110级新CW特效花间",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#1929"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "1930",
+      "value2": "0",
+      "name": "110级新CW特效冰心",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#1930"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "1931",
+      "value2": "0",
+      "name": "110级新CW特效气纯",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#1931"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "1932",
+      "value2": "0",
+      "name": "110级新CW特效剑纯",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#1932"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "1933",
+      "value2": "0",
+      "name": "110级新CW特效傲血",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#1933"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "1934",
+      "value2": "0",
+      "name": "110级新CW特效毒经",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#1934"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "1935",
+      "value2": "0",
+      "name": "110级新CW特效天罗",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#1935"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "1936",
+      "value2": "0",
+      "name": "110级新CW特效惊羽",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#1936"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "1938",
+      "value2": "0",
+      "name": "110级新CW特效焚影",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#1938"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "1942",
+      "value2": "0",
+      "name": "110级新CW特效霸刀",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#1942"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "1943",
+      "value2": "0",
+      "name": "110级新CW特效蓬莱",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#1943"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "1944",
+      "value2": "0",
+      "name": "110级新CW特效凌雪",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#1944"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "1946",
+      "value2": "0",
+      "name": "110级新CW特效离经",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#1946"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "1947",
+      "value2": "0",
+      "name": "110级新CW特效云裳",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#1947"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "1948",
+      "value2": "0",
+      "name": "110级新CW特效补天",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#1948"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "2138",
+      "value2": "0",
+      "name": "110级CW新增特效无方",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#2138"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "2139",
+      "value2": "0",
+      "name": "110级CW新增特效灵素",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#2139"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "2717",
+      "value2": "0",
+      "name": "130级毒经cw特效",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#2717"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "2719",
+      "value2": "0",
+      "name": "130级橙武第三条冰心",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#2719"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "2720",
+      "value2": "0",
+      "name": "130级奶秀cw描述",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#2720"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "2721",
+      "value2": "0",
+      "name": "130级奶毒cw描述",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#2721"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "2736",
+      "value2": "0",
+      "name": "130级天罗诡道CW特效第三条",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#2736"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "2737",
+      "value2": "0",
+      "name": "130级惊羽诀CW特效第三条",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#2737"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "2739",
+      "value2": "0",
+      "name": "130级气纯Cw特效",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#2739"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "2740",
+      "value2": "0",
+      "name": "130级花间CW特效第三条",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#2740"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "2745",
+      "value2": "0",
+      "name": "130级凌雪cw特效",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#2745"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "2749",
+      "value2": "0",
+      "name": "130级蓬莱cw特效",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#2749"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "2751",
+      "value2": "0",
+      "name": "130级奶花cw描述",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#2751"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "2752",
+      "value2": "0",
+      "name": "130级奶药cw描述",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#2752"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "2753",
+      "value2": "0",
+      "name": "130级剑纯cw特效",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#2753"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "2759",
+      "value2": "0",
+      "name": "130级焚影cw特效",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#2759"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "2761",
+      "value2": "0",
+      "name": "130级霸刀cw特效",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#2761"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "2762",
+      "value2": "0",
+      "name": "130级无方CW特效第三条",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#2762"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "2911",
+      "value2": "0",
+      "name": "蝎心忘情",
+      "ordinaryHandling": "non_combat",
+      "evidence": "event-evidence.json#2911"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "2923",
+      "value2": "0",
+      "name": "风雷瑶琴剑",
+      "ordinaryHandling": "non_combat",
+      "evidence": "event-evidence.json#2923"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "3149",
+      "value2": "0",
+      "name": "34000CW无双",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#3149"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "3203",
+      "value2": "0",
+      "name": "苍生铸世输出腰带_1110",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#3203"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "3204",
+      "value2": "0",
+      "name": "苍生铸世输出护手_1110",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#3204"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "3205",
+      "value2": "0",
+      "name": "苍生铸世输出鞋子_1110",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#3205"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "3206",
+      "value2": "0",
+      "name": "苍生铸世治疗护手_1110",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#3206"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "3207",
+      "value2": "0",
+      "name": "苍生铸世治疗衣服_1110",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#3207"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "3208",
+      "value2": "0",
+      "name": "苍生铸世治疗腰带_1110",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#3208"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "3210",
+      "value2": "0",
+      "name": "苍生铸世T护手_1110",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#3210"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "3211",
+      "value2": "0",
+      "name": "苍生铸世T衣服_1110",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#3211"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "3212",
+      "value2": "0",
+      "name": "苍生铸世T帽子_1110",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#3212"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "3213",
+      "value2": "0",
+      "name": "苍生铸世治疗鞋子_1110",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#3213"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "3216",
+      "value2": "0",
+      "name": "苍生铸世输出护手_1280",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#3216"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "3227",
+      "value2": "0",
+      "name": "50级960品CW无双",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#3227"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "3247",
+      "value2": "0",
+      "name": "50级橙武_掠炎_主特效",
+      "ordinaryHandling": "logged_event",
+      "evidence": "event-evidence.json#3247"
+    }
+  ]
+}

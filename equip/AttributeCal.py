@@ -40,7 +40,9 @@ class AttributeCal():
         格式由这一标准定义：https://www.jx3box.com/bbs/22011
         '''
         self.equipmentInfo.unsupportedEffects.clear()
+        self.equipmentInfo.effects.clear()
         self.lastWarnings = []
+        self.lastEffects = []
         if not attrStr.strip():
             return {}
         equips = self.im.importData(attrStr.rstrip('\r\n'))
@@ -90,9 +92,9 @@ class AttributeCal():
                     continue
                 if magicID in self.equipmentInfo.enchantAttributes:
                     magicAttrib = {}
-                    for name, value in self.equipmentInfo.enchantAttributes[magicID]:
+                    for name, value, value2 in self.equipmentInfo.enchantAttributes[magicID]:
                         magicAttrib = self.attribMerge(magicAttrib, self.equipmentInfo.staticAttribute(
-                            name, value, "附魔%s" % magicID))
+                            name, value, "附魔%s" % magicID, value2))
                 else:
                     raise KeyError("附魔未收录于当前正式服底表: %s" % magicID)
                 singleAttrib = self.attribMerge(singleAttrib, magicAttrib)
@@ -124,10 +126,12 @@ class AttributeCal():
                         continue
                     setAttribRes = self.equipmentInfo.attrib[setAttribID]
                     setAttrib = self.equipmentInfo.staticAttribute(
-                        setAttribRes[0], setAttribRes[1], "套装%s/%s件" % (line, setN))
+                        setAttribRes[0], setAttribRes[1], "套装%s/%s件" % (line, setN),
+                        self.equipmentInfo.attribParameters.get(setAttribID, {}).get('value2', ''))
                     sumAttrib = self.attribMerge(setAttrib, sumAttrib)
 
         self.lastWarnings = sorted(self.equipmentInfo.unsupportedEffects)
+        self.lastEffects = list(self.equipmentInfo.effects)
         return sumAttrib
 
     def __init__(self, gameEdition=CURRENT_GAME_EDITION):
@@ -136,3 +140,4 @@ class AttributeCal():
         self.equipmentInfo.LoadFromStaticData()
         self.im = ImportExcelEquipment()
         self.lastWarnings = []
+        self.lastEffects = []

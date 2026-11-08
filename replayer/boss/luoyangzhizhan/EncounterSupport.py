@@ -5,6 +5,7 @@ from replayer.boss.General import GeneralReplayer
 from window.SpecificBossWindow import SpecificBossWindow
 from tools.Functions import parseTime
 from replayer.boss.luoyangzhizhan.LuoyangEvidence import record_call_buff, finish_calls, render_boss_window
+from replayer.boss.luoyangzhizhan.WinEvidence import LuoyangWinEvidence
 
 
 class EncounterWindow(SpecificBossWindow):
@@ -25,6 +26,7 @@ class EncounterReplayer(GeneralReplayer):
     def initBattle(self):
         super().initBattle()
         self.activeBoss = self.BOSS
+        self.victoryEvidence = LuoyangWinEvidence(self, self.BOSS, self.MAIN_IDS)
         self.lastHits = {}
         self.confirmedEnd = None
         self.detail["mechanicEvents"] = []
@@ -92,7 +94,8 @@ class EncounterReplayer(GeneralReplayer):
 
     def confirmWin(self, time, rule):
         evidence = {"time": time, "rule": rule}
-        if evidence not in self.detail["winEvidence"]:
+        if not any(row.get("time") == time and row.get("rule") == rule
+                   for row in self.detail["winEvidence"]):
             self.detail["winEvidence"].append(evidence)
         if self.confirmedEnd is None or time < self.confirmedEnd:
             self.confirmedEnd = time
@@ -102,6 +105,7 @@ class EncounterReplayer(GeneralReplayer):
 
     def observeCombatEnd(self, event):
         """Keep a candidate until all events rule out a temporary combat exit."""
+        self.victoryEvidence.observe(event)
         if event.dataType != "Battle" or self.template(event.id) not in self.MAIN_IDS:
             return
         if event.fight != 0:
@@ -112,6 +116,12 @@ class EncounterReplayer(GeneralReplayer):
                 "template": self.template(event.id), "lastMainDamage": self.lastMainDamage}
 
     def applyCombatEnd(self):
+        evidence = self.victoryEvidence.resolve()
+        if evidence is not None:
+            self.confirmWin(evidence["time"], evidence["rule"])
+            for row in self.detail["winEvidence"]:
+                if row.get("time") == evidence["time"] and row.get("rule") == evidence["rule"]:
+                    row.update(evidence)
         candidate = self.pendingCombatEnd
         if candidate is None:
             return
@@ -120,7 +130,7 @@ class EncounterReplayer(GeneralReplayer):
             self.trimmedFinalTime = candidate["time"]
             if candidate not in self.detail["endEvidence"]:
                 self.detail["endEvidence"].append(candidate)
-            self.detail["endReason"] = "本体脱战；未据此确认通关"
+            self.detail["endReason"] = "本体脱战；通关由独立证据确认" if self.win else "本体脱战；未据此确认通关"
 
     def trimTime(self):
         self.applyCombatEnd()

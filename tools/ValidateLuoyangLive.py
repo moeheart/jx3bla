@@ -18,13 +18,14 @@ from FileLookUp import FileLookUp
 from release.SmokeTest import check_damage_conservation
 from tools.Functions import getOccType
 from tools.Names import getJclEncounter
+from tools.RecordQuality import get_record_quality
 from tools.ValidateLuoyang import ValidationWindow, check_windows, replay
 
 
 EXPECTED_BOSSES = ("突利和顺", "田承嗣", "伊曼双子", "阿史那承庆", "史朝义")
-# These live logs do not all carry an explicit victory event. Boundary checks
-# must not turn the absence of a victory marker into a fabricated clear.
-EXPECTED_WINS = {"突利和顺": 1, "田承嗣": 0, "伊曼双子": 1, "阿史那承庆": 0, "史朝义": 0}
+# Confirmed clears: type-18 completion messages corroborate the body exits.
+# The original 8.16.3 baseline omitted those messages and missed bosses 2/4/5.
+EXPECTED_WINS = {boss: 1 for boss in EXPECTED_BOSSES}
 EXPECTED_DURATIONS = {"田承嗣": 203193, "阿史那承庆": 240022, "史朝义": 263702}
 
 
@@ -54,10 +55,14 @@ def actor_summary(actor, entry, healers=False, ui=False):
     missing_bases = sum(bases.get(player) is None for player in actor.bld.info.player)
     warnings = {warning for base in bases.values() if base for warning in base.get("_warnings", [])}
     warning_types = sorted({warning.rsplit(": ", 1)[-1] for warning in warnings})
-    known_scripts = {"atSetEquipmentRecipe", "atSkillEventHandler", "atExecuteScript"}
+    modeled = [effect for base in bases.values() if base for effect in base.get("_modeledEffects", [])]
+    quality = get_record_quality({"attributeStatus": actor.attributeStatus, "rdpsStatus": status})
     check("all logged equipment bases", missing_bases == 0 and len(bases) == 25)
-    check("known equipment-script calibration boundary", bool(warnings) and set(warning_types) <= known_scripts)
-    check("explicit incomplete status", status["status"] == "incomplete" and status.get("reason") == "部分玩家装备或当前地图首领属性缺少验证数据。")
+    check("audited equipment effects resolved", bool(modeled) and not warnings)
+    check("supported attribute status", actor.attributeStatus["status"] == "supported" and status["status"] == "supported")
+    check("precise metric eligibility", quality["precise"] and all(quality["rankEligible"].values()))
+    check("no missing or estimated equipment", quality["estimatedPlayerCount"] == 0 and quality["missingEquipmentPlayerCount"] == 0)
+    check("no unresolved equipment effects", not quality.get("unmodeledEffects"))
     check("all damaged targets calibrated", not status.get("unresolvedTargets"))
     check("positive duration", actor.battleTime > 0 and abs(actor.battleTime-(end-start)) < 1e-6)
     check("encounter boundary", analyser.startTime == start and analyser.finalTime == end)
@@ -105,6 +110,8 @@ def actor_summary(actor, entry, healers=False, ui=False):
     if healers:
         check("all specialization replays", len(actor.occResult) == len(actor.statDict))
         check("all healer replays", healer_count == roster_healers)
+        check("all specialization replays precise", all(get_record_quality(row["result"])["precise"]
+                                                        for row in actor.occResult.values()))
     summary = {
         "boss": actor.bossAnalyseName,
         "file": Path(entry["source"]).name,
@@ -124,7 +131,11 @@ def actor_summary(actor, entry, healers=False, ui=False):
         "equipmentBases": len(bases)-missing_bases,
         "unmodeledEquipmentEffectTypes": warning_types,
         "unmodeledEquipmentWarnings": len(warnings),
-        "calibrationBoundary": "equipment_script_effects_unmodeled",
+        "modeledEquipmentEffectCount": len(modeled),
+        "modeledEquipmentEffectTypes": sorted({effect["type"] for effect in modeled}),
+        "precise": quality["precise"],
+        "rankEligible": quality["rankEligible"],
+        "calibrationBoundary": "audited_ordinary_equipment_effects",
         "phaseTimes": actor.detail.get("phaseTimes", {}),
         "transitionPeriods": [dict(name=row["name"], start=round((row["start"]-start)/1000, 3), end=round((row["end"]-start)/1000, 3), seconds=row["duration"], truncated=row.get("truncated", False)) for row in actor.detail.get("transitionPeriods", [])],
         "phaseMilliseconds": phase_time,

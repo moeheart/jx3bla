@@ -16,6 +16,11 @@ SUM3 = 0
 SUM4 = 0
 SUM5 = 0
 
+# Exact logged child identities from the 10072 equipment scripts; both calls
+# pass level 1 even when the triggering enchant skill has another level.
+# See docs/160/evidence/equipment_effects/fixed-damage-evidence.json.
+FIXED_EQUIPMENT_DAMAGE = frozenset(("1,37561,1", "1,37562,1"))
+
 
 def getResistedAmounts(fullResult, buffs, damage, absorb=0):
     """Estimate reduction per damage school using the existing additive model.
@@ -58,7 +63,7 @@ def getResistedAmounts(fullResult, buffs, damage, absorb=0):
     return {key: int(value) for key, value in amounts.items() if value > 0}
 
 def getDamageCoeff(occ, attrib, targetBoosts, lvl=53, isPoZhao=0, isSangRou=1, isPiaoHuang=0, debug=0,
-                   gameEdition=CURRENT_GAME_EDITION, targetProfile=None):
+                   gameEdition=CURRENT_GAME_EDITION, targetProfile=None, isFixedEquipmentDamage=False):
     '''
     根据最终面板属性和目标增益获取伤害系数.
     params:
@@ -75,6 +80,16 @@ def getDamageCoeff(occ, attrib, targetBoosts, lvl=53, isPoZhao=0, isSangRou=1, i
 
     global SUM1
     startTime = time.time()
+
+    finalCoefficient = ((1 + attrib.get("玩法最终伤害", 0) / 1024) *
+                        (1 + attrib.get("活动最终伤害", 0) / 1024))
+    if isFixedEquipmentDamage:
+        # Skill_SuperCustomDamageToPlayer passes a precomputed damage value.
+        # Its NPC branch uses only these two source multipliers; AP, crit,
+        # overcome, strain, normal damage bonuses and NPC debuffs do not
+        # change that value. Attribute observed damage rather than rebuilding
+        # the fixed amount or its native level adjustment.
+        return finalCoefficient
 
     base = attrib.get("攻击", 0)
     if isPoZhao:
@@ -137,7 +152,7 @@ def getDamageCoeff(occ, attrib, targetBoosts, lvl=53, isPoZhao=0, isSangRou=1, i
     if isPiaoHuang:
         return base * damageAdd2
     npcCoefficient = attrib.get('非侠士伤害系数', 1)
-    return base * crit * over * strain * damageAdd1 * damageAdd2 * shieldRate * npcCoefficient
+    return base * crit * over * strain * damageAdd1 * damageAdd2 * shieldRate * npcCoefficient * finalCoefficient
 
 class BoostCounter():
     '''
@@ -161,6 +176,7 @@ class BoostCounter():
         isPoZhao = 0
         isSangRou = 0
         isPiaoHuang = 0
+        isFixedEquipmentDamage = skill in FIXED_EQUIPMENT_DAMAGE
         if skill == "破招":
             isPoZhao = 1
         if skill == "桑柔":
@@ -184,7 +200,7 @@ class BoostCounter():
         for boost in self.targetBoost[target]:
             if self.targetBoost[target][boost]["source"] == self.playerid:
                 targetBoosts.append(self.targetBoost[target][boost]["effect"])
-        coeffSelf = getDamageCoeff(self.occ, finalAttrib, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao, isSangRou=isSangRou, isPiaoHuang=isPiaoHuang, gameEdition=self.gameEdition, targetProfile=self.targetProfiles.get(target))
+        coeffSelf = getDamageCoeff(self.occ, finalAttrib, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao, isSangRou=isSangRou, isPiaoHuang=isPiaoHuang, gameEdition=self.gameEdition, targetProfile=self.targetProfiles.get(target), isFixedEquipmentDamage=isFixedEquipmentDamage)
 
 
         # 计算全增益的伤害
@@ -197,7 +213,7 @@ class BoostCounter():
         targetBoosts = []
         for boost in self.targetBoost[target]:
             targetBoosts.append(self.targetBoost[target][boost]["effect"])
-        coeffAll = getDamageCoeff(self.occ, finalAttrib1, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao, isSangRou=isSangRou, isPiaoHuang=isPiaoHuang, gameEdition=self.gameEdition, targetProfile=self.targetProfiles.get(target))
+        coeffAll = getDamageCoeff(self.occ, finalAttrib1, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao, isSangRou=isSangRou, isPiaoHuang=isPiaoHuang, gameEdition=self.gameEdition, targetProfile=self.targetProfiles.get(target), isFixedEquipmentDamage=isFixedEquipmentDamage)
 
         self.attributeData2.setBoosts(boosts)
         self.attributeData2.getFinalAttrib()
@@ -237,7 +253,7 @@ class BoostCounter():
 
             finalAttrib2 = self.attributeData2.removeBoostAndGetAttrib(self.boost[baseBoost]["effect"])
             self.attributeData2.addBoostAndGetAttrib(self.boost[baseBoost]["effect"])
-            coeffSpecific2 = getDamageCoeff(self.occ, finalAttrib2, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao, isSangRou=isSangRou, isPiaoHuang=isPiaoHuang, gameEdition=self.gameEdition, targetProfile=self.targetProfiles.get(target))
+            coeffSpecific2 = getDamageCoeff(self.occ, finalAttrib2, targetBoosts, lvl=self.lvl, isPoZhao=isPoZhao, isSangRou=isSangRou, isPiaoHuang=isPiaoHuang, gameEdition=self.gameEdition, targetProfile=self.targetProfiles.get(target), isFixedEquipmentDamage=isFixedEquipmentDamage)
 
             # if baseBoost == "2,29294,1":
             #     print("[pfAfter]", coeffSpecific2, finalAttrib2)
@@ -270,7 +286,7 @@ class BoostCounter():
             for boost in self.targetBoost[target]:
                 if boost != baseBoost:
                     targetBoosts2.append(self.targetBoost[target][boost]["effect"])
-            coeffSpecific = getDamageCoeff(self.occ, finalAttrib, targetBoosts2, lvl=self.lvl, isPoZhao=isPoZhao, isSangRou=isSangRou, isPiaoHuang=isPiaoHuang, gameEdition=self.gameEdition, targetProfile=self.targetProfiles.get(target))
+            coeffSpecific = getDamageCoeff(self.occ, finalAttrib, targetBoosts2, lvl=self.lvl, isPoZhao=isPoZhao, isSangRou=isSangRou, isPiaoHuang=isPiaoHuang, gameEdition=self.gameEdition, targetProfile=self.targetProfiles.get(target), isFixedEquipmentDamage=isFixedEquipmentDamage)
 
             # if baseBoost == "2,566,1" and coeffAll != coeffSpecific:
             #     print("[pfStart]", coeffAll, finalAttrib, targetBoosts)
@@ -313,7 +329,15 @@ class BoostCounter():
             return {'self': {'source': self.playerid, 'rate': 1.0}}
         # NPCs with different defenses must keep separate coefficient caches.
         self.targetBoost.setdefault(target, {})
-        if skillName in ["逐云寒蕊"]:
+        # JCL stores a quoted full_id while some importers pass the bare ID.
+        # Remove one complete pair only; malformed/partial IDs must not match.
+        if isinstance(skill, str) and len(skill) >= 2 and skill[0] == skill[-1] == '"':
+            skill = skill[1:-1]
+        if skill in FIXED_EQUIPMENT_DAMAGE and not self.occ.endswith('w'):
+            # Preserve the complete identity in the cache. Similar names,
+            # nearby IDs, buff scheme and other levels use the normal model.
+            pass
+        elif skillName in ["逐云寒蕊"]:
             skill = "逐云寒蕊"
         elif skillName in ["相知·玉简"]:
             skill = "相知玉简"

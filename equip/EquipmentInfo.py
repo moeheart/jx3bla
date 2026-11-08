@@ -86,7 +86,8 @@ class EquipmentInfo():
             if attribID in ["", "0", 0, "atInvalid"]:
                 continue
             attribRes = self.attrib[attribID]
-            attributes = self.staticAttribute(attribRes[0], attribRes[1], "装备%s词条%s" % (full_id, attribID))
+            attributes = self.staticAttribute(attribRes[0], attribRes[1], "装备%s词条%s" % (full_id, attribID),
+                                              self.attribParameters.get(attribID, {}).get('value2', ''))
             for name, value in attributes.items():
                 # 当前客户端只精炼 Magic 词条；白字武器伤害、攻速、基础防御不参与。
                 if name in self.strengthable:
@@ -133,12 +134,19 @@ class EquipmentInfo():
             result[name] = value
         return result
 
-    def staticAttribute(self, name, value, source):
+    def staticAttribute(self, name, value, source, value2=''):
         """只返回可直接相加的数值；脚本/技能效果 ID 不能充当面板数值。"""
         if not name or name == "atInvalid":
             return {}
         if name in KNOWN_NON_NUMERIC_EFFECTS:
-            self.unsupportedEffects.add("%s: %s" % (source, name))
+            warning = "%s: %s" % (source, name)
+            self.unsupportedEffects.add(warning)
+            # Keep the exact effect identity. Its numeric-looking parameters
+            # are IDs/levels, never character panel attributes. AttributeDisplay
+            # resolves only audited identities in the actual kungfu context.
+            self.effects.append({'type': name, 'value1': str(value or ''),
+                                 'value2': str(value2 or ''), 'source': source,
+                                 'warning': warning})
             return {}
         try:
             return {name: int(value or 0)}
@@ -194,12 +202,14 @@ class EquipmentInfo():
                 else:
                     content = line.strip('\n').split('\t')
                     self.attrib[content[0]] = [content[2], content[3]]  # 只记录最简单的形式
+                    self.attribParameters[content[0]] = {'value2': content[5]}
 
         ENCHANT_PATH = self.resourceRoot + '/enchant.tab'
         # 以列名读取全部四条附魔效果；五彩石条件与普通附魔共用同一源表。
         for row in self.readRows(ENCHANT_PATH):
             self.enchantAttributes[row['ID']] = [
-                (row.get('Attribute%dID' % i, ''), row.get('Attribute%dValue1' % i, ''))
+                (row.get('Attribute%dID' % i, ''), row.get('Attribute%dValue1' % i, ''),
+                 row.get('Attribute%dValue2' % i, ''))
                 for i in range(1, 5)
             ]
             self.enchant[row['ID']] = [
@@ -251,6 +261,7 @@ class EquipmentInfo():
         self.resourceRoot = 'equip/resources/cangshengtf'
         self.data = {}
         self.attrib = {}
+        self.attribParameters = {}
         self.enchant = {}
         self.enchantAttributes = {}
         self.color = {}
@@ -259,3 +270,4 @@ class EquipmentInfo():
         self.headerID = {}
         self.strengthable = set()
         self.unsupportedEffects = set()
+        self.effects = []

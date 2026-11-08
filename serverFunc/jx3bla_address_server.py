@@ -10,7 +10,7 @@ PORT = 8033
 
 ADDRESS_DATA = {
     "api": {"host": "jx3bla.moeheart.cn", "port": 80},
-    "logs": {"host": "jx3bla.moeheart.cn", "port": 80},
+    "logs": {"scheme": "https", "host": "jx3bla.moeheart.cn", "port": 443},
 }
 
 

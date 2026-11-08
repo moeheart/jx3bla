@@ -65,6 +65,10 @@ COEFF50 = {
 
 # 内容为：属性意义、是否为“基础值”、影响外功、影响阳性内功、影响阴性内功、影响混元内功、影响毒性内功、直接提升最终值的系数
 ATTRIB_TYPE = {
+    # Scripted SuperCustomDamage explicitly multiplies these independent
+    # final pools. Keep them separate from ordinary all-damage bonuses.
+    "atGamePlayDamageFinalCof": ["玩法最终伤害", 1, 1, 1, 1, 1, 1, 0],
+    "atActivityDamageFinalCof": ["活动最终伤害", 1, 1, 1, 1, 1, 1, 0],
     # 会心
     "atAllTypeCriticalStrike": ["会心", 1, 1, 1, 1, 1, 1, 0],
     "atPhysicsCriticalStrike": ["会心", 1, 1, 0, 0, 0, 0, 0],

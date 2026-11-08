@@ -535,7 +535,7 @@ class ClientUploadQueueTests(unittest.TestCase):
                 self.assertIs(app.uploadData, queue)
                 self.assertEqual(anchor, {"overall": {}})
                 self.assertEqual(request.call_count, 1)
-                self.assertEqual(request.call_args.kwargs["timeout"], 30)
+                self.assertEqual(request.call_args.kwargs["timeout"], 120)
                 notice = app.setNotice.call_args.args[0]
                 self.assertIn("失败", notice["t1"])
                 self.assertIn("保留", notice["t2"])

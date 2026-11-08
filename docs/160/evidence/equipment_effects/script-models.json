@@ -1,0 +1,32 @@
+[
+  {
+    "type": "atExecuteScript",
+    "value1": "skill/装备/苍生铸世赛季输出衣服附魔_1110.lua",
+    "value2": "0",
+    "name": "定尘血石·伤·衣",
+    "ordinaryHandling": "static_attributes",
+    "staticAttributes": {
+      "atAllTypeAttackPowerBase": 81,
+      "atBeTherapyCoefficient": -102
+    },
+    "evidence": "script-evidence.json#16678"
+  },
+  {
+    "type": "atExecuteScript",
+    "value1": "skill/装备/苍生铸世赛季输出帽子附魔_1110.lua",
+    "value2": "0",
+    "name": "定尘血石·伤·帽",
+    "ordinaryHandling": "logged_event",
+    "staticAttributes": {},
+    "evidence": "script-evidence.json#16679"
+  },
+  {
+    "type": "atExecuteScript",
+    "value1": "skill/装备/帽子_新附魔_治疗非战斗附魔减读条.lua",
+    "value2": "0",
+    "name": "定尘血石·疗·帽",
+    "ordinaryHandling": "non_combat",
+    "staticAttributes": {},
+    "evidence": "script-evidence.json#16674"
+  }
+]

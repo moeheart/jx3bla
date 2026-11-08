@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "clientVersion": "1.6.0.10072",
+  "archivedTableReference": "1.6.0.10009",
+  "boundary": "Fresh Lua bodies are 10072 evidence, not a claim that unavailable 10009 Lua bytes were identical.",
+  "files": [
+    {
+      "origin": "scripts/skill/装备/帽子_新附魔_治疗非战斗附魔减读条.lua",
+      "clientVersion": "1.6.0.10072",
+      "sha256": "5988b223b8f26c678ad27b28c92df52e6b1ecaf7c1dc310e5e7546cbda206453",
+      "size": 13212,
+      "readableMethod": "plaintext",
+      "readableSha256": "7b99328f8085689dd981526d52da85b43f808c492ede9fdd42fa917f696b5a8c",
+      "rawPath": "scripts/raw/scripts/skill/装备/帽子_新附魔_治疗非战斗附魔减读条.lua",
+      "readablePath": "scripts/readable/scripts/skill/装备/帽子_新附魔_治疗非战斗附魔减读条.lua"
+    },
+    {
+      "origin": "scripts/skill/装备/苍生铸世赛季输出帽子附魔_1110.lua",
+      "clientVersion": "1.6.0.10072",
+      "sha256": "97ccefe39b0475d0f2e4d8fd427e215023fc825f53486d1225133e597201218b",
+      "size": 1170,
+      "readableMethod": "unluac --rawstring and LuaService-compatible string decoding",
+      "readableSha256": "f9db6e412f1a7cb37648874c962bb5c2a95bf22252399bc8c0ba6d6043e4802c",
+      "rawPath": "scripts/raw/scripts/skill/装备/苍生铸世赛季输出帽子附魔_1110.lua",
+      "readablePath": "scripts/readable/scripts/skill/装备/苍生铸世赛季输出帽子附魔_1110.lua"
+    },
+    {
+      "origin": "scripts/skill/装备/苍生铸世赛季输出衣服附魔_1110.lua",
+      "clientVersion": "1.6.0.10072",
+      "sha256": "578910745e8e6c5276cc94483a98d8fc4871e251311223d5dcf1edd464baf2e6",
+      "size": 1123,
+      "readableMethod": "unluac --rawstring and LuaService-compatible string decoding",
+      "readableSha256": "4fb4179206959915eaff159c903c9586beccaed48f90e7e49eb6246c8a612f27",
+      "rawPath": "scripts/raw/scripts/skill/装备/苍生铸世赛季输出衣服附魔_1110.lua",
+      "readablePath": "scripts/readable/scripts/skill/装备/苍生铸世赛季输出衣服附魔_1110.lua"
+    },
+    {
+      "origin": "scripts/skill/item/新附魔_头学习秘籍.lua",
+      "clientVersion": "1.6.0.10072",
+      "sha256": "8805ff6e54599f92dd420eefc1bd1ba9a06c80fdb6c859e010c0b82f42733326",
+      "size": 4370,
+      "readableMethod": "plaintext",
+      "readableSha256": "884ffededf79ca590d786523c2f2c12b55255a79667a32dadd24197ed4a60a77",
+      "rawPath": "scripts/raw/scripts/skill/item/新附魔_头学习秘籍.lua",
+      "readablePath": "scripts/readable/scripts/skill/item/新附魔_头学习秘籍.lua"
+    },
+    {
+      "origin": "scripts/skill/装备/苍生铸世赛季气血循环判定_1110.lua",
+      "clientVersion": "1.6.0.10072",
+      "sha256": "f0ba6b62f9df0ac1bf149fda330b08fbc87004fa1915ddf244628470c69a401a",
+      "size": 1193,
+      "readableMethod": "unluac --rawstring and LuaService-compatible string decoding",
+      "readableSha256": "ca9dda0f80797c1d9b283ba1e85265067f44ac9642c854f3ea7a273164a19dc3",
+      "rawPath": "scripts/raw/scripts/skill/装备/苍生铸世赛季气血循环判定_1110.lua",
+      "readablePath": "scripts/readable/scripts/skill/装备/苍生铸世赛季气血循环判定_1110.lua"
+    },
+    {
+      "origin": "scripts/skill/装备/输出通用附魔减疗加伤害.lua",
+      "clientVersion": "1.6.0.10072",
+      "sha256": "2c1cbe62dabdb5a3979d16386782802e19c828373bc40064bcaa8ce11feebac2",
+      "size": 2503,
+      "readableMethod": "unluac --rawstring and LuaService-compatible string decoding",
+      "readableSha256": "18b7237cbae39be1e9cf3869e61f94a66ecfde5808902e8fac7ce7d2a4b80d88",
+      "rawPath": "scripts/raw/scripts/skill/装备/输出通用附魔减疗加伤害.lua",
+      "readablePath": "scripts/readable/scripts/skill/装备/输出通用附魔减疗加伤害.lua"
+    }
+  ]
+}

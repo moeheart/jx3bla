@@ -31,6 +31,17 @@ from Constants import *
 from tools.Functions import *
 from tools.Preload import *
 
+
+def get_upload_timeout(payload_bytes):
+    """Budget a combined form at 16 KiB/s plus 60 seconds for its response.
+
+    urllib applies this one timeout to blocking socket operations, not to a
+    separate connection/read phase or the total transaction. Keep it bounded.
+    """
+    transfer_seconds = (payload_bytes + 16 * 1024 - 1) // (16 * 1024)
+    return min(600, max(120, transfer_seconds + 60))
+
+
 class SingleBlockLocker():
     '''
     维护一个简单的锁，可以在对象之间传递
@@ -112,7 +123,8 @@ class MainWindow():
         jpost = {'jdata': Jdata}
         jparse = urllib.parse.urlencode(jpost).encode('utf-8')
         try:
-            with urllib.request.urlopen(get_api_url('/uploadCombinedData'), data=jparse, timeout=30) as resp:
+            with urllib.request.urlopen(get_api_url('/uploadCombinedData'), data=jparse,
+                                        timeout=get_upload_timeout(len(jparse))) as resp:
                 res = json.load(resp)
             if not isinstance(res, dict) or res.get("status") not in ("success", "fail"):
                 raise ValueError("Invalid upload response")

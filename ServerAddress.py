@@ -12,7 +12,7 @@ ADDRESS_SERVICE_TIMEOUT = 2
 
 FALLBACK_ADDRESS = {
     "api": {"scheme": "http", "host": "jx3bla.moeheart.cn", "port": 80},
-    "logs": {"scheme": "http", "host": "jx3bla.moeheart.cn", "port": 80},
+    "logs": {"scheme": "https", "host": "jx3bla.moeheart.cn", "port": 443},
 }
 
 _address_cache = None
@@ -43,8 +43,20 @@ def _load_remote_address():
         data = json.load(resp)
     return {
         "api": _normalize_target(data.get("api"), FALLBACK_ADDRESS["api"]),
-        "logs": _normalize_target(data.get("logs"), FALLBACK_ADDRESS["logs"]),
+        "logs": _normalize_logs_target(data.get("logs")),
     }
+
+
+def _normalize_logs_target(value):
+    """Keep explicit/legacy remote targets independent of the HTTPS fallback."""
+    if not isinstance(value, dict) or not any(key in value for key in ("scheme", "host", "port")):
+        return copy.deepcopy(FALLBACK_ADDRESS["logs"])
+    value = dict(value)
+    # The original address service omitted scheme and meant HTTP. Do not turn
+    # an explicit old host:80 target into HTTPS:80 after changing the fallback.
+    value.setdefault("scheme", "http")
+    value.setdefault("port", 443 if value["scheme"] == "https" else 80)
+    return _normalize_target(value, FALLBACK_ADDRESS["logs"])
 
 
 def get_address_config():

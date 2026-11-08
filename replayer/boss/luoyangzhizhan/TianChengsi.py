@@ -1,6 +1,7 @@
 """田承嗣：本体/天陨巨剑、军阵点名、承剑控制与真实通关证据。"""
 from replayer.boss.General import GeneralReplayer
 from window.SpecificBossWindow import SpecificBossWindow
+from replayer.boss.luoyangzhizhan.WinEvidence import LuoyangWinEvidence
 from replayer.boss.luoyangzhizhan.LuoyangEvidence import (
     npc_matches, record_target_damage, record_call_buff, set_confirmed_win,
     record_environment, record_hit, record_phase, record_shout, finalize_evidence, render_boss_window,
@@ -49,6 +50,7 @@ class TianChengsiReplayer(GeneralReplayer):
     def initBattle(self):
         super().initBattle()
         self.activeBoss = "田承嗣"
+        self.victoryEvidence = LuoyangWinEvidence(self, self.activeBoss, self.MAIN)
         self.initPhase(5, 1)
         self.lastMainDamage = None
         self.combatEndCandidate = None
@@ -56,12 +58,13 @@ class TianChengsiReplayer(GeneralReplayer):
         self.detail["phaseTransitions"] = [{"time": self.startTime, "phase": 1, "name": "交战"}]
         self.detail["swords"] = []
         self.swordRecords = {}
-        self.detail["limitations"] = "按喊话、巨剑出场与重伤划段；本体脱战可裁剪尾录，但无宝箱、重伤或结束喊话时不确认通关。"
+        self.detail["limitations"] = "按喊话、巨剑出场与重伤划段；通关可由宝箱、本体重伤或明确击败进度与同一本体近期受伤、脱战联合确认，普通脱战不单独判胜。"
         for npc_id in self.bld.info.npc:
             if npc_matches(self, npc_id, self.MAIN):
                 self.bh.setMainTarget(npc_id)
 
     def analyseSecondStage(self, event):
+        self.victoryEvidence.observe(event)
         if event.dataType in ("Scene", "Death"):
             if npc_matches(self, event.id, ("140050",)) and (event.dataType == "Death" or event.enter):
                 set_confirmed_win(self, event.time, "田承嗣专属宝箱")
@@ -127,6 +130,10 @@ class TianChengsiReplayer(GeneralReplayer):
                     self.stunCounter[event.target].setState(event.time, int(event.stack > 0))
 
     def trimTime(self):
+        evidence = self.victoryEvidence.resolve()
+        if evidence is not None and not self.win and not self.detail.get("resetTime"):
+            set_confirmed_win(self, evidence["time"], evidence["rule"])
+            self.detail["winEvidence"][-1].update(evidence)
         if self.combatEndCandidate is not None and not self.win and not self.detail.get("resetTime"):
             self.trimmedFinalTime = min(self.trimmedFinalTime or self.combatEndCandidate,
                                         self.combatEndCandidate)
