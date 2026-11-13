@@ -1,0 +1,296 @@
+{
+  "version": "8.16.8",
+  "runtimeCommit": "b3928262aaf47818f807760048f0344a794ccbbf",
+  "tests": {
+    "testsRun": 410,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 415.832,
+    "sourceStable": true
+  },
+  "javascriptTalentTests": {
+    "testsRun": 8,
+    "failures": 0
+  },
+  "personalWindows": {
+    "count": 125,
+    "callbackErrors": [],
+    "mode": "actual complete Tk renderers from all 125 real replay results"
+  },
+  "timeline": [
+    {
+      "boss": "突利和顺",
+      "baselineVisible": 37,
+      "currentVisible": 19,
+      "labelAndTimeBoxes": 38,
+      "collisionCount": 0,
+      "boundsOk": true,
+      "allNodesStyledWithPackagedIcon": true
+    },
+    {
+      "boss": "田承嗣",
+      "baselineVisible": 88,
+      "currentVisible": 64,
+      "labelAndTimeBoxes": 128,
+      "collisionCount": 0,
+      "boundsOk": true,
+      "allNodesStyledWithPackagedIcon": true
+    },
+    {
+      "boss": "伊曼双子",
+      "baselineVisible": 120,
+      "currentVisible": 88,
+      "labelAndTimeBoxes": 176,
+      "collisionCount": 0,
+      "boundsOk": true,
+      "allNodesStyledWithPackagedIcon": true
+    },
+    {
+      "boss": "阿史那承庆",
+      "baselineVisible": 72,
+      "currentVisible": 58,
+      "labelAndTimeBoxes": 116,
+      "collisionCount": 0,
+      "boundsOk": true,
+      "allNodesStyledWithPackagedIcon": true
+    },
+    {
+      "boss": "史朝义",
+      "baselineVisible": 94,
+      "currentVisible": 54,
+      "labelAndTimeBoxes": 108,
+      "collisionCount": 0,
+      "boundsOk": true,
+      "allNodesStyledWithPackagedIcon": true
+    }
+  ],
+  "encounters": [
+    {
+      "boss": "突利和顺",
+      "players": 25,
+      "win": 1,
+      "preciseReplayCount": 25,
+      "equipmentWarningCount": 0,
+      "timelineEvents": 19,
+      "requestBytes": 1172941,
+      "uniqueReplayIDs": 25,
+      "readback": "passed",
+      "duplicateIDs": "stable",
+      "conservation": {
+        "directDamage": 268934251.0,
+        "redistributedDamage": 268934251.0,
+        "mainTargetDamage": 268934251.0,
+        "redistributedMainTargetDamage": 268934251.0,
+        "excludedNpcDamage": 0.0,
+        "conservationError": 0.0,
+        "mainTargetConservationError": 0.0
+      },
+      "ui": {
+        "bossWindow": "TuliHeshunWindow",
+        "widgets": "constructed",
+        "rdps": "supported",
+        "requestedWidth": 1450,
+        "requestedHeight": 883,
+        "configuredGeometry": "1450x883+555+258",
+        "screenWidth": 2560,
+        "screenHeight": 1440,
+        "table": {
+          "scrollable": true,
+          "tableWidth": 928,
+          "tableHeight": 773,
+          "scrollRegion": [
+            0.0,
+            0.0,
+            1433.0,
+            773.0
+          ],
+          "viewportWidth": 1433,
+          "viewportHeight": 773,
+          "allRowsVisible": true
+        }
+      }
+    },
+    {
+      "boss": "田承嗣",
+      "players": 25,
+      "win": 1,
+      "preciseReplayCount": 25,
+      "equipmentWarningCount": 0,
+      "timelineEvents": 64,
+      "requestBytes": 1371598,
+      "uniqueReplayIDs": 25,
+      "readback": "passed",
+      "duplicateIDs": "stable",
+      "conservation": {
+        "directDamage": 278508326.0,
+        "redistributedDamage": 278508325.9999999,
+        "mainTargetDamage": 248200000.0,
+        "redistributedMainTargetDamage": 248200000.00000006,
+        "excludedNpcDamage": 0.0,
+        "conservationError": -1.1920928955078125e-07,
+        "mainTargetConservationError": 5.960464477539063e-08
+      },
+      "ui": {
+        "bossWindow": "TianChengsiWindow",
+        "widgets": "constructed",
+        "rdps": "supported",
+        "requestedWidth": 1450,
+        "requestedHeight": 883,
+        "configuredGeometry": "1450x883+555+258",
+        "screenWidth": 2560,
+        "screenHeight": 1440,
+        "table": {
+          "scrollable": true,
+          "tableWidth": 927,
+          "tableHeight": 773,
+          "scrollRegion": [
+            0.0,
+            0.0,
+            1433.0,
+            773.0
+          ],
+          "viewportWidth": 1433,
+          "viewportHeight": 773,
+          "allRowsVisible": true
+        }
+      }
+    },
+    {
+      "boss": "伊曼双子",
+      "players": 25,
+      "win": 1,
+      "preciseReplayCount": 25,
+      "equipmentWarningCount": 0,
+      "timelineEvents": 88,
+      "requestBytes": 1491754,
+      "uniqueReplayIDs": 25,
+      "readback": "passed",
+      "duplicateIDs": "stable",
+      "conservation": {
+        "directDamage": 379721315.0,
+        "redistributedDamage": 379721314.9999998,
+        "mainTargetDamage": 364750248.0,
+        "redistributedMainTargetDamage": 364750247.9999999,
+        "excludedNpcDamage": 0.0,
+        "conservationError": -1.7881393432617188e-07,
+        "mainTargetConservationError": -1.1920928955078125e-07
+      },
+      "ui": {
+        "bossWindow": "YimanTwinsWindow",
+        "widgets": "constructed",
+        "rdps": "supported",
+        "requestedWidth": 1450,
+        "requestedHeight": 883,
+        "configuredGeometry": "1450x883+555+258",
+        "screenWidth": 2560,
+        "screenHeight": 1440,
+        "table": {
+          "scrollable": true,
+          "tableWidth": 980,
+          "tableHeight": 773,
+          "scrollRegion": [
+            0.0,
+            0.0,
+            1433.0,
+            773.0
+          ],
+          "viewportWidth": 1433,
+          "viewportHeight": 773,
+          "allRowsVisible": true
+        }
+      }
+    },
+    {
+      "boss": "阿史那承庆",
+      "players": 25,
+      "win": 1,
+      "preciseReplayCount": 25,
+      "equipmentWarningCount": 0,
+      "timelineEvents": 58,
+      "requestBytes": 1545676,
+      "uniqueReplayIDs": 25,
+      "readback": "passed",
+      "duplicateIDs": "stable",
+      "conservation": {
+        "directDamage": 464759785.0,
+        "redistributedDamage": 464759784.9999997,
+        "mainTargetDamage": 428580000.0,
+        "redistributedMainTargetDamage": 428579999.99999976,
+        "excludedNpcDamage": 0.0,
+        "conservationError": -2.980232238769531e-07,
+        "mainTargetConservationError": -2.384185791015625e-07
+      },
+      "ui": {
+        "bossWindow": "LuoyangAshinaChengqingWindow",
+        "widgets": "constructed",
+        "rdps": "supported",
+        "requestedWidth": 1450,
+        "requestedHeight": 889,
+        "configuredGeometry": "1450x889+555+255",
+        "screenWidth": 2560,
+        "screenHeight": 1440,
+        "table": {
+          "scrollable": true,
+          "tableWidth": 995,
+          "tableHeight": 773,
+          "scrollRegion": [
+            0.0,
+            0.0,
+            1433.0,
+            773.0
+          ],
+          "viewportWidth": 1433,
+          "viewportHeight": 773,
+          "allRowsVisible": true
+        }
+      }
+    },
+    {
+      "boss": "史朝义",
+      "players": 25,
+      "win": 1,
+      "preciseReplayCount": 25,
+      "equipmentWarningCount": 0,
+      "timelineEvents": 54,
+      "requestBytes": 1810828,
+      "uniqueReplayIDs": 25,
+      "readback": "passed",
+      "duplicateIDs": "stable",
+      "conservation": {
+        "directDamage": 517044030.0,
+        "redistributedDamage": 517044029.99999994,
+        "mainTargetDamage": 445340072.0,
+        "redistributedMainTargetDamage": 445340072.0000001,
+        "excludedNpcDamage": 0.0,
+        "conservationError": -5.960464477539063e-08,
+        "mainTargetConservationError": 1.1920928955078125e-07
+      },
+      "ui": {
+        "bossWindow": "ShiChaoyiWindow",
+        "widgets": "constructed",
+        "rdps": "supported",
+        "requestedWidth": 1450,
+        "requestedHeight": 912,
+        "configuredGeometry": "1450x912+555+244",
+        "screenWidth": 2560,
+        "screenHeight": 1440,
+        "table": {
+          "scrollable": true,
+          "tableWidth": 1050,
+          "tableHeight": 773,
+          "scrollRegion": [
+            0.0,
+            0.0,
+            1433.0,
+            773.0
+          ],
+          "viewportWidth": 1433,
+          "viewportHeight": 773,
+          "allRowsVisible": true
+        }
+      }
+    }
+  ],
+  "scope": "Original JCL and player records remain local; no production player uploads in validation."
+}
