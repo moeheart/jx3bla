@@ -3,6 +3,7 @@ import tkinter as tk
 
 from replayer.TableConstructorMeta import TableConstructorMeta
 from tools.Functions import parseTime
+from data.DataContent import get_reflected_damage
 
 
 def npc_matches(replayer, npc_id, templates, names=()):
@@ -17,11 +18,39 @@ def npc_matches(replayer, npc_id, templates, names=()):
 
 def record_target_damage(replayer, event, key):
     if event.caster in replayer.statDict and event.damageEff > 0:
-        line = replayer.statDict[event.caster]
-        line[key] = line.get(key, 0) + event.damageEff
+        record_stat(replayer, event.time, event.caster, key, event.damageEff)
 
 
-def record_call_buff(replayer, event, label, icon="341"):
+def reflected_contributions(replayer, event, groups):
+    """Classify an evidenced reverse damage component without changing the event."""
+    if not replayer.startTime <= event.time <= replayer.finalTime:
+        return
+    reflected = get_reflected_damage(event, replayer.bld.info)
+    if reflected is None:
+        return
+    player, target, amount = reflected
+    if player not in replayer.statDict:
+        return
+    for key, targets in groups.items():
+        matched = targets(target) if callable(targets) else npc_matches(replayer, target, targets)
+        if matched:
+            yield player, key, amount
+
+
+def record_reflected_target_damage(replayer, event, groups):
+    """Use the same reversible ledger as direct damage, without win evidence."""
+    for player, key, amount in reflected_contributions(replayer, event, groups):
+        record_stat(replayer, event.time, player, key, amount)
+
+
+def record_stat(replayer, time, player, key, amount=1):
+    """First-three counters retain time so a later cutoff can remove tail events."""
+    line = replayer.statDict[player]
+    line[key] = line.get(key, 0) + amount
+    replayer.__dict__.setdefault("_luoyangContributions", []).append((time, player, key, amount))
+
+
+def record_call_buff(replayer, event, label, icon="341", stat_key=None):
     """Pair observed apply/remove edges; refreshing stacks is not a new call."""
     if event.target not in replayer.statDict:
         return False
@@ -30,6 +59,8 @@ def record_call_buff(replayer, event, label, icon="341"):
     if event.stack > 0:
         if key not in active:
             active[key] = (event.time, label, icon)
+            if stat_key is not None:
+                record_stat(replayer, event.time, event.target, stat_key)
             return True
     elif key in active:
         start, label, icon = active.pop(key)
@@ -58,6 +89,9 @@ def finish_calls(replayer):
 
 def set_confirmed_win(replayer, event_time, rule):
     """Only call for boss-owned death/chest/end dialogue, never file ordering."""
+    cutoff = min(replayer.finalTime, replayer.trimmedFinalTime or replayer.finalTime)
+    if event_time > cutoff:
+        return
     replayer.detail.setdefault("winEvidence", []).append({"time": event_time, "rule": rule})
     previous = replayer.__dict__.get("winTime")
     if previous is None or event_time < previous:
@@ -94,8 +128,7 @@ def record_hit(replayer, event, key, label):
     if event.time - seen.get(identity, -100000) < 500:
         return
     seen[identity] = event.time
-    line = replayer.statDict[event.target]
-    line[key] = line.get(key, 0) + 1
+    record_stat(replayer, event.time, event.target, key)
     replayer.detail.setdefault("mechanicHits", []).append({
         "player": replayer.bld.info.getName(event.target), "playerID": event.target,
         "time": event.time, "id": event.id, "name": label,
@@ -171,7 +204,28 @@ def finalize_phase_periods(replayer, phase_names, transitions_key="phaseTransiti
 
 
 def finalize_evidence(replayer, phase_names, damage_keys=()):
+    if replayer.__dict__.get("_luoyangEvidenceFinalized"):
+        return
+    replayer._luoyangEvidenceFinalized = True
+    end = replayer.finalTime
     finish_calls(replayer)
+    # Completion and combat-exit evidence can be resolved only after all events
+    # are scanned. Closed calls and counters must obey that same late boundary.
+    for player, calls in replayer.bh.log["call"].items():
+        replayer.bh.log["call"][player] = [entry for entry in calls if entry["start"] <= end]
+        for entry in replayer.bh.log["call"][player]:
+            entry["duration"] = min(entry["duration"], max(0, end-entry["start"]))
+    if "mechanics" in replayer.detail:
+        replayer.detail["mechanics"] = [entry for entry in replayer.detail["mechanics"] if entry["start"] <= end]
+        for entry in replayer.detail["mechanics"]:
+            if entry["end"] > end:
+                entry["truncated"] = True
+            entry["end"] = max(entry["start"], min(entry["end"], end))
+    for time, player, key, amount in replayer.__dict__.pop("_luoyangContributions", []):
+        if time > end:
+            replayer.statDict[player][key] -= amount
+    replayer.detail["mechanicHits"] = [entry for entry in replayer.detail.get("mechanicHits", [])
+                                       if entry["time"] <= end]
     finalize_phase_periods(replayer, phase_names)
     for counter in replayer.stunCounter.values():
         counter.finalTime = replayer.finalTime
@@ -214,8 +268,23 @@ def render_boss_window(window, title, columns):
             "%s %.3f秒%s" % (entry["name"], entry["duration"],
                               "（截至记录结束）" if entry.get("truncated") else "")
             for entry in transitions), wraplength=1400, justify="left").pack()
-    frame = tk.Frame(window.window)
-    frame.pack()
+    # Heroic mechanics add columns and a full 25-player roster can exceed the
+    # fixed window height. Keep the entire table reachable at any screen size.
+    viewport = tk.Frame(window.window)
+    viewport.pack(fill="both", expand=True)
+    canvas = tk.Canvas(viewport, height=450, width=1400, highlightthickness=0)
+    vertical = tk.Scrollbar(viewport, orient="vertical", command=canvas.yview)
+    horizontal = tk.Scrollbar(viewport, orient="horizontal", command=canvas.xview)
+    canvas.configure(yscrollcommand=vertical.set, xscrollcommand=horizontal.set)
+    canvas.grid(row=0, column=0, sticky="nsew")
+    vertical.grid(row=0, column=1, sticky="ns")
+    horizontal.grid(row=1, column=0, sticky="ew")
+    viewport.rowconfigure(0, weight=1)
+    viewport.columnconfigure(0, weight=1)
+    frame = tk.Frame(canvas)
+    canvas.create_window((0, 0), window=frame, anchor="nw")
+    frame.bind("<Configure>", lambda _: canvas.configure(scrollregion=canvas.bbox("all")))
+    window.statsCanvas = canvas
     table = TableConstructorMeta(window.config, frame)
     window.constructCommonHeader(table, "")
     for key, label, description in columns:
@@ -231,4 +300,10 @@ def render_boss_window(window, title, columns):
         else:
             table.AppendContext("")
         table.EndOfLine()
+    def bind_scroll(widget):
+        widget.bind("<MouseWheel>", lambda event: canvas.yview_scroll(-int(event.delta / 120), "units"))
+        widget.bind("<Shift-MouseWheel>", lambda event: canvas.xview_scroll(-int(event.delta / 120), "units"))
+        for child in widget.winfo_children():
+            bind_scroll(child)
+    bind_scroll(canvas)
     window.constructNavigator()

@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "clientVersion": "1.6.0.10086",
+  "archivedTableReference": "1.6.0.10082",
+  "protectedUnchanged": true,
+  "files": [
+    {
+      "origin": "scripts/skill/装备/苍生铸世赛季气血循环判定_1110.lua",
+      "sha256": "f0ba6b62f9df0ac1bf149fda330b08fbc87004fa1915ddf244628470c69a401a",
+      "size": 1193,
+      "readableSha256": "ca9dda0f80797c1d9b283ba1e85265067f44ac9642c854f3ea7a273164a19dc3",
+      "readableMethod": "unluac --rawstring and LuaService-compatible string decoding",
+      "clientVersion": "1.6.0.10086",
+      "extractionStage": "event-fresh-10086-02",
+      "rawPath": "script-sources/raw/scripts/skill/装备/苍生铸世赛季气血循环判定_1110.lua",
+      "readablePath": "script-sources/readable/scripts/skill/装备/苍生铸世赛季气血循环判定_1110.lua"
+    },
+    {
+      "origin": "scripts/skill/装备/苍生铸世赛季气血循环判定_1280.lua",
+      "sha256": "624b200abb2c863bdc34a111b385cc8c6fdc1c0b5d3aae7f834f8609536f8a05",
+      "size": 1193,
+      "readableSha256": "facec1ba321f087ec93f095d78d8d0a59d4d8a4e63e6c884d7704a9a28405ef1",
+      "readableMethod": "unluac --rawstring and LuaService-compatible string decoding",
+      "clientVersion": "1.6.0.10086",
+      "extractionStage": "event-fresh-10086-02",
+      "rawPath": "script-sources/raw/scripts/skill/装备/苍生铸世赛季气血循环判定_1280.lua",
+      "readablePath": "script-sources/readable/scripts/skill/装备/苍生铸世赛季气血循环判定_1280.lua"
+    },
+    {
+      "origin": "scripts/skill/装备/苍生铸世赛季输出帽子附魔_1110.lua",
+      "sha256": "97ccefe39b0475d0f2e4d8fd427e215023fc825f53486d1225133e597201218b",
+      "size": 1170,
+      "readableSha256": "f9db6e412f1a7cb37648874c962bb5c2a95bf22252399bc8c0ba6d6043e4802c",
+      "readableMethod": "unluac --rawstring and LuaService-compatible string decoding",
+      "clientVersion": "1.6.0.10086",
+      "extractionStage": "event-fresh-10086-02",
+      "rawPath": "script-sources/raw/scripts/skill/装备/苍生铸世赛季输出帽子附魔_1110.lua",
+      "readablePath": "script-sources/readable/scripts/skill/装备/苍生铸世赛季输出帽子附魔_1110.lua"
+    },
+    {
+      "origin": "scripts/skill/装备/苍生铸世赛季输出帽子附魔_1280.lua",
+      "sha256": "4212e8342a892c5ab6bc692d5e492e968c561609ad2a7f4671cf7e535c9a0add",
+      "size": 1170,
+      "readableSha256": "f1bb78594497123ff6e1d0ada1239b244e4a28afcc0ba599ad78d808db45ea18",
+      "readableMethod": "unluac --rawstring and LuaService-compatible string decoding",
+      "clientVersion": "1.6.0.10086",
+      "extractionStage": "event-fresh-10086-02",
+      "rawPath": "script-sources/raw/scripts/skill/装备/苍生铸世赛季输出帽子附魔_1280.lua",
+      "readablePath": "script-sources/readable/scripts/skill/装备/苍生铸世赛季输出帽子附魔_1280.lua"
+    },
+    {
+      "origin": "scripts/skill/装备/苍生铸世赛季输出衣服附魔_1110.lua",
+      "sha256": "578910745e8e6c5276cc94483a98d8fc4871e251311223d5dcf1edd464baf2e6",
+      "size": 1123,
+      "readableSha256": "4fb4179206959915eaff159c903c9586beccaed48f90e7e49eb6246c8a612f27",
+      "readableMethod": "unluac --rawstring and LuaService-compatible string decoding",
+      "clientVersion": "1.6.0.10086",
+      "extractionStage": "event-fresh-10086-02",
+      "rawPath": "script-sources/raw/scripts/skill/装备/苍生铸世赛季输出衣服附魔_1110.lua",
+      "readablePath": "script-sources/readable/scripts/skill/装备/苍生铸世赛季输出衣服附魔_1110.lua"
+    },
+    {
+      "origin": "scripts/skill/装备/苍生铸世赛季输出衣服附魔_1280.lua",
+      "sha256": "74e5a741a57077085083d66fe0db8d98e5934b1a247b0fe08226c40bcdef2c29",
+      "size": 1123,
+      "readableSha256": "d824e4004872487f45532831efc9c7c24878f8b5997dc5e93a2fbe9885c9e762",
+      "readableMethod": "unluac --rawstring and LuaService-compatible string decoding",
+      "clientVersion": "1.6.0.10086",
+      "extractionStage": "event-fresh-10086-02",
+      "rawPath": "script-sources/raw/scripts/skill/装备/苍生铸世赛季输出衣服附魔_1280.lua",
+      "readablePath": "script-sources/readable/scripts/skill/装备/苍生铸世赛季输出衣服附魔_1280.lua"
+    },
+    {
+      "origin": "scripts/skill/装备/输出通用附魔减疗加伤害.lua",
+      "sha256": "2c1cbe62dabdb5a3979d16386782802e19c828373bc40064bcaa8ce11feebac2",
+      "size": 2503,
+      "readableSha256": "18b7237cbae39be1e9cf3869e61f94a66ecfde5808902e8fac7ce7d2a4b80d88",
+      "readableMethod": "unluac --rawstring and LuaService-compatible string decoding",
+      "clientVersion": "1.6.0.10086",
+      "extractionStage": "event-fresh-10086-02",
+      "rawPath": "script-sources/raw/scripts/skill/装备/输出通用附魔减疗加伤害.lua",
+      "readablePath": "script-sources/readable/scripts/skill/装备/输出通用附魔减疗加伤害.lua"
+    }
+  ],
+  "boundary": "Fresh Lua and recipe tables are 10086 evidence; archived 10082 table rows are compared explicitly. No claim of unavailable 10082 Lua-byte identity."
+}

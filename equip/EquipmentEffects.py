@@ -33,9 +33,8 @@ def effect_catalogue():
 def resolve_equipment_effects(effects, occ):
     """Return resolved metadata, remaining warnings and verified static values.
 
-    Ordinary and Wujie skills have different recipe/event paths. The initial
-    audit covers ordinary kungfu; Wujie stays explicitly unverified rather than
-    inheriting an ordinary model from a similarly named skill.
+    Ordinary and Wujie skills have different recipe/event paths. Wujie support
+    requires its own reviewed handling and an explicit specialization scope.
     """
     if not effects:
         return [], set(), {}
@@ -47,15 +46,19 @@ def resolve_equipment_effects(effects, occ):
     for effect in effects:
         key = effect_key(effect)
         model = catalogue.get(key)
-        if model is None or occ.endswith('w') or model.get('ordinaryHandling') not in (
-                'logged_event', 'skill_coefficient', 'inactive_mobile', 'static_attributes', 'non_combat'):
+        handling = model.get('ordinaryHandling') if model is not None else None
+        if occ.endswith('w'):
+            handling = (model.get('wujieHandling') if model is not None
+                        and occ in model.get('wujieOccupations', []) else None)
+        if handling not in ('logged_event', 'skill_coefficient', 'inactive_mobile',
+                            'inactive_ordinary', 'static_attributes', 'non_combat'):
             unresolved.add(effect['warning'])
             continue
         entry = {'source': effect['source'], 'type': key[0], 'value1': key[1],
                  'value2': key[2], 'name': model['name'],
-                 'handling': model['ordinaryHandling']}
+                 'handling': handling}
         resolved.append(entry)
-        if key not in applied:
+        if handling == 'static_attributes' and key not in applied:
             for name, value in model.get('staticAttributes', {}).items():
                 raw[name] = raw.get(name, 0) + value
             applied.add(key)

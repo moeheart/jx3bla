@@ -7,6 +7,7 @@
 | `ValidateLuoyang`、`ValidateLuoyangRdps`、`ValidateWujie` | 日志解析、属性、rDPS 与窗口回归 |
 | `ValidateLuoyangFirstThree`、`ValidateLuoyangLastTwo` | 洛阳首领机制校验 |
 | `LuoyangFirstThreeEvidence`、`LuoyangLastTwoEvidence` | 洛阳日志取证 |
+| `LuoyangHeroicLastTwoEvidence` | 英雄洛阳后两首领日志与阶段、技能轴边界核验 |
 | `ValidateCangshengEquipment`、`ValidateCangshengNativeGem`、`ValidateCangshengRolePanel`、`ValidateLuoyangNpcDefense` | 装备和客户端原始证据复核 |
 | `AnalyzeLingsuRdps`、`MineShiChaoyiCircles`、`PlotShiChaoyiCircles` | 专项分析和绘图 |
 

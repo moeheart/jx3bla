@@ -4,6 +4,14 @@
 
 新版仅适配 50 级苍生铸世正式服，基础表使用 2026-10-29 的 `1.6.0.10009` 数据。8.16.6 的装备特效补充使用 `1.6.0.10072` 正式客户端脚本，并逐行核对相关归档表关联；来源版本和边界记录在装备特效证据中。输入约定为 10 月 29 日以后正式服日志；客户端不检查或拦截日志日期，不再按日期、地图或版本号切换体服/旧等级公式。排名与服务端统计的时间分区保留原有定义。
 
+8.16.7补充英雄洛阳五首领复盘和英雄NPC档案，并核查35个装备来源的66个精确效果参数。英雄NPC原表和关联装备、技能、Buff对照使用`1.6.0.10082`，新鲜提取的配方表和脚本使用`1.6.0.10086`；两者版本边界见[装备核查说明](../docs/160/8.16.7装备特效核查.md)。悟心法只扩展已取证的`4pw`精确条目，缺装备、估算或未核验效果仍阻止精确排名。
+
+本轮解析和统计还补入JCL原生反射返回值，按反射玩家和原NPC目标计入伤害；五首领专属伤害表使用同一字段约束和结束边界。日志反射总量不等于单件套装贡献，必须重新分析旧记录才能补齐漏算。
+
+当前正在准备8.16.7服务端发布，尚未上线。最终五场完整回放、125/125份个人复盘精确资格及隔离接收回归已通过，装备告警为零，最大实际合并表单2,147,260字节。全套390项运行先通过389项；唯一旧版本断言更新后，所属模块11项重跑通过，运行代码和资源未再变动，故390个不同测试均已通过。详细口径及普通实录回归见[最终验证回执](../docs/160/heroic-20261113-validation.json)。本轮没有制作或分发8.16.7客户端安装包，公开下载及下载公告仍对应8.16.6。
+
+125份全部精确依赖按时间顺序包含20:01:33前一失败记录的实际装备上下文；只选五个成功文件时，一号仍有1人缺装备，保留估算与精确排名限制。
+
 ## 构建
 
 正式入口仍为 `MainWindow.spec` 和 `release/Release.ps1`：
@@ -14,6 +22,8 @@ C:/Python314/python.exe -m release.EquipmentEffectGenerator --check
 ```
 
 装备特效目录的生成与审核独立于 `Release.ps1`。修改已审核效果条目后，先运行 `python -m release.EquipmentEffectGenerator` 同步 `equipment_effects.json` 及来源清单，再运行上述 `--check`，确认精确效果参数和证据 SHA256 一致；构建不自动放行新效果。
+
+生成器合并`docs/160/evidence/equipment_effects/`与`docs/160/evidence/heroic_equipment10082/`的精确模型。补充条目必须保留既有普通心法的处理方式和静态属性；悟心法需要独立处理方式和明确心法名单。当前合并目录193项已通过生成校验，其中63项为普通心法不适用的无界配方。
 
 所有 Python 步骤使用同一个解释器，失败即停止。脚本依次生成图标、当前装备分类、复盘说明和 `replayer/Name.py`，在独立的 `build/release-*` 中构建，核对资源 SHA256 与依赖清单，并在空目录执行冻结 EXE 的心法、增益、PNG/ICO + Tk 和 Excel 读写检查。装备估算另走真实 Actor 流程，检查有样本、无样本和混合状态，确认属性排名与上传受到保护、实测伤害百分位仍可使用。全部通过后才替换 `dist/j3jz.exe`。
 
@@ -26,11 +36,13 @@ C:/Python314/python.exe -m release.EquipmentEffectGenerator --check
 - `Custom_Trinket.tab`、`Custom_Armor.tab`、`Custom_Weapon.tab`
 - `attrib.tab`、`enchant.tab`、`item.txt`、`other.tab`、`Set.tab`
 - `StrengthableAttrib.tab`、`xinfa50.json`、`global_parameters.json`
-- `luoyang_npc_defense.json`、`average_equipment.json`、`equipment_effects.json`
+- `luoyang_npc_defense.json`、`luoyang_heroic_npc_defense.json`、`average_equipment.json`、`equipment_effects.json`
+
+英雄洛阳适配后为 15 项运行资源；新增英雄 NPC 表来自正式服 `1.6.0.10082`，以 54 级本体和各小怪独立防御档案计算。复核命令：`python -m tools.ValidateLuoyangNpcDefense --heroic --source docs/160/evidence/heroic10082/sNpcTemplate.tab`。
 
 名称和增益统一由原有 `replayer/Name.py` 提供。正式服 JSON 使用单一名称，不再同时保留 `_hd` 与体服运行副本。旧赛季原表、体服装备 zip、旧名称表和开发证据不进入安装包。图标由 `GenerateFiles.py` 写入运行目录，`icons/rate.dat` 为运行时缓存。
 
-8.16.6 共包含 14 项上述运行资源。`equipment_effects.json` 是按精确类型、ID／脚本路径、参数生成的运行目录；对应 `docs/160/evidence/equipment_effects/` 原件和反汇编只用于开发复核，不进入安装包。该证据目录由 Git 保留原始字节，避免换行转换使清单 SHA256 失效。
+8.16.6 共包含 14 项上述运行资源。`equipment_effects.json` 是按精确类型、ID／脚本路径、参数生成的运行目录；对应 `docs/160/evidence/equipment_effects/` 和本轮 `docs/160/evidence/heroic_equipment10082/` 原件与反汇编只用于开发复核，不进入安装包。证据目录由 Git 保留原始字节，避免换行转换使清单 SHA256 失效。
 
 原始 `buff*.tab`、`buff*.txt`、`skill*.txt` 用于生成名称表。来源清单和 `docs/160/evidence/` 中的原件用于开发复核；历史取证资料不承担客户端兼容功能。
 

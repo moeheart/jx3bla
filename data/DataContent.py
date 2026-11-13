@@ -3,6 +3,25 @@
 
 from replayer.Name import SKILL_NAME
 
+def get_reflected_damage(event, info):
+    """Return (reflecting player, original NPC attacker, logged amount).
+
+    Only the independently emitted JCL reaction result is supported. Keep the
+    incoming record immutable, and never infer a returned hit from Buff stacks
+    or mix it with an ordinary/effective hit from another importer.
+    """
+    amount = getattr(event, 'reflectionDamage', 0)
+    raw = getattr(event, 'fullResult', {})
+    if (getattr(event, 'resultType', None) == 1 and amount > 0
+            and int(raw.get('5', 0)) == amount
+            and getattr(event, 'damage', 0) == 0 and getattr(event, 'damageEff', 0) == 0
+            and getattr(event, 'heal', 0) == 0 and getattr(event, 'healEff', 0) == 0
+            and int(raw.get('13', 0)) == 0
+            and event.caster in info.npc and event.target in info.player):
+        return event.target, event.caster, amount
+    return None
+
+
 class SingleData():
     '''
     单条日志，包含全部形式。
@@ -128,6 +147,11 @@ class SingleDataSkill(SingleData):
                       int(item[5]["9"].get("4", 0))
         self.damageEff = int(item[5]["9"].get("13", 0))
         self.fullResult = item[5]["9"]
+        # JCL emits reflected damage as a separate resultType=1 record with
+        # result[5], retaining the original attacker and defender. Keep those
+        # identities and ordinary damage intact; the tracker owns attribution.
+        self.resultType = int(item[5].get("3", 0))
+        self.reflectionDamage = int(self.fullResult.get("5", 0))
 
     def setByJx3dat(self, item):
         '''
@@ -149,6 +173,9 @@ class SingleDataSkill(SingleData):
         self.damage = int(item["14"])
         self.damageEff = int(item["15"])
         self.fullResult = item["16"]
+        # The legacy importer has no verified equivalent discriminator.
+        self.resultType = None
+        self.reflectionDamage = 0
 
     def __init__(self):
         self.dataType = "Skill"

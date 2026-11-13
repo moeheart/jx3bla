@@ -1,0 +1,678 @@
+{
+  "clientVersion": "1.6.0.10086",
+  "archivedTableReference": "1.6.0.10082",
+  "files": [
+    {
+      "origin": "scripts/Include/NewSkill.lh",
+      "rawPath": "event-raw/scripts/Include/NewSkill.lh",
+      "readablePath": "event-readable/scripts/Include/NewSkill.lh",
+      "rawSha256": "d2be7ae325ee009fbf27e4b20aba90df5d78b9009ee3258b7d9229b8c1d421e9",
+      "readableSha256": "36fe1fea9c11c4e810ae411f9dbd3807b928c1eb1e4488735c726f39ab9a2b7c",
+      "fresh": true,
+      "stage": "event-fresh-10086-04",
+      "logLine": 12,
+      "disassemblyPath": "event-disassembly/NewSkill.lh.txt",
+      "disassemblySha256": "17a03135082be37d8b43f48139a684a1e35512975f342d1ba1607311ba6a5d75",
+      "bytecodeRoundTrip": true
+    },
+    {
+      "origin": "scripts/Include/Skill.lh",
+      "rawPath": "event-raw/scripts/Include/Skill.lh",
+      "readablePath": "event-readable/scripts/Include/Skill.lh",
+      "rawSha256": "c64c70addb123e59d55c5df4b70336342103f574e85d8a37b7bc3636577682ae",
+      "readableSha256": "b99d876f4d157b1aacebefb0f4a7a6ec933939a0bacb395969772085b9ef0321",
+      "fresh": true,
+      "stage": "event-fresh-10086-03",
+      "logLine": 12,
+      "disassemblyPath": "event-disassembly/Skill.lh.txt",
+      "disassemblySha256": "748ceafa116a11c51ed187d15cfc080a04f79ed08de25c539e47ce8c11424bc7",
+      "bytecodeRoundTrip": true
+    },
+    {
+      "origin": "scripts/player/include/Kungfu2ArenaType.lh",
+      "rawPath": "event-raw/scripts/player/include/Kungfu2ArenaType.lh",
+      "readablePath": "event-readable/scripts/player/include/Kungfu2ArenaType.lh",
+      "rawSha256": "f62526e660621fe83bc7ea5f1873cce753ab4a99145517b1b9ca52104b967047",
+      "readableSha256": "ae9ca587592a50f3c786fde17f72357b201269d7bb7119d888050f4a56de3e49",
+      "fresh": true,
+      "stage": "event-fresh-10086-03",
+      "logLine": 13,
+      "disassemblyPath": "event-disassembly/Kungfu2ArenaType.lh.txt",
+      "disassemblySha256": "d65b1b5a95155a435d0fbbe8ae0cfca8553257d1bdde416c8e8ac7c8cdb04e5b",
+      "bytecodeRoundTrip": true
+    },
+    {
+      "origin": "scripts/skill/item/OrangeWeaponSceneEntry.lua",
+      "rawPath": "event-raw/scripts/skill/item/OrangeWeaponSceneEntry.lua",
+      "readablePath": "event-readable/scripts/skill/item/OrangeWeaponSceneEntry.lua",
+      "rawSha256": "d300bbe8bcb9a0d585e3f66596eec4702709bd337e4845e770ba62cde5c7f05d",
+      "readableSha256": "22fd96298f1e02247db82dfabebf3052643ae8715508bd35c005c4be3ffc41f6",
+      "fresh": true,
+      "stage": "event-fresh-10086-03",
+      "logLine": 14,
+      "disassemblyPath": "event-disassembly/OrangeWeaponSceneEntry.lua.txt",
+      "disassemblySha256": "2dccb1f38723ce7003dca0f798f483628849af7f7951f3a5078a9aec65b0037f",
+      "bytecodeRoundTrip": true
+    },
+    {
+      "origin": "scripts/skill/item/橙武_太虚剑意_加buff.lua",
+      "rawPath": "event-raw/scripts/skill/item/橙武_太虚剑意_加buff.lua",
+      "readablePath": "event-readable/scripts/skill/item/橙武_太虚剑意_加buff.lua",
+      "rawSha256": "92896f823ac1c6c476a0c1b73fedd6c08214e69858f6a3f04082bee1c45c07c9",
+      "readableSha256": "933af1d819e89d2d117a849f42c3a83808441d681ed70d7df5de807d815917ca",
+      "fresh": true,
+      "stage": "event-fresh-10086-04",
+      "logLine": 13,
+      "disassemblyPath": "event-disassembly/橙武_太虚剑意_加buff.lua.txt",
+      "disassemblySha256": "8475cb43fad1dc86bfa7978b3043f76335a018c5ee4bccb804fc1a126887fc3b",
+      "bytecodeRoundTrip": true
+    },
+    {
+      "origin": "scripts/skill/item/橙武_相知_重置羽+炸羽.lua",
+      "rawPath": "event-raw/scripts/skill/item/橙武_相知_重置羽+炸羽.lua",
+      "readablePath": "event-readable/scripts/skill/item/橙武_相知_重置羽+炸羽.lua",
+      "rawSha256": "a99f3c63a38c0d681a2605d6ec203885aab03550eb03d65caa038b631cc0c4d2",
+      "readableSha256": "8ea8b692272a8e75f0ee4a713e58e767f48ec7e6089646f15de46b1561af8d84",
+      "fresh": true,
+      "stage": "event-fresh-10086-04",
+      "logLine": 14,
+      "disassemblyPath": "event-disassembly/橙武_相知_重置羽+炸羽.lua.txt",
+      "disassemblySha256": "1fbaeb8c306c0a6a004e77bc6664024fd5c9b4b4d92efe25be9590edf45274ee",
+      "bytecodeRoundTrip": true
+    },
+    {
+      "origin": "scripts/skill/item/橙武_莫问_加BUFF.lua",
+      "rawPath": "event-raw/scripts/skill/item/橙武_莫问_加BUFF.lua",
+      "readablePath": "event-readable/scripts/skill/item/橙武_莫问_加BUFF.lua",
+      "rawSha256": "85be2165783aa7877c45d4229afb98bb70d3f0194eba966af97005f88aecd14c",
+      "readableSha256": "c1f58b4905501ae4f6ca607ce2f7aab0264ce3f3f34f820a533afd99c5841442",
+      "fresh": true,
+      "stage": "event-fresh-10086-02",
+      "logLine": 13,
+      "disassemblyPath": "event-disassembly/橙武_莫问_加BUFF.lua.txt",
+      "disassemblySha256": "9d25ae7a8152f579950b7e88de518d6f63b7099c631fb87da003e99c3e368ac4",
+      "bytecodeRoundTrip": true
+    },
+    {
+      "origin": "scripts/skill/江湖/110CW新增特效太虚剑意伤害子技能.lua",
+      "rawPath": "event-raw/scripts/skill/江湖/110CW新增特效太虚剑意伤害子技能.lua",
+      "readablePath": "event-readable/scripts/skill/江湖/110CW新增特效太虚剑意伤害子技能.lua",
+      "rawSha256": "eb069bb68ffb1d5a0a6d6872ea3f8d8669a196ad240194712b76abd17b2ce46f",
+      "readableSha256": "7c8cc770e09ed8ea67fcdc5ecd315a2bdaae373856f1810ec012164672c3fdfb",
+      "fresh": true,
+      "stage": "event-fresh-10086-02",
+      "logLine": 18
+    },
+    {
+      "origin": "scripts/skill/江湖/110级CW新增特效相知子技能.lua",
+      "rawPath": "event-raw/scripts/skill/江湖/110级CW新增特效相知子技能.lua",
+      "readablePath": "event-readable/scripts/skill/江湖/110级CW新增特效相知子技能.lua",
+      "rawSha256": "8471bb87b29968c1412c8ba39b15cada224a4b86208f2b56b7989e71d48c28d5",
+      "readableSha256": "a1709fa7f27cdaeacf9fa7f94374349bf057f32eee94381d78f2f92fc7a11537",
+      "fresh": true,
+      "stage": "event-fresh-10086-02",
+      "logLine": 19
+    },
+    {
+      "origin": "scripts/skill/江湖/110级CW新增特效莫问.lua",
+      "rawPath": "event-raw/scripts/skill/江湖/110级CW新增特效莫问.lua",
+      "readablePath": "event-readable/scripts/skill/江湖/110级CW新增特效莫问.lua",
+      "rawSha256": "0edbaf5425280eb00637580138374292d7c9edd1af860803189afcba060d034e",
+      "readableSha256": "94280484f22a3bcd6bf4245daa9e3f7b05413f53f896087e55b6e50be06b5fe6",
+      "fresh": true,
+      "stage": "event-fresh-10086-02",
+      "logLine": 20
+    },
+    {
+      "origin": "scripts/skill/纯阳/套路及子技能/橙武重置八荒.lua",
+      "rawPath": "event-raw/scripts/skill/纯阳/套路及子技能/橙武重置八荒.lua",
+      "readablePath": "event-readable/scripts/skill/纯阳/套路及子技能/橙武重置八荒.lua",
+      "rawSha256": "20d2fe3cf0460f0ff66e507a7dd732ba0155075eebeec599d1b9a2b5d5568e19",
+      "readableSha256": "6c7174954347325ed58c7f6fbd87928617007241d8369aa049066245510efef3",
+      "fresh": true,
+      "stage": "event-fresh-10086-05",
+      "logLine": 12,
+      "disassemblyPath": "event-disassembly/橙武重置八荒.lua.txt",
+      "disassemblySha256": "42f41a476aa4ddd565149b91a94cde2afa7b397ae8cbf68ab21e86f44f0e0ad7",
+      "bytecodeRoundTrip": true
+    },
+    {
+      "origin": "scripts/skill/装备/130级橙武风.lua",
+      "rawPath": "event-raw/scripts/skill/装备/130级橙武风.lua",
+      "readablePath": "event-readable/scripts/skill/装备/130级橙武风.lua",
+      "rawSha256": "712941e6b81cab4d635df31e1f19d9273a258ec9e7bf93f0b9effe5b5a21da01",
+      "readableSha256": "8932b10a7b09bf87c679490b565ba97d21326048eba1563aade93d55ff51d03c",
+      "fresh": true,
+      "stage": "event-fresh-10086-02",
+      "logLine": 21
+    },
+    {
+      "origin": "scripts/skill/装备/T系列增加会心buff.lua",
+      "rawPath": "event-raw/scripts/skill/装备/T系列增加会心buff.lua",
+      "readablePath": "event-readable/scripts/skill/装备/T系列增加会心buff.lua",
+      "rawSha256": "c4650c5dc927af39003fa3502961bf783f15e04d68603a9e379565d11db7539d",
+      "readableSha256": "619c314c2fe2a7fed9eb2554e7246d3a520751360d98be96ea5f8e2e0170ba88",
+      "fresh": true,
+      "stage": "event-fresh-10086-02",
+      "logLine": 22
+    },
+    {
+      "origin": "scripts/skill/装备/新t大附魔_鞋子加内外防.lua",
+      "rawPath": "event-raw/scripts/skill/装备/新t大附魔_鞋子加内外防.lua",
+      "readablePath": "event-readable/scripts/skill/装备/新t大附魔_鞋子加内外防.lua",
+      "rawSha256": "8ebdc4575f7795f72b49599a5ba826fb943e09804026c39942b026e95c1ffda0",
+      "readableSha256": "592f1d2dcc6a0273420a440a894b9bfe27312da9c68ccd49b5510e021652eef2",
+      "fresh": true,
+      "stage": "event-fresh-10086-02",
+      "logLine": 23
+    },
+    {
+      "origin": "scripts/skill/装备/新附魔T回复血量.lua",
+      "rawPath": "event-raw/scripts/skill/装备/新附魔T回复血量.lua",
+      "readablePath": "event-readable/scripts/skill/装备/新附魔T回复血量.lua",
+      "rawSha256": "44bff1375bc1f6bfb5c63dc48bbe6403ccfe418c871259de091d8bbc45bd485a",
+      "readableSha256": "e8cff156068fdffcaffc13afc2f7bdfd4bcf6163303ab62e1b42558fe0a71dc9",
+      "fresh": true,
+      "stage": "event-fresh-10086-02",
+      "logLine": 24,
+      "disassemblyPath": "event-disassembly/新附魔T回复血量.lua.txt",
+      "disassemblySha256": "63a5c4697ee969a8310f04cf41027dc5500dfab3fc1c74206db58dfb82646ef1",
+      "bytecodeRoundTrip": true
+    },
+    {
+      "origin": "scripts/skill/装备/新附魔T添加伤害吸收盾.lua",
+      "rawPath": "event-raw/scripts/skill/装备/新附魔T添加伤害吸收盾.lua",
+      "readablePath": "event-readable/scripts/skill/装备/新附魔T添加伤害吸收盾.lua",
+      "rawSha256": "8ba7f6d54e50312be2cf4d41637aa1c6b6b1d94dd3bcfd32d264fcb09bf4d01a",
+      "readableSha256": "cd4dee3d31bee339a23ac7a50b12778920953016f06a7d0a0e42659ef4b11ef4",
+      "fresh": true,
+      "stage": "event-fresh-10086-02",
+      "logLine": 25
+    },
+    {
+      "origin": "scripts/skill/装备/新附魔T添加基础攻击.lua",
+      "rawPath": "event-raw/scripts/skill/装备/新附魔T添加基础攻击.lua",
+      "readablePath": "event-readable/scripts/skill/装备/新附魔T添加基础攻击.lua",
+      "rawSha256": "52e44bcd350fe3270efddfc350173be959b971745524c3eb07e10e9407e0c4bc",
+      "readableSha256": "14c2f3a4993f5635e5977591893d3827ab744d065068f95d36aedd3e693f9c0b",
+      "fresh": true,
+      "stage": "event-fresh-10086-02",
+      "logLine": 26,
+      "disassemblyPath": "event-disassembly/新附魔T添加基础攻击.lua.txt",
+      "disassemblySha256": "29bc7aefb62ddb123a764b2fbfe572f31d2e8a295cb11f4fbf6b55641e5fc9e9",
+      "bytecodeRoundTrip": true
+    },
+    {
+      "origin": "scripts/skill/装备/苍生铸世赛季T护手五秒增伤.lua",
+      "rawPath": "event-raw/scripts/skill/装备/苍生铸世赛季T护手五秒增伤.lua",
+      "readablePath": "event-readable/scripts/skill/装备/苍生铸世赛季T护手五秒增伤.lua",
+      "rawSha256": "e8dac3a37b0860eb1af9d596521660fe9fe597933f43956b334a8209ec354a26",
+      "readableSha256": "f1046e321a99bad897bce3c69a4fdeeb8b345079050dbb1f248200c59066913d",
+      "fresh": true,
+      "stage": "event-fresh-10086-02",
+      "logLine": 27,
+      "disassemblyPath": "event-disassembly/苍生铸世赛季T护手五秒增伤.lua.txt",
+      "disassemblySha256": "581b69b4dd9488c57bd7484ad00dfa6d4f145fc5f6d5a2997ee3bd7c12fa7c4d",
+      "bytecodeRoundTrip": true
+    },
+    {
+      "origin": "scripts/skill/装备/苍生铸世赛季输出护手固定伤害.lua",
+      "rawPath": "event-raw/scripts/skill/装备/苍生铸世赛季输出护手固定伤害.lua",
+      "readablePath": "event-readable/scripts/skill/装备/苍生铸世赛季输出护手固定伤害.lua",
+      "rawSha256": "16fad3438d017fa8918d37ec12085362079d9f67ba5c5107118ca5dbaee0c651",
+      "readableSha256": "2675431e169284076a3d6880ac852bf7048bad591a0544c5b6feca6a18e7fa9c",
+      "fresh": true,
+      "stage": "event-fresh-10086-02",
+      "logLine": 32,
+      "disassemblyPath": "event-disassembly/苍生铸世赛季输出护手固定伤害.lua.txt",
+      "disassemblySha256": "4c7412bbe97ee7e2031206f10d50310041c4d2a2bb21a0c2b24ecdcf171e2cff",
+      "bytecodeRoundTrip": true
+    },
+    {
+      "origin": "scripts/skill/装备/苍生铸世赛季输出鞋子固定伤害.lua",
+      "rawPath": "event-raw/scripts/skill/装备/苍生铸世赛季输出鞋子固定伤害.lua",
+      "readablePath": "event-readable/scripts/skill/装备/苍生铸世赛季输出鞋子固定伤害.lua",
+      "rawSha256": "8528f05efba43d99adbb8be481bf36154d1d3206c5c0a831ea5af57f9faff4bb",
+      "readableSha256": "c983a8e23df90cedbec71a6b64a803a785a5f129de329f6fb2e9f15f29204194",
+      "fresh": true,
+      "stage": "event-fresh-10086-02",
+      "logLine": 35,
+      "disassemblyPath": "event-disassembly/苍生铸世赛季输出鞋子固定伤害.lua.txt",
+      "disassemblySha256": "d78165b2e0d5e27807f64c1148b5d3077ca2138b2eeac979a11fdfc1e7c0c1a4",
+      "bytecodeRoundTrip": true
+    },
+    {
+      "origin": "scripts/skill/装备/蜀风_治疗6件套.lua",
+      "rawPath": "event-raw/scripts/skill/装备/蜀风_治疗6件套.lua",
+      "readablePath": "event-readable/scripts/skill/装备/蜀风_治疗6件套.lua",
+      "rawSha256": "c2a07695e81314ae2edfe95d20da02b843df90c2676b18197384438a200fdcbd",
+      "readableSha256": "5576ab0a619c48a1c13e953a8a7e68988f01073cc0d255b01f43c95dcc848139",
+      "fresh": true,
+      "stage": "event-fresh-10086-02",
+      "logLine": 36
+    },
+    {
+      "origin": "scripts/skill/装备/输出附魔伤害波动.lua",
+      "rawPath": "event-raw/scripts/skill/装备/输出附魔伤害波动.lua",
+      "readablePath": "event-readable/scripts/skill/装备/输出附魔伤害波动.lua",
+      "rawSha256": "29429cc8f21360707ce0a0cb00c2fc22d2d03f7412747bb2d9503f01ae50f418",
+      "readableSha256": "131ee1d130f33701010bc2c4cd2c9e04a0359d8e37b13ea05fd1d2d9ea3ff38b",
+      "fresh": true,
+      "stage": "event-fresh-10086-02",
+      "logLine": 38
+    },
+    {
+      "origin": "scripts/skill/长歌/套路及子技能/橙武刷新羽调息.lua",
+      "rawPath": "event-raw/scripts/skill/长歌/套路及子技能/橙武刷新羽调息.lua",
+      "readablePath": "event-readable/scripts/skill/长歌/套路及子技能/橙武刷新羽调息.lua",
+      "rawSha256": "27c177faae10ff056cf86bb48a8a2fbf97b9be38aa540f232067f98395eaecfa",
+      "readableSha256": "055a9223cdcbafb51e246b5fe6f290ffec284e146b9c62bf675a1121a388eaba",
+      "fresh": true,
+      "stage": "event-fresh-10086-03",
+      "logLine": 15,
+      "disassemblyPath": "event-disassembly/橙武刷新羽调息.lua.txt",
+      "disassemblySha256": "20299f8d66361f6a6def422e5f5e5b4d34548b99eea8ab449560202f769a003b",
+      "bytecodeRoundTrip": true
+    }
+  ],
+  "stages": [
+    {
+      "stage": "event-fresh-10086-02",
+      "returncode": 0,
+      "protectedUnchanged": true,
+      "protectedBefore": {
+        "C:\\Develop\\26\\jx3decrypt\\setting.cfg": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\setting.cfg",
+          "size": 217,
+          "mtime_ns": 1792815336515305400,
+          "sha256": "b2f0536a2c9f3d8197d5c9e72c3431936daa658c5cc22c67021301ce887778c5"
+        },
+        "C:\\Develop\\26\\jx3decrypt\\unpack.exe": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\unpack.exe",
+          "size": 16840204,
+          "mtime_ns": 1780308380856580700,
+          "sha256": "5b97228ce8bbbc9114aca4d4dd7accbcd308d0e6d1836fe3f54aa4b1050e7d99"
+        },
+        "C:\\Develop\\26\\jx3decrypt\\critical_files\\projection.csv": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\critical_files\\projection.csv",
+          "size": 2597,
+          "mtime_ns": 1780290738050197300,
+          "sha256": "b035837f4eb3084ca326346576d5bc45e08666ab857bbc6bb325770d4d8d32a9"
+        },
+        "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\version.cfg": {
+          "path": "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\version.cfg",
+          "size": 431,
+          "mtime_ns": 1794568995995310400,
+          "sha256": "52c1e07669d06b156403bcbb74d32c76f4763f464832dffb2bb73213e271dfa9"
+        },
+        "C:\\JX3\\Game\\JX3\\GameInfo.dat": {
+          "path": "C:\\JX3\\Game\\JX3\\GameInfo.dat",
+          "size": 556,
+          "mtime_ns": 1794569309305522500,
+          "sha256": "0aef163c76c6a30e26da386865e826d0d15cebec94f88968a32f20a87a5cc884"
+        },
+        "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\bin64\\Engine_Lua5X64.dll": {
+          "path": "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\bin64\\Engine_Lua5X64.dll",
+          "size": 1636792,
+          "mtime_ns": 1794454957817369200,
+          "sha256": "c31d3cb5ee567da3a9b6d9b5c373c42a05ef7706757877a1d2a2f092ca351eba"
+        },
+        "C:\\JX3\\Game\\JX3\\PakV4\\Trunk.dir": {
+          "path": "C:\\JX3\\Game\\JX3\\PakV4\\Trunk.dir",
+          "size": 296646852,
+          "mtime_ns": 1794593453397217700,
+          "sha256": "d6b8109f2cf5c5430839cdeb255968d52e724bb7b75903bb85c5f2b3f0aa7e9b"
+        }
+      },
+      "protectedAfter": {
+        "C:\\Develop\\26\\jx3decrypt\\setting.cfg": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\setting.cfg",
+          "size": 217,
+          "mtime_ns": 1792815336515305400,
+          "sha256": "b2f0536a2c9f3d8197d5c9e72c3431936daa658c5cc22c67021301ce887778c5"
+        },
+        "C:\\Develop\\26\\jx3decrypt\\unpack.exe": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\unpack.exe",
+          "size": 16840204,
+          "mtime_ns": 1780308380856580700,
+          "sha256": "5b97228ce8bbbc9114aca4d4dd7accbcd308d0e6d1836fe3f54aa4b1050e7d99"
+        },
+        "C:\\Develop\\26\\jx3decrypt\\critical_files\\projection.csv": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\critical_files\\projection.csv",
+          "size": 2597,
+          "mtime_ns": 1780290738050197300,
+          "sha256": "b035837f4eb3084ca326346576d5bc45e08666ab857bbc6bb325770d4d8d32a9"
+        },
+        "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\version.cfg": {
+          "path": "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\version.cfg",
+          "size": 431,
+          "mtime_ns": 1794568995995310400,
+          "sha256": "52c1e07669d06b156403bcbb74d32c76f4763f464832dffb2bb73213e271dfa9"
+        },
+        "C:\\JX3\\Game\\JX3\\GameInfo.dat": {
+          "path": "C:\\JX3\\Game\\JX3\\GameInfo.dat",
+          "size": 556,
+          "mtime_ns": 1794569309305522500,
+          "sha256": "0aef163c76c6a30e26da386865e826d0d15cebec94f88968a32f20a87a5cc884"
+        },
+        "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\bin64\\Engine_Lua5X64.dll": {
+          "path": "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\bin64\\Engine_Lua5X64.dll",
+          "size": 1636792,
+          "mtime_ns": 1794454957817369200,
+          "sha256": "c31d3cb5ee567da3a9b6d9b5c373c42a05ef7706757877a1d2a2f092ca351eba"
+        },
+        "C:\\JX3\\Game\\JX3\\PakV4\\Trunk.dir": {
+          "path": "C:\\JX3\\Game\\JX3\\PakV4\\Trunk.dir",
+          "size": 296646852,
+          "mtime_ns": 1794593453397217700,
+          "sha256": "d6b8109f2cf5c5430839cdeb255968d52e724bb7b75903bb85c5f2b3f0aa7e9b"
+        }
+      }
+    },
+    {
+      "stage": "event-fresh-10086-03",
+      "returncode": 0,
+      "protectedUnchanged": true,
+      "protectedBefore": {
+        "C:\\Develop\\26\\jx3decrypt\\setting.cfg": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\setting.cfg",
+          "size": 217,
+          "mtime_ns": 1792815336515305400,
+          "sha256": "b2f0536a2c9f3d8197d5c9e72c3431936daa658c5cc22c67021301ce887778c5"
+        },
+        "C:\\Develop\\26\\jx3decrypt\\unpack.exe": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\unpack.exe",
+          "size": 16840204,
+          "mtime_ns": 1780308380856580700,
+          "sha256": "5b97228ce8bbbc9114aca4d4dd7accbcd308d0e6d1836fe3f54aa4b1050e7d99"
+        },
+        "C:\\Develop\\26\\jx3decrypt\\critical_files\\projection.csv": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\critical_files\\projection.csv",
+          "size": 2597,
+          "mtime_ns": 1780290738050197300,
+          "sha256": "b035837f4eb3084ca326346576d5bc45e08666ab857bbc6bb325770d4d8d32a9"
+        },
+        "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\version.cfg": {
+          "path": "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\version.cfg",
+          "size": 431,
+          "mtime_ns": 1794568995995310400,
+          "sha256": "52c1e07669d06b156403bcbb74d32c76f4763f464832dffb2bb73213e271dfa9"
+        },
+        "C:\\JX3\\Game\\JX3\\GameInfo.dat": {
+          "path": "C:\\JX3\\Game\\JX3\\GameInfo.dat",
+          "size": 556,
+          "mtime_ns": 1794569309305522500,
+          "sha256": "0aef163c76c6a30e26da386865e826d0d15cebec94f88968a32f20a87a5cc884"
+        },
+        "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\bin64\\Engine_Lua5X64.dll": {
+          "path": "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\bin64\\Engine_Lua5X64.dll",
+          "size": 1636792,
+          "mtime_ns": 1794454957817369200,
+          "sha256": "c31d3cb5ee567da3a9b6d9b5c373c42a05ef7706757877a1d2a2f092ca351eba"
+        },
+        "C:\\JX3\\Game\\JX3\\PakV4\\Trunk.dir": {
+          "path": "C:\\JX3\\Game\\JX3\\PakV4\\Trunk.dir",
+          "size": 296646852,
+          "mtime_ns": 1794593453397217700,
+          "sha256": "d6b8109f2cf5c5430839cdeb255968d52e724bb7b75903bb85c5f2b3f0aa7e9b"
+        }
+      },
+      "protectedAfter": {
+        "C:\\Develop\\26\\jx3decrypt\\setting.cfg": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\setting.cfg",
+          "size": 217,
+          "mtime_ns": 1792815336515305400,
+          "sha256": "b2f0536a2c9f3d8197d5c9e72c3431936daa658c5cc22c67021301ce887778c5"
+        },
+        "C:\\Develop\\26\\jx3decrypt\\unpack.exe": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\unpack.exe",
+          "size": 16840204,
+          "mtime_ns": 1780308380856580700,
+          "sha256": "5b97228ce8bbbc9114aca4d4dd7accbcd308d0e6d1836fe3f54aa4b1050e7d99"
+        },
+        "C:\\Develop\\26\\jx3decrypt\\critical_files\\projection.csv": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\critical_files\\projection.csv",
+          "size": 2597,
+          "mtime_ns": 1780290738050197300,
+          "sha256": "b035837f4eb3084ca326346576d5bc45e08666ab857bbc6bb325770d4d8d32a9"
+        },
+        "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\version.cfg": {
+          "path": "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\version.cfg",
+          "size": 431,
+          "mtime_ns": 1794568995995310400,
+          "sha256": "52c1e07669d06b156403bcbb74d32c76f4763f464832dffb2bb73213e271dfa9"
+        },
+        "C:\\JX3\\Game\\JX3\\GameInfo.dat": {
+          "path": "C:\\JX3\\Game\\JX3\\GameInfo.dat",
+          "size": 556,
+          "mtime_ns": 1794569309305522500,
+          "sha256": "0aef163c76c6a30e26da386865e826d0d15cebec94f88968a32f20a87a5cc884"
+        },
+        "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\bin64\\Engine_Lua5X64.dll": {
+          "path": "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\bin64\\Engine_Lua5X64.dll",
+          "size": 1636792,
+          "mtime_ns": 1794454957817369200,
+          "sha256": "c31d3cb5ee567da3a9b6d9b5c373c42a05ef7706757877a1d2a2f092ca351eba"
+        },
+        "C:\\JX3\\Game\\JX3\\PakV4\\Trunk.dir": {
+          "path": "C:\\JX3\\Game\\JX3\\PakV4\\Trunk.dir",
+          "size": 296646852,
+          "mtime_ns": 1794593453397217700,
+          "sha256": "d6b8109f2cf5c5430839cdeb255968d52e724bb7b75903bb85c5f2b3f0aa7e9b"
+        }
+      }
+    },
+    {
+      "stage": "event-fresh-10086-04",
+      "returncode": 0,
+      "protectedUnchanged": true,
+      "protectedBefore": {
+        "C:\\Develop\\26\\jx3decrypt\\setting.cfg": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\setting.cfg",
+          "size": 217,
+          "mtime_ns": 1792815336515305400,
+          "sha256": "b2f0536a2c9f3d8197d5c9e72c3431936daa658c5cc22c67021301ce887778c5"
+        },
+        "C:\\Develop\\26\\jx3decrypt\\unpack.exe": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\unpack.exe",
+          "size": 16840204,
+          "mtime_ns": 1780308380856580700,
+          "sha256": "5b97228ce8bbbc9114aca4d4dd7accbcd308d0e6d1836fe3f54aa4b1050e7d99"
+        },
+        "C:\\Develop\\26\\jx3decrypt\\critical_files\\projection.csv": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\critical_files\\projection.csv",
+          "size": 2597,
+          "mtime_ns": 1780290738050197300,
+          "sha256": "b035837f4eb3084ca326346576d5bc45e08666ab857bbc6bb325770d4d8d32a9"
+        },
+        "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\version.cfg": {
+          "path": "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\version.cfg",
+          "size": 431,
+          "mtime_ns": 1794568995995310400,
+          "sha256": "52c1e07669d06b156403bcbb74d32c76f4763f464832dffb2bb73213e271dfa9"
+        },
+        "C:\\JX3\\Game\\JX3\\GameInfo.dat": {
+          "path": "C:\\JX3\\Game\\JX3\\GameInfo.dat",
+          "size": 556,
+          "mtime_ns": 1794569309305522500,
+          "sha256": "0aef163c76c6a30e26da386865e826d0d15cebec94f88968a32f20a87a5cc884"
+        },
+        "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\bin64\\Engine_Lua5X64.dll": {
+          "path": "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\bin64\\Engine_Lua5X64.dll",
+          "size": 1636792,
+          "mtime_ns": 1794454957817369200,
+          "sha256": "c31d3cb5ee567da3a9b6d9b5c373c42a05ef7706757877a1d2a2f092ca351eba"
+        },
+        "C:\\JX3\\Game\\JX3\\PakV4\\Trunk.dir": {
+          "path": "C:\\JX3\\Game\\JX3\\PakV4\\Trunk.dir",
+          "size": 296646852,
+          "mtime_ns": 1794594400716951400,
+          "sha256": "f7fad1cd7a6c1ae56295d38dd556dd24f45a2d39fbdd2d7c5965b66722299281"
+        }
+      },
+      "protectedAfter": {
+        "C:\\Develop\\26\\jx3decrypt\\setting.cfg": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\setting.cfg",
+          "size": 217,
+          "mtime_ns": 1792815336515305400,
+          "sha256": "b2f0536a2c9f3d8197d5c9e72c3431936daa658c5cc22c67021301ce887778c5"
+        },
+        "C:\\Develop\\26\\jx3decrypt\\unpack.exe": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\unpack.exe",
+          "size": 16840204,
+          "mtime_ns": 1780308380856580700,
+          "sha256": "5b97228ce8bbbc9114aca4d4dd7accbcd308d0e6d1836fe3f54aa4b1050e7d99"
+        },
+        "C:\\Develop\\26\\jx3decrypt\\critical_files\\projection.csv": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\critical_files\\projection.csv",
+          "size": 2597,
+          "mtime_ns": 1780290738050197300,
+          "sha256": "b035837f4eb3084ca326346576d5bc45e08666ab857bbc6bb325770d4d8d32a9"
+        },
+        "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\version.cfg": {
+          "path": "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\version.cfg",
+          "size": 431,
+          "mtime_ns": 1794568995995310400,
+          "sha256": "52c1e07669d06b156403bcbb74d32c76f4763f464832dffb2bb73213e271dfa9"
+        },
+        "C:\\JX3\\Game\\JX3\\GameInfo.dat": {
+          "path": "C:\\JX3\\Game\\JX3\\GameInfo.dat",
+          "size": 556,
+          "mtime_ns": 1794569309305522500,
+          "sha256": "0aef163c76c6a30e26da386865e826d0d15cebec94f88968a32f20a87a5cc884"
+        },
+        "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\bin64\\Engine_Lua5X64.dll": {
+          "path": "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\bin64\\Engine_Lua5X64.dll",
+          "size": 1636792,
+          "mtime_ns": 1794454957817369200,
+          "sha256": "c31d3cb5ee567da3a9b6d9b5c373c42a05ef7706757877a1d2a2f092ca351eba"
+        },
+        "C:\\JX3\\Game\\JX3\\PakV4\\Trunk.dir": {
+          "path": "C:\\JX3\\Game\\JX3\\PakV4\\Trunk.dir",
+          "size": 296646852,
+          "mtime_ns": 1794594400716951400,
+          "sha256": "f7fad1cd7a6c1ae56295d38dd556dd24f45a2d39fbdd2d7c5965b66722299281"
+        }
+      }
+    },
+    {
+      "stage": "event-fresh-10086-05",
+      "returncode": 0,
+      "protectedUnchanged": true,
+      "protectedBefore": {
+        "C:\\Develop\\26\\jx3decrypt\\setting.cfg": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\setting.cfg",
+          "size": 217,
+          "mtime_ns": 1792815336515305400,
+          "sha256": "b2f0536a2c9f3d8197d5c9e72c3431936daa658c5cc22c67021301ce887778c5"
+        },
+        "C:\\Develop\\26\\jx3decrypt\\unpack.exe": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\unpack.exe",
+          "size": 16840204,
+          "mtime_ns": 1780308380856580700,
+          "sha256": "5b97228ce8bbbc9114aca4d4dd7accbcd308d0e6d1836fe3f54aa4b1050e7d99"
+        },
+        "C:\\Develop\\26\\jx3decrypt\\critical_files\\projection.csv": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\critical_files\\projection.csv",
+          "size": 2597,
+          "mtime_ns": 1780290738050197300,
+          "sha256": "b035837f4eb3084ca326346576d5bc45e08666ab857bbc6bb325770d4d8d32a9"
+        },
+        "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\version.cfg": {
+          "path": "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\version.cfg",
+          "size": 431,
+          "mtime_ns": 1794568995995310400,
+          "sha256": "52c1e07669d06b156403bcbb74d32c76f4763f464832dffb2bb73213e271dfa9"
+        },
+        "C:\\JX3\\Game\\JX3\\GameInfo.dat": {
+          "path": "C:\\JX3\\Game\\JX3\\GameInfo.dat",
+          "size": 556,
+          "mtime_ns": 1794569309305522500,
+          "sha256": "0aef163c76c6a30e26da386865e826d0d15cebec94f88968a32f20a87a5cc884"
+        },
+        "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\bin64\\Engine_Lua5X64.dll": {
+          "path": "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\bin64\\Engine_Lua5X64.dll",
+          "size": 1636792,
+          "mtime_ns": 1794454957817369200,
+          "sha256": "c31d3cb5ee567da3a9b6d9b5c373c42a05ef7706757877a1d2a2f092ca351eba"
+        },
+        "C:\\JX3\\Game\\JX3\\PakV4\\Trunk.dir": {
+          "path": "C:\\JX3\\Game\\JX3\\PakV4\\Trunk.dir",
+          "size": 296646852,
+          "mtime_ns": 1794594400716951400,
+          "sha256": "f7fad1cd7a6c1ae56295d38dd556dd24f45a2d39fbdd2d7c5965b66722299281"
+        }
+      },
+      "protectedAfter": {
+        "C:\\Develop\\26\\jx3decrypt\\setting.cfg": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\setting.cfg",
+          "size": 217,
+          "mtime_ns": 1792815336515305400,
+          "sha256": "b2f0536a2c9f3d8197d5c9e72c3431936daa658c5cc22c67021301ce887778c5"
+        },
+        "C:\\Develop\\26\\jx3decrypt\\unpack.exe": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\unpack.exe",
+          "size": 16840204,
+          "mtime_ns": 1780308380856580700,
+          "sha256": "5b97228ce8bbbc9114aca4d4dd7accbcd308d0e6d1836fe3f54aa4b1050e7d99"
+        },
+        "C:\\Develop\\26\\jx3decrypt\\critical_files\\projection.csv": {
+          "path": "C:\\Develop\\26\\jx3decrypt\\critical_files\\projection.csv",
+          "size": 2597,
+          "mtime_ns": 1780290738050197300,
+          "sha256": "b035837f4eb3084ca326346576d5bc45e08666ab857bbc6bb325770d4d8d32a9"
+        },
+        "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\version.cfg": {
+          "path": "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\version.cfg",
+          "size": 431,
+          "mtime_ns": 1794568995995310400,
+          "sha256": "52c1e07669d06b156403bcbb74d32c76f4763f464832dffb2bb73213e271dfa9"
+        },
+        "C:\\JX3\\Game\\JX3\\GameInfo.dat": {
+          "path": "C:\\JX3\\Game\\JX3\\GameInfo.dat",
+          "size": 556,
+          "mtime_ns": 1794569309305522500,
+          "sha256": "0aef163c76c6a30e26da386865e826d0d15cebec94f88968a32f20a87a5cc884"
+        },
+        "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\bin64\\Engine_Lua5X64.dll": {
+          "path": "C:\\JX3\\Game\\JX3\\bin\\zhcn_hd\\bin64\\Engine_Lua5X64.dll",
+          "size": 1636792,
+          "mtime_ns": 1794454957817369200,
+          "sha256": "c31d3cb5ee567da3a9b6d9b5c373c42a05ef7706757877a1d2a2f092ca351eba"
+        },
+        "C:\\JX3\\Game\\JX3\\PakV4\\Trunk.dir": {
+          "path": "C:\\JX3\\Game\\JX3\\PakV4\\Trunk.dir",
+          "size": 296646852,
+          "mtime_ns": 1794594400716951400,
+          "sha256": "f7fad1cd7a6c1ae56295d38dd556dd24f45a2d39fbdd2d7c5965b66722299281"
+        }
+      }
+    }
+  ],
+  "tables": [
+    {
+      "origin": "settings/skill/SkillEvent.tab",
+      "currentSha256": "ee5553c769918f2215b82be331ca48d1dbf0d09003fa34d548bffb96c631b1dd",
+      "readableSha256": "9051263dec96fa7abe8cef0af8dd5fc88023888fd09bc51d63118f71bd05f59c",
+      "archived10082Sha256": "9051263dec96fa7abe8cef0af8dd5fc88023888fd09bc51d63118f71bd05f59c"
+    },
+    {
+      "origin": "settings/skill/skills.tab",
+      "currentSha256": "b2105df327cb557ff8fb2e932113295b538d8ecbe5607acda3d0258a4c0b88c3",
+      "readableSha256": "91cc7457f63101700653f84b315818397453628dd80a3a326014c72e109fe36f",
+      "archived10082Sha256": "91cc7457f63101700653f84b315818397453628dd80a3a326014c72e109fe36f"
+    },
+    {
+      "origin": "settings/skill/Buff.tab",
+      "currentSha256": "3fd69a48a491d161b7d7d30c2556dbd9ce8f1f37e69aae96697e34a4dae2bd6d",
+      "readableSha256": "2b1664dbb43888b2e1fd02afc7d68a4c6a5c4fa9faa0b7bda11d1d1374842fd9",
+      "archived10082Sha256": "2b1664dbb43888b2e1fd02afc7d68a4c6a5c4fa9faa0b7bda11d1d1374842fd9"
+    },
+    {
+      "origin": "settings/skill/recipeSkill.tab",
+      "currentSha256": "567b9253d64a174101bcafcbd24c31984f6824b63285c422d39deaaffe9c583a",
+      "readableSha256": "50c0df3dda456339d5b62316c251ad819212cf7b5d4571403bc22b788e6a0afc",
+      "archived10082Sha256": null
+    }
+  ]
+}

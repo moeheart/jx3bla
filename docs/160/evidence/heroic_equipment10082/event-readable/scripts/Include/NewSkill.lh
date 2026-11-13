@@ -1,0 +1,3532 @@
+local L0_0
+L0_0 = Include
+L0_0("scripts/Include/LogicConst.lh")
+L0_0 = Include
+L0_0("scripts/Include/AllDungeonsNpcSkillDataManager.lh")
+L0_0 = Include
+L0_0("scripts/skill/include/CommonFunction.lh")
+L0_0 = Include
+L0_0("scripts/Include/PlayerTempValueName.lh")
+L0_0 = Include
+L0_0("scripts/Map/阵营首领/include/GFCampScoreData.lua")
+L0_0 = Include
+L0_0("scripts/Map/阵营首领/include/GFActivityData.lh")
+L0_0 = Include
+L0_0("scripts/Map/逐鹿中原/include/据点争夺_Data.lh")
+L0_0 = Include
+L0_0("scripts/Map/逐鹿中原分流/include/阴山大草原分流头文件.lua")
+L0_0 = GLOBAL
+L0_0 = L0_0.GAME_FPS
+GAME_FPS = L0_0
+L0_0 = 64
+LENGTH_BASE = L0_0
+L0_0 = 512
+HEIGHT_BASE = L0_0
+L0_0 = 1024
+PERCENT_BASE = L0_0
+L0_0 = 100
+CONSUME_BASE = L0_0
+L0_0 = 80
+PRE_FRAMES = L0_0
+L0_0 = LENGTH_BASE
+L0_0 = 4 * L0_0
+MELEE_ATTACK_DISTANCE = L0_0
+L0_0 = LENGTH_BASE
+L0_0 = 25 * L0_0
+DISTANCE_DIS = L0_0
+L0_0 = 0.2
+BangHuiYueZhanDamageRate = L0_0
+L0_0 = {}
+tTempValue_Skill = L0_0
+function L0_0(A0_1)
+  local L1_2
+  if not A0_1 then
+    return
+  end
+end
+SkillProcessing = L0_0
+L0_0 = {}
+L0_0[1] = {4052, 1}
+L0_0[2] = {4052, 2}
+L0_0[3] = {4052, 3}
+L0_0[4] = {4052, 5}
+L0_0[5] = {4052, 8}
+L0_0[6] = {4052, 10}
+L0_0[7] = {4052, 12}
+L0_0[8] = {4052, 13}
+L0_0[9] = {3203, 1}
+L0_0[10] = {3203, 2}
+L0_0[11] = {3203, 3}
+L0_0[12] = {3203, 4}
+L0_0[13] = {3203, 5}
+L0_0[14] = {9991, 1}
+L0_0[15] = {9987, 1}
+function BanStealth(A0_3, A1_4)
+  local L2_5, L3_6
+  L2_5 = GetPlayer
+  L3_6 = A0_3
+  L2_5 = L2_5(L3_6)
+  if not L2_5 then
+    return
+  end
+  L3_6 = nil
+  if IsPlayer(A1_4) then
+    L3_6 = GetPlayer(A1_4)
+  end
+  if not L3_6 then
+    return
+  end
+  for _FORV_7_ = 1, #_UPVALUE0_ do
+    if L3_6.IsHaveBuff(_UPVALUE0_[_FORV_7_][1], _UPVALUE0_[_FORV_7_][2]) then
+      L3_6.DelBuff(_UPVALUE0_[_FORV_7_][1], _UPVALUE0_[_FORV_7_][2])
+    end
+  end
+end
+function BanSetSelectable(A0_7, A1_8)
+  local L2_9, L3_10
+  L2_9 = GetPlayer
+  L3_10 = A0_7
+  L2_9 = L2_9(L3_10)
+  if not L2_9 then
+    return
+  end
+  L3_10 = nil
+  if IsPlayer(A1_8) then
+    L3_10 = GetPlayer(A1_8)
+  end
+  if not L3_10 then
+    return
+  end
+  for _FORV_7_ = 1, #_UPVALUE0_ do
+    if L3_10.IsHaveBuff(_UPVALUE0_[_FORV_7_][1], _UPVALUE0_[_FORV_7_][2]) then
+      L3_10.DelBuff(_UPVALUE0_[_FORV_7_][1], _UPVALUE0_[_FORV_7_][2])
+    end
+  end
+  if L3_10.IsHaveBuff(20128, 0) then
+    L3_10.DelBuff(20127, 1)
+    L3_10.DelBuff(21633, 1)
+    L3_10.AddBuff(0, 99, 20857, 1)
+    L3_10.DelBuffByID(20128)
+  end
+end
+function AddJJCCustomDamageStatistics(A0_11, A1_12, A2_13)
+  local L3_14, L4_15, L5_16, L6_17, L7_18, L8_19, L9_20
+  if not A0_11 or not A1_12 or not A2_13 or A2_13 <= 0 then
+    return
+  end
+  L3_14 = GetPlayer
+  L4_15 = A0_11.dwID
+  L3_14 = L3_14(L4_15)
+  L4_15 = GetPlayer
+  L5_16 = A1_12.dwID
+  L4_15 = L4_15(L5_16)
+  if not L3_14 or not L4_15 then
+    return
+  end
+  L5_16 = L3_14.GetScene
+  L5_16 = L5_16()
+  L6_17 = L4_15.GetScene
+  L6_17 = L6_17()
+  if L5_16 and L6_17 then
+    L7_18 = L5_16.dwID
+    L8_19 = L6_17.dwID
+  elseif L7_18 ~= L8_19 then
+    return
+  end
+  L7_18 = L5_16.bIsArenaMap
+  if not L7_18 then
+    return
+  end
+  L7_18 = L3_14.nBattleFieldSide
+  if L7_18 ~= 0 then
+    L7_18 = L3_14.nBattleFieldSide
+  else
+    if L7_18 == 1 then
+      L7_18 = L4_15.nBattleFieldSide
+      if L7_18 ~= 0 then
+        L7_18 = L4_15.nBattleFieldSide
+      end
+  end
+  elseif L7_18 ~= 1 then
+    return
+  end
+  L7_18 = L5_16.GetCustomInteger4
+  L8_19 = SCENE_CUSTOM_VALUE_NAME
+  L8_19 = L8_19.TSSBG
+  L8_19 = L8_19.PQ_dwID
+  L7_18 = L7_18(L8_19)
+  if not L7_18 or L7_18 == 0 then
+    return
+  end
+  L8_19 = GetPQ
+  L9_20 = L7_18
+  L8_19 = L8_19(L9_20)
+  if not L8_19 then
+    return
+  end
+  L9_20 = math
+  L9_20 = L9_20.min
+  L9_20 = L9_20(A2_13, math.max(L4_15.nCurrentLife, 0))
+  if L9_20 <= 0 then
+    return
+  end
+  L8_19.SetStatistics(L3_14.dwID, PQ_STATISTICS_INDEX.HARM_OUTPUT, L9_20)
+  L8_19.SetStatistics(L4_15.dwID, PQ_STATISTICS_INDEX.INJURY, L9_20)
+end
+function TingXiaoJianQi(A0_21)
+  if GetPlayer(A0_21) and GetPlayer(A0_21).nCurrentRage >= 200 and GetPlayer(A0_21).IsHaveBuff(29359, 1) then
+    if not GetPlayer(A0_21).GetBuff(1728, 0) then
+      return
+    end
+    if GetPlayer(A0_21).GetSkillLevel(6549) == 1 then
+      GetPlayer(A0_21).DelBuffByID(1728)
+      GetPlayer(A0_21).AddBuff(GetPlayer(A0_21).dwID, GetPlayer(A0_21).nLevel, 1728, 5, GetPlayer(A0_21).GetBuff(1728, 0).nLeftActiveCount + 15)
+    else
+      GetPlayer(A0_21).DelBuffByID(1728)
+      GetPlayer(A0_21).AddBuff(GetPlayer(A0_21).dwID, GetPlayer(A0_21).nLevel, 1728, 6, GetPlayer(A0_21).GetBuff(1728, 0).nLeftActiveCount + 15)
+    end
+    GetPlayer(A0_21).DelBuff(29359, 1)
+  end
+end
+function FengMang(A0_22)
+  if GetPlayer(A0_22) then
+    if 10 == 10 then
+      GetPlayer(A0_22).AddBuff(GetPlayer(A0_22).dwID, GetPlayer(A0_22).nLevel, 33416, 2)
+    else
+      GetPlayer(A0_22).AddBuff(GetPlayer(A0_22).dwID, GetPlayer(A0_22).nLevel, 33416, 1)
+    end
+  end
+end
+function MangYing(A0_23, A1_24)
+  local L2_25, L3_26, L4_27, L5_28, L6_29
+  L2_25 = GetPlayer
+  L3_26 = A0_23
+  L2_25 = L2_25(L3_26)
+  if not L2_25 then
+    return
+  end
+  L3_26, L4_27 = nil, nil
+  L5_28 = IsPlayer
+  L6_29 = A1_24
+  L5_28 = L5_28(L6_29)
+  if L5_28 then
+    L5_28 = GetPlayer
+    L6_29 = A1_24
+    L5_28 = L5_28(L6_29)
+    L3_26 = L5_28
+    L5_28 = TARGET
+    L4_27 = L5_28.PLAYER
+  else
+    L5_28 = GetNpc
+    L6_29 = A1_24
+    L5_28 = L5_28(L6_29)
+    L3_26 = L5_28
+    L5_28 = TARGET
+    L4_27 = L5_28.NPC
+  end
+  if not L3_26 then
+    return
+  end
+  L5_28 = L3_26.GetBuff
+  L6_29 = 33467
+  L5_28 = L5_28(L6_29, 1)
+  if not L5_28 then
+    L6_29 = L3_26.AddBuff
+    L6_29(L2_25.dwID, L2_25.nLevel, 33467, 1)
+  else
+    L6_29 = L3_26.DelMultiGroupBuffByID
+    L6_29(33467)
+    L6_29 = L5_28.nLeftActiveCount
+    if L6_29 then
+      L3_26.AddBuff(L2_25.dwID, L2_25.nLevel, 33467, 1, L6_29, 0, L5_28.nStackNum + 1)
+    end
+  end
+  L6_29 = L3_26.GetBuff
+  L6_29 = L6_29(33467, 1)
+  if L6_29 and L6_29.nStackNum == 15 then
+    if L2_25.GetSkillLevel(44952) == 1 then
+      L3_26.AddBuff(L2_25.dwID, L2_25.nLevel, 33485, 1, 6)
+      L3_26.DelMultiGroupBuffByID(33467)
+    elseif L2_25.GetSkillLevel(44952) == 2 then
+      L3_26.AddBuff(L2_25.dwID, L2_25.nLevel, 33485, 1, 10)
+      L3_26.DelMultiGroupBuffByID(33467)
+    end
+    if L2_25.GetSkillLevel(44953) == 1 then
+      Skill_AddZhongChuang(L3_26, L3_26, 24356, 1)
+    end
+  end
+end
+function MangYingYu(A0_30, A1_31)
+  if not GetPlayer(A0_30) then
+    return
+  end
+  if not GetPlayer(A1_31) then
+    return
+  end
+  GetPlayer(A1_31).AddBuff(GetPlayer(A0_30).dwID, GetPlayer(A0_30).nLevel, 33475, 1)
+  if GetPlayer(A0_30).GetSkillLevel(44954) == 1 then
+    if GetPlayer(A1_31).GetBuff(33475, 0).nStackNum == 10 and not GetPlayer(A1_31).IsHaveBuff(33434, 1) then
+      GetPlayer(A1_31).AddBuff(GetPlayer(A0_30).dwID, GetPlayer(A0_30).nLevel, 33434, 1)
+      for _FORV_8_ = 1, 5 do
+        GetPlayer(A1_31).DelBuff(33475, 1)
+      end
+    end
+  elseif GetPlayer(A0_30).GetSkillLevel(44954) == 2 and GetPlayer(A1_31).GetBuff(33475, 0).nStackNum == 10 then
+    for _FORV_8_ = 1, 5 do
+      GetPlayer(A1_31).DelBuff(33475, 1)
+    end
+    GetPlayer(A1_31).AddBuff(GetPlayer(A0_30).dwID, GetPlayer(A0_30).nLevel, 33434, 1)
+  end
+end
+tElementSkillType = {
+  [1] = SKILL_KIND_TYPE.PHYSICS,
+  [2] = SKILL_KIND_TYPE.LUNAR_MAGIC,
+  [3] = SKILL_KIND_TYPE.POISON,
+  [4] = SKILL_KIND_TYPE.SOLAR_MAGIC,
+  [5] = SKILL_KIND_TYPE.NEUTRAL_MAGIC
+}
+tSkillCoefficientYDDH = {
+  [44729] = {
+    [1] = {elementIndex = 2, damage = 207000},
+    [2] = {elementIndex = 2, damage = 310500}
+  },
+  [44740] = {
+    [1] = {elementIndex = 2, damage = 24840},
+    [2] = {elementIndex = 2, damage = 37260}
+  },
+  [44750] = {
+    [1] = {elementIndex = 2, damage = 25200}
+  },
+  [44803] = {
+    [1] = {elementIndex = 2, damage = 42000}
+  },
+  [44752] = {
+    [1] = {elementIndex = 2, damage = 27600}
+  },
+  [44766] = {
+    [1] = {elementIndex = 2, damage = 41400},
+    [2] = {elementIndex = 2, damage = 62100}
+  },
+  [44767] = {
+    [1] = {elementIndex = 2, damage = 69000},
+    [2] = {elementIndex = 2, damage = 103500}
+  },
+  [44801] = {
+    [1] = {elementIndex = 2, damage = 414000},
+    [2] = {elementIndex = 2, damage = 621000}
+  },
+  [44808] = {
+    [1] = {elementIndex = 2, damage = 27600},
+    [2] = {elementIndex = 2, damage = 41400}
+  },
+  [44891] = {
+    [1] = {elementIndex = 2, damage = 46800},
+    [2] = {elementIndex = 2, damage = 70200}
+  },
+  [44915] = {
+    [1] = {elementIndex = 2, damage = 46800}
+  },
+  [44756] = {
+    [1] = {elementIndex = 1, damage = 1}
+  },
+  [44807] = {
+    [1] = {elementIndex = 1, damage = 388800}
+  },
+  [44880] = {
+    [1] = {elementIndex = 1, damage = 46800}
+  },
+  [44982] = {
+    [1] = {elementIndex = 1, damage = 5040}
+  },
+  [44984] = {
+    [1] = {elementIndex = 1, damage = 151200},
+    [2] = {elementIndex = 1, damage = 302400},
+    [3] = {elementIndex = 1, damage = 453600},
+    [4] = {elementIndex = 1, damage = 604800},
+    [5] = {elementIndex = 1, damage = 756000},
+    [6] = {elementIndex = 1, damage = 907200},
+    [7] = {elementIndex = 1, damage = 1058400},
+    [8] = {elementIndex = 1, damage = 1209600},
+    [9] = {elementIndex = 1, damage = 1360800},
+    [10] = {elementIndex = 1, damage = 1512000}
+  },
+  [44986] = {
+    [1] = {elementIndex = 1, damage = 252000},
+    [2] = {elementIndex = 1, damage = 504000},
+    [3] = {elementIndex = 1, damage = 756000},
+    [4] = {elementIndex = 1, damage = 1008000},
+    [5] = {elementIndex = 1, damage = 1260000},
+    [6] = {elementIndex = 1, damage = 1512000},
+    [7] = {elementIndex = 1, damage = 1764000},
+    [8] = {elementIndex = 1, damage = 2016000},
+    [9] = {elementIndex = 1, damage = 2268000},
+    [10] = {elementIndex = 1, damage = 2520000}
+  },
+  [44895] = {
+    [1] = {elementIndex = 1, damage = 31200},
+    [2] = {elementIndex = 1, damage = 46800},
+    [3] = {elementIndex = 1, damage = 62400},
+    [4] = {elementIndex = 1, damage = 78000}
+  },
+  [44893] = {
+    [1] = {elementIndex = 1, damage = 9360}
+  },
+  [44944] = {
+    [1] = {elementIndex = 1, damage = 596160},
+    [2] = {elementIndex = 1, damage = 715392}
+  },
+  [44987] = {
+    [1] = {elementIndex = 1, damage = 356400}
+  },
+  [44917] = {
+    [1] = {elementIndex = 3, damage = 190000},
+    [2] = {elementIndex = 3, damage = 190000},
+    [3] = {elementIndex = 3, damage = 190000},
+    [4] = {elementIndex = 3, damage = 190000}
+  },
+  [44918] = {
+    [1] = {elementIndex = 3, damage = 115000},
+    [2] = {elementIndex = 3, damage = 115000},
+    [3] = {elementIndex = 3, damage = 115000},
+    [4] = {elementIndex = 3, damage = 115000}
+  },
+  [44958] = {
+    [1] = {elementIndex = 3, damage = 37440}
+  },
+  [44959] = {
+    [1] = {elementIndex = 3, damage = 5040}
+  },
+  [44961] = {
+    [1] = {elementIndex = 3, damage = 62400}
+  },
+  [44962] = {
+    [1] = {elementIndex = 3, damage = 8400}
+  },
+  [45024] = {
+    [1] = {elementIndex = 3, damage = 19000}
+  },
+  [44846] = {
+    [1] = {elementIndex = 3, damage = 18720}
+  },
+  [44848] = {
+    [1] = {elementIndex = 3, damage = 31200}
+  },
+  [44887] = {
+    [1] = {elementIndex = 3, damage = 8400}
+  },
+  [44904] = {
+    [1] = {elementIndex = 3, damage = 16848}
+  },
+  [44905] = {
+    [1] = {elementIndex = 3, damage = 14040}
+  },
+  [44965] = {
+    [1] = {elementIndex = 3, damage = 456000},
+    [2] = {elementIndex = 3, damage = 456000}
+  },
+  [44921] = {
+    [1] = {elementIndex = 3, damage = 12600}
+  },
+  [44798] = {
+    [1] = {elementIndex = 4, damage = 126000}
+  },
+  [44810] = {
+    [1] = {elementIndex = 4, damage = 16560},
+    [2] = {elementIndex = 4, damage = 16560},
+    [3] = {elementIndex = 4, damage = 16560},
+    [4] = {elementIndex = 4, damage = 16560}
+  },
+  [44900] = {
+    [1] = {elementIndex = 4, damage = 28080}
+  },
+  [44809] = {
+    [1] = {elementIndex = 5, damage = 6240},
+    [2] = {elementIndex = 5, damage = 200},
+    [3] = {elementIndex = 5, damage = 300},
+    [4] = {elementIndex = 5, damage = 400},
+    [5] = {elementIndex = 5, damage = 500},
+    [6] = {elementIndex = 5, damage = 600},
+    [7] = {elementIndex = 5, damage = 700},
+    [8] = {elementIndex = 5, damage = 800},
+    [9] = {elementIndex = 5, damage = 900},
+    [10] = {elementIndex = 5, damage = 1000},
+    [11] = {elementIndex = 5, damage = 1100},
+    [12] = {elementIndex = 5, damage = 1200},
+    [13] = {elementIndex = 5, damage = 1300}
+  },
+  [44844] = {
+    [1] = {elementIndex = 5, damage = 1}
+  },
+  [44970] = {
+    [1] = {elementIndex = 5, damage = 280800}
+  },
+  [44973] = {
+    [1] = {elementIndex = 5, damage = 234000}
+  },
+  [44829] = {
+    [1] = {elementIndex = 5, damage = 496800}
+  }
+}
+function Skill_ElementsDamageToPlayer(A0_32, A1_33, A2_34, A3_35, A4_36, A5_37)
+  local L6_38, L7_39, L8_40, L9_41, L10_42, L11_43, L12_44, L13_45
+  if not A0_32 then
+    return
+  end
+  if not A1_33 then
+    return
+  end
+  L6_38 = GetPlayer
+  L7_39 = A1_33
+  L6_38 = L6_38(L7_39)
+  if not L6_38 then
+    return
+  end
+  L7_39 = L6_38.IsHaveBuff
+  L8_40 = 10836
+  L9_41 = 0
+  L7_39 = L7_39(L8_40, L9_41)
+  if L7_39 then
+    return
+  end
+  L7_39 = A5_37
+  L8_40 = IsPlayer
+  L9_41 = A0_32.dwID
+  L8_40 = L8_40(L9_41)
+  if L8_40 then
+    L8_40 = A0_32.nDecriticalDamagePowerBase
+    L9_41 = math
+    L9_41 = L9_41.min
+    L10_42 = L8_40 + 5147.71
+    L10_42 = L8_40 / L10_42
+    L10_42 = L10_42 + 0.0996
+    L11_43 = 0.85
+    L9_41 = L9_41(L10_42, L11_43)
+    L10_42 = 1 - L9_41
+    L7_39 = A5_37 * L10_42
+    L10_42 = A0_32.GetSkillLevel
+    L11_43 = 6567
+    L10_42 = L10_42(L11_43)
+    if L10_42 == 1 then
+      L10_42 = A0_32.IsHaveBuff
+      L11_43 = 6182
+      L12_44 = 1
+      L10_42 = L10_42(L11_43, L12_44)
+      if L10_42 then
+        L10_42 = 1 - L9_41
+        L10_42 = A5_37 * L10_42
+        L7_39 = L10_42 * 0.01
+      end
+    end
+  else
+    L8_40 = A0_32.dwTemplateID
+    if L8_40 then
+      L8_40 = A0_32.dwTemplateID
+      if L8_40 == 125406 then
+        return
+      end
+    end
+  end
+  L8_40 = 0.066
+  L9_41 = 0.01
+  L10_42 = L6_38.nGamePlayDamageFinalCof
+  L10_42 = L10_42 / 1024
+  L11_43 = L6_38.nAllDamageAddPercent
+  L11_43 = L11_43 / 1024
+  function L12_44(A0_46)
+    if not _UPVALUE0_.GetBuff(A0_46, 0) then
+      return 0
+    end
+    if not _UPVALUE0_.GetBuff(A0_46, 0).nStackNum then
+      return 0
+    end
+    return _UPVALUE0_.GetBuff(A0_46, 0).nStackNum
+  end
+  L13_45 = L12_44
+  L13_45 = L13_45(33275)
+  L13_45 = L13_45 + L12_44(33276)
+  L13_45 = L13_45 + L12_44(33277)
+  L13_45 = L13_45 + L12_44(33278)
+  L13_45 = L13_45 + L12_44(33279)
+  L13_45 = math.max(0, L13_45)
+  L7_39 = L7_39 * L8_40 * (1 + L10_42) * (1 + L11_43) * (1 + L13_45 * L9_41)
+  A0_32.SuperCustomDamage(A1_33, A2_34, A3_35, A4_36, L7_39)
+end
+function CallSkill_ElementsDamage(A0_47, A1_48, A2_49, A3_50, A4_51)
+  local L5_52, L6_53, L7_54, L8_55
+  L5_52 = tSkillCoefficientYDDH
+  L5_52 = L5_52[A2_49]
+  if not L5_52 then
+    return
+  end
+  if not A1_48 then
+    return
+  end
+  L6_53 = GetPlayer
+  L7_54 = A1_48
+  L6_53 = L6_53(L7_54)
+  if not L6_53 then
+    return
+  end
+  L7_54 = L5_52[A3_50]
+  if not L7_54 then
+    return
+  end
+  L8_55 = tElementSkillType
+  L8_55 = L8_55[L7_54.elementIndex]
+  if not L8_55 then
+    return
+  end
+  A4_51 = A4_51 or 1
+  if L6_53.GetSkillLevel(44901) == 1 then
+  elseif L6_53.GetSkillLevel(44901) == 2 then
+  end
+  A4_51 = A4_51 + A4_51 * (0.75 * (math.max(math.floor(L6_53.nPhysicsCriticalStrikeBaseRate), math.floor(L6_53.nLunarCriticalStrikeBaseRate), math.floor(L6_53.nNeutralCriticalStrikeBaseRate), math.floor(L6_53.nPoisonCriticalStrikeBaseRate), math.floor(L6_53.nSolarCriticalStrikeBaseRate)) / 100 + math.max(math.floor(L6_53.nPhysicsCriticalStrike), math.floor(L6_53.nLunarCriticalStrike), math.floor(L6_53.nNeutralCriticalStrike), math.floor(L6_53.nPoisonCriticalStrike), math.floor(L6_53.nSolarCriticalStrike)) / 9513 * 100)) / 100
+  Skill_ElementsDamageToPlayer(A0_47, A1_48, A2_49, A3_50, L8_55, L7_54.damage * A4_51)
+end
+function Skill_ElementsTherapyToPlayer(A0_56, A1_57, A2_58, A3_59, A4_60)
+  local L5_61, L6_62, L7_63, L8_64, L9_65, L10_66, L11_67, L12_68
+  if not A0_56 then
+    return
+  end
+  if not A1_57 then
+    return
+  end
+  L5_61 = GetPlayer
+  L6_62 = A1_57
+  L5_61 = L5_61(L6_62)
+  if not L5_61 then
+    return
+  end
+  L6_62 = IsEnemy
+  L7_63 = L5_61.dwID
+  L8_64 = A0_56.dwID
+  L6_62 = L6_62(L7_63, L8_64)
+  if L6_62 == true then
+    return
+  end
+  L6_62 = IsPlayer
+  L7_63 = A0_56.dwID
+  L6_62 = L6_62(L7_63)
+  if not L6_62 then
+    return
+  end
+  L6_62 = A0_56.nBeTherapyCoefficient
+  L6_62 = L6_62 or 1024
+  L7_63 = math
+  L7_63 = L7_63.ceil
+  L8_64 = A4_60 * L6_62
+  L8_64 = L8_64 / 1024
+  L7_63 = L7_63(L8_64)
+  L8_64 = 0.015
+  L9_65 = 0.05
+  L10_66 = L5_61.nGamePlayTherapyFinalCof
+  L10_66 = L10_66 / 1024
+  function L11_67(A0_69)
+    if not _UPVALUE0_.GetBuff(A0_69, 0) then
+      return 0
+    end
+    if not _UPVALUE0_.GetBuff(A0_69, 0).nStackNum then
+      return 0
+    end
+    return _UPVALUE0_.GetBuff(A0_69, 0).nStackNum
+  end
+  L12_68 = L11_67
+  L12_68 = L12_68(33275)
+  L12_68 = L12_68 + L11_67(33276)
+  L12_68 = L12_68 + L11_67(33277)
+  L12_68 = L12_68 + L11_67(33278)
+  L12_68 = L12_68 + L11_67(33279)
+  L12_68 = math.max(0, L12_68)
+  L7_63 = L7_63 * (1 + L12_68 * L9_65) * L8_64 * (1 + L10_66)
+  A0_56.SuperCustomTherapy(A1_57, A2_58, A3_59, SKILL_KIND_TYPE.NONE, L7_63)
+end
+function CallSkill_ElementsTherapy(A0_70, A1_71, A2_72, A3_73, A4_74)
+  local L5_75, L6_76
+  L5_75 = tSkillCoefficientYDDH
+  L5_75 = L5_75[A2_72]
+  if not L5_75 then
+    return
+  end
+  L6_76 = L5_75[A3_73]
+  if not L6_76 then
+    return
+  end
+  A4_74 = A4_74 or 1
+  Skill_ElementsTherapyToPlayer(A0_70, A1_71, A2_72, A3_73, L6_76.damage * A4_74)
+end
+function SuijiHuoquan(A0_77)
+  local L1_78, L2_79, L3_80, L4_81, L5_82, L6_83, L7_84, L8_85
+  L1_78 = A0_77.GetScene
+  L1_78 = L1_78()
+  if L1_78 then
+    L2_79 = L1_78.GetAllPlayer
+    L2_79 = L2_79()
+    L3_80 = {}
+    for L7_84, L8_85 in L4_81(L5_82) do
+      if GetPlayer(L8_85) and IsEnemy(A0_77.dwID, L8_85) and GetPlayer(L8_85).nMoveState ~= MOVE_STATE.ON_DEATH then
+        table.insert(L3_80, L8_85)
+      end
+    end
+    if L4_81 > 0 then
+      L7_84 = L5_82
+      if L6_83 then
+        L7_84 = A0_77.CastSkillXYZ
+        L8_85 = 44797
+        L7_84(L8_85, 1, L6_83.nX, L6_83.nY, L6_83.nZ)
+      end
+    end
+  end
+end
+function XiaohaoJianQi(A0_86)
+  if GetPlayer(A0_86) and GetPlayer(A0_86).GetSkillLevel(40178) == 1 then
+    GetPlayer(A0_86).ModifyCoolDown(1239, -24)
+  end
+end
+function lingxuesuolian(A0_87, A1_88)
+  local L2_89, L3_90, L4_91, L5_92, L6_93, L7_94, L8_95, L9_96, L10_97
+  L4_91 = GetPlayer
+  L5_92 = A0_87
+  L4_91 = L4_91(L5_92)
+  if not L4_91 then
+    L4_91 = GetNpc
+    L5_92 = A0_87
+    L4_91 = L4_91(L5_92)
+    L2_89 = L4_91
+    L4_91 = TARGET
+    L3_90 = L4_91.NPC
+  else
+    L4_91 = GetPlayer
+    L5_92 = A0_87
+    L4_91 = L4_91(L5_92)
+    L2_89 = L4_91
+    L4_91 = TARGET
+    L3_90 = L4_91.PLAYER
+  end
+  L4_91 = GetPlayer
+  L5_92 = A1_88
+  L4_91 = L4_91(L5_92)
+  if not L4_91 and L2_89 then
+    L5_92 = L2_89.DelBuff
+    L6_93 = 15516
+    L7_94 = 1
+    L5_92(L6_93, L7_94)
+    L5_92 = L2_89.DelBuff
+    L6_93 = 15516
+    L7_94 = 2
+    L5_92(L6_93, L7_94)
+    L5_92 = L2_89.DelBuff
+    L6_93 = 15531
+    L7_94 = 1
+    L5_92(L6_93, L7_94)
+    L5_92 = L2_89.DelBuff
+    L6_93 = 15531
+    L7_94 = 2
+    L5_92(L6_93, L7_94)
+    L5_92 = L2_89.DelBuff
+    L6_93 = 15898
+    L7_94 = 1
+    L5_92(L6_93, L7_94)
+    return
+  end
+  L5_92 = 1
+  L6_93 = 0
+  L7_94 = L4_91.IsHaveBuff
+  L8_95 = 15583
+  L9_96 = 1
+  L7_94 = L7_94(L8_95, L9_96)
+  if L7_94 then
+    L7_94 = L4_91.GetBuff
+    L8_95 = 15583
+    L9_96 = 1
+    L7_94 = L7_94(L8_95, L9_96)
+    if L7_94 then
+      L8_95 = L7_94.nCustomValue
+      if L8_95 == A0_87 then
+        L6_93 = 1
+      end
+    end
+    L8_95 = L4_91.GetBuff
+    L9_96 = 15584
+    L10_97 = 1
+    L8_95 = L8_95(L9_96, L10_97)
+    if L8_95 then
+      L9_96 = L8_95.nCustomValue
+      if L9_96 == A0_87 then
+        L6_93 = 1
+      end
+    end
+  end
+  if L6_93 == 1 then
+    L7_94 = L4_91.IsHaveBuff
+    L8_95 = 13422
+    L9_96 = 0
+    L7_94 = L7_94(L8_95, L9_96)
+    if L7_94 then
+      L7_94 = L4_91.DoAction
+      L8_95 = 0
+      L9_96 = 140027
+      L7_94(L8_95, L9_96)
+    else
+      L7_94 = L4_91.DoAction
+      L8_95 = 0
+      L9_96 = 140024
+      L7_94(L8_95, L9_96)
+    end
+    L7_94 = L4_91.IsHaveBuff
+    L8_95 = 15524
+    L9_96 = 0
+    L7_94 = L7_94(L8_95, L9_96)
+    if not L7_94 then
+      L7_94 = L4_91.IsHaveBuff
+      L8_95 = 15565
+      L9_96 = 0
+      L7_94 = L7_94(L8_95, L9_96)
+      if not L7_94 then
+        L7_94 = L4_91.AddBuff
+        L8_95 = L4_91.dwID
+        L9_96 = L4_91.nLevel
+        L10_97 = 15612
+        L7_94(L8_95, L9_96, L10_97, 1)
+        L7_94 = L4_91.DelBuff
+        L8_95 = 15583
+        L9_96 = 1
+        L7_94(L8_95, L9_96)
+        L7_94 = L4_91.DelBuffByID
+        L8_95 = 16448
+        L7_94(L8_95)
+        L5_92 = 1
+        L7_94 = L4_91.GetSkillLevel
+        L8_95 = 22613
+        L7_94 = L7_94(L8_95)
+        L8_95 = L4_91.GetSkillLevel
+        L9_96 = 22613
+        L8_95 = L8_95(L9_96)
+        if L8_95 > 0 then
+          L8_95 = L4_91.GetSkillLevel
+          L9_96 = 22613
+          L8_95 = L8_95(L9_96)
+          L9_96 = L4_91.GetSkillLevel
+          L10_97 = 22144
+          L9_96 = L9_96(L10_97)
+          if L8_95 ~= L9_96 then
+            L8_95 = L4_91.LearnSkillLevel
+            L9_96 = 22144
+            L10_97 = L7_94
+            L8_95(L9_96, L10_97, L4_91.dwID)
+          end
+        end
+        L8_95 = RemoteCallToClient
+        L9_96 = L4_91.dwID
+        L10_97 = "OnSkillReplace"
+        L8_95(L9_96, L10_97, 22613, 22144, L7_94, 22613)
+      end
+    end
+    L7_94 = L4_91.IsHaveBuff
+    L8_95 = 15524
+    L9_96 = 0
+    L7_94 = L7_94(L8_95, L9_96)
+    if L7_94 then
+      L7_94 = L4_91.DelBuff
+      L8_95 = 15524
+      L9_96 = 1
+      L7_94(L8_95, L9_96)
+      L7_94 = L4_91.DelBuff
+      L8_95 = 15524
+      L9_96 = 2
+      L7_94(L8_95, L9_96)
+      L7_94 = L4_91.DelBuffByID
+      L8_95 = 16448
+      L7_94(L8_95)
+      L7_94 = L4_91.DelBuff
+      L8_95 = 15583
+      L9_96 = 1
+      L7_94(L8_95, L9_96)
+      L7_94 = L4_91.AddBuff
+      L8_95 = L4_91.dwID
+      L9_96 = L4_91.nLevel
+      L10_97 = 15612
+      L7_94(L8_95, L9_96, L10_97, 1)
+      L7_94 = L4_91.GetSkillLevel
+      L8_95 = 22613
+      L7_94 = L7_94(L8_95)
+      L8_95 = L4_91.GetSkillLevel
+      L9_96 = 22613
+      L8_95 = L8_95(L9_96)
+      if L8_95 > 0 then
+        L8_95 = L4_91.GetSkillLevel
+        L9_96 = 22613
+        L8_95 = L8_95(L9_96)
+        L9_96 = L4_91.GetSkillLevel
+        L10_97 = 22144
+        L9_96 = L9_96(L10_97)
+        if L8_95 ~= L9_96 then
+          L8_95 = L4_91.LearnSkillLevel
+          L9_96 = 22144
+          L10_97 = L7_94
+          L8_95(L9_96, L10_97, L4_91.dwID)
+        end
+      end
+      L8_95 = RemoteCallToClient
+      L9_96 = L4_91.dwID
+      L10_97 = "OnSkillReplace"
+      L8_95(L9_96, L10_97, 22613, 22144, L7_94, 22613)
+      L5_92 = 1
+    else
+      L7_94 = L4_91.IsHaveBuff
+      L8_95 = 15565
+      L9_96 = 0
+      L7_94 = L7_94(L8_95, L9_96)
+      if L7_94 then
+        L7_94 = L4_91.DelBuff
+        L8_95 = 15565
+        L9_96 = 1
+        L7_94(L8_95, L9_96)
+        L7_94 = L4_91.DelBuff
+        L8_95 = 15565
+        L9_96 = 2
+        L7_94(L8_95, L9_96)
+        L7_94 = L4_91.DelBuff
+        L8_95 = 15565
+        L9_96 = 3
+        L7_94(L8_95, L9_96)
+        L7_94 = L4_91.GetSkillLevel
+        L8_95 = 22574
+        L7_94 = L7_94(L8_95)
+        if L7_94 == 1 then
+          L7_94 = L4_91.AddBuff
+          L8_95 = L4_91.dwID
+          L9_96 = L4_91.nLevel
+          L10_97 = 15524
+          L7_94(L8_95, L9_96, L10_97, 2)
+        else
+          L7_94 = L4_91.AddBuff
+          L8_95 = L4_91.dwID
+          L9_96 = L4_91.nLevel
+          L10_97 = 15524
+          L7_94(L8_95, L9_96, L10_97, 1)
+        end
+        L7_94 = L4_91.GetBuff
+        L8_95 = 15584
+        L9_96 = 1
+        L7_94 = L7_94(L8_95, L9_96)
+        if L7_94 then
+          L8_95 = L7_94.nCustomValue
+          if L8_95 == A0_87 then
+            L8_95 = L4_91.DelBuff
+            L9_96 = 15584
+            L10_97 = 1
+            L8_95(L9_96, L10_97)
+            L8_95 = L4_91.AddBuff
+            L9_96 = L4_91.dwID
+            L10_97 = L4_91.nLevel
+            L8_95(L9_96, L10_97, 15682, 1)
+            L5_92 = 2
+          else
+            L8_95 = L4_91.AddBuff
+            L9_96 = L4_91.dwID
+            L10_97 = L4_91.nLevel
+            L8_95(L9_96, L10_97, 15583, 1)
+            L8_95 = L4_91.GetBuff
+            L9_96 = 15583
+            L10_97 = 1
+            L8_95 = L8_95(L9_96, L10_97)
+            if L8_95 then
+              L9_96 = L7_94.nCustomValue
+              L8_95.nCustomValue = L9_96
+              L9_96 = L4_91.DelBuff
+              L10_97 = 15584
+              L9_96(L10_97, 1)
+            end
+            L9_96 = L4_91.AddBuff
+            L10_97 = L4_91.dwID
+            L9_96(L10_97, L4_91.nLevel, 15809, 1)
+            L9_96, L10_97 = nil, nil
+            if not GetPlayer(L8_95.nCustomValue) then
+              L9_96 = GetNpc(L8_95.nCustomValue)
+              L10_97 = TARGET.NPC
+            else
+              L9_96 = GetPlayer(L8_95.nCustomValue)
+              L10_97 = TARGET.PLAYER
+            end
+            if L9_96 then
+              L4_91.CastSkill(22357, 1, L10_97, L9_96.dwID)
+            end
+            L4_91.AddBuff(L4_91.dwID, L4_91.nLevel, 15682, 1)
+            L5_92 = 1
+          end
+          L8_95 = L4_91.GetSkillLevel
+          L9_96 = 22574
+          L8_95 = L8_95(L9_96)
+          if L8_95 == 1 then
+            L8_95 = L4_91.GetBuff
+            L9_96 = 15583
+            L10_97 = 1
+            L8_95 = L8_95(L9_96, L10_97)
+            if L8_95 then
+              L9_96 = L8_95.nCustomValue
+            end
+            L9_96, L10_97 = nil, nil
+            if not GetPlayer(aim1) then
+              L9_96 = GetNpc(aim1)
+              L10_97 = TARGET.NPC
+            else
+              L9_96 = GetPlayer(aim1)
+              L10_97 = TARGET.PLAYER
+            end
+            if L9_96 and L9_96.GetBuffByOwner(15518, 1, L4_91.dwID) and L4_91.GetBuff(16448, 0) and L4_91.GetBuff(16448, 0) then
+              L4_91.SetBuffLeftActiveCount(L4_91.GetBuff(16448, 0).nIndex, L9_96.GetBuffByOwner(15518, 1, L4_91.dwID).nLeftActiveCount)
+            end
+          end
+        end
+      end
+    end
+  end
+  if L2_89 then
+    L7_94 = L2_89.GetBuffByOwner
+    L8_95 = 15516
+    L9_96 = 1
+    L10_97 = A1_88
+    L7_94 = L7_94(L8_95, L9_96, L10_97)
+    if L7_94 then
+      L8_95 = L2_89.DelBuffByIndex
+      L9_96 = L7_94.nIndex
+      L8_95(L9_96)
+    end
+    L8_95 = L2_89.GetBuffByOwner
+    L9_96 = 15516
+    L10_97 = 2
+    L8_95 = L8_95(L9_96, L10_97, A1_88)
+    if L8_95 then
+      L9_96 = L2_89.DelBuffByIndex
+      L10_97 = L8_95.nIndex
+      L9_96(L10_97)
+    end
+    L9_96 = L2_89.GetBuffByOwner
+    L10_97 = 15531
+    L9_96 = L9_96(L10_97, 1, A1_88)
+    if L9_96 then
+      L10_97 = L2_89.DelBuffByIndex
+      L10_97(L9_96.nIndex)
+    end
+    L10_97 = L2_89.GetBuffByOwner
+    L10_97 = L10_97(15531, 2, A1_88)
+    if L10_97 then
+      L2_89.DelBuffByIndex(L10_97.nIndex)
+    end
+    if L2_89.GetBuffByOwner(15898, 1, A1_88) then
+      L2_89.DelBuffByIndex(L2_89.GetBuffByOwner(15898, 1, A1_88).nIndex)
+    end
+    if L4_91.GetBuffByOwner(16447, 0, A0_87) then
+      L4_91.DelBuffByIndex(L4_91.GetBuffByOwner(16447, 0, A0_87).nIndex)
+    end
+    if L4_91.GetBuffByOwner(16662, 1, A0_87) then
+      L4_91.DelBuffByIndex(L4_91.GetBuffByOwner(16662, 1, A0_87).nIndex)
+    end
+    if L4_91.GetBuffByOwner(16663, 1, A0_87) then
+      L4_91.DelBuffByIndex(L4_91.GetBuffByOwner(16663, 1, A0_87).nIndex)
+    end
+    L4_91.AddBuff(L4_91.dwID, L4_91.nLevel, 15997, 1)
+  end
+end
+function MiJiXueXi(A0_98, A1_99)
+  if not A1_99 then
+    return
+  end
+  if A0_98 == 18322 then
+    A1_99.AddSkillRecipe(2587, 1)
+  end
+  if A0_98 == 561 then
+    A1_99.AddSkillRecipe(2525, 1)
+  end
+  if A0_98 == 20049 then
+    A1_99.AddSkillRecipe(4871, 1)
+  end
+  if A0_98 == 24378 then
+    A1_99.AddSkillRecipe(2438, 1)
+  end
+  if A0_98 == 32140 then
+    A1_99.AddSkillRecipe(3100, 1)
+  end
+  if A0_98 == 35695 then
+    A1_99.AddSkillRecipe(5395, 1)
+  end
+  if A0_98 == 35661 then
+    A1_99.AddSkillRecipe(5406, 1)
+  end
+  if A0_98 == 38011 then
+    A1_99.AddSkillRecipe(5721, 1)
+  end
+end
+tSkillCoefficient2 = {
+  ["YtHuoGua"] = 240,
+  ["YtHuoGuaFR"] = 360,
+  [306] = {
+    skillnChannelInterval = function(A0_100)
+      local L1_101
+      if A0_100 < 10 then
+        L1_101 = 15.488000000000003
+        return L1_101
+      elseif A0_100 < 32 then
+        L1_101 = A0_100 - 9
+        L1_101 = L1_101 * 2
+        L1_101 = 8 + L1_101
+        L1_101 = L1_101 * 0.8
+        L1_101 = L1_101 * 1.1
+        L1_101 = L1_101 * 1.1
+        L1_101 = L1_101 * 2
+        return L1_101
+      else
+        L1_101 = 228.9
+        return L1_101
+      end
+    end
+  },
+  [589] = {skillnChannelInterval = 40},
+  [29188] = {
+    skillnChannelInterval = function(A0_102)
+      local L1_103
+      if A0_102 < 10 then
+        L1_103 = 55.44000000000001
+        return L1_103
+      elseif A0_102 < 22 then
+        L1_103 = A0_102 - 9
+        L1_103 = L1_103 * 4
+        L1_103 = 16 + L1_103
+        L1_103 = L1_103 * 1.5
+        L1_103 = L1_103 * 2
+        L1_103 = L1_103 * 1.05
+        L1_103 = L1_103 * 1.1
+        return L1_103
+      else
+        L1_103 = 122.24519999999998
+        return L1_103
+      end
+    end
+  },
+  [41738] = {
+    skillnChannelInterval = function(A0_104)
+      local L1_105
+      if A0_104 < 10 then
+        L1_105 = 55.44000000000001
+        return L1_105
+      elseif A0_104 < 22 then
+        L1_105 = A0_104 - 9
+        L1_105 = L1_105 * 4
+        L1_105 = 16 + L1_105
+        L1_105 = L1_105 * 1.5
+        L1_105 = L1_105 * 2
+        L1_105 = L1_105 * 1.05
+        L1_105 = L1_105 * 1.1
+        return L1_105
+      else
+        L1_105 = 122.24519999999998
+        return L1_105
+      end
+    end
+  },
+  [24379] = {
+    skillnChannelInterval = function(A0_106)
+      local L1_107
+      if A0_106 < 15 then
+        L1_107 = A0_106 * 5
+        L1_107 = 70 + L1_107
+        L1_107 = L1_107 * 2
+        L1_107 = L1_107 * 0.9
+        L1_107 = L1_107 * 0.85
+        L1_107 = L1_107 * 1.15
+        L1_107 = L1_107 * 1.1
+        return L1_107
+      elseif A0_106 < 19 then
+        L1_107 = 742.5000000000001
+        return L1_107
+      else
+        L1_107 = A0_106 - 18
+        L1_107 = L1_107 * 0.23
+        L1_107 = L1_107 + 1
+        L1_107 = 675 * L1_107
+        L1_107 = L1_107 * 1.1
+        return L1_107
+      end
+    end
+  },
+  [40286] = {
+    skillnChannelInterval = function(A0_108)
+      local L1_109
+      if A0_108 == 1 then
+        L1_109 = 400
+        return L1_109
+      elseif A0_108 == 2 then
+        L1_109 = 520
+        return L1_109
+      end
+    end
+  },
+  [24371] = {
+    skillnChannelInterval = function(A0_110)
+      local L1_111
+      if A0_110 < 15 then
+        L1_111 = A0_110 * 6
+        L1_111 = 40 + L1_111
+        L1_111 = L1_111 * 1.1
+        return L1_111
+      elseif A0_110 < 18 then
+        L1_111 = A0_110 * 10
+        L1_111 = 40 + L1_111
+        L1_111 = L1_111 * 1.1
+        return L1_111
+      else
+        L1_111 = 388.08000000000004
+        return L1_111
+      end
+    end
+  },
+  [24540] = {
+    skillnChannelInterval = function(A0_112)
+      local L1_113
+      if A0_112 < 15 then
+        L1_113 = A0_112 * 5
+        L1_113 = 30 + L1_113
+        return L1_113
+      elseif A0_112 < 18 then
+        L1_113 = A0_112 * 8
+        L1_113 = 30 + L1_113
+        return L1_113
+      else
+        L1_113 = 209
+        return L1_113
+      end
+    end
+  },
+  [24369] = {
+    skillnChannelInterval = function(A0_114)
+      local L1_115
+      if A0_114 < 15 then
+        L1_115 = A0_114 * 5
+        L1_115 = L1_115 * 1.2
+        L1_115 = 45 + L1_115
+        return L1_115
+      elseif A0_114 < 17 then
+        L1_115 = A0_114 * 9
+        L1_115 = L1_115 * 1.2
+        L1_115 = 45 + L1_115
+        return L1_115
+      else
+        L1_115 = 330.6204000000001
+        return L1_115
+      end
+    end
+  },
+  [24539] = {
+    skillnChannelInterval = function(A0_116)
+      local L1_117
+      if A0_116 < 15 then
+        L1_117 = A0_116 * 4
+        L1_117 = L1_117 * 1.2
+        L1_117 = 20 + L1_117
+        return L1_117
+      elseif A0_116 < 17 then
+        L1_117 = A0_116 * 8
+        L1_117 = L1_117 * 1.2
+        L1_117 = 20 + L1_117
+        return L1_117
+      else
+        L1_117 = 213.84
+        return L1_117
+      end
+    end
+  },
+  [24372] = {
+    skillnChannelInterval = function(A0_118)
+      local L1_119
+      if A0_118 < 16 then
+        L1_119 = A0_118 * 8
+        L1_119 = 110 + L1_119
+        return L1_119
+      elseif A0_118 < 19 then
+        L1_119 = A0_118 * 13
+        L1_119 = 160 + L1_119
+        return L1_119
+      else
+        L1_119 = 942.3480000000003
+        return L1_119
+      end
+    end
+  },
+  [24541] = {
+    skillnChannelInterval = function(A0_120)
+      local L1_121
+      if A0_120 < 16 then
+        L1_121 = A0_120 * 4
+        L1_121 = 80 + L1_121
+        return L1_121
+      elseif A0_120 < 19 then
+        L1_121 = A0_120 * 9
+        L1_121 = 150 + L1_121
+        return L1_121
+      else
+        L1_121 = 609.4000000000001
+        return L1_121
+      end
+    end
+  },
+  [6867] = {skillnChannelInterval = 610},
+  [6853] = {skillnChannelInterval = 610},
+  [6207] = {skillnChannelInterval = 137.18133000000003},
+  [6366] = {skillnChannelInterval = 323.66093760000007},
+  [6367] = {skillnChannelInterval = 300.54229920000006},
+  [6368] = {skillnChannelInterval = 866.9489400000002},
+  [6355] = {skillnChannelInterval = 163.46512},
+  [6356] = {skillnChannelInterval = 116.76080000000002},
+  [6357] = {skillnChannelInterval = 140.11296000000002},
+  [6358] = {skillnChannelInterval = 391.45683869600003},
+  [6359] = {skillnChannelInterval = 320.99460773072},
+  [13526] = {skillnChannelInterval = 190.62246058240004},
+  [13527] = {skillnChannelInterval = 1033.4460541574401},
+  [6362] = {skillnChannelInterval = 344.48201805248004},
+  [6363] = {skillnChannelInterval = 352.31115482639996},
+  [13528] = {skillnChannelInterval = 501.06475353087995},
+  [13529] = {skillnChannelInterval = 1486.8551925427207},
+  [2976] = {
+    skillnChannelInterval = function(A0_122)
+      local L1_123
+      if A0_122 < 10 then
+        L1_123 = 133.55861904
+        return L1_123
+      elseif A0_122 < 28 then
+        L1_123 = A0_122 - 9
+        L1_123 = L1_123 * 2
+        L1_123 = 64 + L1_123
+        L1_123 = L1_123 * 1.05
+        L1_123 = L1_123 * 1.15
+        L1_123 = L1_123 * 1.2
+        L1_123 = L1_123 * 0.9
+        L1_123 = L1_123 * 1.1
+        L1_123 = L1_123 * 1.15
+        L1_123 = L1_123 * 1.15
+        L1_123 = L1_123 * 1.1
+        return L1_123
+      else
+        L1_123 = 313.028013375
+        return L1_123
+      end
+    end
+  },
+  [14287] = {
+    skillnChannelInterval = function(A0_124)
+      local L1_125
+      L1_125 = 553
+      return L1_125
+    end
+  },
+  [14291] = {
+    skillnChannelInterval = function(A0_126)
+      local L1_127
+      L1_127 = 538
+      return L1_127
+    end
+  },
+  [25679] = {
+    skillnChannelInterval = function(A0_128)
+      local L1_129, L2_130
+      L1_129 = tSkillCoefficient2
+      L1_129 = L1_129.YtHuoGua
+      L2_130 = 0.07 * A0_128
+      L2_130 = 1 + L2_130
+      L1_129 = L1_129 * L2_130
+      return L1_129
+    end
+  },
+  [25678] = {
+    skillnChannelInterval = function(A0_131)
+      local L1_132, L2_133
+      L1_132 = tSkillCoefficient2
+      L1_132 = L1_132.YtHuoGuaFR
+      L2_133 = 0.07 * A0_131
+      L2_133 = 1 + L2_133
+      L1_132 = L1_132 * L2_133
+      return L1_132
+    end
+  },
+  [37357] = {
+    skillnChannelInterval = function(A0_134)
+      local L1_135
+      L1_135 = 42 * A0_134
+      L1_135 = L1_135 * 0.8
+      L1_135 = L1_135 * 1.15
+      L1_135 = L1_135 * 1.15
+      L1_135 = L1_135 * 1.55
+      return L1_135
+    end
+  },
+  [37358] = {
+    skillnChannelInterval = function(A0_136)
+      local L1_137
+      L1_137 = 49 * A0_136
+      L1_137 = L1_137 * 0.8
+      L1_137 = L1_137 * 1.15
+      L1_137 = L1_137 * 1.15
+      L1_137 = L1_137 * 1.3
+      return L1_137
+    end
+  },
+  [37359] = {
+    skillnChannelInterval = function(A0_138)
+      local L1_139
+      L1_139 = 52 * A0_138
+      L1_139 = L1_139 * 0.8
+      L1_139 = L1_139 * 1.15
+      L1_139 = L1_139 * 1.15
+      L1_139 = L1_139 * 1.3
+      return L1_139
+    end
+  },
+  [37360] = {
+    skillnChannelInterval = function(A0_140)
+      local L1_141
+      L1_141 = 20 * A0_140
+      L1_141 = L1_141 * 0.8
+      L1_141 = L1_141 * 1.15
+      L1_141 = L1_141 * 1.15
+      L1_141 = L1_141 * 1.4
+      return L1_141
+    end
+  },
+  [37361] = {
+    skillnChannelInterval = function(A0_142)
+      local L1_143
+      L1_143 = 56 * A0_142
+      L1_143 = L1_143 * 0.8
+      L1_143 = L1_143 * 1.15
+      L1_143 = L1_143 * 1.15
+      L1_143 = L1_143 * 2
+      return L1_143
+    end
+  },
+  [37362] = {
+    skillnChannelInterval = function(A0_144)
+      local L1_145
+      L1_145 = 67 * A0_144
+      L1_145 = L1_145 * 0.8
+      L1_145 = L1_145 * 1.15
+      L1_145 = L1_145 * 1.15
+      L1_145 = L1_145 * 1.3
+      return L1_145
+    end
+  },
+  [37363] = {
+    skillnChannelInterval = function(A0_146)
+      local L1_147
+      L1_147 = 56 * A0_146
+      L1_147 = L1_147 * 0.8
+      L1_147 = L1_147 * 1.15
+      L1_147 = L1_147 * 1.15
+      L1_147 = L1_147 * 2
+      return L1_147
+    end
+  },
+  [37364] = {
+    skillnChannelInterval = function(A0_148)
+      local L1_149, L2_150
+      L1_149 = 111 * A0_148
+      L2_150 = 6 - A0_148
+      L2_150 = L2_150 * 0.06
+      L2_150 = 1 - L2_150
+      L1_149 = L1_149 * L2_150
+      L1_149 = L1_149 * 0.8
+      L1_149 = L1_149 * 1.15
+      L1_149 = L1_149 * 1.15
+      L1_149 = L1_149 * 1.7
+      return L1_149
+    end
+  },
+  [37365] = {
+    skillnChannelInterval = function(A0_151)
+      local L1_152, L2_153
+      L1_152 = 111 * A0_151
+      L2_153 = 9 - A0_151
+      L2_153 = L2_153 * 0.06
+      L2_153 = 1 - L2_153
+      L1_152 = L1_152 * L2_153
+      L1_152 = L1_152 * 0.8
+      L1_152 = L1_152 * 1.15
+      L1_152 = L1_152 * 1.15
+      L1_152 = L1_152 * 1.6
+      return L1_152
+    end
+  },
+  [37366] = {
+    skillnChannelInterval = function(A0_154)
+      local L1_155
+      L1_155 = 55 * A0_154
+      L1_155 = L1_155 * 0.8
+      L1_155 = L1_155 * 1.15
+      L1_155 = L1_155 * 1.15
+      L1_155 = L1_155 * 1.1
+      return L1_155
+    end
+  },
+  [41471] = {
+    skillnChannelInterval = function(A0_156)
+      local L1_157
+      L1_157 = 140
+      return L1_157
+    end
+  },
+  [41472] = {
+    skillnChannelInterval = function(A0_158)
+      local L1_159
+      L1_159 = 210
+      return L1_159
+    end
+  },
+  [41473] = {
+    skillnChannelInterval = function(A0_160)
+      local L1_161
+      L1_161 = 280
+      return L1_161
+    end
+  },
+  [42384] = {
+    skillnChannelInterval = function(A0_162)
+      local L1_163
+      L1_163 = 420
+      return L1_163
+    end
+  },
+  [42021] = {
+    skillnChannelInterval = function(A0_164)
+      local L1_165
+      L1_165 = 37 * A0_164
+      L1_165 = 210 + L1_165
+      L1_165 = L1_165 * 0.8
+      return L1_165
+    end
+  },
+  [42084] = {
+    skillnChannelInterval = function(A0_166)
+      local L1_167
+      L1_167 = 459.99999999999994
+      return L1_167
+    end
+  },
+  [41465] = {
+    skillnChannelInterval = function(A0_168)
+      local L1_169
+      L1_169 = 480
+      return L1_169
+    end
+  },
+  [42265] = {
+    skillnChannelInterval = function(A0_170)
+      local L1_171
+      L1_171 = 720
+      return L1_171
+    end
+  },
+  [41486] = {
+    skillnChannelInterval = function(A0_172)
+      local L1_173
+      L1_173 = 22 * A0_172
+      L1_173 = 400 + L1_173
+      return L1_173
+    end
+  },
+  [41994] = {
+    skillnChannelInterval = function(A0_174)
+      local L1_175
+      L1_175 = 0.25 * A0_174
+      L1_175 = 0.75 + L1_175
+      L1_175 = 105 * L1_175
+      return L1_175
+    end
+  },
+  [42098] = {
+    skillnChannelInterval = function(A0_176)
+      local L1_177
+      L1_177 = A0_176 - 1
+      L1_177 = L1_177 * 0.2
+      L1_177 = 1 + L1_177
+      L1_177 = 170 * L1_177
+      return L1_177
+    end
+  },
+  [42559] = {
+    skillnChannelInterval = function(A0_178)
+      local L1_179
+      L1_179 = 0.58
+      return L1_179
+    end
+  },
+  [42049] = {
+    skillnChannelInterval = function(A0_180)
+      local L1_181
+      L1_181 = 280
+      return L1_181
+    end
+  },
+  [42033] = {
+    skillnChannelInterval = function(A0_182)
+      local L1_183
+      L1_183 = 400
+      return L1_183
+    end
+  },
+  [42247] = {
+    skillnChannelInterval = function(A0_184)
+      local L1_185
+      L1_185 = 1000
+      return L1_185
+    end
+  },
+  [42260] = {
+    skillnChannelInterval = function(A0_186)
+      local L1_187
+      if A0_186 == 1 then
+        L1_187 = 1008
+        return L1_187
+      elseif A0_186 == 2 then
+        L1_187 = 1008
+        return L1_187
+      elseif A0_186 == 3 then
+        L1_187 = 1008
+        return L1_187
+      end
+    end
+  },
+  [42267] = {
+    skillnChannelInterval = function(A0_188)
+      return 300 * A0_188
+    end
+  },
+  [42275] = {
+    skillnChannelInterval = function(A0_189)
+      local L1_190
+      L1_190 = 300
+      return L1_190
+    end
+  },
+  [42335] = {
+    skillnChannelInterval = function(A0_191)
+      return 250 * A0_191
+    end
+  },
+  [42336] = {
+    skillnChannelInterval = function(A0_192)
+      local L1_193
+      L1_193 = 480
+      return L1_193
+    end
+  },
+  [42381] = {
+    skillnChannelInterval = function(A0_194)
+      local L1_195
+      L1_195 = 600
+      return L1_195
+    end
+  },
+  [42417] = {
+    skillnChannelInterval = function(A0_196)
+      local L1_197
+      L1_197 = 1400
+      return L1_197
+    end
+  },
+  [42702] = {
+    skillnChannelInterval = function(A0_198)
+      local L1_199
+      L1_199 = 1200
+      return L1_199
+    end
+  },
+  [42976] = {
+    skillnChannelInterval = function(A0_200)
+      local L1_201
+      if A0_200 == 1 then
+        L1_201 = 500
+        return L1_201
+      elseif A0_200 == 2 then
+        L1_201 = 1000
+        return L1_201
+      elseif A0_200 == 3 then
+        L1_201 = 2000
+        return L1_201
+      end
+    end
+  },
+  [43081] = {
+    skillnChannelInterval = function(A0_202)
+      local L1_203
+      L1_203 = 2600
+      return L1_203
+    end
+  },
+  [43082] = {
+    skillnChannelInterval = function(A0_204)
+      local L1_205
+      L1_205 = 1200
+      return L1_205
+    end
+  },
+  [43086] = {
+    skillnChannelInterval = function(A0_206)
+      local L1_207
+      L1_207 = 65
+      return L1_207
+    end
+  },
+  [43087] = {
+    skillnChannelInterval = function(A0_208)
+      local L1_209
+      L1_209 = 10
+      return L1_209
+    end
+  },
+  [46382] = {
+    skillnChannelInterval = function(A0_210)
+      local L1_211
+      L1_211 = 140
+      return L1_211
+    end
+  },
+  [46383] = {
+    skillnChannelInterval = function(A0_212)
+      local L1_213
+      L1_213 = 210
+      return L1_213
+    end
+  },
+  [46384] = {
+    skillnChannelInterval = function(A0_214)
+      local L1_215
+      L1_215 = 280
+      return L1_215
+    end
+  },
+  [46385] = {
+    skillnChannelInterval = function(A0_216)
+      local L1_217
+      L1_217 = 420
+      return L1_217
+    end
+  },
+  [46387] = {
+    skillnChannelInterval = function(A0_218)
+      local L1_219
+      L1_219 = 506
+      return L1_219
+    end
+  },
+  [46390] = {
+    skillnChannelInterval = function(A0_220)
+      local L1_221
+      L1_221 = 159.82444800000002
+      return L1_221
+    end
+  },
+  [46392] = {
+    skillnChannelInterval = function(A0_222)
+      local L1_223
+      L1_223 = 480
+      return L1_223
+    end
+  },
+  [46394] = {
+    skillnChannelInterval = function(A0_224)
+      local L1_225
+      L1_225 = 576
+      return L1_225
+    end
+  },
+  [46398] = {
+    skillnChannelInterval = function(A0_226)
+      local L1_227
+      L1_227 = 22 * A0_226
+      L1_227 = 400 + L1_227
+      return L1_227
+    end
+  }
+}
+function angleToRange(A0_228)
+  A0_228 = A0_228 % 360
+  if A0_228 < 0 then
+    A0_228 = A0_228 + 360
+  end
+  return math.floor(A0_228 / 360 * 256)
+end
+function ClearSkillBuff(A0_229)
+  local L1_230
+  L1_230 = {2757}
+  for _FORV_5_ = 1, #L1_230 do
+    A0_229.DelBuffByID(L1_230[_FORV_5_])
+  end
+end
+NPCSKILLMOVESJBX = {TC_MOVE_LY = 41570, TC_YC_LY = 12}
+QiJingXunBaoSkillCoe_130 = 1.005
+tSkillCoefficientQJXB = {
+  JH_HSQJ = 697,
+  JH_HFSY = 440,
+  HJY_LCYZ = 697,
+  HJY_LCYZ_DOT = 697,
+  HJY_SYZ = 176,
+  HJY_SYZ_DOT = 368,
+  HJY_YMZ = 660,
+  HJY_ZLYX_DOT = 435,
+  HJY_FRBD = 326,
+  HJY_YSJF = 297,
+  BXJ_DXJQ = 154,
+  BXJ_JHNG = 174,
+  BXJ_JPXK = 470,
+  BXJ_JPXK_JS = 212,
+  BXJ_JYLH = 215,
+  BXJ_STJL = 95,
+  BXJ_JQ_DOT = 174,
+  YJJ_SQS = 408,
+  YJJ_NYS = 1113,
+  YJJ_NYS_DOT = 1035,
+  YJJ_WTXC = 812,
+  YJJ_DSZH = 881,
+  QC_SXLH = 444,
+  QC_SCHS = 266,
+  QC_LYHX = 1179,
+  QC_JCHM = 3377,
+  JC_SHTY = 352,
+  JC_DR = 161,
+  JC_WWWJ = 716,
+  JC_BHGY = 582,
+  JC_YZJ = 128,
+  TC_CY = 279,
+  TC_LY = 617,
+  TC_DLY = 1493,
+  TC_ZBF = 479,
+  TC_T = 524,
+  TC_LX = 398,
+  TC_DLYEW = 299,
+  CJ_TL = 376,
+  CJ_YFYH = 1335,
+  CJ_FC = 316,
+  CJ_HG = 179,
+  CJ_HP = 182,
+  CJ_DC = 113,
+  DJ_XX = 362,
+  DJ_XX_DOT = 362,
+  DJ_SY = 348,
+  DJ_SY_DOT = 366,
+  DJ_CX = 225,
+  DJ_CX_DOT = 495,
+  DJ_BZ = 321,
+  DJ_BZ_DOT = 707,
+  DJ_LYG_MT = 129,
+  DJ_LYG_WZ = 163,
+  JYJ_DPJ = 348,
+  JYJ_ZMJ = 933,
+  JYJ_ZXJ = 368,
+  JYJ_ZLQX = 311,
+  JYJ_CX = 543,
+  TL_HS_DOT = 655,
+  TL_HS_ST = 139,
+  TL_QQWJ = 394,
+  TL_QJLH = 497,
+  TL_BYLHZ = 517,
+  FYSJ_RY1 = 339,
+  FYSJ_RY2 = 414,
+  FYSJ_RY3 = 702,
+  FYSJ_YH1 = 353,
+  FYSJ_YH2 = 275,
+  FYSJ_YH_DOT = 589,
+  FYSJ_SSJ = 181,
+  FYSJ_QYDC = 360,
+  XCJ_BGCT = 314,
+  XCJ_HDSA = 314,
+  XCJ_BDGT = 314,
+  XCJ_EGLL = 825,
+  XCJ_JLFJ = 272,
+  XCJ_SLQS = 340,
+  XCJ_LYTD = 425,
+  XCJ_LTWY = 531,
+  XCJ_KLYH = 526,
+  FSJ_DJ = 433,
+  FSJ_DM = 273,
+  FSJ_JD = 916,
+  FSJ_ZD = 393,
+  FSJ_ZD_DOT = 304,
+  MW_G = 616,
+  MW_S_ST = 418,
+  MW_S_DOT = 304,
+  MW_J_ST = 418,
+  MW_J_DOT = 304,
+  MW_JZ = 187,
+  MW_BKJ = 1289,
+  BD_NXM = 216,
+  BD_JBQY = 124,
+  BD_TYYQ = 70,
+  BD_XCBG = 443,
+  BD_XWJD1 = 94,
+  BD_XWJD2 = 140,
+  BD_XWJD3 = 187,
+  BD_XWJD4 = 222,
+  LHJ_MLYG = 285,
+  LHJ_YCZB = 613,
+  LHJ_ZBLY = 975,
+  LHJ_ZCTN = 111,
+  LHJ_DRRH = 1444,
+  LHJ_DRRHFC = 201,
+  YLJ_JHH = 175,
+  YLJ_TMBH = 449,
+  YLJ_XFHQ = 69,
+  YLJ_JGHL = 375,
+  YLJ_LTL = 393,
+  TXJ_BZN = 311,
+  TXJ_TDX = 627,
+  TXJ_WZD = 353,
+  TXJ_SJJ = 353,
+  TXJ_HG = 871,
+  TXJ_QHHG = 1742,
+  TXJ_JJHG = 2613,
+  WF_SLZH = 348,
+  WF_GWDC = 279,
+  WF_JHLS = 467,
+  WF_YGZX = 420,
+  WF_QDSX = 465,
+  WF_XZ = 139,
+  WF_NL_DOT = 478,
+  WF_WFZH = 273,
+  GFJ_XYS1 = 100,
+  GFJ_XYS2 = 100,
+  GFJ_XYS3 = 100,
+  GFJ_DYS_FJ = 100,
+  GFJ_JYS = 100,
+  GFJ_LKY = 100,
+  GFJ_GFPL = 100,
+  SHXJ_CFMJ = 80,
+  SHXJ_YYC = 700,
+  SHXJ_LJC = 500,
+  SHXJ_ZYWH = 150,
+  SHXJ_JS = 30,
+  SHXJ_GC = 200
+}
+for _FORV_5_, _FORV_6_ in pairs(tSkillCoefficientQJXB) do
+  tSkillCoefficientQJXB[_FORV_5_] = _FORV_6_ * QiJingXunBaoSkillCoe_130
+end
+QiJingXunBaoCostManaCoe_130 = 1
+tSkillCostManaQJXB = {
+  HJY_LCYZ = 22,
+  HJY_SYZ = 16,
+  HJY_YMZ = 28,
+  HJY_FRBD = 30,
+  HJY_YSJF = 17,
+  BXJ_DXJQ = 14,
+  BXJ_JHNG = 10,
+  BXJ_JPXK = 15,
+  BXJ_JYLH = 39,
+  BXJ_STJL = 35,
+  YJJ_SQS = 12,
+  YJJ_NYS = 27,
+  YJJ_WTXC = 30,
+  YJJ_ZYS = 36,
+  YJJ_DSZH = 53,
+  ZXG_SXLH = 12,
+  ZXG_LYHX = 29,
+  ZXG_SCHS = 26,
+  ZXG_PCQ = 12,
+  ZXG_JCHM = 91,
+  TXJY_SHTY = 13,
+  TXJY_WWWJ = 25,
+  TXJY_BHGY = 27,
+  TXJY_TRY = 25,
+  TXJY_RJHY = 42,
+  TC_CY = 8,
+  TC_LY = 18,
+  TC_DLY = 54,
+  TC_ZBF = 14,
+  TC_T = 32,
+  CJ_TL = 11,
+  CJ_YFYH = 36,
+  CJ_FC = 55,
+  CJ_HG = 36,
+  CJ_HP = 26,
+  DJ_XX = 27,
+  DJ_SY = 22,
+  DJ_CX = 22,
+  DJ_BZ = 31,
+  DJ_LYG = 22,
+  JYJ_DPJ = 10,
+  JYJ_ZMJ = 28,
+  JYJ_ZXJ = 30,
+  JYJ_ZLQX = 18,
+  JYJ_NX = 6,
+  TLGD_HXB = 26,
+  TLGD_QQWJ = 12,
+  TLGD_QJLH = 214,
+  TLGD_ZMFZ = 36,
+  TLGD_BYLHZ = 62,
+  FYSJ_RY1 = 10,
+  FYSJ_RY2 = 12,
+  FYSJ_RY3 = 22,
+  FYSJ_YH1 = 29,
+  FYSJ_YH2 = 12,
+  FYSJ_SSJ = 24,
+  FYSJ_QYDC = 22,
+  FYSJ_BWAX = 25,
+  XCJ_DGBF = 9,
+  XCJ_EGLL = 30,
+  XCJ_JLFJ = 8,
+  XCJ_SLQS = 10,
+  XCJ_LYTD = 13,
+  XCJ_LTWY = 16,
+  XCJ_KLYH = 14,
+  XCJ_JZX = 25,
+  XCJ_ZXY = 25,
+  FSJ_DJ = 13,
+  FSJ_DM = 25,
+  FSJ_JD = 28,
+  FSJ_ZD = 26,
+  FSJ_DL = 48,
+  MW_G = 18,
+  MW_S = 22,
+  MW_J = 22,
+  MW_JZ = 12,
+  MW_BKJ = 39,
+  BD_NXM = 26,
+  BD_JBQY = 37,
+  BD_TYYQ = 22,
+  BD_XCBG = 35,
+  BD_XWJD1 = 14,
+  BD_XWJD2 = 22,
+  BD_XWJD3 = 27,
+  LHJ_MLYG = 8,
+  LHJ_YCZB = 18,
+  LHJ_ZBLY = 46,
+  LHJ_ZCTN = 37,
+  LHJ_DRRH = 47,
+  YLJ_JHH = 5,
+  YLJ_TMBH = 27,
+  YLJ_XFHQ = 42,
+  YLJ_JGHL = 11,
+  YLJ_LTL = 24,
+  TXJ_BZN = 9,
+  TXJ_QG = 12,
+  TXJ_TDX = 18,
+  TXJ_WZD = 43,
+  TXJ_SJJ = 43,
+  WF_SLZH = 10,
+  WF_GWDC = 8,
+  WF_JHLS = 14,
+  WF_YGZX = 12,
+  WF_QDSX = 28,
+  WF_XZ = 8,
+  GFJ_XYS1 = 1,
+  GFJ_XYS2 = 1,
+  GFJ_XYS3 = 1,
+  GFJ_DYS_FJ = 1,
+  GFJ_JYS = 1,
+  GFJ_LKY = 1,
+  GFJ_GFPL = 1,
+  SHXJ_CFMJ = 1024,
+  SHXJ_YYC = 1024,
+  SHXJ_LJC = 1024,
+  SHXJ_YWCY = 1024,
+  SHXJ_ZYWH = 1024
+}
+for _FORV_5_, _FORV_6_ in pairs(tSkillCostManaQJXB) do
+  tSkillCostManaQJXB[_FORV_5_] = _FORV_6_ * QiJingXunBaoCostManaCoe_130
+end
+tWXL_KuiLeiSkillEnergy = {
+  LLB = 0,
+  LHM_2 = 0,
+  QLJ_1 = 0,
+  QLJ_2 = 0,
+  QLJ_3 = 0,
+  SDY = 0,
+  SBJ = 0,
+  FY = 10,
+  GX_1 = 20,
+  GX_2 = 30,
+  GX_3 = 40,
+  JX = 20,
+  TS = 15,
+  CSDZ = 50,
+  nEnergyPerLine = 10,
+  nMaxLine = 5
+}
+tWXL_DoubleSkillQX = {
+  [42411] = 41468,
+  [42412] = 41469,
+  [42413] = 41470,
+  [42414] = 42383,
+  [41442] = 42017,
+  [41443] = 42018,
+  [42397] = 42017
+}
+tWXL_EnergySkill = {
+  SkillLevel = function(A0_231)
+    local L1_232, L2_233
+    if A0_231 >= 40 then
+      L1_232 = 3
+      L2_233 = 40
+      return L1_232, L2_233
+    elseif A0_231 >= 30 then
+      L1_232 = 2
+      L2_233 = 30
+      return L1_232, L2_233
+    else
+      L1_232 = 1
+      L2_233 = 20
+      return L1_232, L2_233
+    end
+  end
+}
+tKLSkin_Buff = {
+  {
+    dwSkinID = 0,
+    dwBuffID = 31896,
+    dwModelID = 95475,
+    dwSoundID = 200006,
+    dwLoginShowID = 2
+  },
+  {
+    dwSkinID = 127,
+    dwBuffID = 31897,
+    dwModelID = 96760,
+    dwSoundID = 200007,
+    dwLoginShowID = 1
+  },
+  {
+    dwSkinID = 128,
+    dwBuffID = 31898,
+    dwModelID = 96761,
+    dwSoundID = 200008,
+    dwLoginShowID = 3
+  },
+  {
+    dwSkinID = 129,
+    dwBuffID = 31899,
+    dwModelID = 96762,
+    dwSoundID = 200009,
+    dwLoginShowID = 4
+  },
+  {
+    dwSkinID = 194,
+    dwBuffID = 31900,
+    dwModelID = 96763,
+    dwSoundID = 200010,
+    dwLoginShowID = 5
+  },
+  {
+    dwSkinID = 163,
+    dwBuffID = 31901,
+    dwModelID = 96764,
+    dwSoundID = 200011,
+    dwLoginShowID = 6
+  }
+}
+function WXL_CreateLineTrap(A0_234, A1_235, A2_236, A3_237, A4_238)
+  local L5_239, L6_240, L7_241, L8_242, L9_243, L10_244, L11_245, L12_246, L13_247, L14_248, L15_249, L16_250, L17_251, L18_252, L19_253, L20_254, L21_255, L22_256, L23_257, L24_258, L25_259, L26_260, L27_261, L28_262, L29_263, L30_264, L31_265, L32_266, L33_267, L34_268, L35_269, L36_270, L37_271, L38_272, L39_273, L40_274
+  L5_239 = A1_235.GetSkillLevel
+  L6_240 = 42133
+  L5_239 = L5_239(L6_240)
+  if L5_239 == 1 then
+    L5_239 = A1_235.IsHaveBuff
+    L6_240 = 31576
+    L5_239 = L5_239(L6_240, L7_241)
+    if L5_239 then
+      L5_239 = 10
+      L6_240 = 0
+      if L5_239 <= L7_241 then
+        L6_240 = L8_242
+        L10_244 = A1_235.nLevel
+        L11_245 = 31753
+        L12_246 = 1
+        L13_247 = 1
+        L14_248 = 0
+        L8_242(L9_243, L10_244, L11_245, L12_246, L13_247, L14_248, L15_249)
+      end
+      L10_244 = L7_241
+      L8_242(L9_243, L10_244)
+    end
+  end
+  L5_239 = A1_235.GetSkillLevel
+  L6_240 = 42140
+  L5_239 = L5_239(L6_240)
+  if L5_239 == 1 then
+    L5_239 = 40
+    L6_240 = A1_235.GetTempValue
+    L6_240 = L6_240(L7_241)
+    L6_240 = L6_240 + A2_236
+    if L5_239 <= L6_240 then
+      L10_244 = 31764
+      L11_245 = 1
+      L7_241(L8_242, L9_243, L10_244, L11_245)
+      L6_240 = L6_240 - L5_239
+    end
+    L7_241(L8_242, L9_243)
+  end
+  L5_239 = A1_235.GetScene
+  L5_239 = L5_239()
+  if not L5_239 then
+    return
+  end
+  L6_240 = 0
+  if A3_237 then
+    L6_240 = A3_237
+  else
+    L6_240 = L7_241
+    A1_235.nCurrentEnergy = L7_241
+  end
+  if L6_240 == 0 and not A3_237 then
+    return
+  end
+  if L7_241 == 0 then
+    return
+  end
+  if L7_241 == 1 then
+    for L10_244 = 1, L6_240 do
+      L11_245 = A1_235.CastSkillXYZ
+      L12_246 = 42097
+      L13_247 = 1
+      L14_248 = A0_234.nX
+      L11_245(L12_246, L13_247, L14_248, L15_249, L16_250)
+    end
+    L10_244 = A0_234.nY
+    L11_245 = A0_234.nZ
+    L7_241(L8_242, L9_243, L10_244, L11_245)
+    return
+  end
+  L10_244 = Random
+  L11_245 = 255
+  L10_244 = L10_244(L11_245)
+  L11_245 = L6_240
+  L12_246 = math
+  L12_246 = L12_246.min
+  L13_247 = 255 / L11_245
+  L14_248 = 60
+  L12_246 = L12_246(L13_247, L14_248)
+  L13_247 = false
+  L14_248 = L5_239.dwMapID
+  if L15_249 then
+  elseif L15_249 or L14_248 == 689 then
+    L13_247 = true
+    L11_245 = 1
+  end
+  for L18_252 = 1, L11_245 do
+    L19_253 = L12_246 * L18_252
+    L19_253 = L19_253 + L10_244
+    L20_254 = Random
+    L21_255 = 240
+    L22_256 = 270
+    L20_254 = L20_254(L21_255, L22_256)
+    L19_253 = L19_253 + L20_254
+    L20_254 = 6.4
+    L21_255 = A1_235.GetSkillLevel
+    L22_256 = 42130
+    L21_255 = L21_255(L22_256)
+    if L21_255 == 1 then
+      L21_255 = A0_234.nTouchRange
+      L22_256 = Random
+      L23_257 = 3
+      L24_258 = 5
+      L22_256 = L22_256(L23_257, L24_258)
+      L21_255 = L21_255 + L22_256
+      L20_254 = L21_255 * 64
+    end
+    L21_255 = GetLogicRaycastHit
+    L22_256 = L7_241
+    L23_257 = L8_242
+    L24_258 = L19_253
+    L25_259 = L20_254
+    L22_256 = L21_255(L22_256, L23_257, L24_258, L25_259)
+    L23_257 = GetLogicDirection
+    L24_258 = L7_241 - L21_255
+    L25_259 = L8_242 - L22_256
+    L23_257 = L23_257(L24_258, L25_259)
+    L24_258 = 24
+    L25_259 = Random
+    L26_260 = 5
+    L27_261 = 15
+    L25_259 = L25_259(L26_260, L27_261)
+    L26_260 = L24_258 - L25_259
+    L27_261 = GetLogicRaycastHit
+    L28_262 = L21_255
+    L29_263 = L22_256
+    L30_264 = L23_257 + 192
+    L31_265 = L25_259 * 64
+    L28_262 = L27_261(L28_262, L29_263, L30_264, L31_265)
+    L29_263 = GetLogicRaycastHit
+    L30_264 = L21_255
+    L31_265 = L22_256
+    L32_266 = L23_257 + 64
+    L33_267 = L26_260 * 64
+    L30_264 = L29_263(L30_264, L31_265, L32_266, L33_267)
+    L31_265 = math
+    L31_265 = L31_265.max
+    L32_266 = 0
+    L33_267 = L27_261
+    L31_265 = L31_265(L32_266, L33_267)
+    L27_261 = L31_265
+    L31_265 = math
+    L31_265 = L31_265.min
+    L32_266 = L5_239.nRegionWidth
+    L32_266 = L32_266 * 2048
+    L32_266 = L32_266 - 1
+    L33_267 = L27_261
+    L31_265 = L31_265(L32_266, L33_267)
+    L27_261 = L31_265
+    L31_265 = math
+    L31_265 = L31_265.max
+    L32_266 = 0
+    L33_267 = L28_262
+    L31_265 = L31_265(L32_266, L33_267)
+    L28_262 = L31_265
+    L31_265 = math
+    L31_265 = L31_265.min
+    L32_266 = L5_239.nRegionHeight
+    L32_266 = L32_266 * 2048
+    L32_266 = L32_266 - 1
+    L33_267 = L28_262
+    L31_265 = L31_265(L32_266, L33_267)
+    L28_262 = L31_265
+    L31_265 = math
+    L31_265 = L31_265.max
+    L32_266 = 0
+    L33_267 = L29_263
+    L31_265 = L31_265(L32_266, L33_267)
+    L29_263 = L31_265
+    L31_265 = math
+    L31_265 = L31_265.min
+    L32_266 = L5_239.nRegionWidth
+    L32_266 = L32_266 * 2048
+    L32_266 = L32_266 - 1
+    L33_267 = L29_263
+    L31_265 = L31_265(L32_266, L33_267)
+    L29_263 = L31_265
+    L31_265 = math
+    L31_265 = L31_265.max
+    L32_266 = 0
+    L33_267 = L30_264
+    L31_265 = L31_265(L32_266, L33_267)
+    L30_264 = L31_265
+    L31_265 = math
+    L31_265 = L31_265.min
+    L32_266 = L5_239.nRegionHeight
+    L32_266 = L32_266 * 2048
+    L32_266 = L32_266 - 1
+    L33_267 = L30_264
+    L31_265 = L31_265(L32_266, L33_267)
+    L30_264 = L31_265
+    L31_265 = GetLogicDirection
+    L32_266 = L27_261 - L29_263
+    L33_267 = L28_262 - L30_264
+    L31_265 = L31_265(L32_266, L33_267)
+    L32_266 = L5_239.GetFloor
+    L33_267 = L29_263
+    L34_268 = L30_264
+    L35_269 = L9_243
+    L32_266 = L32_266(L33_267, L34_268, L35_269)
+    L32_266 = L32_266 or L9_243
+    L33_267 = L5_239.GetFloor
+    L34_268 = L27_261
+    L35_269 = L28_262
+    L36_270 = L9_243
+    L33_267 = L33_267(L34_268, L35_269, L36_270)
+    L33_267 = L33_267 or L9_243
+    L34_268 = math
+    L34_268 = L34_268.abs
+    L35_269 = L32_266 - L33_267
+    L34_268 = L34_268(L35_269)
+    L34_268 = L34_268 / 8
+    L34_268 = L34_268 / 64
+    if L34_268 >= 15 then
+      L34_268 = math
+      L34_268 = L34_268.min
+      L35_269 = L32_266
+      L36_270 = L33_267
+      L34_268 = L34_268(L35_269, L36_270)
+      L32_266 = L34_268
+      L34_268 = math
+      L34_268 = L34_268.min
+      L35_269 = L32_266
+      L36_270 = L33_267
+      L34_268 = L34_268(L35_269, L36_270)
+      L33_267 = L34_268
+    end
+    L34_268 = L5_239.GetFloor
+    L35_269 = A0_234.nX
+    L36_270 = A0_234.nY
+    L37_271 = A0_234.nZ
+    L34_268 = L34_268(L35_269, L36_270, L37_271)
+    if L32_266 < L34_268 or L33_267 < L34_268 then
+      L32_266 = L34_268
+      L33_267 = L34_268
+    end
+    L35_269 = L29_263
+    L36_270 = L30_264
+    L37_271 = L33_267
+    L38_272 = L5_239.IsPointValidWithHeight
+    L39_273 = L35_269
+    L40_274 = L36_270
+    L38_272 = L38_272(L39_273, L40_274, L37_271, A1_235.nHeight)
+    if not L38_272 then
+      L38_272 = L5_239.GetAdaptedPoint
+      L39_273 = A0_234.nX
+      L40_274 = A0_234.nY
+      L40_274 = L38_272(L39_273, L40_274, A0_234.nZ, L35_269, L36_270, L37_271, A1_235.nHeight, 0)
+      L37_271 = L40_274
+      L36_270 = L39_273
+      L35_269 = L38_272
+      L38_272 = GetLogicRaycastHit
+      L39_273 = L35_269
+      L40_274 = L36_270
+      L39_273 = L38_272(L39_273, L40_274, L31_265, L24_258 * 64)
+      L28_262 = L39_273
+      L27_261 = L38_272
+    end
+    L38_272 = L5_239.CreateNpc
+    L39_273 = 133061
+    L40_274 = L35_269
+    L38_272 = L38_272(L39_273, L40_274, L36_270, L37_271, L31_265, 960)
+    if L38_272 then
+      L39_273 = L38_272.SetCustomUnsigned4
+      L40_274 = 0
+      L39_273(L40_274, math.max(0, L27_261))
+      L39_273 = L38_272.SetCustomUnsigned4
+      L40_274 = 4
+      L39_273(L40_274, math.max(0, L28_262))
+      L39_273 = L38_272.SetCustomUnsigned4
+      L40_274 = 8
+      L39_273(L40_274, math.max(0, L38_272.nZ + 512))
+      L39_273 = L38_272.SetCustomUnsigned4
+      L40_274 = 12
+      L39_273(L40_274, A1_235.dwID)
+      L39_273 = ProcessPlayerSkillNpc
+      L40_274 = L38_272
+      L39_273(L40_274, A1_235)
+      L39_273 = L38_272.SetHeight
+      L40_274 = A1_235.nHeight
+      L39_273(L40_274, false)
+      L39_273 = A1_235.dwID
+      L38_272.dwEmployer = L39_273
+      L39_273 = L38_272.AddBuff
+      L40_274 = A1_235.dwID
+      L39_273(L40_274, A1_235.nLevel, 31258, 2)
+      L39_273 = A1_235.GetTempValue
+      L40_274 = PLAYER_TEMP_VALUE_WUXIANGLOU
+      L40_274 = L40_274.JX_NUM
+      L39_273 = L39_273(L40_274)
+      L39_273 = L39_273 + 1
+      L40_274 = tWXL_KuiLeiSkillEnergy
+      L40_274 = L40_274.nMaxLine
+      if L39_273 > L40_274 then
+        L39_273 = 1
+      end
+      L40_274 = A1_235.SetTempValue
+      L40_274(PLAYER_TEMP_VALUE_WUXIANGLOU.JX_NUM, L39_273)
+      L40_274 = A1_235.GetTempValue
+      L40_274 = L40_274(PLAYER_TEMP_VALUE_WUXIANGLOU.JX_START + L39_273 - 1)
+      if GetNpc(L40_274) then
+        A1_235.DoPointChainEffect(false, GetNpc(L40_274).dwID, 0, 0, 0, 0)
+        GetNpc(L40_274).SetDisappearFrames(1)
+      end
+      A1_235.SetTempValue(PLAYER_TEMP_VALUE_WUXIANGLOU.JX_START + L39_273 - 1, L38_272.dwID)
+    end
+  end
+end
+function WXL_EndControl(A0_275)
+  A0_275.CastSkill(42248, 1)
+  if A0_275.GetPet() then
+    A0_275.GetPet().Stand()
+  end
+  if A0_275.GetControlPetState() == 1 then
+    A0_275.EndControlPet()
+  end
+  if A0_275.nMoveState ~= MOVE_STATE.ON_JUMP and A0_275.nMoveState ~= MOVE_STATE.ON_SKILL_MOVE_SRC then
+    A0_275.StopXYZ()
+  end
+  A0_275.DelBuff(31213, 1)
+  A0_275.DelBuff(31213, 3)
+end
+function WXL_AddJiaXianBuff(A0_276, A1_277, A2_278)
+  local L3_279, L4_280
+  L3_279 = 5
+  L4_280 = A1_277.GetSkillLevel
+  L4_280 = L4_280(42123)
+  if L4_280 == 1 then
+    L3_279 = 3
+  end
+  L4_280 = 6
+  if A1_277.GetSkillLevel(42123) == 1 then
+    A1_277.CastSkill(38803, 4)
+    if A0_276.nMoveState == MOVE_STATE.ON_KNOCKED_DOWN then
+      A0_276.AddBuff(A1_277.dwID, A1_277.nLevel, 31584, 4)
+    end
+  elseif A1_277.GetSkillLevel(42148) == 1 then
+    A0_276.AddBuff(A1_277.dwID, A1_277.nLevel, 31584, 2)
+  else
+    A0_276.AddBuff(A1_277.dwID, A1_277.nLevel, 31584, 1)
+  end
+  if A0_276.nMoveState == MOVE_STATE.ON_KNOCKED_DOWN and not A1_277.IsHaveBuff(32144, 0) then
+    if (A0_276.nMoveState == MOVE_STATE.ON_FREEZE or A1_277.GetSkillLevel(42123) == 1 and A0_276.nMoveState == MOVE_STATE.ON_KNOCKED_DOWN) and (A0_276.GetBuffByOwner(31519, 0, A1_277.dwID) and L3_279 <= A0_276.GetBuffByOwner(31519, 0, A1_277.dwID).nStackNum or A2_278) then
+      A1_277.AddBuff(A1_277.dwID, A1_277.nLevel, 31586, 1, L4_280)
+    end
+  elseif A1_277.GetSkillLevel(42268) == 1 and A2_278 then
+    A1_277.ClearCDTime(3268)
+  end
+end
+function WXL_segmentIntersectsSphere(A0_281, A1_282, A2_283, A3_284, A4_285, A5_286, A6_287, A7_288, A8_289, A9_290)
+  local L10_291, L11_292, L12_293, L13_294, L14_295, L15_296, L16_297, L17_298, L18_299, L19_300, L20_301
+  function L10_291(A0_302, A1_303, A2_304)
+    local L3_305, L4_306
+    L3_305 = A0_302 * A0_302
+    L4_306 = A1_303 * A1_303
+    L3_305 = L3_305 + L4_306
+    L4_306 = A2_304 * A2_304
+    L3_305 = L3_305 + L4_306
+    return L3_305
+  end
+  L11_292 = L10_291
+  L12_293 = A4_285 - A0_281
+  L13_294 = A5_286 - A1_282
+  L14_295 = A6_287 - A2_283
+  L11_292 = L11_292(L12_293, L13_294, L14_295)
+  L12_293 = L10_291
+  L13_294 = A7_288 - A0_281
+  L14_295 = A8_289 - A1_282
+  L15_296 = A9_290 - A2_283
+  L12_293 = L12_293(L13_294, L14_295, L15_296)
+  L13_294 = A3_284 * A3_284
+  if not (L11_292 <= L13_294) then
+    L13_294 = A3_284 * A3_284
+  elseif L12_293 <= L13_294 then
+    L13_294 = true
+    return L13_294
+  end
+  L13_294 = A7_288 - A4_285
+  L14_295 = A8_289 - A5_286
+  L15_296 = A9_290 - A6_287
+  L16_297 = L13_294 * L13_294
+  L17_298 = L14_295 * L14_295
+  L16_297 = L16_297 + L17_298
+  L17_298 = L15_296 * L15_296
+  L16_297 = L16_297 + L17_298
+  if L16_297 == 0 then
+    L17_298 = false
+    return L17_298
+  end
+  L17_298 = A0_281 - A4_285
+  L18_299 = A1_282 - A5_286
+  L19_300 = A2_283 - A6_287
+  L20_301 = L17_298 * L13_294
+  L20_301 = L20_301 + L18_299 * L14_295
+  L20_301 = L20_301 + L19_300 * L15_296
+  L20_301 = L20_301 / L16_297
+  L20_301 = math.max(0, math.min(1, L20_301))
+  return L10_291(A4_285 + L20_301 * L13_294 - A0_281, A5_286 + L20_301 * L14_295 - A1_282, A6_287 + L20_301 * L15_296 - A2_283) <= A3_284 * A3_284
+end
+function WXL_determineSide(A0_307, A1_308, A2_309, A3_310, A4_311)
+  local L5_312, L6_313, L7_314
+  L5_312 = A2_309 - A0_307
+  L6_313 = A3_310 - A1_308
+  L7_314 = math
+  L7_314 = L7_314.pi
+  L7_314 = 2 * L7_314
+  L7_314 = A4_311 * L7_314
+  L7_314 = L7_314 / 256
+  return math.cos(L7_314) * L6_313 - math.sin(L7_314) * L5_312 > 0 and 1 or 2
+end
+function WXL_SetSelfPositionBlock(A0_315, A1_316, A2_317)
+  local L3_318, L4_319, L5_320, L6_321, L7_322, L8_323, L9_324, L10_325, L11_326, L12_327, L13_328, L14_329, L15_330
+  L3_318 = false
+  L4_319 = A0_315.IsHaveBuff
+  L5_320 = 16586
+  L6_321 = 0
+  L4_319 = L4_319(L5_320, L6_321)
+  if not L4_319 then
+    L4_319 = A0_315.IsHaveBuff
+    L5_320 = 30991
+    L6_321 = 0
+    L4_319 = L4_319(L5_320, L6_321)
+    if not L4_319 then
+      L4_319 = A0_315.IsHaveBuff
+      L5_320 = 26147
+      L6_321 = 0
+      L4_319 = L4_319(L5_320, L6_321)
+    end
+  elseif L4_319 then
+    L3_318 = true
+  end
+  L4_319 = A0_315.GetScene
+  L4_319 = L4_319()
+  L4_319 = L4_319.nType
+  L5_320 = MAP_TYPE
+  L5_320 = L5_320.DUNGEON
+  if L4_319 == L5_320 then
+    L3_318 = true
+  end
+  if L3_318 then
+    L4_319 = false
+    L5_320 = A2_317.GetInterceptPoint
+    L6_321 = A0_315.nX
+    L7_322 = A0_315.nY
+    L8_323 = A1_316.nZ
+    L8_323 = L8_323 + 948
+    L9_324 = A1_316.nX
+    L10_325 = A1_316.nY
+    L11_326 = A1_316.nZ
+    L11_326 = L11_326 + 948
+    L12_327 = A0_315.nHeight
+    L8_323 = L5_320(L6_321, L7_322, L8_323, L9_324, L10_325, L11_326, L12_327)
+    L9_324 = A2_317.GetInterceptPoint
+    L10_325 = A1_316.nX
+    L11_326 = A1_316.nY
+    L12_327 = A1_316.nZ
+    L12_327 = L12_327 + 948
+    L13_328 = A0_315.nX
+    L14_329 = A0_315.nY
+    L15_330 = A1_316.nZ
+    L15_330 = L15_330 + 948
+    L12_327 = L9_324(L10_325, L11_326, L12_327, L13_328, L14_329, L15_330, A0_315.nHeight)
+    if L8_323 and L12_327 and L5_320 == 0 and L6_321 == 0 and L7_322 == 0 and L9_324 == 0 and L10_325 == 0 and L11_326 == 0 then
+      L4_319 = true
+    end
+    if L4_319 == true then
+      L13_328 = A0_315.CastSkillXYZ
+      L14_329 = 45856
+      L15_330 = 1
+      L13_328(L14_329, L15_330, A1_316.nX, A1_316.nY, A1_316.nZ)
+      L13_328 = SetSpecialPosition
+      L14_329 = A0_315.dwID
+      L15_330 = A1_316.nX
+      L13_328(L14_329, L15_330, A1_316.nY, A1_316.nZ)
+    else
+      L13_328 = A2_317.GetAdaptedPoint
+      L14_329 = A0_315.nX
+      L15_330 = A0_315.nY
+      L15_330 = L13_328(L14_329, L15_330, A0_315.nZ + 948, A1_316.nX, A1_316.nY, A0_315.nZ + 948, A0_315.nHeight, 4194303)
+      if L13_328 and L14_329 and L15_330 then
+        A0_315.CastSkillXYZ(45856, 1, L13_328, L14_329, L15_330)
+        SetSpecialPosition(A0_315.dwID, L13_328, L14_329, L15_330)
+      end
+    end
+  else
+    L4_319 = A1_316.nX
+    L5_320 = A1_316.nY
+    L6_321 = A1_316.nZ
+    L7_322 = A0_315.IsHaveBuff
+    L8_323 = 30634
+    L9_324 = 0
+    L7_322 = L7_322(L8_323, L9_324)
+    if L7_322 then
+      L7_322 = A0_315.nX
+      L8_323 = A0_315.nX
+      L8_323 = L4_319 - L8_323
+      L8_323 = L8_323 * 0.3
+      L4_319 = L7_322 + L8_323
+      L7_322 = A0_315.nY
+      L8_323 = A0_315.nY
+      L8_323 = L5_320 - L8_323
+      L8_323 = L8_323 * 0.3
+      L5_320 = L7_322 + L8_323
+      L7_322 = A2_317.GetFloor
+      L8_323 = L4_319
+      L9_324 = L5_320
+      L10_325 = math
+      L10_325 = L10_325.max
+      L11_326 = A0_315.nZ
+      L12_327 = A1_316.nZ
+      L15_330 = L10_325(L11_326, L12_327)
+      L7_322 = L7_322(L8_323, L9_324, L10_325, L11_326, L12_327, L13_328, L14_329, L15_330, L10_325(L11_326, L12_327))
+      L6_321 = L7_322
+    end
+    L7_322 = A2_317.IsPointValidWithHeight
+    L8_323 = L4_319
+    L9_324 = L5_320
+    L10_325 = L6_321
+    L11_326 = A0_315.nHeight
+    L7_322 = L7_322(L8_323, L9_324, L10_325, L11_326)
+    if not L7_322 then
+      L7_322 = A2_317.GetAdaptedPoint
+      L8_323 = A0_315.nX
+      L9_324 = A0_315.nY
+      L10_325 = A0_315.nZ
+      L11_326 = L4_319
+      L12_327 = L5_320
+      L13_328 = L6_321
+      L14_329 = A0_315.nHeight
+      L15_330 = 512
+      L9_324 = L7_322(L8_323, L9_324, L10_325, L11_326, L12_327, L13_328, L14_329, L15_330)
+      if L7_322 and L8_323 and L9_324 then
+        L10_325 = A2_317.IsPointValidWithHeight
+        L11_326 = L7_322
+        L12_327 = L8_323
+        L13_328 = L9_324
+        L14_329 = A0_315.nHeight
+        L10_325 = L10_325(L11_326, L12_327, L13_328, L14_329)
+        if L10_325 then
+          L10_325 = A0_315.CastSkillXYZ
+          L11_326 = 45856
+          L12_327 = 1
+          L13_328 = L7_322
+          L14_329 = L8_323
+          L15_330 = L9_324
+          L10_325(L11_326, L12_327, L13_328, L14_329, L15_330)
+          L10_325 = SetSpecialPosition
+          L11_326 = A0_315.dwID
+          L12_327 = L7_322
+          L13_328 = L8_323
+          L14_329 = L9_324
+          L10_325(L11_326, L12_327, L13_328, L14_329)
+        end
+      end
+    else
+      L7_322 = A0_315.CastSkillXYZ
+      L8_323 = 45856
+      L9_324 = 1
+      L10_325 = L4_319
+      L11_326 = L5_320
+      L12_327 = L6_321
+      L7_322(L8_323, L9_324, L10_325, L11_326, L12_327)
+      L7_322 = SetSpecialPosition
+      L8_323 = A0_315.dwID
+      L9_324 = L4_319
+      L10_325 = L5_320
+      L11_326 = L6_321
+      L7_322(L8_323, L9_324, L10_325, L11_326)
+    end
+  end
+end
+function WXL_CreateLineTrap_VK(A0_331, A1_332, A2_333, A3_334, A4_335)
+  local L5_336, L6_337, L7_338, L8_339, L9_340, L10_341, L11_342, L12_343, L13_344, L14_345, L15_346, L16_347, L17_348, L18_349, L19_350, L20_351, L21_352, L22_353, L23_354, L24_355, L25_356, L26_357, L27_358, L28_359, L29_360, L30_361, L31_362, L32_363, L33_364, L34_365, L35_366, L36_367, L37_368, L38_369, L39_370
+  L5_336 = A3_334.GetScene
+  L5_336 = L5_336()
+  if not L5_336 then
+    return
+  end
+  L6_337 = A0_331
+  L7_338 = A1_332
+  L8_339 = A2_333 + 800
+  L9_340 = Random
+  L10_341 = 255
+  L9_340 = L9_340(L10_341)
+  L10_341 = A4_335
+  L11_342 = math
+  L11_342 = L11_342.min
+  L12_343 = 255 / L10_341
+  L13_344 = 60
+  L11_342 = L11_342(L12_343, L13_344)
+  L12_343 = false
+  L13_344 = L5_336.dwMapID
+  if L14_345 then
+  elseif L14_345 or L13_344 == 689 then
+    L12_343 = true
+    L10_341 = 1
+  end
+  for L17_348 = 1, L10_341 do
+    L18_349 = L11_342 * L17_348
+    L18_349 = L18_349 + L9_340
+    L19_350 = Random
+    L20_351 = 240
+    L21_352 = 270
+    L19_350 = L19_350(L20_351, L21_352)
+    L18_349 = L18_349 + L19_350
+    L19_350 = 6.4
+    L20_351 = GetLogicRaycastHit
+    L21_352 = L6_337
+    L22_353 = L7_338
+    L23_354 = L18_349
+    L24_355 = L19_350
+    L21_352 = L20_351(L21_352, L22_353, L23_354, L24_355)
+    L22_353 = GetLogicDirection
+    L23_354 = L6_337 - L20_351
+    L24_355 = L7_338 - L21_352
+    L22_353 = L22_353(L23_354, L24_355)
+    L23_354 = 24
+    L24_355 = Random
+    L25_356 = 5
+    L26_357 = 15
+    L24_355 = L24_355(L25_356, L26_357)
+    L25_356 = L23_354 - L24_355
+    L26_357 = GetLogicRaycastHit
+    L27_358 = L20_351
+    L28_359 = L21_352
+    L29_360 = L22_353 + 192
+    L30_361 = L24_355 * 64
+    L27_358 = L26_357(L27_358, L28_359, L29_360, L30_361)
+    L28_359 = GetLogicRaycastHit
+    L29_360 = L20_351
+    L30_361 = L21_352
+    L31_362 = L22_353 + 64
+    L32_363 = L25_356 * 64
+    L29_360 = L28_359(L29_360, L30_361, L31_362, L32_363)
+    L30_361 = math
+    L30_361 = L30_361.max
+    L31_362 = 0
+    L32_363 = L26_357
+    L30_361 = L30_361(L31_362, L32_363)
+    L26_357 = L30_361
+    L30_361 = math
+    L30_361 = L30_361.min
+    L31_362 = L5_336.nRegionWidth
+    L31_362 = L31_362 * 2048
+    L31_362 = L31_362 - 1
+    L32_363 = L26_357
+    L30_361 = L30_361(L31_362, L32_363)
+    L26_357 = L30_361
+    L30_361 = math
+    L30_361 = L30_361.max
+    L31_362 = 0
+    L32_363 = L27_358
+    L30_361 = L30_361(L31_362, L32_363)
+    L27_358 = L30_361
+    L30_361 = math
+    L30_361 = L30_361.min
+    L31_362 = L5_336.nRegionHeight
+    L31_362 = L31_362 * 2048
+    L31_362 = L31_362 - 1
+    L32_363 = L27_358
+    L30_361 = L30_361(L31_362, L32_363)
+    L27_358 = L30_361
+    L30_361 = math
+    L30_361 = L30_361.max
+    L31_362 = 0
+    L32_363 = L28_359
+    L30_361 = L30_361(L31_362, L32_363)
+    L28_359 = L30_361
+    L30_361 = math
+    L30_361 = L30_361.min
+    L31_362 = L5_336.nRegionWidth
+    L31_362 = L31_362 * 2048
+    L31_362 = L31_362 - 1
+    L32_363 = L28_359
+    L30_361 = L30_361(L31_362, L32_363)
+    L28_359 = L30_361
+    L30_361 = math
+    L30_361 = L30_361.max
+    L31_362 = 0
+    L32_363 = L29_360
+    L30_361 = L30_361(L31_362, L32_363)
+    L29_360 = L30_361
+    L30_361 = math
+    L30_361 = L30_361.min
+    L31_362 = L5_336.nRegionHeight
+    L31_362 = L31_362 * 2048
+    L31_362 = L31_362 - 1
+    L32_363 = L29_360
+    L30_361 = L30_361(L31_362, L32_363)
+    L29_360 = L30_361
+    L30_361 = GetLogicDirection
+    L31_362 = L26_357 - L28_359
+    L32_363 = L27_358 - L29_360
+    L30_361 = L30_361(L31_362, L32_363)
+    L31_362 = L5_336.GetFloor
+    L32_363 = L28_359
+    L33_364 = L29_360
+    L34_365 = L8_339
+    L31_362 = L31_362(L32_363, L33_364, L34_365)
+    L31_362 = L31_362 or L8_339
+    L32_363 = L5_336.GetFloor
+    L33_364 = L26_357
+    L34_365 = L27_358
+    L35_366 = L8_339
+    L32_363 = L32_363(L33_364, L34_365, L35_366)
+    L32_363 = L32_363 or L8_339
+    L33_364 = math
+    L33_364 = L33_364.abs
+    L34_365 = L31_362 - L32_363
+    L33_364 = L33_364(L34_365)
+    L33_364 = L33_364 / 8
+    L33_364 = L33_364 / 64
+    if L33_364 >= 15 then
+      L33_364 = math
+      L33_364 = L33_364.min
+      L34_365 = L31_362
+      L35_366 = L32_363
+      L33_364 = L33_364(L34_365, L35_366)
+      L31_362 = L33_364
+      L33_364 = math
+      L33_364 = L33_364.min
+      L34_365 = L31_362
+      L35_366 = L32_363
+      L33_364 = L33_364(L34_365, L35_366)
+      L32_363 = L33_364
+    end
+    L33_364 = L5_336.GetFloor
+    L34_365 = L6_337
+    L35_366 = L7_338
+    L36_367 = L8_339
+    L33_364 = L33_364(L34_365, L35_366, L36_367)
+    if L31_362 < L33_364 or L32_363 < L33_364 then
+      L31_362 = L33_364
+      L32_363 = L33_364
+    end
+    L34_365 = L28_359
+    L35_366 = L29_360
+    L36_367 = L32_363
+    L37_368 = L5_336.IsPointValidWithHeight
+    L38_369 = L34_365
+    L39_370 = L35_366
+    L37_368 = L37_368(L38_369, L39_370, L36_367, A3_334.nHeight)
+    if not L37_368 then
+      L37_368 = L5_336.GetAdaptedPoint
+      L38_369 = L6_337
+      L39_370 = L7_338
+      L39_370 = L37_368(L38_369, L39_370, L8_339, L34_365, L35_366, L36_367, A3_334.nHeight, 0)
+      L36_367 = L39_370
+      L35_366 = L38_369
+      L34_365 = L37_368
+      L37_368 = GetLogicRaycastHit
+      L38_369 = L34_365
+      L39_370 = L35_366
+      L38_369 = L37_368(L38_369, L39_370, L30_361, L23_354 * 64)
+      L27_358 = L38_369
+      L26_357 = L37_368
+    end
+    L37_368 = L5_336.CreateNpc
+    L38_369 = 133061
+    L39_370 = L34_365
+    L37_368 = L37_368(L38_369, L39_370, L35_366, L36_367, L30_361, 960)
+    if L37_368 then
+      L38_369 = L37_368.SetCustomUnsigned4
+      L39_370 = 0
+      L38_369(L39_370, math.max(0, L26_357))
+      L38_369 = L37_368.SetCustomUnsigned4
+      L39_370 = 4
+      L38_369(L39_370, math.max(0, L27_358))
+      L38_369 = L37_368.SetCustomUnsigned4
+      L39_370 = 8
+      L38_369(L39_370, math.max(0, L37_368.nZ + 512))
+      L38_369 = L37_368.SetCustomUnsigned4
+      L39_370 = 12
+      L38_369(L39_370, A3_334.dwID)
+      L38_369 = ProcessPlayerSkillNpc
+      L39_370 = L37_368
+      L38_369(L39_370, A3_334)
+      L38_369 = L37_368.SetHeight
+      L39_370 = A3_334.nHeight
+      L38_369(L39_370, false)
+      L38_369 = A3_334.dwID
+      L37_368.dwEmployer = L38_369
+      L38_369 = L37_368.AddBuff
+      L39_370 = A3_334.dwID
+      L38_369(L39_370, A3_334.nLevel, 34587, 2)
+      L38_369 = A3_334.GetTempValue
+      L39_370 = PLAYER_TEMP_VALUE_WUXIANGLOU
+      L39_370 = L39_370.JX_NUM
+      L38_369 = L38_369(L39_370)
+      L38_369 = L38_369 + 1
+      L39_370 = tWXL_KuiLeiSkillEnergy
+      L39_370 = L39_370.nMaxLine
+      if L38_369 > L39_370 then
+        L38_369 = 1
+      end
+      L39_370 = A3_334.SetTempValue
+      L39_370(PLAYER_TEMP_VALUE_WUXIANGLOU.JX_NUM, L38_369)
+      L39_370 = A3_334.GetTempValue
+      L39_370 = L39_370(PLAYER_TEMP_VALUE_WUXIANGLOU.JX_START + L38_369 - 1)
+      if GetNpc(L39_370) then
+        A3_334.DoPointChainEffect(false, GetNpc(L39_370).dwID, 0, 0, 0, 0)
+        GetNpc(L39_370).SetDisappearFrames(1)
+      end
+      A3_334.SetTempValue(PLAYER_TEMP_VALUE_WUXIANGLOU.JX_START + L38_369 - 1, L37_368.dwID)
+    end
+  end
+end
+function WH_LuanSaAddDot(A0_371, A1_372, A2_373, A3_374)
+  local L4_375, L5_376, L6_377, L7_378, L8_379, L9_380, L10_381
+  L4_375 = A0_371.GetBuff
+  L5_376 = 14581
+  L6_377 = 1
+  L4_375 = L4_375(L5_376, L6_377)
+  L5_376 = A0_371.GetBuff
+  L6_377 = 2719
+  L7_378 = 0
+  L5_376 = L5_376(L6_377, L7_378)
+  if L5_376 then
+    L6_377 = L5_376.nCustomValue
+    L7_378 = 1
+    L8_379 = 1
+    L9_380 = A0_371.GetSkillLevel
+    L10_381 = 40800
+    L9_380 = L9_380(L10_381)
+    if L9_380 == 1 then
+      L7_378 = 2
+      L8_379 = 2
+    end
+    L9_380 = 2
+    if L8_379 == 2 then
+      L9_380 = 3
+    end
+    if L6_377 < L7_378 then
+      L10_381 = A0_371.GetSkillLevel
+      L10_381 = L10_381(42164)
+      if L10_381 == 1 then
+        L10_381 = A0_371.ClearCDTime
+        L10_381(178)
+      end
+      L10_381 = A0_371.GetSkillLevel
+      L10_381 = L10_381(40800)
+      if L10_381 == 1 then
+        L10_381 = A0_371.ClearCDTime
+        L10_381(176)
+        L10_381 = A0_371.AddBuff
+        L10_381(A0_371.dwID, A0_371.nLevel, 33620, 1)
+      end
+      L10_381 = A0_371.GetSkillLevel
+      L10_381 = L10_381(40077)
+      if L10_381 == 1 then
+        L10_381 = A1_372.AddBuff
+        L10_381(A0_371.dwID, A0_371.nLevel, 30256, 1)
+      end
+      L10_381 = ApplyQingHeDot
+      L10_381 = L10_381(A0_371, A1_372, A2_373)
+      if A3_374 then
+        L10_381 = {
+          {
+            nBuffID = 711,
+            nSkillID = 39906,
+            nPriority = 1
+          },
+          {
+            nBuffID = 714,
+            nSkillID = 39907,
+            nPriority = 2
+          }
+        }
+      end
+      for _FORV_14_, _FORV_15_ in pairs(L10_381) do
+        if lv_lancui ~= 0 and _FORV_15_.nBuffID == 711 then
+          if A1_372.IsHaveBuffByOwner(30261, 1, A0_371.dwID) then
+            A0_371.CastSkill(40084, L9_380, A2_373, A1_372.dwID)
+          else
+            A0_371.CastSkill(39906, L8_379, A2_373, A1_372.dwID)
+          end
+        end
+        if lv1 ~= 0 and _FORV_15_.nBuffID == 714 then
+          if A1_372.IsHaveBuffByOwner(30261, 1, A0_371.dwID) then
+            A0_371.CastSkill(40086, L9_380, A2_373, A1_372.dwID)
+          else
+            A0_371.CastSkill(39907, L8_379, A2_373, A1_372.dwID)
+          end
+        end
+        if lv_shangyang ~= 0 and _FORV_15_.nBuffID == 666 then
+          if A1_372.IsHaveBuffByOwner(30261, 1, A0_371.dwID) then
+            A0_371.CastSkill(40085, L9_380, A2_373, A1_372.dwID)
+          else
+            A0_371.CastSkill(46099, L8_379, A2_373, A1_372.dwID)
+          end
+        end
+      end
+      if not IsPlayer(A1_372.dwID) and not A1_372.GetEmployer() then
+        A0_371.CastSkill(45191, 1, A2_373, A1_372.dwID)
+      end
+    end
+    L10_381 = L5_376.nCustomValue
+    L10_381 = L10_381 + 1
+    L5_376.nCustomValue = L10_381
+  end
+end
+function ApplyQingHeDot(A0_382, A1_383, A2_384)
+  local L3_385, L4_386, L5_387, L6_388, L7_389, L8_390, L9_391, L10_392, L11_393, L12_394, L13_395, L14_396
+  L3_385 = A0_382.GetBuff
+  L4_386 = 2719
+  L5_387 = 0
+  L3_385 = L3_385(L4_386, L5_387)
+  if not L3_385 then
+    return
+  end
+  L4_386 = L3_385.nCustomValue
+  L4_386 = L4_386 % 4
+  L5_387 = 1
+  L6_388 = 1
+  L7_389 = A0_382.GetSkillLevel
+  L8_390 = 40800
+  L7_389 = L7_389(L8_390)
+  if L7_389 == 1 then
+    L5_387 = 2
+    L6_388 = 2
+  end
+  if L4_386 >= L5_387 then
+    return
+  end
+  L7_389 = {}
+  L8_390 = {}
+  L9_391 = A1_383.GetBuffByOwner
+  L9_391 = L9_391(L10_392, L11_393, L12_394)
+  L9_391 = L9_391 ~= nil
+  for L13_395, L14_396 in L10_392(L11_393) do
+    if not L9_391 or L14_396.nBuffID ~= 711 then
+      if A1_383.GetBuffByOwner(L14_396.nBuffID, 0, A0_382.dwID) then
+        L14_396.nLeftActiveCount = A1_383.GetBuffByOwner(L14_396.nBuffID, 0, A0_382.dwID).nLeftActiveCount
+        _UPVALUE1_(L8_390, L14_396)
+      else
+        _UPVALUE1_(L7_389, L14_396)
+      end
+    end
+  end
+  L10_392(L11_393, L12_394)
+  L14_396 = #L7_389
+  for L14_396 = 1, L12_394(L13_395, L14_396) do
+    _UPVALUE1_(L10_392, L7_389[L14_396])
+  end
+  L14_396 = #L8_390
+  for L14_396 = 1, L12_394(L13_395, L14_396) do
+    _UPVALUE1_(L10_392, L8_390[L14_396])
+  end
+  return L10_392
+end
+tDPSJingJianHuShouData = {
+  {
+    nDamageBase = 2016,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 3010,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 5694,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 39429,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 46000,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 46000,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 62429,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  }
+}
+tTJingJianHuShouData = {
+  {
+    nDamageBase = 1764,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 2293,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 7644,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  }
+}
+tNJingJianHuShouData = {
+  {
+    nTherapyBase = 149,
+    nTherapyRand = 0,
+    nCostMana = 0
+  },
+  {
+    nTherapyBase = 174,
+    nTherapyRand = 0,
+    nCostMana = 0
+  },
+  {
+    nTherapyBase = 203,
+    nTherapyRand = 0,
+    nCostMana = 0
+  },
+  {
+    nTherapyBase = 369,
+    nTherapyRand = 0,
+    nCostMana = 0
+  },
+  {
+    nTherapyBase = 422,
+    nTherapyRand = 0,
+    nCostMana = 0
+  },
+  {
+    nTherapyBase = 0,
+    nTherapyRand = 0,
+    nCostMana = 0
+  },
+  {
+    nTherapyBase = 0,
+    nTherapyRand = 0,
+    nCostMana = 0
+  },
+  {
+    nTherapyBase = 0,
+    nTherapyRand = 0,
+    nCostMana = 0
+  },
+  {
+    nTherapyBase = 0,
+    nTherapyRand = 0,
+    nCostMana = 0
+  },
+  {
+    nTherapyBase = 0,
+    nTherapyRand = 0,
+    nCostMana = 0
+  }
+}
+tDPSJingJianYaoDaiData = {
+  {
+    nDamageBase = 708,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 1340,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 1375,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  }
+}
+tDPSPVEEnchantHuShouData = {
+  {
+    nDamageBase = 1222,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 1406,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 3741,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 6383,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 12075,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  }
+}
+tDPSPVEEnchantXieZiData = {
+  {
+    nDamageBase = 815,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 938,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 2494,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 4255,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 8050,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  }
+}
+tDPSJingJianAnQiData = {
+  {
+    nDamageBase = 433,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 450,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 1602,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 1728,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 2375,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 2580,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 4492,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 4881,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 10268,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 11979,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 14118,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 3009,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 33638,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 39244,
+    nDamageRand = 0,
+    nCostMana = 0
+  }
+}
+tTJingJianHuShouNewData = {
+  {
+    nDamageBase = 2293,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 3577,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 6542,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  },
+  {
+    nDamageBase = 0,
+    nDamageRand = 0,
+    nCostMana = 0
+  }
+}
+tOrangeWeaponSceneMode = {
+  DISABLED = 0,
+  ACTIVE = 1,
+  PASSIVE = 2
+}
+function GetOrangeWeaponSceneMode(A0_397)
+  if not A0_397 then
+    return tOrangeWeaponSceneMode.DISABLED
+  end
+  if not A0_397.GetScene() then
+    return tOrangeWeaponSceneMode.DISABLED
+  end
+  if A0_397.GetScene().bIsArenaMap then
+    return tOrangeWeaponSceneMode.DISABLED
+  end
+  if A0_397.GetScene().dwMapID == 293 then
+    return tOrangeWeaponSceneMode.DISABLED
+  end
+  if A0_397.GetScene().nType == MAP_TYPE.DUNGEON or _UPVALUE0_[A0_397.GetScene().dwMapID] or A0_397.GetScene().dwMapID == 74 or A0_397.GetScene().dwMapID == 3 then
+    return tOrangeWeaponSceneMode.ACTIVE
+  end
+  return tOrangeWeaponSceneMode.PASSIVE
+end

@@ -4,7 +4,9 @@ import tkinter as tk
 from replayer.boss.General import GeneralReplayer
 from window.SpecificBossWindow import SpecificBossWindow
 from tools.Functions import parseTime
-from replayer.boss.luoyangzhizhan.LuoyangEvidence import record_call_buff, finish_calls, render_boss_window
+from replayer.boss.luoyangzhizhan.LuoyangEvidence import (
+    record_call_buff, finish_calls, render_boss_window, reflected_contributions,
+)
 from replayer.boss.luoyangzhizhan.WinEvidence import LuoyangWinEvidence
 
 
@@ -36,6 +38,8 @@ class EncounterReplayer(GeneralReplayer):
         self.pendingCombatEnd = None
         self.detail["endEvidence"] = []
         self.damageContributions = []
+        self.mechanicContributions = []
+        self.failurePots = []
         # Identity exists independently of whether the party managed to hit it.
         for npc_id in self.bld.info.npc:
             if self.template(npc_id) in self.MAIN_IDS:
@@ -45,10 +49,12 @@ class EncounterReplayer(GeneralReplayer):
         npc = self.bld.info.npc.get(npc_id)
         return str(npc.templateID) if npc else ""
 
-    def increment(self, player, key, amount=1):
+    def increment(self, player, key, amount=1, time=None):
         if player in self.statDict:
             stats = self.statDict[player]["battle"]
             stats[key] = stats.get(key, 0) + amount
+            if time is not None:
+                self.mechanicContributions.append((time, player, key, amount))
 
     def recordDamage(self, event, targets, key):
         if (event.caster in self.statDict and self.template(event.target) in targets
@@ -65,6 +71,13 @@ class EncounterReplayer(GeneralReplayer):
         self.increment(event.caster, key, event.damageEff)
         self.damageContributions.append((event.time, event.caster, key, event.damageEff))
 
+    def recordReflectedDamage(self, event, groups):
+        # Only table counters change: incoming hit/axis/phase/win logic keeps
+        # the original caster, target, damage and effective-damage fields.
+        for player, key, amount in reflected_contributions(self, event, groups):
+            self.increment(player, key, amount)
+            self.damageContributions.append((event.time, player, key, amount))
+
     def callBuff(self, event, label, icon="341"):
         return record_call_buff(self, event, label, icon)
 
@@ -76,7 +89,7 @@ class EncounterReplayer(GeneralReplayer):
         if event.time - self.lastHits.get(hitkey, -10**15) < cooldown:
             return False
         self.lastHits[hitkey] = event.time
-        self.increment(event.target, key)
+        self.increment(event.target, key, time=event.time)
         self.detail["mechanicEvents"].append({
             "time": event.time, "player": self.bld.info.getName(event.target),
             "playerID": event.target,
@@ -88,9 +101,11 @@ class EncounterReplayer(GeneralReplayer):
         self.detail["mechanicEvents"].append({
             "time": time, "player": self.bld.info.getName(player),
             "mechanic": label, "kind": "failure", "evidence": evidence})
-        self.addPot([self.bld.info.getName(player), self.occDetailList[player], 1,
-                     self.bossNamePrint, "%s %s" % (parseTime((time-self.startTime)/1000), label),
-                     [evidence], 0])
+        pot = [self.bld.info.getName(player), self.occDetailList[player], 1,
+               self.bossNamePrint, "%s %s" % (parseTime((time-self.startTime)/1000), label),
+               [evidence], 0]
+        self.addPot(pot)
+        self.failurePots.append((time, pot))
 
     def confirmWin(self, time, rule):
         evidence = {"time": time, "rule": rule}
@@ -166,6 +181,13 @@ class EncounterReplayer(GeneralReplayer):
         for time, player, key, amount in self.damageContributions:
             if time > end:
                 self.increment(player, key, -amount)
+        for time, player, key, amount in self.mechanicContributions:
+            if time > end:
+                self.increment(player, key, -amount)
+        self.detail["mechanicEvents"] = [entry for entry in self.detail["mechanicEvents"]
+                                         if entry["time"] <= end]
+        excluded = {id(pot) for time, pot in self.failurePots if time > end}
+        self.potList = [pot for pot in self.potList if id(pot) not in excluded]
         self.battleTime = max(0, self.finalTime-self.startTime)
         self.detail["win"] = self.win
         self.detail.setdefault("winReason", "未观测到通关事件")

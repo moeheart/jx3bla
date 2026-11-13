@@ -3,8 +3,8 @@
 
 from ServerAddress import get_address_config, get_api_url, get_logs_url
 
-EDITION = "8.16.6"
-ANNOUNCEMENT = "蓝奏云下载密码：1234。8.16.6 修复：修复25人普通洛阳之战田承嗣、阿史那承庆、史朝义已通关却未识别的问题，通关判定不依赖历练值奖励；增加大体积战斗复盘的上传等待时间，修复部分服务端环境下表单大小限制不生效的问题；补齐已核验橙武及大附魔处理，修复输出衣服基础攻击漏算和固定伤害归因，恢复相关记录的表现分及rDPS排名资格；logs链接统一使用 https://jx3bla.moeheart.cn。仅适用于10月29日后的50级正式服数据。"
+EDITION = "8.16.7"
+ANNOUNCEMENT = "蓝奏云下载密码：1234。8.16.7 更新：补齐25人英雄洛阳之战五首领技能轴、机制统计和通关判定；加入英雄NPC防御数据，修复左旋右转来源和战后统计裁剪；核验英雄装备套装、武器及大附魔效果，装备信息完整且效果已核验的复盘可参与表现分、rDPS及mrDPS排名。仅适用于10月29日后的50级正式服数据。"
 # IP is kept for old compatibility. New HTTP requests should use get_api_url()
 # or get_logs_url().
 IP = get_address_config()["api"]["host"]

@@ -3,7 +3,7 @@ from replayer.boss.General import GeneralReplayer
 from window.SpecificBossWindow import SpecificBossWindow
 from replayer.boss.luoyangzhizhan.WinEvidence import LuoyangWinEvidence
 from replayer.boss.luoyangzhizhan.LuoyangEvidence import (
-    npc_matches, record_target_damage, record_call_buff, set_confirmed_win,
+    npc_matches, record_target_damage, record_reflected_target_damage, record_call_buff, set_confirmed_win,
     record_environment, record_hit, record_phase, record_shout, finalize_evidence, render_boss_window,
 )
 
@@ -15,23 +15,29 @@ class TianChengsiWindow(SpecificBossWindow):
             ("swordDamageDps", "巨剑DPS", "天陨巨剑有效伤害/有效战斗时间；不混入本体。"),
             ("arrowCalls", "鸣镝点名", "鸣镝连珠点名次数。"),
             ("hammerCalls", "千钧点名", "千钧锤落点名次数；不能仅凭点名判责。"),
-            ("swordCalls", "承剑次数", "以身承剑的点名次数；控制区间计入个人被控。"),
+            ("swordCalls", "承剑次数", "普通按34329、英雄按34866实际承剑气劲计数；重叠气劲的控制时间合并。"),
             ("slashHits", "横斩命中", "断岳横斩实际命中，观察记录。"),
+            ("spearHits", "突刺命中", "枪林突刺实际命中，观察记录。"),
         ])
 
 
 class TianChengsiReplayer(GeneralReplayer):
-    MAIN = ("139329",)
-    SWORD = ("140384",)
-    SOURCES = MAIN + SWORD + ("139341", "139343", "139345", "139338", "139334")
+    MAIN = ("139329", "139382")
+    SWORD = ("140384", "140386", "141799")
+    SOURCES = MAIN + SWORD + ("139341", "139343", "139345", "139338", "139334",
+                              "139392", "139393", "139396")
     ENVIRONMENT = {
         ("Cast", "45972"): ("断岳横斩", "2123", "#cc5533"),
         ("Cast", "46424"): ("天陨一剑", "2123", "#aa3377"),
+        ("Cast", "45976"): ("裂剑·回式", "2123", "#aa3377"),
         ("Skill", "46030"): ("鸣镝连珠", "340", "#aa8833"),
         ("Skill", "45971"): ("雷霆震岳", "2123", "#7755aa"),
         ("Skill", "46016"): ("千钧锤落", "2123", "#cc7733"),
+        ("Skill", "46439"): ("千钧锤落", "2123", "#cc7733"),
         ("Skill", "45989"): ("千钧之压", "2123", "#aa5555"),
         ("Skill", "46095"): ("苍天坠剑", "2123", "#aa3377"),
+        ("Skill", "46438"): ("苍天坠剑·承剑", "2123", "#aa3377"),
+        ("Skill", "46557"): ("苍天坠剑·气浪", "2123", "#aa5577"),
         ("Skill", "46001"): ("枪林突刺", "340", "#3377aa"),
     }
 
@@ -45,6 +51,10 @@ class TianChengsiReplayer(GeneralReplayer):
         "垂死挣扎！将士们，给我砸碎他们！": "军阵号令·砸碎",
         "呵呵，就这点本事？将士们，给我捅穿了他们！": "军阵号令·捅穿",
         "看你们能撑多久！将士们，给我射穿他们！": "军阵号令·射穿",
+        "骨朵兵！连甲带人，给老子砸烂！": "骨朵兵列阵",
+        "哼哼！不错，那么第二剑呢？": "第二剑准备",
+        "还有一剑！": "裂剑·回式",
+        "呵，不自量力！将士们，全军压上，谁也别想逃！": "军阵号令·全军压上",
     }
 
     def initBattle(self):
@@ -55,6 +65,8 @@ class TianChengsiReplayer(GeneralReplayer):
         self.lastMainDamage = None
         self.combatEndCandidate = None
         self.openingSeen = False
+        self.heroic = any(npc_matches(self, npc_id, ("139382",)) for npc_id in self.bld.info.npc)
+        self.controlBuffs = {player: set() for player in self.statDict}
         self.detail["phaseTransitions"] = [{"time": self.startTime, "phase": 1, "name": "交战"}]
         self.detail["swords"] = []
         self.swordRecords = {}
@@ -66,7 +78,7 @@ class TianChengsiReplayer(GeneralReplayer):
     def analyseSecondStage(self, event):
         self.victoryEvidence.observe(event)
         if event.dataType in ("Scene", "Death"):
-            if npc_matches(self, event.id, ("140050",)) and (event.dataType == "Death" or event.enter):
+            if npc_matches(self, event.id, ("140050", "140091")) and (event.dataType == "Death" or event.enter):
                 set_confirmed_win(self, event.time, "田承嗣专属宝箱")
             elif event.dataType == "Death" and npc_matches(self, event.id, self.MAIN):
                 set_confirmed_win(self, event.time, "田承嗣本体重伤")
@@ -77,7 +89,7 @@ class TianChengsiReplayer(GeneralReplayer):
             label = self.SHOUTS.get(content)
             if label:
                 record_shout(self, event, label)
-            if content == "抬头看好了——这一剑，送你们上路！":
+            if content in ("抬头看好了——这一剑，送你们上路！", "哼哼！不错，那么第二剑呢？"):
                 record_phase(self, event.time, 5, "天陨一剑准备")
             elif content == "小看你们了，狼牙军，全军准备！":
                 record_phase(self, event.time, 2, "全军准备")
@@ -103,6 +115,7 @@ class TianChengsiReplayer(GeneralReplayer):
                 record.update(end=event.time, killed=True)
                 record_phase(self, event.time, 4, "巨剑击破后")
         elif event.dataType == "Skill":
+            record_reflected_target_damage(self, event, {"bossDamage": self.MAIN, "swordDamage": self.SWORD})
             if npc_matches(self, event.target, self.MAIN):
                 record_target_damage(self, event, "bossDamage")
                 if event.caster in self.statDict and event.damageEff > 0:
@@ -121,13 +134,19 @@ class TianChengsiReplayer(GeneralReplayer):
         elif event.dataType == "Buff" and npc_matches(self, event.caster, self.SOURCES):
             calls = {"34255": ("鸣镝连珠", "340", "arrowCalls"),
                      "34254": ("千钧锤落", "2123", "hammerCalls"),
-                     "34329": ("以身承剑", "2123", "swordCalls")}
+                     "34329": ("承剑准备" if self.heroic else "以身承剑", "2123",
+                               "swordPreparationCalls" if self.heroic else "swordCalls"),
+                     "34866": ("以身承剑", "2123", "swordCalls")}
             if event.id in calls:
                 label, icon, key = calls[event.id]
-                if record_call_buff(self, event, label, icon):
-                    self.statDict[event.target][key] = self.statDict[event.target].get(key, 0) + 1
-                if event.id == "34329" and event.target in self.stunCounter:
-                    self.stunCounter[event.target].setState(event.time, int(event.stack > 0))
+                record_call_buff(self, event, label, icon, stat_key=key)
+                if event.id in ("34329", "34866") and event.target in self.stunCounter:
+                    active = self.controlBuffs[event.target]
+                    if event.stack > 0:
+                        active.add(event.id)
+                    else:
+                        active.discard(event.id)
+                    self.stunCounter[event.target].setState(event.time, int(bool(active)))
 
     def trimTime(self):
         evidence = self.victoryEvidence.resolve()
@@ -145,6 +164,8 @@ class TianChengsiReplayer(GeneralReplayer):
         return super().trimTime()
 
     def countFinal(self):
+        if self.__dict__.get("_luoyangEvidenceFinalized"):
+            return
         for npc_id, record in self.swordRecords.items():
             if record["start"] > self.finalTime:
                 continue

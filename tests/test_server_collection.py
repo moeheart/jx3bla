@@ -198,7 +198,7 @@ class ServerCollectionTests(unittest.TestCase):
                     self.assertEqual(data['timezone'], 'UTC+08:00')
 
     def test_announcement_returns_current_release_metadata(self):
-        self.assertEqual(self.server.EDITION, '8.16.6')
+        self.assertEqual(self.server.EDITION, '8.16.7')
         response = self.client.get('/getAnnouncement', query_string={'edition': '8.16.0'}).get_json()
         self.assertEqual(response['version'], '8.16.0')
         self.assertEqual(response['url'], 'https://example.invalid/j3jz.exe')

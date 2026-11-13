@@ -1,0 +1,294 @@
+local L0_0
+L0_0 = {}
+L0_0[0] = PLAYER_ARENA_TYPE.DPS
+L0_0[10003] = PLAYER_ARENA_TYPE.DPS
+L0_0[10002] = PLAYER_ARENA_TYPE.T
+L0_0[10021] = PLAYER_ARENA_TYPE.DPS
+L0_0[10028] = PLAYER_ARENA_TYPE.THERAPY
+L0_0[10026] = PLAYER_ARENA_TYPE.DPS
+L0_0[10062] = PLAYER_ARENA_TYPE.T
+L0_0[10014] = PLAYER_ARENA_TYPE.DPS
+L0_0[10015] = PLAYER_ARENA_TYPE.DPS
+L0_0[10081] = PLAYER_ARENA_TYPE.DPS
+L0_0[10080] = PLAYER_ARENA_TYPE.THERAPY
+L0_0[10175] = PLAYER_ARENA_TYPE.DPS
+L0_0[10176] = PLAYER_ARENA_TYPE.THERAPY
+L0_0[10225] = PLAYER_ARENA_TYPE.DPS
+L0_0[10224] = PLAYER_ARENA_TYPE.DPS
+L0_0[10144] = PLAYER_ARENA_TYPE.DPS
+L0_0[10145] = PLAYER_ARENA_TYPE.DPS
+L0_0[10268] = PLAYER_ARENA_TYPE.DPS
+L0_0[10242] = PLAYER_ARENA_TYPE.DPS
+L0_0[10243] = PLAYER_ARENA_TYPE.T
+L0_0[10390] = PLAYER_ARENA_TYPE.DPS
+L0_0[10389] = PLAYER_ARENA_TYPE.T
+L0_0[10447] = PLAYER_ARENA_TYPE.DPS
+L0_0[10448] = PLAYER_ARENA_TYPE.THERAPY
+L0_0[10464] = PLAYER_ARENA_TYPE.DPS
+L0_0[10533] = PLAYER_ARENA_TYPE.DPS
+L0_0[10585] = PLAYER_ARENA_TYPE.DPS
+L0_0[10615] = PLAYER_ARENA_TYPE.DPS
+L0_0[10626] = PLAYER_ARENA_TYPE.THERAPY
+L0_0[10627] = PLAYER_ARENA_TYPE.DPS
+L0_0[10698] = PLAYER_ARENA_TYPE.DPS
+L0_0[10756] = PLAYER_ARENA_TYPE.DPS
+L0_0[10786] = PLAYER_ARENA_TYPE.DPS
+L0_0[10821] = PLAYER_ARENA_TYPE.DPS
+KUNFU2TYPE_LIST = L0_0
+L0_0 = {}
+for _FORV_4_, _FORV_5_ in pairs(KUNFU2TYPE_LIST) do
+  L0_0[_FORV_4_] = _FORV_5_
+end
+setmetatable(KUNFU2TYPE_LIST, {
+  __index = function(A0_1, A1_2)
+    return _UPVALUE0_[GetHDKungfuID(A1_2)]
+  end
+})
+KUNGFU_ADAPTIVETYPE_LIST = {
+  [10002] = {
+    adaptiveType = 2,
+    bPureDps = false,
+    szKungfuName = GetEditorString(0, 2056)
+  },
+  [10003] = {
+    adaptiveType = 2,
+    bPureDps = false,
+    szKungfuName = GetEditorString(0, 2038)
+  },
+  [10014] = {
+    adaptiveType = 3,
+    bPureDps = true,
+    szKungfuName = GetEditorString(0, 2032)
+  },
+  [10015] = {
+    adaptiveType = 5,
+    bPureDps = true,
+    szKungfuName = GetEditorString(0, 2004)
+  },
+  [10021] = {
+    adaptiveType = 3,
+    bPureDps = false,
+    szKungfuName = GetEditorString(0, 1995)
+  },
+  [10026] = {
+    adaptiveType = 5,
+    bPureDps = false,
+    szKungfuName = GetEditorString(0, 2011)
+  },
+  [10028] = {
+    adaptiveType = 3,
+    bPureDps = false,
+    szKungfuName = GetEditorString(0, 2129)
+  },
+  [10062] = {
+    adaptiveType = 5,
+    bPureDps = false,
+    szKungfuName = GetEditorString(0, 2064)
+  },
+  [10080] = {
+    adaptiveType = 1,
+    bPureDps = false,
+    szKungfuName = GetEditorString(0, 2021)
+  },
+  [10081] = {
+    adaptiveType = 1,
+    bPureDps = false,
+    szKungfuName = GetEditorString(0, 2096)
+  },
+  [10144] = {
+    adaptiveType = 5,
+    bPureDps = true,
+    szKungfuName = GetEditorString(2, 5657)
+  },
+  [10145] = {
+    adaptiveType = 5,
+    bPureDps = true,
+    szKungfuName = GetEditorString(2, 5656)
+  },
+  [10175] = {
+    adaptiveType = 4,
+    bPureDps = false,
+    szKungfuName = GetEditorString(1, 8270)
+  },
+  [10176] = {
+    adaptiveType = 4,
+    bPureDps = false,
+    szKungfuName = GetEditorString(1, 8269)
+  },
+  [10224] = {
+    adaptiveType = 5,
+    bPureDps = true,
+    szKungfuName = GetEditorString(2, 7106)
+  },
+  [10225] = {
+    adaptiveType = 4,
+    bPureDps = true,
+    szKungfuName = GetEditorString(2, 7107)
+  },
+  [10242] = {
+    adaptiveType = 1,
+    bPureDps = false,
+    szKungfuName = GetEditorString(4, 2652)
+  },
+  [10243] = {
+    adaptiveType = 1,
+    bPureDps = false,
+    szKungfuName = GetEditorString(4, 2653)
+  },
+  [10268] = {
+    adaptiveType = 5,
+    bPureDps = true,
+    szKungfuName = GetEditorString(7, 1798)
+  },
+  [10389] = {
+    adaptiveType = 5,
+    bPureDps = false,
+    szKungfuName = GetEditorString(7, 1800)
+  },
+  [10390] = {
+    adaptiveType = 5,
+    bPureDps = false,
+    szKungfuName = GetEditorString(7, 1799)
+  },
+  [10447] = {
+    adaptiveType = 1,
+    bPureDps = false,
+    szKungfuName = GetEditorString(8, 5636)
+  },
+  [10448] = {
+    adaptiveType = 1,
+    bPureDps = false,
+    szKungfuName = GetEditorString(8, 5637)
+  },
+  [10464] = {
+    adaptiveType = 5,
+    bPureDps = true,
+    szKungfuName = GetEditorString(10, 9024)
+  },
+  [10533] = {
+    adaptiveType = 5,
+    bPureDps = true,
+    szKungfuName = GetEditorString(14, 1043)
+  },
+  [10585] = {
+    adaptiveType = 5,
+    bPureDps = true,
+    szKungfuName = GetEditorString(24, 688)
+  },
+  [10615] = {
+    adaptiveType = 3,
+    bPureDps = true,
+    szKungfuName = GetEditorString(17, 4577)
+  },
+  [10626] = {
+    adaptiveType = 4,
+    bPureDps = false,
+    szKungfuName = GetEditorString(21, 6407)
+  },
+  [10627] = {
+    adaptiveType = 4,
+    bPureDps = false,
+    szKungfuName = GetEditorString(21, 6408)
+  },
+  [10698] = {
+    adaptiveType = 5,
+    bPureDps = true,
+    szKungfuName = GetEditorString(24, 689)
+  },
+  [10756] = {
+    adaptiveType = 5,
+    bPureDps = true,
+    szKungfuName = GetEditorString(28, 1407)
+  },
+  [10786] = {
+    adaptiveType = 3,
+    bPureDps = true,
+    szKungfuName = GetEditorString(30, 3607)
+  },
+  [10821] = {
+    adaptiveType = 1,
+    bPureDps = true,
+    szKungfuName = GetEditorString(32, 535)
+  }
+}
+KUNGFU_ATTRIBUTE_LIST = {
+  [10002] = {attributeType = 1},
+  [10003] = {attributeType = 4},
+  [10014] = {attributeType = 2},
+  [10015] = {attributeType = 3},
+  [10021] = {attributeType = 4},
+  [10026] = {attributeType = 5},
+  [10028] = {attributeType = 2},
+  [10062] = {attributeType = 1},
+  [10080] = {attributeType = 2},
+  [10081] = {attributeType = 2},
+  [10144] = {attributeType = 3},
+  [10145] = {attributeType = 3},
+  [10175] = {attributeType = 2},
+  [10176] = {attributeType = 2},
+  [10224] = {attributeType = 5},
+  [10225] = {attributeType = 4},
+  [10242] = {attributeType = 4},
+  [10243] = {attributeType = 1},
+  [10268] = {attributeType = 5},
+  [10389] = {attributeType = 1},
+  [10390] = {attributeType = 3},
+  [10447] = {attributeType = 2},
+  [10448] = {attributeType = 2},
+  [10464] = {attributeType = 5},
+  [10533] = {attributeType = 3},
+  [10585] = {attributeType = 3},
+  [10615] = {attributeType = 4},
+  [10626] = {attributeType = 2},
+  [10627] = {attributeType = 2},
+  [10698] = {attributeType = 5},
+  [10756] = {attributeType = 3},
+  [10786] = {attributeType = 4},
+  [10821] = {attributeType = 2}
+}
+KUNGFU_SPECIAL_LIST = {
+  [10821] = {attributeType = 2}
+}
+function GetPlayerTalentSelectList(A0_3)
+  local L1_4, L2_5, L3_6, L4_7, L5_8, L6_9, L7_10, L8_11
+  L1_4 = {}
+  L2_5 = nil
+  L3_6 = A0_3.GetActualKungfuMountID
+  L3_6 = L3_6()
+  if L3_6 then
+    L2_5 = L4_7
+  end
+  for L7_10 = 1, 12 do
+    L8_11 = 0
+    if L2_5 and L2_5[L7_10] and L2_5[L7_10].nSelectIndex then
+      L8_11 = L2_5[L7_10].nSelectIndex
+    end
+    table.insert(L1_4, L8_11)
+  end
+  return L1_4
+end
+function LogGetPlayerTalentListStr(A0_12, A1_13)
+  local L2_14
+  L2_14 = {
+    A0_12[1],
+    A0_12[2],
+    A0_12[3],
+    A0_12[4],
+    A0_12[5],
+    A0_12[6],
+    0,
+    A0_12[7],
+    A0_12[8],
+    A0_12[9],
+    0,
+    0
+  }
+  return (table.concat(L2_14, A1_13))
+end
+function IsWarmUpRole(A0_15)
+  if A0_15.IsHaveBuff(20641, 1) then
+    return true
+  else
+    return false
+  end
+end

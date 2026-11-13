@@ -227,12 +227,25 @@
       "method": "Arithmetic mean of equipment-only numeric at* attributes, one latest complete static-attribute snapshot per server+character name+kungfu. The four known nonnumeric script/recipe/skill effects are omitted and disclosed; missing gear/slots, unknown IDs, malformed or nonfinite numeric attributes and calculation failures are excluded. Runtime actor IDs are not cross-session identities. Missing numeric fields contribute zero. Normal/mobile aliases share equipment only; their own client kungfu attributes are added at runtime."
     },
     {
+      "name": "luoyang_heroic_npc_defense.json",
+      "bytes": 46927,
+      "sha256": "c059e2854b2f6b8a46abf0db5e3a78cc1184c4eeaf67a5e8654d119e67c9e33b",
+      "client_version": "1.6.0.10082",
+      "client_mode": "zhcn_hd",
+      "extraction_date": "2026-11-12",
+      "source": "../../../docs/160/evidence/heroic10082/sNpcTemplate.tab",
+      "generation": "tools.ValidateLuoyangNpcDefense --heroic",
+      "runtime_game_edition_minimum": 161
+    },
+    {
       "name": "equipment_effects.json",
-      "bytes": 36789,
-      "sha256": "3bd0f6130cc1b0193bc0824a8ed18ff8c1b1b20aed97382d0830fec2228c73f2",
+      "bytes": 53189,
+      "sha256": "bc515a7402552677dfa8bd4ebd922a97687a9beb15bb4ba050faadb5e9024672",
       "client_versions": [
         "1.6.0.10009",
-        "1.6.0.10072"
+        "1.6.0.10072",
+        "1.6.0.10082",
+        "1.6.0.10086"
       ],
       "client_mode": "zhcn_hd",
       "generation": "release.EquipmentEffectGenerator",
@@ -314,8 +327,8 @@
     "therapy_attribution": "not_implemented",
     "kungfu": "64_verified10009_plus_shanju",
     "gem_scaling": "native_1355_div_27800",
-    "npc": "102_verified10009",
-    "equipment_effects": "audited_exact_identities_for_ordinary_kungfu"
+    "npc": "102_verified10009_normal_and_107_verified10082_heroic",
+    "equipment_effects": "audited_exact_identities_with_explicit_platform_scopes"
   },
   "parameter_extraction": {
     "client_version": "1.6.0.10009",
@@ -332,10 +345,11 @@
       "JCL body type unavailable; current client default primary baseline",
       "No manual comparison to live game panel",
       "Script/enchant triggers require combat events; static equipment calculation does not invent trigger effects",
-      "10-player and heroic NPC defense profiles are not yet verified"
-    ]
+      "10-player NPC defense profiles are not yet verified"
+    ],
+    "npc_heroic": "luoyang_heroic_npc_defense.json"
   },
-  "client_version_scope": "Only formal level-50 data: 14 core tables, 64 kungfus plus Shanju, GlobalParam and 102 normal-Luoyang NPC profiles from client 1.6.0.10009. Historical extraction evidence is retained under docs/160/evidence and is not used at runtime.",
+  "client_version_scope": "Only formal level-50 data: 14 core tables, 64 kungfus plus Shanju, GlobalParam and 102 normal-Luoyang NPC profiles from client 1.6.0.10009. Historical extraction evidence is retained under docs/160/evidence and is not used at runtime. Heroic Luoyang additionally uses 107 NPC profiles from the preserved formal 1.6.0.10082 table.",
   "extraction_date": "2026-10-29",
   "release_version": "8.16.2",
   "core_update": {
@@ -384,12 +398,15 @@
   },
   "evidence_root": "../../../docs/160/evidence",
   "equipment_effect_update": {
-    "prepared_version": "8.16.6",
-    "published": false,
+    "prepared_version": "8.16.7",
+    "publication_record": "../../../docs/160/8.16.7发布记录.md",
     "source_versions": [
       "1.6.0.10009",
-      "1.6.0.10072"
+      "1.6.0.10072",
+      "1.6.0.10082",
+      "1.6.0.10086"
     ],
-    "boundary": "Relevant archived and fresh table rows compared; newly extracted Lua bodies are 10072 evidence. Wujie effects and unlisted identities stay unverified."
+    "boundary": "Heroic equipment rows compared against formal 10082 tables; newly extracted Lua and recipe paths are 10086 evidence. Wujie requires exact reviewed effect and specialization scope; unlisted effects remain unverified.",
+    "supplemental_evidence": "../../../docs/160/evidence/heroic_equipment10082"
   }
 }

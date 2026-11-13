@@ -1,0 +1,310 @@
+{
+  "nativeContract": "MY logs type21 as final health-change effect, payload[3]=bReact. Enum5 is reflected damage and13 is effective ordinary damage. Keep original IDs; qualified NPC-to-player result5 is returned player-to-NPC damage.",
+  "limits": "Use the native returned amount once. No separate reflected-overkill flag is supplied, and no Buff-percent or HP-difference reconstruction is claimed. Mixed ordinary/effective damage or healing, wrong discriminator/direction and legacy imports are rejected. Buff3026 active subtotal includes the owner's other reflection too and is not the set's isolated damage.",
+  "primarySources": [
+    {
+      "name": "MY_CombatLogs.lua",
+      "url": "https://github.com/cattenblue/MY/blob/master/MY_TeamTools/src/MY_CombatLogs.lua",
+      "gitBlobSha1": "b643cf383e60d1f2b318571c43ec5a383dd63458",
+      "originalEncoding": "gb18030",
+      "sourceSha256": "d9695f8eebd09bf4fffe40990c7d090391695c637da181c5babf805e47abb05c",
+      "excerpts": [
+        {
+          "startLine": 163,
+          "endLine": 169,
+          "content": "\tPARTY_ADD_MEMBER                      = 16, -- 团队添加成员\n\tPARTY_SET_MEMBER_ONLINE_FLAG          = 17, -- 团队成员在线状态改变\n\tMSG_SYS                               = 18, -- 系统消息\n\tSYS_MSG_UI_OME_SKILL_CAST_LOG         = 19, -- 技能施放日志\n\tSYS_MSG_UI_OME_SKILL_CAST_RESPOND_LOG = 20, -- 技能施放结果日志\n\tSYS_MSG_UI_OME_SKILL_EFFECT_LOG       = 21, -- 技能最终产生的效果（生命值的变化）\n\tSYS_MSG_UI_OME_SKILL_BLOCK_LOG        = 22, -- 格挡日志"
+        },
+        {
+          "startLine": 561,
+          "endLine": 569,
+          "content": "\telseif szEvent == 'SYS_MSG_UI_OME_SKILL_EFFECT_LOG' then\n\t\t-- if not X.IsInArenaMap() then\n\t\t-- 技能最终产生的效果（生命值的变化）；\n\t\t-- (arg0)dwCaster：施放者 (arg1)dwTarget：目标 (arg2)bReact：是否为反击 (arg3)nType：Effect类型 (arg4)dwID:Effect的ID\n\t\t-- (arg5)dwLevel：Effect的等级 (arg6)bCriticalStrike：是否会心 (arg7)nCount：tResultCount数据表中元素个数 (arg8)tResultCount：数值集合\n\t\tif D.WillRecID(arg0) or D.WillRecID(arg1) then\n\t\t\tD.OnTargetUpdate(arg0)\n\t\t\tD.OnTargetUpdate(arg1)\n\t\t\tD.InsertLog(LOG_TYPE.SYS_MSG_UI_OME_SKILL_EFFECT_LOG, { arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 })"
+        }
+      ]
+    },
+    {
+      "name": "MY_Recount_DS.lua",
+      "url": "https://github.com/cattenblue/MY/blob/master/MY_Recount/src/MY_Recount_DS.lua",
+      "gitBlobSha1": "098b677a850ade33ad49e6ef6707ee7a911a7d41",
+      "originalEncoding": "gb18030",
+      "sourceSha256": "0cf363c25fae7404113fe8c96b83a7305e6815d1caedff8871f8418bf7fc1d59",
+      "excerpts": [
+        {
+          "startLine": 162,
+          "endLine": 176,
+          "content": "SKILL_RESULT_TYPE.PHYSICS_DAMAGE       = 0  -- 外功伤害\nSKILL_RESULT_TYPE.SOLAR_MAGIC_DAMAGE   = 1  -- 阳性内功伤害\nSKILL_RESULT_TYPE.NEUTRAL_MAGIC_DAMAGE = 2  -- 混元性内功伤害\nSKILL_RESULT_TYPE.LUNAR_MAGIC_DAMAGE   = 3  -- 阴性内功伤害\nSKILL_RESULT_TYPE.POISON_DAMAGE        = 4  -- 毒性伤害\nSKILL_RESULT_TYPE.REFLECTIED_DAMAGE    = 5  -- 反弹伤害\nSKILL_RESULT_TYPE.THERAPY              = 6  -- 治疗\nSKILL_RESULT_TYPE.STEAL_LIFE           = 7  -- 生命偷取(<D0>从<D1>获得了<D2>点气血。)\nSKILL_RESULT_TYPE.ABSORB_THERAPY       = 8  -- 化解治疗\nSKILL_RESULT_TYPE.ABSORB_DAMAGE        = 9  -- 化解伤害\nSKILL_RESULT_TYPE.SHIELD_DAMAGE        = 10 -- 无效伤害\nSKILL_RESULT_TYPE.PARRY_DAMAGE         = 11 -- 拆招\nSKILL_RESULT_TYPE.INSIGHT_DAMAGE       = 12 -- 识破\nSKILL_RESULT_TYPE.EFFECTIVE_DAMAGE     = 13 -- 有效伤害\nSKILL_RESULT_TYPE.EFFECTIVE_THERAPY    = 14 -- 有效治疗"
+        }
+      ]
+    }
+  ],
+  "helper": "data.DataContent.get_reflected_damage",
+  "runtime": "CombatTracker.recordReflection: owner-only NDPS/RDPS, main-target scope, encounter bounds and existing excluded-period semantics; same event object is consumed once, distinct same-frame results survive.",
+  "clears": [
+    {
+      "boss": "突利和顺",
+      "sourceSha256": "ed5689df6929c32206adf3cd3c4058b6702ec6bbda73d3686d3bd03a6caab78c",
+      "seconds": 259.7600000000001,
+      "count": 0,
+      "damage": 0,
+      "while3026Active": {
+        "count": 0,
+        "damage": 0
+      },
+      "targetTemplates": {},
+      "forms": {},
+      "rejected": {},
+      "examples": []
+    },
+    {
+      "boss": "田承嗣",
+      "sourceSha256": "d0b532b782f0d586a8d3da4b81dbf2ac418e35a7cef8d348c81cc228efc74b35",
+      "seconds": 303.5850000000001,
+      "count": 77,
+      "damage": 71246,
+      "while3026Active": {
+        "count": 48,
+        "damage": 46117
+      },
+      "targetTemplates": {
+        "139382": 54920,
+        "139396": 6072,
+        "139393": 10254
+      },
+      "forms": {
+        "1,45971,4": 7,
+        "1,46557,1": 8,
+        "1,46557,2": 4,
+        "1,46557,3": 4,
+        "1,46557,4": 4,
+        "1,46557,5": 4,
+        "1,46557,6": 4,
+        "1,46557,7": 4,
+        "1,46557,8": 4,
+        "1,46557,9": 4,
+        "1,46557,10": 24,
+        "1,46439,10": 5,
+        "1,46001,3": 1
+      },
+      "rejected": {},
+      "examples": [
+        {
+          "offsetMs": 6501,
+          "originalCaster": "npc",
+          "originalTarget": "player",
+          "resultType": 1,
+          "fullId": "\"1,45971,4\"",
+          "fullResult": {
+            "5": "169",
+            "13": "0",
+            "14": "0"
+          }
+        },
+        {
+          "offsetMs": 59635,
+          "originalCaster": "npc",
+          "originalTarget": "player",
+          "resultType": 1,
+          "fullId": "\"1,46557,1\"",
+          "fullResult": {
+            "5": "340",
+            "13": "0",
+            "14": "0"
+          }
+        },
+        {
+          "offsetMs": 60137,
+          "originalCaster": "npc",
+          "originalTarget": "player",
+          "resultType": 1,
+          "fullId": "\"1,46557,1\"",
+          "fullResult": {
+            "5": "340",
+            "13": "0",
+            "14": "0"
+          }
+        }
+      ]
+    },
+    {
+      "boss": "伊曼双子",
+      "sourceSha256": "77aa4be863493a792263e606bc35d58b71ee37717ee61064cf208d42cc4c1ba1",
+      "seconds": 300.3850000000001,
+      "count": 14,
+      "damage": 12608,
+      "while3026Active": {
+        "count": 0,
+        "damage": 0
+      },
+      "targetTemplates": {
+        "139373": 6290,
+        "139372": 6149,
+        "139376": 169
+      },
+      "forms": {
+        "1,45906,3": 10,
+        "1,45910,3": 2,
+        "1,45909,3": 1,
+        "1,45911,3": 1
+      },
+      "rejected": {},
+      "examples": [
+        {
+          "offsetMs": 36438,
+          "originalCaster": "npc",
+          "originalTarget": "player",
+          "resultType": 1,
+          "fullId": "\"1,45906,3\"",
+          "fullResult": {
+            "5": "1691",
+            "13": "0",
+            "14": "0"
+          }
+        },
+        {
+          "offsetMs": 40958,
+          "originalCaster": "npc",
+          "originalTarget": "player",
+          "resultType": 1,
+          "fullId": "\"1,45906,3\"",
+          "fullResult": {
+            "5": "169",
+            "13": "0",
+            "14": "0"
+          }
+        },
+        {
+          "offsetMs": 43199,
+          "originalCaster": "npc",
+          "originalTarget": "player",
+          "resultType": 1,
+          "fullId": "\"1,45906,3\"",
+          "fullResult": {
+            "5": "169",
+            "13": "0",
+            "14": "0"
+          }
+        }
+      ]
+    },
+    {
+      "boss": "阿史那承庆",
+      "sourceSha256": "a15c01fb55e9cbc4f12bf68667c453ff217dee81e0c6aed23d9792ef2e42365c",
+      "seconds": 345.0380000000001,
+      "count": 102,
+      "damage": 33013,
+      "while3026Active": {
+        "count": 0,
+        "damage": 0
+      },
+      "targetTemplates": {
+        "139378": 30028,
+        "139377": 2985
+      },
+      "forms": {
+        "2,34061,11": 71,
+        "1,45932,3": 1,
+        "2,34259,3": 30
+      },
+      "rejected": {},
+      "examples": [
+        {
+          "offsetMs": 10086,
+          "originalCaster": "npc",
+          "originalTarget": "player",
+          "resultType": 1,
+          "fullId": "\"2,34061,11\"",
+          "fullResult": {
+            "5": "169",
+            "13": "0",
+            "14": "0"
+          }
+        },
+        {
+          "offsetMs": 11091,
+          "originalCaster": "npc",
+          "originalTarget": "player",
+          "resultType": 1,
+          "fullId": "\"2,34061,11\"",
+          "fullResult": {
+            "5": "169",
+            "13": "0",
+            "14": "0"
+          }
+        },
+        {
+          "offsetMs": 12123,
+          "originalCaster": "npc",
+          "originalTarget": "player",
+          "resultType": 1,
+          "fullId": "\"2,34061,11\"",
+          "fullResult": {
+            "5": "169",
+            "13": "0",
+            "14": "0"
+          }
+        }
+      ]
+    },
+    {
+      "boss": "史朝义",
+      "sourceSha256": "a26153a784bb6a66102cbe6d3b922f95a9c4e2a3e916040190a428b1ddcf470b",
+      "seconds": 505.8720000000001,
+      "count": 43,
+      "damage": 148150,
+      "while3026Active": {
+        "count": 13,
+        "damage": 49418
+      },
+      "targetTemplates": {
+        "139363": 145108,
+        "139365": 3042
+      },
+      "forms": {
+        "1,45532,3": 25,
+        "1,45684,4": 1,
+        "1,45979,1": 3,
+        "1,45982,1": 7,
+        "1,45979,2": 2,
+        "1,45982,2": 5
+      },
+      "rejected": {},
+      "examples": [
+        {
+          "offsetMs": 12501,
+          "originalCaster": "npc",
+          "originalTarget": "player",
+          "resultType": 1,
+          "fullId": "\"1,45532,3\"",
+          "fullResult": {
+            "5": "6326",
+            "13": "0",
+            "14": "0"
+          }
+        },
+        {
+          "offsetMs": 15240,
+          "originalCaster": "npc",
+          "originalTarget": "player",
+          "resultType": 1,
+          "fullId": "\"1,45532,3\"",
+          "fullResult": {
+            "5": "11960",
+            "13": "0",
+            "14": "0"
+          }
+        },
+        {
+          "offsetMs": 17743,
+          "originalCaster": "npc",
+          "originalTarget": "player",
+          "resultType": 1,
+          "fullId": "\"1,45532,3\"",
+          "fullResult": {
+            "5": "12520",
+            "13": "0",
+            "14": "0"
+          }
+        }
+      ]
+    }
+  ]
+}

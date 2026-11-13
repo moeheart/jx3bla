@@ -1,0 +1,362 @@
+[
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "1522",
+    "value2": "1",
+    "name": "90级剑纯橙武属性1",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#1522/1",
+    "wujieOccupations": [
+      "4pw"
+    ],
+    "wujieHandling": "inactive_ordinary"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "1523",
+    "value2": "1",
+    "name": "90级剑纯橙武属性2",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#1523/1",
+    "wujieOccupations": [
+      "4pw"
+    ],
+    "wujieHandling": "inactive_ordinary"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "1546",
+    "value2": "1",
+    "name": "花间PVE套装属性快雪",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#1546/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "1547",
+    "value2": "1",
+    "name": "七秀PVE套装属性剑破",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#1547/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "17239",
+    "value2": "1",
+    "name": "【套装】【对阵招式】伤害提高2%",
+    "ordinaryHandling": "inactive_mobile",
+    "evidence": "recipe-evidence.json#17239/1",
+    "wujieOccupations": [
+      "4pw"
+    ],
+    "wujieHandling": "skill_coefficient"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "17250",
+    "value2": "1",
+    "name": "【套装】【对阵招式】伤害提高5%",
+    "ordinaryHandling": "inactive_mobile",
+    "evidence": "recipe-evidence.json#17250/1",
+    "wujieOccupations": [
+      "4pw"
+    ],
+    "wujieHandling": "skill_coefficient"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "17251",
+    "value2": "1",
+    "name": "【套装】【对阵招式】疗伤提高5%",
+    "ordinaryHandling": "inactive_mobile",
+    "evidence": "recipe-evidence.json#17251/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "17301",
+    "value2": "1",
+    "name": "【橙武】【傍身招式】伤害提高2%（三环套月·无我无剑）",
+    "ordinaryHandling": "inactive_mobile",
+    "evidence": "recipe-evidence.json#17301/1",
+    "wujieOccupations": [
+      "4pw"
+    ],
+    "wujieHandling": "skill_coefficient"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "17305",
+    "value2": "1",
+    "name": "【橙武】释放【绝技招式】伤害提高持续一段时间（行剑千风·悟+乾坤剑来·悟）",
+    "ordinaryHandling": "inactive_mobile",
+    "evidence": "recipe-evidence.json#17305/1",
+    "wujieOccupations": [
+      "4pw"
+    ],
+    "wujieHandling": "logged_event"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "17306",
+    "value2": "1",
+    "name": "【橙武】【傍身招式】伤害提高2%（莫问·宫+徵）",
+    "ordinaryHandling": "inactive_mobile",
+    "evidence": "recipe-evidence.json#17306/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "17307",
+    "value2": "1",
+    "name": "【橙武】【傍身招式】治疗提高2%（相知·宫+徵）",
+    "ordinaryHandling": "inactive_mobile",
+    "evidence": "recipe-evidence.json#17307/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "17308",
+    "value2": "1",
+    "name": "【橙武】释放【绝技招式】伤害提高持续一段时间（莫问·高山流水·悟+平沙落雁·悟）",
+    "ordinaryHandling": "inactive_mobile",
+    "evidence": "recipe-evidence.json#17308/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "17309",
+    "value2": "1",
+    "name": "【橙武】释放【绝技招式】治疗提高持续一段时间（相知·阳春白雪·悟+梅花三弄·悟）",
+    "ordinaryHandling": "inactive_mobile",
+    "evidence": "recipe-evidence.json#17309/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "17325",
+    "value2": "1",
+    "name": "【橙武】【对阵招式】后减【绝技招式】调息时间（莫问）",
+    "ordinaryHandling": "inactive_mobile",
+    "evidence": "recipe-evidence.json#17325/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "17327",
+    "value2": "1",
+    "name": "【橙武】【对阵招式】后减【绝技招式】调息时间（相知）",
+    "ordinaryHandling": "inactive_mobile",
+    "evidence": "recipe-evidence.json#17327/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "17341",
+    "value2": "1",
+    "name": "【橙武】【对阵招式】后减【绝技招式】调息时间（太虚）",
+    "ordinaryHandling": "inactive_mobile",
+    "evidence": "recipe-evidence.json#17341/1",
+    "wujieOccupations": [
+      "4pw"
+    ],
+    "wujieHandling": "logged_event"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "1969",
+    "value2": "1",
+    "name": "PVE6件套_箭弩_暴雨10%",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#1969/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "2210",
+    "value2": "1",
+    "name": "长歌PVE套装宫、徵伤害提高5%",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#2210/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "2402",
+    "value2": "1",
+    "name": "90级莫问输出属性2",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#2402/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "2403",
+    "value2": "1",
+    "name": "90级相知治疗属性1",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#2403/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "2404",
+    "value2": "1",
+    "name": "90级相知治疗属性2",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#2404/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "2839",
+    "value2": "1",
+    "name": "北天药宗无方PVE两件套_奚毒10%",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#2839/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "2840",
+    "value2": "1",
+    "name": "北天药宗无方PVE两件套_商陆10%",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#2840/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "2844",
+    "value2": "1",
+    "name": "北天药宗灵素PVE两件套_灵素中和5%",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#2844/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "4120",
+    "value2": "1",
+    "name": "PVE6件套_天罗",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#4120/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "4290",
+    "value2": "1",
+    "name": "PVE6件套_霸刀_醉斩白蛇",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#4290/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "4291",
+    "value2": "1",
+    "name": "PVE6件套_霸刀_破釜沉舟",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#4291/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "4602",
+    "value2": "1",
+    "name": "万世不竭10%PVE",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#4602/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "4678",
+    "value2": "1",
+    "name": "PVE毒经加蛇影伤害",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#4678/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "4816",
+    "value2": "1",
+    "name": "蓬莱PVE两件套木落雁归伤害提高10%",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#4816/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "4817",
+    "value2": "1",
+    "name": "蓬莱PVE两件套翼绝云天伤害提高10%",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#4817/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "5909",
+    "value2": "1",
+    "name": "长歌PVE套装剑徵伤害提高10%",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#5909/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "6252",
+    "value2": "1",
+    "name": "长歌大CW剑徵伤害提高5%",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#6252/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "817",
+    "value2": "1",
+    "name": "PVE6件套_花间",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#817/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "817",
+    "value2": "2",
+    "name": "PVE6件套_傲血",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#817/2"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "818",
+    "value2": "1",
+    "name": "PVE6件套_剑纯",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#818/1",
+    "wujieOccupations": [
+      "4pw"
+    ],
+    "wujieHandling": "inactive_ordinary"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "818",
+    "value2": "2",
+    "name": "PVE6件套_气纯",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#818/2"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "818",
+    "value2": "7",
+    "name": "PVE6件套_毒经",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#818/7"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "946",
+    "value2": "1",
+    "name": "PVE6件套_箭弩",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#946/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "947",
+    "value2": "1",
+    "name": "PVE6件套_机关",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#947/1"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "948",
+    "value2": "2",
+    "name": "PVE6件套_焚影",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#948/2"
+  }
+]

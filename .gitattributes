@@ -4,6 +4,7 @@ equip/resources/cangshengtf/*.tab -text -whitespace
 equip/resources/cangshengtf/*.txt -text -whitespace
 equip/resources/cangshengtf/*.json -text
 equip/resources/cangshengtf/xinfa50.json whitespace=cr-at-eol
+equip/resources/cangshengtf/luoyang_heroic_npc_defense.json whitespace=cr-at-eol
 docs/160/evidence/*.luac -text
 docs/160/evidence/*.json -text
 docs/160/evidence/xinfa_evidence/** -text
@@ -15,3 +16,5 @@ docs/160/evidence/xinfa10009_evidence/**/*.tab -whitespace
 docs/160/evidence/legacy9506/*.json -text whitespace=cr-at-eol
 # Audited equipment manifests hash both raw scripts and readable evidence.
 docs/160/evidence/equipment_effects/** -text -whitespace
+docs/160/evidence/heroic10082/*.tab -text -whitespace
+docs/160/evidence/heroic_equipment10082/** -text -whitespace

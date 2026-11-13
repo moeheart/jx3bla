@@ -1,0 +1,3290 @@
+{
+  "note": "Log appearances establish coverage, not unique equipment causation; counts of Buff refreshes are not proc counts. No names or player IDs retained.",
+  "clears": [
+    {
+      "boss": "突利和顺",
+      "sourceSha256": "ed5689df6929c32206adf3cd3c4058b6702ec6bbda73d3686d3bd03a6caab78c",
+      "seconds": 259.7600000000001,
+      "events": [
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "10192",
+          "level": "9",
+          "count": 17,
+          "active": 12,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 17
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15413",
+          "level": "18",
+          "count": 112,
+          "active": 58,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 112
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15413",
+          "level": "19",
+          "count": 60,
+          "active": 30,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 60
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15414",
+          "level": "1",
+          "count": 32,
+          "active": 17,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 32
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15423",
+          "level": "1",
+          "count": 8,
+          "active": 4,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 8
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15453",
+          "level": "1",
+          "count": 354,
+          "active": 182,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 354
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15455",
+          "level": "1",
+          "count": 54,
+          "active": 27,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 54
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15455",
+          "level": "2",
+          "count": 144,
+          "active": 72,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 144
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15456",
+          "level": "1",
+          "count": 182,
+          "active": 99,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 182
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "1915",
+          "level": "8",
+          "count": 7,
+          "active": 4,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 7
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "24767",
+          "level": "2",
+          "count": 56,
+          "active": 28,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 56
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "24774",
+          "level": "1",
+          "count": 517,
+          "active": 264,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 517
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "24791",
+          "level": "1",
+          "count": 54,
+          "active": 28,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 54
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "2584",
+          "level": "1",
+          "count": 132,
+          "active": 66,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 132
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "29608",
+          "level": "17",
+          "count": 3303,
+          "active": 3272,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 3303
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "29608",
+          "level": "18",
+          "count": 446,
+          "active": 442,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 446
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "30602",
+          "level": "4",
+          "count": 4,
+          "active": 3,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 4
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "3066",
+          "level": "1",
+          "count": 55,
+          "active": 27,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 55
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "3067",
+          "level": "2",
+          "count": 41,
+          "active": 23,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 41
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "4672",
+          "level": "1",
+          "count": 8,
+          "active": 4,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 8
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "1322",
+          "level": "12",
+          "count": 4,
+          "active": 4,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 4
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "15183",
+          "level": "9",
+          "count": 5,
+          "active": 5,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 5
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "1852",
+          "level": "8",
+          "count": 4,
+          "active": 4,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 4
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22122",
+          "level": "18",
+          "count": 60,
+          "active": 60,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 60
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22122",
+          "level": "19",
+          "count": 30,
+          "active": 30,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 30
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22129",
+          "level": "19",
+          "count": 4,
+          "active": 4,
+          "damageEff": 0,
+          "healEff": 10348,
+          "effects": {
+            "0": 4
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22169",
+          "level": "1",
+          "count": 99,
+          "active": 99,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 99
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "25771",
+          "level": "1",
+          "count": 7,
+          "active": 7,
+          "damageEff": 35597,
+          "healEff": 0,
+          "effects": {
+            "0": 7
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "25781",
+          "level": "1",
+          "count": 12,
+          "active": 12,
+          "damageEff": 11874,
+          "healEff": 0,
+          "effects": {
+            "0": 12
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "2699",
+          "level": "16",
+          "count": 28,
+          "active": 28,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 28
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "3071",
+          "level": "2",
+          "count": 23,
+          "active": 23,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 23
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "37561",
+          "level": "1",
+          "count": 265,
+          "active": 265,
+          "damageEff": 2403811,
+          "healEff": 0,
+          "effects": {
+            "0": 265
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "37562",
+          "level": "1",
+          "count": 181,
+          "active": 181,
+          "damageEff": 2559731,
+          "healEff": 0,
+          "effects": {
+            "0": 181
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "39088",
+          "level": "17",
+          "count": 6471,
+          "active": 6471,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 6471
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "39088",
+          "level": "18",
+          "count": 669,
+          "active": 669,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 669
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "40512",
+          "level": "4",
+          "count": 3,
+          "active": 3,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 3
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46463",
+          "level": "1",
+          "count": 70,
+          "active": 70,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 70
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46463",
+          "level": "2",
+          "count": 112,
+          "active": 112,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 112
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46464",
+          "level": "1",
+          "count": 130,
+          "active": 130,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 130
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46464",
+          "level": "2",
+          "count": 135,
+          "active": 135,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 135
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46465",
+          "level": "1",
+          "count": 29,
+          "active": 29,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 29
+          }
+        }
+      ]
+    },
+    {
+      "boss": "田承嗣",
+      "sourceSha256": "d0b532b782f0d586a8d3da4b81dbf2ac418e35a7cef8d348c81cc228efc74b35",
+      "seconds": 303.5850000000001,
+      "events": [
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "10192",
+          "level": "9",
+          "count": 17,
+          "active": 12,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 17
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "10193",
+          "level": "8",
+          "count": 2,
+          "active": 1,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 2
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15413",
+          "level": "18",
+          "count": 140,
+          "active": 69,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 140
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15413",
+          "level": "19",
+          "count": 90,
+          "active": 45,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 90
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15414",
+          "level": "1",
+          "count": 45,
+          "active": 23,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 45
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15415",
+          "level": "19",
+          "count": 4,
+          "active": 2,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 4
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15416",
+          "level": "1",
+          "count": 5,
+          "active": 2,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 5
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15423",
+          "level": "1",
+          "count": 18,
+          "active": 10,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 18
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15453",
+          "level": "1",
+          "count": 450,
+          "active": 228,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 450
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15455",
+          "level": "1",
+          "count": 72,
+          "active": 36,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 72
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15455",
+          "level": "2",
+          "count": 166,
+          "active": 83,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 166
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15456",
+          "level": "1",
+          "count": 231,
+          "active": 119,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 231
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "1915",
+          "level": "8",
+          "count": 8,
+          "active": 4,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 8
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "24767",
+          "level": "2",
+          "count": 69,
+          "active": 35,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 69
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "24774",
+          "level": "1",
+          "count": 615,
+          "active": 312,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 615
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "24791",
+          "level": "1",
+          "count": 68,
+          "active": 35,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 68
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "2584",
+          "level": "1",
+          "count": 141,
+          "active": 70,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 141
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "29608",
+          "level": "17",
+          "count": 3907,
+          "active": 3853,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 3907
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "29608",
+          "level": "18",
+          "count": 565,
+          "active": 556,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 565
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "3025",
+          "level": "1",
+          "count": 10,
+          "active": 6,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 10
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "3026",
+          "level": "1",
+          "count": 8,
+          "active": 4,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 8
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "30602",
+          "level": "4",
+          "count": 5,
+          "active": 3,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 5
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "3066",
+          "level": "1",
+          "count": 124,
+          "active": 61,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 124
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "3067",
+          "level": "2",
+          "count": 74,
+          "active": 46,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 74
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "4672",
+          "level": "1",
+          "count": 10,
+          "active": 5,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 10
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "1322",
+          "level": "10",
+          "count": 6,
+          "active": 6,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 6
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "1322",
+          "level": "11",
+          "count": 4,
+          "active": 4,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 4
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "1322",
+          "level": "12",
+          "count": 5,
+          "active": 5,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 5
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "15183",
+          "level": "9",
+          "count": 5,
+          "active": 5,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 5
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "1852",
+          "level": "8",
+          "count": 4,
+          "active": 4,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 4
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22122",
+          "level": "18",
+          "count": 75,
+          "active": 75,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 75
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22122",
+          "level": "19",
+          "count": 45,
+          "active": 45,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 45
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22128",
+          "level": "19",
+          "count": 2,
+          "active": 2,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 2
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22129",
+          "level": "19",
+          "count": 10,
+          "active": 10,
+          "damageEff": 0,
+          "healEff": 17754,
+          "effects": {
+            "0": 10
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22169",
+          "level": "1",
+          "count": 119,
+          "active": 119,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 119
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "25771",
+          "level": "1",
+          "count": 8,
+          "active": 8,
+          "damageEff": 29637,
+          "healEff": 0,
+          "effects": {
+            "0": 8
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "25781",
+          "level": "1",
+          "count": 18,
+          "active": 18,
+          "damageEff": 18735,
+          "healEff": 0,
+          "effects": {
+            "0": 18
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "25792",
+          "level": "1",
+          "count": 3,
+          "active": 3,
+          "damageEff": 0,
+          "healEff": 2554,
+          "effects": {
+            "0": 3
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "2699",
+          "level": "16",
+          "count": 24,
+          "active": 24,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 24
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "3071",
+          "level": "2",
+          "count": 46,
+          "active": 46,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 46
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "33317",
+          "level": "2",
+          "count": 1,
+          "active": 1,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 1
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "37561",
+          "level": "1",
+          "count": 313,
+          "active": 313,
+          "damageEff": 2850805,
+          "healEff": 0,
+          "effects": {
+            "0": 313
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "37562",
+          "level": "1",
+          "count": 227,
+          "active": 227,
+          "damageEff": 3198414,
+          "healEff": 0,
+          "effects": {
+            "0": 227
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "39088",
+          "level": "17",
+          "count": 7662,
+          "active": 7662,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 7662
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "39088",
+          "level": "18",
+          "count": 835,
+          "active": 835,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 835
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "40512",
+          "level": "4",
+          "count": 3,
+          "active": 3,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 3
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46463",
+          "level": "1",
+          "count": 89,
+          "active": 89,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 89
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46463",
+          "level": "2",
+          "count": 139,
+          "active": 139,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 139
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46464",
+          "level": "1",
+          "count": 149,
+          "active": 149,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 149
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46464",
+          "level": "2",
+          "count": 164,
+          "active": 164,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 164
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46465",
+          "level": "1",
+          "count": 35,
+          "active": 35,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 35
+          }
+        }
+      ]
+    },
+    {
+      "boss": "伊曼双子",
+      "sourceSha256": "77aa4be863493a792263e606bc35d58b71ee37717ee61064cf208d42cc4c1ba1",
+      "seconds": 300.3850000000001,
+      "events": [
+        {
+          "scope": "4pw",
+          "kind": "Buff",
+          "id": "15413",
+          "level": "18",
+          "count": 12,
+          "active": 6,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 12
+          }
+        },
+        {
+          "scope": "4pw",
+          "kind": "Buff",
+          "id": "15413",
+          "level": "19",
+          "count": 2,
+          "active": 1,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 2
+          }
+        },
+        {
+          "scope": "4pw",
+          "kind": "Buff",
+          "id": "15453",
+          "level": "1",
+          "count": 38,
+          "active": 19,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 38
+          }
+        },
+        {
+          "scope": "4pw",
+          "kind": "Buff",
+          "id": "15455",
+          "level": "1",
+          "count": 12,
+          "active": 6,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 12
+          }
+        },
+        {
+          "scope": "4pw",
+          "kind": "Buff",
+          "id": "15455",
+          "level": "2",
+          "count": 6,
+          "active": 3,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 6
+          }
+        },
+        {
+          "scope": "4pw",
+          "kind": "Buff",
+          "id": "15456",
+          "level": "1",
+          "count": 17,
+          "active": 9,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 17
+          }
+        },
+        {
+          "scope": "4pw",
+          "kind": "Buff",
+          "id": "24774",
+          "level": "1",
+          "count": 48,
+          "active": 24,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 48
+          }
+        },
+        {
+          "scope": "4pw",
+          "kind": "Buff",
+          "id": "29608",
+          "level": "17",
+          "count": 481,
+          "active": 478,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 481
+          }
+        },
+        {
+          "scope": "4pw",
+          "kind": "Skill",
+          "id": "22169",
+          "level": "1",
+          "count": 9,
+          "active": 9,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 9
+          }
+        },
+        {
+          "scope": "4pw",
+          "kind": "Skill",
+          "id": "37561",
+          "level": "1",
+          "count": 24,
+          "active": 24,
+          "damageEff": 176199,
+          "healEff": 0,
+          "effects": {
+            "0": 24
+          }
+        },
+        {
+          "scope": "4pw",
+          "kind": "Skill",
+          "id": "37562",
+          "level": "1",
+          "count": 19,
+          "active": 19,
+          "damageEff": 208434,
+          "healEff": 0,
+          "effects": {
+            "0": 19
+          }
+        },
+        {
+          "scope": "4pw",
+          "kind": "Skill",
+          "id": "39088",
+          "level": "17",
+          "count": 802,
+          "active": 802,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 802
+          }
+        },
+        {
+          "scope": "4pw",
+          "kind": "Skill",
+          "id": "46463",
+          "level": "1",
+          "count": 19,
+          "active": 19,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 19
+          }
+        },
+        {
+          "scope": "4pw",
+          "kind": "Skill",
+          "id": "46464",
+          "level": "1",
+          "count": 24,
+          "active": 24,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 24
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "10192",
+          "level": "9",
+          "count": 22,
+          "active": 16,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 22
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "10193",
+          "level": "8",
+          "count": 4,
+          "active": 2,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 4
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15413",
+          "level": "18",
+          "count": 179,
+          "active": 89,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 179
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15413",
+          "level": "19",
+          "count": 80,
+          "active": 40,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 80
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15414",
+          "level": "1",
+          "count": 49,
+          "active": 25,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 49
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15415",
+          "level": "19",
+          "count": 2,
+          "active": 1,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 2
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15416",
+          "level": "1",
+          "count": 2,
+          "active": 1,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 2
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15423",
+          "level": "1",
+          "count": 11,
+          "active": 5,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 11
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15453",
+          "level": "1",
+          "count": 570,
+          "active": 291,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 570
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15455",
+          "level": "1",
+          "count": 87,
+          "active": 44,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 87
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15455",
+          "level": "2",
+          "count": 205,
+          "active": 105,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 205
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15456",
+          "level": "1",
+          "count": 284,
+          "active": 149,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 284
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "24767",
+          "level": "2",
+          "count": 78,
+          "active": 38,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 78
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "24774",
+          "level": "1",
+          "count": 791,
+          "active": 400,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 791
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "24791",
+          "level": "1",
+          "count": 74,
+          "active": 38,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 74
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "2584",
+          "level": "1",
+          "count": 148,
+          "active": 74,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 148
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "29608",
+          "level": "17",
+          "count": 4998,
+          "active": 4981,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 4998
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "29608",
+          "level": "18",
+          "count": 698,
+          "active": 698,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 698
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "3025",
+          "level": "1",
+          "count": 4,
+          "active": 2,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 4
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "30602",
+          "level": "4",
+          "count": 2,
+          "active": 2,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 2
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "3066",
+          "level": "1",
+          "count": 71,
+          "active": 35,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 71
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "3067",
+          "level": "2",
+          "count": 48,
+          "active": 30,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 48
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "4672",
+          "level": "1",
+          "count": 7,
+          "active": 3,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 7
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "1322",
+          "level": "10",
+          "count": 2,
+          "active": 2,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 2
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "1322",
+          "level": "12",
+          "count": 4,
+          "active": 4,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 4
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "15183",
+          "level": "9",
+          "count": 6,
+          "active": 6,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 6
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22122",
+          "level": "18",
+          "count": 90,
+          "active": 90,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 90
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22122",
+          "level": "19",
+          "count": 40,
+          "active": 40,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 40
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22128",
+          "level": "19",
+          "count": 1,
+          "active": 1,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 1
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22129",
+          "level": "19",
+          "count": 6,
+          "active": 6,
+          "damageEff": 0,
+          "healEff": 12616,
+          "effects": {
+            "0": 6
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22169",
+          "level": "1",
+          "count": 149,
+          "active": 149,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 149
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "25781",
+          "level": "1",
+          "count": 18,
+          "active": 18,
+          "damageEff": 20133,
+          "healEff": 0,
+          "effects": {
+            "0": 18
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "25792",
+          "level": "1",
+          "count": 5,
+          "active": 5,
+          "damageEff": 0,
+          "healEff": 1621,
+          "effects": {
+            "0": 5
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "3071",
+          "level": "2",
+          "count": 30,
+          "active": 30,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 30
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "33317",
+          "level": "2",
+          "count": 2,
+          "active": 2,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 2
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "37561",
+          "level": "1",
+          "count": 400,
+          "active": 400,
+          "damageEff": 3627982,
+          "healEff": 0,
+          "effects": {
+            "0": 400
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "37562",
+          "level": "1",
+          "count": 291,
+          "active": 291,
+          "damageEff": 4053854,
+          "healEff": 0,
+          "effects": {
+            "0": 291
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "39088",
+          "level": "17",
+          "count": 10222,
+          "active": 10222,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 10222
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "39088",
+          "level": "18",
+          "count": 1127,
+          "active": 1127,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 1127
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "40512",
+          "level": "4",
+          "count": 2,
+          "active": 2,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 2
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46463",
+          "level": "1",
+          "count": 120,
+          "active": 120,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 120
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46463",
+          "level": "2",
+          "count": 171,
+          "active": 171,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 171
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46464",
+          "level": "1",
+          "count": 193,
+          "active": 193,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 193
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46464",
+          "level": "2",
+          "count": 207,
+          "active": 207,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 207
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46465",
+          "level": "1",
+          "count": 40,
+          "active": 40,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 40
+          }
+        }
+      ]
+    },
+    {
+      "boss": "阿史那承庆",
+      "sourceSha256": "a15c01fb55e9cbc4f12bf68667c453ff217dee81e0c6aed23d9792ef2e42365c",
+      "seconds": 345.0380000000001,
+      "events": [
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "10192",
+          "level": "9",
+          "count": 26,
+          "active": 20,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 26
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "10193",
+          "level": "8",
+          "count": 5,
+          "active": 3,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 5
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15413",
+          "level": "18",
+          "count": 200,
+          "active": 100,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 200
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15413",
+          "level": "19",
+          "count": 90,
+          "active": 45,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 90
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15414",
+          "level": "1",
+          "count": 53,
+          "active": 27,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 53
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15416",
+          "level": "1",
+          "count": 1,
+          "active": 0,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 1
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15423",
+          "level": "1",
+          "count": 18,
+          "active": 9,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 18
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15453",
+          "level": "1",
+          "count": 681,
+          "active": 345,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 681
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15455",
+          "level": "1",
+          "count": 90,
+          "active": 45,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 90
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15455",
+          "level": "2",
+          "count": 248,
+          "active": 126,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 248
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15456",
+          "level": "1",
+          "count": 326,
+          "active": 171,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 326
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "1915",
+          "level": "8",
+          "count": 12,
+          "active": 6,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 12
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "24767",
+          "level": "2",
+          "count": 79,
+          "active": 40,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 79
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "24774",
+          "level": "1",
+          "count": 935,
+          "active": 473,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 935
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "24791",
+          "level": "1",
+          "count": 77,
+          "active": 40,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 77
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "2584",
+          "level": "1",
+          "count": 193,
+          "active": 98,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 193
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "29608",
+          "level": "17",
+          "count": 6214,
+          "active": 6206,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 6214
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "29608",
+          "level": "18",
+          "count": 851,
+          "active": 850,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 851
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "3025",
+          "level": "1",
+          "count": 2,
+          "active": 1,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 2
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "30602",
+          "level": "4",
+          "count": 1,
+          "active": 1,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 1
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "3066",
+          "level": "1",
+          "count": 109,
+          "active": 54,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 109
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "3067",
+          "level": "2",
+          "count": 87,
+          "active": 50,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 87
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "4672",
+          "level": "1",
+          "count": 5,
+          "active": 3,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 5
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "1322",
+          "level": "10",
+          "count": 2,
+          "active": 2,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 2
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "1322",
+          "level": "12",
+          "count": 4,
+          "active": 4,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 4
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "15183",
+          "level": "9",
+          "count": 7,
+          "active": 7,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 7
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "1852",
+          "level": "8",
+          "count": 6,
+          "active": 6,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 6
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22122",
+          "level": "18",
+          "count": 100,
+          "active": 100,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 100
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22122",
+          "level": "19",
+          "count": 45,
+          "active": 45,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 45
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22129",
+          "level": "19",
+          "count": 9,
+          "active": 9,
+          "damageEff": 0,
+          "healEff": 19819,
+          "effects": {
+            "0": 9
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22169",
+          "level": "1",
+          "count": 171,
+          "active": 171,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 171
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "25771",
+          "level": "1",
+          "count": 14,
+          "active": 14,
+          "damageEff": 48813,
+          "healEff": 0,
+          "effects": {
+            "0": 14
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "25781",
+          "level": "1",
+          "count": 17,
+          "active": 17,
+          "damageEff": 23509,
+          "healEff": 0,
+          "effects": {
+            "0": 17
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "25792",
+          "level": "1",
+          "count": 13,
+          "active": 13,
+          "damageEff": 0,
+          "healEff": 3165,
+          "effects": {
+            "0": 13
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "2699",
+          "level": "16",
+          "count": 60,
+          "active": 60,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 60
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "3071",
+          "level": "2",
+          "count": 50,
+          "active": 50,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 50
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "33317",
+          "level": "2",
+          "count": 3,
+          "active": 3,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 3
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "37561",
+          "level": "1",
+          "count": 475,
+          "active": 475,
+          "damageEff": 4307372,
+          "healEff": 0,
+          "effects": {
+            "0": 475
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "37562",
+          "level": "1",
+          "count": 345,
+          "active": 345,
+          "damageEff": 4789811,
+          "healEff": 0,
+          "effects": {
+            "0": 345
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "39088",
+          "level": "17",
+          "count": 12214,
+          "active": 12214,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 12214
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "39088",
+          "level": "18",
+          "count": 1272,
+          "active": 1272,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 1272
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "40512",
+          "level": "4",
+          "count": 2,
+          "active": 2,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 2
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46463",
+          "level": "1",
+          "count": 137,
+          "active": 137,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 137
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46463",
+          "level": "2",
+          "count": 208,
+          "active": 208,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 208
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46464",
+          "level": "1",
+          "count": 232,
+          "active": 232,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 232
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46464",
+          "level": "2",
+          "count": 244,
+          "active": 244,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 244
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46465",
+          "level": "1",
+          "count": 40,
+          "active": 40,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 40
+          }
+        }
+      ]
+    },
+    {
+      "boss": "史朝义",
+      "sourceSha256": "a26153a784bb6a66102cbe6d3b922f95a9c4e2a3e916040190a428b1ddcf470b",
+      "seconds": 505.8720000000001,
+      "events": [
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "10192",
+          "level": "9",
+          "count": 35,
+          "active": 26,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 35
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "10193",
+          "level": "8",
+          "count": 8,
+          "active": 4,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 8
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15413",
+          "level": "18",
+          "count": 230,
+          "active": 119,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 230
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15413",
+          "level": "19",
+          "count": 110,
+          "active": 55,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 110
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15414",
+          "level": "1",
+          "count": 66,
+          "active": 34,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 66
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15415",
+          "level": "18",
+          "count": 2,
+          "active": 1,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 2
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15416",
+          "level": "1",
+          "count": 6,
+          "active": 3,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 6
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15423",
+          "level": "1",
+          "count": 29,
+          "active": 15,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 29
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15453",
+          "level": "1",
+          "count": 774,
+          "active": 391,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 774
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15455",
+          "level": "1",
+          "count": 135,
+          "active": 69,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 135
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15455",
+          "level": "2",
+          "count": 287,
+          "active": 144,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 287
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "15456",
+          "level": "1",
+          "count": 415,
+          "active": 213,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 415
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "1915",
+          "level": "8",
+          "count": 14,
+          "active": 7,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 14
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "24767",
+          "level": "2",
+          "count": 102,
+          "active": 50,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 102
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "24774",
+          "level": "1",
+          "count": 1131,
+          "active": 569,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 1131
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "24791",
+          "level": "1",
+          "count": 98,
+          "active": 50,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 98
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "2584",
+          "level": "1",
+          "count": 229,
+          "active": 117,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 229
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "29608",
+          "level": "17",
+          "count": 6926,
+          "active": 6880,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 6926
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "29608",
+          "level": "18",
+          "count": 957,
+          "active": 944,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 957
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "3025",
+          "level": "1",
+          "count": 10,
+          "active": 5,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 10
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "3026",
+          "level": "1",
+          "count": 17,
+          "active": 9,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 17
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "30602",
+          "level": "4",
+          "count": 2,
+          "active": 2,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 2
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "3066",
+          "level": "1",
+          "count": 182,
+          "active": 91,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 182
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "3067",
+          "level": "2",
+          "count": 105,
+          "active": 64,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 105
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Buff",
+          "id": "4672",
+          "level": "1",
+          "count": 24,
+          "active": 13,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "": 24
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "1322",
+          "level": "10",
+          "count": 5,
+          "active": 5,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 5
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "1322",
+          "level": "11",
+          "count": 9,
+          "active": 9,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 9
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "1322",
+          "level": "12",
+          "count": 14,
+          "active": 14,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 14
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "15183",
+          "level": "9",
+          "count": 9,
+          "active": 9,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 9
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "1852",
+          "level": "8",
+          "count": 7,
+          "active": 7,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 7
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22122",
+          "level": "18",
+          "count": 120,
+          "active": 120,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 120
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22122",
+          "level": "19",
+          "count": 55,
+          "active": 55,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 55
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22128",
+          "level": "18",
+          "count": 2,
+          "active": 2,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 2
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22128",
+          "level": "19",
+          "count": 1,
+          "active": 1,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 1
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22129",
+          "level": "19",
+          "count": 15,
+          "active": 15,
+          "damageEff": 0,
+          "healEff": 29470,
+          "effects": {
+            "0": 15
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "22169",
+          "level": "1",
+          "count": 213,
+          "active": 213,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 213
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "25771",
+          "level": "1",
+          "count": 23,
+          "active": 23,
+          "damageEff": 80221,
+          "healEff": 0,
+          "effects": {
+            "0": 23
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "25781",
+          "level": "1",
+          "count": 25,
+          "active": 25,
+          "damageEff": 29948,
+          "healEff": 0,
+          "effects": {
+            "0": 25
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "25792",
+          "level": "1",
+          "count": 11,
+          "active": 11,
+          "damageEff": 0,
+          "healEff": 6232,
+          "effects": {
+            "0": 11
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "2699",
+          "level": "16",
+          "count": 73,
+          "active": 73,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 73
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "3071",
+          "level": "2",
+          "count": 65,
+          "active": 65,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 65
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "33317",
+          "level": "2",
+          "count": 4,
+          "active": 4,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 4
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "37561",
+          "level": "1",
+          "count": 570,
+          "active": 570,
+          "damageEff": 5118244,
+          "healEff": 0,
+          "effects": {
+            "0": 570
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "37562",
+          "level": "1",
+          "count": 388,
+          "active": 388,
+          "damageEff": 5469784,
+          "healEff": 0,
+          "effects": {
+            "0": 388
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "39088",
+          "level": "17",
+          "count": 13392,
+          "active": 13392,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 13392
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "39088",
+          "level": "18",
+          "count": 1401,
+          "active": 1401,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 1401
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "40512",
+          "level": "4",
+          "count": 2,
+          "active": 2,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 2
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46463",
+          "level": "1",
+          "count": 151,
+          "active": 151,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 151
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46463",
+          "level": "2",
+          "count": 240,
+          "active": 240,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 240
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46464",
+          "level": "1",
+          "count": 286,
+          "active": 286,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 286
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46464",
+          "level": "2",
+          "count": 284,
+          "active": 284,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 284
+          }
+        },
+        {
+          "scope": "all",
+          "kind": "Skill",
+          "id": "46465",
+          "level": "1",
+          "count": 52,
+          "active": 52,
+          "damageEff": 0,
+          "healEff": 0,
+          "effects": {
+            "0": 52
+          }
+        }
+      ]
+    }
+  ]
+}

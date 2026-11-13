@@ -7,7 +7,9 @@ from tools.Names import getGameEditionFromTime, getIDFromMap
 from tools.Attribute import ATTRIB_TYPE, CURRENT_GAME_EDITION
 from equip.CangshengAttributeData import CangshengAttributeData, get_target_profiles
 from equip.EquipmentFallback import EQUIPMENT_FALLBACK_WARNING
+from data.DataContent import get_reflected_damage
 import time
+import weakref
 
 SUM_TIME = 0
 SUM1 = 0
@@ -333,9 +335,12 @@ class BoostCounter():
         # Remove one complete pair only; malformed/partial IDs must not match.
         if isinstance(skill, str) and len(skill) >= 2 and skill[0] == skill[-1] == '"':
             skill = skill[1:-1]
-        if skill in FIXED_EQUIPMENT_DAMAGE and not self.occ.endswith('w'):
+        if skill in FIXED_EQUIPMENT_DAMAGE and (not self.occ.endswith('w') or self.occ == '4pw'):
             # Preserve the complete identity in the cache. Similar names,
             # nearby IDs, buff scheme and other levels use the normal model.
+            # The heroic equipment audit verified the same native fixed-damage
+            # helper and exact logged children for 4pw; other Wujie profiles
+            # remain outside that evidence scope.
             pass
         elif skillName in ["逐云寒蕊"]:
             skill = "逐云寒蕊"
@@ -625,7 +630,7 @@ class StatRecorder():
             if real_id in self.note:
                 res = res + "(%s)" % self.note[real_id]
             else:
-                nameArray = ["未知", "化解", "减伤", "吸血", "蛊惑", "响应", "增益"]
+                nameArray = ["未知", "化解", "减伤", "吸血", "蛊惑", "响应", "增益", "反弹"]
                 res = "%s(%s)" % (res, nameArray[int(area)])
                 if area == "3":
                     res = "吸血"
@@ -1267,7 +1272,12 @@ class CombatTracker():
             source = event.caster
             if event.caster not in self.rdpsCast:
                 source = event.target
-            if effect_id == "2,20938,1":  # 左旋右转的特殊逻辑 (TODO)改成通用逻辑
+            if (effect_id == "2,20938,1" and event.caster not in self.rdpsCast
+                    and self.zxyzCaster in self.rdpsCast):
+                # Current JCL identifies the provider on each buff instance.
+                # BUFF_UPDATE can precede the first 6251 event: overwriting a
+                # valid caster with the initial "0" silently drops its rDPS.
+                # Keep the cast-based fallback only for a missing provider.
                 source = self.zxyzCaster
             if effect_id in ["2,26820,1", "2,26821,1", "2,27541,1"]:  # 一些环境buff
                 source = "*环境增益"
@@ -1731,6 +1741,33 @@ class CombatTracker():
                                 self.mrdpsCast[event.caster].recordSource(keyName, event.damageEff * rdpsRate[key]["rate"])
 
 
+        self.recordReflection(event)
+
+    def recordReflection(self, event):
+        """Attribute a native JCL reflected result without altering its hit.
+
+        result[5] is the already returned amount, once across damage schools.
+        Its original attacker remains the NPC and defender remains the player;
+        neither the player's outgoing boosts nor an inferred Buff percentage
+        should be applied again. Distinct same-frame results remain distinct.
+        """
+        reflected = get_reflected_damage(event, self.info)
+        if (reflected is None or event.target not in self.ndpsCast or self.excludeStatusDps
+                or not self.startTime <= event.time <= self.finalTime):
+            return
+        if event in self._recordedReflectionEvents:
+            return
+        self._recordedReflectionEvents.add(event)
+        owner, target, amount = reflected
+        skill = '7,%s' % event.full_id.strip('"')
+        self.ndpsCast[owner].record(target, skill, amount)
+        self.rdpsCast[owner].recordSimple(skill, amount)
+        self.rdpsCast[owner].recordSource('自身伤害', amount)
+        if target in self.mainTargets and owner in self.mndpsCast:
+            self.mndpsCast[owner].record(target, skill, amount)
+            self.mrdpsCast[owner].recordSimple(skill, amount)
+            self.mrdpsCast[owner].recordSource('自身伤害', amount)
+
     def recordShout(self, event):
         '''
         记录喊话事件.
@@ -1837,6 +1874,7 @@ class CombatTracker():
         self.critPeriodSum = bh.critPeriodSum
         self.excludePosDps = 0
         self.excludeStatusDps = 0
+        self._recordedReflectionEvents = weakref.WeakSet()
         self.excludePosHealer = 0
         self.excludeStatusHealer = 0
         self.critStatusHealer = 0

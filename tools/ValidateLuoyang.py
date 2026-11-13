@@ -87,8 +87,35 @@ def check_windows(actor):
                 assert "仅供参考" in tracker.rightTitle.cget("text")
             tracker.setStat("ndps")
             root.update_idletasks()
+            table_layout = {}
+            if hasattr(window, "statsCanvas"):
+                canvas = window.statsCanvas
+                tables = [child for child in canvas.winfo_children() if isinstance(child, tk.Frame)]
+                assert len(tables) == 1, "Expected one scrollable encounter table"
+                table = tables[0]
+                bounds = canvas.bbox("all")
+                region = tuple(map(float, canvas.cget("scrollregion").split()))
+                assert region == tuple(bounds), "Scroll region must cover every table cell"
+                assert bounds[2] - bounds[0] >= table.winfo_reqwidth()
+                assert bounds[3] - bounds[1] >= table.winfo_reqheight()
+                assert canvas.cget("xscrollcommand") and canvas.cget("yscrollcommand")
+                canvas.xview_moveto(1)
+                canvas.yview_moveto(1)
+                assert canvas.xview()[1] == 1.0 and canvas.yview()[1] == 1.0
+                canvas.xview_moveto(0)
+                canvas.yview_moveto(0)
+                assert window.window.winfo_reqwidth() <= 1450, "Encounter columns overflow the window"
+                assert window.window.winfo_reqheight() <= 850, "Encounter rows hide the navigation"
+                table_layout = {"scrollable": True, "tableWidth": table.winfo_reqwidth(),
+                                "tableHeight": table.winfo_reqheight(), "scrollRegion": list(bounds)}
             return {"bossWindow": type(window).__name__, "widgets": "constructed",
-                    "rdps": actor.combatTracker.rdpsStatus['status']}
+                    "rdps": actor.combatTracker.rdpsStatus['status'],
+                    "requestedWidth": window.window.winfo_reqwidth(),
+                    "requestedHeight": window.window.winfo_reqheight(),
+                    "configuredGeometry": window.window.geometry(),
+                    "screenWidth": window.window.winfo_screenwidth(),
+                    "screenHeight": window.window.winfo_screenheight(),
+                    "table": table_layout}
     finally:
         root.destroy()
 

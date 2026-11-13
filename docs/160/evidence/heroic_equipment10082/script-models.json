@@ -1,0 +1,52 @@
+[
+  {
+    "type": "atExecuteScript",
+    "value1": "skill/装备/苍生铸世赛季输出帽子附魔_1110.lua",
+    "value2": "0",
+    "name": "定尘血石·伤·帽",
+    "ordinaryHandling": "logged_event",
+    "staticAttributes": {},
+    "evidence": "script-evidence.json#16679",
+    "wujieHandling": "logged_event",
+    "wujieOccupations": [
+      "4pw"
+    ]
+  },
+  {
+    "type": "atExecuteScript",
+    "value1": "skill/装备/苍生铸世赛季输出帽子附魔_1280.lua",
+    "value2": "0",
+    "name": "定尘血玉·伤·帽",
+    "ordinaryHandling": "logged_event",
+    "staticAttributes": {},
+    "evidence": "script-evidence.json#16694"
+  },
+  {
+    "type": "atExecuteScript",
+    "value1": "skill/装备/苍生铸世赛季输出衣服附魔_1110.lua",
+    "value2": "0",
+    "name": "定尘血石·伤·衣",
+    "ordinaryHandling": "static_attributes",
+    "staticAttributes": {
+      "atAllTypeAttackPowerBase": 81,
+      "atBeTherapyCoefficient": -102
+    },
+    "evidence": "script-evidence.json#16678",
+    "wujieHandling": "static_attributes",
+    "wujieOccupations": [
+      "4pw"
+    ]
+  },
+  {
+    "type": "atExecuteScript",
+    "value1": "skill/装备/苍生铸世赛季输出衣服附魔_1280.lua",
+    "value2": "0",
+    "name": "定尘血玉·伤·衣",
+    "ordinaryHandling": "static_attributes",
+    "staticAttributes": {
+      "atAllTypeAttackPowerBase": 90,
+      "atBeTherapyCoefficient": -102
+    },
+    "evidence": "script-evidence.json#16693"
+  }
+]

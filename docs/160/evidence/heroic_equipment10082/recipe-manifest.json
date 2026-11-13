@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "clientVersion": "1.6.0.10086",
+  "archivedTableReference": "1.6.0.10082",
+  "protectedUnchanged": true,
+  "files": [
+    {
+      "origin": "scripts/skill/万花/镇派/新套装加钟林10%.lua",
+      "sha256": "bda4bd788f32bc608d22409afdf8c370d5fff7591dec3e71959d0ec5eb6def76",
+      "size": 1454,
+      "readableSha256": "e157a01e4cdd206bae71580c6c7aa6e43490650d810e68e0aafe6d3789dad9d0",
+      "readableMethod": "plaintext",
+      "clientVersion": "1.6.0.10086",
+      "extractionStage": "event-fresh-10086-02",
+      "rawPath": "recipe-sources/raw/scripts/skill/万花/镇派/新套装加钟林10%.lua",
+      "readablePath": "recipe-sources/readable/scripts/skill/万花/镇派/新套装加钟林10%.lua"
+    },
+    {
+      "origin": "scripts/skill/五毒/秘笈/蛇影加伤害10.lua",
+      "sha256": "a55621d5d003bc42e63cee0ffa06fe284a246c5ef54e623c7af1e6bdea324409",
+      "size": 1444,
+      "readableSha256": "8a2c8bf9ad7326dcd9420824f7c4e812b3836b1f27a47fe236541b607b7ea5c2",
+      "readableMethod": "plaintext",
+      "clientVersion": "1.6.0.10086",
+      "extractionStage": "event-fresh-10086-02",
+      "rawPath": "recipe-sources/raw/scripts/skill/五毒/秘笈/蛇影加伤害10.lua",
+      "readablePath": "recipe-sources/readable/scripts/skill/五毒/秘笈/蛇影加伤害10.lua"
+    },
+    {
+      "origin": "scripts/skill/五毒/秘笈/蝎心加伤害2.lua",
+      "sha256": "fbe15b3fc8e54fec4ade5e98ecd6c3649a2efc7621358659c456c541bd19951d",
+      "size": 851,
+      "readableSha256": "b8c034a2d2d03e697f20bfcaab6a8e2497405c0e3b39282d97641317a016a52b",
+      "readableMethod": "plaintext",
+      "clientVersion": "1.6.0.10086",
+      "extractionStage": "event-fresh-10086-02",
+      "rawPath": "recipe-sources/raw/scripts/skill/五毒/秘笈/蝎心加伤害2.lua",
+      "readablePath": "recipe-sources/readable/scripts/skill/五毒/秘笈/蝎心加伤害2.lua"
+    },
+    {
+      "origin": "scripts/skill_mobile/移动端-通用/通用/移动端_橙武_增伤_竞技场无效.lua",
+      "sha256": "be4a7e740c0d07ee3348c57954b785b647ab80d635d67fb6aa41f01916e427b6",
+      "size": 14190,
+      "readableSha256": "d252d60255be14314a3208d10330690b84ddd1183a58cf92015fcc9362d502f8",
+      "readableMethod": "plaintext",
+      "clientVersion": "1.6.0.10086",
+      "extractionStage": "event-fresh-10086-03",
+      "rawPath": "recipe-sources/raw/scripts/skill_mobile/移动端-通用/通用/移动端_橙武_增伤_竞技场无效.lua",
+      "readablePath": "recipe-sources/readable/scripts/skill_mobile/移动端-通用/通用/移动端_橙武_增伤_竞技场无效.lua"
+    },
+    {
+      "origin": "scripts/skill_mobile/移动端-通用/通用/移动端_橙武_增加疗效_竞技场无效.lua",
+      "sha256": "af2c63be215f9f6be4ae8f9b9a5023c3f4e69468745af9d87150002bccb3b51f",
+      "size": 14194,
+      "readableSha256": "2ba7dd10e60e68a282f72493b4d09f75537cd5bfd828a3bd7c6c3e5d30fb1725",
+      "readableMethod": "plaintext",
+      "clientVersion": "1.6.0.10086",
+      "extractionStage": "event-fresh-10086-03",
+      "rawPath": "recipe-sources/raw/scripts/skill_mobile/移动端-通用/通用/移动端_橙武_增加疗效_竞技场无效.lua",
+      "readablePath": "recipe-sources/readable/scripts/skill_mobile/移动端-通用/通用/移动端_橙武_增加疗效_竞技场无效.lua"
+    },
+    {
+      "origin": "scripts/skill_mobile/移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua",
+      "sha256": "3654a9e455cf1847f6e32e9142c4ce08fd628ac85561d58a6e1767a93e223aa1",
+      "size": 1802,
+      "readableSha256": "e1ed77e21d2b0be38c8005a71190b203c883fbc805a53c316e28f233c8293d6a",
+      "readableMethod": "plaintext",
+      "clientVersion": "1.6.0.10086",
+      "extractionStage": "event-fresh-10086-02",
+      "rawPath": "recipe-sources/raw/scripts/skill_mobile/移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua",
+      "readablePath": "recipe-sources/readable/scripts/skill_mobile/移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua"
+    },
+    {
+      "origin": "scripts/skill_mobile/移动端-通用/通用/移动端_装备效果_释放绝技招式后伤害提高.lua",
+      "sha256": "f051997ce819a97e076d2747213722fc3ebd9bd900a74e4362cb632f384a893a",
+      "size": 2016,
+      "readableSha256": "4af5976a8124ba1b6c8719d2dcf0bdb477c3b9e965a8d039e6d4320ca590f386",
+      "readableMethod": "plaintext",
+      "clientVersion": "1.6.0.10086",
+      "extractionStage": "event-fresh-10086-02",
+      "rawPath": "recipe-sources/raw/scripts/skill_mobile/移动端-通用/通用/移动端_装备效果_释放绝技招式后伤害提高.lua",
+      "readablePath": "recipe-sources/readable/scripts/skill_mobile/移动端-通用/通用/移动端_装备效果_释放绝技招式后伤害提高.lua"
+    },
+    {
+      "origin": "scripts/skill_mobile/移动端-通用/通用/移动端_装备效果_释放绝技招式后疗伤提高.lua",
+      "sha256": "cb44a8392d4a21c6158bc164b0e1d8dce329fa01d116cd6bb028f531172beb02",
+      "size": 1665,
+      "readableSha256": "5267f54e6eb67cae6a8cdcf89f608556c0e8cf09913fdd4e017b452afc9226f1",
+      "readableMethod": "plaintext",
+      "clientVersion": "1.6.0.10086",
+      "extractionStage": "event-fresh-10086-02",
+      "rawPath": "recipe-sources/raw/scripts/skill_mobile/移动端-通用/通用/移动端_装备效果_释放绝技招式后疗伤提高.lua",
+      "readablePath": "recipe-sources/readable/scripts/skill_mobile/移动端-通用/通用/移动端_装备效果_释放绝技招式后疗伤提高.lua"
+    }
+  ],
+  "boundary": "Fresh Lua and recipe tables are 10086 evidence; archived 10082 table rows are compared explicitly. No claim of unavailable 10082 Lua-byte identity."
+}

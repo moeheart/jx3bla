@@ -1,0 +1,1861 @@
+{
+  "schemaVersion": 1,
+  "gameEdition": 161,
+  "clientVersion": "1.6.0.10082",
+  "map": "25人英雄洛阳之战",
+  "mapId": "836",
+  "playerLevel": 50,
+  "source": {
+    "path": "heroic10082/sNpcTemplate.tab",
+    "encoding": "gb18030",
+    "sha256": "4f8acf3a1122f2876f487744799d812b160751cf684b3d481035e3f2f80599ae",
+    "bytes": 77808
+  },
+  "scope": "Raw client NPC base values, before encounter scripts and logged defense debuffs; null means absent, not zero.",
+  "staleCacheWarning": "Uses the preserved formal 10082 raw client table; no shared NPC cache.",
+  "parameters": {
+    "physicsShieldParam": 10.912,
+    "magicShieldParam": 10.912,
+    "strainParam": 7.117,
+    "levelFactors": {
+      "30": 330,
+      "31": 363,
+      "50": 990,
+      "51": 1023,
+      "52": 1056,
+      "53": 1089,
+      "54": 1122
+    },
+    "globalParamsSha256": "ae93fb6f71aa3055fcb61bd17eca7889160a38ec9d678d291109ec0455ff1a61",
+    "compressionParamsSha256": "3150f0921d9348345d7242d7199a137916fe4cf3eca9ea044f3445dcec371d4a"
+  },
+  "mainTemplates": [
+    "139360",
+    "139382",
+    "139373",
+    "139376",
+    "139378",
+    "139365"
+  ],
+  "profiles": {
+    "139360": {
+      "name": "突利和顺",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 263517184,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "scripts/Map/洛阳之战/npc/突利和顺.lua",
+      "sourceLine": 2,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139361": {
+      "name": "",
+      "level": 133,
+      "adjustLevel": null,
+      "maxLife": 999999999,
+      "shieldBase": {
+        "Physics": 79722,
+        "Solar": 79722,
+        "Lunar": 79722,
+        "Neutral": 79722,
+        "Poison": 79722
+      },
+      "script": "",
+      "sourceLine": 3,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139362": {
+      "name": "",
+      "level": 133,
+      "adjustLevel": null,
+      "maxLife": 999999999,
+      "shieldBase": {
+        "Physics": 79722,
+        "Solar": 79722,
+        "Lunar": 79722,
+        "Neutral": 79722,
+        "Poison": 79722
+      },
+      "script": "",
+      "sourceLine": 4,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139363": {
+      "name": "煞将",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 20140000,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "scripts/Map/洛阳之战/npc/史朝义煞将.lua",
+      "sourceLine": 5,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139364": {
+      "name": "史朝义",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 99999999,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "",
+      "sourceLine": 6,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139365": {
+      "name": "史朝义",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 636200000,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "scripts/Map/洛阳之战/npc/史朝义.lua",
+      "sourceLine": 7,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139366": {
+      "name": "史朝义",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 99999999,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "",
+      "sourceLine": 8,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139367": {
+      "name": "史朝义",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 99999999,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "",
+      "sourceLine": 9,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139368": {
+      "name": "",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 999999999,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "",
+      "sourceLine": 10,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139369": {
+      "name": "",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 999999999,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "",
+      "sourceLine": 11,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139370": {
+      "name": "",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 375940,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "",
+      "sourceLine": 12,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139371": {
+      "name": "",
+      "level": 30,
+      "adjustLevel": null,
+      "maxLife": 99999999,
+      "shieldBase": {
+        "Physics": 143472,
+        "Solar": 13692,
+        "Lunar": 13692,
+        "Neutral": 13692,
+        "Poison": 13692
+      },
+      "script": "",
+      "sourceLine": 13,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139372": {
+      "name": "",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 186176122,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "scripts/Map/世界通用/npc/不死.lua",
+      "sourceLine": 14,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139373": {
+      "name": "伊曼·寂夜",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 261200000,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "scripts/Map/洛阳之战/npc/3号/3号_姐姐_伊曼寂夜.lua",
+      "sourceLine": 15,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139374": {
+      "name": "",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 999999999,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "",
+      "sourceLine": 16,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139375": {
+      "name": "",
+      "level": 33,
+      "adjustLevel": null,
+      "maxLife": 378788,
+      "shieldBase": {
+        "Physics": 3514560,
+        "Solar": 652176,
+        "Lunar": 652176,
+        "Neutral": 652176,
+        "Poison": 652176
+      },
+      "script": "",
+      "sourceLine": 17,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139376": {
+      "name": "伊曼·逐焰",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 90780000,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "scripts/Map/洛阳之战/npc/3号/3号_妹妹_伊曼逐焰.lua",
+      "sourceLine": 18,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139377": {
+      "name": "阿史那承庆",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 100000,
+      "shieldBase": {
+        "Physics": 78,
+        "Solar": 7,
+        "Lunar": 7,
+        "Neutral": 7,
+        "Poison": 7
+      },
+      "script": "",
+      "sourceLine": 19,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139378": {
+      "name": "阿史那承庆",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 428580000,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "scripts/Map/洛阳之战/npc/4号/阿史那承庆.lua",
+      "sourceLine": 20,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139379": {
+      "name": "突利和顺",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 378788,
+      "shieldBase": {
+        "Physics": 3514560,
+        "Solar": 652176,
+        "Lunar": 652176,
+        "Neutral": 652176,
+        "Poison": 652176
+      },
+      "script": "",
+      "sourceLine": 21,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139380": {
+      "name": "",
+      "level": null,
+      "adjustLevel": null,
+      "maxLife": 13,
+      "shieldBase": {
+        "Physics": 13,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/世界通用/npc/不死.lua",
+      "sourceLine": 22,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139381": {
+      "name": "",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 212520000,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "",
+      "sourceLine": 23,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139382": {
+      "name": "田承嗣",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 248200000,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "scripts/Map/洛阳之战/npc/2号/田承嗣.lua",
+      "sourceLine": 24,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139383": {
+      "name": "阿史那承庆",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 100000,
+      "shieldBase": {
+        "Physics": 78,
+        "Solar": 7,
+        "Lunar": 7,
+        "Neutral": 7,
+        "Poison": 7
+      },
+      "script": "",
+      "sourceLine": 25,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139384": {
+      "name": "",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 212520000,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "",
+      "sourceLine": 26,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139385": {
+      "name": "",
+      "level": 50,
+      "adjustLevel": null,
+      "maxLife": 999999999,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "",
+      "sourceLine": 27,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139386": {
+      "name": "",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 999999999,
+      "shieldBase": {
+        "Physics": 79722,
+        "Solar": 79722,
+        "Lunar": 79722,
+        "Neutral": 79722,
+        "Poison": 79722
+      },
+      "script": "",
+      "sourceLine": 28,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139387": {
+      "name": "阿史那承庆",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 100000,
+      "shieldBase": {
+        "Physics": 78,
+        "Solar": 7,
+        "Lunar": 7,
+        "Neutral": 7,
+        "Poison": 7
+      },
+      "script": "",
+      "sourceLine": 29,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139388": {
+      "name": "李复",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 212520000,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "",
+      "sourceLine": 30,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139389": {
+      "name": "",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 999999999,
+      "shieldBase": {
+        "Physics": 79722,
+        "Solar": 79722,
+        "Lunar": 79722,
+        "Neutral": 79722,
+        "Poison": 79722
+      },
+      "script": "",
+      "sourceLine": 31,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139390": {
+      "name": "",
+      "level": 50,
+      "adjustLevel": null,
+      "maxLife": 999999999,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "",
+      "sourceLine": 32,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139391": {
+      "name": "玄天剑符",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 212520000,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "scripts/Map/洛阳之战/npc/史朝义破煞剑符.lua",
+      "sourceLine": 33,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139392": {
+      "name": "狼牙军黑煞摧城团弓兵",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 331481448,
+      "shieldBase": {
+        "Physics": 185,
+        "Solar": 16,
+        "Lunar": 16,
+        "Neutral": 16,
+        "Poison": 16
+      },
+      "script": "",
+      "sourceLine": 34,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139393": {
+      "name": "狼牙军黑煞摧城团枪兵",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 331481448,
+      "shieldBase": {
+        "Physics": 185,
+        "Solar": 16,
+        "Lunar": 16,
+        "Neutral": 16,
+        "Poison": 16
+      },
+      "script": "",
+      "sourceLine": 35,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139394": {
+      "name": "伏焰",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 3830000,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "scripts/Map/洛阳之战/npc/4号/伏焰金刚.lua",
+      "sourceLine": 36,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139395": {
+      "name": "地图测试用传送",
+      "level": null,
+      "adjustLevel": null,
+      "maxLife": 850000000,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "",
+      "sourceLine": 37,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139396": {
+      "name": "狼牙军黑煞摧城团骨朵兵",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 331481448,
+      "shieldBase": {
+        "Physics": 185,
+        "Solar": 16,
+        "Lunar": 16,
+        "Neutral": 16,
+        "Poison": 16
+      },
+      "script": "",
+      "sourceLine": 38,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139397": {
+      "name": "史朝义",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 99999999,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "",
+      "sourceLine": 39,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139398": {
+      "name": "炽虎",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 32350000,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "scripts/Map/洛阳之战/npc/4号/炽虎.lua",
+      "sourceLine": 40,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139399": {
+      "name": "史朝义",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 99999999,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "",
+      "sourceLine": 41,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139400": {
+      "name": "",
+      "level": 133,
+      "adjustLevel": null,
+      "maxLife": 10000000,
+      "shieldBase": {
+        "Physics": 83680,
+        "Solar": 15528,
+        "Lunar": 15528,
+        "Neutral": 15528,
+        "Poison": 15528
+      },
+      "script": "",
+      "sourceLine": 42,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139401": {
+      "name": "",
+      "level": 20,
+      "adjustLevel": null,
+      "maxLife": 100000,
+      "shieldBase": {
+        "Physics": 888,
+        "Solar": 888,
+        "Lunar": 888,
+        "Neutral": 888,
+        "Poison": 888
+      },
+      "script": "",
+      "sourceLine": 43,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139402": {
+      "name": "剑碎片",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 378788,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "",
+      "sourceLine": 44,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139403": {
+      "name": "高空的风",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 99999999,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "",
+      "sourceLine": 45,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139404": {
+      "name": "玄隼",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 5960000,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "scripts/Map/洛阳之战/npc/4号/玄隼金刚.lua",
+      "sourceLine": 46,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139405": {
+      "name": "突利和顺",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 10000000,
+      "shieldBase": {
+        "Physics": 83680,
+        "Solar": 15528,
+        "Lunar": 15528,
+        "Neutral": 15528,
+        "Poison": 15528
+      },
+      "script": "",
+      "sourceLine": 47,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139406": {
+      "name": "狼牙铁甲兵",
+      "level": null,
+      "adjustLevel": null,
+      "maxLife": 100000,
+      "shieldBase": {
+        "Physics": 28,
+        "Solar": 3,
+        "Lunar": 3,
+        "Neutral": 3,
+        "Poison": 3
+      },
+      "script": "",
+      "sourceLine": 48,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139407": {
+      "name": "玄隼弹",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 999999999,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/洛阳之战/npc/4号/拿起玄隼弹.lua",
+      "sourceLine": 49,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139408": {
+      "name": "死侍",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 1790000,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "",
+      "sourceLine": 50,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139409": {
+      "name": "",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 375940,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "",
+      "sourceLine": 51,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139410": {
+      "name": "",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 375940,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "",
+      "sourceLine": 52,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139411": {
+      "name": "突利和顺",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 10000000,
+      "shieldBase": {
+        "Physics": 83680,
+        "Solar": 15528,
+        "Lunar": 15528,
+        "Neutral": 15528,
+        "Poison": 15528
+      },
+      "script": "",
+      "sourceLine": 53,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139412": {
+      "name": "突利和顺",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 10000000,
+      "shieldBase": {
+        "Physics": 83680,
+        "Solar": 15528,
+        "Lunar": 15528,
+        "Neutral": 15528,
+        "Poison": 15528
+      },
+      "script": "",
+      "sourceLine": 54,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139413": {
+      "name": "突利和顺",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 378788,
+      "shieldBase": {
+        "Physics": 3514560,
+        "Solar": 652176,
+        "Lunar": 652176,
+        "Neutral": 652176,
+        "Poison": 652176
+      },
+      "script": "",
+      "sourceLine": 55,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139541": {
+      "name": "",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 375940,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "",
+      "sourceLine": 56,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139716": {
+      "name": "锁链",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 2980000,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "scripts/Map/洛阳之战/npc/3号/钉柱链狱_锁链.lua",
+      "sourceLine": 57,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139717": {
+      "name": "",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 186176122,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "scripts/Map/世界通用/npc/不死.lua",
+      "sourceLine": 58,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139918": {
+      "name": "飞行狼牙兵",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 895000,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "scripts/Map/洛阳之战/npc/飞行狼牙兵.lua",
+      "sourceLine": 59,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "139971": {
+      "name": "翅膀",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 188671829,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "scripts/Map/洛阳之战/npc/史朝义翅膀.lua",
+      "sourceLine": 60,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140080": {
+      "name": "突利和顺宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 61,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140081": {
+      "name": "突利和顺宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 62,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140082": {
+      "name": "突利和顺宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 63,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140083": {
+      "name": "突利和顺宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 64,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140084": {
+      "name": "突利和顺宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 65,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140085": {
+      "name": "突利和顺宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 66,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140086": {
+      "name": "田承嗣宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 67,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140087": {
+      "name": "田承嗣宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 68,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140088": {
+      "name": "田承嗣宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 69,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140089": {
+      "name": "田承嗣宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 70,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140090": {
+      "name": "田承嗣宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 71,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140091": {
+      "name": "田承嗣宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 72,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140092": {
+      "name": "伊曼寂夜宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 73,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140093": {
+      "name": "伊曼寂夜宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 74,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140094": {
+      "name": "伊曼寂夜宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 75,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140095": {
+      "name": "伊曼寂夜宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 76,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140096": {
+      "name": "伊曼寂夜宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 77,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140097": {
+      "name": "伊曼寂夜宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 78,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140098": {
+      "name": "阿史那承庆宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 79,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140099": {
+      "name": "阿史那承庆宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 80,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140100": {
+      "name": "阿史那承庆宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 81,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140101": {
+      "name": "阿史那承庆宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 82,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140102": {
+      "name": "阿史那承庆宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 83,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140103": {
+      "name": "阿史那承庆宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 84,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140104": {
+      "name": "史朝义宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 85,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140105": {
+      "name": "史朝义宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 86,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140106": {
+      "name": "史朝义宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 87,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140107": {
+      "name": "史朝义宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 88,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140108": {
+      "name": "史朝义宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 89,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140109": {
+      "name": "史朝义宝箱",
+      "level": 50,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/掉落npc.lua",
+      "sourceLine": 90,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140110": {
+      "name": "关卡宝箱",
+      "level": 32,
+      "adjustLevel": 0,
+      "maxLife": 3250774,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "scripts/Map/世界通用/include/通关宝箱.lua",
+      "sourceLine": 91,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140386": {
+      "name": "天陨巨剑",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 17819000,
+      "shieldBase": {
+        "Physics": 26317,
+        "Solar": 26317,
+        "Lunar": 26317,
+        "Neutral": 26317,
+        "Poison": 26317
+      },
+      "script": "",
+      "sourceLine": 92,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140478": {
+      "name": "",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 999999999,
+      "shieldBase": {
+        "Physics": 1106,
+        "Solar": 1106,
+        "Lunar": 1106,
+        "Neutral": 1106,
+        "Poison": 1106
+      },
+      "script": "",
+      "sourceLine": 93,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140676": {
+      "name": "",
+      "level": 50,
+      "adjustLevel": null,
+      "maxLife": 999999999,
+      "shieldBase": {
+        "Physics": null,
+        "Solar": null,
+        "Lunar": null,
+        "Neutral": null,
+        "Poison": null
+      },
+      "script": "",
+      "sourceLine": 94,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140677": {
+      "name": "拜火燎原团士兵",
+      "level": 53,
+      "adjustLevel": null,
+      "maxLife": 2304600,
+      "shieldBase": {
+        "Physics": 4081,
+        "Solar": 4081,
+        "Lunar": 4081,
+        "Neutral": 4081,
+        "Poison": 4081
+      },
+      "script": "",
+      "sourceLine": 95,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140678": {
+      "name": "拜火燎原团神使",
+      "level": 53,
+      "adjustLevel": null,
+      "maxLife": 2688700,
+      "shieldBase": {
+        "Physics": 4081,
+        "Solar": 4081,
+        "Lunar": 4081,
+        "Neutral": 4081,
+        "Poison": 4081
+      },
+      "script": "",
+      "sourceLine": 96,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140679": {
+      "name": "被洗脑的百姓",
+      "level": 51,
+      "adjustLevel": null,
+      "maxLife": 218370,
+      "shieldBase": {
+        "Physics": 52,
+        "Solar": 5,
+        "Lunar": 5,
+        "Neutral": 5,
+        "Poison": 5
+      },
+      "script": "",
+      "sourceLine": 97,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140680": {
+      "name": "被洗脑的百姓",
+      "level": 51,
+      "adjustLevel": null,
+      "maxLife": 218370,
+      "shieldBase": {
+        "Physics": 52,
+        "Solar": 5,
+        "Lunar": 5,
+        "Neutral": 5,
+        "Poison": 5
+      },
+      "script": "",
+      "sourceLine": 98,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140681": {
+      "name": "拜火燎原团校尉",
+      "level": 51,
+      "adjustLevel": null,
+      "maxLife": 1965331,
+      "shieldBase": {
+        "Physics": 2881,
+        "Solar": 2881,
+        "Lunar": 2881,
+        "Neutral": 2881,
+        "Poison": 2881
+      },
+      "script": "",
+      "sourceLine": 99,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140682": {
+      "name": "开小肝",
+      "level": 51,
+      "adjustLevel": null,
+      "maxLife": 1965331,
+      "shieldBase": {
+        "Physics": 2881,
+        "Solar": 2881,
+        "Lunar": 2881,
+        "Neutral": 2881,
+        "Poison": 2881
+      },
+      "script": "",
+      "sourceLine": 100,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140683": {
+      "name": "王征北",
+      "level": 52,
+      "adjustLevel": null,
+      "maxLife": 920612933,
+      "shieldBase": {
+        "Physics": 178,
+        "Solar": 15,
+        "Lunar": 15,
+        "Neutral": 15,
+        "Poison": 15
+      },
+      "script": "",
+      "sourceLine": 101,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140684": {
+      "name": "李复",
+      "level": 52,
+      "adjustLevel": null,
+      "maxLife": 920612933,
+      "shieldBase": {
+        "Physics": 178,
+        "Solar": 15,
+        "Lunar": 15,
+        "Neutral": 15,
+        "Poison": 15
+      },
+      "script": "",
+      "sourceLine": 102,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "140685": {
+      "name": "唐军士兵",
+      "level": 52,
+      "adjustLevel": null,
+      "maxLife": 2416608,
+      "shieldBase": {
+        "Physics": 3841,
+        "Solar": 3841,
+        "Lunar": 3841,
+        "Neutral": 3841,
+        "Poison": 3841
+      },
+      "script": "",
+      "sourceLine": 103,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "141163": {
+      "name": "李复",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 212520000,
+      "shieldBase": {
+        "Physics": 6592,
+        "Solar": 6592,
+        "Lunar": 6592,
+        "Neutral": 6592,
+        "Poison": 6592
+      },
+      "script": "",
+      "sourceLine": 104,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "141392": {
+      "name": "狼牙俘虏",
+      "level": 51,
+      "adjustLevel": null,
+      "maxLife": 1965331,
+      "shieldBase": {
+        "Physics": 2881,
+        "Solar": 2881,
+        "Lunar": 2881,
+        "Neutral": 2881,
+        "Poison": 2881
+      },
+      "script": "",
+      "sourceLine": 105,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "141651": {
+      "name": "垂天浮屠宝箱",
+      "level": 52,
+      "adjustLevel": 0,
+      "maxLife": 32700094,
+      "shieldBase": {
+        "Physics": 3841,
+        "Solar": 3841,
+        "Lunar": 3841,
+        "Neutral": 3841,
+        "Poison": 3841
+      },
+      "script": "scripts/Map/狼牙堡_辉天堑/npc/关卡宝箱.lua",
+      "sourceLine": 106,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "141689": {
+      "name": "开小肝",
+      "level": 53,
+      "adjustLevel": null,
+      "maxLife": 12768000,
+      "shieldBase": {
+        "Physics": 6399,
+        "Solar": 6399,
+        "Lunar": 6399,
+        "Neutral": 6399,
+        "Poison": 6399
+      },
+      "script": "",
+      "sourceLine": 107,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    },
+    "141799": {
+      "name": "天陨巨剑",
+      "level": 54,
+      "adjustLevel": null,
+      "maxLife": 12473000,
+      "shieldBase": {
+        "Physics": 26317,
+        "Solar": 26317,
+        "Lunar": 26317,
+        "Neutral": 26317,
+        "Poison": 26317
+      },
+      "script": "",
+      "sourceLine": 108,
+      "decreaseDamagePercent": null,
+      "damageCompressCoef": null
+    }
+  }
+}

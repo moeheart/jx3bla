@@ -53,10 +53,16 @@ def npc_data():
     return json.loads((RESOURCE_ROOT / 'luoyang_npc_defense.json').read_text(encoding='utf-8'))
 
 
+@lru_cache(maxsize=1)
+def heroic_npc_data():
+    return json.loads((RESOURCE_ROOT / 'luoyang_heroic_npc_defense.json').read_text(encoding='utf-8'))
+
+
 def get_target_profiles(info):
-    if info.map != npc_data()['map']:
+    data = heroic_npc_data() if info.map == '25人英雄洛阳之战' else npc_data()
+    if info.map != data['map']:
         return {}
-    rows = npc_data()['profiles']
+    rows = data['profiles']
 
     def complete(profile):
         level = profile.get('level')

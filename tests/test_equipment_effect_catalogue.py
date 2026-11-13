@@ -1,10 +1,11 @@
 """Evidence-scoped equipment support and conservative unknown-effect handling."""
 import json
+import hashlib
 import unittest
 
 from equip.AttributeDisplay import AttributeDisplay
 from equip.EquipmentEffects import resolve_equipment_effects
-from release.EquipmentEffectGenerator import build_catalogue, OUTPUT
+from release.EquipmentEffectGenerator import build_catalogue, OUTPUT, EVIDENCE
 from tests.test_cangsheng_equipment import equipment_text
 
 
@@ -12,9 +13,14 @@ class EquipmentEffectCatalogueTests(unittest.TestCase):
     def test_runtime_catalogue_is_reproducible_from_reviewed_evidence(self):
         catalogue = build_catalogue()
         self.assertEqual(json.loads(OUTPUT.read_text(encoding='utf-8')), catalogue)
-        self.assertEqual(len(catalogue['effects']), 141)
+        self.assertEqual(len(catalogue['effects']), 193)
         self.assertEqual(sum(row['ordinaryHandling'] == 'inactive_mobile'
-                             for row in catalogue['effects']), 55)
+                             for row in catalogue['effects']), 63)
+        for row in catalogue['effects']:
+            self.assertTrue((EVIDENCE / row['evidence'].split('#', 1)[0]).is_file(), row)
+        for source in catalogue['evidenceSources']:
+            self.assertEqual(hashlib.sha256((EVIDENCE / source['file']).read_bytes()).hexdigest(),
+                             source['sha256'])
 
     def effect(self, name='atSetEquipmentRecipe', value='1516', level='1', source='test'):
         return {'type': name, 'value1': value, 'value2': level, 'source': source,

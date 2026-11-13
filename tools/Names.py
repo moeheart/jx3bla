@@ -220,7 +220,9 @@ def isLuoyangMap(mapName):
 def getNickToBoss(nick, mapName=None, templateID=None):
     if isLuoyangMap(mapName):
         # 史朝义的分身/友方目标会成为茗伊文件名。限定地图，避免污染其它遭遇。
-        if nick in ("煞将", "煞將", "李复", "李復") or str(templateID) in ("139308", "139312", "139324", "139332"):
+        if nick in ("煞将", "煞將", "李复", "李復") or str(templateID) in (
+                "139308", "139312", "139324", "139332",
+                "139363", "139365", "139381", "139388"):
             return "史朝义"
     if nick in NICK_TO_BOSS:
         return NICK_TO_BOSS[nick]

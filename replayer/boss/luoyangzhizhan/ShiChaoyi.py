@@ -8,7 +8,10 @@ class ShiChaoyiWindow(EncounterWindow):
     COLUMNS = (
         ("mainDps", "本体DPS", "对史朝义本体的有效伤害/裁剪后的战斗时间；不含幻象。"),
         ("shaDamage", "煞将伤害", "对煞将的有效伤害总量。"),
+        ("flyingDamage", "飞兵伤害", "对飞行狼牙兵139918的有效伤害总量，不计入本体伤害。"),
         ("swordActivations", "激活剑符", "45521激活剑符技能的实际执行次数，同秒重复事件合并。"),
+        ("fragmentPickups", "拾取碎片", "34278碎片气劲层数增加量；刷新不累计，移除不视为交付。"),
+        ("wingCalls", "获得翅膀", "34324翅膀气劲的新获得次数，不累计刷新。"),
         ("shadowCalls", "幽影点名", "幽影斩第一、第二、第三顺位点名合计。"),
         ("imbalanceHits", "消融受击", "戾煞消融强/弱受击次数。受击者未必是责任人。"),
         ("invasionMax", "分流最高层", "煞气侵袭最高层数；解包描述只可抵挡三次。"),
@@ -19,6 +22,8 @@ class ShiChaoyiReplayer(EncounterReplayer):
     BOSS = "史朝义"
     MAIN_IDS = ("139312", "139365", "138261")
     SHA_IDS = ("139308", "139363", "138323")
+    FLYING_IDS = ("139918",)
+    LIFU_IDS = ("139332", "139388")
     CHEST_IDS = tuple(str(x) for x in range(140063, 140069)) + tuple(str(x) for x in range(140104, 140110))
     SECOND_SKILLS = ("45607", "45682", "45684", "45685", "45686", "45687", "45696", "45697", "45711", "45724")
     THIRD_SKILLS = ("45726", "45727", "45728", "45729", "45737", "45739", "45745", "45746", "45977", "45979", "45981")
@@ -35,6 +40,7 @@ class ShiChaoyiReplayer(EncounterReplayer):
         "34156": ("戾月崩斩点名", "12453"), "34543": ("飞行狼牙兵点名", "12453"),
         "34095": ("赤煞", "16371"), "34096": ("幽煞", "16370"),
         "34278": ("携带剑碎片", "16396"),
+        "34324": ("翅膀飞行", "17687"),
     }
 
     TRANSITION_START = "此痛朕记下了，煞…甲…归…身！"
@@ -46,6 +52,13 @@ class ShiChaoyiReplayer(EncounterReplayer):
         "万…煞…奔…流！": "戾芒天坠",
         "朕先斩你！哈！一刀断命！": "裂峰斩",
         "一斩…索命！": "幽影斩", "尔等，罪当伏诛": "戾煞",
+        "分光化影！": "戾月崩斩", "百刺穿心，血尽方休！": "连斩",
+        "刀芒惊天！": "啸天", "自天而刑，诛逆！": "坠空斩",
+        "朕即大燕，睥见天命！": "天命宣言",
+    }
+    LIFU_SHOUTS = {
+        "诸位，我会以内力凝成三道“玄天剑符”。速速催动剑符，结成“玄天阵”便可对抗帝煞之气！": "玄天剑符",
+        "速将散落的“残刃”聚拢于我，我要以内力重铸此剑！": "重铸残刃",
     }
 
     def initBattle(self):
@@ -54,13 +67,15 @@ class ShiChaoyiReplayer(EncounterReplayer):
         self.rewardTime = None
         self.mainExit = None
         self.invasionFailure = set()
+        self.invasionStacks = []
         self.shaStart = {}
+        self.fragmentStacks = {}
         self.transitionStart = None
         self.detail["transitionPeriods"] = []
         self.detail["phaseChanges"] = []
         self.detail["shaPeriods"] = []
         self.detail["phaseEvidence"] = "二阶段优先使用本体煞甲归身喊话，缺失时回退首次阶段专属招式；转场区间按两条本体喊话观测，不据此推断完整无敌时长或扣除有效时间。三阶段仅按明确专属招式识别。"
-        self.detail["mechanicNote"] = "红黑煞消融、分流强爆、煞骸崩陨只记录受击，不将受害者当作责任人。未观测到明确三阶段招式时，三阶段时长保持0。剑符、煞将与转场仍计有效时间。"
+        self.detail["mechanicNote"] = "飞行狼牙兵伤害单列；拾取碎片按34278增层统计，不把移除当作交付。红黑煞消融、分流强爆、煞骸崩陨只记录受击。三阶段按本体专属招式识别，李复重铸喊话仅作轴提示。剑符、煞将与转场仍计有效时间。"
         self.bhBlackList.extend(["s45517", "s45532", "s45607", "s45684", "b34025", "b34027", "b34619"])
         self.bhBlackList.extend("c"+x for x in self.CASTS)
         self.bhBlackList.extend("b"+x for x in self.CALLS)
@@ -91,13 +106,18 @@ class ShiChaoyiReplayer(EncounterReplayer):
         self.observeCombatEnd(event)
         self.observePhase(event)
         if event.dataType == "Skill":
+            self.recordReflectedDamage(event, {
+                "mainDamage": self.MAIN_IDS, "shaDamage": self.SHA_IDS,
+                "flyingDamage": self.FLYING_IDS,
+            })
             self.recordDamage(event, self.MAIN_IDS, "mainDamage")
             self.recordDamage(event, self.SHA_IDS, "shaDamage")
+            self.recordDamage(event, self.FLYING_IDS, "flyingDamage")
             if event.id == "45521" and event.caster in self.statDict:
                 key = (event.caster, "sword")
                 if event.time-self.lastHits.get(key, -10**15) >= 1000:
                     self.lastHits[key] = event.time
-                    self.increment(event.caster, "swordActivations")
+                    self.increment(event.caster, "swordActivations", time=event.time)
                     self.detail["mechanicEvents"].append({"time": event.time, "kind": "action",
                         "player": self.bld.info.getName(event.caster), "mechanic": "激活剑符", "skill": event.id})
             if event.caster in self.bld.info.npc or event.caster == event.target:
@@ -111,6 +131,8 @@ class ShiChaoyiReplayer(EncounterReplayer):
                     self.observedHit(event, "backlashHits", "煞气反噬")
                 elif event.id == "45527":
                     self.observedHit(event, "bladeWheelHits", "刃轮")
+                elif event.id == "46077":
+                    self.observedHit(event, "windBladeHits", "高空风刃")
         elif event.dataType == "Cast" and self.template(event.caster) in self.MAIN_IDS+self.SHA_IDS:
             if event.id in self.CASTS:
                 self.bh.setEnvironment(event.id, self.CASTS[event.id], "16371", event.time, 0, 1,
@@ -119,10 +141,20 @@ class ShiChaoyiReplayer(EncounterReplayer):
             if event.id in self.CALLS:
                 fresh = self.callBuff(event, *self.CALLS[event.id])
                 if fresh and event.id in ("34113", "34114", "34115"):
-                    self.increment(event.target, "shadowCalls")
+                    self.increment(event.target, "shadowCalls", time=event.time)
+                elif fresh and event.id == "34324":
+                    self.increment(event.target, "wingCalls", time=event.time)
+                elif fresh and event.id == "34543":
+                    self.increment(event.target, "flyingCalls", time=event.time)
+            if event.id == "34278":
+                previous = self.fragmentStacks.get(event.target, 0)
+                if event.stack > previous:
+                    self.increment(event.target, "fragmentPickups", event.stack-previous, time=event.time)
+                self.fragmentStacks[event.target] = event.stack
             if event.id == "34057":
                 self.stunCounter[event.target].setState(event.time, event.stack > 0)
             elif event.id == "34619":
+                self.invasionStacks.append((event.time, event.target, event.stack))
                 stats = self.statDict[event.target]["battle"]
                 stats["invasionMax"] = max(stats.get("invasionMax", 0), event.stack)
                 if event.stack > 3 and event.target not in self.invasionFailure:
@@ -145,6 +177,10 @@ class ShiChaoyiReplayer(EncounterReplayer):
                     self.transitionStart = event.time
                 elif content == self.TRANSITION_END and self.transitionStart is not None:
                     self.finishTransition(event.time, False)
+            elif self.template(event.id) in self.LIFU_IDS:
+                content = event.content.strip('"')
+                if content in self.LIFU_SHOUTS:
+                    record_shout(self, event, self.LIFU_SHOUTS[content])
             if (str(event.id) == "0" and "洛阳之战" in self.bld.info.map
                     and "侠士完成【击杀25人普通秘境首领】" in event.content
                     and self.lastMainDamage is not None):
@@ -199,6 +235,12 @@ class ShiChaoyiReplayer(EncounterReplayer):
         for npc_id in list(self.shaStart):
             self.finishSha(npc_id, end)
         self.finishEncounter()
+        for stats in self.statDict.values():
+            stats["battle"]["invasionMax"] = 0
+        for time, player, stack in self.invasionStacks:
+            if time <= end:
+                stats = self.statDict[player]["battle"]
+                stats["invasionMax"] = max(stats["invasionMax"], stack)
         super().countFinal()
         finalize_phase_periods(self, {1: "煞将/剑符", 2: "本体红黑煞", 3: "三阶段"}, "phaseChanges")
         for phase in range(1, 4):

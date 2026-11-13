@@ -2,28 +2,37 @@
 from replayer.boss.General import GeneralReplayer
 from window.SpecificBossWindow import SpecificBossWindow
 from replayer.boss.luoyangzhizhan.LuoyangEvidence import (
-    npc_matches, record_target_damage, record_call_buff, set_confirmed_win,
+    npc_matches, record_target_damage, record_reflected_target_damage, record_call_buff, set_confirmed_win,
     record_environment, record_hit, record_phase, record_shout, finalize_evidence, render_boss_window,
 )
 
 
 class YimanTwinsWindow(SpecificBossWindow):
     def loadWindow(self):
-        render_boss_window(self, "伊曼双子", [
+        columns = [
             ("nightDamageDps", "寂夜DPS", "仅伊曼·寂夜本体有效伤害/有效时间。"),
             ("fireDamageDps", "逐焰DPS", "仅伊曼·逐焰本体有效伤害/有效时间。"),
             ("lockCalls", "逐焰锁定", "34597气劲的独立锁定次数。"),
             ("chainHits", "横扫命中", "锁链横扫直接伤害命中；眩晕气劲单独记入个人控制时间。"),
             ("ringHits", "火环命中", "链舞火环命中，观察记录。"),
-            ("inertDamageDps", "机关伤害", "不可选择的不死机关139320/139718伤害单列，不混入双本体。"),
-        ])
+            ("inertDamageDps", "机关伤害", "不可选择的不死机关及火环伤害单列，不混入双本体或可击破锁链。"),
+        ]
+        if self.detail.get("heroic"):
+            columns[2:2] = [
+                ("chainDamageDps", "锁链DPS", "英雄可攻击锁链139716有效伤害/有效时间；不混入双本体或不死机关。"),
+                ("prisonCalls", "钉柱点名", "钉柱炼狱34270的独立气劲区间，持续刷新不重复计数；控制时间与横扫眩晕取并集。"),
+            ]
+        render_boss_window(self, "伊曼双子", columns)
 
 
 class YimanTwinsReplayer(GeneralReplayer):
-    NIGHT = ("139319",)
-    FIRE = ("139322",)
+    NIGHT = ("139319", "139373")
+    FIRE = ("139322", "139376")
     MAIN = NIGHT + FIRE
-    SOURCES = MAIN + ("139327", "139320", "139718")
+    CHAINS = ("139716",)
+    RINGS = ("139718", "139717")
+    INERT = ("139320", "139374") + RINGS
+    SOURCES = MAIN + INERT + CHAINS + ("139327", "139372")
     ENVIRONMENT = {
         ("Skill", "45909"): ("逐猎爆弹", "12453", "#dd7733"),
         ("Skill", "45910"): ("散雷延爆", "340", "#ddaa33"),
@@ -32,12 +41,16 @@ class YimanTwinsReplayer(GeneralReplayer):
         ("Skill", "45897"): ("链坠天崩", "2123", "#5555aa"),
         ("Cast", "45912"): ("链舞火环", "12452", "#dd5533"),
         ("Skill", "45908"): ("焚天炽焰", "12452", "#cc3333"),
+        ("Skill", "45906"): ("钉柱链狱", "2123", "#7755aa"),
     }
 
     NIGHT_SHOUTS = {
         "天锁垂落，罪冤退散！": "链坠天崩",
         "鞭打众生，哀鸣荡尽！": "锁链横扫",
         "妹妹！让无尽的圣火，熊熊燃烧吧！": "链舞火环准备",
+        "链为牢，柱为枷——送魂！": "钉柱炼狱准备",
+        "挣扎吧，挣扎会让神灵更加愉悦……圣恩降临！": "钉柱链狱",
+        "祭品已纳，圣恩已成！": "圣恩已成",
     }
     FIRE_SHOUTS = {
         "跑啊！跑快点！": "逐焰追击",
@@ -50,10 +63,14 @@ class YimanTwinsReplayer(GeneralReplayer):
     def initBattle(self):
         super().initBattle()
         self.activeBoss = "伊曼双子"
+        self.detail["heroic"] = any(npc_matches(self, npc_id, ("139373", "139376")) for npc_id in self.bld.info.npc)
         self.initPhase(4, 1)
         self.lastMainDamage = None
         self.activeRings = set()
         self.deadBosses = set()
+        self.controlBuffs = {player: set() for player in self.statDict}
+        self.chainRecords = {}
+        self.detail["chains"] = []
         self.detail["phaseTransitions"] = [{"time": self.startTime, "phase": 1, "name": "双子交战"}]
         self.detail["limitations"] = "火环准备按寂夜喊话、火环实体按场景事件、逐焰独战按逐焰喊话划段；不从单体退场或血量阈值推断通关。"
         for npc_id in self.bld.info.npc:
@@ -77,15 +94,24 @@ class YimanTwinsReplayer(GeneralReplayer):
                 elif label == "双子战败" and self.lastMainDamage is not None and 0 <= event.time - self.lastMainDamage <= 5000:
                     set_confirmed_win(self, event.time, "逐焰本体战败喊话及近期本体伤害")
         elif event.dataType in ("Scene", "Death"):
-            if npc_matches(self, event.id, ("140056",)) and (event.dataType == "Death" or event.enter):
+            if npc_matches(self, event.id, ("140056", "140097")) and (event.dataType == "Death" or event.enter):
                 set_confirmed_win(self, event.time, "伊曼专属宝箱")
             elif event.dataType == "Death" and npc_matches(self, event.id, self.MAIN):
                 self.deadBosses.add(str(self.bld.info.npc[event.id].templateID))
-                if set(self.MAIN).issubset(self.deadBosses):
+                if self.deadBosses.intersection(self.NIGHT) and self.deadBosses.intersection(self.FIRE):
                     set_confirmed_win(self, event.time, "双本体重伤")
         if self.win and event.time > self.winTime:
             return
-        if event.dataType == "Scene" and npc_matches(self, event.id, ("139718",)):
+        if event.dataType in ("Scene", "Death") and npc_matches(self, event.id, self.CHAINS):
+            if event.dataType == "Scene" and event.enter:
+                self.chainRecords[event.id] = {"start": event.time, "end": None, "killed": False}
+            else:
+                record = self.chainRecords.setdefault(event.id, {"start": self.startTime, "killed": False})
+                if record.get("end") is None:
+                    record["end"] = event.time
+                if event.dataType == "Death":
+                    record["killed"] = True
+        elif event.dataType == "Scene" and npc_matches(self, event.id, self.RINGS):
             if event.enter:
                 self.activeRings.add(event.id)
                 if self.phase != 4:
@@ -95,6 +121,10 @@ class YimanTwinsReplayer(GeneralReplayer):
                 if not self.activeRings and self.phase == 2:
                     record_phase(self, event.time, 1, "双子交战")
         elif event.dataType == "Skill":
+            record_reflected_target_damage(self, event, {
+                "nightDamage": self.NIGHT, "fireDamage": self.FIRE,
+                "chainDamage": self.CHAINS, "inertDamage": self.INERT,
+            })
             if (npc_matches(self, event.target, self.MAIN) and
                     event.caster in self.statDict and event.damageEff > 0):
                 self.lastMainDamage = event.time
@@ -102,7 +132,9 @@ class YimanTwinsReplayer(GeneralReplayer):
                 record_target_damage(self, event, "nightDamage")
             elif npc_matches(self, event.target, self.FIRE):
                 record_target_damage(self, event, "fireDamage")
-            elif npc_matches(self, event.target, ("139320", "139718")):
+            elif npc_matches(self, event.target, self.CHAINS):
+                record_target_damage(self, event, "chainDamage")
+            elif npc_matches(self, event.target, self.INERT):
                 record_target_damage(self, event, "inertDamage")
             if npc_matches(self, event.caster, self.SOURCES):
                 record_environment(self, event, self.ENVIRONMENT)
@@ -114,13 +146,33 @@ class YimanTwinsReplayer(GeneralReplayer):
             record_environment(self, event, self.ENVIRONMENT)
         elif event.dataType == "Buff" and npc_matches(self, event.caster, self.SOURCES):
             if event.id == "34597":
-                if record_call_buff(self, event, "逐焰锁定", "12453"):
-                    self.statDict[event.target]["lockCalls"] = self.statDict[event.target].get("lockCalls", 0) + 1
-            elif event.id == "34504" and event.target in self.stunCounter:
-                record_call_buff(self, event, "锁链横扫·眩晕", "2123")
-                self.stunCounter[event.target].setState(event.time, int(event.stack > 0))
+                record_call_buff(self, event, "逐焰锁定", "12453", stat_key="lockCalls")
+            elif event.id in ("34504", "34270") and event.target in self.stunCounter:
+                label = "钉柱炼狱" if event.id == "34270" else "锁链横扫·眩晕"
+                record_call_buff(self, event, label, "2123",
+                                 stat_key="prisonCalls" if event.id == "34270" else None)
+                active = self.controlBuffs[event.target]
+                if event.stack > 0:
+                    active.add(event.id)
+                else:
+                    active.discard(event.id)
+                self.stunCounter[event.target].setState(event.time, int(bool(active)))
 
     def countFinal(self):
+        if self.__dict__.get("_luoyangEvidenceFinalized"):
+            return
+        for npc_id, record in self.chainRecords.items():
+            if record["start"] > self.finalTime:
+                continue
+            observed_end = record.get("end")
+            end = min(observed_end or self.finalTime, self.finalTime)
+            self.detail["chains"].append(dict(
+                record, npcID=npc_id, end=end,
+                killed=bool(record.get("killed") and observed_end is not None and observed_end <= self.finalTime),
+                truncated=observed_end is None or observed_end > self.finalTime,
+                duration=max(0, end-record["start"]) / 1000))
+            self.bh.setEnvironment("139716", "锁链", "2123", record["start"],
+                                   max(0, end-record["start"]), 1, "锁链实体在场区间；退场不单独判定击破", "npc", "#7755aa")
         super().countFinal()
         finalize_evidence(self, {1: "双子交战", 2: "链舞火环", 3: "链舞火环准备", 4: "逐焰独战"},
-                          ("nightDamage", "fireDamage", "inertDamage"))
+                          ("nightDamage", "fireDamage", "chainDamage", "inertDamage"))
