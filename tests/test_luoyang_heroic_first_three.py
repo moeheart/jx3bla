@@ -96,7 +96,11 @@ class HeroicFirstThreeTests(unittest.TestCase):
         finish(replay)
         self.assertEqual(replay.statDict["p"]["spearHits"], 1)
         self.assertEqual({entry["skillid"] for entry in replay.bh.log["environment"]},
-                         {"45976", "46030", "46001", "46439", "46438", "46557"})
+                         {"45976", "46030", "46001", "46439", "46438"})
+        # Pressure and wave are two components of one sword round. Without
+        # Scene/cast evidence retain its first hit as the timeline fallback.
+        self.assertEqual([entry['skillname'] for entry in replay.bh.log['environment']
+                          if entry['skillid'] == '46438'], ['苍天坠剑'])
 
     def test_heroic_twins_damage_separates_chain_main_and_inert(self):
         replay = encounter(YimanTwinsReplayer, {"night": ("139373", "伊曼·寂夜"),

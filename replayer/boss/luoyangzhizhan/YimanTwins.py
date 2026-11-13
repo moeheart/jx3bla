@@ -39,9 +39,11 @@ class YimanTwinsReplayer(GeneralReplayer):
         ("Skill", "45899"): ("锁链横扫", "2123", "#7755aa"),
         ("Skill", "45911"): ("爆裂轰退", "340", "#cc6633"),
         ("Skill", "45897"): ("链坠天崩", "2123", "#5555aa"),
-        ("Cast", "45912"): ("链舞火环", "12452", "#dd5533"),
+        # A fresh ring NPC casts every2.5s in the same observed ring phase.
+        # Keep one fallback per wave when Scene evidence is absent.
+        ("Cast", "45912"): ("链舞火环", "12452", "#dd5533", {"burstGap": 7500, "perSource": False, "heroicOnly": True}),
         ("Skill", "45908"): ("焚天炽焰", "12452", "#cc3333"),
-        ("Skill", "45906"): ("钉柱链狱", "2123", "#7755aa"),
+        ("Skill", "45906"): ("钉柱链狱", "2123", "#7755aa", {"burstGap": 6000, "heroicOnly": True}),
     }
 
     NIGHT_SHOUTS = {

@@ -28,7 +28,29 @@ class LiveLastTwoTests(unittest.TestCase):
         self.assertEqual(r.detail["soulPeriods"][0]["duration"], 7.042)
         self.assertEqual(r.detail["phaseTimes"]["聚邪"], 7.04)
         periods = [e for e in r.bh.log["environment"] if e["type"] == "phase" and e["start"] == 2000]
+        self.assertEqual(len(periods), 1)
         self.assertEqual(periods[0]["duration"], 7042)
+        self.assertFalse(any(e['type'] == 'cast' and e['skillid'] == '45916'
+                             for e in r.bh.log['environment']))
+
+    def test_soul_phase_bar_is_clipped_to_failure_cutoff_before_dedup(self):
+        for map_name in ('25人普通洛阳之战', '25人英雄洛阳之战'):
+            with self.subTest(map=map_name):
+                r = replayer(Ashina)
+                r.bld.info.map = map_name
+                r.analyseSecondStage(event('Cast', 2000, id='45916'))
+                r.analyseSecondStage(event('Shout', 2048, id='boss', content='聚邪成渊，尔命休矣！'))
+                r.analyseSecondStage(event('Buff', 4000, id='34251', stack=1))
+                r.analyseSecondStage(event('Buff', 9042, id='34251', stack=0))
+                r.trimmedFinalTime = 6000
+                r.countFinal()
+                periods = [e for e in r.bh.log['environment'] if e['type'] == 'phase'
+                           and e['start'] == 2000]
+                self.assertEqual([e['duration'] for e in periods], [4000])
+                self.assertEqual(r.detail['soulPeriods'][0]['end'], 6000)
+                self.assertEqual(r.detail['phaseTimes']['聚邪'], 4)
+                self.assertEqual(sum(r.phaseTime), 5000)
+                self.assertEqual(r.win, 0)
 
     def test_soul_shout_can_replace_missing_cast_but_not_player_message(self):
         r = replayer(Ashina)

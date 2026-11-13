@@ -3,8 +3,8 @@
 
 from ServerAddress import get_address_config, get_api_url, get_logs_url
 
-EDITION = "8.16.7"
-ANNOUNCEMENT = "蓝奏云下载密码：1234。8.16.7 更新：补齐25人英雄洛阳之战五首领技能轴、机制统计和通关判定；加入英雄NPC防御数据，修复左旋右转来源和战后统计裁剪；核验英雄装备套装、武器及大附魔效果，装备信息完整且效果已核验的复盘可参与表现分、rDPS及mrDPS排名。仅适用于10月29日后的50级正式服数据。"
+EDITION = "8.16.8"
+ANNOUNCEMENT = "蓝奏云下载密码：1234。8.16.8 更新：恢复洛阳之战战斗主表居中并按人数适配窗口；修复奇穴不足12项时个人复盘无法完整显示；整理五首领技能轴，合并重复机制提示并按颜色、图标和轨道展示。保留英雄装备核验和精确排名支持。仅适用于10月29日后的50级正式服数据。"
 # IP is kept for old compatibility. New HTTP requests should use get_api_url()
 # or get_logs_url().
 IP = get_address_config()["api"]["host"]

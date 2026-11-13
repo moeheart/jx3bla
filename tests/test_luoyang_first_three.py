@@ -122,8 +122,24 @@ class LuoyangEncounterTests(unittest.TestCase):
 
     def test_environment_icons_are_bundled(self):
         for cls in (TuliHeshunReplayer, TianChengsiReplayer, YimanTwinsReplayer):
-            for name, icon, color in cls.ENVIRONMENT.values():
+            for item in cls.ENVIRONMENT.values():
+                self.assertIn(len(item), (3, 4))
+                name, icon, color = item[:3]
                 self.assertTrue((Path(__file__).resolve().parents[1] / "icons" / (icon + ".png")).exists(), (name, icon))
+                self.assertRegex(color, r'^#[0-9a-fA-F]{6}$')
+                if len(item) == 4:
+                    options = item[3]
+                    self.assertIsInstance(options, dict)
+                    self.assertLessEqual(set(options), {'burstGap', 'perSource', 'heroicOnly', 'group'})
+                    if 'burstGap' in options:
+                        self.assertIsInstance(options['burstGap'], int)
+                        self.assertGreater(options['burstGap'], 0)
+                    for key in ('perSource', 'heroicOnly'):
+                        if key in options:
+                            self.assertIsInstance(options[key], bool)
+                    if 'group' in options:
+                        self.assertIsInstance(options['group'], str)
+                        self.assertTrue(options['group'])
 
     def test_observations_obey_pot_window_contract(self):
         r = encounter(TuliHeshunReplayer, {"boss": ("139306", "突利和顺")})

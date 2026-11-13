@@ -86,7 +86,11 @@ def check_windows(actor):
             if estimated:
                 assert "仅供参考" in tracker.rightTitle.cget("text")
             tracker.setStat("ndps")
-            root.update_idletasks()
+            # A withdrawn Toplevel has no allocated viewport (often 1x1).
+            # Map it fully transparent so actual pack/grid geometry is checked.
+            window.window.attributes("-alpha", 0)
+            window.window.deiconify()
+            root.update()
             table_layout = {}
             if hasattr(window, "statsCanvas"):
                 canvas = window.statsCanvas
@@ -95,7 +99,8 @@ def check_windows(actor):
                 table = tables[0]
                 bounds = canvas.bbox("all")
                 region = tuple(map(float, canvas.cget("scrollregion").split()))
-                assert region == tuple(bounds), "Scroll region must cover every table cell"
+                assert region[0] <= bounds[0] and region[1] <= bounds[1]
+                assert region[2] >= bounds[2] and region[3] >= bounds[3], "Scroll region must cover every table cell"
                 assert bounds[2] - bounds[0] >= table.winfo_reqwidth()
                 assert bounds[3] - bounds[1] >= table.winfo_reqheight()
                 assert canvas.cget("xscrollcommand") and canvas.cget("yscrollcommand")
@@ -104,10 +109,18 @@ def check_windows(actor):
                 assert canvas.xview()[1] == 1.0 and canvas.yview()[1] == 1.0
                 canvas.xview_moveto(0)
                 canvas.yview_moveto(0)
-                assert window.window.winfo_reqwidth() <= 1450, "Encounter columns overflow the window"
-                assert window.window.winfo_reqheight() <= 850, "Encounter rows hide the navigation"
+                if table.winfo_reqwidth() <= canvas.winfo_width():
+                    assert abs(bounds[0] - (canvas.winfo_width()-bounds[2])) <= 1, "Table must remain centered"
+                assert window.window.winfo_width() <= window.window.winfo_screenwidth()
+                assert window.window.winfo_height() <= window.window.winfo_screenheight()-80
+                chrome = window.window.winfo_height()-canvas.winfo_height()
+                fits_screen = table.winfo_reqheight()+chrome <= window.window.winfo_screenheight()-80
+                if fits_screen:
+                    assert table.winfo_reqheight() <= canvas.winfo_height(), "Full roster should fit without scrolling"
                 table_layout = {"scrollable": True, "tableWidth": table.winfo_reqwidth(),
-                                "tableHeight": table.winfo_reqheight(), "scrollRegion": list(bounds)}
+                                "tableHeight": table.winfo_reqheight(), "scrollRegion": list(region),
+                                "viewportWidth": canvas.winfo_width(), "viewportHeight": canvas.winfo_height(),
+                                "allRowsVisible": table.winfo_reqheight() <= canvas.winfo_height()}
             return {"bossWindow": type(window).__name__, "widgets": "constructed",
                     "rdps": actor.combatTracker.rdpsStatus['status'],
                     "requestedWidth": window.window.winfo_reqwidth(),

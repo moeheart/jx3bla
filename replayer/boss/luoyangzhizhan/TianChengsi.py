@@ -28,16 +28,22 @@ class TianChengsiReplayer(GeneralReplayer):
                               "139392", "139393", "139396")
     ENVIRONMENT = {
         ("Cast", "45972"): ("断岳横斩", "2123", "#cc5533"),
+        ("Cast", "45972", 2): ("裂剑·前式", "2031", "#b91c1c"),
+        ("Cast", "45972", 3): ("裂剑·前式", "2031", "#b91c1c"),
         ("Cast", "46424"): ("天陨一剑", "2123", "#aa3377"),
         ("Cast", "45976"): ("裂剑·回式", "2123", "#aa3377"),
         ("Skill", "46030"): ("鸣镝连珠", "340", "#aa8833"),
+        ("Skill", "46030", 2): ("三军围猎", "2033", "#0369a1"),
         ("Skill", "45971"): ("雷霆震岳", "2123", "#7755aa"),
         ("Skill", "46016"): ("千钧锤落", "2123", "#cc7733"),
         ("Skill", "46439"): ("千钧锤落", "2123", "#cc7733"),
-        ("Skill", "45989"): ("千钧之压", "2123", "#aa5555"),
+        ("Skill", "45989"): ("电扫千军", "4516", "#a16207"),
+        ("Skill", "45989", 4): ("千钧之压", "4516", "#a16207"),
         ("Skill", "46095"): ("苍天坠剑", "2123", "#aa3377"),
-        ("Skill", "46438"): ("苍天坠剑·承剑", "2123", "#aa3377"),
-        ("Skill", "46557"): ("苍天坠剑·气浪", "2123", "#aa5577"),
+        # Heroic 46438 pressure / 46557 wave are continuing components of the
+        # sword phase, already marked by its cast and actual sword appearance.
+        ("Skill", "46438"): ("苍天坠剑", "16396", "#7e22ce", {"burstGap": 5000}),
+        ("Skill", "46557"): ("苍天坠剑", "16396", "#7e22ce", {"burstGap": 5000}),
         ("Skill", "46001"): ("枪林突刺", "340", "#3377aa"),
     }
 
@@ -130,7 +136,8 @@ class TianChengsiReplayer(GeneralReplayer):
                 elif event.id == "46001":
                     record_hit(self, event, "spearHits", "枪林突刺")
         elif event.dataType == "Cast" and npc_matches(self, event.caster, self.SOURCES):
-            record_environment(self, event, self.ENVIRONMENT)
+            if event.id != '46424' or npc_matches(self, event.caster, self.MAIN):
+                record_environment(self, event, self.ENVIRONMENT)
         elif event.dataType == "Buff" and npc_matches(self, event.caster, self.SOURCES):
             calls = {"34255": ("鸣镝连珠", "340", "arrowCalls"),
                      "34254": ("千钧锤落", "2123", "hammerCalls"),

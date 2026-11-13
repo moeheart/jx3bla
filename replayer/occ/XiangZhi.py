@@ -1,3 +1,4 @@
+from window.ReplayTimeline import ReplayTimeline
 # Created by moeheart at 09/12/2021
 # 奶歌复盘pro，用于奶歌复盘的生成、展示。
 
@@ -137,34 +138,12 @@ class XiangZhiProWindow(HealerDisplayWindow):
         '''
         渲染回放信息(Part 6)，奶歌复盘特化.
         '''
-        window = self.window
-        # Part 6: 回放
-        frame6 = tk.Frame(window, width=730, height=150, highlightthickness=1, highlightbackground=self.themeColor)
-        frame6.place(x=10, y=460)
+        timeline = ReplayTimeline(self, self.themeColor)
+        canvas6 = timeline.canvas
         battleTime = self.result["overall"]["sumTime"]
         battleTimePixels = int(battleTime / 100)
         startTime = self.result["replay"]["startTime"]
-        canvas6 = tk.Canvas(frame6, width=720, height=140, scrollregion=(0, 0, battleTimePixels, 120))  # 创建canvas
-        canvas6.place(x=0, y=0) #放置canvas的位置
-        frame6sub = tk.Frame(canvas6) #把frame放在canvas里
-        frame6sub.place(width=720, height=120) #frame的长宽，和canvas差不多的
-        vbar=tk.Scrollbar(canvas6, orient=tk.HORIZONTAL)
-        vbar.place(y=120,width=720,height=20)
-        vbar.configure(command=canvas6.xview)
-        canvas6.config(xscrollcommand=vbar.set)
-        canvas6.create_window((360, int(battleTimePixels/2)), window=frame6sub)
 
-        # 加载图片列表
-        canvas6.imDict = {}
-        canvas6.im = {}
-        imFile = os.listdir(get_icon_dir())
-        for line in imFile:
-            imID = line.split('.')[0]
-            if line.split('.')[1] == "png":
-                canvas6.imDict[imID] = Image.open(get_icon_path(imID)).resize((20, 20), Image.LANCZOS)
-                canvas6.im[imID] = ImageTk.PhotoImage(canvas6.imDict[imID])
-
-        #canvas6 = tk.Canvas(frame6sub, width=battleTimePixels, height=125)
         # 绘制主时间轴及时间
         canvas6.create_rectangle(0, 30, battleTimePixels, 70, fill='white')
         if "heatType" in self.result["replay"]:
@@ -293,22 +272,7 @@ class XiangZhiProWindow(HealerDisplayWindow):
                 text = record["skillname"]
                 canvas6.create_text(posStart+20, 100, text=text, anchor=tk.W)
 
-        # 绘制环境轴
-        for record in self.result["replay"]["environment"]:
-            posStart = int((record["start"] - startTime) / 100)
-            posEnd = int((record["start"] + record["duration"] - startTime) / 100)
-            canvas6.create_image(posStart+10, 20, image=canvas6.im[record["iconid"]])
-            # 绘制表示持续的条
-            if posStart + 20 < posEnd:
-                canvas6.create_rectangle(posStart+20, 10, posEnd, 30, fill="#ff7777")
-            # 绘制名称
-            if posStart + 30 < posEnd:
-                text = record["skillname"]
-                if record["num"] > 1:
-                    text += "*%d"%record["num"]
-                canvas6.create_text(posStart+20, 20, text=text, anchor=tk.W)
-
-        tk.Label(frame6sub, text="test").place(x=20, y=20)
+        timeline.finish()
 
     def renderTeam(self):
         '''

@@ -133,21 +133,29 @@ for (var i in resObj.healer.table){
 }
 
 //part 4
-if (resObj.qixue.available) {
-    result4 = "";
-    for (var i = 1; i <= 12; i++) {
-        result4 += resObj.qixue[i];
-        if (i != 12) {
-            result4 += ",";
+var qixueData = resObj.qixue;
+var qixueEntries = [];
+if (qixueData && (qixueData.available === 1 || qixueData.available === true)) {
+    Object.keys(qixueData).filter(function (key) {
+        return /^[1-9]\d*$/.test(key) && typeof qixueData[key] === "string" && qixueData[key].trim() !== "";
+    }).sort(function (left, right) {
+        return Number(left) - Number(right);
+    }).forEach(function (key) {
+        qixueEntries.push(qixueData[key].trim());
+    });
+}
+if (qixueEntries.length) {
+    var qixueTarget = $('#data-4-t').empty().removeClass("hidden");
+    qixueEntries.forEach(function (name, index) {
+        if (index > 0) {
+            qixueTarget.append(index % 6 === 0 ? document.createElement("br") : document.createTextNode(","));
         }
-        if (i == 6) {
-            result4 += "<br>";
-        }
-    }
-    $('#data-4-t').html(result4);
+        qixueTarget.append(document.createTextNode(name));
+    });
+    $('#data-4-h').addClass("hidden");
 }
 else {
-    $('#data-4-t').addClass("hidden");
+    $('#data-4-t').empty().addClass("hidden");
     $('#data-4-h').removeClass("hidden");
 }
 

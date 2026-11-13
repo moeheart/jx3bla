@@ -13,6 +13,7 @@ from replayer.TableConstructor import TableConstructor
 from tools.Functions import *
 from window.ReviewWindow import ReviewerWindow
 from window.Window import Window
+from window.QixueDisplay import format_qixue
 from window.ToolTip import ToolTip
 from window.HealerDisplayWindow import SingleSkillDisplayer
 
@@ -269,18 +270,8 @@ class DpsDisplayWindow(Window):
         # Part 4: 奇穴
         frame4 = tk.Frame(window, width=310, height=70, highlightthickness=1, highlightbackground=self.themeColor)
         frame4.place(x=430, y=170)
-        if self.result["qixue"]["available"] == 0:
-            text = "奇穴信息获取失败。\n在进入战斗后查看目标的奇穴即可获取。\n如果是第一视角也可以自动获取。"
-            tk.Label(frame4, text=text, justify="left").place(x=0, y=0)
-        else:
-            text = ""
-            for i in range(1, 7):
-                text = text + self.result["qixue"][str(i)] + ','
-            text = text + '\n'
-            for i in range(7, 13):
-                text = text + self.result["qixue"][str(i)] + ','
-            text = text[:-1]
-            tk.Label(frame4, text=text, justify="left").place(x=0, y=0)
+        text = format_qixue(self.result.get("qixue"))
+        tk.Label(frame4, text=text, justify="left", wraplength=300).place(x=0, y=0)
 
     def renderSkill(self):
         '''

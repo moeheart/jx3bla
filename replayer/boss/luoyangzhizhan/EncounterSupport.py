@@ -1,6 +1,4 @@
 """Small recording helpers shared by the two final Luoyang encounters."""
-import tkinter as tk
-
 from replayer.boss.General import GeneralReplayer
 from window.SpecificBossWindow import SpecificBossWindow
 from tools.Functions import parseTime
@@ -16,8 +14,6 @@ class EncounterWindow(SpecificBossWindow):
 
     def loadWindow(self):
         render_boss_window(self, self.TITLE, self.COLUMNS)
-        tk.Label(self.window, text=self.detail.get("mechanicNote", ""), wraplength=1250,
-                 justify="left").pack()
 
 
 class EncounterReplayer(GeneralReplayer):
@@ -48,6 +44,13 @@ class EncounterReplayer(GeneralReplayer):
     def template(self, npc_id):
         npc = self.bld.info.npc.get(npc_id)
         return str(npc.templateID) if npc else ""
+
+    def analyseSecondStage(self, event):
+        # These encounters provide explicit mechanics. Preserve General's
+        # combat bookkeeping without its automatic NPC/Buff noise collection.
+        previous = len(self.bh.log['environment'])
+        super().analyseSecondStage(event)
+        del self.bh.log['environment'][previous:]
 
     def increment(self, player, key, amount=1, time=None):
         if player in self.statDict:

@@ -4,6 +4,7 @@ import tkinter as tk
 from replayer.TableConstructorMeta import TableConstructorMeta
 from tools.Functions import parseTime
 from data.DataContent import get_reflected_damage
+from replayer.boss.luoyangzhizhan.Timeline import finalize_timeline, tag_source
 
 
 def npc_matches(replayer, npc_id, templates, names=()):
@@ -104,19 +105,29 @@ def set_confirmed_win(replayer, event_time, rule):
 
 def record_environment(replayer, event, mapping):
     """Record only researched encounter skills, with per-ID repeat coalescing."""
-    item = mapping.get((event.dataType, str(event.id)))
+    item = mapping.get((event.dataType, str(event.id), getattr(event, 'level', 0)),
+                       mapping.get((event.dataType, str(event.id))))
     if item is None:
         return
     if event.dataType == "Skill" and (event.target not in replayer.statDict or event.damage <= 0):
         return
-    key = (event.dataType, event.id)
-    if event.time - replayer.bhTime.get(key, -100000) < 3000:
+    label, icon, color = item[:3]
+    options = item[3] if len(item) > 3 else {}
+    if options.get('heroicOnly') and '英雄' not in replayer.bld.info.map:
+        options = {}
+    source = event.caster if options.get('perSource', True) else 'encounter'
+    key = ('luoyang-axis', event.dataType, options.get('group', label), source)
+    previous = replayer.bhTime.get(key, -100000)
+    if 'burstGap' in options:
+        replayer.bhTime[key] = event.time
+    interval = options.get('burstGap', 0 if event.dataType == 'Cast' else 3000)
+    if event.time - previous < interval:
         return
     replayer.bhTime[key] = event.time
-    label, icon, color = item
     replayer.bh.setEnvironment(event.id, label, icon, event.time, 0, 1,
                               "运功开始" if event.dataType == "Cast" else "实际命中",
                               event.dataType.lower(), color)
+    tag_source(replayer, event.caster)
 
 
 def record_hit(replayer, event, key, label):
@@ -159,6 +170,7 @@ def record_shout(replayer, event, label):
     })
     replayer.bh.setEnvironment("0", label, "340", event.time, 0, 1,
                                content, "shout", "#996633")
+    tag_source(replayer, event.id)
     return True
 
 
@@ -201,6 +213,9 @@ def finalize_phase_periods(replayer, phase_names, transitions_key="phaseTransiti
                                       if entry["start"] <= end]
     for entry in replayer.bh.log["environment"]:
         entry["duration"] = min(entry["duration"], max(0, end-entry["start"]))
+    # Resolve alternative representations only after the measured phase bars
+    # have their final duration and the encounter boundary has been applied.
+    finalize_timeline(replayer)
 
 
 def finalize_evidence(replayer, phase_names, damage_keys=()):
@@ -251,28 +266,40 @@ def finalize_evidence(replayer, phase_names, damage_keys=()):
 def render_boss_window(window, title, columns):
     """Shared table layout; labels and encounter columns supplied by the boss."""
     window.constructWindow(title, "1450x850")
+    screen_width = window.window.winfo_screenwidth()
+    screen_height = window.window.winfo_screenheight()
+    # Leave room for the title bar and taskbar. Fit the roster when the screen
+    # permits it; smaller displays retain both scroll directions.
+    width = min(1450, max(1, screen_width - 40))
+    max_height = max(1, screen_height - 80)
+    window.window.geometry("%dx%d" % (width, min(850, max_height)))
+    labels = [child for child in window.window.winfo_children() if isinstance(child, tk.Label)]
+
+    def add_summary(text):
+        label = tk.Label(window.window, text=text, wraplength=max(1, width-32), justify="center")
+        label.pack()
+        labels.append(label)
+
     phases = " / ".join("%s %.1f秒" % (name, value)
                          for name, value in window.detail.get("phaseTimes", {}).items())
-    tk.Label(window.window, text=("通关" if window.detail.get("win") else "未确认通关") +
-             "  |  " + phases + "  |  点名与命中详情见时间轴、战斗事件记录").pack()
+    add_summary(("通关" if window.detail.get("win") else "未确认通关") +
+                "  |  " + phases + "  |  点名与命中详情见时间轴、战斗事件记录")
     periods = window.detail.get("phasePeriods", [])
     if periods:
         text = "分段：" + " / ".join("%s %s—%s（%.3f秒）" % (
             entry["name"], parseTime((entry["start"]-periods[0]["start"])/1000),
             parseTime((entry["end"]-periods[0]["start"])/1000), entry["duration"])
             for entry in periods)
-        tk.Label(window.window, text=text, wraplength=1400, justify="left").pack()
+        add_summary(text)
     transitions = window.detail.get("transitionPeriods", [])
     if transitions:
-        tk.Label(window.window, text="转场观测：" + " / ".join(
+        add_summary("转场观测：" + " / ".join(
             "%s %.3f秒%s" % (entry["name"], entry["duration"],
                               "（截至记录结束）" if entry.get("truncated") else "")
-            for entry in transitions), wraplength=1400, justify="left").pack()
-    # Heroic mechanics add columns and a full 25-player roster can exceed the
-    # fixed window height. Keep the entire table reachable at any screen size.
+            for entry in transitions))
     viewport = tk.Frame(window.window)
     viewport.pack(fill="both", expand=True)
-    canvas = tk.Canvas(viewport, height=450, width=1400, highlightthickness=0)
+    canvas = tk.Canvas(viewport, height=450, width=width-20, highlightthickness=0)
     vertical = tk.Scrollbar(viewport, orient="vertical", command=canvas.yview)
     horizontal = tk.Scrollbar(viewport, orient="horizontal", command=canvas.xview)
     canvas.configure(yscrollcommand=vertical.set, xscrollcommand=horizontal.set)
@@ -282,8 +309,17 @@ def render_boss_window(window, title, columns):
     viewport.rowconfigure(0, weight=1)
     viewport.columnconfigure(0, weight=1)
     frame = tk.Frame(canvas)
-    canvas.create_window((0, 0), window=frame, anchor="nw")
-    frame.bind("<Configure>", lambda _: canvas.configure(scrollregion=canvas.bbox("all")))
+    table_item = canvas.create_window((0, 0), window=frame, anchor="nw")
+
+    def layout_table(_=None):
+        table_width, table_height = frame.winfo_reqwidth(), frame.winfo_reqheight()
+        available_width, available_height = canvas.winfo_width(), canvas.winfo_height()
+        canvas.coords(table_item, max(0, (available_width-table_width)//2), 0)
+        canvas.configure(scrollregion=(0, 0, max(table_width, available_width),
+                                       max(table_height, available_height)))
+
+    frame.bind("<Configure>", layout_table)
+    canvas.bind("<Configure>", layout_table)
     window.statsCanvas = canvas
     table = TableConstructorMeta(window.config, frame)
     window.constructCommonHeader(table, "")
@@ -307,3 +343,24 @@ def render_boss_window(window, title, columns):
             bind_scroll(child)
     bind_scroll(canvas)
     window.constructNavigator()
+    if window.detail.get("mechanicNote"):
+        add_summary(window.detail["mechanicNote"])
+
+    def wrap_summaries(event):
+        if event.widget == window.window:
+            for label in labels:
+                label.configure(wraplength=max(1, event.width-32))
+
+    window.window.bind("<Configure>", wrap_summaries, add="+")
+    for label in labels:
+        label.configure(wraplength=max(1, width-32))
+    window.window.update_idletasks()
+    table_height = frame.winfo_reqheight()
+    chrome_height = window.window.winfo_reqheight() - canvas.winfo_reqheight()
+    canvas.configure(height=min(table_height, max(1, max_height-chrome_height)),
+                     width=max(1, width-vertical.winfo_reqwidth()))
+    window.window.update_idletasks()
+    height = min(max_height, window.window.winfo_reqheight())
+    window.window.geometry("%dx%d+%d+%d" % (
+        width, height, max(0, (screen_width-width)//2), max(0, (screen_height-height-40)//2)))
+    window.window.minsize(min(640, width), min(480, height))

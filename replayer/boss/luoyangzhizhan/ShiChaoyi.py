@@ -1,6 +1,7 @@
 """洛阳之战史朝义：煞将/剑符、红黑煞与后续剑招。"""
 from replayer.boss.luoyangzhizhan.EncounterSupport import EncounterReplayer, EncounterWindow
-from replayer.boss.luoyangzhizhan.LuoyangEvidence import record_shout, finalize_phase_periods
+from replayer.boss.luoyangzhizhan.LuoyangEvidence import record_shout, finalize_phase_periods, record_environment
+from replayer.boss.luoyangzhizhan.Timeline import STYLES, tag_source
 
 
 class ShiChaoyiWindow(EncounterWindow):
@@ -29,7 +30,9 @@ class ShiChaoyiReplayer(EncounterReplayer):
     THIRD_SKILLS = ("45726", "45727", "45728", "45729", "45737", "45739", "45745", "45746", "45977", "45979", "45981")
     CASTS = {
         "45525": "利刃", "45526": "刃轮", "45530": "杀机", "45535": "煞骸崩陨",
-        "45539": "重斩", "45711": "戾芒天坠", "45686": "裂峰斩·一式",
+        # 45539 is a frequent 煞将 rectangular cleave, omitted from the raid
+        # summary axis; its native events and damage still pass through.
+        "45711": "戾芒天坠", "45686": "裂峰斩·一式",
         "45687": "裂峰斩·二式", "45696": "幽影斩", "45724": "戾煞",
         "45726": "连斩·一式", "45729": "连斩·二式", "45739": "啸天",
         "45746": "戾月崩斩", "45977": "坠空斩",
@@ -40,7 +43,7 @@ class ShiChaoyiReplayer(EncounterReplayer):
         "34156": ("戾月崩斩点名", "12453"), "34543": ("飞行狼牙兵点名", "12453"),
         "34095": ("赤煞", "16371"), "34096": ("幽煞", "16370"),
         "34278": ("携带剑碎片", "16396"),
-        "34324": ("翅膀飞行", "17687"),
+        "34324": ("翅膀飞行", "1485"),
     }
 
     TRANSITION_START = "此痛朕记下了，煞…甲…归…身！"
@@ -135,8 +138,8 @@ class ShiChaoyiReplayer(EncounterReplayer):
                     self.observedHit(event, "windBladeHits", "高空风刃")
         elif event.dataType == "Cast" and self.template(event.caster) in self.MAIN_IDS+self.SHA_IDS:
             if event.id in self.CASTS:
-                self.bh.setEnvironment(event.id, self.CASTS[event.id], "16371", event.time, 0, 1,
-                                       "首领/煞将运功", "cast", "#bb4444")
+                label = self.CASTS[event.id]
+                record_environment(self, event, {('Cast', event.id): (label, *STYLES[label])})
         elif event.dataType == "Buff" and event.target in self.statDict:
             if event.id in self.CALLS:
                 fresh = self.callBuff(event, *self.CALLS[event.id])
@@ -195,10 +198,11 @@ class ShiChaoyiReplayer(EncounterReplayer):
                 self.mainExit = event.time
                 self.resolveRewardWin()
             if template in self.SHA_IDS:
-                if event.enter:
-                    self.shaStart.setdefault(event.id, event.time)
+                if event.enter and event.id not in self.shaStart:
+                    self.shaStart[event.id] = event.time
                     self.bh.setEnvironment(template, "煞将", "16371", event.time, 0, 1, "煞将入场", "npc", "#cc8800")
-                else:
+                    tag_source(self, event.id)
+                elif not event.enter:
                     self.finishSha(event.id, event.time)
         elif event.dataType == "Death":
             if self.template(event.id) in self.MAIN_IDS and self.lastMainDamage is not None:

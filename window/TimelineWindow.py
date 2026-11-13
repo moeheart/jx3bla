@@ -71,97 +71,93 @@ class TimelineWindow(Window):
 
 
     def loadWindow(self):
-        '''
-        使用tkinter绘制复盘窗口。
-        '''
-
-        singleWidth = 720
-        singleHeight = 60
-        numRows = int((self.bh.finalTime - self.bh.startTime) / 60000) + 1
-        timeRate = singleWidth / 60000
-
-        overallHeight = singleHeight * numRows
+        """Draw exact-time anchors in measured lanes, with scrollable minutes."""
+        import tkinter.font as tkfont
+        from tools.TimelineLayout import layout_timeline_records
 
         window = tk.Toplevel()
-        window.title('时间轴')
-        window.geometry('780x%d'%(numRows*60+100))
-
-
-        frame = tk.Frame(window, width=730, height=overallHeight)
-        frame.place(x=20, y=0)
-
-        canvas = tk.Canvas(frame, width=singleWidth+10, height=overallHeight)  # 创建canvas
-        canvas.place(x=0, y=0) #放置canvas的位置
-        canvas.config()
-
-        # 加载图片列表
-        canvas.imDict = {}
-        canvas.im = {}
-        imFile = os.listdir(get_icon_dir())
-        for line in imFile:
-            imID = line.split('.')[0]
-            if line.split('.')[1] == "png":
-                canvas.imDict[imID] = Image.open(get_icon_path(imID)).resize((20, 20), Image.LANCZOS)
-                canvas.im[imID] = ImageTk.PhotoImage(canvas.imDict[imID])
-
-        for i in range(numRows):
-            baseY = i * singleHeight
-            colorH = getColorHex((0, 255, 255))
-
-            if i != numRows - 1:
-                canvas.create_rectangle(0, baseY + 29, singleWidth, baseY + 31, fill=colorH, width=0)
-            else:
-                # 结束
-                row = int((self.bh.finalTime - self.bh.startTime) / 60000)
-                baseY = row * singleHeight
-                baseX = int((self.bh.finalTime - self.bh.startTime - 60000 * row) * timeRate)
-                colorH = getColorHex((0, 255, 255))
-                canvas.create_rectangle(0, baseY + 29, baseX, baseY + 31, fill=colorH, width=0)
-                canvas.create_rectangle(baseX, baseY+15, baseX+1, baseY+45, fill=colorH, width=0)
-                canvas.create_rectangle(baseX+3, baseY+15, baseX+6, baseY+45, fill=colorH, width=0)
-
-        for line in self.bh.log["environment"]:
-            if not self.shouldShowTimelineRecord(line):
-                continue
-            row = int((line["start"] - self.bh.startTime) / 60000)
-            baseY = row * singleHeight
-            baseX = int((line["start"] - self.bh.startTime - 60000*row) * timeRate)
-            # color = (0, 0, 0)
-            # if line["type"] == "cast":
-            #     color = (128, 128, 255)
-            # elif line["type"] == "skill":
-            #     color = (255, 128, 0)
-            # elif line["type"] == "buff":
-            #     color = (0, 128, 255)
-            # elif line["type"] == "shout":
-            #     color = (128, 0, 0)
-            #     continue
-            # elif line["type"] == "npc":
-            #     color = (128, 0, 0)
-            #     continue
-            # colorH = getColorHex(color)
-            colorH = line["color"]
-            text = line["skillname"]
-            time = "%.1f" % ((line["start"] - self.bh.startTime) / 1000)
-            canvas.create_text(baseX, baseY+15, text=text, fill=colorH)
-            canvas.create_text(baseX, baseY+45, text=time, fill=colorH)
-            if line["iconid"] in canvas.im:
-                canvas.create_image(baseX, baseY+30, image=canvas.im[line["iconid"]])
-
-        frame2 = tk.Frame(window, width=730, height=100)
-        frame2.place(x=0, y=overallHeight)
-
-        label = tk.Label(frame2, text="起始时间：")
-        entry = tk.Entry(frame2, show=None)
-        self.entry = entry
-        button1 = tk.Button(frame2, text='生成线性时间轴', command=self.generateLinear)
-        button2 = tk.Button(frame2, text='生成双排时间轴', command=self.generateParallel)
-        label.grid(row=0, column=0)
-        entry.grid(row=0, column=1)
-        button1.grid(row=0, column=2)
-        button2.grid(row=0, column=3)
-
+        window.title('时间轴 · %s' % self.boss)
         self.window = window
+        window.geometry('960x%d' % min(720, max(400, window.winfo_screenheight() - 120)))
+        window.minsize(620, 340)
+        footer = tk.Frame(window)
+        footer.pack(side='bottom', fill='x', padx=12, pady=8)
+        tk.Label(footer, text='起始时间：').grid(row=0, column=0)
+        self.entry = tk.Entry(footer, width=12)
+        self.entry.insert(0, '0')
+        self.entry.grid(row=0, column=1, padx=(0, 12))
+        tk.Button(footer, text='生成线性时间轴', command=self.generateLinear).grid(row=0, column=2)
+        tk.Button(footer, text='生成双排时间轴', command=self.generateParallel).grid(row=0, column=3)
+        frame = tk.Frame(window)
+        frame.pack(fill='both', expand=True, padx=10, pady=(10, 0))
+        frame.rowconfigure(0, weight=1)
+        frame.columnconfigure(0, weight=1)
+        canvas = tk.Canvas(frame, background='white', highlightthickness=0)
+        canvas.grid(row=0, column=0, sticky='nsew')
+        vertical = tk.Scrollbar(frame, orient='vertical', command=canvas.yview)
+        vertical.grid(row=0, column=1, sticky='ns')
+        horizontal = tk.Scrollbar(frame, orient='horizontal', command=canvas.xview)
+        horizontal.grid(row=1, column=0, sticky='ew')
+        canvas.configure(yscrollcommand=vertical.set, xscrollcommand=horizontal.set)
+        self.canvas = canvas
+        font = tkfont.nametofont('TkDefaultFont')
+        duration = max(0, self.bh.finalTime - self.bh.startTime)
+        minute_count = duration // 60000 + 1
+        records = [[] for _ in range(minute_count)]
+        for record in self.bh.log['environment']:
+            offset = record['start'] - self.bh.startTime
+            if self.shouldShowTimelineRecord(record) and 0 <= offset <= duration:
+                records[offset // 60000].append(record)
+        seconds = lambda record: '%.1f' % ((record['start'] - self.bh.startTime) / 1000)
+        self.layoutRows = []
+        for minute, row in enumerate(records):
+            base_time = self.bh.startTime + minute * 60000
+            layout = layout_timeline_records(row, lambda time, base=base_time: (time-base)*.012,
+                                             font.measure, secondary_for_record=seconds)
+            self.layoutRows.append(layout)
+        origin = 20 - min(0, min((row['minX'] for row in self.layoutRows), default=0))
+        width = origin + max(720, max((row['maxX'] for row in self.layoutRows), default=0)) + 20
+        canvas.im = {}
+        for identifier in {record['iconid'] for row in records for record in row}:
+            path = get_icon_path(identifier)
+            if os.path.isfile(path):
+                try:
+                    with Image.open(path) as source:
+                        canvas.im[identifier] = ImageTk.PhotoImage(source.resize((20, 20), Image.LANCZOS))
+                except (OSError, ValueError):
+                    pass
+        canvas.recordItems = []
+        y = 12
+        for minute, layout in enumerate(self.layoutRows):
+            extent = min(60000, max(0, duration-minute*60000)) * .012
+            canvas.create_line(origin, y+12, origin+extent, y+12, fill='#94a3b8', width=2)
+            for second in range(0, int(extent/.012/1000)+1, 10):
+                x = origin+second*12
+                canvas.create_line(x, y+8, x, y+16, fill='#94a3b8')
+                canvas.create_text(x, y-1, text='%d:%02d' % (minute, second),
+                                   font=font, fill='#64748b')
+            for item in layout['items']:
+                record = item['record']
+                x, base_y = origin+item['x'], y+32+item['lane']*58
+                color = record.get('color') or '#334155'
+                try:
+                    canvas.winfo_rgb(color)
+                except tk.TclError:
+                    color = '#334155'
+                label = canvas.create_text(x, base_y, text=record['skillname'],
+                                           font=font, fill=color, tags=('timeline-label',))
+                if record['iconid'] in canvas.im:
+                    canvas.create_image(x, base_y+20, image=canvas.im[record['iconid']])
+                else:
+                    canvas.create_oval(x-7, base_y+13, x+7, base_y+27, fill=color, outline='')
+                clock = canvas.create_text(x, base_y+40, text=seconds(record), font=font,
+                                           fill=color, tags=('timeline-time',))
+                canvas.recordItems.append(dict(record=record, lane=item['lane'], minute=minute,
+                                               x=x, label=label, clock=clock))
+            y += 38 + max(1, layout['laneCount'])*58
+        canvas.configure(scrollregion=(0, 0, width, y+12))
+        canvas.bind('<MouseWheel>', lambda event: canvas.yview_scroll(-int(event.delta/120), 'units'))
+        canvas.bind('<Shift-MouseWheel>', lambda event: canvas.xview_scroll(-int(event.delta/120), 'units'))
         window.protocol('WM_DELETE_WINDOW', self.final)
 
     def setData(self, bh, boss):

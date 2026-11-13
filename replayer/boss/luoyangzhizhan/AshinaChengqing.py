@@ -1,6 +1,7 @@
 """洛阳之战阿史那承庆：玄隼、邪渊、聚邪循环（与阆风悬城独立）。"""
 from replayer.boss.luoyangzhizhan.EncounterSupport import EncounterReplayer, EncounterWindow
-from replayer.boss.luoyangzhizhan.LuoyangEvidence import record_shout, finalize_phase_periods
+from replayer.boss.luoyangzhizhan.LuoyangEvidence import record_shout, finalize_phase_periods, record_environment
+from replayer.boss.luoyangzhizhan.Timeline import STYLES, tag_source
 
 
 class LuoyangAshinaChengqingWindow(EncounterWindow):
@@ -40,7 +41,7 @@ class LuoyangAshinaChengqingReplayer(EncounterReplayer):
     CALLS = {
         "34208": ("凝渊", "3399"), "34251": ("聚邪", "4492"),
         "34256": ("投弹目标", "25109"), "34258": ("携带玄隼弹", "14157"),
-        "34394": ("伏焰锁定", "25082"), "34357": ("爆裂残魂", "4528"),
+        "34394": ("伏焰锁定", "25109"), "34357": ("爆裂残魂", "4528"),
         "34926": ("凝视", "25109"),
     }
     CASTS = {
@@ -162,9 +163,11 @@ class LuoyangAshinaChengqingReplayer(EncounterReplayer):
         elif event.dataType == "Cast":
             main = self.template(event.caster) in self.MAIN_IDS
             if main and event.id in self.CASTS:
-                self.bh.setEnvironment(event.id, self.CASTS[event.id], "3399", event.time, 0, 1, "首领运功", "cast", "#9944bb")
+                label = self.CASTS[event.id]
+                record_environment(self, event, {('Cast', event.id): (label, *STYLES[label])})
             elif self.isConstruct(event.caster) and event.id in self.CONSTRUCT_CASTS:
-                self.bh.setEnvironment(event.id, self.CONSTRUCT_CASTS[event.id], "25082", event.time, 0, 1, "金刚运功", "cast", "#cc8800")
+                label = self.CONSTRUCT_CASTS[event.id]
+                record_environment(self, event, {('Cast', event.id): (label, *STYLES[label])})
             if main and event.id == "45916":
                 self.beginSoul(event.time, "45916读条")
         elif event.dataType == "Shout" and self.template(event.id) in self.MAIN_IDS:
@@ -181,6 +184,7 @@ class LuoyangAshinaChengqingReplayer(EncounterReplayer):
                 if event.enter and event.id not in self.constructStart:
                     self.constructStart[event.id] = (event.time, name)
                     self.bh.setEnvironment(self.template(event.id), name, "14157", event.time, 0, 1, "金刚入场", "npc", "#cc8800")
+                    tag_source(self, event.id)
                 elif not event.enter:
                     self.finishConstruct(event.id, event.time)
         elif event.dataType == "Death":
