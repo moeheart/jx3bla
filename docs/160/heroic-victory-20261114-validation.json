@@ -1005,5 +1005,40 @@
   "network": "disabled for real-log replay; Flask/SQL/files isolated",
   "sourceAndObservedDamagePreserved": true,
   "rawAudit": "evidence/heroic_victory20261114/",
-  "boundary": "Native seasonal credit is combined with same-body recent damage and final combat exit, never used alone. Explicit reset cutoffs and resumed combat invalidate fallback evidence. Unreviewed titles or extra post-clear reentry cases are not generalized."
+  "boundary": "Native seasonal credit is combined with same-body recent damage and final combat exit, never used alone. Explicit reset cutoffs and resumed combat invalidate fallback evidence. Unreviewed titles or extra post-clear reentry cases are not generalized.",
+  "deployment": {
+    "status": "passed",
+    "release": "20261114-8.16.8-victory",
+    "sourceCommit": "b28ac65cc219a375b6d3c824c056c56121970a91",
+    "synchronizedAtUtc": "2026-11-14T22:34:08.464452+00:00",
+    "finalVerifiedAtUtc": "2026-11-14T22:34:44.871807+00:00",
+    "manifestSha256": "97769c59975649c59a64f94cbc8bdba6a96aea0f2a629e879df1f56c92fa1a58",
+    "archiveSha256": "2d472b74c2ad54ca9ce989170579ef12bd0621c7492dc2bb3a59a87ed35726ee",
+    "clientOnlyChangedFiles": [
+      "replayer/boss/luoyangzhizhan/WinEvidence.py"
+    ],
+    "runtimeFilesVerified": 202,
+    "processUnchanged": true,
+    "serviceRestarted": false,
+    "port": 8009,
+    "protectedFilesUnchanged": 4,
+    "allPanesUnchanged": 14,
+    "protectedProcessesUnchanged": 23,
+    "serverImportDoesNotLoadChangedClientFiles": true,
+    "candidateAndLiveProbePassed": true,
+    "victoryProbe": {
+      "positiveTierAndProgressCases": 24,
+      "negativeBoundaryCases": 132,
+      "explicitTrimCases": 12,
+      "nativeSystemOutsideCombatLogCases": 6,
+      "excludedBossCases": 2
+    },
+    "publicHealthGets": 5,
+    "announcementAndDownloadVersion": "8.16.6",
+    "announcementStableFieldsSha256": "3d5d0ee10f11b6b9784734dabc6287e9f020fec86bc42a1b103b25066d68bcfe",
+    "uploadOrDatabaseWritesPerformed": false,
+    "downloadArtifactsChanged": false,
+    "rollbackExecuted": false,
+    "boundary": "Victory evidence file only. Real JCL parsing and receipt regression were validated separately on Windows."
+  }
 }
