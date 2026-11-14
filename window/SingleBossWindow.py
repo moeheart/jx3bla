@@ -174,9 +174,7 @@ class SingleBossWindow(Window):
         # print(self.potList)
         # print(self.scoreList)
 
-        if self.windowAlive:
-            self.window.destroy()
-            self.windowAlive = False
+        super().final()
 
     def constructReplayByNum(self, num):
         '''

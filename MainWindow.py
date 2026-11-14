@@ -27,6 +27,7 @@ from window.AnnounceWindow import AnnounceWindow
 from LiveBase import LiveListener, LiveActorAnalysis
 from window.AllStatWindow import AllStatWindow
 from window.SingleBossWindow import SingleBossWindow
+from window.Window import Window
 from Constants import *
 from tools.Functions import *
 from tools.Preload import *
@@ -434,6 +435,7 @@ class MainWindow():
         
     def loadWindow(self):
         window = tk.Tk()
+        Window.install_ui(window)
         window.title('剑三警长')
         window.geometry('300x220')
 

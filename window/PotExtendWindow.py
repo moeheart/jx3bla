@@ -14,9 +14,8 @@ class PotExtendWindow(Window):
         '''
         收集分锅结果并关闭窗口。
         '''
-        self.windowAlive = False
         self.singleBossWindow.potExtendRunning = False
-        self.window.destroy()
+        super().final()
 
     def Act(self):
         '''
