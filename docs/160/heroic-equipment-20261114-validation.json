@@ -764,5 +764,109 @@
     "wujie-existing-log.log": "a68a774b08f69a9d97da935968b8c33feea40abf9e2c67d4a9ecb119ddc51be8",
     "window-lifecycle-isolated.log": "70688016e52d170f80ef851c8b522cf713d57c6bb92997c72927807bd8cc4d14",
     "previous-heroic-receipts.log": "cb4cedbf1021e60046b9b6be3152e9ed2ea9668b574d826acd1b02253ed56f8e"
+  },
+  "beforeAfterInvariants": {
+    "filesCompared": 5,
+    "sameSourceSHA": true,
+    "sameObservedDamageAndMainDamage": true,
+    "sameVictoryResults": true
+  },
+  "serverDeployment": {
+    "status": "passed",
+    "release": "20261114-8.16.8-equipment",
+    "version": "8.16.8",
+    "sourceCommit": "10498cc632178835f98dc24cb5bfca4354f9b38f",
+    "manifestSha256": "63c696c28bed0b8b3ed9cc4e67bf6a68013e99557133787415e6a424cfda6f92",
+    "archiveSha256": "e1cc29f1b8e49d1ba9963732258be190b72579813120aed4c8aea429c2abe2a4",
+    "activatedAtUtc": "2026-11-14T21:54:40.173923+00:00",
+    "finalVerifiedAtUtc": "2026-11-14T21:56:13.991508+00:00",
+    "process": {
+      "pid": 2580977,
+      "start_ticks": "1475690434",
+      "ppid": 284656,
+      "uid": 1000
+    },
+    "port": 8009,
+    "originalProcess": {
+      "pid": 2367087,
+      "ppid": 284656,
+      "start_ticks": "1470175893",
+      "uid": 1000,
+      "executable": "/usr/bin/python3.12"
+    },
+    "shellPID": 284656,
+    "pane": "%34",
+    "runtimeFilesVerified": 202,
+    "changedFiles": [
+      "equip/resources/cangshengtf/equipment_effects.json",
+      "equip/resources/cangshengtf/source_manifest.json",
+      "replayer/ActorReplayPro.py",
+      "replayer/CombatTracker.py",
+      "tools/RecordQuality.py",
+      "window/CombatTrackerWindow.py",
+      "window/DpsDisplayWindow.py",
+      "window/HealerDisplayWindow.py",
+      "window/SpecificBossWindow.py"
+    ],
+    "unchangedProtectedFiles": 4,
+    "allPanesUnchanged": 14,
+    "otherTmuxAndServiceProcessesPreserved": 23,
+    "candidateAndLiveRuntimeProbe": "passed",
+    "isolatedHeroicPersonalIDs": 125,
+    "sameVersionRevisionCases": 10,
+    "sameVersionEquipmentQualityCases": 8,
+    "sensitiveRankingAndSampleChecks": 13,
+    "unknownReferenceQualityIsolation": true,
+    "sameVersionModelUpgradePreservesIDAndReplacesValues": true,
+    "newEquipmentEventScopeCases": 16,
+    "equipmentEffectSignatures": 205,
+    "productionDatabaseConnectionsByIsolatedProbes": 0,
+    "productionFilesystemWritesByIsolatedProbes": 0,
+    "publicEmptyPostBytes": 2200073,
+    "publicEmptyEndpoints": [
+      {
+        "requestUrl": "https://jx3bla.moeheart.cn/uploadCombinedData",
+        "sources": [
+          "public_https"
+        ],
+        "requestBytes": 2200073,
+        "httpStatus": 200,
+        "finalUrl": "https://jx3bla.moeheart.cn/uploadCombinedData",
+        "response": {
+          "data": [],
+          "status": "success"
+        },
+        "passed": true,
+        "redirects": [],
+        "seconds": 2.097
+      },
+      {
+        "requestUrl": "http://jx3bla.moeheart.cn:80/uploadCombinedData",
+        "sources": [
+          "address_service_api"
+        ],
+        "requestBytes": 2200073,
+        "httpStatus": 200,
+        "finalUrl": "http://jx3bla.moeheart.cn:80/uploadCombinedData",
+        "response": {
+          "data": [],
+          "status": "success"
+        },
+        "passed": true,
+        "redirects": [],
+        "seconds": 2.262
+      }
+    ],
+    "publicHealthChecks": 5,
+    "announcementAndDownloadVersion": "8.16.6",
+    "announcementStableFieldsSha256": "3d5d0ee10f11b6b9784734dabc6287e9f020fec86bc42a1b103b25066d68bcfe",
+    "rateEditionBefore": "1794604234",
+    "rateEditionAfter": "1794604234",
+    "rateEditionIsIndependentScheduledMetadata": true,
+    "realBattleRecordsSubmitted": 0,
+    "realPersonalRecordsSubmitted": 0,
+    "playerBodiesRetained": false,
+    "rollbackDirectory": "/home/ubuntu/jx3bla_deployments/20261114-8.16.8-equipment/previous",
+    "rollbackExecuted": false
   }
 }
