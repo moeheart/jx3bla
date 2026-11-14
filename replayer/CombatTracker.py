@@ -669,7 +669,7 @@ class HealCastRecorder(StatRecorder):
         for skill in self.skill:
             self.skill[skill]["percent"] = safe_divide(self.skill[skill]["sum"], self.sum)
             self.skill[skill]["name"] = self.getSkillName(skill, info)
-        self.hps = safe_divide(self.sum * 1000, time)
+        self.hps = self.sum * 1000 / time if time > 0 else 0
         for skill in self.skill:
             if self.skill[skill]["name"] not in self.namedSkill:
                 self.namedSkill[self.skill[skill]["name"]] = {"sum": self.skill[skill]["sum"],
@@ -797,7 +797,7 @@ class DpsCastRecorder(StatRecorder):
         for skill in self.skill:
             self.skill[skill]["percent"] = safe_divide(self.skill[skill]["sum"], self.sum)
             self.skill[skill]["name"] = self.getSkillName(skill, info)
-        self.dps = self.sum / time * 1000
+        self.dps = self.sum / time * 1000 if time > 0 else 0
 
         # print("[dps]", self.skill)
 
@@ -840,14 +840,14 @@ class DpsCastRecorder(StatRecorder):
             cover = -1
             sourceBuff = source[2:]
             if boostCounter is not None and player in boostCounter and sourceBuff in boostCounter[player].boostCover:
-                cover = safe_divide(boostCounter[player].boostCover[sourceBuff].buffTimeIntegral(exclude=badPeriodLog), time)
+                cover = safe_divide(boostCounter[player].boostCover[sourceBuff].buffTimeIntegral(exclude=badPeriodLog), time) if time > 0 else 0
             self.namedSource[name]["cover"] = cover
 
         # 加入个人buff
         if boostCounter is not None and player in boostCounter:
             for boost in boostCounter[player].boostCover:
                 name = self.getSkillName(boost, info)
-                cover = safe_divide(boostCounter[player].boostCover[boost].buffTimeIntegral(exclude=badPeriodLog), time)
+                cover = safe_divide(boostCounter[player].boostCover[boost].buffTimeIntegral(exclude=badPeriodLog), time) if time > 0 else 0
                 if name not in self.namedSource and "%s(增益)" % name not in self.namedSource:
                     self.namedSource[name] = {}
                     self.namedSource[name]["cover"] = cover
@@ -1010,7 +1010,8 @@ class CombatTracker():
             if totalTime != -1:
                 adjustedTime = totalTime
             elif player in self.stunTime:
-                adjustedTime = self.timeHealer - self.stunTime[player].buffTimeIntegral()
+                adjustedTime = max(0, self.timeHealer - self.stunTime[player].buffTimeIntegral(
+                    exclude=self.badPeriodHealerLog))
             else:
                 adjustedTime = self.timeHealer
             objSource[player].export(adjustedTime, self.info)
@@ -1046,7 +1047,8 @@ class CombatTracker():
             badPeriodInterval = IntervalCounter(self.startTime, self.finalTime)
             badPeriodInterval.recordLog(badPeriodDpsLog)
             if player in self.stunTime:
-                adjustedTime = self.timeDps - self.stunTime[player].buffTimeIntegral()
+                adjustedTime = max(0, self.timeDps - self.stunTime[player].buffTimeIntegral(
+                    exclude=badPeriodDpsLog))
                 badPeriodInterval.recordLog(self.stunTime[player].log)
             else:
                 adjustedTime = self.timeDps

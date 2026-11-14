@@ -24,10 +24,11 @@ class DpsReplayer(ReplayerBase):
         '''
         self.result["skill"][name] = {}
         self.result["skill"][name]["num"] = skillObj.getNum()
-        self.result["skill"][name]["numPerSec"] = roundCent(self.result["skill"][name]["num"] / self.result["overall"]["sumTimeEff"] * 1000, 2)
+        duration = self.result["overall"]["sumTimeEff"]
+        self.result["skill"][name]["numPerSec"] = roundCent(self.result["skill"][name]["num"] / duration * 1000 if duration > 0 else 0, 2)
         self.result["skill"][name]["delay"] = int(skillObj.getAverageDelay())
         effDps = skillObj.getDamageEff()
-        self.result["skill"][name]["ndps"] = int(effDps / self.result["overall"]["sumTimeEff"] * 1000)
+        self.result["skill"][name]["ndps"] = int(effDps / duration * 1000) if duration > 0 else 0
         self.result["skill"][name]["rdps"] = 0
         # self.result["skill"][name]["effRate"] = roundCent(safe_divide(effHeal, skillObj.getHeal()))
     def calculateSkillInfo(self, name, id):
@@ -43,10 +44,11 @@ class DpsReplayer(ReplayerBase):
         skillObj = self.skillInfo[self.gcdSkillIndex[id]][0]
         self.result["skill"][name] = {}
         self.result["skill"][name]["num"] = skillObj.getNum()
-        self.result["skill"][name]["numPerSec"] = roundCent(self.result["skill"][name]["num"] / self.result["overall"]["sumTimeEff"] * 1000, 2)
+        duration = self.result["overall"]["sumTimeEff"]
+        self.result["skill"][name]["numPerSec"] = roundCent(self.result["skill"][name]["num"] / duration * 1000 if duration > 0 else 0, 2)
         self.result["skill"][name]["delay"] = int(skillObj.getAverageDelay())
         effDps = skillObj.getDamageEff()
-        self.result["skill"][name]["ndps"] = int(effDps / self.result["overall"]["sumTimeEff"] * 1000)
+        self.result["skill"][name]["ndps"] = int(effDps / duration * 1000) if duration > 0 else 0
         self.result["skill"][name]["rdps"] = 0
         # self.result["skill"][name]["effRate"] = roundCent(safe_divide(effDps, skillObj.getHeal()))
 
@@ -338,7 +340,7 @@ class DpsReplayer(ReplayerBase):
         self.result["overall"]["boss"] = getNickToBoss(self.bld.info.boss)
         self.result["overall"]["sumTime"] = self.bld.info.sumTime
         self.result["overall"]["sumTimePrint"] = parseTime(self.bld.info.sumTime / 1000)
-        self.result["overall"]["sumTimeEff"] = self.bossBh.sumTime("healer")
+        self.result["overall"]["sumTimeEff"] = self.bossBh.sumTime("dps")
         self.result["overall"]["sumTimeEffPrint"] = parseTime(self.result["overall"]["sumTimeEff"] / 1000)
         self.result["overall"]["sumTimeDpsEff"] = self.bossBh.sumTime("dps")
         self.result["overall"]["dataType"] = self.bld.dataType

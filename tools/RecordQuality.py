@@ -10,6 +10,7 @@ import json
 import math
 import os
 from threading import RLock
+from tools.ReplayRevision import get_analysis_revision
 
 
 SENSITIVE_METRICS = frozenset(("score", "rdps", "mrdps"))
@@ -92,6 +93,9 @@ def get_record_quality(data):
         result["staticAttributes"] = next((value for value in ("missing", "partial", "estimated", "available") if value in static), static[0])
     if effects:
         result["unmodeledEffects"] = effects
+    revision = get_analysis_revision(data)
+    if revision is not None:
+        result['analysisRevision'] = revision
     return result
 
 

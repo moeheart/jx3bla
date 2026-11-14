@@ -2,6 +2,7 @@
 from replayer.boss.General import GeneralReplayer
 from window.SpecificBossWindow import SpecificBossWindow
 from replayer.boss.luoyangzhizhan.WinEvidence import LuoyangWinEvidence
+from replayer.boss.luoyangzhizhan.FirstThreeDowntime import FirstThreeDowntime
 from replayer.boss.luoyangzhizhan.LuoyangEvidence import (
     npc_matches, record_target_damage, record_reflected_target_damage, record_call_buff, set_confirmed_win,
     record_environment, record_hit, record_phase, record_shout, finalize_evidence, render_boss_window,
@@ -56,9 +57,10 @@ class TuliHeshunReplayer(GeneralReplayer):
         self.victoryEvidence = LuoyangWinEvidence(self, self.activeBoss, self.MAIN)
         self.initPhase(4, 1)
         self.activeFields = set()
+        self.downtime = FirstThreeDowntime(self, 'tuli')
         self.detail["phaseTransitions"] = [{"time": self.startTime, "phase": 1, "name": "常规技能"}]
         self.detail["evidenceVersion"] = "体服 2026-09-15 / 正式服普通 2026-11-02、英雄 2026-11-13"
-        self.detail["limitations"] = "按本体喊话、运功及坍缩力场实际消失划段；不从伤害空窗推断全团不可输出时间。"
+        self.detail["limitations"] = "按本体喊话、运功及坍缩力场实际消失划段；仅成对技能暂停/启动标记确认输出无效区间，保留治疗时间；区间内仍有有效伤害时不扣除。"
         for npc_id in self.bld.info.npc:
             if npc_matches(self, npc_id, self.MAIN):
                 self.bh.setMainTarget(npc_id)
@@ -72,6 +74,7 @@ class TuliHeshunReplayer(GeneralReplayer):
                 set_confirmed_win(self, event.time, "突利和顺本体重伤")
         if self.win and event.time > self.winTime:
             return
+        self.downtime.observe(event)
         if event.dataType == "Shout" and npc_matches(self, event.id, self.MAIN):
             label = self.SHOUTS.get(event.content.strip('"'))
             if label:
@@ -126,5 +129,6 @@ class TuliHeshunReplayer(GeneralReplayer):
     def countFinal(self):
         if self.__dict__.get("_luoyangEvidenceFinalized"):
             return
+        self.downtime.finalize()
         super().countFinal()
         finalize_evidence(self, {1: "常规技能", 2: "死水微澜", 3: "浊浪登天", 4: "玄溟之火"}, ("bossDamage",))

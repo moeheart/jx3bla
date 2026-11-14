@@ -17,6 +17,7 @@ from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
 
 from equip.AttributeDisplay import AttributeDisplay  # 以后需要改为从服务器实现
 from tools.Attribute import CURRENT_GAME_EDITION
+from tools.ReplayRevision import mark_recalculation
 from equip.EquipmentFallback import (
     make_average_base_attributes, missing_equipment_slots, EQUIPMENT_FALLBACK_WARNING,
 )
@@ -161,6 +162,7 @@ class ActorProReplayer(ReplayerBase):
         allInfo["act"] = self.combatTracker.generateJson()
         allInfo["mask"] = self.config.item["general"]["mask"]
         allInfo["attributeStatus"] = status
+        mark_recalculation(allInfo, self.bld.info.map, self.bossname)
 
         result["statistics"] = allInfo
 

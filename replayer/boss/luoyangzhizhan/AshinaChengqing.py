@@ -64,7 +64,7 @@ class LuoyangAshinaChengqingReplayer(EncounterReplayer):
         self.detail["soulPeriods"] = []
         self.detail["phaseTransitions"] = [{"time": self.startTime, "phase": 1, "name": "常规"}]
         self.detail["constructPeriods"] = []
-        self.detail["phaseEvidence"] = "常规与聚邪循环；聚邪优先采用45916读条，缺失时采用本体专属喊话，至本轮聚邪点名全部结束。"
+        self.detail["phaseEvidence"] = "常规与聚邪循环；聚邪优先采用45916读条，缺失时采用本体专属喊话，至本轮聚邪点名全部结束。机枢对话与聚邪期间仍可攻击本体或金刚，且有治疗压力，均不整段扣除有效时间。"
         self.detail["mechanicNote"] = "金刚伤害包含玄隼、伏焰、炽虎，伏焰锁定和爆裂残魂统计实际点名；玄隼弹爆、残魂尽、炎辙、高温等仅记录受击。失魂达到5层、已有邪魂入体再中聚邪才记录机制失败。常规与聚邪均计有效时间。"
         self.bhBlackList.extend(["s34061", "s34259", "s46376", "b34061", "b34259"])
         self.bhBlackList.extend("c"+x for x in self.CASTS)

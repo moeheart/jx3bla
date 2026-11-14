@@ -194,7 +194,12 @@ class EncounterReplayer(GeneralReplayer):
         self.battleTime = max(0, self.finalTime-self.startTime)
         self.detail["win"] = self.win
         self.detail.setdefault("winReason", "未观测到通关事件")
-        self.detail["effectiveTime"] = self.battleTime
+        # Transition rules and the late encounter cutoff are both present now.
+        # Publish their union before deriving the table's output denominator.
+        self.bh.calBadPeriod()
+        self.detail["effectiveTimeDps"] = self.bh.sumTime('dps')
+        self.detail["effectiveTimeHealer"] = self.bh.sumTime('healer')
+        self.detail["effectiveTime"] = self.detail["effectiveTimeDps"]
         for counter in self.stunCounter.values():
             counter.finalTime = self.finalTime
         observations = {}
@@ -208,4 +213,4 @@ class EncounterReplayer(GeneralReplayer):
                              parseTime((time-self.startTime)/1000) for time in times)], 0])
         for stats in self.statDict.values():
             stats["battle"]["mainDps"] = int(stats["battle"].get("mainDamage", 0) * 1000 /
-                                               max(1, self.battleTime))
+                                               max(1, self.detail["effectiveTimeDps"]))

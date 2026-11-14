@@ -29,6 +29,7 @@ from replayer.ReplayerBase import RankCalculator
 from serverFunc.UpdateReplayRank import MIN_RANK_CLIENT_BY_GAME_EDITION, isReplayRankEligible
 from tools.RecordQuality import (get_record_quality, is_metric_rank_eligible, quality_level,
                                 load_record_quality, invalidate_quality_cache, is_valid_rank, parse_statistics)
+from tools.ReplayRevision import revision_change
 
 version = EDITION
 ip = "127.0.0.1" # IP
@@ -433,9 +434,11 @@ def receiveBattle(jdata, cursor):
         incoming_level = quality_level(incoming_quality)
         quality_upgrade = incoming_level > previous_level and editionFull >= parseEdition(result[0][4])
         quality_repair = previous_quality["status"] == "unavailable" and incoming_quality["precise"] and editionFull >= parseEdition(result[0][4])
-        if incoming_level < previous_level:
+        analysis_change = revision_change(previous_quality, incoming_quality, mapName, boss,
+                                          parseEdition(result[0][4]), editionFull)
+        if incoming_level < previous_level or analysis_change == 'downgrade':
             dupID = 1
-        elif quality_upgrade or quality_repair:
+        elif quality_upgrade or quality_repair or analysis_change == 'upgrade':
             pass
         elif result[0][13] == "" and team != "":
             print("Update team")
@@ -608,7 +611,9 @@ def receiveReplay(jdata, cursor):
         incoming_level = quality_level(incoming_quality)
         quality_upgrade = incoming_level > previous_level and editionFull >= result[0][2]
         quality_repair = previous_quality["status"] == "unavailable" and incoming_quality["precise"] and editionFull >= result[0][2]
-        if incoming_level < previous_level or (result[0][2] >= editionFull and (result[0][1] == 1 or public == 0) and not quality_upgrade and not quality_repair):
+        analysis_change = revision_change(previous_quality, incoming_quality, mapDetail, boss,
+                                          result[0][2], editionFull)
+        if incoming_level < previous_level or analysis_change == 'downgrade' or (result[0][2] >= editionFull and (result[0][1] == 1 or public == 0) and not quality_upgrade and not quality_repair and analysis_change != 'upgrade'):
             print("Find Duplicated")
             shortID = result[0][0]
             scoreRank = result[0][3] if is_metric_rank_eligible(previous_quality, "score") else -1

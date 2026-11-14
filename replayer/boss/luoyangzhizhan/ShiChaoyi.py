@@ -2,12 +2,13 @@
 from replayer.boss.luoyangzhizhan.EncounterSupport import EncounterReplayer, EncounterWindow
 from replayer.boss.luoyangzhizhan.LuoyangEvidence import record_shout, finalize_phase_periods, record_environment
 from replayer.boss.luoyangzhizhan.Timeline import STYLES, tag_source
+from replayer.boss.luoyangzhizhan.TransitionEvidence import TransitionAvailability
 
 
 class ShiChaoyiWindow(EncounterWindow):
     TITLE = "洛阳之战·史朝义"
     COLUMNS = (
-        ("mainDps", "本体DPS", "对史朝义本体的有效伤害/裁剪后的战斗时间；不含幻象。"),
+        ("mainDps", "本体DPS", "对史朝义本体的有效伤害/输出有效时间；扣除已确认无目标的煞甲归身转场，不含幻象。"),
         ("shaDamage", "煞将伤害", "对煞将的有效伤害总量。"),
         ("flyingDamage", "飞兵伤害", "对飞行狼牙兵139918的有效伤害总量，不计入本体伤害。"),
         ("swordActivations", "激活剑符", "45521激活剑符技能的实际执行次数，同秒重复事件合并。"),
@@ -24,6 +25,7 @@ class ShiChaoyiReplayer(EncounterReplayer):
     MAIN_IDS = ("139312", "139365", "138261")
     SHA_IDS = ("139308", "139363", "138323")
     FLYING_IDS = ("139918",)
+    SWORD_IDS = ("138287",)
     LIFU_IDS = ("139332", "139388")
     CHEST_IDS = tuple(str(x) for x in range(140063, 140069)) + tuple(str(x) for x in range(140104, 140110))
     SECOND_SKILLS = ("45607", "45682", "45684", "45685", "45686", "45687", "45696", "45697", "45711", "45724")
@@ -74,11 +76,13 @@ class ShiChaoyiReplayer(EncounterReplayer):
         self.shaStart = {}
         self.fragmentStacks = {}
         self.transitionStart = None
+        self.transitionAvailability = TransitionAvailability(
+            self.startTime, self.SHA_IDS + self.SWORD_IDS + self.FLYING_IDS)
         self.detail["transitionPeriods"] = []
         self.detail["phaseChanges"] = []
         self.detail["shaPeriods"] = []
-        self.detail["phaseEvidence"] = "二阶段优先使用本体煞甲归身喊话，缺失时回退首次阶段专属招式；转场区间按两条本体喊话观测，不据此推断完整无敌时长或扣除有效时间。三阶段仅按明确专属招式识别。"
-        self.detail["mechanicNote"] = "飞行狼牙兵伤害单列；拾取碎片按34278增层统计，不把移除当作交付。红黑煞消融、分流强爆、煞骸崩陨只记录受击。三阶段按本体专属招式识别，李复重铸喊话仅作轴提示。剑符、煞将与转场仍计有效时间。"
+        self.detail["phaseEvidence"] = "二阶段优先使用本体煞甲归身喊话，缺失时回退首次阶段专属招式。仅双本体转场喊话完整、前阶段目标均已退场且候选区间没有有效伤害时扣除输出时间；治疗时间保留，不向喊话外的无伤害空窗延伸。三阶段仅按明确专属招式识别。"
+        self.detail["mechanicNote"] = "飞行狼牙兵伤害单列；拾取碎片按34278增层统计，不把移除当作交付。红黑煞消融、分流强爆、煞骸崩陨只记录受击。剑符、煞将尚在场时保持有效；重铸期间仍有可攻击本体和飞兵，不能整段扣除。煞甲归身只扣已确认无目标区间的输出时间，治疗仍有效。"
         self.bhBlackList.extend(["s45517", "s45532", "s45607", "s45684", "b34025", "b34027", "b34619"])
         self.bhBlackList.extend("c"+x for x in self.CASTS)
         self.bhBlackList.extend("b"+x for x in self.CALLS)
@@ -107,6 +111,7 @@ class ShiChaoyiReplayer(EncounterReplayer):
         if self.confirmedEnd is not None and event.time > self.confirmedEnd:
             return
         self.observeCombatEnd(event)
+        self.transitionAvailability.observe(event, self.bld.info)
         self.observePhase(event)
         if event.dataType == "Skill":
             self.recordReflectedDamage(event, {
@@ -218,7 +223,7 @@ class ShiChaoyiReplayer(EncounterReplayer):
             "name": "煞甲归身转场（喊话观测）", "duration": round(max(0, time-start)/1000, 3),
             "truncated": truncated})
         self.bh.setEnvironment("0", "煞甲归身转场（喊话观测）", "16371", start,
-            max(0, time-start), 1, "双本体喊话边界；未据此扣除有效时间", "transition", "#9944bb")
+            max(0, time-start), 1, "双本体喊话边界；无目标输出区间另据对象退场和有效伤害核验，治疗有效", "transition", "#9944bb")
         self.transitionStart = None
 
     def finishSha(self, npc_id, time):
@@ -236,6 +241,12 @@ class ShiChaoyiReplayer(EncounterReplayer):
         self.resolveRewardWin()
         end = self.encounterEnd()
         self.finishTransition(end, True)
+        for period in self.detail["transitionPeriods"]:
+            evidence = self.transitionAvailability.resolve(
+                period['start'], period['end'], end, not period['truncated'])
+            period['dpsExclusion'] = evidence
+            if evidence['affectDps']:
+                self.bh.setBadPeriod(evidence['start'], evidence['end'], True, False)
         for npc_id in list(self.shaStart):
             self.finishSha(npc_id, end)
         self.finishEncounter()

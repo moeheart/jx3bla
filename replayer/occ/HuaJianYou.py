@@ -380,7 +380,7 @@ class HuaJianYouReplayer(DpsReplayer):
         self.result["overall"]["boss"] = getNickToBoss(self.bld.info.boss)
         self.result["overall"]["sumTime"] = self.bld.info.sumTime
         self.result["overall"]["sumTimePrint"] = parseTime(self.bld.info.sumTime / 1000)
-        self.result["overall"]["sumTimeEff"] = self.bossBh.sumTime("healer")
+        self.result["overall"]["sumTimeEff"] = self.bossBh.sumTime("dps")
         self.result["overall"]["sumTimeEffPrint"] = parseTime(self.result["overall"]["sumTimeEff"] / 1000)
         self.result["overall"]["sumTimeDpsEff"] = self.bossBh.sumTime("dps")
         self.result["overall"]["dataType"] = self.bld.dataType

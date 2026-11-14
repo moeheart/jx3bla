@@ -549,6 +549,8 @@ class HealerDisplayWindow(Window):
         self.renderTeam()
         self.renderRate()
         self.renderAdvertise()
+        if hasattr(self, 'replayTimeline'):
+            self.replayTimeline.fit_window()
 
     def setThemeColor(self, color):
         '''

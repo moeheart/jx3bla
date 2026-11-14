@@ -5,6 +5,7 @@ from tools.Functions import *
 from tools.LoadData import *
 from tools.Names import *
 from tools.RecordQuality import is_metric_rank_eligible
+from tools.ReplayRevision import mark_recalculation
 from data.BattleLogData import RawDataLoader
 # from replayer.Percent import *
 from Constants import *
@@ -145,6 +146,7 @@ class ReplayerBase():
         status = getattr(self, "actorData", {}).get("attributeStatus", {})
         if status:
             self.result["overall"]["attributeStatus"] = status
+        mark_recalculation(self.result, self.result['overall']['map'], self.result['overall']['boss'])
         rc = RankCalculator(self.result, self.window.stat_percent, self.gameEdition)
         self.rank = rc.getRankFromStat(occ)
 

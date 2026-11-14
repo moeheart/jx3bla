@@ -2,6 +2,7 @@
 from replayer.boss.General import GeneralReplayer
 from window.SpecificBossWindow import SpecificBossWindow
 from replayer.boss.luoyangzhizhan.WinEvidence import LuoyangWinEvidence
+from replayer.boss.luoyangzhizhan.FirstThreeDowntime import FirstThreeDowntime
 from replayer.boss.luoyangzhizhan.LuoyangEvidence import (
     npc_matches, record_target_damage, record_reflected_target_damage, record_call_buff, set_confirmed_win,
     record_environment, record_hit, record_phase, record_shout, finalize_evidence, render_boss_window,
@@ -76,7 +77,8 @@ class TianChengsiReplayer(GeneralReplayer):
         self.detail["phaseTransitions"] = [{"time": self.startTime, "phase": 1, "name": "交战"}]
         self.detail["swords"] = []
         self.swordRecords = {}
-        self.detail["limitations"] = "按喊话、巨剑出场与重伤划段；通关可由宝箱、本体重伤或明确击败进度与同一本体近期受伤、脱战联合确认，普通脱战不单独判胜。"
+        self.downtime = FirstThreeDowntime(self, 'tian')
+        self.detail["limitations"] = "按喊话、巨剑出场与重伤划段；仅巨剑准备喊话至实体出场且无有效伤害的区间扣除输出时间，巨剑与军阵交战及治疗时间保留；普通脱战不单独判胜。"
         for npc_id in self.bld.info.npc:
             if npc_matches(self, npc_id, self.MAIN):
                 self.bh.setMainTarget(npc_id)
@@ -90,6 +92,7 @@ class TianChengsiReplayer(GeneralReplayer):
                 set_confirmed_win(self, event.time, "田承嗣本体重伤")
         if (self.win and event.time > self.winTime) or event.time > self.detail.get("resetTime", event.time):
             return
+        self.downtime.observe(event)
         if event.dataType == "Shout" and npc_matches(self, event.id, self.MAIN):
             content = event.content.strip('"')
             label = self.SHOUTS.get(content)
@@ -173,6 +176,7 @@ class TianChengsiReplayer(GeneralReplayer):
     def countFinal(self):
         if self.__dict__.get("_luoyangEvidenceFinalized"):
             return
+        self.downtime.finalize()
         for npc_id, record in self.swordRecords.items():
             if record["start"] > self.finalTime:
                 continue
