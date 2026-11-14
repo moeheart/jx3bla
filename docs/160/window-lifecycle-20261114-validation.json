@@ -1,0 +1,137 @@
+{
+  "version": "8.16.8",
+  "runtimeCommit": "54d0ab690156a94e2319829fd887f9e656516267",
+  "regressions": {
+    "status": "passed",
+    "testsRun": 48,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 36.519,
+    "python": "3.14.0 (tags/v3.14.0:ebf955d, Oct  7 2025, 10:15:03) [MSC v.1944 64 bit (AMD64)]",
+    "modules": [
+      "test_window_lifecycle",
+      "test_personal_replay_timeline",
+      "test_qixue_display",
+      "test_luoyang_window_layout",
+      "test_estimated_equipment_ui",
+      "test_upload_timeout",
+      "test_release_bundle"
+    ],
+    "sourceStable": true,
+    "sourceSha256": {
+      "MainWindow.py": "17747a80b193d04d4e051be53037cadc15375b39befe3371848f78fed77b3133",
+      "window/Window.py": "5660b626b3c25f3b0693e33cb5ffa550a3ad58cbd5ce669201c3c05a9a263208",
+      "window/SingleBossWindow.py": "a03cd4a9c0523b532c09b78dc701e43af65ca81440bbc4edb87fff98003a46ab",
+      "window/PotExtendWindow.py": "8007a6b1c8996f79f4fc3ec937367eb67460c34a39fd9b4dbf72b90cba021edc",
+      "tests/test_window_lifecycle.py": "8a8c7b1a00342d2398b16bf0bb6b7a7f8dfb5522b4fc9860b837816fd982eb22"
+    }
+  },
+  "realWindows": {
+    "status": "passed",
+    "windows": 125,
+    "interactiveTimelineWindows": 30,
+    "additionalDisplayScenarios": 18,
+    "independentWindowScenarios": 6,
+    "callbackErrors": [],
+    "threadAssertions": {
+      "widgets": 24295,
+      "canvasItems": 101562,
+      "rendererCalls": 1144,
+      "loads": 143
+    },
+    "bossCallChain": {
+      "boss": "史朝义",
+      "personalButton": "passed",
+      "reviewer": "passed",
+      "standaloneTimeline": "passed",
+      "independentClose": "passed"
+    },
+    "network": "disabled",
+    "desktopInput": "not used"
+  },
+  "realXiangZhiReproduction": [
+    {
+      "scenario": "normal",
+      "baselineErrors": [],
+      "baselineDistinctWindows": null,
+      "baselineAfterOldClose": null,
+      "fixedErrors": [],
+      "fixedLoads": 1,
+      "fixedImageCalls": 234,
+      "fixedDistinctWindows": null,
+      "fixedAfterOldClose": null
+    },
+    {
+      "scenario": "close-during-image",
+      "baselineErrors": [
+        "invalid command name \".!toplevel.!frame6.!canvas\""
+      ],
+      "baselineDistinctWindows": null,
+      "baselineAfterOldClose": null,
+      "fixedErrors": [],
+      "fixedLoads": 1,
+      "fixedImageCalls": 234,
+      "fixedDistinctWindows": null,
+      "fixedAfterOldClose": null
+    },
+    {
+      "scenario": "double-start-old-close",
+      "baselineErrors": [],
+      "baselineDistinctWindows": true,
+      "baselineAfterOldClose": {
+        "oldExists": true,
+        "currentExists": false,
+        "alive": false
+      },
+      "fixedErrors": [],
+      "fixedLoads": 1,
+      "fixedImageCalls": 234,
+      "fixedDistinctWindows": false,
+      "fixedAfterOldClose": {
+        "oldExists": false,
+        "currentExists": false,
+        "alive": false
+      }
+    }
+  ],
+  "scope": "Client window lifecycle; no combat recalculation, production player upload, or public EXE rebuild.",
+  "deployment": {
+    "status": "passed",
+    "release": "20261114-8.16.8-windowfix",
+    "sourceCommit": "54d0ab690156a94e2319829fd887f9e656516267",
+    "synchronizedAtUtc": "2026-11-14T21:12:47.610395+00:00",
+    "finalVerifiedAtUtc": "2026-11-14T21:13:18.107156+00:00",
+    "manifestSha256": "0760741bb67d717f2154b291b856132eb9d3384533aff1794020058d6c2e187c",
+    "archiveSha256": "eeb68375f9f889e26c4956b3dc5725c18b87d5fc7614512b21f89ddf96a40b36",
+    "clientOnlyChangedFiles": [
+      "MainWindow.py",
+      "window/PotExtendWindow.py",
+      "window/SingleBossWindow.py",
+      "window/Window.py"
+    ],
+    "runtimeFilesVerified": 202,
+    "process": {
+      "pid": 2367087,
+      "start_ticks": "1470175893",
+      "ppid": 284656,
+      "uid": 1000
+    },
+    "processUnchanged": true,
+    "serviceRestarted": false,
+    "port": 8009,
+    "pane": "%34",
+    "protectedFilesUnchanged": 4,
+    "allPanesUnchanged": 14,
+    "serverImportDoesNotLoadChangedClientFiles": true,
+    "candidateAndLiveProbePassed": true,
+    "publicHealthGets": 5,
+    "announcementAndDownloadVersion": "8.16.6",
+    "announcementStableFieldsSha256": "3d5d0ee10f11b6b9784734dabc6287e9f020fec86bc42a1b103b25066d68bcfe",
+    "rateEdition": "1794604234",
+    "uploadOrDatabaseWritesPerformed": false,
+    "downloadArtifactsChanged": false,
+    "rollbackExecuted": false,
+    "boundary": "Client source files only. Actual Tk behavior was validated separately on Windows."
+  }
+}
