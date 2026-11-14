@@ -1,0 +1,2754 @@
+{
+  "schemaVersion": 1,
+  "source": "Native local JCL type18 MSG_SYS, type9 Battle and effective type21 player/owned-pet damage",
+  "files": 98,
+  "groups": [
+    {
+      "date": "2026-11-02",
+      "mapID": "835",
+      "files": 7,
+      "nativeHonorFiles": 5,
+      "withoutNativeHonor": 2
+    },
+    {
+      "date": "2026-11-09",
+      "mapID": "835",
+      "files": 8,
+      "nativeHonorFiles": 5,
+      "withoutNativeHonor": 3
+    },
+    {
+      "date": "2026-11-13",
+      "mapID": "836",
+      "files": 44,
+      "nativeHonorFiles": 5,
+      "withoutNativeHonor": 39
+    },
+    {
+      "date": "2026-11-14",
+      "mapID": "835",
+      "files": 7,
+      "nativeHonorFiles": 5,
+      "withoutNativeHonor": 2
+    },
+    {
+      "date": "2026-11-14",
+      "mapID": "836",
+      "files": 32,
+      "nativeHonorFiles": 5,
+      "withoutNativeHonor": 27
+    }
+  ],
+  "boundary": "Files without native credit include failed pulls and non-boss/trash captures; they are not all independently adjudicated wipes. No client-table/server-script proof of honor award conditions was found.",
+  "records": [
+    {
+      "logTime": "2026-11-02-20-01-34",
+      "boss": "突利和顺",
+      "mapID": "835",
+      "sha256": "1bc04c976192b1784ec906725b82df00eb21389a0378f3489bbc0f2104bbcaeb",
+      "honor": [
+        {
+          "time": 29666275,
+          "line": 161928,
+          "content": "赛季荣誉[25人普通首领击伤·入门]：1/15",
+          "difficulty": "25人普通",
+          "tier": "入门",
+          "progress": 1,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [
+        29666585
+      ],
+      "mainTemplates": [
+        "139306"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 29471775,
+          "template": "139306",
+          "fight": "true",
+          "hp": 212244392,
+          "hpMax": 213080000,
+          "lastDamageAtEvent": 29471666
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1
+      }
+    },
+    {
+      "logTime": "2026-11-02-20-05-46",
+      "boss": "田承嗣",
+      "mapID": "835",
+      "sha256": "ec184c380f2d487e7f10c82eb8476e6584daeff853c379cc8536b932d61e22ec",
+      "honor": [
+        {
+          "time": 29925903,
+          "line": 184533,
+          "content": "赛季荣誉[25人普通首领击伤·入门]：2/15",
+          "difficulty": "25人普通",
+          "tier": "入门",
+          "progress": 2,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [
+        29926202
+      ],
+      "mainTemplates": [
+        "139329"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 29724487,
+          "template": "139329",
+          "fight": "true",
+          "hp": 243000000,
+          "hpMax": 243000000,
+          "lastDamageAtEvent": 29724435
+        },
+        {
+          "time": 29926275,
+          "template": "139329",
+          "fight": "false",
+          "hp": 952941,
+          "hpMax": 243000000,
+          "lastDamageAtEvent": 29925862
+        }
+      ],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-02-20-09-31",
+      "boss": "其他",
+      "mapID": "835",
+      "sha256": "7c270f436f6db1d74b637f8589b031d46692685d75d9cd59f4a4f6a604d19d0d",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-02-20-12-08",
+      "boss": "伊曼双子",
+      "mapID": "835",
+      "sha256": "58dce3209f1412d0104dd0b38c3e95fc253a55e91515f1f6c5889bccd01268b1",
+      "honor": [
+        {
+          "time": 30288479,
+          "line": 162962,
+          "content": "赛季荣誉[25人普通首领击伤·入门]：3/15",
+          "difficulty": "25人普通",
+          "tier": "入门",
+          "progress": 3,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139319",
+        "139322"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 30105837,
+          "template": "139319",
+          "fight": "true",
+          "hp": 210092862,
+          "hpMax": 210920000,
+          "lastDamageAtEvent": 30105821
+        },
+        {
+          "time": 30105980,
+          "template": "139322",
+          "fight": "true",
+          "hp": 68280000,
+          "hpMax": 68280000,
+          "lastDamageAtEvent": null
+        },
+        {
+          "time": 30288720,
+          "template": "139322",
+          "fight": "false",
+          "hp": 1071058,
+          "hpMax": 68280000,
+          "lastDamageAtEvent": 30288433
+        },
+        {
+          "time": 30288854,
+          "template": "139319",
+          "fight": "false",
+          "hp": 210920000,
+          "hpMax": 210920000,
+          "lastDamageAtEvent": 30268920
+        }
+      ],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-02-20-16-04",
+      "boss": "阿史那承庆",
+      "mapID": "835",
+      "sha256": "99df0aa823deef3db5560411b235bd43b9706f6ff951a83ede439aba97576a3c",
+      "honor": [
+        {
+          "time": 30579838,
+          "line": 234168,
+          "content": "赛季荣誉[25人普通首领击伤·入门]：4/15",
+          "difficulty": "25人普通",
+          "tier": "入门",
+          "progress": 4,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [
+        30580206
+      ],
+      "mainTemplates": [
+        "139323"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 30341789,
+          "template": "139323",
+          "fight": "true",
+          "hp": 318810000,
+          "hpMax": 318810000,
+          "lastDamageAtEvent": 30341271
+        },
+        {
+          "time": 30580393,
+          "template": "139323",
+          "fight": "false",
+          "hp": 318810000,
+          "hpMax": 318810000,
+          "lastDamageAtEvent": 30579730
+        }
+      ],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-02-20-22-47",
+      "boss": "其他",
+      "mapID": "835",
+      "sha256": "0b8d04115cfa6d19bd4fe7f7baa5cb266286399e838542110abc5794b3502557",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-02-20-23-43",
+      "boss": "史朝义",
+      "mapID": "835",
+      "sha256": "2e5d0fc856395e2ee73644ef5568f628474c0583165f0b12737f259e9977e5f2",
+      "honor": [
+        {
+          "time": 31063507,
+          "line": 223460,
+          "content": "赛季荣誉[25人普通首领击伤·入门]：5/15",
+          "difficulty": "25人普通",
+          "tier": "入门",
+          "progress": 5,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [
+        31064119
+      ],
+      "mainTemplates": [
+        "139312"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 30801495,
+          "template": "139312",
+          "fight": "true",
+          "hp": 245234509,
+          "hpMax": 246200000,
+          "lastDamageAtEvent": 30801059
+        },
+        {
+          "time": 31063760,
+          "template": "139312",
+          "fight": "false",
+          "hp": 965490,
+          "hpMax": 246200000,
+          "lastDamageAtEvent": 31063436
+        }
+      ],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-09-14-02-07",
+      "boss": "突利和顺",
+      "mapID": "835",
+      "sha256": "61602025500a55732b539479fc5c2ebe3dc4429676cf21e97e4428e37b7e9ede",
+      "honor": [
+        {
+          "time": 10307991,
+          "line": 249425,
+          "content": "赛季荣誉[25人普通首领击伤·入门]：7/15",
+          "difficulty": "25人普通",
+          "tier": "入门",
+          "progress": 7,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139306"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 9998693,
+          "template": "139306",
+          "fight": "true",
+          "hp": 188667215,
+          "hpMax": 189410000,
+          "lastDamageAtEvent": 9998684
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1
+      }
+    },
+    {
+      "logTime": "2026-11-09-14-09-10",
+      "boss": "田承嗣",
+      "mapID": "835",
+      "sha256": "2cdcb38189b648818d036b3d912bfcce19b0ede431d63eec87add442a2d6fb78",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139329"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 10421776,
+          "template": "139329",
+          "fight": "true",
+          "hp": 243000000,
+          "hpMax": 243000000,
+          "lastDamageAtEvent": 10421388
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1
+      }
+    },
+    {
+      "logTime": "2026-11-09-14-10-51",
+      "boss": "田承嗣",
+      "mapID": "835",
+      "sha256": "b984c69fe74bf8eb3f6ff2f2efd23fc198aef893fb1ebf18309e7ce5c56becb8",
+      "honor": [
+        {
+          "time": 10868396,
+          "line": 299135,
+          "content": "赛季荣誉[25人普通首领击伤·入门]：8/15",
+          "difficulty": "25人普通",
+          "tier": "入门",
+          "progress": 8,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139329"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 10522973,
+          "template": "139329",
+          "fight": "true",
+          "hp": 242047058,
+          "hpMax": 243000000,
+          "lastDamageAtEvent": 10522879
+        },
+        {
+          "time": 10868754,
+          "template": "139329",
+          "fight": "false",
+          "hp": 952941,
+          "hpMax": 243000000,
+          "lastDamageAtEvent": 10868310
+        }
+      ],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-09-14-17-09",
+      "boss": "其他",
+      "mapID": "835",
+      "sha256": "c1a3b035c95360ca6ba2ed95a8e865a778d95f447a3e2a4df4dd1e0d880f2cd6",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-09-14-20-11",
+      "boss": "伊曼双子",
+      "mapID": "835",
+      "sha256": "d05f8a3d9c5e534bc5493aa96226db4c5ba678af89f0f8805baca32de7d47cae",
+      "honor": [
+        {
+          "time": 11423811,
+          "line": 273544,
+          "content": "赛季荣誉[25人普通首领击伤·入门]：9/15",
+          "difficulty": "25人普通",
+          "tier": "入门",
+          "progress": 9,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139319",
+        "139322"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 11082343,
+          "template": "139319",
+          "fight": "true",
+          "hp": 210092862,
+          "hpMax": 210920000,
+          "lastDamageAtEvent": 11082332
+        },
+        {
+          "time": 11082482,
+          "template": "139322",
+          "fight": "true",
+          "hp": 68280000,
+          "hpMax": 68280000,
+          "lastDamageAtEvent": null
+        },
+        {
+          "time": 11424081,
+          "template": "139322",
+          "fight": "false",
+          "hp": 68280000,
+          "hpMax": 68280000,
+          "lastDamageAtEvent": 11423698
+        },
+        {
+          "time": 11424191,
+          "template": "139319",
+          "fight": "false",
+          "hp": 210920000,
+          "hpMax": 210920000,
+          "lastDamageAtEvent": 11388983
+        }
+      ],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-09-14-28-21",
+      "boss": "阿史那承庆",
+      "mapID": "835",
+      "sha256": "963731452683fed7222b583c6ab82972cfb73d6086a4ef63fc62a2d8c5793c54",
+      "honor": [
+        {
+          "time": 12015169,
+          "line": 382123,
+          "content": "赛季荣誉[25人普通首领击伤·入门]：10/15",
+          "difficulty": "25人普通",
+          "tier": "入门",
+          "progress": 10,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139323"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 11572284,
+          "template": "139323",
+          "fight": "true",
+          "hp": 317559764,
+          "hpMax": 318810000,
+          "lastDamageAtEvent": 11572197
+        },
+        {
+          "time": 12015571,
+          "template": "139323",
+          "fight": "false",
+          "hp": 318810000,
+          "hpMax": 318810000,
+          "lastDamageAtEvent": 12015010
+        }
+      ],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-09-14-44-33",
+      "boss": "其他",
+      "mapID": "835",
+      "sha256": "72f27228beb67fad1ed8b33358c625bbb6f4a10e75e69b3b6eb5cc423a542197",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-09-14-47-13",
+      "boss": "史朝义",
+      "mapID": "835",
+      "sha256": "73361b68357a869760496933018c75e5117181ce8d18bd5aeaaaf948aed309f2",
+      "honor": [
+        {
+          "time": 13067560,
+          "line": 322730,
+          "content": "赛季荣誉[25人普通首领击伤·入门]：11/15",
+          "difficulty": "25人普通",
+          "tier": "入门",
+          "progress": 11,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139312"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 12704842,
+          "template": "139312",
+          "fight": "true",
+          "hp": 245234509,
+          "hpMax": 246200000,
+          "lastDamageAtEvent": 12704475
+        },
+        {
+          "time": 13067827,
+          "template": "139312",
+          "fight": "false",
+          "hp": 1930980,
+          "hpMax": 246200000,
+          "lastDamageAtEvent": 13067438
+        }
+      ],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-13-20-01-33",
+      "boss": "突利和顺",
+      "mapID": "836",
+      "sha256": "408a56e03ad2cceb4932990804990194c45b0658841f94bbce4466fdc046f3ff",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139360"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 1953982,
+          "template": "139360",
+          "fight": "true",
+          "hp": 263517184,
+          "hpMax": 263517184,
+          "lastDamageAtEvent": 1953955
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-20-03-48",
+      "boss": "突利和顺",
+      "mapID": "836",
+      "sha256": "ed5689df6929c32206adf3cd3c4058b6702ec6bbda73d3686d3bd03a6caab78c",
+      "honor": [
+        {
+          "time": 2347128,
+          "line": 189462,
+          "content": "赛季荣誉[25人英雄首领击伤·入门]：1/15",
+          "difficulty": "25人英雄",
+          "tier": "入门",
+          "progress": 1,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [
+        2347426
+      ],
+      "mainTemplates": [
+        "139360"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 2088979,
+          "template": "139360",
+          "fight": "true",
+          "hp": 263517184,
+          "hpMax": 263517184,
+          "lastDamageAtEvent": 2088952
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-20-09-05",
+      "boss": "田承嗣",
+      "mapID": "836",
+      "sha256": "c2f23f53417a5028b0395ecf98efb3c64df7351bbbee9efedfa6b156386a7b4a",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139382"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 2405969,
+          "template": "139382",
+          "fight": "true",
+          "hp": 247226666,
+          "hpMax": 248200000,
+          "lastDamageAtEvent": 2405591
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-20-10-20",
+      "boss": "其他",
+      "mapID": "836",
+      "sha256": "24cae6ad83d95763189fbb823488d5d111905229dc33b3377a38645d625b1c02",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-13-20-10-48",
+      "boss": "田承嗣",
+      "mapID": "836",
+      "sha256": "9a6bea1e40c4a9512e8ce56c836e68719c9c23ea43685748928391ec99cba01f",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139382"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 2508913,
+          "template": "139382",
+          "fight": "true",
+          "hp": 247226666,
+          "hpMax": 248200000,
+          "lastDamageAtEvent": 2508888
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-20-12-53",
+      "boss": "田承嗣",
+      "mapID": "836",
+      "sha256": "d0b532b782f0d586a8d3da4b81dbf2ac418e35a7cef8d348c81cc228efc74b35",
+      "honor": [
+        {
+          "time": 2935884,
+          "line": 223256,
+          "content": "赛季荣誉[25人英雄首领击伤·入门]：2/15",
+          "difficulty": "25人英雄",
+          "tier": "入门",
+          "progress": 2,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [
+        2936178
+      ],
+      "mainTemplates": [
+        "139382"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 2633492,
+          "template": "139382",
+          "fight": "true",
+          "hp": 247226666,
+          "hpMax": 248200000,
+          "lastDamageAtEvent": 2633451
+        },
+        {
+          "time": 2936426,
+          "template": "139382",
+          "fight": "false",
+          "hp": 1946666,
+          "hpMax": 248200000,
+          "lastDamageAtEvent": 2935851
+        },
+        {
+          "time": 2939686,
+          "template": "139382",
+          "fight": "true",
+          "hp": 248200000,
+          "hpMax": 248200000,
+          "lastDamageAtEvent": 2935851
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-20-18-30",
+      "boss": "其他",
+      "mapID": "836",
+      "sha256": "f3ee9dc54d8f0c014fabc0020ed91f7cf68f12bcab935d7ecec251a07f29de17",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-13-20-20-55",
+      "boss": "伊曼双子",
+      "mapID": "836",
+      "sha256": "77aa4be863493a792263e606bc35d58b71ee37717ee61064cf208d42cc4c1ba1",
+      "honor": [
+        {
+          "time": 3414509,
+          "line": 245195,
+          "content": "赛季荣誉[25人英雄首领击伤·入门]：3/15",
+          "difficulty": "25人英雄",
+          "tier": "入门",
+          "progress": 3,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139373",
+        "139376"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 3115767,
+          "template": "139376",
+          "fight": "true",
+          "hp": 90780000,
+          "hpMax": 90780000,
+          "lastDamageAtEvent": 3115280
+        },
+        {
+          "time": 3115979,
+          "template": "139373",
+          "fight": "true",
+          "hp": 261200000,
+          "hpMax": 261200000,
+          "lastDamageAtEvent": null
+        },
+        {
+          "time": 3415133,
+          "template": "139376",
+          "fight": "false",
+          "hp": 712000,
+          "hpMax": 90780000,
+          "lastDamageAtEvent": 3414403
+        },
+        {
+          "time": 3415133,
+          "template": "139373",
+          "fight": "false",
+          "hp": 261200000,
+          "hpMax": 261200000,
+          "lastDamageAtEvent": 3383523
+        }
+      ],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-13-20-26-56",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "32f250ea22c2e1cf8fad586ddb803c031fce0298830937e0946e9876adf5aadc",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 3476791,
+          "template": "139378",
+          "fight": "true",
+          "hp": 426899294,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 3476397
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-20-29-16",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "33f3be691411e3e6e78186334c81fa56e6962f142013c6931d35189981016a41",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 3616822,
+          "template": "139378",
+          "fight": "true",
+          "hp": 428580000,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 3616670
+        },
+        {
+          "time": 3626757,
+          "template": "139378",
+          "fight": "false",
+          "hp": 426899294,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 3625147
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-20-29-54",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "e03a6249abf10c839862aa8ff9ab415ae334b00b7401f18ce727bf50e4334169",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 3655264,
+          "template": "139378",
+          "fight": "true",
+          "hp": 426899294,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 3655218
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-20-33-27",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "24cf4ee8508da05f92b87cb72ecb3eb108d3a44f0fc837f3428391e8d7c9e41f",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 3868266,
+          "template": "139378",
+          "fight": "true",
+          "hp": 426899294,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 3868248
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-20-36-42",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "7000e69dfc6bceaeaa59da5e5ee1b90adaf2931afef5aa26e7e1e62c19cfadf3",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 4063279,
+          "template": "139378",
+          "fight": "true",
+          "hp": 426899294,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 4063247
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-20-39-25",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "8c47603dd30b6bd355129e5b236b425163fa523c35563f4b6b50a629f029c661",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 4225528,
+          "template": "139378",
+          "fight": "true",
+          "hp": 428580000,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 4225495
+        },
+        {
+          "time": 4470539,
+          "template": "139378",
+          "fight": "false",
+          "hp": 205046117,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 4457445
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-20-44-27",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "e99737870f65c17aac04fed1b72d06b4ee0ea8574eac9aa56af41122d93bb1be",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 4527801,
+          "template": "139378",
+          "fight": "true",
+          "hp": 428580000,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 4527747
+        },
+        {
+          "time": 4792379,
+          "template": "139378",
+          "fight": "false",
+          "hp": 152944235,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 4791907
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-20-50-51",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "748f07f772cf0e03267f9460f4c7d37287f502d1029688b5bed00a7286abae1c",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 4912307,
+          "template": "139378",
+          "fight": "true",
+          "hp": 426899294,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 4912291
+        },
+        {
+          "time": 5081321,
+          "template": "139378",
+          "fight": "false",
+          "hp": 236979529,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 5081160
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-20-54-14",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "b829963223e501ecf72ff7a4fb2dc6aeed1fd82966e9154609464375d3adca54",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 5115014,
+          "template": "139378",
+          "fight": "true",
+          "hp": 426899294,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 5114995
+        },
+        {
+          "time": 5368073,
+          "template": "139378",
+          "fight": "false",
+          "hp": 183196941,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 5367154
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-20-59-15",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "c27d6001823f42f6c84598852db6e9cb09549bed8e2d554de4714106f54c9528",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 5415293,
+          "template": "139378",
+          "fight": "true",
+          "hp": 426899294,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 5415233
+        },
+        {
+          "time": 5802077,
+          "template": "139378",
+          "fight": "false",
+          "hp": 428580000,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 5801728
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-21-06-15",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "7ec9c7ea03d414f5d1ad92cba16bdda402ca4f970c400c5c51185c012b17414c",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 5835287,
+          "template": "139378",
+          "fight": "true",
+          "hp": 426899294,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 5835100
+        },
+        {
+          "time": 6214701,
+          "template": "139378",
+          "fight": "false",
+          "hp": 18487764,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 6214531
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-21-13-03",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "1655650d4715fc9ed50f435c812506b25450bfea2e49863756b5d7790d72f917",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 6243827,
+          "template": "139378",
+          "fight": "true",
+          "hp": 428580000,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 6243811
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-21-17-08",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "f4c964149ad0e998b6fc7725b1c42abd76ccff851bebf4b332a01cb82f52a7ec",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 6488460,
+          "template": "139378",
+          "fight": "true",
+          "hp": 426899294,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 6488417
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-21-21-02",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "72c8e1cff8f685d5eabfa4dd6b7104dadb63f1894ab68fe7043e6484e5abd65a",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 6722785,
+          "template": "139378",
+          "fight": "true",
+          "hp": 428580000,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 6722742
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-21-25-57",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "91c59ccae894f96910a33aa773a2e00924b76226ac059922ab586e0193a058e9",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 7017783,
+          "template": "139378",
+          "fight": "true",
+          "hp": 428580000,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 7017758
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-21-30-39",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "6a20b964f182290dd3edb0ff064483c884d0b527452c2f21010dabdd592b7471",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 7300047,
+          "template": "139378",
+          "fight": "true",
+          "hp": 428580000,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 7300030
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-21-32-42",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "451b5bb5d469b13cac57d21437759f6521c8fffe404dee427f7536221a5ae928",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 7422791,
+          "template": "139378",
+          "fight": "true",
+          "hp": 428580000,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 7422759
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-21-37-44",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "a15c01fb55e9cbc4f12bf68667c453ff217dee81e0c6aed23d9792ef2e42365c",
+      "honor": [
+        {
+          "time": 8068149,
+          "line": 321513,
+          "content": "赛季荣誉[25人英雄首领击伤·入门]：4/15",
+          "difficulty": "25人英雄",
+          "tier": "入门",
+          "progress": 4,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [
+        8068642
+      ],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 7724516,
+          "template": "139378",
+          "fight": "true",
+          "hp": 426899294,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 7724491
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1
+      }
+    },
+    {
+      "logTime": "2026-11-13-21-46-42",
+      "boss": "其他",
+      "mapID": "836",
+      "sha256": "b2ff4e6e8f48e433ad0773fc64b4f994ace1251706b337263b83cc7bd897e6ad",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-13-21-48-32",
+      "boss": "其他",
+      "mapID": "836",
+      "sha256": "cdd7964b5863b0bc57ac854c652db955fd3908edb8505522e9c659060a3f7900",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-13-21-50-07",
+      "boss": "其他",
+      "mapID": "836",
+      "sha256": "5556ecd1497332c94c4097171e91ade7e8abe2f2567b630a6803460404f6f21a",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-13-21-51-56",
+      "boss": "其他",
+      "mapID": "836",
+      "sha256": "21a1436e2682e0216fb353016336c36992ad0845ea64bbe5c08b3997537c84cf",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-13-21-53-06",
+      "boss": "其他",
+      "mapID": "836",
+      "sha256": "56609cb8ec30b75f9165f91ad4abc21ea829687eeff2c895cfe43d0845c1e097",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-13-21-55-39",
+      "boss": "其他",
+      "mapID": "836",
+      "sha256": "957aacc49da227a0291e9193929a91cbfc05113f2030a95a152eea35d5951bd8",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-13-21-57-48",
+      "boss": "其他",
+      "mapID": "836",
+      "sha256": "450d2b85ffbeea0fc6e1f7e173e75b75bef95a52a67c5f01b610d46307d2e36a",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-13-22-00-05",
+      "boss": "其他",
+      "mapID": "836",
+      "sha256": "3c11b813f1ee6909218ccf7b91c6e999e544ffb283fccd6a78d87c1f2e06f87b",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-13-22-02-35",
+      "boss": "其他",
+      "mapID": "836",
+      "sha256": "d897b1f76d8e6f56e075fc32aa6782151f4c1631f94c1516f25c32c5de31acdb",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-13-22-04-14",
+      "boss": "其他",
+      "mapID": "836",
+      "sha256": "4237f12313703b5c2da7c5ca1a2d468b4bd128f6e0145ff4c8e60e69c45beb95",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-13-22-07-47",
+      "boss": "史朝义",
+      "mapID": "836",
+      "sha256": "057ef022f1a4891a885a72ca9f5d4f26c3d9208dcbc62877f9a2c5a59270a30a",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139365"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 9527633,
+          "template": "139365",
+          "fight": "true",
+          "hp": 633705098,
+          "hpMax": 636200000,
+          "lastDamageAtEvent": 9527289
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 2,
+        "enter": 2
+      }
+    },
+    {
+      "logTime": "2026-11-13-22-16-23",
+      "boss": "其他",
+      "mapID": "836",
+      "sha256": "2660b975eb8148511aa3da8ef5ca1dba6161e905fd30b548043355ed324e4b46",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-13-22-18-03",
+      "boss": "史朝义",
+      "mapID": "836",
+      "sha256": "ddac0962d967fbea498cb663c3a1cd4b14d4eeac6ba9c51d947000ab8507c3ab",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139365"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 10144336,
+          "template": "139365",
+          "fight": "true",
+          "hp": 633705098,
+          "hpMax": 636200000,
+          "lastDamageAtEvent": 10143968
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 2,
+        "enter": 2
+      }
+    },
+    {
+      "logTime": "2026-11-13-22-25-50",
+      "boss": "史朝义",
+      "mapID": "836",
+      "sha256": "b9da48a3c1fc0b0002be7afccf169d30178e4010a76d09fef06cd096621b6a55",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139365"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 10611405,
+          "template": "139365",
+          "fight": "true",
+          "hp": 633705098,
+          "hpMax": 636200000,
+          "lastDamageAtEvent": 10610901
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 2,
+        "enter": 2
+      }
+    },
+    {
+      "logTime": "2026-11-13-22-35-16",
+      "boss": "其他",
+      "mapID": "836",
+      "sha256": "c41639be9d7f2b5ae988d8ad7df2570073d0381700528b9836e1d7070a5835d8",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-13-22-37-01",
+      "boss": "其他",
+      "mapID": "836",
+      "sha256": "95b11a6139617e8370519aeaf9b1affea85b2c2848e9e7ae079ba3a92f706273",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-13-22-38-13",
+      "boss": "史朝义",
+      "mapID": "836",
+      "sha256": "fe57784bc5a296441fa4e62294097b21a345e2222b352b09873bb3905d491e96",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139365"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 11353631,
+          "template": "139365",
+          "fight": "true",
+          "hp": 633705098,
+          "hpMax": 636200000,
+          "lastDamageAtEvent": 11353130
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 2,
+        "enter": 2
+      }
+    },
+    {
+      "logTime": "2026-11-13-22-49-04",
+      "boss": "史朝义",
+      "mapID": "836",
+      "sha256": "a26153a784bb6a66102cbe6d3b922f95a9c4e2a3e916040190a428b1ddcf470b",
+      "honor": [
+        {
+          "time": 12509386,
+          "line": 400430,
+          "content": "赛季荣誉[25人英雄首领击伤·入门]：5/15",
+          "difficulty": "25人英雄",
+          "tier": "入门",
+          "progress": 5,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [
+        12510213
+      ],
+      "mainTemplates": [
+        "139365"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 12005111,
+          "template": "139365",
+          "fight": "true",
+          "hp": 636200000,
+          "hpMax": 636200000,
+          "lastDamageAtEvent": 12004702
+        },
+        {
+          "time": 12509603,
+          "template": "139365",
+          "fight": "false",
+          "hp": 636200000,
+          "hpMax": 636200000,
+          "lastDamageAtEvent": 12509208
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-14-02-56-56",
+      "boss": "突利和顺",
+      "mapID": "835",
+      "sha256": "273eb5ff2989174a908207a5a9f530f45c4145cb8ba6d668f5e00a9b56fa94e8",
+      "honor": [
+        {
+          "time": 3299254,
+          "line": 209321,
+          "content": "赛季荣誉[25人普通首领击伤·入门]：12/15",
+          "difficulty": "25人普通",
+          "tier": "入门",
+          "progress": 12,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139306"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 2936217,
+          "template": "139306",
+          "fight": "true",
+          "hp": 189410000,
+          "hpMax": 189410000,
+          "lastDamageAtEvent": 2936104
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1
+      }
+    },
+    {
+      "logTime": "2026-11-14-03-06-08",
+      "boss": "田承嗣",
+      "mapID": "835",
+      "sha256": "d13a4aed2a546a353449b12238b9261321a2afe46192a07929d90328e99d39e0",
+      "honor": [
+        {
+          "time": 3896764,
+          "line": 269012,
+          "content": "赛季荣誉[25人普通首领击伤·入门]：13/15",
+          "difficulty": "25人普通",
+          "tier": "入门",
+          "progress": 13,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139329"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 3487956,
+          "template": "139329",
+          "fight": "true",
+          "hp": 243000000,
+          "hpMax": 243000000,
+          "lastDamageAtEvent": 3487592
+        },
+        {
+          "time": 3897267,
+          "template": "139329",
+          "fight": "false",
+          "hp": 243000000,
+          "hpMax": 243000000,
+          "lastDamageAtEvent": 3896703
+        },
+        {
+          "time": 3900444,
+          "template": "139329",
+          "fight": "true",
+          "hp": 243000000,
+          "hpMax": 243000000,
+          "lastDamageAtEvent": 3896703
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1
+      }
+    },
+    {
+      "logTime": "2026-11-14-03-13-33",
+      "boss": "其他",
+      "mapID": "835",
+      "sha256": "51c8d3fc747ed8c43d0888687313f828b93e3aca060c0a409c42c55f87232ae4",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-14-03-14-02",
+      "boss": "其他",
+      "mapID": "835",
+      "sha256": "a7fa1f6d0cfe9940c8801b215817343758a71272209c994e9ad6ca99834f0498",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-14-03-16-00",
+      "boss": "伊曼双子",
+      "mapID": "835",
+      "sha256": "092f69c7bc9455752ce5f8ff45ff01250754d634e8df46d450d4f52e21d5144a",
+      "honor": [
+        {
+          "time": 4486904,
+          "line": 228348,
+          "content": "赛季荣誉[25人普通首领击伤·入门]：14/15",
+          "difficulty": "25人普通",
+          "tier": "入门",
+          "progress": 14,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139319",
+        "139322"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 4079350,
+          "template": "139319",
+          "fight": "true",
+          "hp": 210092862,
+          "hpMax": 210920000,
+          "lastDamageAtEvent": 4079292
+        },
+        {
+          "time": 4079491,
+          "template": "139322",
+          "fight": "true",
+          "hp": 68280000,
+          "hpMax": 68280000,
+          "lastDamageAtEvent": null
+        },
+        {
+          "time": 4487231,
+          "template": "139322",
+          "fight": "false",
+          "hp": 535529,
+          "hpMax": 68280000,
+          "lastDamageAtEvent": 4486834
+        },
+        {
+          "time": 4487307,
+          "template": "139319",
+          "fight": "false",
+          "hp": 1654274,
+          "hpMax": 210920000,
+          "lastDamageAtEvent": 4452217
+        }
+      ],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-14-03-24-58",
+      "boss": "阿史那承庆",
+      "mapID": "835",
+      "sha256": "9f177dafac2697287321e5dbb804ecddcbe2e038785a494450fd37f7a16c5fd2",
+      "honor": [
+        {
+          "time": 5155128,
+          "line": 340048,
+          "content": "赛季荣誉[25人普通首领击伤·精通]：15/25",
+          "difficulty": "25人普通",
+          "tier": "精通",
+          "progress": 15,
+          "goal": 25
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139323"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 4617764,
+          "template": "139323",
+          "fight": "true",
+          "hp": 317559764,
+          "hpMax": 318810000,
+          "lastDamageAtEvent": 4617733
+        },
+        {
+          "time": 5155768,
+          "template": "139323",
+          "fight": "false",
+          "hp": 318810000,
+          "hpMax": 318810000,
+          "lastDamageAtEvent": 5154988
+        }
+      ],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-14-03-39-26",
+      "boss": "史朝义",
+      "mapID": "835",
+      "sha256": "df0ca53e7ab347f8a7be16416d368ed69eef35237f8674ea59b393e3b0e96623",
+      "honor": [
+        {
+          "time": 5884363,
+          "line": 270364,
+          "content": "赛季荣誉[25人普通首领击伤·精通]：16/25",
+          "difficulty": "25人普通",
+          "tier": "精通",
+          "progress": 16,
+          "goal": 25
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139312"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 5485995,
+          "template": "139312",
+          "fight": "true",
+          "hp": 246200000,
+          "hpMax": 246200000,
+          "lastDamageAtEvent": null
+        },
+        {
+          "time": 5884828,
+          "template": "139312",
+          "fight": "false",
+          "hp": 246200000,
+          "hpMax": 246200000,
+          "lastDamageAtEvent": 5884287
+        }
+      ],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-14-19-45-08",
+      "boss": "突利和顺",
+      "mapID": "836",
+      "sha256": "e522ae8f4ff656cf645d3623403ffac27b032fd9ae1e0fb92d3ad622139323d6",
+      "honor": [
+        {
+          "time": 1501143,
+          "line": 224453,
+          "content": "赛季荣誉[25人英雄首领击伤·入门]：6/15",
+          "difficulty": "25人英雄",
+          "tier": "入门",
+          "progress": 6,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139360"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 1170429,
+          "template": "139360",
+          "fight": "true",
+          "hp": 262483783,
+          "hpMax": 263517184,
+          "lastDamageAtEvent": 1170289
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1
+      }
+    },
+    {
+      "logTime": "2026-11-14-19-53-35",
+      "boss": "田承嗣",
+      "mapID": "836",
+      "sha256": "2fda230b75e5ee5d68f5d4e45d788f88fd79c1855f710e59d6bbefa5e8644b0d",
+      "honor": [
+        {
+          "time": 2024205,
+          "line": 260732,
+          "content": "赛季荣誉[25人英雄首领击伤·入门]：7/15",
+          "difficulty": "25人英雄",
+          "tier": "入门",
+          "progress": 7,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139382"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 1677919,
+          "template": "139382",
+          "fight": "true",
+          "hp": 247226666,
+          "hpMax": 248200000,
+          "lastDamageAtEvent": 1677888
+        },
+        {
+          "time": 2024664,
+          "template": "139382",
+          "fight": "false",
+          "hp": 248200000,
+          "hpMax": 248200000,
+          "lastDamageAtEvent": 2024157
+        }
+      ],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-14-19-59-56",
+      "boss": "其他",
+      "mapID": "836",
+      "sha256": "916267af874ec3800bf02b01a090028e587cfb26c557ca104405e94afd68c242",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-14-20-02-53",
+      "boss": "伊曼双子",
+      "mapID": "836",
+      "sha256": "a4a1d7c01da0029327daefef3dd5c6183b4875d7d3b7daee675a86d3b6edf0aa",
+      "honor": [
+        {
+          "time": 2569455,
+          "line": 248233,
+          "content": "赛季荣誉[25人英雄首领击伤·入门]：8/15",
+          "difficulty": "25人英雄",
+          "tier": "入门",
+          "progress": 8,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139373",
+        "139376"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 2235770,
+          "template": "139373",
+          "fight": "true",
+          "hp": 260175686,
+          "hpMax": 261200000,
+          "lastDamageAtEvent": 2235517
+        },
+        {
+          "time": 2235909,
+          "template": "139376",
+          "fight": "true",
+          "hp": 90780000,
+          "hpMax": 90780000,
+          "lastDamageAtEvent": 2235739
+        },
+        {
+          "time": 2569800,
+          "template": "139373",
+          "fight": "false",
+          "hp": 2048627,
+          "hpMax": 261200000,
+          "lastDamageAtEvent": 2545859
+        },
+        {
+          "time": 2570004,
+          "template": "139376",
+          "fight": "false",
+          "hp": 712000,
+          "hpMax": 90780000,
+          "lastDamageAtEvent": 2569425
+        }
+      ],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-14-20-12-50",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "7225c8e1d31015771b86b9e403d1b478ad45c1888d280ee7fc2025ecb40deec1",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 2832988,
+          "template": "139378",
+          "fight": "true",
+          "hp": 426899294,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 2832966
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1
+      }
+    },
+    {
+      "logTime": "2026-11-14-20-17-49",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "fd699bc60b290326a1931d7d30eb8497cd0026a6ce25719d3edcba868526e2b8",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 3131739,
+          "template": "139378",
+          "fight": "true",
+          "hp": 426899294,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 3131687
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1
+      }
+    },
+    {
+      "logTime": "2026-11-14-20-22-26",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "d861c943db0a8c80191ee8f2fa5a59ec1e609ab621ab4cf699b433ff2bcefeb6",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 3407698,
+          "template": "139378",
+          "fight": "true",
+          "hp": 428580000,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 3407637
+        },
+        {
+          "time": 3814765,
+          "template": "139378",
+          "fight": "false",
+          "hp": 67228235,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 3814603
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1
+      }
+    },
+    {
+      "logTime": "2026-11-14-20-33-08",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "005556be5fec97f21ea93467390ba0f0280ae5068e91d358532667b3098680c4",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 4049871,
+          "template": "139378",
+          "fight": "true",
+          "hp": 428580000,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 4049808
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1
+      }
+    },
+    {
+      "logTime": "2026-11-14-20-38-15",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "4c9b33efc859974a204939fc36a72140bb10e40e3f3498d1a5bd1ecdd76d1a0e",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 4356979,
+          "template": "139378",
+          "fight": "true",
+          "hp": 426899294,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 4356963
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-14-20-48-28",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "235441481875634c1d6ad8e941b2b5593ee97074a533da36a293f315337ed50e",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 4969960,
+          "template": "139378",
+          "fight": "true",
+          "hp": 426899294,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 4969945
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-14-20-52-37",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "b5021874186108ee0351a6da43a952e1648930bfec4ae8da62a4d650f7490178",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 5218743,
+          "template": "139378",
+          "fight": "true",
+          "hp": 428580000,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 5218675
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-14-20-56-19",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "c5ada2a2da276645eac0e158906d13d7790a3651ef17c99f5afc02a59c150d8c",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 5441455,
+          "template": "139378",
+          "fight": "true",
+          "hp": 426899294,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 5441434
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-14-20-59-15",
+      "boss": "其他",
+      "mapID": "836",
+      "sha256": "f13a22fbe4a8ec28e31371c62b59479946c56137f03294cbdf12940810ee575f",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-14-20-59-59",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "89949eea5b3ecc713e8f8da1584da2f96f23cfbb93eb11ed1abfc4e365217041",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 5661471,
+          "template": "139378",
+          "fight": "true",
+          "hp": 426899294,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 5661431
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-14-21-01-08",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "72313026cf7db175ab81a117aab5ecabd9d1ff71f3058dcf01334c17ff645d61",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 5730949,
+          "template": "139378",
+          "fight": "true",
+          "hp": 426899294,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 5730930
+        },
+        {
+          "time": 6173847,
+          "template": "139378",
+          "fight": "false",
+          "hp": 6722823,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 6173696
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1
+      }
+    },
+    {
+      "logTime": "2026-11-14-21-09-38",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "c096eeb0a94b63cd8dfd5eadfd05cf441c1ae197984a67071b2c0e2f35fff359",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 6240275,
+          "template": "139378",
+          "fight": "true",
+          "hp": 428580000,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 6240253
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-14-21-14-31",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "c6968f4b3e98a2bfd7268536c2eae00296a6a1f3c3df17d7417a5b69c83a9394",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 6533459,
+          "template": "139378",
+          "fight": "true",
+          "hp": 426899294,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 6533440
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1
+      }
+    },
+    {
+      "logTime": "2026-11-14-21-18-19",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "08bbe59698a4c65dc3a7e5194dc64823418441eace57d1ef8ded0018afb9c318",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 6761264,
+          "template": "139378",
+          "fight": "true",
+          "hp": 428580000,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": null
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1
+      }
+    },
+    {
+      "logTime": "2026-11-14-21-23-16",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "1692bf691c33a8dbda8b457e2b531d61c75cefb655d66995367676f2972b1dc5",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 7058521,
+          "template": "139378",
+          "fight": "true",
+          "hp": 426899294,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 7058506
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1
+      }
+    },
+    {
+      "logTime": "2026-11-14-21-27-49",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "c0373efdca90937020473f8960c05823e0a47fef6fe5d9d564d180ff6f676d82",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 7331234,
+          "template": "139378",
+          "fight": "true",
+          "hp": 428580000,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 7331135
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-14-21-42-22",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "278ca7207a6a470b30d3f5fca4ac8a24937d01e1621c0e99e808f3a54675f107",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 8204740,
+          "template": "139378",
+          "fight": "true",
+          "hp": 426899294,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 8204656
+        },
+        {
+          "time": 8649321,
+          "template": "139378",
+          "fight": "false",
+          "hp": 428580000,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 8648399
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-14-21-51-56",
+      "boss": "阿史那承庆",
+      "mapID": "836",
+      "sha256": "585cde9c9d8d8d1ba9a5782a251f09a79b6983831814eb691908f85aefc032de",
+      "honor": [
+        {
+          "time": 9198045,
+          "line": 334388,
+          "content": "赛季荣誉[25人英雄首领击伤·入门]：9/15",
+          "difficulty": "25人英雄",
+          "tier": "入门",
+          "progress": 9,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139378"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 8778812,
+          "template": "139378",
+          "fight": "true",
+          "hp": 426899294,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 8778732
+        },
+        {
+          "time": 9198550,
+          "template": "139378",
+          "fight": "false",
+          "hp": 428580000,
+          "hpMax": 428580000,
+          "lastDamageAtEvent": 9197920
+        }
+      ],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-14-22-04-09",
+      "boss": "其他",
+      "mapID": "836",
+      "sha256": "639249e3d5c3ca9a3b8ce6ae1c8b532d227b90b849e5ef000a174cf053efa845",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-14-22-05-17",
+      "boss": "其他",
+      "mapID": "836",
+      "sha256": "aa9405dd4f02c53cb0b4721ea4cd30a1ebfe12bad5770421e50a55620c0cc54c",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-14-22-07-38",
+      "boss": "史朝义",
+      "mapID": "836",
+      "sha256": "5b2891c9457b27437db6af22dd5ea0892391cfa08f8bf238656a89d198ef1dbd",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139365"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 9720564,
+          "template": "139365",
+          "fight": "true",
+          "hp": 633705098,
+          "hpMax": 636200000,
+          "lastDamageAtEvent": 9720190
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 2,
+        "enter": 2
+      }
+    },
+    {
+      "logTime": "2026-11-14-22-19-36",
+      "boss": "其他",
+      "mapID": "836",
+      "sha256": "06d83096dca42ca628dc9cdec23daf9e0ecc3bc5d0c278b8663e28de783e7bb6",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-14-22-22-04",
+      "boss": "史朝义",
+      "mapID": "836",
+      "sha256": "a12b72f29d173112f5a54d1123bdf4de7812568a4e7ad953b8745af56c9408dd",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139365"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 10586900,
+          "template": "139365",
+          "fight": "true",
+          "hp": 636200000,
+          "hpMax": 636200000,
+          "lastDamageAtEvent": 10586299
+        },
+        {
+          "time": 10911259,
+          "template": "139365",
+          "fight": "false",
+          "hp": 636200000,
+          "hpMax": 636200000,
+          "lastDamageAtEvent": 10908177
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    },
+    {
+      "logTime": "2026-11-14-22-28-31",
+      "boss": "其他",
+      "mapID": "836",
+      "sha256": "614bf3087f40f98f0ba8d3049e755e7b01086903a19ac830617de9b8d179bc05",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-14-22-29-55",
+      "boss": "史朝义",
+      "mapID": "836",
+      "sha256": "6e54e99991596fb12e62230a279a9c3eee62189f68003ea7a6da50d9af532792",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139365"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 11057602,
+          "template": "139365",
+          "fight": "true",
+          "hp": 633705098,
+          "hpMax": 636200000,
+          "lastDamageAtEvent": 11057198
+        },
+        {
+          "time": 11517510,
+          "template": "139365",
+          "fight": "false",
+          "hp": 112270588,
+          "hpMax": 636200000,
+          "lastDamageAtEvent": 11513934
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 2,
+        "enter": 2
+      }
+    },
+    {
+      "logTime": "2026-11-14-22-39-08",
+      "boss": "其他",
+      "mapID": "836",
+      "sha256": "13333067ecfc08af13dcba9d24107c9289f148fa2d4e6a4dcf13b1060688eaeb",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [],
+      "mainBattleEvents": [],
+      "mainSceneEventCounts": {}
+    },
+    {
+      "logTime": "2026-11-14-22-41-40",
+      "boss": "史朝义",
+      "mapID": "836",
+      "sha256": "40f38153cc5f496f247645c904eef608fb6a2fbfb6a8f46c61830379925ca53e",
+      "honor": [],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139365"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 11762074,
+          "template": "139365",
+          "fight": "true",
+          "hp": 633705098,
+          "hpMax": 636200000,
+          "lastDamageAtEvent": 11761731
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 2,
+        "enter": 2
+      }
+    },
+    {
+      "logTime": "2026-11-14-22-54-07",
+      "boss": "史朝义",
+      "mapID": "836",
+      "sha256": "321a4ce21bc00c4d6778a225286333436b7835f8605adfa40ffe779f8d505c36",
+      "honor": [
+        {
+          "time": 13069269,
+          "line": 409688,
+          "content": "赛季荣誉[25人英雄首领击伤·入门]：10/15",
+          "difficulty": "25人英雄",
+          "tier": "入门",
+          "progress": 10,
+          "goal": 15
+        }
+      ],
+      "otherHonorMessages": 0,
+      "completionTimes": [],
+      "mainTemplates": [
+        "139365"
+      ],
+      "mainBattleEvents": [
+        {
+          "time": 12509601,
+          "template": "139365",
+          "fight": "true",
+          "hp": 633705098,
+          "hpMax": 636200000,
+          "lastDamageAtEvent": 12509311
+        },
+        {
+          "time": 13069589,
+          "template": "139365",
+          "fight": "false",
+          "hp": 2494901,
+          "hpMax": 636200000,
+          "lastDamageAtEvent": 13069172
+        }
+      ],
+      "mainSceneEventCounts": {
+        "leave": 1,
+        "enter": 1
+      }
+    }
+  ]
+}

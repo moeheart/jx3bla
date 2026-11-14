@@ -1,0 +1,348 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "logTime": "2026-11-14-22-54-07",
+      "mapID": "836",
+      "sha256": "321a4ce21bc00c4d6778a225286333436b7835f8605adfa40ffe779f8d505c36",
+      "bytes": 46728456,
+      "firstTime": 12508419,
+      "lastTime": 13074653,
+      "playerCount": 25,
+      "boss": "史朝义",
+      "mainTemplates": [
+        "139365"
+      ],
+      "mainDirectDamage": 445333954,
+      "mainReflectedDamage": 6212,
+      "mainDamage": 445340166,
+      "lastMainDamage": 13069172,
+      "mainHealing": 0,
+      "nativeHonor": [
+        {
+          "time": 13069269,
+          "line": 409688,
+          "content": "赛季荣誉[25人英雄首领击伤·入门]：10/15",
+          "difficulty": "25人英雄",
+          "tier": "入门",
+          "progress": 10,
+          "goal": 15
+        }
+      ],
+      "battle": [
+        {
+          "time": 12509601,
+          "template": "139365",
+          "fight": "true",
+          "hp": 633705098,
+          "hpMax": 636200000
+        },
+        {
+          "time": 13069589,
+          "template": "139365",
+          "fight": "false",
+          "hp": 2494901,
+          "hpMax": 636200000
+        }
+      ],
+      "hasLocalFullClearMessage": false,
+      "terminalChainMs": {
+        "lastDamageToHonor": 97,
+        "honorToSameBodyExit": 320,
+        "lastDamageToExit": 417
+      }
+    },
+    {
+      "logTime": "2026-11-14-22-07-38",
+      "mapID": "836",
+      "sha256": "5b2891c9457b27437db6af22dd5ea0892391cfa08f8bf238656a89d198ef1dbd",
+      "bytes": 45094324,
+      "firstTime": 9719363,
+      "lastTime": 10346253,
+      "playerCount": 25,
+      "boss": "史朝义",
+      "mainTemplates": [
+        "139365"
+      ],
+      "mainDirectDamage": 386863525,
+      "mainReflectedDamage": 1521,
+      "mainDamage": 386865046,
+      "lastMainDamage": 10340984,
+      "mainHealing": 0,
+      "nativeHonor": [],
+      "battle": [
+        {
+          "time": 9720564,
+          "template": "139365",
+          "fight": "true",
+          "hp": 633705098,
+          "hpMax": 636200000
+        }
+      ],
+      "hasLocalFullClearMessage": false
+    },
+    {
+      "logTime": "2026-11-14-22-22-04",
+      "mapID": "836",
+      "sha256": "a12b72f29d173112f5a54d1123bdf4de7812568a4e7ad953b8745af56c9408dd",
+      "bytes": 27146157,
+      "firstTime": 10585585,
+      "lastTime": 10914692,
+      "playerCount": 25,
+      "boss": "史朝义",
+      "mainTemplates": [
+        "139365"
+      ],
+      "mainDirectDamage": 208777921,
+      "mainReflectedDamage": 15049,
+      "mainDamage": 208792970,
+      "lastMainDamage": 10908177,
+      "mainHealing": 0,
+      "nativeHonor": [],
+      "battle": [
+        {
+          "time": 10586900,
+          "template": "139365",
+          "fight": "true",
+          "hp": 636200000,
+          "hpMax": 636200000
+        },
+        {
+          "time": 10911259,
+          "template": "139365",
+          "fight": "false",
+          "hp": 636200000,
+          "hpMax": 636200000
+        }
+      ],
+      "hasLocalFullClearMessage": false
+    },
+    {
+      "logTime": "2026-11-14-22-29-55",
+      "mapID": "836",
+      "sha256": "6e54e99991596fb12e62230a279a9c3eee62189f68003ea7a6da50d9af532792",
+      "bytes": 38317488,
+      "firstTime": 11056397,
+      "lastTime": 11519744,
+      "playerCount": 25,
+      "boss": "史朝义",
+      "mainTemplates": [
+        "139365"
+      ],
+      "mainDirectDamage": 332513249,
+      "mainReflectedDamage": 507,
+      "mainDamage": 332513756,
+      "lastMainDamage": 11513934,
+      "mainHealing": 0,
+      "nativeHonor": [],
+      "battle": [
+        {
+          "time": 11057602,
+          "template": "139365",
+          "fight": "true",
+          "hp": 633705098,
+          "hpMax": 636200000
+        },
+        {
+          "time": 11517510,
+          "template": "139365",
+          "fight": "false",
+          "hp": 112270588,
+          "hpMax": 636200000
+        }
+      ],
+      "hasLocalFullClearMessage": false
+    },
+    {
+      "logTime": "2026-11-14-22-41-40",
+      "mapID": "836",
+      "sha256": "40f38153cc5f496f247645c904eef608fb6a2fbfb6a8f46c61830379925ca53e",
+      "bytes": 45209809,
+      "firstTime": 11760948,
+      "lastTime": 12322371,
+      "playerCount": 25,
+      "boss": "史朝义",
+      "mainTemplates": [
+        "139365"
+      ],
+      "mainDirectDamage": 401288998,
+      "mainReflectedDamage": 2535,
+      "mainDamage": 401291533,
+      "lastMainDamage": 12317003,
+      "mainHealing": 0,
+      "nativeHonor": [],
+      "battle": [
+        {
+          "time": 11762074,
+          "template": "139365",
+          "fight": "true",
+          "hp": 633705098,
+          "hpMax": 636200000
+        }
+      ],
+      "hasLocalFullClearMessage": false
+    },
+    {
+      "logTime": "2026-11-13-22-49-04",
+      "mapID": "836",
+      "sha256": "a26153a784bb6a66102cbe6d3b922f95a9c4e2a3e916040190a428b1ddcf470b",
+      "bytes": 44864845,
+      "firstTime": 12003731,
+      "lastTime": 12516117,
+      "playerCount": 25,
+      "boss": "史朝义",
+      "mainTemplates": [
+        "139365"
+      ],
+      "mainDirectDamage": 445337030,
+      "mainReflectedDamage": 3042,
+      "mainDamage": 445340072,
+      "lastMainDamage": 12509208,
+      "mainHealing": 0,
+      "nativeHonor": [
+        {
+          "time": 12509386,
+          "line": 400430,
+          "content": "赛季荣誉[25人英雄首领击伤·入门]：5/15",
+          "difficulty": "25人英雄",
+          "tier": "入门",
+          "progress": 5,
+          "goal": 15
+        }
+      ],
+      "battle": [
+        {
+          "time": 12005111,
+          "template": "139365",
+          "fight": "true",
+          "hp": 636200000,
+          "hpMax": 636200000
+        },
+        {
+          "time": 12509603,
+          "template": "139365",
+          "fight": "false",
+          "hp": 636200000,
+          "hpMax": 636200000
+        }
+      ],
+      "hasLocalFullClearMessage": true,
+      "terminalChainMs": {
+        "lastDamageToHonor": 178,
+        "honorToSameBodyExit": 217,
+        "lastDamageToExit": 395
+      }
+    },
+    {
+      "logTime": "2026-11-14-03-39-26",
+      "mapID": "835",
+      "sha256": "df0ca53e7ab347f8a7be16416d368ed69eef35237f8674ea59b393e3b0e96623",
+      "bytes": 30519061,
+      "firstTime": 5484781,
+      "lastTime": 5889847,
+      "playerCount": 25,
+      "boss": "史朝义",
+      "mainTemplates": [
+        "139312"
+      ],
+      "mainDirectDamage": 172339960,
+      "mainReflectedDamage": 169,
+      "mainDamage": 172340129,
+      "lastMainDamage": 5884287,
+      "mainHealing": 0,
+      "nativeHonor": [
+        {
+          "time": 5884363,
+          "line": 270364,
+          "content": "赛季荣誉[25人普通首领击伤·精通]：16/25",
+          "difficulty": "25人普通",
+          "tier": "精通",
+          "progress": 16,
+          "goal": 25
+        }
+      ],
+      "battle": [
+        {
+          "time": 5485995,
+          "template": "139312",
+          "fight": "true",
+          "hp": 246200000,
+          "hpMax": 246200000
+        },
+        {
+          "time": 5884828,
+          "template": "139312",
+          "fight": "false",
+          "hp": 246200000,
+          "hpMax": 246200000
+        }
+      ],
+      "hasLocalFullClearMessage": false,
+      "terminalChainMs": {
+        "lastDamageToHonor": 76,
+        "honorToSameBodyExit": 465,
+        "lastDamageToExit": 541
+      }
+    },
+    {
+      "logTime": "2026-11-09-14-47-13",
+      "mapID": "835",
+      "sha256": "73361b68357a869760496933018c75e5117181ce8d18bd5aeaaaf948aed309f2",
+      "bytes": 36149574,
+      "firstTime": 12703663,
+      "lastTime": 13074022,
+      "playerCount": 25,
+      "boss": "史朝义",
+      "mainTemplates": [
+        "139312"
+      ],
+      "mainDirectDamage": 172340206,
+      "mainReflectedDamage": 0,
+      "mainDamage": 172340206,
+      "lastMainDamage": 13067438,
+      "mainHealing": 0,
+      "nativeHonor": [
+        {
+          "time": 13067560,
+          "line": 322730,
+          "content": "赛季荣誉[25人普通首领击伤·入门]：11/15",
+          "difficulty": "25人普通",
+          "tier": "入门",
+          "progress": 11,
+          "goal": 15
+        }
+      ],
+      "battle": [
+        {
+          "time": 12704842,
+          "template": "139312",
+          "fight": "true",
+          "hp": 245234509,
+          "hpMax": 246200000
+        },
+        {
+          "time": 13067827,
+          "template": "139312",
+          "fight": "false",
+          "hp": 1930980,
+          "hpMax": 246200000
+        }
+      ],
+      "hasLocalFullClearMessage": false,
+      "terminalChainMs": {
+        "lastDamageToHonor": 122,
+        "honorToSameBodyExit": 267,
+        "lastDamageToExit": 389
+      }
+    }
+  ],
+  "observations": [
+    "Latest heroic clear has native honor at 13069269, 97ms after last effective damage and 320ms before same-body Battle false.",
+    "Both wipe controls with a Battle false also have recent damage; exit plus damage alone is insufficient.",
+    "Battle HP is quantized: new clear reports approximately max/255 and prior true clear reports full max. Neither low HP nor reset HP proves victory.",
+    "All four observed clears have total observed main-body damage near 70 percent of max HP. This is not a validated full-HP depletion budget and is not used by the implementation.",
+    "The strict seasonal message has no boss name. Attribution relies on map/difficulty and same-body recent-damage/final-exit evidence; subsequent damage or reentry invalidates it."
+  ],
+  "productionAccess": false,
+  "rawPlayerDataIncluded": false
+}

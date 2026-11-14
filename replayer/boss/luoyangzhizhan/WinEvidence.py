@@ -1,7 +1,8 @@
 """Reward-independent victory evidence observed in formal 25-player JCLs.
 
-The local completion message is corroborated by damage and combat exit from
-the same boss entity. Neither generic rewards nor low HP/exit alone is a win.
+Local completion or exact native seasonal boss-credit messages are corroborated
+by damage and combat exit from the same boss entity. Neither generic rewards
+nor low HP/exit alone is a win.
 Candidates are resolved after the event scan so resumed combat invalidates them.
 """
 import re
@@ -17,11 +18,18 @@ class LuoyangWinEvidence:
         self.departures = {}
         self.pressure = {}
         self.completions = []
+        self.honors = []
         self.mapName = getattr(replayer.bld.info, "map", "")
         difficulty = self.mapName.removesuffix("洛阳之战")
         self.completionPattern = re.compile(
             r"\[全胜！" + re.escape(self.mapName) + r"\]：[1-5]/5，击败" + re.escape(boss)
             + r"！" + re.escape(difficulty) + r"\(完成\)")
+        # Observed in normal and heroic clears even when the once-completed
+        # full-clear task no longer emits its message. These are boss credits,
+        # not arbitrary seasonal progress, rewards or plugin announcements.
+        self.honorPattern = re.compile(
+            r"赛季荣誉\[" + re.escape(difficulty)
+            + r"首领击伤·(入门|精通)\]：([1-9][0-9]*)/([1-9][0-9]*)")
         for event in getattr(replayer.bld, "systemMessages", []):
             self.observe(event)
 
@@ -48,8 +56,7 @@ class LuoyangWinEvidence:
             elif (event.id in self.lastDamage
                   and 0 <= event.time - self.lastDamage[event.id] <= 5000):
                 self.exits[event.id] = event.time
-        elif (self.mapName == "25人英雄洛阳之战" and self.boss == "突利和顺"
-              and event.dataType == "Scene" and self.template(event.id) in self.templates):
+        elif event.dataType == "Scene" and self.template(event.id) in self.templates:
             # Heroic Tuli has a delayed despawn but no Battle exit. Resets,
             # reappearances and later damage invalidate this candidate.
             if event.enter:
@@ -57,11 +64,22 @@ class LuoyangWinEvidence:
                 self.exits.pop(event.id, None)
                 self.pressure.pop(event.id, None)
                 self.departures.pop(event.id, None)
-            elif event.id in self.lastDamage:
+            elif (self.mapName == "25人英雄洛阳之战" and self.boss == "突利和顺"
+                  and event.id in self.lastDamage):
                 self.departures[event.id] = event.time
-        elif (event.dataType == "System" and event.channel == "MSG_SYS"
-              and self.completionPattern.fullmatch(event.content.replace("\\n", "\n").strip())):
-            self.completions.append(event.time)
+        elif event.dataType == "System" and event.channel == "MSG_SYS":
+            content = event.content.replace("\\n", "\n").strip()
+            if self.completionPattern.fullmatch(content):
+                self.completions.append(event.time)
+            elif self.boss in ("田承嗣", "阿史那承庆", "史朝义"):
+                match = self.honorPattern.fullmatch(content)
+                if match:
+                    tier, progress, target = match.groups()
+                    progress, target = int(progress), int(target)
+                    if target == {"入门": 15, "精通": 25}[tier] and progress <= target:
+                        self.honors.append({"honorTime": event.time, "honorContent": content,
+                                            "honorTier": tier, "honorProgress": progress,
+                                            "honorTarget": target})
         elif (self.boss == "阿史那承庆"
               and event.dataType == "Buff" and event.id == "35875"
               and self.template(event.caster) in self.templates
@@ -85,6 +103,17 @@ class LuoyangWinEvidence:
                     candidates.append({"time": time, "rule": "boss_completion_and_combat_exit",
                                        "npcID": npc_id, "template": self.template(npc_id),
                                        "lastMainDamage": last, "completionTime": completion})
+                    break
+            for honor in self.honors:
+                if (0 <= honor["honorTime"] - last <= 5000
+                        and abs(time - honor["honorTime"]) <= 5000
+                        and (not self.replayer.trimmedFinalTime
+                             or honor["honorTime"] <= self.replayer.trimmedFinalTime)):
+                    # System messages can arrive after log[-1], but evidence
+                    # after an explicit reset/wipe cutoff cannot revive it.
+                    candidates.append(dict(honor, time=time,
+                        rule="seasonal_boss_credit_and_combat_exit", npcID=npc_id,
+                        template=self.template(npc_id), lastMainDamage=last))
                     break
         for npc_id, pressure in self.pressure.items():
             candidate = dict(pressure, time=self.exits.get(npc_id, pressure["pressureTime"]),

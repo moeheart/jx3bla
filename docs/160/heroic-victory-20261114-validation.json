@@ -1,0 +1,1009 @@
+{
+  "complete": true,
+  "testsRun": 488,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "seconds": 721.736,
+  "sourceStable": true,
+  "newClears": [
+    {
+      "file": "2026-11-14-19-53-35-25人英雄洛阳之战(836)-田承嗣(139382).jcl",
+      "sha256": "2fda230b75e5ee5d68f5d4e45d788f88fd79c1855f710e59d6bbefa5e8644b0d",
+      "boss": "田承嗣",
+      "win": 1,
+      "status": "passed",
+      "winEvidence": {
+        "time": 2024664,
+        "rule": "seasonal_boss_credit_and_combat_exit",
+        "honorTime": 2024205,
+        "honorContent": "赛季荣誉[25人英雄首领击伤·入门]：7/15",
+        "honorTier": "入门",
+        "honorProgress": 7,
+        "honorTarget": 15,
+        "template": "139382",
+        "lastMainDamage": 2024157
+      },
+      "finalTime": 2024664,
+      "battleMs": 348047.0000000001,
+      "dpsMs": 337951,
+      "healerMs": 348047,
+      "personalReplays": 25,
+      "preciseReplays": 25,
+      "quality": {
+        "status": "supported",
+        "precise": true,
+        "estimated": false,
+        "rankEligible": {
+          "score": true,
+          "rdps": true,
+          "mrdps": true,
+          "hps": true,
+          "rhps": true,
+          "ndps": true,
+          "mndps": true
+        },
+        "warning": "",
+        "estimatedPlayerCount": 0,
+        "missingEquipmentPlayerCount": 0,
+        "staticAttributes": "available"
+      },
+      "damage": {
+        "directDamage": 278511646.0,
+        "redistributedDamage": 278511646.0,
+        "mainTargetDamage": 248200000.0,
+        "redistributedMainTargetDamage": 248199999.99999997,
+        "excludedNpcDamage": 0.0,
+        "conservationError": 0.0,
+        "mainTargetConservationError": -2.9802322387695312e-08
+      },
+      "phasePeriods": [
+        {
+          "phase": 1,
+          "name": "交战",
+          "start": 0.0,
+          "end": 77.742
+        },
+        {
+          "phase": 5,
+          "name": "天陨一剑准备",
+          "start": 77.742,
+          "end": 82.54
+        },
+        {
+          "phase": 3,
+          "name": "天陨巨剑",
+          "start": 82.54,
+          "end": 106.644
+        },
+        {
+          "phase": 4,
+          "name": "巨剑击破后",
+          "start": 106.644,
+          "end": 109.244
+        },
+        {
+          "phase": 5,
+          "name": "天陨一剑准备",
+          "start": 109.244,
+          "end": 114.544
+        },
+        {
+          "phase": 3,
+          "name": "天陨巨剑",
+          "start": 114.544,
+          "end": 130.19
+        },
+        {
+          "phase": 4,
+          "name": "巨剑击破后",
+          "start": 130.19,
+          "end": 132.808
+        },
+        {
+          "phase": 2,
+          "name": "全军准备",
+          "start": 132.808,
+          "end": 348.047
+        }
+      ],
+      "battleValuesAndSort": "passed",
+      "ui": {
+        "bossWindow": "TianChengsiWindow",
+        "widgets": "constructed",
+        "rdps": "supported",
+        "requestedWidth": 1450,
+        "requestedHeight": 883,
+        "configuredGeometry": "1450x883+555+258",
+        "screenWidth": 2560,
+        "screenHeight": 1440,
+        "table": {
+          "scrollable": true,
+          "tableWidth": 973,
+          "tableHeight": 773,
+          "scrollRegion": [
+            0.0,
+            0.0,
+            1433.0,
+            773.0
+          ],
+          "viewportWidth": 1433,
+          "viewportHeight": 773,
+          "allRowsVisible": true
+        }
+      },
+      "requestBytes": 1757508,
+      "readback": "passed",
+      "duplicateIDs": "stable",
+      "productionUploaded": false
+    },
+    {
+      "file": "2026-11-14-21-51-56-25人英雄洛阳之战(836)-阿史那承庆(139378).jcl",
+      "sha256": "585cde9c9d8d8d1ba9a5782a251f09a79b6983831814eb691908f85aefc032de",
+      "boss": "阿史那承庆",
+      "win": 1,
+      "status": "passed",
+      "winEvidence": {
+        "time": 9198550,
+        "rule": "seasonal_boss_credit_and_combat_exit",
+        "honorTime": 9198045,
+        "honorContent": "赛季荣誉[25人英雄首领击伤·入门]：9/15",
+        "honorTier": "入门",
+        "honorProgress": 9,
+        "honorTarget": 15,
+        "template": "139378",
+        "lastMainDamage": 9197920
+      },
+      "finalTime": 9198550,
+      "battleMs": 420939.0000000001,
+      "dpsMs": 420939,
+      "healerMs": 420939,
+      "personalReplays": 25,
+      "preciseReplays": 25,
+      "quality": {
+        "status": "supported",
+        "precise": true,
+        "estimated": false,
+        "rankEligible": {
+          "score": true,
+          "rdps": true,
+          "mrdps": true,
+          "hps": true,
+          "rhps": true,
+          "ndps": true,
+          "mndps": true
+        },
+        "warning": "",
+        "estimatedPlayerCount": 0,
+        "missingEquipmentPlayerCount": 0,
+        "staticAttributes": "available"
+      },
+      "damage": {
+        "directDamage": 479114517.0,
+        "redistributedDamage": 479114517.00000024,
+        "mainTargetDamage": 428580000.0,
+        "redistributedMainTargetDamage": 428579999.9999999,
+        "excludedNpcDamage": 0.0,
+        "conservationError": 2.384185791015625e-07,
+        "mainTargetConservationError": -1.1920928955078125e-07
+      },
+      "phasePeriods": [
+        {
+          "phase": 1,
+          "name": "常规",
+          "start": 0.0,
+          "end": 207.735
+        },
+        {
+          "phase": 2,
+          "name": "聚邪",
+          "start": 207.735,
+          "end": 214.945
+        },
+        {
+          "phase": 1,
+          "name": "常规",
+          "start": 214.945,
+          "end": 358.732
+        },
+        {
+          "phase": 2,
+          "name": "聚邪",
+          "start": 358.732,
+          "end": 365.912
+        },
+        {
+          "phase": 1,
+          "name": "常规",
+          "start": 365.912,
+          "end": 420.939
+        }
+      ],
+      "battleValuesAndSort": "passed",
+      "ui": {
+        "bossWindow": "LuoyangAshinaChengqingWindow",
+        "widgets": "constructed",
+        "rdps": "supported",
+        "requestedWidth": 1450,
+        "requestedHeight": 889,
+        "configuredGeometry": "1450x889+555+255",
+        "screenWidth": 2560,
+        "screenHeight": 1440,
+        "table": {
+          "scrollable": true,
+          "tableWidth": 1041,
+          "tableHeight": 773,
+          "scrollRegion": [
+            0.0,
+            0.0,
+            1433.0,
+            773.0
+          ],
+          "viewportWidth": 1433,
+          "viewportHeight": 773,
+          "allRowsVisible": true
+        }
+      },
+      "requestBytes": 2017541,
+      "readback": "passed",
+      "duplicateIDs": "stable",
+      "productionUploaded": false
+    },
+    {
+      "file": "2026-11-14-22-54-07-25人英雄洛阳之战(836)-史朝义(139365).jcl",
+      "sha256": "321a4ce21bc00c4d6778a225286333436b7835f8605adfa40ffe779f8d505c36",
+      "boss": "史朝义",
+      "win": 1,
+      "status": "passed",
+      "winEvidence": {
+        "time": 13069589,
+        "rule": "seasonal_boss_credit_and_combat_exit",
+        "honorTime": 13069269,
+        "honorContent": "赛季荣誉[25人英雄首领击伤·入门]：10/15",
+        "honorTier": "入门",
+        "honorProgress": 10,
+        "honorTarget": 15,
+        "template": "139365",
+        "lastMainDamage": 13069172
+      },
+      "finalTime": 13069589,
+      "battleMs": 561170.0000000001,
+      "dpsMs": 561170,
+      "healerMs": 561170,
+      "personalReplays": 25,
+      "preciseReplays": 25,
+      "quality": {
+        "status": "supported",
+        "precise": true,
+        "estimated": false,
+        "rankEligible": {
+          "score": true,
+          "rdps": true,
+          "mrdps": true,
+          "hps": true,
+          "rhps": true,
+          "ndps": true,
+          "mndps": true
+        },
+        "warning": "",
+        "estimatedPlayerCount": 0,
+        "missingEquipmentPlayerCount": 0,
+        "staticAttributes": "available"
+      },
+      "damage": {
+        "directDamage": 503427037.0,
+        "redistributedDamage": 503427036.99999976,
+        "mainTargetDamage": 445340166.0,
+        "redistributedMainTargetDamage": 445340165.99999976,
+        "excludedNpcDamage": 0.0,
+        "conservationError": -2.384185791015625e-07,
+        "mainTargetConservationError": -2.384185791015625e-07
+      },
+      "phasePeriods": [
+        {
+          "phase": 1,
+          "name": "煞将/剑符",
+          "start": 0.0,
+          "end": 129.047
+        },
+        {
+          "phase": 2,
+          "name": "本体红黑煞",
+          "start": 129.047,
+          "end": 376.132
+        },
+        {
+          "phase": 3,
+          "name": "三阶段",
+          "start": 376.132,
+          "end": 561.17
+        }
+      ],
+      "battleValuesAndSort": "passed",
+      "ui": {
+        "bossWindow": "ShiChaoyiWindow",
+        "widgets": "constructed",
+        "rdps": "supported",
+        "requestedWidth": 1450,
+        "requestedHeight": 889,
+        "configuredGeometry": "1450x889+555+255",
+        "screenWidth": 2560,
+        "screenHeight": 1440,
+        "table": {
+          "scrollable": true,
+          "tableWidth": 1096,
+          "tableHeight": 773,
+          "scrollRegion": [
+            0.0,
+            0.0,
+            1433.0,
+            773.0
+          ],
+          "viewportWidth": 1433,
+          "viewportHeight": 773,
+          "allRowsVisible": true
+        }
+      },
+      "requestBytes": 2179654,
+      "readback": "passed",
+      "duplicateIDs": "stable",
+      "productionUploaded": false
+    }
+  ],
+  "previousHeroicClears": [
+    {
+      "file": "2026-11-13-20-03-48-25人英雄洛阳之战(836)-突利和顺(139360).jcl",
+      "sha256": "ed5689df6929c32206adf3cd3c4058b6702ec6bbda73d3686d3bd03a6caab78c",
+      "boss": "突利和顺",
+      "map": "836",
+      "gameEdition": "161",
+      "status": "passed",
+      "win": 1,
+      "winReason": "boss_completion_and_scene_exit",
+      "seconds": 259.7600000000001,
+      "quality": {
+        "status": "supported",
+        "precise": true,
+        "estimated": false,
+        "rankEligible": {
+          "score": true,
+          "rdps": true,
+          "mrdps": true,
+          "hps": true,
+          "rhps": true,
+          "ndps": true,
+          "mndps": true
+        },
+        "warning": "",
+        "estimatedPlayerCount": 0,
+        "missingEquipmentPlayerCount": 0,
+        "staticAttributes": "available"
+      },
+      "unresolvedTemplates": [],
+      "equipmentWarningTypes": [],
+      "equipmentWarningCount": 0,
+      "equipmentWarnings": [],
+      "unmodeledEquipmentEffects": [],
+      "reflectionDamage": {
+        "ndpsCast": 0,
+        "rdpsCast": 0,
+        "mndpsCast": 0,
+        "mrdpsCast": 0
+      },
+      "ui": {
+        "bossWindow": "TuliHeshunWindow",
+        "widgets": "constructed",
+        "rdps": "supported",
+        "requestedWidth": 1450,
+        "requestedHeight": 883,
+        "configuredGeometry": "1450x883+555+258",
+        "screenWidth": 2560,
+        "screenHeight": 1440,
+        "table": {
+          "scrollable": true,
+          "tableWidth": 952,
+          "tableHeight": 773,
+          "scrollRegion": [
+            0.0,
+            0.0,
+            1433.0,
+            773.0
+          ],
+          "viewportWidth": 1433,
+          "viewportHeight": 773,
+          "allRowsVisible": true
+        }
+      },
+      "phasePeriods": [
+        {
+          "phase": 1,
+          "name": "常规技能",
+          "start": 0.0,
+          "end": 70.992
+        },
+        {
+          "phase": 4,
+          "name": "玄溟之火",
+          "start": 70.992,
+          "end": 82.994
+        },
+        {
+          "phase": 2,
+          "name": "死水微澜",
+          "start": 82.994,
+          "end": 103.02
+        },
+        {
+          "phase": 1,
+          "name": "常规技能",
+          "start": 103.02,
+          "end": 108.993
+        },
+        {
+          "phase": 3,
+          "name": "浊浪登天",
+          "start": 108.993,
+          "end": 135.492
+        },
+        {
+          "phase": 1,
+          "name": "常规技能",
+          "start": 135.492,
+          "end": 197.68
+        },
+        {
+          "phase": 4,
+          "name": "玄溟之火",
+          "start": 197.68,
+          "end": 209.654
+        },
+        {
+          "phase": 2,
+          "name": "死水微澜",
+          "start": 209.654,
+          "end": 229.615
+        },
+        {
+          "phase": 1,
+          "name": "常规技能",
+          "start": 229.615,
+          "end": 233.631
+        },
+        {
+          "phase": 3,
+          "name": "浊浪登天",
+          "start": 233.631,
+          "end": 259.76
+        }
+      ],
+      "conservation": {
+        "directDamage": 268934251.0,
+        "redistributedDamage": 268934251.0,
+        "mainTargetDamage": 268934251.0,
+        "redistributedMainTargetDamage": 268934251.0,
+        "excludedNpcDamage": 0.0,
+        "conservationError": 0.0,
+        "mainTargetConservationError": 0.0
+      },
+      "players": 25,
+      "timelineEvents": 19,
+      "calls": 64,
+      "requestBytes": 1175050,
+      "uniqueReplayIDs": 25,
+      "preciseReplayCount": 25,
+      "readback": "passed",
+      "duplicateIDs": "stable"
+    },
+    {
+      "file": "2026-11-13-20-12-53-25人英雄洛阳之战(836)-田承嗣(139382).jcl",
+      "sha256": "d0b532b782f0d586a8d3da4b81dbf2ac418e35a7cef8d348c81cc228efc74b35",
+      "boss": "田承嗣",
+      "map": "836",
+      "gameEdition": "161",
+      "status": "passed",
+      "win": 1,
+      "winReason": "田承嗣专属宝箱",
+      "seconds": 303.5850000000001,
+      "quality": {
+        "status": "supported",
+        "precise": true,
+        "estimated": false,
+        "rankEligible": {
+          "score": true,
+          "rdps": true,
+          "mrdps": true,
+          "hps": true,
+          "rhps": true,
+          "ndps": true,
+          "mndps": true
+        },
+        "warning": "",
+        "estimatedPlayerCount": 0,
+        "missingEquipmentPlayerCount": 0,
+        "staticAttributes": "available"
+      },
+      "unresolvedTemplates": [],
+      "equipmentWarningTypes": [],
+      "equipmentWarningCount": 0,
+      "equipmentWarnings": [],
+      "unmodeledEquipmentEffects": [],
+      "reflectionDamage": {
+        "ndpsCast": 71246,
+        "rdpsCast": 71246,
+        "mndpsCast": 54920,
+        "mrdpsCast": 54920
+      },
+      "ui": {
+        "bossWindow": "TianChengsiWindow",
+        "widgets": "constructed",
+        "rdps": "supported",
+        "requestedWidth": 1450,
+        "requestedHeight": 883,
+        "configuredGeometry": "1450x883+555+258",
+        "screenWidth": 2560,
+        "screenHeight": 1440,
+        "table": {
+          "scrollable": true,
+          "tableWidth": 951,
+          "tableHeight": 773,
+          "scrollRegion": [
+            0.0,
+            0.0,
+            1433.0,
+            773.0
+          ],
+          "viewportWidth": 1433,
+          "viewportHeight": 773,
+          "allRowsVisible": true
+        }
+      },
+      "phasePeriods": [
+        {
+          "phase": 1,
+          "name": "交战",
+          "start": 0.0,
+          "end": 54.947
+        },
+        {
+          "phase": 5,
+          "name": "天陨一剑准备",
+          "start": 54.947,
+          "end": 59.419
+        },
+        {
+          "phase": 3,
+          "name": "天陨巨剑",
+          "start": 59.419,
+          "end": 76.619
+        },
+        {
+          "phase": 4,
+          "name": "巨剑击破后",
+          "start": 76.619,
+          "end": 79.202
+        },
+        {
+          "phase": 5,
+          "name": "天陨一剑准备",
+          "start": 79.202,
+          "end": 83.637
+        },
+        {
+          "phase": 3,
+          "name": "天陨巨剑",
+          "start": 83.637,
+          "end": 98.019
+        },
+        {
+          "phase": 4,
+          "name": "巨剑击破后",
+          "start": 98.019,
+          "end": 100.708
+        },
+        {
+          "phase": 2,
+          "name": "全军准备",
+          "start": 100.708,
+          "end": 303.585
+        }
+      ],
+      "conservation": {
+        "directDamage": 278508326.0,
+        "redistributedDamage": 278508325.9999999,
+        "mainTargetDamage": 248200000.0,
+        "redistributedMainTargetDamage": 248200000.00000006,
+        "excludedNpcDamage": 0.0,
+        "conservationError": -1.1920928955078125e-07,
+        "mainTargetConservationError": 5.960464477539063e-08
+      },
+      "players": 25,
+      "timelineEvents": 64,
+      "calls": 38,
+      "requestBytes": 1373910,
+      "uniqueReplayIDs": 25,
+      "preciseReplayCount": 25,
+      "readback": "passed",
+      "duplicateIDs": "stable"
+    },
+    {
+      "file": "2026-11-13-20-20-55-25人英雄洛阳之战(836)-伊曼·寂夜(139373).jcl",
+      "sha256": "77aa4be863493a792263e606bc35d58b71ee37717ee61064cf208d42cc4c1ba1",
+      "boss": "伊曼双子",
+      "map": "836",
+      "gameEdition": "161",
+      "status": "passed",
+      "win": 1,
+      "winReason": "伊曼专属宝箱",
+      "seconds": 300.3850000000001,
+      "quality": {
+        "status": "supported",
+        "precise": true,
+        "estimated": false,
+        "rankEligible": {
+          "score": true,
+          "rdps": true,
+          "mrdps": true,
+          "hps": true,
+          "rhps": true,
+          "ndps": true,
+          "mndps": true
+        },
+        "warning": "",
+        "estimatedPlayerCount": 0,
+        "missingEquipmentPlayerCount": 0,
+        "staticAttributes": "available"
+      },
+      "unresolvedTemplates": [],
+      "equipmentWarningTypes": [],
+      "equipmentWarningCount": 0,
+      "equipmentWarnings": [],
+      "unmodeledEquipmentEffects": [],
+      "reflectionDamage": {
+        "ndpsCast": 12608,
+        "rdpsCast": 12608,
+        "mndpsCast": 6459,
+        "mrdpsCast": 6459
+      },
+      "ui": {
+        "bossWindow": "YimanTwinsWindow",
+        "widgets": "constructed",
+        "rdps": "supported",
+        "requestedWidth": 1450,
+        "requestedHeight": 883,
+        "configuredGeometry": "1450x883+555+258",
+        "screenWidth": 2560,
+        "screenHeight": 1440,
+        "table": {
+          "scrollable": true,
+          "tableWidth": 1004,
+          "tableHeight": 773,
+          "scrollRegion": [
+            0.0,
+            0.0,
+            1433.0,
+            773.0
+          ],
+          "viewportWidth": 1433,
+          "viewportHeight": 773,
+          "allRowsVisible": true
+        }
+      },
+      "phasePeriods": [
+        {
+          "phase": 1,
+          "name": "双子交战",
+          "start": 0.0,
+          "end": 65.264
+        },
+        {
+          "phase": 3,
+          "name": "链舞火环准备",
+          "start": 65.264,
+          "end": 67.637
+        },
+        {
+          "phase": 2,
+          "name": "链舞火环",
+          "start": 67.637,
+          "end": 93.56
+        },
+        {
+          "phase": 1,
+          "name": "双子交战",
+          "start": 93.56,
+          "end": 153.228
+        },
+        {
+          "phase": 3,
+          "name": "链舞火环准备",
+          "start": 153.228,
+          "end": 155.446
+        },
+        {
+          "phase": 2,
+          "name": "链舞火环",
+          "start": 155.446,
+          "end": 181.54
+        },
+        {
+          "phase": 1,
+          "name": "双子交战",
+          "start": 181.54,
+          "end": 241.216
+        },
+        {
+          "phase": 3,
+          "name": "链舞火环准备",
+          "start": 241.216,
+          "end": 243.51
+        },
+        {
+          "phase": 2,
+          "name": "链舞火环",
+          "start": 243.51,
+          "end": 269.259
+        },
+        {
+          "phase": 4,
+          "name": "逐焰独战",
+          "start": 269.259,
+          "end": 300.385
+        }
+      ],
+      "conservation": {
+        "directDamage": 379721315.0,
+        "redistributedDamage": 379721314.9999998,
+        "mainTargetDamage": 364750248.0,
+        "redistributedMainTargetDamage": 364750247.9999999,
+        "excludedNpcDamage": 0.0,
+        "conservationError": -1.7881393432617188e-07,
+        "mainTargetConservationError": -1.1920928955078125e-07
+      },
+      "players": 25,
+      "timelineEvents": 88,
+      "calls": 16,
+      "requestBytes": 1493631,
+      "uniqueReplayIDs": 25,
+      "preciseReplayCount": 25,
+      "readback": "passed",
+      "duplicateIDs": "stable"
+    },
+    {
+      "file": "2026-11-13-21-37-44-25人英雄洛阳之战(836)-阿史那承庆(139378).jcl",
+      "sha256": "a15c01fb55e9cbc4f12bf68667c453ff217dee81e0c6aed23d9792ef2e42365c",
+      "boss": "阿史那承庆",
+      "map": "836",
+      "gameEdition": "161",
+      "status": "passed",
+      "win": 1,
+      "winReason": "long_pressure_and_boss_completion",
+      "seconds": 345.0380000000001,
+      "quality": {
+        "status": "supported",
+        "precise": true,
+        "estimated": false,
+        "rankEligible": {
+          "score": true,
+          "rdps": true,
+          "mrdps": true,
+          "hps": true,
+          "rhps": true,
+          "ndps": true,
+          "mndps": true
+        },
+        "warning": "",
+        "estimatedPlayerCount": 0,
+        "missingEquipmentPlayerCount": 0,
+        "staticAttributes": "available"
+      },
+      "unresolvedTemplates": [],
+      "equipmentWarningTypes": [],
+      "equipmentWarningCount": 0,
+      "equipmentWarnings": [],
+      "unmodeledEquipmentEffects": [],
+      "reflectionDamage": {
+        "ndpsCast": 33013,
+        "rdpsCast": 33013,
+        "mndpsCast": 30028,
+        "mrdpsCast": 30028
+      },
+      "ui": {
+        "bossWindow": "LuoyangAshinaChengqingWindow",
+        "widgets": "constructed",
+        "rdps": "supported",
+        "requestedWidth": 1450,
+        "requestedHeight": 889,
+        "configuredGeometry": "1450x889+555+255",
+        "screenWidth": 2560,
+        "screenHeight": 1440,
+        "table": {
+          "scrollable": true,
+          "tableWidth": 1019,
+          "tableHeight": 773,
+          "scrollRegion": [
+            0.0,
+            0.0,
+            1433.0,
+            773.0
+          ],
+          "viewportWidth": 1433,
+          "viewportHeight": 773,
+          "allRowsVisible": true
+        }
+      },
+      "phasePeriods": [
+        {
+          "phase": 1,
+          "name": "常规",
+          "start": 0.0,
+          "end": 207.823
+        },
+        {
+          "phase": 2,
+          "name": "聚邪",
+          "start": 207.823,
+          "end": 214.997
+        },
+        {
+          "phase": 1,
+          "name": "常规",
+          "start": 214.997,
+          "end": 345.038
+        }
+      ],
+      "conservation": {
+        "directDamage": 464759785.0,
+        "redistributedDamage": 464759784.9999997,
+        "mainTargetDamage": 428580000.0,
+        "redistributedMainTargetDamage": 428579999.99999976,
+        "excludedNpcDamage": 0.0,
+        "conservationError": -2.980232238769531e-07,
+        "mainTargetConservationError": -2.384185791015625e-07
+      },
+      "players": 25,
+      "timelineEvents": 58,
+      "calls": 35,
+      "requestBytes": 1547553,
+      "uniqueReplayIDs": 25,
+      "preciseReplayCount": 25,
+      "readback": "passed",
+      "duplicateIDs": "stable"
+    },
+    {
+      "file": "2026-11-13-22-49-04-25人英雄洛阳之战(836)-史朝义(139365).jcl",
+      "sha256": "a26153a784bb6a66102cbe6d3b922f95a9c4e2a3e916040190a428b1ddcf470b",
+      "boss": "史朝义",
+      "map": "836",
+      "gameEdition": "161",
+      "status": "passed",
+      "win": 1,
+      "winReason": "boss_completion_and_combat_exit",
+      "seconds": 505.8720000000001,
+      "quality": {
+        "status": "supported",
+        "precise": true,
+        "estimated": false,
+        "rankEligible": {
+          "score": true,
+          "rdps": true,
+          "mrdps": true,
+          "hps": true,
+          "rhps": true,
+          "ndps": true,
+          "mndps": true
+        },
+        "warning": "",
+        "estimatedPlayerCount": 0,
+        "missingEquipmentPlayerCount": 0,
+        "staticAttributes": "available"
+      },
+      "unresolvedTemplates": [],
+      "equipmentWarningTypes": [],
+      "equipmentWarningCount": 0,
+      "equipmentWarnings": [],
+      "unmodeledEquipmentEffects": [],
+      "reflectionDamage": {
+        "ndpsCast": 148150,
+        "rdpsCast": 148150,
+        "mndpsCast": 3042,
+        "mrdpsCast": 3042
+      },
+      "ui": {
+        "bossWindow": "ShiChaoyiWindow",
+        "widgets": "constructed",
+        "rdps": "supported",
+        "requestedWidth": 1450,
+        "requestedHeight": 912,
+        "configuredGeometry": "1450x912+555+244",
+        "screenWidth": 2560,
+        "screenHeight": 1440,
+        "table": {
+          "scrollable": true,
+          "tableWidth": 1074,
+          "tableHeight": 773,
+          "scrollRegion": [
+            0.0,
+            0.0,
+            1433.0,
+            773.0
+          ],
+          "viewportWidth": 1433,
+          "viewportHeight": 773,
+          "allRowsVisible": true
+        }
+      },
+      "phasePeriods": [
+        {
+          "phase": 1,
+          "name": "煞将/剑符",
+          "start": 0.0,
+          "end": 104.697
+        },
+        {
+          "phase": 2,
+          "name": "本体红黑煞",
+          "start": 104.697,
+          "end": 331.341
+        },
+        {
+          "phase": 3,
+          "name": "三阶段",
+          "start": 331.341,
+          "end": 505.872
+        }
+      ],
+      "conservation": {
+        "directDamage": 517044030.0,
+        "redistributedDamage": 517044029.99999994,
+        "mainTargetDamage": 445340072.0,
+        "redistributedMainTargetDamage": 445340072.0000001,
+        "excludedNpcDamage": 0.0,
+        "conservationError": -5.960464477539063e-08,
+        "mainTargetConservationError": 1.1920928955078125e-07
+      },
+      "players": 25,
+      "timelineEvents": 54,
+      "calls": 145,
+      "requestBytes": 1813734,
+      "uniqueReplayIDs": 25,
+      "preciseReplayCount": 25,
+      "readback": "passed",
+      "duplicateIDs": "stable"
+    }
+  ],
+  "initialSuite": {
+    "complete": false,
+    "testsRun": 488,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 721.736
+  },
+  "resolvedFailures": [
+    {
+      "test": "test_worker_and_concurrent_duplicate_start_create_only_one_window",
+      "initialFailure": "Tk mainloop lifecycle operation timed out",
+      "isolatedRerun": {
+        "complete": true,
+        "command": "python -m unittest discover -s tests -p test_window_lifecycle.py -v",
+        "testsRun": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 1.868,
+        "sourceSha256": "8a8c7b1a00342d2398b16bf0bb6b7a7f8dfb5522b4fc9860b837816fd982eb22",
+        "evidence": "Executed separately after frozen all.log suite; original full-suite timeout retained."
+      }
+    }
+  ],
+  "unresolvedFailures": 0,
+  "release": "8.16.8",
+  "sourceBase": "2454c565d47b6e7b451bd697f2fed0dc672c8e2a",
+  "sourceFile": "replayer/boss/luoyangzhizhan/WinEvidence.py",
+  "sourceSha256": "2afd3dc9fd1d68fa179601a21b3b2f18719bd703be2bb371479e5e4d5edc23f9",
+  "realPlayerProductionUploads": false,
+  "network": "disabled for real-log replay; Flask/SQL/files isolated",
+  "sourceAndObservedDamagePreserved": true,
+  "rawAudit": "evidence/heroic_victory20261114/",
+  "boundary": "Native seasonal credit is combined with same-body recent damage and final combat exit, never used alone. Explicit reset cutoffs and resumed combat invalidate fallback evidence. Unreviewed titles or extra post-clear reentry cases are not generalized."
+}

@@ -1,0 +1,376 @@
+{
+  "scope": "Eight native Tian Chengsi inputs. Independent raw-event audit, not full Actor replay.",
+  "identityFieldsStored": false,
+  "cases": [
+    {
+      "file": "2026-11-02-20-05-46-25人普通洛阳之战(835)-田承嗣(139329).jcl",
+      "sha256": "ec184c380f2d487e7f10c82eb8476e6584daeff853c379cc8536b932d61e22ec",
+      "knownFailure": false,
+      "honorEvents": 1,
+      "acceptedCandidates": [
+        {
+          "time": 29926275,
+          "lastDamage": 29925862,
+          "honorTime": 29925903,
+          "honorMessage": "赛季荣誉[25人普通首领击伤·入门]：2/15\\n",
+          "damageAtExit": 243000000,
+          "hpMax": 243000000,
+          "laterDamage": 0
+        }
+      ],
+      "rejectedForResume": [],
+      "nativeDamageProof": [
+        {
+          "template": "139329",
+          "damage": 243000000,
+          "damageKinds": {
+            "player": 242012512,
+            "pet": 982167,
+            "reflection": 5321
+          },
+          "battleStates": [
+            {
+              "line": 1029,
+              "time": 29724487,
+              "fight": "true",
+              "hp": 243000000,
+              "hpMax": 243000000,
+              "priorDamage": 4932,
+              "laterDamage": 242995068
+            },
+            {
+              "line": 185674,
+              "time": 29926275,
+              "fight": "false",
+              "hp": 952941,
+              "hpMax": 243000000,
+              "priorDamage": 243000000,
+              "laterDamage": 0
+            }
+          ],
+          "lastDamageTime": 29925862
+        }
+      ],
+      "mainHealEff": 0
+    },
+    {
+      "file": "2026-11-09-14-09-10-25人普通洛阳之战(835)-田承嗣(139329).jcl",
+      "sha256": "2cdcb38189b648818d036b3d912bfcce19b0ede431d63eec87add442a2d6fb78",
+      "knownFailure": true,
+      "honorEvents": 0,
+      "acceptedCandidates": [],
+      "rejectedForResume": [],
+      "nativeDamageProof": [
+        {
+          "template": "139329",
+          "damage": 469096,
+          "damageKinds": {
+            "player": 467276,
+            "pet": 1651,
+            "reflection": 169
+          },
+          "battleStates": [
+            {
+              "line": 335,
+              "time": 10421776,
+              "fight": "true",
+              "hp": 243000000,
+              "hpMax": 243000000,
+              "priorDamage": 3320,
+              "laterDamage": 465776
+            }
+          ],
+          "lastDamageTime": 10434148
+        }
+      ],
+      "mainHealEff": 0
+    },
+    {
+      "file": "2026-11-09-14-10-51-25人普通洛阳之战(835)-田承嗣(139329).jcl",
+      "sha256": "b984c69fe74bf8eb3f6ff2f2efd23fc198aef893fb1ebf18309e7ce5c56becb8",
+      "knownFailure": false,
+      "honorEvents": 1,
+      "acceptedCandidates": [
+        {
+          "time": 10868754,
+          "lastDamage": 10868310,
+          "honorTime": 10868396,
+          "honorMessage": "赛季荣誉[25人普通首领击伤·入门]：8/15\\n",
+          "damageAtExit": 243000000,
+          "hpMax": 243000000,
+          "laterDamage": 0
+        }
+      ],
+      "rejectedForResume": [],
+      "nativeDamageProof": [
+        {
+          "template": "139329",
+          "damage": 243000000,
+          "damageKinds": {
+            "player": 241238603,
+            "pet": 1756398,
+            "reflection": 4999
+          },
+          "battleStates": [
+            {
+              "line": 797,
+              "time": 10522973,
+              "fight": "true",
+              "hp": 242047058,
+              "hpMax": 243000000,
+              "priorDamage": 19804,
+              "laterDamage": 242980196
+            },
+            {
+              "line": 300251,
+              "time": 10868754,
+              "fight": "false",
+              "hp": 952941,
+              "hpMax": 243000000,
+              "priorDamage": 243000000,
+              "laterDamage": 0
+            }
+          ],
+          "lastDamageTime": 10868310
+        }
+      ],
+      "mainHealEff": 0
+    },
+    {
+      "file": "2026-11-13-20-09-05-25人英雄洛阳之战(836)-田承嗣(139382).jcl",
+      "sha256": "c2f23f53417a5028b0395ecf98efb3c64df7351bbbee9efedfa6b156386a7b4a",
+      "knownFailure": true,
+      "honorEvents": 0,
+      "acceptedCandidates": [],
+      "rejectedForResume": [],
+      "nativeDamageProof": [
+        {
+          "template": "139382",
+          "damage": 77128761,
+          "damageKinds": {
+            "player": 76828638,
+            "pet": 292933,
+            "reflection": 7190
+          },
+          "battleStates": [
+            {
+              "line": 523,
+              "time": 2405969,
+              "fight": "true",
+              "hp": 247226666,
+              "hpMax": 248200000,
+              "priorDamage": 443,
+              "laterDamage": 77128318
+            }
+          ],
+          "lastDamageTime": 2480703
+        }
+      ],
+      "mainHealEff": 0
+    },
+    {
+      "file": "2026-11-13-20-10-48-25人英雄洛阳之战(836)-田承嗣(139382).jcl",
+      "sha256": "9a6bea1e40c4a9512e8ce56c836e68719c9c23ea43685748928391ec99cba01f",
+      "knownFailure": true,
+      "honorEvents": 0,
+      "acceptedCandidates": [],
+      "rejectedForResume": [],
+      "nativeDamageProof": [
+        {
+          "template": "139382",
+          "damage": 78175437,
+          "damageKinds": {
+            "player": 77909016,
+            "pet": 238456,
+            "reflection": 27965
+          },
+          "battleStates": [
+            {
+              "line": 1206,
+              "time": 2508913,
+              "fight": "true",
+              "hp": 247226666,
+              "hpMax": 248200000,
+              "priorDamage": 110877,
+              "laterDamage": 78064560
+            }
+          ],
+          "lastDamageTime": 2604280
+        }
+      ],
+      "mainHealEff": 0
+    },
+    {
+      "file": "2026-11-13-20-12-53-25人英雄洛阳之战(836)-田承嗣(139382).jcl",
+      "sha256": "d0b532b782f0d586a8d3da4b81dbf2ac418e35a7cef8d348c81cc228efc74b35",
+      "knownFailure": false,
+      "honorEvents": 1,
+      "acceptedCandidates": [],
+      "rejectedForResume": [
+        {
+          "time": 2936426,
+          "lastDamage": 2935851,
+          "honorTime": 2935884,
+          "honorMessage": "赛季荣誉[25人英雄首领击伤·入门]：2/15\\n",
+          "damageAtExit": 248200000,
+          "hpMax": 248200000,
+          "laterDamage": 5069
+        }
+      ],
+      "nativeDamageProof": [
+        {
+          "template": "139382",
+          "damage": 248205069,
+          "damageKinds": {
+            "player": 247271465,
+            "pet": 873615,
+            "reflection": 59989
+          },
+          "battleStates": [
+            {
+              "line": 362,
+              "time": 2633492,
+              "fight": "true",
+              "hp": 247226666,
+              "hpMax": 248200000,
+              "priorDamage": 379,
+              "laterDamage": 248204690
+            },
+            {
+              "line": 223967,
+              "time": 2936426,
+              "fight": "false",
+              "hp": 1946666,
+              "hpMax": 248200000,
+              "priorDamage": 248200000,
+              "laterDamage": 5069
+            },
+            {
+              "line": 224760,
+              "time": 2939686,
+              "fight": "true",
+              "hp": 248200000,
+              "hpMax": 248200000,
+              "priorDamage": 248205069,
+              "laterDamage": 0
+            }
+          ],
+          "lastDamageTime": 2939409
+        }
+      ],
+      "mainHealEff": 0
+    },
+    {
+      "file": "2026-11-14-03-06-08-25人普通洛阳之战(835)-田承嗣(139329).jcl",
+      "sha256": "d13a4aed2a546a353449b12238b9261321a2afe46192a07929d90328e99d39e0",
+      "knownFailure": false,
+      "honorEvents": 1,
+      "acceptedCandidates": [],
+      "rejectedForResume": [
+        {
+          "time": 3897267,
+          "lastDamage": 3896703,
+          "honorTime": 3896764,
+          "honorMessage": "赛季荣誉[25人普通首领击伤·入门]：13/15\\n",
+          "damageAtExit": 243000000,
+          "hpMax": 243000000,
+          "laterDamage": 3593
+        }
+      ],
+      "nativeDamageProof": [
+        {
+          "template": "139329",
+          "damage": 243003593,
+          "damageKinds": {
+            "player": 240652957,
+            "pet": 2342061,
+            "reflection": 8575
+          },
+          "battleStates": [
+            {
+              "line": 455,
+              "time": 3487956,
+              "fight": "true",
+              "hp": 243000000,
+              "hpMax": 243000000,
+              "priorDamage": 8931,
+              "laterDamage": 242994662
+            },
+            {
+              "line": 270071,
+              "time": 3897267,
+              "fight": "false",
+              "hp": 243000000,
+              "hpMax": 243000000,
+              "priorDamage": 243000000,
+              "laterDamage": 3593
+            },
+            {
+              "line": 270981,
+              "time": 3900444,
+              "fight": "true",
+              "hp": 243000000,
+              "hpMax": 243000000,
+              "priorDamage": 243003593,
+              "laterDamage": 0
+            }
+          ],
+          "lastDamageTime": 3900150
+        }
+      ],
+      "mainHealEff": 0
+    },
+    {
+      "file": "2026-11-14-19-53-35-25人英雄洛阳之战(836)-田承嗣(139382).jcl",
+      "sha256": "2fda230b75e5ee5d68f5d4e45d788f88fd79c1855f710e59d6bbefa5e8644b0d",
+      "knownFailure": false,
+      "honorEvents": 1,
+      "acceptedCandidates": [
+        {
+          "time": 2024664,
+          "lastDamage": 2024157,
+          "honorTime": 2024205,
+          "honorMessage": "赛季荣誉[25人英雄首领击伤·入门]：7/15\\n",
+          "damageAtExit": 248200000,
+          "hpMax": 248200000,
+          "laterDamage": 0
+        }
+      ],
+      "rejectedForResume": [],
+      "nativeDamageProof": [
+        {
+          "template": "139382",
+          "damage": 248200000,
+          "damageKinds": {
+            "player": 247382011,
+            "pet": 751348,
+            "reflection": 66641
+          },
+          "battleStates": [
+            {
+              "line": 678,
+              "time": 1677919,
+              "fight": "true",
+              "hp": 247226666,
+              "hpMax": 248200000,
+              "priorDamage": 43598,
+              "laterDamage": 248156402
+            },
+            {
+              "line": 261857,
+              "time": 2024664,
+              "fight": "false",
+              "hp": 248200000,
+              "hpMax": 248200000,
+              "priorDamage": 248200000,
+              "laterDamage": 0
+            }
+          ],
+          "lastDamageTime": 2024157
+        }
+      ],
+      "mainHealEff": 0
+    }
+  ],
+  "boundary": "Native HP snapshots are quantized/reset and not used as win thresholds. Two clear files resume combat after credit; this conservative fallback rejects them. Existing chest evidence remains independent."
+}
