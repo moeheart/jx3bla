@@ -1,0 +1,768 @@
+{
+  "release": "8.16.8",
+  "date": "2026-11-14",
+  "network": "disabled for real-log replay",
+  "realPlayerProductionUploads": false,
+  "newHeroicPulls": [
+    {
+      "file": "2026-11-14-19-45-08-25人英雄洛阳之战(836)-突利和顺(139360).jcl",
+      "sha256": "e522ae8f4ff656cf645d3623403ffac27b032fd9ae1e0fb92d3ad622139323d6",
+      "boss": "突利和顺",
+      "win": 1,
+      "attributeStatus": {
+        "status": "supported",
+        "staticAttributes": "available",
+        "gameEdition": 161,
+        "profile": "cangsheng50",
+        "source": "formal client 1.6.0.10009 Lua and item tables",
+        "assumptions": [
+          "JCL未提供体型，裸属性采用当前客户端默认基线"
+        ]
+      },
+      "rdpsStatus": {
+        "status": "supported",
+        "gameEdition": 161,
+        "staticAttributes": "available"
+      },
+      "personalReplays": 25,
+      "preciseReplays": 25,
+      "battleMetricAndSort": "passed",
+      "damageConservation": {
+        "directDamage": 263829574.0,
+        "redistributedDamage": 263829573.99999988,
+        "mainTargetDamage": 263829574.0,
+        "redistributedMainTargetDamage": 263829573.99999988,
+        "excludedNpcDamage": 0.0,
+        "conservationError": -1.1920928955078125e-07,
+        "mainTargetConservationError": -1.1920928955078125e-07
+      },
+      "ui": {
+        "bossWindow": "TuliHeshunWindow",
+        "widgets": "constructed",
+        "rdps": "supported",
+        "requestedWidth": 1450,
+        "requestedHeight": 900,
+        "configuredGeometry": "1450x900+555+250",
+        "screenWidth": 2560,
+        "screenHeight": 1440,
+        "table": {
+          "scrollable": true,
+          "tableWidth": 974,
+          "tableHeight": 773,
+          "scrollRegion": [
+            0.0,
+            0.0,
+            1433.0,
+            773.0
+          ],
+          "viewportWidth": 1433,
+          "viewportHeight": 773,
+          "allRowsVisible": true
+        }
+      },
+      "summary": {
+        "playerCount": 25,
+        "missingEquipmentPlayers": 0,
+        "rawMissingEquipmentPlayers": 0,
+        "estimatedPlayers": 0,
+        "warningPlayers": 0,
+        "uniqueWarnings": 0,
+        "unresolvedTargets": 0,
+        "occupations": {
+          "7p": 2,
+          "25": 1,
+          "2h": 1,
+          "3t": 1,
+          "5d": 2,
+          "6d": 1,
+          "22d": 2,
+          "23": 2,
+          "4m": 1,
+          "2d": 1,
+          "5h": 1,
+          "21t": 1,
+          "3d": 2,
+          "22h": 1,
+          "1t": 1,
+          "10t": 1,
+          "7m": 1,
+          "212d": 1,
+          "6h": 1,
+          "212h": 1
+        }
+      },
+      "seconds": 27.759
+    },
+    {
+      "file": "2026-11-14-19-53-35-25人英雄洛阳之战(836)-田承嗣(139382).jcl",
+      "sha256": "2fda230b75e5ee5d68f5d4e45d788f88fd79c1855f710e59d6bbefa5e8644b0d",
+      "boss": "田承嗣",
+      "win": 0,
+      "attributeStatus": {
+        "status": "supported",
+        "staticAttributes": "available",
+        "gameEdition": 161,
+        "profile": "cangsheng50",
+        "source": "formal client 1.6.0.10009 Lua and item tables",
+        "assumptions": [
+          "JCL未提供体型，裸属性采用当前客户端默认基线"
+        ]
+      },
+      "rdpsStatus": {
+        "status": "supported",
+        "gameEdition": 161,
+        "staticAttributes": "available"
+      },
+      "personalReplays": 25,
+      "preciseReplays": 25,
+      "battleMetricAndSort": "passed",
+      "damageConservation": {
+        "directDamage": 278511646.0,
+        "redistributedDamage": 278511646.0,
+        "mainTargetDamage": 248200000.0,
+        "redistributedMainTargetDamage": 248199999.99999997,
+        "excludedNpcDamage": 0.0,
+        "conservationError": 0.0,
+        "mainTargetConservationError": -2.9802322387695312e-08
+      },
+      "ui": {
+        "bossWindow": "TianChengsiWindow",
+        "widgets": "constructed",
+        "rdps": "supported",
+        "requestedWidth": 1450,
+        "requestedHeight": 883,
+        "configuredGeometry": "1450x883+555+258",
+        "screenWidth": 2560,
+        "screenHeight": 1440,
+        "table": {
+          "scrollable": true,
+          "tableWidth": 973,
+          "tableHeight": 773,
+          "scrollRegion": [
+            0.0,
+            0.0,
+            1433.0,
+            773.0
+          ],
+          "viewportWidth": 1433,
+          "viewportHeight": 773,
+          "allRowsVisible": true
+        }
+      },
+      "summary": {
+        "playerCount": 25,
+        "missingEquipmentPlayers": 0,
+        "rawMissingEquipmentPlayers": 0,
+        "estimatedPlayers": 0,
+        "warningPlayers": 0,
+        "uniqueWarnings": 0,
+        "unresolvedTargets": 0,
+        "occupations": {
+          "2h": 1,
+          "5h": 1,
+          "7p": 2,
+          "22h": 1,
+          "1t": 1,
+          "3t": 1,
+          "10t": 1,
+          "21t": 1,
+          "4m": 1,
+          "6d": 1,
+          "7m": 1,
+          "212d": 1,
+          "3d": 2,
+          "25": 1,
+          "22d": 2,
+          "2d": 1,
+          "212h": 1,
+          "5d": 2,
+          "23": 2,
+          "6h": 1
+        }
+      },
+      "seconds": 27.051
+    },
+    {
+      "file": "2026-11-14-20-02-53-25人英雄洛阳之战(836)-伊曼·寂夜(139373).jcl",
+      "sha256": "a4a1d7c01da0029327daefef3dd5c6183b4875d7d3b7daee675a86d3b6edf0aa",
+      "boss": "伊曼双子",
+      "win": 1,
+      "attributeStatus": {
+        "status": "supported",
+        "staticAttributes": "available",
+        "gameEdition": 161,
+        "profile": "cangsheng50",
+        "source": "formal client 1.6.0.10009 Lua and item tables",
+        "assumptions": [
+          "JCL未提供体型，裸属性采用当前客户端默认基线"
+        ]
+      },
+      "rdpsStatus": {
+        "status": "supported",
+        "gameEdition": 161,
+        "staticAttributes": "available"
+      },
+      "personalReplays": 25,
+      "preciseReplays": 25,
+      "battleMetricAndSort": "passed",
+      "damageConservation": {
+        "directDamage": 377268847.0,
+        "redistributedDamage": 377268846.99999994,
+        "mainTargetDamage": 358509541.0,
+        "redistributedMainTargetDamage": 358509540.99999976,
+        "excludedNpcDamage": 0.0,
+        "conservationError": -5.960464477539063e-08,
+        "mainTargetConservationError": -2.384185791015625e-07
+      },
+      "ui": {
+        "bossWindow": "YimanTwinsWindow",
+        "widgets": "constructed",
+        "rdps": "supported",
+        "requestedWidth": 1450,
+        "requestedHeight": 900,
+        "configuredGeometry": "1450x900+555+250",
+        "screenWidth": 2560,
+        "screenHeight": 1440,
+        "table": {
+          "scrollable": true,
+          "tableWidth": 1026,
+          "tableHeight": 773,
+          "scrollRegion": [
+            0.0,
+            0.0,
+            1433.0,
+            773.0
+          ],
+          "viewportWidth": 1433,
+          "viewportHeight": 773,
+          "allRowsVisible": true
+        }
+      },
+      "summary": {
+        "playerCount": 25,
+        "missingEquipmentPlayers": 0,
+        "rawMissingEquipmentPlayers": 0,
+        "estimatedPlayers": 0,
+        "warningPlayers": 0,
+        "uniqueWarnings": 0,
+        "unresolvedTargets": 0,
+        "occupations": {
+          "212h": 1,
+          "1t": 1,
+          "2h": 1,
+          "7p": 1,
+          "23": 1,
+          "3d": 2,
+          "4m": 1,
+          "7pw": 1,
+          "22h": 1,
+          "212d": 1,
+          "7m": 1,
+          "3t": 1,
+          "21t": 1,
+          "22d": 2,
+          "2d": 1,
+          "5h": 1,
+          "10t": 1,
+          "6h": 1,
+          "5dw": 2,
+          "23w": 1,
+          "25": 1,
+          "6d": 1
+        }
+      },
+      "seconds": 56.88
+    },
+    {
+      "file": "2026-11-14-21-51-56-25人英雄洛阳之战(836)-阿史那承庆(139378).jcl",
+      "sha256": "585cde9c9d8d8d1ba9a5782a251f09a79b6983831814eb691908f85aefc032de",
+      "boss": "阿史那承庆",
+      "win": 0,
+      "attributeStatus": {
+        "status": "supported",
+        "staticAttributes": "available",
+        "gameEdition": 161,
+        "profile": "cangsheng50",
+        "source": "formal client 1.6.0.10009 Lua and item tables",
+        "assumptions": [
+          "JCL未提供体型，裸属性采用当前客户端默认基线"
+        ]
+      },
+      "rdpsStatus": {
+        "status": "supported",
+        "gameEdition": 161,
+        "staticAttributes": "available"
+      },
+      "personalReplays": 25,
+      "preciseReplays": 25,
+      "battleMetricAndSort": "passed",
+      "damageConservation": {
+        "directDamage": 479114517.0,
+        "redistributedDamage": 479114517.00000024,
+        "mainTargetDamage": 428580000.0,
+        "redistributedMainTargetDamage": 428579999.9999999,
+        "excludedNpcDamage": 0.0,
+        "conservationError": 2.384185791015625e-07,
+        "mainTargetConservationError": -1.1920928955078125e-07
+      },
+      "ui": {
+        "bossWindow": "LuoyangAshinaChengqingWindow",
+        "widgets": "constructed",
+        "rdps": "supported",
+        "requestedWidth": 1450,
+        "requestedHeight": 889,
+        "configuredGeometry": "1450x889+555+255",
+        "screenWidth": 2560,
+        "screenHeight": 1440,
+        "table": {
+          "scrollable": true,
+          "tableWidth": 1041,
+          "tableHeight": 773,
+          "scrollRegion": [
+            0.0,
+            0.0,
+            1433.0,
+            773.0
+          ],
+          "viewportWidth": 1433,
+          "viewportHeight": 773,
+          "allRowsVisible": true
+        }
+      },
+      "summary": {
+        "playerCount": 25,
+        "missingEquipmentPlayers": 0,
+        "rawMissingEquipmentPlayers": 0,
+        "estimatedPlayers": 0,
+        "warningPlayers": 0,
+        "uniqueWarnings": 0,
+        "unresolvedTargets": 0,
+        "occupations": {
+          "212d": 1,
+          "5d": 1,
+          "21t": 1,
+          "23": 1,
+          "7m": 1,
+          "5h": 1,
+          "3t": 1,
+          "2h": 1,
+          "22h": 1,
+          "5dw": 1,
+          "22d": 2,
+          "7pw": 2,
+          "4m": 1,
+          "23w": 1,
+          "25": 1,
+          "212h": 1,
+          "6d": 1,
+          "10t": 1,
+          "3d": 2,
+          "1t": 1,
+          "2d": 1,
+          "6h": 1
+        }
+      },
+      "seconds": 64.392
+    },
+    {
+      "file": "2026-11-14-22-54-07-25人英雄洛阳之战(836)-史朝义(139365).jcl",
+      "sha256": "321a4ce21bc00c4d6778a225286333436b7835f8605adfa40ffe779f8d505c36",
+      "boss": "史朝义",
+      "win": 0,
+      "attributeStatus": {
+        "status": "supported",
+        "staticAttributes": "available",
+        "gameEdition": 161,
+        "profile": "cangsheng50",
+        "source": "formal client 1.6.0.10009 Lua and item tables",
+        "assumptions": [
+          "JCL未提供体型，裸属性采用当前客户端默认基线"
+        ]
+      },
+      "rdpsStatus": {
+        "status": "supported",
+        "gameEdition": 161,
+        "staticAttributes": "available"
+      },
+      "personalReplays": 25,
+      "preciseReplays": 25,
+      "battleMetricAndSort": "passed",
+      "damageConservation": {
+        "directDamage": 503427037.0,
+        "redistributedDamage": 503427036.99999976,
+        "mainTargetDamage": 445340166.0,
+        "redistributedMainTargetDamage": 445340165.99999976,
+        "excludedNpcDamage": 0.0,
+        "conservationError": -2.384185791015625e-07,
+        "mainTargetConservationError": -2.384185791015625e-07
+      },
+      "ui": {
+        "bossWindow": "ShiChaoyiWindow",
+        "widgets": "constructed",
+        "rdps": "supported",
+        "requestedWidth": 1450,
+        "requestedHeight": 889,
+        "configuredGeometry": "1450x889+555+255",
+        "screenWidth": 2560,
+        "screenHeight": 1440,
+        "table": {
+          "scrollable": true,
+          "tableWidth": 1096,
+          "tableHeight": 773,
+          "scrollRegion": [
+            0.0,
+            0.0,
+            1433.0,
+            773.0
+          ],
+          "viewportWidth": 1433,
+          "viewportHeight": 773,
+          "allRowsVisible": true
+        }
+      },
+      "summary": {
+        "playerCount": 25,
+        "missingEquipmentPlayers": 0,
+        "rawMissingEquipmentPlayers": 0,
+        "estimatedPlayers": 0,
+        "warningPlayers": 0,
+        "uniqueWarnings": 0,
+        "unresolvedTargets": 0,
+        "occupations": {
+          "7pw": 2,
+          "2h": 1,
+          "21t": 1,
+          "4m": 1,
+          "5h": 1,
+          "5dw": 1,
+          "22d": 2,
+          "23w": 1,
+          "6d": 1,
+          "3d": 2,
+          "3t": 1,
+          "25": 1,
+          "1t": 1,
+          "23": 1,
+          "22h": 1,
+          "212d": 1,
+          "7m": 1,
+          "212h": 1,
+          "10t": 1,
+          "5d": 1,
+          "2d": 1,
+          "6h": 1
+        }
+      },
+      "seconds": 74.549
+    }
+  ],
+  "equipmentAudit": {
+    "logCount": 32,
+    "playerSnapshots": 800,
+    "uniqueEquipmentOccupationPairs": 80,
+    "warnings": [],
+    "errors": [],
+    "unresolvedEffects": [],
+    "missingSlotPairs": 16,
+    "occupations": {
+      "7p": 3,
+      "25": 3,
+      "2h": 3,
+      "3t": 2,
+      "5d": 6,
+      "6d": 3,
+      "22d": 6,
+      "23": 4,
+      "4m": 2,
+      "2d": 3,
+      "5h": 2,
+      "21t": 3,
+      "3d": 8,
+      "22h": 3,
+      "1t": 2,
+      "10t": 4,
+      "7m": 2,
+      "212d": 3,
+      "6h": 1,
+      "212h": 4,
+      "0": 1,
+      "7pw": 5,
+      "5dw": 4,
+      "23w": 3
+    }
+  },
+  "ordinaryRegression": {
+    "complete": true,
+    "network": "disabled",
+    "upload": "disabled",
+    "windows": "not created",
+    "sourceManifest": "build/release-8.16.6/manifest.json entries 1-5",
+    "runtimeStable": true,
+    "seconds": 101.552,
+    "encounters": [
+      {
+        "status": "passed",
+        "file": "2026-11-02-20-01-34-25人普通洛阳之战(835)-突利和顺(139306).jcl",
+        "sha256": "1bc04c976192b1784ec906725b82df00eb21389a0378f3489bbc0f2104bbcaeb",
+        "boss": "突利和顺",
+        "win": 1,
+        "personalReplays": 25,
+        "quality": {
+          "status": "supported",
+          "precise": true,
+          "estimated": false,
+          "rankEligible": {
+            "score": true,
+            "rdps": true,
+            "mrdps": true,
+            "hps": true,
+            "rhps": true,
+            "ndps": true,
+            "mndps": true
+          },
+          "warning": "",
+          "estimatedPlayerCount": 0,
+          "missingEquipmentPlayerCount": 0,
+          "staticAttributes": "available"
+        },
+        "attributeStatus": "supported",
+        "rdpsStatus": "supported",
+        "effectWarningOnly": false,
+        "sortMetric": "rdps",
+        "rdpsWriteback": "passed",
+        "percentileMetricBinding": "passed",
+        "unroundedSort": "passed",
+        "qualityGate": "passed",
+        "damage": {
+          "directDamage": 224263714.0,
+          "redistributedDamage": 224263714.00000006,
+          "mainTargetDamage": 224263714.0,
+          "redistributedMainTargetDamage": 224263714.00000006,
+          "excludedNpcDamage": 0.0,
+          "conservationError": 5.960464477539063e-08,
+          "mainTargetConservationError": 5.960464477539063e-08
+        }
+      },
+      {
+        "status": "passed",
+        "file": "2026-11-02-20-05-46-25人普通洛阳之战(835)-田承嗣(139329).jcl",
+        "sha256": "ec184c380f2d487e7f10c82eb8476e6584daeff853c379cc8536b932d61e22ec",
+        "boss": "田承嗣",
+        "win": 1,
+        "personalReplays": 25,
+        "quality": {
+          "status": "supported",
+          "precise": true,
+          "estimated": false,
+          "rankEligible": {
+            "score": true,
+            "rdps": true,
+            "mrdps": true,
+            "hps": true,
+            "rhps": true,
+            "ndps": true,
+            "mndps": true
+          },
+          "warning": "",
+          "estimatedPlayerCount": 0,
+          "missingEquipmentPlayerCount": 0,
+          "staticAttributes": "available"
+        },
+        "attributeStatus": "supported",
+        "rdpsStatus": "supported",
+        "effectWarningOnly": false,
+        "sortMetric": "rdps",
+        "rdpsWriteback": "passed",
+        "percentileMetricBinding": "passed",
+        "unroundedSort": "passed",
+        "qualityGate": "passed",
+        "damage": {
+          "directDamage": 255052904.0,
+          "redistributedDamage": 255052904.00000012,
+          "mainTargetDamage": 243000000.0,
+          "redistributedMainTargetDamage": 243000000.00000003,
+          "excludedNpcDamage": 0.0,
+          "conservationError": 1.1920928955078125e-07,
+          "mainTargetConservationError": 2.9802322387695312e-08
+        }
+      },
+      {
+        "status": "passed",
+        "file": "2026-11-02-20-12-08-25人普通洛阳之战(835)-伊曼·寂夜(139319).jcl",
+        "sha256": "58dce3209f1412d0104dd0b38c3e95fc253a55e91515f1f6c5889bccd01268b1",
+        "boss": "伊曼双子",
+        "win": 1,
+        "personalReplays": 25,
+        "quality": {
+          "status": "supported",
+          "precise": true,
+          "estimated": false,
+          "rankEligible": {
+            "score": true,
+            "rdps": true,
+            "mrdps": true,
+            "hps": true,
+            "rhps": true,
+            "ndps": true,
+            "mndps": true
+          },
+          "warning": "",
+          "estimatedPlayerCount": 0,
+          "missingEquipmentPlayerCount": 0,
+          "staticAttributes": "available"
+        },
+        "attributeStatus": "supported",
+        "rdpsStatus": "supported",
+        "effectWarningOnly": false,
+        "sortMetric": "rdps",
+        "rdpsWriteback": "passed",
+        "percentileMetricBinding": "passed",
+        "unroundedSort": "passed",
+        "qualityGate": "passed",
+        "damage": {
+          "directDamage": 279209879.0,
+          "redistributedDamage": 279209879.00000006,
+          "mainTargetDamage": 279201504.0,
+          "redistributedMainTargetDamage": 279201504.00000006,
+          "excludedNpcDamage": 0.0,
+          "conservationError": 5.960464477539063e-08,
+          "mainTargetConservationError": 5.960464477539063e-08
+        }
+      },
+      {
+        "status": "passed",
+        "file": "2026-11-02-20-16-04-25人普通洛阳之战(835)-阿史那承庆(139323).jcl",
+        "sha256": "99df0aa823deef3db5560411b235bd43b9706f6ff951a83ede439aba97576a3c",
+        "boss": "阿史那承庆",
+        "win": 1,
+        "personalReplays": 25,
+        "quality": {
+          "status": "supported",
+          "precise": true,
+          "estimated": false,
+          "rankEligible": {
+            "score": true,
+            "rdps": true,
+            "mrdps": true,
+            "hps": true,
+            "rhps": true,
+            "ndps": true,
+            "mndps": true
+          },
+          "warning": "",
+          "estimatedPlayerCount": 0,
+          "missingEquipmentPlayerCount": 0,
+          "staticAttributes": "available"
+        },
+        "attributeStatus": "supported",
+        "rdpsStatus": "supported",
+        "effectWarningOnly": false,
+        "sortMetric": "rdps",
+        "rdpsWriteback": "passed",
+        "percentileMetricBinding": "passed",
+        "unroundedSort": "passed",
+        "qualityGate": "passed",
+        "damage": {
+          "directDamage": 323266966.0,
+          "redistributedDamage": 323266965.9999997,
+          "mainTargetDamage": 318810000.0,
+          "redistributedMainTargetDamage": 318809999.99999976,
+          "excludedNpcDamage": 0.0,
+          "conservationError": -2.980232238769531e-07,
+          "mainTargetConservationError": -2.384185791015625e-07
+        }
+      },
+      {
+        "status": "passed",
+        "file": "2026-11-02-20-23-43-25人普通洛阳之战(835)-史朝义(139312).jcl",
+        "sha256": "2e5d0fc856395e2ee73644ef5568f628474c0583165f0b12737f259e9977e5f2",
+        "boss": "史朝义",
+        "win": 1,
+        "personalReplays": 25,
+        "quality": {
+          "status": "supported",
+          "precise": true,
+          "estimated": false,
+          "rankEligible": {
+            "score": true,
+            "rdps": true,
+            "mrdps": true,
+            "hps": true,
+            "rhps": true,
+            "ndps": true,
+            "mndps": true
+          },
+          "warning": "",
+          "estimatedPlayerCount": 0,
+          "missingEquipmentPlayerCount": 0,
+          "staticAttributes": "available"
+        },
+        "attributeStatus": "supported",
+        "rdpsStatus": "supported",
+        "effectWarningOnly": false,
+        "sortMetric": "rdps",
+        "rdpsWriteback": "passed",
+        "percentileMetricBinding": "passed",
+        "unroundedSort": "passed",
+        "qualityGate": "passed",
+        "damage": {
+          "directDamage": 233170246.0,
+          "redistributedDamage": 233170245.99999997,
+          "mainTargetDamage": 172340344.0,
+          "redistributedMainTargetDamage": 172340343.99999994,
+          "excludedNpcDamage": 0.0,
+          "conservationError": -2.9802322387695312e-08,
+          "mainTargetConservationError": -5.960464477539063e-08
+        }
+      }
+    ]
+  },
+  "tests": {
+    "distinctTestsVerified": 477,
+    "firstFullRun": {
+      "count": 477,
+      "passed": 474,
+      "failed": 2,
+      "skipped": 1,
+      "seconds": 227.324
+    },
+    "followups": [
+      {
+        "case": "Old warning wording updated for effect-only reference semantics",
+        "count": 1,
+        "passed": 1,
+        "seconds": 23.193
+      },
+      {
+        "case": "Tk lifecycle isolated after concurrent GUI work; runtime and watchdog unchanged",
+        "count": 13,
+        "passed": 13,
+        "seconds": 1.884
+      },
+      {
+        "case": "Optional previous heroic logs configured; full receipt module",
+        "count": 4,
+        "passed": 4,
+        "seconds": 183.092
+      }
+    ],
+    "unresolvedFailures": 0
+  },
+  "catalogue": {
+    "exactSignatures": 205,
+    "inactiveMobile": 67,
+    "newIdentities": 12,
+    "reviewedExistingScopeExtensions": 20
+  },
+  "sources": {
+    "archivedTables": "1.6.0.10082",
+    "freshLuaAndRecipes": "1.6.0.10086"
+  },
+  "boundary": "Precision eligibility and victory are separate. Latest selected pulls 2/4/5 have no confirmed victory. Unknown future effects remain reference-only; no official percentile/sample is fabricated. Existing server records require reanalysis and upload.",
+  "localLogs": {
+    "full-tests.log": "a291dfb9dbd4d8685660cdf022e4269eba24887a2284a5b1804e074e92e25cb3",
+    "wujie-existing-log.log": "a68a774b08f69a9d97da935968b8c33feea40abf9e2c67d4a9ecb119ddc51be8",
+    "window-lifecycle-isolated.log": "70688016e52d170f80ef851c8b522cf713d57c6bb92997c72927807bd8cc4d14",
+    "previous-heroic-receipts.log": "cb4cedbf1021e60046b9b6be3152e9ed2ea9668b574d826acd1b02253ed56f8e"
+  }
+}

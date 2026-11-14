@@ -18,3 +18,4 @@ docs/160/evidence/legacy9506/*.json -text whitespace=cr-at-eol
 docs/160/evidence/equipment_effects/** -text -whitespace
 docs/160/evidence/heroic10082/*.tab -text -whitespace
 docs/160/evidence/heroic_equipment10082/** -text -whitespace
+docs/160/evidence/heroic_equipment20261114/** -text -whitespace

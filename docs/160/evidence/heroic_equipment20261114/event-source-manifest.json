@@ -1,0 +1,219 @@
+{
+  "clientVersion": "1.6.0.10086",
+  "archivedTableReference": "1.6.0.10082",
+  "files": [
+    {
+      "origin": "scripts/skill/item/橙武_冰心诀_加BUFF.lua",
+      "rawPath": "event-raw/scripts/skill/item/橙武_冰心诀_加BUFF.lua",
+      "readablePath": "event-readable/scripts/skill/item/橙武_冰心诀_加BUFF.lua",
+      "rawSha256": "83b75c97ab5f9c64b3f481aae85f3d4eb28ea635ffbdbe4cb158cac3b044dc1c",
+      "readableSha256": "7f0ff2d3ecab6642b2f2dc4634dd33120c1265224a056f0b9601aa1703800f3d",
+      "fresh": true,
+      "stage": "event-fresh-10086-20261114-02",
+      "logLine": 12,
+      "readableMethod": "unluac --rawstring and LuaService-compatible string decoding",
+      "disassemblyPath": "event-disassembly/橙武_冰心诀_加BUFF.lua.txt",
+      "disassemblySha256": "eeef23a9b08ec9029bf04df33ba71813392b323b7713fad1bd0df487203d9dbc",
+      "bytecodeParseComplete": true
+    },
+    {
+      "origin": "scripts/skill/item/橙武_明教T_加BUFF.lua",
+      "rawPath": "event-raw/scripts/skill/item/橙武_明教T_加BUFF.lua",
+      "readablePath": "event-readable/scripts/skill/item/橙武_明教T_加BUFF.lua",
+      "rawSha256": "76f31e8791282fd04dc57ad9db91697f6c000b5998a201310532cf93f3499e95",
+      "readableSha256": "1c7f864f6ad05da9dd8783ea6c84f3432b313008ba0772b1b74573363da3e782",
+      "fresh": true,
+      "stage": "event-fresh-10086-20261114-02",
+      "logLine": 13,
+      "readableMethod": "unluac --rawstring and LuaService-compatible string decoding",
+      "disassemblyPath": "event-disassembly/橙武_明教T_加BUFF.lua.txt",
+      "disassemblySha256": "005a29daccfa7d7949f0ad3de7d3e36560f4bef6cfcd6397f80190481dc26d35",
+      "bytecodeParseComplete": true
+    },
+    {
+      "origin": "scripts/skill/npc/NPC_weakness.lua",
+      "rawPath": "event-raw/scripts/skill/npc/NPC_weakness.lua",
+      "readablePath": "event-readable/scripts/skill/npc/NPC_weakness.lua",
+      "rawSha256": "8412a7636f7f7e1abad5aca19edfe4f3d5bde34e55e8a6b67df76dd61cf7617d",
+      "readableSha256": "813694ecda223b0625cb36af06d83eb20fffdfae069a36302407b54361ca92a9",
+      "fresh": true,
+      "stage": "event-fresh-10086-20261114-02",
+      "logLine": 14,
+      "readableMethod": "plaintext"
+    },
+    {
+      "origin": "scripts/skill/江湖/110CW新增特效冰心诀伤害子技能.lua",
+      "rawPath": "event-raw/scripts/skill/江湖/110CW新增特效冰心诀伤害子技能.lua",
+      "readablePath": "event-readable/scripts/skill/江湖/110CW新增特效冰心诀伤害子技能.lua",
+      "rawSha256": "5d86382a37177b7f98fe2acf43ec9fcf631753a45d43c87ace6a15933aa924e9",
+      "readableSha256": "1f9863c782dc8a27f2d3ffb7fdbe5c6bd55e9b629bfe636feaf9a08216bd7416",
+      "fresh": true,
+      "stage": "event-fresh-10086-20261114-02",
+      "logLine": 15,
+      "readableMethod": "plaintext"
+    },
+    {
+      "origin": "scripts/skill/江湖/110级CW新增特效明尊伤害子技能.lua",
+      "rawPath": "event-raw/scripts/skill/江湖/110级CW新增特效明尊伤害子技能.lua",
+      "readablePath": "event-readable/scripts/skill/江湖/110级CW新增特效明尊伤害子技能.lua",
+      "rawSha256": "09929535af1e6c432897fa5e3369b904e7682c4431cc6a37db97e0934ebaf490",
+      "readableSha256": "b65c829d81ef6237f33c6d9d573651da8c84cc8652c1bf9ac34390853a4894d3",
+      "fresh": true,
+      "stage": "event-fresh-10086-20261114-02",
+      "logLine": 16,
+      "readableMethod": "plaintext"
+    },
+    {
+      "origin": "scripts/skill/装备/特殊属性水.lua",
+      "rawPath": "event-raw/scripts/skill/装备/特殊属性水.lua",
+      "readablePath": "event-readable/scripts/skill/装备/特殊属性水.lua",
+      "rawSha256": "bcd2e98334cbc4db4a7a339ec1fb4df68300418aa54e4519910d3db9886d5cb9",
+      "readableSha256": "8be3f03c30d06a77e552623a6faa650afba073b90f26c056dc19e2d2ef9af8d0",
+      "fresh": true,
+      "stage": "event-fresh-10086-20261114-02",
+      "logLine": 18,
+      "readableMethod": "plaintext"
+    },
+    {
+      "origin": "scripts/Include/NewSkill.lh",
+      "rawPath": "../heroic_equipment10082/event-raw/scripts/Include/NewSkill.lh",
+      "readablePath": "../heroic_equipment10082/event-readable/scripts/Include/NewSkill.lh",
+      "rawSha256": "d2be7ae325ee009fbf27e4b20aba90df5d78b9009ee3258b7d9229b8c1d421e9",
+      "readableSha256": "36fe1fea9c11c4e810ae411f9dbd3807b928c1eb1e4488735c726f39ab9a2b7c",
+      "fresh": true,
+      "stage": "event-fresh-10086-04",
+      "logLine": 12,
+      "disassemblyPath": "../heroic_equipment10082/event-disassembly/NewSkill.lh.txt",
+      "disassemblySha256": "17a03135082be37d8b43f48139a684a1e35512975f342d1ba1607311ba6a5d75",
+      "bytecodeRoundTrip": true,
+      "reusedHashVerified": true
+    },
+    {
+      "origin": "scripts/Include/Skill.lh",
+      "rawPath": "../heroic_equipment10082/event-raw/scripts/Include/Skill.lh",
+      "readablePath": "../heroic_equipment10082/event-readable/scripts/Include/Skill.lh",
+      "rawSha256": "c64c70addb123e59d55c5df4b70336342103f574e85d8a37b7bc3636577682ae",
+      "readableSha256": "b99d876f4d157b1aacebefb0f4a7a6ec933939a0bacb395969772085b9ef0321",
+      "fresh": true,
+      "stage": "event-fresh-10086-03",
+      "logLine": 12,
+      "disassemblyPath": "../heroic_equipment10082/event-disassembly/Skill.lh.txt",
+      "disassemblySha256": "748ceafa116a11c51ed187d15cfc080a04f79ed08de25c539e47ce8c11424bc7",
+      "bytecodeRoundTrip": true,
+      "reusedHashVerified": true
+    },
+    {
+      "origin": "scripts/player/include/Kungfu2ArenaType.lh",
+      "rawPath": "../heroic_equipment10082/event-raw/scripts/player/include/Kungfu2ArenaType.lh",
+      "readablePath": "../heroic_equipment10082/event-readable/scripts/player/include/Kungfu2ArenaType.lh",
+      "rawSha256": "f62526e660621fe83bc7ea5f1873cce753ab4a99145517b1b9ca52104b967047",
+      "readableSha256": "ae9ca587592a50f3c786fde17f72357b201269d7bb7119d888050f4a56de3e49",
+      "fresh": true,
+      "stage": "event-fresh-10086-03",
+      "logLine": 13,
+      "disassemblyPath": "../heroic_equipment10082/event-disassembly/Kungfu2ArenaType.lh.txt",
+      "disassemblySha256": "d65b1b5a95155a435d0fbbe8ae0cfca8553257d1bdde416c8e8ac7c8cdb04e5b",
+      "bytecodeRoundTrip": true,
+      "reusedHashVerified": true
+    },
+    {
+      "origin": "scripts/skill/item/OrangeWeaponSceneEntry.lua",
+      "rawPath": "../heroic_equipment10082/event-raw/scripts/skill/item/OrangeWeaponSceneEntry.lua",
+      "readablePath": "../heroic_equipment10082/event-readable/scripts/skill/item/OrangeWeaponSceneEntry.lua",
+      "rawSha256": "d300bbe8bcb9a0d585e3f66596eec4702709bd337e4845e770ba62cde5c7f05d",
+      "readableSha256": "22fd96298f1e02247db82dfabebf3052643ae8715508bd35c005c4be3ffc41f6",
+      "fresh": true,
+      "stage": "event-fresh-10086-03",
+      "logLine": 14,
+      "disassemblyPath": "../heroic_equipment10082/event-disassembly/OrangeWeaponSceneEntry.lua.txt",
+      "disassemblySha256": "2dccb1f38723ce7003dca0f798f483628849af7f7951f3a5078a9aec65b0037f",
+      "bytecodeRoundTrip": true,
+      "reusedHashVerified": true
+    },
+    {
+      "origin": "scripts/skill/装备/130级橙武风.lua",
+      "rawPath": "../heroic_equipment10082/event-raw/scripts/skill/装备/130级橙武风.lua",
+      "readablePath": "../heroic_equipment10082/event-readable/scripts/skill/装备/130级橙武风.lua",
+      "rawSha256": "712941e6b81cab4d635df31e1f19d9273a258ec9e7bf93f0b9effe5b5a21da01",
+      "readableSha256": "8932b10a7b09bf87c679490b565ba97d21326048eba1563aade93d55ff51d03c",
+      "fresh": true,
+      "stage": "event-fresh-10086-02",
+      "logLine": 21,
+      "reusedHashVerified": true
+    },
+    {
+      "origin": "scripts/skill/装备/苍生铸世赛季输出护手固定伤害.lua",
+      "rawPath": "../heroic_equipment10082/event-raw/scripts/skill/装备/苍生铸世赛季输出护手固定伤害.lua",
+      "readablePath": "../heroic_equipment10082/event-readable/scripts/skill/装备/苍生铸世赛季输出护手固定伤害.lua",
+      "rawSha256": "16fad3438d017fa8918d37ec12085362079d9f67ba5c5107118ca5dbaee0c651",
+      "readableSha256": "2675431e169284076a3d6880ac852bf7048bad591a0544c5b6feca6a18e7fa9c",
+      "fresh": true,
+      "stage": "event-fresh-10086-02",
+      "logLine": 32,
+      "disassemblyPath": "../heroic_equipment10082/event-disassembly/苍生铸世赛季输出护手固定伤害.lua.txt",
+      "disassemblySha256": "4c7412bbe97ee7e2031206f10d50310041c4d2a2bb21a0c2b24ecdcf171e2cff",
+      "bytecodeRoundTrip": true,
+      "reusedHashVerified": true
+    },
+    {
+      "origin": "scripts/skill/装备/苍生铸世赛季输出鞋子固定伤害.lua",
+      "rawPath": "../heroic_equipment10082/event-raw/scripts/skill/装备/苍生铸世赛季输出鞋子固定伤害.lua",
+      "readablePath": "../heroic_equipment10082/event-readable/scripts/skill/装备/苍生铸世赛季输出鞋子固定伤害.lua",
+      "rawSha256": "8528f05efba43d99adbb8be481bf36154d1d3206c5c0a831ea5af57f9faff4bb",
+      "readableSha256": "c983a8e23df90cedbec71a6b64a803a785a5f129de329f6fb2e9f15f29204194",
+      "fresh": true,
+      "stage": "event-fresh-10086-02",
+      "logLine": 35,
+      "disassemblyPath": "../heroic_equipment10082/event-disassembly/苍生铸世赛季输出鞋子固定伤害.lua.txt",
+      "disassemblySha256": "d78165b2e0d5e27807f64c1148b5d3077ca2138b2eeac979a11fdfc1e7c0c1a4",
+      "bytecodeRoundTrip": true,
+      "reusedHashVerified": true
+    },
+    {
+      "origin": "scripts/skill/装备/输出附魔伤害波动.lua",
+      "rawPath": "../heroic_equipment10082/event-raw/scripts/skill/装备/输出附魔伤害波动.lua",
+      "readablePath": "../heroic_equipment10082/event-readable/scripts/skill/装备/输出附魔伤害波动.lua",
+      "rawSha256": "29429cc8f21360707ce0a0cb00c2fc22d2d03f7412747bb2d9503f01ae50f418",
+      "readableSha256": "131ee1d130f33701010bc2c4cd2c9e04a0359d8e37b13ea05fd1d2d9ea3ff38b",
+      "fresh": true,
+      "stage": "event-fresh-10086-02",
+      "logLine": 38,
+      "reusedHashVerified": true
+    }
+  ],
+  "tables": [
+    {
+      "origin": "settings/skill/SkillEvent.tab",
+      "currentRawSha256": "ee5553c769918f2215b82be331ca48d1dbf0d09003fa34d548bffb96c631b1dd",
+      "currentReadableSha256": "9051263dec96fa7abe8cef0af8dd5fc88023888fd09bc51d63118f71bd05f59c",
+      "archived10082Sha256": "9051263dec96fa7abe8cef0af8dd5fc88023888fd09bc51d63118f71bd05f59c"
+    },
+    {
+      "origin": "settings/skill/skills.tab",
+      "currentRawSha256": "b2105df327cb557ff8fb2e932113295b538d8ecbe5607acda3d0258a4c0b88c3",
+      "currentReadableSha256": "91cc7457f63101700653f84b315818397453628dd80a3a326014c72e109fe36f",
+      "archived10082Sha256": "91cc7457f63101700653f84b315818397453628dd80a3a326014c72e109fe36f"
+    },
+    {
+      "origin": "settings/skill/Buff.tab",
+      "currentRawSha256": "3fd69a48a491d161b7d7d30c2556dbd9ce8f1f37e69aae96697e34a4dae2bd6d",
+      "currentReadableSha256": "2b1664dbb43888b2e1fd02afc7d68a4c6a5c4fa9faa0b7bda11d1d1374842fd9",
+      "archived10082Sha256": "2b1664dbb43888b2e1fd02afc7d68a4c6a5c4fa9faa0b7bda11d1d1374842fd9"
+    },
+    {
+      "origin": "settings/skill_mobile/skills.tab",
+      "currentRawSha256": "e038eddfb8360c868cdda14d75abae6cdedfd4061fa309dcf2f9cfd8d9f44742",
+      "currentReadableSha256": "84f2f16cd9a9257cc545566cba14163bfb853dc772ffc8a390bd4d05a427cef5",
+      "archived10082Sha256": "84f2f16cd9a9257cc545566cba14163bfb853dc772ffc8a390bd4d05a427cef5"
+    },
+    {
+      "origin": "settings/item/Enchant.tab",
+      "currentRawSha256": "a1b06467b299211c655080eaf49239b6c962be175815c948087709ad494785c0",
+      "currentReadableSha256": "d792716794119d7e56ed2c0e89b829582910de1312b5d5cbfd8f67ea16ec335a",
+      "archived10082Sha256": "d792716794119d7e56ed2c0e89b829582910de1312b5d5cbfd8f67ea16ec335a"
+    }
+  ],
+  "freshStage": "event-fresh-10086-20261114-02",
+  "protectedUnchanged": true,
+  "freshStageManifestSha256": "baa8c4fcf5b3a6eb153d6d8fd92fdcd28d16bce5b682bec2be7a5c7301d3e24d"
+}

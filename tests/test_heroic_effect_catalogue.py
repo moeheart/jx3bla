@@ -52,6 +52,16 @@ class HeroicCatalogueBoundaryTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.build([], [self.model(), self.model()])
 
+    def test_later_platform_audit_preserves_existing_scope(self):
+        result = self.build([self.model(wujieHandling='logged_event', wujieOccupations=['4pw'])],
+                            [self.model(wujieHandling='logged_event', wujieOccupations=['7pw', '5dw'])])
+        self.assertEqual(result['effects'][0]['wujieOccupations'], ['4pw', '5dw', '7pw'])
+
+    def test_later_platform_audit_cannot_change_existing_wujie_semantics(self):
+        with self.assertRaises(ValueError):
+            self.build([self.model(wujieHandling='logged_event', wujieOccupations=['4pw'])],
+                       [self.model(wujieHandling='non_combat', wujieOccupations=['5dw'])])
+
     def test_missing_evidence_is_not_hidden_by_supplemental_path_prefix(self):
         with self.assertRaises(ValueError):
             self.build([], [self.model(evidence='')])

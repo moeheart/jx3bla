@@ -239,8 +239,8 @@
     },
     {
       "name": "equipment_effects.json",
-      "bytes": 53189,
-      "sha256": "bc515a7402552677dfa8bd4ebd922a97687a9beb15bb4ba050faadb5e9024672",
+      "bytes": 58649,
+      "sha256": "a6f0d9f5b03587033c70b09b1c4b46b7c5e6a67b3fb01f95a67accd7dcfad6b2",
       "client_versions": [
         "1.6.0.10009",
         "1.6.0.10072",
@@ -408,5 +408,17 @@
     ],
     "boundary": "Heroic equipment rows compared against formal 10082 tables; newly extracted Lua and recipe paths are 10086 evidence. Wujie requires exact reviewed effect and specialization scope; unlisted effects remain unverified.",
     "supplemental_evidence": "../../../docs/160/evidence/heroic_equipment10082"
+  },
+  "equipment_effect_update_20261114": {
+    "prepared_version": "8.16.8",
+    "publication_record": "../../../docs/160/8.16.8英雄装备补核-20261114.md",
+    "source_versions": [
+      "1.6.0.10009",
+      "1.6.0.10072",
+      "1.6.0.10082",
+      "1.6.0.10086"
+    ],
+    "boundary": "Exact effects observed in the November 14 heroic party; existing ordinary and Wujie semantics are preserved. Other unverified identities and specializations remain restricted.",
+    "supplemental_evidence": "../../../docs/160/evidence/heroic_equipment20261114"
   }
 }

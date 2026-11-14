@@ -18,6 +18,7 @@ from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
 from equip.AttributeDisplay import AttributeDisplay  # 以后需要改为从服务器实现
 from tools.Attribute import CURRENT_GAME_EDITION
 from tools.ReplayRevision import mark_recalculation
+from tools.RecordQuality import is_effect_warning_only
 from equip.EquipmentFallback import (
     make_average_base_attributes, missing_equipment_slots, EQUIPMENT_FALLBACK_WARNING,
 )
@@ -1671,15 +1672,21 @@ class ActorProReplayer(ReplayerBase):
             self.attributeStatus.update(combatTracker.rdpsStatus)
         if self.attributeStatus.get("status") in ("incomplete", "estimated"):
             self.detail["rdpsStatus"] = getattr(combatTracker, "rdpsStatus", self.attributeStatus)
-            byName = {self.bld.info.getName(player): player for player in self.bld.info.player}
-            for row in self.statDict:
-                player = byName[row["name"]]
-                row["ndps"] = int(combatTracker.getRdps(player, "ndps"))
-                row["hps"] = int(combatTracker.getRhps(player, "hps"))
-                row["rdpsStatus"] = self.attributeStatus["status"]
-                row["attributeEstimated"] = bool(self.attributeStatus.get("estimatedPlayers"))
-                if player in self.attributeStatus.get("estimatedPlayers", {}):
-                    row["equipmentEstimated"] = self.attributeStatus["estimatedPlayers"][player]
+        byName = {self.bld.info.getName(player): player for player in self.bld.info.player}
+        for row in self.statDict:
+            player = byName[row["name"]]
+            # Boss mechanics initially count direct damage. Replace that value
+            # with the actual attributed metric even if no personal replay is
+            # generated later; never label the former nDPS value as rDPS.
+            row["rdps"] = int(combatTracker.getRdps(player, "rdps"))
+            row["ndps"] = int(combatTracker.getRdps(player, "ndps"))
+            row["hps"] = int(combatTracker.getRhps(player, "hps"))
+            row["rdpsRank"] = row["scoreRank"] = -1
+            row["rdpsRankNum"] = row["scoreRankNum"] = 0
+            row["rdpsStatus"] = self.attributeStatus.get("status", "supported")
+            row["attributeEstimated"] = bool(self.attributeStatus.get("estimatedPlayers"))
+            if player in self.attributeStatus.get("estimatedPlayers", {}):
+                row["equipmentEstimated"] = self.attributeStatus["estimatedPlayers"][player]
 
         # for key in self.bld.info.player:
         #     print("[Player]", key, self.bld.info.getName(key))
@@ -1779,8 +1786,15 @@ class ActorProReplayer(ReplayerBase):
                         self.statDict[i]["score"] = score
                         self.statDict[i]["rdpsRank"] = rdpsRank["percent"]
                         self.statDict[i]["scoreRank"] = scoreRank["percent"]
-        measuredOnly = self.attributeStatus.get("status") == "incomplete" and not self.attributeStatus.get("estimatedPlayers")
-        self.statDict.sort(key=lambda x: -x.get("ndps", 0) if measuredOnly else -x["rdps"])
+                        self.statDict[i]["rdpsRankNum"] = rdpsRank.get("num", 0)
+                        self.statDict[i]["scoreRankNum"] = scoreRank.get("num", 0)
+        measuredOnly = (self.attributeStatus.get("status") == "incomplete"
+                        and not self.attributeStatus.get("estimatedPlayers")
+                        and not is_effect_warning_only(self.detail))
+        metric = "ndps" if measuredOnly else "rdps"
+        byName = {self.bld.info.getName(player): player for player in self.bld.info.player}
+        # Sort by the unrounded value from the same metric shown in the table.
+        self.statDict.sort(key=lambda row: -self.combatTracker.getRdps(byName[row["name"]], metric))
 
     def replay(self):
         '''

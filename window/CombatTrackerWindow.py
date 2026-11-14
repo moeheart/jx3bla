@@ -13,6 +13,7 @@ from functools import partial
 from replayer.TableConstructor import ToolTip
 from window.Window import Window
 from equip.EquipmentFallback import EQUIPMENT_FALLBACK_WARNING
+from tools.RecordQuality import is_effect_warning_only
 import webbrowser
 
 class CombatTrackerWindow(Window):
@@ -75,7 +76,7 @@ class CombatTrackerWindow(Window):
             self.rightTitle.configure(text="mnDPS")
         self.data = data
         estimated = data.get("status") == "estimated" or bool(data.get("estimatedPlayers"))
-        if estimated:
+        if estimated or is_effect_warning_only(data):
             self.rightTitle.configure(text="%s：仅供参考" % self.rightTitle.cget("text"))
         elif data.get("status") == "incomplete":
             self.rightTitle.configure(text="%s：待校准" % stat)
@@ -239,7 +240,9 @@ class CombatTrackerWindow(Window):
         warnings = []
         if estimated:
             warnings.append(status.get("warning", EQUIPMENT_FALLBACK_WARNING))
-        if status.get("status") == "incomplete" and status.get("reason"):
+        if is_effect_warning_only(status):
+            warnings.append("部分装备特效尚未核验；rDPS 与表现分按现有模型计算，仅供参考。")
+        elif status.get("status") == "incomplete" and status.get("reason"):
             warnings.append(status["reason"])
         self.attributeWarningLabel = tk.Label(window, text="\n".join(warnings), fg="#995500",
                                              justify="left", wraplength=1120)

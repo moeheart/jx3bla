@@ -13,9 +13,9 @@ class EquipmentEffectCatalogueTests(unittest.TestCase):
     def test_runtime_catalogue_is_reproducible_from_reviewed_evidence(self):
         catalogue = build_catalogue()
         self.assertEqual(json.loads(OUTPUT.read_text(encoding='utf-8')), catalogue)
-        self.assertEqual(len(catalogue['effects']), 193)
+        self.assertEqual(len(catalogue['effects']), 205)
         self.assertEqual(sum(row['ordinaryHandling'] == 'inactive_mobile'
-                             for row in catalogue['effects']), 63)
+                             for row in catalogue['effects']), 67)
         for row in catalogue['effects']:
             self.assertTrue((EVIDENCE / row['evidence'].split('#', 1)[0]).is_file(), row)
         for source in catalogue['evidenceSources']:

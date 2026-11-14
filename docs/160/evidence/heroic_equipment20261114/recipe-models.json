@@ -1,0 +1,189 @@
+[
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "5037",
+    "value2": "1",
+    "name": "凌雪阁PVE两件套_寂洪荒10%",
+    "evidence": "recipe-evidence.json#5037/1",
+    "ordinaryHandling": "skill_coefficient"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "5038",
+    "value2": "1",
+    "name": "凌雪阁PVE两件套_金戈回澜10%",
+    "evidence": "recipe-evidence.json#5038/1",
+    "ordinaryHandling": "skill_coefficient"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "1544",
+    "value2": "1",
+    "name": "90级明尊橙武属性1",
+    "evidence": "recipe-evidence.json#1544/1",
+    "ordinaryHandling": "non_combat"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "1545",
+    "value2": "1",
+    "name": "90级明尊橙武属性2",
+    "evidence": "recipe-evidence.json#1545/1",
+    "ordinaryHandling": "non_combat"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "17333",
+    "value2": "1",
+    "name": "【橙武】【傍身招式】威胁值提高（明尊·赤日轮+幽月轮）",
+    "evidence": "recipe-evidence.json#17333/1",
+    "ordinaryHandling": "inactive_mobile"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "17246",
+    "value2": "1",
+    "name": "【套装】【对阵招式】威胁值提高5%",
+    "evidence": "recipe-evidence.json#17246/1",
+    "ordinaryHandling": "inactive_mobile"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "17337",
+    "value2": "1",
+    "name": "【橙武】释放【绝技招式】威胁值提高持续一段时间（明尊·微妙风+朝圣言）",
+    "evidence": "recipe-evidence.json#17337/1",
+    "ordinaryHandling": "inactive_mobile"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "17343",
+    "value2": "1",
+    "name": "【橙武】【对阵招式】后减【绝技招式】调息时间（明尊）",
+    "evidence": "recipe-evidence.json#17343/1",
+    "ordinaryHandling": "inactive_mobile"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "1524",
+    "value2": "1",
+    "name": "90级冰心橙武属性1",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#1524/1",
+    "wujieOccupations": [
+      "5dw"
+    ],
+    "wujieHandling": "inactive_ordinary"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "1525",
+    "value2": "1",
+    "name": "90级冰心橙武属性2",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#1525/1",
+    "wujieOccupations": [
+      "5dw"
+    ],
+    "wujieHandling": "inactive_ordinary"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "17380",
+    "value2": "1",
+    "name": "【橙武】【傍身招式】伤害提高2%（玳弦急曲+江海凝光）",
+    "ordinaryHandling": "inactive_mobile",
+    "evidence": "recipe-evidence.json#17380/1",
+    "wujieOccupations": [
+      "5dw"
+    ],
+    "wujieHandling": "skill_coefficient"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "17239",
+    "value2": "1",
+    "name": "【套装】【对阵招式】伤害提高2%",
+    "ordinaryHandling": "inactive_mobile",
+    "evidence": "recipe-evidence.json#17239/1",
+    "wujieOccupations": [
+      "4pw",
+      "5dw"
+    ],
+    "wujieHandling": "skill_coefficient"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "17384",
+    "value2": "1",
+    "name": "【橙武】释放【绝技招式】伤害提高持续一段时间（合璧知意+霜天剑泠）",
+    "ordinaryHandling": "inactive_mobile",
+    "evidence": "recipe-evidence.json#17384/1",
+    "wujieOccupations": [
+      "5dw"
+    ],
+    "wujieHandling": "logged_event"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "17383",
+    "value2": "1",
+    "name": "【橙武】【对阵招式】后减【绝技招式】调息时间（合璧知意+霜天剑泠）",
+    "ordinaryHandling": "inactive_mobile",
+    "evidence": "recipe-evidence.json#17383/1",
+    "wujieOccupations": [
+      "5dw"
+    ],
+    "wujieHandling": "logged_event"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "1547",
+    "value2": "1",
+    "name": "七秀PVE套装属性剑破",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#1547/1",
+    "wujieOccupations": [
+      "5dw"
+    ],
+    "wujieHandling": "inactive_ordinary"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "17250",
+    "value2": "1",
+    "name": "【套装】【对阵招式】伤害提高5%",
+    "ordinaryHandling": "inactive_mobile",
+    "evidence": "recipe-evidence.json#17250/1",
+    "wujieOccupations": [
+      "23w",
+      "4pw",
+      "5dw"
+    ],
+    "wujieHandling": "skill_coefficient"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "4290",
+    "value2": "1",
+    "name": "PVE6件套_霸刀_醉斩白蛇",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#4290/1",
+    "wujieOccupations": [
+      "23w"
+    ],
+    "wujieHandling": "inactive_ordinary"
+  },
+  {
+    "type": "atSetEquipmentRecipe",
+    "value1": "4291",
+    "value2": "1",
+    "name": "PVE6件套_霸刀_破釜沉舟",
+    "ordinaryHandling": "skill_coefficient",
+    "evidence": "recipe-evidence.json#4291/1",
+    "wujieOccupations": [
+      "23w"
+    ],
+    "wujieHandling": "inactive_ordinary"
+  }
+]

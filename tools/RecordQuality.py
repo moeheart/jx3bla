@@ -18,13 +18,14 @@ RANK_METRICS = ("score", "rdps", "mrdps", "hps", "rhps", "ndps", "mndps")
 _CACHE_LIMIT = 8192
 _quality_cache = OrderedDict()
 _cache_lock = RLock()
+_DATA_GAPS = ('equipmentErrors', 'unparsedAttributes', 'unresolvedTargets')
 
 
 def _quality_sources(data):
     if not isinstance(data, dict):
         return []
     sources = []
-    if any(key in data for key in ("status", "staticAttributes", "estimatedPlayers", "missingEquipmentPlayers", "unmodeledEffects", "precise", "rankEligible")):
+    if any(key in data for key in ("status", "staticAttributes", "estimated", "estimatedPlayers", "missingEquipmentPlayers", "unmodeledEffects", "precise", "rankEligible", "estimatedPlayerCount", "missingEquipmentPlayerCount", "targetProfileUnavailable", "referenceUnavailable", "warnings") + _DATA_GAPS):
         sources.append(data)
     for key in ("statistics", "overall", "act", "attributeStatus", "rdpsStatus", "quality"):
         nested = data.get(key)
@@ -47,7 +48,18 @@ def get_record_quality(data):
     estimated_count = 0
     missing_count = 0
     unresolved_missing = False
+    gaps = {field: [] for field in _DATA_GAPS}
+    target_unavailable = False
+    reference_unavailable = False
     for source in sources:
+        reference_unavailable = reference_unavailable or bool(source.get('referenceUnavailable'))
+        target_unavailable = target_unavailable or bool(source.get('targetProfileUnavailable'))
+        for field in _DATA_GAPS:
+            values = source.get(field)
+            if values:
+                for value in (values if isinstance(values, (list, tuple)) else [values]):
+                    if value not in gaps[field]:
+                        gaps[field].append(value)
         state = source.get("status")
         if isinstance(state, str):
             states.add(state)
@@ -76,9 +88,11 @@ def get_record_quality(data):
         eligibility = source.get("rankEligible", {})
         if isinstance(eligibility, dict):
             explicit_restriction = explicit_restriction or any(eligibility.get(metric) is False for metric in SENSITIVE_METRICS)
-    estimated = estimated or bool(estimated_players)
+    estimated = estimated or bool(estimated_players) or estimated_count > 0
     unavailable = "unavailable" in states
-    incomplete = bool(states.intersection(("incomplete", "unsupported", "invalid"))) or unresolved_missing or any(value in ("missing", "partial") for value in static)
+    reference_unavailable = reference_unavailable or bool(states.intersection(('unsupported', 'invalid'))) or any(
+        warning not in effects for source in sources for warning in source.get('warnings', []))
+    incomplete = bool(states.intersection(("incomplete", "unsupported", "invalid"))) or unresolved_missing or ((missing_count > 0 or bool(missing_players)) and not estimated) or any(value in ("missing", "partial") for value in static) or target_unavailable or any(gaps.values()) or reference_unavailable
     restricted = unavailable or incomplete or estimated or bool(effects) or explicit_restriction
     status = "unavailable" if unavailable else "incomplete" if incomplete else "estimated" if estimated else "incomplete" if restricted else "supported" if sources else "legacy"
     if restricted and not warning:
@@ -93,10 +107,45 @@ def get_record_quality(data):
         result["staticAttributes"] = next((value for value in ("missing", "partial", "estimated", "available") if value in static), static[0])
     if effects:
         result["unmodeledEffects"] = effects
+    for field, values in gaps.items():
+        if values:
+            result[field] = values
+    if target_unavailable:
+        result['targetProfileUnavailable'] = True
+    if reference_unavailable:
+        result['referenceUnavailable'] = True
     revision = get_analysis_revision(data)
     if revision is not None:
         result['analysisRevision'] = revision
     return result
+
+
+def is_effect_warning_only(data):
+    """Allow reference display when only equipment-effect modeling is pending.
+
+    This never grants precise percentile/sample eligibility. Require positive
+    evidence of complete static attributes, and preserve all data-gap gates.
+    """
+    sources = _quality_sources(data)
+    quality = get_record_quality(data)
+    if (quality.get('staticAttributes') != 'available' or not quality.get('unmodeledEffects')
+            or quality['estimated'] or quality['estimatedPlayerCount']
+            or quality['missingEquipmentPlayerCount'] or quality.get('referenceUnavailable')):
+        return False
+    for source in sources:
+        if source.get('status') not in (None, 'supported', 'incomplete', 'legacy'):
+            return False
+        if source.get('staticAttributes') not in (None, 'available'):
+            return False
+        if source.get('targetProfileUnavailable') or any(source.get(field) for field in _DATA_GAPS):
+            return False
+        if source.get('estimatedPlayers') or source.get('missingEquipmentPlayers'):
+            return False
+        # AttributeDisplay retains the original warning list as well as the
+        # classified effect list. Never reinterpret another parse warning.
+        if any(warning not in quality['unmodeledEffects'] for warning in source.get('warnings', [])):
+            return False
+    return True
 
 
 def is_metric_rank_eligible(data, metric):

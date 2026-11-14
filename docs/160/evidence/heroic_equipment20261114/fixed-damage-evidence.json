@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "clientVersion": "1.6.0.10086",
+  "exactLoggedChildren": [
+    "1,37561,1",
+    "1,37562,1"
+  ],
+  "addedWujieOccupations": [
+    "5dw",
+    "7pw",
+    "23w"
+  ],
+  "previouslyAuditedWujie": [
+    "4pw"
+  ],
+  "sources": [
+    {
+      "origin": "scripts/Include/Skill.lh",
+      "rawPath": "../heroic_equipment10082/event-raw/scripts/Include/Skill.lh",
+      "readablePath": "../heroic_equipment10082/event-readable/scripts/Include/Skill.lh",
+      "rawSha256": "c64c70addb123e59d55c5df4b70336342103f574e85d8a37b7bc3636577682ae",
+      "readableSha256": "b99d876f4d157b1aacebefb0f4a7a6ec933939a0bacb395969772085b9ef0321",
+      "fresh": true,
+      "stage": "event-fresh-10086-03",
+      "logLine": 12,
+      "disassemblyPath": "../heroic_equipment10082/event-disassembly/Skill.lh.txt",
+      "disassemblySha256": "748ceafa116a11c51ed187d15cfc080a04f79ed08de25c539e47ce8c11424bc7",
+      "bytecodeRoundTrip": true
+    },
+    {
+      "origin": "scripts/player/include/Kungfu2ArenaType.lh",
+      "rawPath": "../heroic_equipment10082/event-raw/scripts/player/include/Kungfu2ArenaType.lh",
+      "readablePath": "../heroic_equipment10082/event-readable/scripts/player/include/Kungfu2ArenaType.lh",
+      "rawSha256": "f62526e660621fe83bc7ea5f1873cce753ab4a99145517b1b9ca52104b967047",
+      "readableSha256": "ae9ca587592a50f3c786fde17f72357b201269d7bb7119d888050f4a56de3e49",
+      "fresh": true,
+      "stage": "event-fresh-10086-03",
+      "logLine": 13,
+      "disassemblyPath": "../heroic_equipment10082/event-disassembly/Kungfu2ArenaType.lh.txt",
+      "disassemblySha256": "d65b1b5a95155a435d0fbbe8ae0cfca8553257d1bdde416c8e8ac7c8cdb04e5b",
+      "bytecodeRoundTrip": true
+    },
+    {
+      "origin": "scripts/skill/装备/苍生铸世赛季输出护手固定伤害.lua",
+      "rawPath": "../heroic_equipment10082/event-raw/scripts/skill/装备/苍生铸世赛季输出护手固定伤害.lua",
+      "readablePath": "../heroic_equipment10082/event-readable/scripts/skill/装备/苍生铸世赛季输出护手固定伤害.lua",
+      "rawSha256": "16fad3438d017fa8918d37ec12085362079d9f67ba5c5107118ca5dbaee0c651",
+      "readableSha256": "2675431e169284076a3d6880ac852bf7048bad591a0544c5b6feca6a18e7fa9c",
+      "fresh": true,
+      "stage": "event-fresh-10086-02",
+      "logLine": 32,
+      "disassemblyPath": "../heroic_equipment10082/event-disassembly/苍生铸世赛季输出护手固定伤害.lua.txt",
+      "disassemblySha256": "4c7412bbe97ee7e2031206f10d50310041c4d2a2bb21a0c2b24ecdcf171e2cff",
+      "bytecodeRoundTrip": true
+    },
+    {
+      "origin": "scripts/skill/装备/苍生铸世赛季输出鞋子固定伤害.lua",
+      "rawPath": "../heroic_equipment10082/event-raw/scripts/skill/装备/苍生铸世赛季输出鞋子固定伤害.lua",
+      "readablePath": "../heroic_equipment10082/event-readable/scripts/skill/装备/苍生铸世赛季输出鞋子固定伤害.lua",
+      "rawSha256": "8528f05efba43d99adbb8be481bf36154d1d3206c5c0a831ea5af57f9faff4bb",
+      "readableSha256": "c983a8e23df90cedbec71a6b64a803a785a5f129de329f6fb2e9f15f29204194",
+      "fresh": true,
+      "stage": "event-fresh-10086-02",
+      "logLine": 35,
+      "disassemblyPath": "../heroic_equipment10082/event-disassembly/苍生铸世赛季输出鞋子固定伤害.lua.txt",
+      "disassemblySha256": "d78165b2e0d5e27807f64c1148b5d3077ca2138b2eeac979a11fdfc1e7c0c1a4",
+      "bytecodeRoundTrip": true
+    }
+  ],
+  "nativeHelperProof": "../equipment_effects/fixed-damage-evidence.json",
+  "helperIdentity": "10086 Skill.lh raw SHA256 equals the previously disassembled 10072 helper; no mobile-specific branch in the shared call chain.",
+  "model": "NPC fixed damage uses only GamePlayDamageFinalCof and ActivityDamageFinalCof. Ordinary attack, critical, overcome, strain and vulnerability do not multiply it. Attribution preserves observed effective damage.",
+  "observationEvidence": "script-observations.json",
+  "boundary": "Both exact children supported by the common native helper for the three reviewed profiles. 7pw child 37561 was not observed in this batch; no observed proc is claimed. Neighbor schemes, levels, children and other Wujie profiles are not generalized."
+}

@@ -303,7 +303,10 @@ class WujieWholeLogTests(unittest.TestCase):
             self.assertEqual(actor.occDetailList['2836'], '8')
             self.assertEqual(actor.combatTracker.rdpsStatus['status'], 'incomplete')
             self.assertEqual(actor.combatTracker.rdpsStatus['reason'],
-                             '部分玩家装备或当前地图首领属性缺少验证数据。')
+                             '部分装备特效尚未核验，rDPS按已知模型计算，数值与本场排序仅供参考。')
+            from tools.RecordQuality import get_record_quality, is_effect_warning_only
+            self.assertTrue(is_effect_warning_only(actor.combatTracker.rdpsStatus))
+            self.assertFalse(get_record_quality(actor.combatTracker.rdpsStatus)['precise'])
         else:
             self.assertEqual(actor.combatTracker.rdpsStatus['status'], 'supported')
         raw_damage = 0

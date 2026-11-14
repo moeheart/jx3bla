@@ -1,0 +1,871 @@
+{
+  "schemaVersion": 1,
+  "logs": [
+    {
+      "logSha256": "a4a1d7c01da0029327daefef3dd5c6183b4875d7d3b7daee675a86d3b6edf0aa",
+      "rawLogObservation": true,
+      "matchedRecipeEvents": [
+        {
+          "recipe": "5037/1",
+          "occupation": "25",
+          "skillEvents": {
+            "22330/32": {
+              "events": 119,
+              "damageEff": 0
+            },
+            "22604/32": {
+              "events": 119,
+              "damageEff": 5246965
+            },
+            "22605/32": {
+              "events": 119,
+              "damageEff": 2845301
+            },
+            "22327/32": {
+              "events": 119,
+              "damageEff": 0
+            }
+          }
+        },
+        {
+          "recipe": "5038/1",
+          "occupation": "25",
+          "skillEvents": {
+            "22857/1": {
+              "events": 5,
+              "damageEff": 0
+            },
+            "22621/22": {
+              "events": 5,
+              "damageEff": 126499
+            },
+            "22613/22": {
+              "events": 5,
+              "damageEff": 0
+            }
+          }
+        },
+        {
+          "recipe": "1544/1",
+          "occupation": "10t",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "1545/1",
+          "occupation": "10t",
+          "skillEvents": {
+            "4028/33": {
+              "events": 84,
+              "damageEff": 184140
+            },
+            "40062/1": {
+              "events": 80,
+              "damageEff": 0
+            },
+            "3962/33": {
+              "events": 80,
+              "damageEff": 0
+            },
+            "4029/33": {
+              "events": 74,
+              "damageEff": 157761
+            },
+            "4030/33": {
+              "events": 36,
+              "damageEff": 101330
+            }
+          }
+        },
+        {
+          "recipe": "17333/1",
+          "occupation": "10t",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "17246/1",
+          "occupation": "10t",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "17337/1",
+          "occupation": "10t",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "17343/1",
+          "occupation": "10t",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "1524/1",
+          "occupation": "5dw",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "1525/1",
+          "occupation": "5dw",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "17380/1",
+          "occupation": "5dw",
+          "skillEvents": {
+            "100376/1": {
+              "events": 202,
+              "damageEff": 0
+            },
+            "100564/1": {
+              "events": 831,
+              "damageEff": 10806422
+            }
+          }
+        },
+        {
+          "recipe": "17239/1",
+          "occupation": "5dw",
+          "skillEvents": {
+            "101612/1": {
+              "events": 83,
+              "damageEff": 3005169
+            },
+            "100444/1": {
+              "events": 124,
+              "damageEff": 3824256
+            },
+            "101609/1": {
+              "events": 83,
+              "damageEff": 2797800
+            }
+          }
+        },
+        {
+          "recipe": "17384/1",
+          "occupation": "5dw",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "17383/1",
+          "occupation": "5dw",
+          "skillEvents": {
+            "100438/1": {
+              "events": 23,
+              "damageEff": 0
+            },
+            "100380/1": {
+              "events": 55,
+              "damageEff": 0
+            },
+            "100443/1": {
+              "events": 87,
+              "damageEff": 0
+            },
+            "100379/1": {
+              "events": 55,
+              "damageEff": 0
+            }
+          }
+        },
+        {
+          "recipe": "1547/1",
+          "occupation": "5dw",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "17250/1",
+          "occupation": "5dw",
+          "skillEvents": {
+            "101612/1": {
+              "events": 83,
+              "damageEff": 3005169
+            },
+            "100444/1": {
+              "events": 124,
+              "damageEff": 3824256
+            },
+            "101609/1": {
+              "events": 83,
+              "damageEff": 2797800
+            }
+          }
+        },
+        {
+          "recipe": "17250/1",
+          "occupation": "23w",
+          "skillEvents": {
+            "101200/1": {
+              "events": 21,
+              "damageEff": 635279
+            },
+            "101198/1": {
+              "events": 300,
+              "damageEff": 6183747
+            },
+            "101080/1": {
+              "events": 187,
+              "damageEff": 4917109
+            },
+            "101003/1": {
+              "events": 31,
+              "damageEff": 2333919
+            },
+            "102691/1": {
+              "events": 10,
+              "damageEff": 0
+            }
+          }
+        },
+        {
+          "recipe": "4290/1",
+          "occupation": "23w",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "4291/1",
+          "occupation": "23w",
+          "skillEvents": {}
+        }
+      ],
+      "procSkill102255": {
+        "23w": {
+          "events": 0,
+          "damageEff": 0
+        },
+        "5dw": {
+          "events": 12,
+          "damageEff": 0
+        },
+        "10t": {
+          "events": 0,
+          "damageEff": 0
+        },
+        "25": {
+          "events": 0,
+          "damageEff": 0
+        }
+      },
+      "buff70161Level15": [
+        {
+          "occupation": "5dw",
+          "selfOwned": true,
+          "stack": 1,
+          "isValid": "true",
+          "events": 84
+        },
+        {
+          "occupation": "23w",
+          "selfOwned": true,
+          "stack": 1,
+          "isValid": "true",
+          "events": 42
+        },
+        {
+          "occupation": "5dw",
+          "selfOwned": true,
+          "stack": 0,
+          "isValid": "true",
+          "events": 80
+        },
+        {
+          "occupation": "23w",
+          "selfOwned": true,
+          "stack": 0,
+          "isValid": "true",
+          "events": 42
+        }
+      ]
+    },
+    {
+      "logSha256": "585cde9c9d8d8d1ba9a5782a251f09a79b6983831814eb691908f85aefc032de",
+      "rawLogObservation": true,
+      "matchedRecipeEvents": [
+        {
+          "recipe": "5037/1",
+          "occupation": "25",
+          "skillEvents": {
+            "22330/32": {
+              "events": 169,
+              "damageEff": 0
+            },
+            "22604/32": {
+              "events": 169,
+              "damageEff": 8002532
+            },
+            "22605/32": {
+              "events": 169,
+              "damageEff": 4181743
+            },
+            "22327/32": {
+              "events": 171,
+              "damageEff": 0
+            },
+            "22328/32": {
+              "events": 2,
+              "damageEff": 30257
+            },
+            "22329/32": {
+              "events": 2,
+              "damageEff": 29786
+            }
+          }
+        },
+        {
+          "recipe": "5038/1",
+          "occupation": "25",
+          "skillEvents": {
+            "22857/1": {
+              "events": 8,
+              "damageEff": 0
+            },
+            "22621/22": {
+              "events": 8,
+              "damageEff": 245409
+            },
+            "22613/22": {
+              "events": 8,
+              "damageEff": 0
+            }
+          }
+        },
+        {
+          "recipe": "1544/1",
+          "occupation": "10t",
+          "skillEvents": {
+            "4024/24": {
+              "events": 2,
+              "damageEff": 8023
+            },
+            "40063/1": {
+              "events": 2,
+              "damageEff": 0
+            },
+            "3959/24": {
+              "events": 2,
+              "damageEff": 0
+            },
+            "4025/24": {
+              "events": 2,
+              "damageEff": 8023
+            }
+          }
+        },
+        {
+          "recipe": "1545/1",
+          "occupation": "10t",
+          "skillEvents": {
+            "4028/33": {
+              "events": 108,
+              "damageEff": 274333
+            },
+            "40062/1": {
+              "events": 122,
+              "damageEff": 0
+            },
+            "3962/33": {
+              "events": 122,
+              "damageEff": 0
+            },
+            "4029/33": {
+              "events": 87,
+              "damageEff": 205465
+            },
+            "4030/33": {
+              "events": 62,
+              "damageEff": 173426
+            }
+          }
+        },
+        {
+          "recipe": "17333/1",
+          "occupation": "10t",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "17246/1",
+          "occupation": "10t",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "17337/1",
+          "occupation": "10t",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "17343/1",
+          "occupation": "10t",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "1524/1",
+          "occupation": "5dw",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "1525/1",
+          "occupation": "5dw",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "17380/1",
+          "occupation": "5dw",
+          "skillEvents": {
+            "100376/1": {
+              "events": 113,
+              "damageEff": 0
+            },
+            "100564/1": {
+              "events": 644,
+              "damageEff": 7109715
+            }
+          }
+        },
+        {
+          "recipe": "17239/1",
+          "occupation": "5dw",
+          "skillEvents": {
+            "101612/1": {
+              "events": 70,
+              "damageEff": 2377798
+            },
+            "100444/1": {
+              "events": 96,
+              "damageEff": 2439261
+            },
+            "101609/1": {
+              "events": 54,
+              "damageEff": 1419492
+            }
+          }
+        },
+        {
+          "recipe": "17384/1",
+          "occupation": "5dw",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "17383/1",
+          "occupation": "5dw",
+          "skillEvents": {
+            "100438/1": {
+              "events": 14,
+              "damageEff": 0
+            },
+            "100380/1": {
+              "events": 35,
+              "damageEff": 0
+            },
+            "100443/1": {
+              "events": 49,
+              "damageEff": 0
+            },
+            "100379/1": {
+              "events": 27,
+              "damageEff": 0
+            }
+          }
+        },
+        {
+          "recipe": "1547/1",
+          "occupation": "5dw",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "17250/1",
+          "occupation": "5dw",
+          "skillEvents": {
+            "101612/1": {
+              "events": 70,
+              "damageEff": 2377798
+            },
+            "100444/1": {
+              "events": 96,
+              "damageEff": 2439261
+            },
+            "101609/1": {
+              "events": 54,
+              "damageEff": 1419492
+            }
+          }
+        },
+        {
+          "recipe": "17250/1",
+          "occupation": "23w",
+          "skillEvents": {
+            "102691/1": {
+              "events": 16,
+              "damageEff": 0
+            },
+            "101200/1": {
+              "events": 18,
+              "damageEff": 727828
+            },
+            "101198/1": {
+              "events": 290,
+              "damageEff": 6454137
+            },
+            "101080/1": {
+              "events": 207,
+              "damageEff": 6770979
+            },
+            "101003/1": {
+              "events": 33,
+              "damageEff": 2716661
+            }
+          }
+        },
+        {
+          "recipe": "4290/1",
+          "occupation": "23w",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "4291/1",
+          "occupation": "23w",
+          "skillEvents": {}
+        }
+      ],
+      "procSkill102255": {
+        "23w": {
+          "events": 0,
+          "damageEff": 0
+        },
+        "5dw": {
+          "events": 15,
+          "damageEff": 0
+        },
+        "10t": {
+          "events": 0,
+          "damageEff": 0
+        },
+        "25": {
+          "events": 0,
+          "damageEff": 0
+        }
+      },
+      "buff70161Level15": [
+        {
+          "occupation": "5dw",
+          "selfOwned": true,
+          "stack": 1,
+          "isValid": "true",
+          "events": 61
+        },
+        {
+          "occupation": "23w",
+          "selfOwned": true,
+          "stack": 1,
+          "isValid": "true",
+          "events": 56
+        },
+        {
+          "occupation": "23w",
+          "selfOwned": true,
+          "stack": 0,
+          "isValid": "true",
+          "events": 56
+        },
+        {
+          "occupation": "5dw",
+          "selfOwned": true,
+          "stack": 0,
+          "isValid": "true",
+          "events": 59
+        }
+      ]
+    },
+    {
+      "logSha256": "321a4ce21bc00c4d6778a225286333436b7835f8605adfa40ffe779f8d505c36",
+      "rawLogObservation": true,
+      "matchedRecipeEvents": [
+        {
+          "recipe": "5037/1",
+          "occupation": "25",
+          "skillEvents": {
+            "22328/32": {
+              "events": 12,
+              "damageEff": 384617
+            },
+            "22329/32": {
+              "events": 11,
+              "damageEff": 219475
+            },
+            "22327/32": {
+              "events": 184,
+              "damageEff": 0
+            },
+            "22330/32": {
+              "events": 171,
+              "damageEff": 0
+            },
+            "22604/32": {
+              "events": 172,
+              "damageEff": 7813048
+            },
+            "22605/32": {
+              "events": 171,
+              "damageEff": 4145094
+            }
+          }
+        },
+        {
+          "recipe": "5038/1",
+          "occupation": "25",
+          "skillEvents": {
+            "22857/1": {
+              "events": 5,
+              "damageEff": 0
+            },
+            "22621/22": {
+              "events": 5,
+              "damageEff": 164828
+            },
+            "22613/22": {
+              "events": 5,
+              "damageEff": 0
+            }
+          }
+        },
+        {
+          "recipe": "1544/1",
+          "occupation": "10t",
+          "skillEvents": {
+            "4024/24": {
+              "events": 2,
+              "damageEff": 2704
+            },
+            "40063/1": {
+              "events": 1,
+              "damageEff": 0
+            },
+            "3959/24": {
+              "events": 1,
+              "damageEff": 0
+            }
+          }
+        },
+        {
+          "recipe": "1545/1",
+          "occupation": "10t",
+          "skillEvents": {
+            "4028/33": {
+              "events": 128,
+              "damageEff": 701899
+            },
+            "40062/1": {
+              "events": 132,
+              "damageEff": 0
+            },
+            "3962/33": {
+              "events": 132,
+              "damageEff": 0
+            },
+            "4029/33": {
+              "events": 84,
+              "damageEff": 463399
+            },
+            "4030/33": {
+              "events": 52,
+              "damageEff": 323062
+            }
+          }
+        },
+        {
+          "recipe": "17333/1",
+          "occupation": "10t",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "17246/1",
+          "occupation": "10t",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "17337/1",
+          "occupation": "10t",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "17343/1",
+          "occupation": "10t",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "1524/1",
+          "occupation": "5dw",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "1525/1",
+          "occupation": "5dw",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "17380/1",
+          "occupation": "5dw",
+          "skillEvents": {
+            "100376/1": {
+              "events": 116,
+              "damageEff": 0
+            },
+            "100564/1": {
+              "events": 632,
+              "damageEff": 7031005
+            }
+          }
+        },
+        {
+          "recipe": "17239/1",
+          "occupation": "5dw",
+          "skillEvents": {
+            "101612/1": {
+              "events": 72,
+              "damageEff": 2569306
+            },
+            "100444/1": {
+              "events": 100,
+              "damageEff": 2547152
+            },
+            "101609/1": {
+              "events": 58,
+              "damageEff": 1594172
+            }
+          }
+        },
+        {
+          "recipe": "17384/1",
+          "occupation": "5dw",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "17383/1",
+          "occupation": "5dw",
+          "skillEvents": {
+            "100438/1": {
+              "events": 16,
+              "damageEff": 0
+            },
+            "100380/1": {
+              "events": 35,
+              "damageEff": 0
+            },
+            "100443/1": {
+              "events": 49,
+              "damageEff": 0
+            },
+            "100379/1": {
+              "events": 29,
+              "damageEff": 0
+            }
+          }
+        },
+        {
+          "recipe": "1547/1",
+          "occupation": "5dw",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "17250/1",
+          "occupation": "5dw",
+          "skillEvents": {
+            "101612/1": {
+              "events": 72,
+              "damageEff": 2569306
+            },
+            "100444/1": {
+              "events": 100,
+              "damageEff": 2547152
+            },
+            "101609/1": {
+              "events": 58,
+              "damageEff": 1594172
+            }
+          }
+        },
+        {
+          "recipe": "17250/1",
+          "occupation": "23w",
+          "skillEvents": {
+            "102691/1": {
+              "events": 19,
+              "damageEff": 0
+            },
+            "101200/1": {
+              "events": 20,
+              "damageEff": 793269
+            },
+            "101198/1": {
+              "events": 297,
+              "damageEff": 7161316
+            },
+            "101080/1": {
+              "events": 214,
+              "damageEff": 7099892
+            },
+            "101003/1": {
+              "events": 39,
+              "damageEff": 3194943
+            }
+          }
+        },
+        {
+          "recipe": "4290/1",
+          "occupation": "23w",
+          "skillEvents": {}
+        },
+        {
+          "recipe": "4291/1",
+          "occupation": "23w",
+          "skillEvents": {}
+        }
+      ],
+      "procSkill102255": {
+        "23w": {
+          "events": 0,
+          "damageEff": 0
+        },
+        "5dw": {
+          "events": 18,
+          "damageEff": 0
+        },
+        "10t": {
+          "events": 0,
+          "damageEff": 0
+        },
+        "25": {
+          "events": 0,
+          "damageEff": 0
+        }
+      },
+      "buff70161Level15": [
+        {
+          "occupation": "5dw",
+          "selfOwned": true,
+          "stack": 1,
+          "isValid": "true",
+          "events": 70
+        },
+        {
+          "occupation": "23w",
+          "selfOwned": true,
+          "stack": 1,
+          "isValid": "true",
+          "events": 61
+        },
+        {
+          "occupation": "23w",
+          "selfOwned": true,
+          "stack": 0,
+          "isValid": "true",
+          "events": 60
+        },
+        {
+          "occupation": "5dw",
+          "selfOwned": true,
+          "stack": 0,
+          "isValid": "true",
+          "events": 67
+        }
+      ]
+    }
+  ],
+  "boundary": "Anonymous raw-log observation, not final battle cutoff metrics. No player identifiers/names or private equipment lists are published."
+}

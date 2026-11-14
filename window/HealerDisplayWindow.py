@@ -9,6 +9,7 @@ import pyperclip
 
 from Constants import get_logs_url
 from equip.EquipmentFallback import EQUIPMENT_FALLBACK_WARNING
+from tools.RecordQuality import is_effect_warning_only
 from replayer.TableConstructor import TableConstructor
 from tools.Functions import *
 from window.ReviewWindow import ReviewerWindow
@@ -311,6 +312,9 @@ class HealerDisplayWindow(Window):
             if status.get("status") == "incomplete" and status.get("reason"):
                 warning += "\n" + status["reason"]
             tb.AppendHeader("%s/rDPS参考" % self.result["overall"]["dataType"], warning, color="#995500")
+        elif is_effect_warning_only(status):
+            tb.AppendHeader("%s/rDPS参考" % self.result["overall"]["dataType"],
+                            "部分装备特效尚未核验；rDPS 与表现分按现有模型计算，仅供参考。", color="#995500")
         elif status.get("status") == "incomplete":
             tb.AppendHeader("%s/rDPS待校准" % self.result["overall"]["dataType"],
                             status.get("reason", "装备或目标属性缺少验证数据。"), color="#995500")

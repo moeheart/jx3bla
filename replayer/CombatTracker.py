@@ -7,6 +7,7 @@ from tools.Names import getGameEditionFromTime, getIDFromMap
 from tools.Attribute import ATTRIB_TYPE, CURRENT_GAME_EDITION
 from equip.CangshengAttributeData import CangshengAttributeData, get_target_profiles
 from equip.EquipmentFallback import EQUIPMENT_FALLBACK_WARNING
+from equip.EquipmentInfo import is_unmodeled_effect_warning
 from data.DataContent import get_reflected_damage
 import time
 import weakref
@@ -22,6 +23,7 @@ SUM5 = 0
 # pass level 1 even when the triggering enchant skill has another level.
 # See docs/160/evidence/equipment_effects/fixed-damage-evidence.json.
 FIXED_EQUIPMENT_DAMAGE = frozenset(("1,37561,1", "1,37562,1"))
+FIXED_EQUIPMENT_WUJIE = frozenset(('4pw', '5dw', '7pw', '23w'))
 
 
 def getResistedAmounts(fullResult, buffs, damage, absorb=0):
@@ -335,12 +337,12 @@ class BoostCounter():
         # Remove one complete pair only; malformed/partial IDs must not match.
         if isinstance(skill, str) and len(skill) >= 2 and skill[0] == skill[-1] == '"':
             skill = skill[1:-1]
-        if skill in FIXED_EQUIPMENT_DAMAGE and (not self.occ.endswith('w') or self.occ == '4pw'):
+        if skill in FIXED_EQUIPMENT_DAMAGE and (not self.occ.endswith('w') or self.occ in FIXED_EQUIPMENT_WUJIE):
             # Preserve the complete identity in the cache. Similar names,
             # nearby IDs, buff scheme and other levels use the normal model.
-            # The heroic equipment audit verified the same native fixed-damage
-            # helper and exact logged children for 4pw; other Wujie profiles
-            # remain outside that evidence scope.
+            # Formal-client helper bytecode and exact logged children were
+            # audited for these Wujie profiles in the November 13/14 parties.
+            # Other profiles remain outside that evidence scope.
             pass
         elif skillName in ["逐云寒蕊"]:
             skill = "逐云寒蕊"
@@ -1835,11 +1837,28 @@ class CombatTracker():
         self.targetProfiles = get_target_profiles(info)
         estimated = {player: value["_estimated"] for player, value in baseAttribDict.items()
                      if value is not None and value.get("_estimated")}
+        warnings = sorted({warning for value in baseAttribDict.values() if value is not None
+                           for warning in value.get('_warnings', [])})
+        effects = sorted({warning for value in baseAttribDict.values() if value is not None
+                          for warning in value.get('_unmodeledEffects', [])}
+                         | {warning for warning in warnings if is_unmodeled_effect_warning(warning)})
+        invalid = [warning for warning in warnings if not is_unmodeled_effect_warning(warning)]
+        missing = any(value is None for value in baseAttribDict.values())
+        self.rdpsStatus['staticAttributes'] = ('partial' if missing or invalid else
+                                             'estimated' if estimated else 'available')
+        if effects:
+            self.rdpsStatus['unmodeledEffects'] = effects
+        if invalid:
+            self.rdpsStatus['unparsedAttributes'] = invalid
+        if not self.targetProfiles:
+            self.rdpsStatus['targetProfileUnavailable'] = True
         if estimated:
             self.rdpsStatus.update(status="estimated", estimatedPlayers=estimated,
                 warning=EQUIPMENT_FALLBACK_WARNING, reason=EQUIPMENT_FALLBACK_WARNING)
-        if not self.targetProfiles or any((value is None or value.get('_warnings') for value in baseAttribDict.values())):
+        if not self.targetProfiles or missing or invalid:
             self.rdpsStatus.update(status="incomplete", reason="部分玩家装备或当前地图首领属性缺少验证数据。")
+        elif effects:
+            self.rdpsStatus.update(status="incomplete", reason="部分装备特效尚未核验，rDPS按已知模型计算，数值与本场排序仅供参考。")
         self.occDetailList = occDetailList
 
         self.hpsCast = {}

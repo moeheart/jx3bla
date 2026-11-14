@@ -8,16 +8,19 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / 'docs/160/evidence/equipment_effects'
 HEROIC_EVIDENCE = ROOT / 'docs/160/evidence/heroic_equipment10082'
+LATEST_HEROIC_EVIDENCE = ROOT / 'docs/160/evidence/heroic_equipment20261114'
 OUTPUT = ROOT / 'equip/resources/cangshengtf/equipment_effects.json'
 HANDLINGS = {'logged_event', 'skill_coefficient', 'inactive_mobile',
              'inactive_ordinary', 'static_attributes', 'non_combat'}
 SOURCE_VERSIONS = ['1.6.0.10009', '1.6.0.10072', '1.6.0.10082', '1.6.0.10086']
 
 
-def build_catalogue(evidence=EVIDENCE, supplemental=HEROIC_EVIDENCE):
+def build_catalogue(evidence=EVIDENCE, supplemental=(HEROIC_EVIDENCE, LATEST_HEROIC_EVIDENCE)):
     """Never infer support from the effect's at* category or an ID interval."""
     effects, sources = {}, []
-    for directory in (Path(evidence), Path(supplemental)) if supplemental is not None else (Path(evidence),):
+    supplements = () if supplemental is None else (
+        (supplemental,) if isinstance(supplemental, (str, Path)) else supplemental)
+    for directory in (Path(evidence), *(Path(path) for path in supplements)):
         seen = set()
         for name in ('recipe-models.json', 'script-models.json', 'event-models.json'):
             path = directory / name
@@ -32,6 +35,8 @@ def build_catalogue(evidence=EVIDENCE, supplemental=HEROIC_EVIDENCE):
                     raise ValueError('Effect has no evidence/name: %r' % (key,))
                 if directory != Path(evidence):
                     row = dict(row, evidence='../' + directory.name + '/' + row['evidence'])
+                if ('wujieHandling' in row) != ('wujieOccupations' in row):
+                    raise ValueError('Wujie effect requires explicit handling and scope: %r' % (key,))
                 if 'wujieHandling' in row and (
                         row['wujieHandling'] not in HANDLINGS or not isinstance(row.get('wujieOccupations'), list)
                         or not row['wujieOccupations']
@@ -45,6 +50,13 @@ def build_catalogue(evidence=EVIDENCE, supplemental=HEROIC_EVIDENCE):
                     if (previous['ordinaryHandling'] != row['ordinaryHandling'] or
                             previous.get('staticAttributes', {}) != row.get('staticAttributes', {})):
                         raise ValueError('Supplement changes existing ordinary semantics: %r' % (key,))
+                    if previous.get('wujieHandling') and row.get('wujieHandling'):
+                        if previous['wujieHandling'] != row['wujieHandling']:
+                            raise ValueError('Supplement changes existing Wujie semantics: %r' % (key,))
+                        # Later audited parties extend a precise platform scope;
+                        # they must not erase support established by older audits.
+                        row = dict(row, wujieOccupations=sorted(set(
+                            previous['wujieOccupations']) | set(row['wujieOccupations'])))
                     row = dict(previous, **row)
                 seen.add(key)
                 effects[key] = row
@@ -82,6 +94,13 @@ def main():
             'source_versions': SOURCE_VERSIONS,
             'boundary': 'Heroic equipment rows compared against formal 10082 tables; newly extracted Lua and recipe paths are 10086 evidence. Wujie requires exact reviewed effect and specialization scope; unlisted effects remain unverified.',
             'supplemental_evidence': '../../../docs/160/evidence/heroic_equipment10082',
+        }
+        manifest['equipment_effect_update_20261114'] = {
+            'prepared_version': '8.16.8',
+            'publication_record': '../../../docs/160/8.16.8英雄装备补核-20261114.md',
+            'source_versions': SOURCE_VERSIONS,
+            'boundary': 'Exact effects observed in the November 14 heroic party; existing ordinary and Wujie semantics are preserved. Other unverified identities and specializations remain restricted.',
+            'supplemental_evidence': '../../../docs/160/evidence/heroic_equipment20261114',
         }
         manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
     print('Verified %d equipment effect identities' % len(build_catalogue()['effects']))

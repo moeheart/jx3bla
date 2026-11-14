@@ -49,6 +49,47 @@ class RecordQualityTests(unittest.TestCase):
             self.assertEqual(quality.quality_level(data), 0)
             self.assertFalse(quality.get_record_quality(data)["rankEligible"]["rdps"])
 
+    def test_effect_warning_can_display_reference_without_granting_exact_rank(self):
+        status = {'status': 'incomplete', 'staticAttributes': 'available',
+                  'unmodeledEffects': ['weapon: atSkillEventHandler'],
+                  'warnings': ['weapon: atSkillEventHandler']}
+        for data in (status, {'overall': {'attributeStatus': status}},
+                     {'act': {'rdpsStatus': status}}, quality.get_record_quality(status)):
+            with self.subTest(data=data):
+                self.assertTrue(quality.is_effect_warning_only(data))
+                self.assertFalse(quality.is_metric_rank_eligible(data, 'rdps'))
+                self.assertFalse(quality.is_metric_rank_eligible(data, 'score'))
+                self.assertTrue(quality.is_metric_rank_eligible(data, 'ndps'))
+
+    def test_effect_warning_does_not_hide_other_missing_inputs(self):
+        status = {'status': 'incomplete', 'staticAttributes': 'available',
+                  'unmodeledEffects': ['weapon: atSkillEventHandler']}
+        blockers = [{'status': state} for state in ('estimated', 'unavailable', 'unsupported', 'invalid')]
+        blockers += [{'staticAttributes': state} for state in ('partial', 'missing', 'estimated')]
+        blockers += [{'estimated': True}, {'estimatedPlayers': {'1': {}}},
+                     {'estimatedPlayerCount': 1}, {'missingEquipmentPlayerCount': 1},
+                     {'missingEquipmentPlayers': {'1': {'hasReference': True}}},
+                     {'equipmentErrors': ['invalid item']}, {'unparsedAttributes': ['bad attribute']},
+                     {'unresolvedTargets': ['boss']}, {'targetProfileUnavailable': True}]
+        for blocker in blockers:
+            for data in (dict(status, **blocker), {'attributeStatus': status, 'rdpsStatus': blocker}):
+                with self.subTest(data=data):
+                    self.assertFalse(quality.is_effect_warning_only(data))
+                    self.assertFalse(quality.is_effect_warning_only(quality.get_record_quality(data)))
+        mixed = dict(status, warnings=['invalid field'])
+        self.assertFalse(quality.is_effect_warning_only(mixed))
+        self.assertFalse(quality.is_effect_warning_only(quality.get_record_quality(mixed)))
+        for data in ({}, {'status': 'incomplete'}, {'unmodeledEffects': ['effect']},
+                     {'staticAttributes': 'available'}):
+            self.assertFalse(quality.is_effect_warning_only(data))
+
+    def test_summary_counts_cannot_grant_precise_rank(self):
+        for field in ('estimatedPlayerCount', 'missingEquipmentPlayerCount'):
+            result = quality.get_record_quality({'status': 'supported', 'staticAttributes': 'available', field: 1})
+            self.assertFalse(result['precise'])
+            self.assertFalse(result['rankEligible']['rdps'])
+            self.assertEqual(result, quality.get_record_quality(result))
+
     def test_unsupported_and_invalid_are_not_precise(self):
         for state in ("unsupported", "invalid"):
             self.assertFalse(quality.get_record_quality({"status": state})["precise"])

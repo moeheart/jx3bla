@@ -32,6 +32,18 @@
     {
       "file": "../heroic_equipment10082/event-models.json",
       "sha256": "2fc756c1368be0665f3fc430ac6aaeea6d6f40ce66781c6af3dad6bef792b4ae"
+    },
+    {
+      "file": "../heroic_equipment20261114/recipe-models.json",
+      "sha256": "355272090516453b77168500fd963fe4d1e76cce9ee14d913bfc5a5c7a06273b"
+    },
+    {
+      "file": "../heroic_equipment20261114/script-models.json",
+      "sha256": "61e4c042f5f96e7041948a3a49b0e4b5c030f43c68539b2a6d0f79a8982fbc4f"
+    },
+    {
+      "file": "../heroic_equipment20261114/event-models.json",
+      "sha256": "9ab9868e6b7083f8538698aec5a40de98db45de2b82bdeeb607631655b729d88"
     }
   ],
   "effects": [
@@ -51,10 +63,12 @@
       "name": "定尘血石·伤·帽",
       "ordinaryHandling": "logged_event",
       "staticAttributes": {},
-      "evidence": "../heroic_equipment10082/script-evidence.json#16679",
+      "evidence": "../heroic_equipment20261114/script-evidence.json#16679",
       "wujieHandling": "logged_event",
       "wujieOccupations": [
-        "4pw"
+        "4pw",
+        "5dw",
+        "7pw"
       ]
     },
     {
@@ -76,10 +90,13 @@
         "atAllTypeAttackPowerBase": 81,
         "atBeTherapyCoefficient": -102
       },
-      "evidence": "../heroic_equipment10082/script-evidence.json#16678",
+      "evidence": "../heroic_equipment20261114/script-evidence.json#16678",
       "wujieHandling": "static_attributes",
       "wujieOccupations": [
-        "4pw"
+        "23w",
+        "4pw",
+        "5dw",
+        "7pw"
       ]
     },
     {
@@ -188,7 +205,11 @@
       "value2": "1",
       "name": "90级冰心橙武属性1",
       "ordinaryHandling": "skill_coefficient",
-      "evidence": "recipe-evidence.json#1524/1"
+      "evidence": "../heroic_equipment20261114/recipe-evidence.json#1524/1",
+      "wujieOccupations": [
+        "5dw"
+      ],
+      "wujieHandling": "inactive_ordinary"
     },
     {
       "type": "atSetEquipmentRecipe",
@@ -196,7 +217,11 @@
       "value2": "1",
       "name": "90级冰心橙武属性2",
       "ordinaryHandling": "skill_coefficient",
-      "evidence": "recipe-evidence.json#1525/1"
+      "evidence": "../heroic_equipment20261114/recipe-evidence.json#1525/1",
+      "wujieOccupations": [
+        "5dw"
+      ],
+      "wujieHandling": "inactive_ordinary"
     },
     {
       "type": "atSetEquipmentRecipe",
@@ -296,6 +321,22 @@
     },
     {
       "type": "atSetEquipmentRecipe",
+      "value1": "1544",
+      "value2": "1",
+      "name": "90级明尊橙武属性1",
+      "evidence": "../heroic_equipment20261114/recipe-evidence.json#1544/1",
+      "ordinaryHandling": "non_combat"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "1545",
+      "value2": "1",
+      "name": "90级明尊橙武属性2",
+      "evidence": "../heroic_equipment20261114/recipe-evidence.json#1545/1",
+      "ordinaryHandling": "non_combat"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
       "value1": "1546",
       "value2": "1",
       "name": "花间PVE套装属性快雪",
@@ -308,7 +349,11 @@
       "value2": "1",
       "name": "七秀PVE套装属性剑破",
       "ordinaryHandling": "skill_coefficient",
-      "evidence": "../heroic_equipment10082/recipe-evidence.json#1547/1"
+      "evidence": "../heroic_equipment20261114/recipe-evidence.json#1547/1",
+      "wujieOccupations": [
+        "5dw"
+      ],
+      "wujieHandling": "inactive_ordinary"
     },
     {
       "type": "atSetEquipmentRecipe",
@@ -316,9 +361,10 @@
       "value2": "1",
       "name": "【套装】【对阵招式】伤害提高2%",
       "ordinaryHandling": "inactive_mobile",
-      "evidence": "../heroic_equipment10082/recipe-evidence.json#17239/1",
+      "evidence": "../heroic_equipment20261114/recipe-evidence.json#17239/1",
       "wujieOccupations": [
-        "4pw"
+        "4pw",
+        "5dw"
       ],
       "wujieHandling": "skill_coefficient"
     },
@@ -332,13 +378,23 @@
     },
     {
       "type": "atSetEquipmentRecipe",
+      "value1": "17246",
+      "value2": "1",
+      "name": "【套装】【对阵招式】威胁值提高5%",
+      "evidence": "../heroic_equipment20261114/recipe-evidence.json#17246/1",
+      "ordinaryHandling": "inactive_mobile"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
       "value1": "17250",
       "value2": "1",
       "name": "【套装】【对阵招式】伤害提高5%",
       "ordinaryHandling": "inactive_mobile",
-      "evidence": "../heroic_equipment10082/recipe-evidence.json#17250/1",
+      "evidence": "../heroic_equipment20261114/recipe-evidence.json#17250/1",
       "wujieOccupations": [
-        "4pw"
+        "23w",
+        "4pw",
+        "5dw"
       ],
       "wujieHandling": "skill_coefficient"
     },
@@ -512,11 +568,27 @@
     },
     {
       "type": "atSetEquipmentRecipe",
+      "value1": "17333",
+      "value2": "1",
+      "name": "【橙武】【傍身招式】威胁值提高（明尊·赤日轮+幽月轮）",
+      "evidence": "../heroic_equipment20261114/recipe-evidence.json#17333/1",
+      "ordinaryHandling": "inactive_mobile"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
       "value1": "17336",
       "value2": "1",
       "name": "【橙武】释放【绝技招式】伤害提高持续一段时间（焚影·微妙风+日月晦）",
       "ordinaryHandling": "inactive_mobile",
       "evidence": "recipe-evidence.json#17336/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17337",
+      "value2": "1",
+      "name": "【橙武】释放【绝技招式】威胁值提高持续一段时间（明尊·微妙风+朝圣言）",
+      "evidence": "../heroic_equipment20261114/recipe-evidence.json#17337/1",
+      "ordinaryHandling": "inactive_mobile"
     },
     {
       "type": "atSetEquipmentRecipe",
@@ -553,6 +625,14 @@
       "name": "【橙武】【对阵招式】后减【绝技招式】调息时间（焚影）",
       "ordinaryHandling": "inactive_mobile",
       "evidence": "recipe-evidence.json#17342/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "17343",
+      "value2": "1",
+      "name": "【橙武】【对阵招式】后减【绝技招式】调息时间（明尊）",
+      "evidence": "../heroic_equipment20261114/recipe-evidence.json#17343/1",
+      "ordinaryHandling": "inactive_mobile"
     },
     {
       "type": "atSetEquipmentRecipe",
@@ -608,7 +688,11 @@
       "value2": "1",
       "name": "【橙武】【傍身招式】伤害提高2%（玳弦急曲+江海凝光）",
       "ordinaryHandling": "inactive_mobile",
-      "evidence": "recipe-evidence.json#17380/1"
+      "evidence": "../heroic_equipment20261114/recipe-evidence.json#17380/1",
+      "wujieOccupations": [
+        "5dw"
+      ],
+      "wujieHandling": "skill_coefficient"
     },
     {
       "type": "atSetEquipmentRecipe",
@@ -616,7 +700,11 @@
       "value2": "1",
       "name": "【橙武】【对阵招式】后减【绝技招式】调息时间（合璧知意+霜天剑泠）",
       "ordinaryHandling": "inactive_mobile",
-      "evidence": "recipe-evidence.json#17383/1"
+      "evidence": "../heroic_equipment20261114/recipe-evidence.json#17383/1",
+      "wujieOccupations": [
+        "5dw"
+      ],
+      "wujieHandling": "logged_event"
     },
     {
       "type": "atSetEquipmentRecipe",
@@ -624,7 +712,11 @@
       "value2": "1",
       "name": "【橙武】释放【绝技招式】伤害提高持续一段时间（合璧知意+霜天剑泠）",
       "ordinaryHandling": "inactive_mobile",
-      "evidence": "recipe-evidence.json#17384/1"
+      "evidence": "../heroic_equipment20261114/recipe-evidence.json#17384/1",
+      "wujieOccupations": [
+        "5dw"
+      ],
+      "wujieHandling": "logged_event"
     },
     {
       "type": "atSetEquipmentRecipe",
@@ -944,7 +1036,11 @@
       "value2": "1",
       "name": "PVE6件套_霸刀_醉斩白蛇",
       "ordinaryHandling": "skill_coefficient",
-      "evidence": "../heroic_equipment10082/recipe-evidence.json#4290/1"
+      "evidence": "../heroic_equipment20261114/recipe-evidence.json#4290/1",
+      "wujieOccupations": [
+        "23w"
+      ],
+      "wujieHandling": "inactive_ordinary"
     },
     {
       "type": "atSetEquipmentRecipe",
@@ -952,7 +1048,11 @@
       "value2": "1",
       "name": "PVE6件套_霸刀_破釜沉舟",
       "ordinaryHandling": "skill_coefficient",
-      "evidence": "../heroic_equipment10082/recipe-evidence.json#4291/1"
+      "evidence": "../heroic_equipment20261114/recipe-evidence.json#4291/1",
+      "wujieOccupations": [
+        "23w"
+      ],
+      "wujieHandling": "inactive_ordinary"
     },
     {
       "type": "atSetEquipmentRecipe",
@@ -1017,6 +1117,22 @@
       "name": "蓬莱大橙武翼绝云天伤害5%",
       "ordinaryHandling": "skill_coefficient",
       "evidence": "recipe-evidence.json#4819/1"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "5037",
+      "value2": "1",
+      "name": "凌雪阁PVE两件套_寂洪荒10%",
+      "evidence": "../heroic_equipment20261114/recipe-evidence.json#5037/1",
+      "ordinaryHandling": "skill_coefficient"
+    },
+    {
+      "type": "atSetEquipmentRecipe",
+      "value1": "5038",
+      "value2": "1",
+      "name": "凌雪阁PVE两件套_金戈回澜10%",
+      "evidence": "../heroic_equipment20261114/recipe-evidence.json#5038/1",
+      "ordinaryHandling": "skill_coefficient"
     },
     {
       "type": "atSetEquipmentRecipe",
@@ -1120,6 +1236,18 @@
     },
     {
       "type": "atSkillEventHandler",
+      "value1": "1194",
+      "value2": "0",
+      "name": "挖宝外壳",
+      "ordinaryHandling": "non_combat",
+      "evidence": "../heroic_equipment20261114/event-evidence.json#1194",
+      "wujieHandling": "non_combat",
+      "wujieOccupations": [
+        "7pw"
+      ]
+    },
+    {
+      "type": "atSkillEventHandler",
       "value1": "1910",
       "value2": "0",
       "name": "PVE四件套效果治疗奉天证道",
@@ -1140,7 +1268,11 @@
       "value2": "0",
       "name": "110级新CW特效冰心",
       "ordinaryHandling": "logged_event",
-      "evidence": "event-evidence.json#1930"
+      "evidence": "../heroic_equipment20261114/event-evidence.json#1930",
+      "wujieHandling": "logged_event",
+      "wujieOccupations": [
+        "5dw"
+      ]
     },
     {
       "type": "atSkillEventHandler",
@@ -1268,6 +1400,14 @@
     },
     {
       "type": "atSkillEventHandler",
+      "value1": "1952",
+      "value2": "0",
+      "name": "110级新CW特效明尊",
+      "ordinaryHandling": "logged_event",
+      "evidence": "../heroic_equipment20261114/event-evidence.json#1952"
+    },
+    {
+      "type": "atSkillEventHandler",
       "value1": "2138",
       "value2": "0",
       "name": "110级CW新增特效无方",
@@ -1296,7 +1436,11 @@
       "value2": "0",
       "name": "130级橙武第三条冰心",
       "ordinaryHandling": "logged_event",
-      "evidence": "event-evidence.json#2719"
+      "evidence": "../heroic_equipment20261114/event-evidence.json#2719",
+      "wujieHandling": "logged_event",
+      "wujieOccupations": [
+        "5dw"
+      ]
     },
     {
       "type": "atSkillEventHandler",
@@ -1452,10 +1596,11 @@
       "value2": "0",
       "name": "34000CW无双",
       "ordinaryHandling": "logged_event",
-      "evidence": "../heroic_equipment10082/event-evidence.json#3149",
+      "evidence": "../heroic_equipment20261114/event-evidence.json#3149",
       "wujieHandling": "logged_event",
       "wujieOccupations": [
-        "4pw"
+        "4pw",
+        "5dw"
       ]
     },
     {
@@ -1464,10 +1609,12 @@
       "value2": "0",
       "name": "苍生铸世输出腰带_1110",
       "ordinaryHandling": "logged_event",
-      "evidence": "../heroic_equipment10082/event-evidence.json#3203",
+      "evidence": "../heroic_equipment20261114/event-evidence.json#3203",
       "wujieHandling": "logged_event",
       "wujieOccupations": [
-        "4pw"
+        "4pw",
+        "5dw",
+        "7pw"
       ]
     },
     {
@@ -1476,10 +1623,13 @@
       "value2": "0",
       "name": "苍生铸世输出护手_1110",
       "ordinaryHandling": "logged_event",
-      "evidence": "../heroic_equipment10082/event-evidence.json#3204",
+      "evidence": "../heroic_equipment20261114/event-evidence.json#3204",
       "wujieHandling": "logged_event",
       "wujieOccupations": [
-        "4pw"
+        "23w",
+        "4pw",
+        "5dw",
+        "7pw"
       ]
     },
     {
@@ -1488,10 +1638,12 @@
       "value2": "0",
       "name": "苍生铸世输出鞋子_1110",
       "ordinaryHandling": "logged_event",
-      "evidence": "../heroic_equipment10082/event-evidence.json#3205",
+      "evidence": "../heroic_equipment20261114/event-evidence.json#3205",
       "wujieHandling": "logged_event",
       "wujieOccupations": [
-        "4pw"
+        "23w",
+        "4pw",
+        "5dw"
       ]
     },
     {
@@ -1564,7 +1716,11 @@
       "value2": "0",
       "name": "苍生铸世输出腰带_1280",
       "ordinaryHandling": "logged_event",
-      "evidence": "../heroic_equipment10082/event-evidence.json#3215"
+      "evidence": "../heroic_equipment20261114/event-evidence.json#3215",
+      "wujieHandling": "logged_event",
+      "wujieOccupations": [
+        "5dw"
+      ]
     },
     {
       "type": "atSkillEventHandler",
@@ -1580,7 +1736,11 @@
       "value2": "0",
       "name": "苍生铸世输出鞋子_1280",
       "ordinaryHandling": "logged_event",
-      "evidence": "../heroic_equipment10082/event-evidence.json#3217"
+      "evidence": "../heroic_equipment20261114/event-evidence.json#3217",
+      "wujieHandling": "logged_event",
+      "wujieOccupations": [
+        "5dw"
+      ]
     },
     {
       "type": "atSkillEventHandler",
@@ -1624,11 +1784,27 @@
     },
     {
       "type": "atSkillEventHandler",
+      "value1": "3240",
+      "value2": "0",
+      "name": "50级1280品水·内功",
+      "ordinaryHandling": "logged_event",
+      "evidence": "../heroic_equipment20261114/event-evidence.json#3240"
+    },
+    {
+      "type": "atSkillEventHandler",
       "value1": "3247",
       "value2": "0",
       "name": "50级橙武_掠炎_主特效",
       "ordinaryHandling": "logged_event",
       "evidence": "event-evidence.json#3247"
+    },
+    {
+      "type": "atSkillEventHandler",
+      "value1": "3261",
+      "value2": "0",
+      "name": "50级橙武_圣辉月雪_主特效",
+      "ordinaryHandling": "logged_event",
+      "evidence": "../heroic_equipment20261114/event-evidence.json#3261"
     },
     {
       "type": "atSkillEventHandler",

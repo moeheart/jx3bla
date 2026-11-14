@@ -8,6 +8,7 @@ from window.CombatTrackerWindow import CombatTrackerWindow
 from window.TimelineWindow import TimelineWindow
 from tools.Functions import *
 from equip.EquipmentFallback import EQUIPMENT_FALLBACK_WARNING
+from tools.RecordQuality import is_effect_warning_only, is_valid_rank
 
 class SpecificBossWindow(Window):
     '''
@@ -101,7 +102,9 @@ class SpecificBossWindow(Window):
         warnings = []
         if estimated:
             warnings.append(status.get("warning", EQUIPMENT_FALLBACK_WARNING))
-        if status.get("status") == "incomplete" and status.get("reason"):
+        if is_effect_warning_only(self.detail):
+            warnings.append("部分装备特效尚未核验；rDPS 与表现分按现有模型计算，仅供参考。")
+        elif status.get("status") == "incomplete" and status.get("reason"):
             warnings.append(status["reason"])
         if warnings:
             tk.Label(window, text="\n".join(warnings), fg="#995500", wraplength=1080).pack()
@@ -121,6 +124,8 @@ class SpecificBossWindow(Window):
             if status.get("status") == "incomplete" and status.get("reason"):
                 hint += "\n" + status["reason"]
             tb.AppendHeader("rDPS/分数（参考）", hint)
+        elif is_effect_warning_only(self.detail):
+            tb.AppendHeader("rDPS/分数（参考）", "部分装备特效尚未核验。显示现有模型计算的 rDPS 或表现分，表格按计算的 rDPS 排序；精确百分位暂不展示。")
         elif status.get("status") == "incomplete":
             tb.AppendHeader("实测DPS/HPS", "显示日志实测伤害或有效治疗。50级属性尚未完整校准，rDPS、心法评分和排名暂不展示。")
         else:
@@ -174,22 +179,24 @@ class SpecificBossWindow(Window):
         status = self.detail.get("attributeStatus", {})
         estimated = (status.get("status") == "estimated" or bool(status.get("estimatedPlayers"))
                      or line.get("rdpsStatus") == "estimated" or bool(line.get("attributeEstimated")))
-        if estimated:
+        if estimated or is_effect_warning_only(self.detail):
             value = line.get("score", 0) if getOccType(line["occ"]) == "healer" else line.get("rdps", 0)
             tb.AppendContext(str(value), color="#000000")
             text3, color3 = "仅供参考", "#995500"
-        elif line.get("rdpsStatus") == "incomplete":
+        elif status.get("status") == "incomplete" or line.get("rdpsStatus") == "incomplete":
             value = line.get("hps", 0) if getOccType(line["occ"]) == "healer" else line.get("ndps", 0)
             tb.AppendContext(str(value), color="#000000")
             text3, color3 = "待校准", "#995500"
         elif getOccType(line["occ"]) != "healer":
             tb.AppendContext(str(line["rdps"]), color="#000000")
-            text3 = str(line["rdpsRank"])
-            color3 = getRankColor(line["rdpsRank"])
+            rank = line.get("rdpsRank", -1)
+            text3 = str(rank) if is_valid_rank(rank) and line.get("rdpsRankNum", 1) > 0 else "暂无样本"
+            color3 = getRankColor(rank) if is_valid_rank(rank) else "#777777"
         else:
             tb.AppendContext(str(line["score"]), color="#00ff00")
-            text3 = str(line["scoreRank"])
-            color3 = getRankColor(line["scoreRank"])
+            rank = line.get("scoreRank", -1)
+            text3 = str(rank) if is_valid_rank(rank) and line.get("scoreRankNum", 1) > 0 else "暂无样本"
+            color3 = getRankColor(rank) if is_valid_rank(rank) else "#777777"
         tb.AppendContext(text3, color=color3)
 
         if line["equip"]["score"] == "":

@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "clientVersion": "1.6.0.10086",
+  "files": [
+    {
+      "origin": "scripts/skill/秘笈/增加威胁20分.lua",
+      "sha256": "88c54d2924ef106afa6af15cbc518554a8fecad8aa1b237a342a931a72623ea9",
+      "readableSha256": "b7f217adcbc8214105778653275a6492f90d5054427176d37f8178e5868e967a",
+      "readableMethod": "plaintext",
+      "clientVersion": "1.6.0.10086",
+      "extractionStage": "event-fresh-10086-20261114-02",
+      "rawPath": "recipe-sources/raw/scripts/skill/秘笈/增加威胁20分.lua",
+      "readablePath": "recipe-sources/readable/scripts/skill/秘笈/增加威胁20分.lua"
+    },
+    {
+      "origin": "scripts/skill_mobile/移动端-通用/通用/移动端_橙武_增伤_竞技场无效.lua",
+      "clientVersion": "1.6.0.10086",
+      "sha256": "be4a7e740c0d07ee3348c57954b785b647ab80d635d67fb6aa41f01916e427b6",
+      "readableSha256": "d252d60255be14314a3208d10330690b84ddd1183a58cf92015fcc9362d502f8",
+      "readableMethod": "plaintext",
+      "extractionStage": "event-fresh-10086-03",
+      "rawPath": "recipe-sources/raw/scripts/skill_mobile/移动端-通用/通用/移动端_橙武_增伤_竞技场无效.lua",
+      "readablePath": "recipe-sources/readable/scripts/skill_mobile/移动端-通用/通用/移动端_橙武_增伤_竞技场无效.lua"
+    },
+    {
+      "origin": "scripts/skill_mobile/移动端-通用/通用/移动端_装备效果_威胁值和伤害提高.lua",
+      "sha256": "44b6584a171ebe34f5f3e0c9e87e618a40c5cdd1521642b30ccd7534b5268c36",
+      "readableSha256": "5b3fd0ff683fdb81a2d7eef8985059a41a98fa158ef17be095ce09bea0daccec",
+      "readableMethod": "unluac --rawstring and LuaService-compatible string decoding",
+      "clientVersion": "1.6.0.10086",
+      "extractionStage": "event-fresh-10086-20261114-02",
+      "rawPath": "recipe-sources/raw/scripts/skill_mobile/移动端-通用/通用/移动端_装备效果_威胁值和伤害提高.lua",
+      "readablePath": "recipe-sources/readable/scripts/skill_mobile/移动端-通用/通用/移动端_装备效果_威胁值和伤害提高.lua"
+    },
+    {
+      "origin": "scripts/skill_mobile/移动端-通用/通用/移动端_装备效果_招式威胁值提高.lua",
+      "sha256": "2606f717eba379139229219dfb5b2070a9a6626862ccb7cecb485b041884e203",
+      "readableSha256": "02a49bb8beb3dc9278492e6d7e656286687fe6fbfa1031d6d3c1342195d000a9",
+      "readableMethod": "plaintext",
+      "clientVersion": "1.6.0.10086",
+      "extractionStage": "event-fresh-10086-20261114-02",
+      "rawPath": "recipe-sources/raw/scripts/skill_mobile/移动端-通用/通用/移动端_装备效果_招式威胁值提高.lua",
+      "readablePath": "recipe-sources/readable/scripts/skill_mobile/移动端-通用/通用/移动端_装备效果_招式威胁值提高.lua"
+    },
+    {
+      "origin": "scripts/skill_mobile/移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua",
+      "clientVersion": "1.6.0.10086",
+      "sha256": "3654a9e455cf1847f6e32e9142c4ce08fd628ac85561d58a6e1767a93e223aa1",
+      "readableSha256": "e1ed77e21d2b0be38c8005a71190b203c883fbc805a53c316e28f233c8293d6a",
+      "readableMethod": "plaintext",
+      "extractionStage": "event-fresh-10086-02",
+      "rawPath": "recipe-sources/raw/scripts/skill_mobile/移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua",
+      "readablePath": "recipe-sources/readable/scripts/skill_mobile/移动端-通用/通用/移动端_装备效果_释放对阵招式降低绝技调息.lua"
+    },
+    {
+      "origin": "scripts/skill_mobile/移动端-通用/通用/移动端_装备效果_释放绝技招式后伤害提高.lua",
+      "clientVersion": "1.6.0.10086",
+      "sha256": "f051997ce819a97e076d2747213722fc3ebd9bd900a74e4362cb632f384a893a",
+      "readableSha256": "4af5976a8124ba1b6c8719d2dcf0bdb477c3b9e965a8d039e6d4320ca590f386",
+      "readableMethod": "plaintext",
+      "extractionStage": "event-fresh-10086-02",
+      "rawPath": "recipe-sources/raw/scripts/skill_mobile/移动端-通用/通用/移动端_装备效果_释放绝技招式后伤害提高.lua",
+      "readablePath": "recipe-sources/readable/scripts/skill_mobile/移动端-通用/通用/移动端_装备效果_释放绝技招式后伤害提高.lua"
+    }
+  ],
+  "freshExtractionProtectedUnchanged": true,
+  "boundary": "Fresh/current10086 Lua and recipe rows; matched complete skill/Buff rows compare equal to archived10082. No claim of unavailable10082 recipe/Lua byte identity."
+}

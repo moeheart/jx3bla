@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "clientVersion": "1.6.0.10086",
+  "archivedTableReference": "1.6.0.10082",
+  "reusedVerifiedFiles": true,
+  "files": [
+    {
+      "origin": "scripts/skill/装备/苍生铸世赛季气血循环判定_1110.lua",
+      "sha256": "f0ba6b62f9df0ac1bf149fda330b08fbc87004fa1915ddf244628470c69a401a",
+      "size": 1193,
+      "readableSha256": "ca9dda0f80797c1d9b283ba1e85265067f44ac9642c854f3ea7a273164a19dc3",
+      "readableMethod": "unluac --rawstring and LuaService-compatible string decoding",
+      "clientVersion": "1.6.0.10086",
+      "extractionStage": "event-fresh-10086-02",
+      "rawPath": "../heroic_equipment10082/script-sources/raw/scripts/skill/装备/苍生铸世赛季气血循环判定_1110.lua",
+      "readablePath": "../heroic_equipment10082/script-sources/readable/scripts/skill/装备/苍生铸世赛季气血循环判定_1110.lua"
+    },
+    {
+      "origin": "scripts/skill/装备/苍生铸世赛季输出帽子附魔_1110.lua",
+      "sha256": "97ccefe39b0475d0f2e4d8fd427e215023fc825f53486d1225133e597201218b",
+      "size": 1170,
+      "readableSha256": "f9db6e412f1a7cb37648874c962bb5c2a95bf22252399bc8c0ba6d6043e4802c",
+      "readableMethod": "unluac --rawstring and LuaService-compatible string decoding",
+      "clientVersion": "1.6.0.10086",
+      "extractionStage": "event-fresh-10086-02",
+      "rawPath": "../heroic_equipment10082/script-sources/raw/scripts/skill/装备/苍生铸世赛季输出帽子附魔_1110.lua",
+      "readablePath": "../heroic_equipment10082/script-sources/readable/scripts/skill/装备/苍生铸世赛季输出帽子附魔_1110.lua"
+    },
+    {
+      "origin": "scripts/skill/装备/苍生铸世赛季输出衣服附魔_1110.lua",
+      "sha256": "578910745e8e6c5276cc94483a98d8fc4871e251311223d5dcf1edd464baf2e6",
+      "size": 1123,
+      "readableSha256": "4fb4179206959915eaff159c903c9586beccaed48f90e7e49eb6246c8a612f27",
+      "readableMethod": "unluac --rawstring and LuaService-compatible string decoding",
+      "clientVersion": "1.6.0.10086",
+      "extractionStage": "event-fresh-10086-02",
+      "rawPath": "../heroic_equipment10082/script-sources/raw/scripts/skill/装备/苍生铸世赛季输出衣服附魔_1110.lua",
+      "readablePath": "../heroic_equipment10082/script-sources/readable/scripts/skill/装备/苍生铸世赛季输出衣服附魔_1110.lua"
+    },
+    {
+      "origin": "scripts/skill/装备/输出通用附魔减疗加伤害.lua",
+      "sha256": "2c1cbe62dabdb5a3979d16386782802e19c828373bc40064bcaa8ce11feebac2",
+      "size": 2503,
+      "readableSha256": "18b7237cbae39be1e9cf3869e61f94a66ecfde5808902e8fac7ce7d2a4b80d88",
+      "readableMethod": "unluac --rawstring and LuaService-compatible string decoding",
+      "clientVersion": "1.6.0.10086",
+      "extractionStage": "event-fresh-10086-02",
+      "rawPath": "../heroic_equipment10082/script-sources/raw/scripts/skill/装备/输出通用附魔减疗加伤害.lua",
+      "readablePath": "../heroic_equipment10082/script-sources/readable/scripts/skill/装备/输出通用附魔减疗加伤害.lua"
+    }
+  ],
+  "priorManifest": "../heroic_equipment10082/script-manifest.json",
+  "priorManifestSha256": "4d297ea173cf8014f7fb2d90cabcc257e31f0a13b49ef0a206d7025f4e9054bf"
+}

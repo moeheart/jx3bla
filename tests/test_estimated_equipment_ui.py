@@ -100,10 +100,34 @@ class EstimatedEquipmentWindowTests(unittest.TestCase):
         window = self.boss(status)
         row = self.boss_row(window, estimated=False)
         self.assertEqual(row[0], "玩家")
-        self.assertEqual(row[1], "987")
+        self.assertEqual(row[1], "1234")
+        self.assertEqual(row[2], "仅供参考")
         banner = "\n".join(label.cget("text") for label in labels(window.window))
-        self.assertIn(status["reason"], banner)
+        self.assertIn("部分装备特效尚未核验", banner)
         self.assertNotIn(EQUIPMENT_FALLBACK_WARNING, banner)
+
+    def test_effect_warning_keeps_healer_score_and_never_shows_stale_percentile(self):
+        status = {"status": "incomplete", "staticAttributes": "available",
+                  "unmodeledEffects": ["附魔11272: atExecuteScript"]}
+        window = self.boss(status)
+        row = self.boss_row(window, healer=True, estimated=False)
+        self.assertEqual(row[1], "88")
+        self.assertEqual(row[2], "仅供参考")
+
+    def test_qualified_rows_use_rdps_and_score_percentiles_for_the_shown_metric(self):
+        window = self.boss({"status": "supported", "staticAttributes": "available"})
+        dps = self.boss_row(window, estimated=False)
+        healer = self.boss_row(window, healer=True, estimated=False)
+        self.assertEqual((dps[1], dps[2]), ("1234", "99"))
+        self.assertEqual((healer[1], healer[2]), ("88", "90"))
+
+    def test_unknown_target_still_blocks_effect_only_reference_path(self):
+        status = {"status": "incomplete", "staticAttributes": "available",
+                  "unmodeledEffects": ["附魔11272: atExecuteScript"],
+                  "unresolvedTargets": ["unknown"]}
+        window = self.boss(status)
+        row = self.boss_row(window, estimated=False)
+        self.assertEqual((row[1], row[2]), ("987", "待校准"))
 
     def test_incomplete_without_estimate_keeps_measured_metric(self):
         window = self.boss({"status": "incomplete", "reason": "属性待校准"})
@@ -145,6 +169,20 @@ class EstimatedEquipmentWindowTests(unittest.TestCase):
         self.assertEqual(window.window.state(), "withdrawn")
         self.root.update_idletasks()
         self.assertLessEqual(window.attributeWarningLabel.winfo_reqheight(), 60)
+
+    def test_effect_warning_tracker_keeps_rdps_details_and_labels_reference(self):
+        status = {"status": "incomplete", "staticAttributes": "available",
+                  "unmodeledEffects": ["附魔11272: atExecuteScript"]}
+        window = self.tracker(status)
+        for stat, label in (("rdps", "rDPS"), ("mrdps", "mrDPS")):
+            window.setStat(stat)
+            self.assertEqual(window.rightTitle.cget("text"), label+"：仅供参考")
+            self.assertEqual(window.bars[0][2].cget("text"), "1234")
+            self.assertEqual(window.table[0][0].cget("text"), "攻击")
+            self.assertEqual(window.table[0][2].cget("text"), "12340")
+        self.assertIn("部分装备特效尚未核验", window.attributeWarningLabel.cget("text"))
+        window.setStat("ndps")
+        self.assertEqual(window.rightTitle.cget("text"), "nDPS")
 
     def test_failed_equipment_views_keep_warning_inside_the_panel(self):
         for cls, width in ((DpsDisplayWindow, 200), (HealerDisplayWindow, 170)):
@@ -205,6 +243,29 @@ class EstimatedEquipmentWindowTests(unittest.TestCase):
                     window.renderOverall()
                 self.assertIn("JCL/rDPS待校准", [label.cget("text") for label in labels(window.window)])
                 self.assertIn(status['reason'], tips.call_args.args[1])
+
+    def test_effect_warning_personal_badge_is_reference_without_missing_gear_notice(self):
+        status = {"status": "incomplete", "staticAttributes": "available",
+                  "unmodeledEffects": ["附魔11272: atExecuteScript"]}
+        overall = {"edition": "test", "playerID": "玩家", "server": "正式服",
+                   "battleTimePrint": "2026-11-14", "generateTimePrint": "2026-11-14",
+                   "map": "25人英雄洛阳之战", "boss": "田承嗣", "sumTimePrint": "10秒",
+                   "dataType": "JCL", "attributeStatus": status}
+        for cls in (DpsDisplayWindow, HealerDisplayWindow):
+            with self.subTest(window=cls.__name__):
+                window = cls.__new__(cls)
+                window.window = tk.Toplevel()
+                window.themeColor = "#0000ff"
+                window.config = None
+                window.result = {"overall": deepcopy(overall), "equip": {"available": 1}}
+                with patch("replayer.TableConstructor.ToolTip") as tips:
+                    window.renderOverall()
+                notices = [label.cget("text") for label in labels(window.window)]
+                self.assertIn("JCL/rDPS参考", notices)
+                self.assertNotIn("JCL/rDPS待校准", notices)
+                self.assertIn("特效尚未核验", tips.call_args.args[1])
+                self.assertNotIn(EQUIPMENT_FALLBACK_WARNING, tips.call_args.args[1])
+                self.assertEqual(window.result['equip']['available'], 1)
 
     def test_unreliable_score_is_explicitly_reference_even_with_stale_rank(self):
         for status in (estimated_status(), {"status": "incomplete"}):
