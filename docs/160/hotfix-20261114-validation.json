@@ -1,0 +1,206 @@
+{
+  "version": "8.16.8",
+  "runtimeCommit": "f7a6016322042da1982debb6262c2b9f62d39a99",
+  "analysisRevision": "luoyang-effective-time-20261114",
+  "tests": {
+    "testsRun": 435,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 355.609,
+    "sourceStable": true
+  },
+  "ui": {
+    "status": "passed",
+    "windows": 125,
+    "interactiveTimelineWindows": 30,
+    "additionalDisplayScenarios": 18,
+    "callbackErrors": [],
+    "network": "disabled",
+    "desktopInput": "not used"
+  },
+  "encounters": [
+    {
+      "boss": "突利和顺",
+      "players": 25,
+      "win": 1,
+      "preciseReplayCount": 25,
+      "equipmentWarningCount": 0,
+      "requestBytes": 1174915,
+      "uniqueReplayIDs": 25,
+      "readback": "passed",
+      "duplicateIDs": "stable",
+      "conservation": {
+        "directDamage": 268934251.0,
+        "redistributedDamage": 268934251.0,
+        "mainTargetDamage": 268934251.0,
+        "redistributedMainTargetDamage": 268934251.0,
+        "excludedNpcDamage": 0.0,
+        "conservationError": 0.0,
+        "mainTargetConservationError": 0.0
+      },
+      "effectiveTimeMs": {
+        "wall": 259760.0000000001,
+        "dps": 183888,
+        "healer": 259760
+      },
+      "positiveDamageOrReflectionMasked": 0
+    },
+    {
+      "boss": "田承嗣",
+      "players": 25,
+      "win": 1,
+      "preciseReplayCount": 25,
+      "equipmentWarningCount": 0,
+      "requestBytes": 1373775,
+      "uniqueReplayIDs": 25,
+      "readback": "passed",
+      "duplicateIDs": "stable",
+      "conservation": {
+        "directDamage": 278508326.0,
+        "redistributedDamage": 278508325.9999999,
+        "mainTargetDamage": 248200000.0,
+        "redistributedMainTargetDamage": 248200000.00000006,
+        "excludedNpcDamage": 0.0,
+        "conservationError": -1.1920928955078125e-07,
+        "mainTargetConservationError": 5.960464477539063e-08
+      },
+      "effectiveTimeMs": {
+        "wall": 303585.0000000001,
+        "dps": 294680,
+        "healer": 303585
+      },
+      "positiveDamageOrReflectionMasked": 0
+    },
+    {
+      "boss": "伊曼双子",
+      "players": 25,
+      "win": 1,
+      "preciseReplayCount": 25,
+      "equipmentWarningCount": 0,
+      "requestBytes": 1493496,
+      "uniqueReplayIDs": 25,
+      "readback": "passed",
+      "duplicateIDs": "stable",
+      "conservation": {
+        "directDamage": 379721315.0,
+        "redistributedDamage": 379721314.9999998,
+        "mainTargetDamage": 364750248.0,
+        "redistributedMainTargetDamage": 364750247.9999999,
+        "excludedNpcDamage": 0.0,
+        "conservationError": -1.7881393432617188e-07,
+        "mainTargetConservationError": -1.1920928955078125e-07
+      },
+      "effectiveTimeMs": {
+        "wall": 300385.0000000001,
+        "dps": 300385,
+        "healer": 300385
+      },
+      "positiveDamageOrReflectionMasked": 0
+    },
+    {
+      "boss": "阿史那承庆",
+      "players": 25,
+      "win": 1,
+      "preciseReplayCount": 25,
+      "equipmentWarningCount": 0,
+      "requestBytes": 1547418,
+      "uniqueReplayIDs": 25,
+      "readback": "passed",
+      "duplicateIDs": "stable",
+      "conservation": {
+        "directDamage": 464759785.0,
+        "redistributedDamage": 464759784.9999997,
+        "mainTargetDamage": 428580000.0,
+        "redistributedMainTargetDamage": 428579999.99999976,
+        "excludedNpcDamage": 0.0,
+        "conservationError": -2.980232238769531e-07,
+        "mainTargetConservationError": -2.384185791015625e-07
+      },
+      "effectiveTimeMs": {
+        "wall": 345038.0000000001,
+        "dps": 345038,
+        "healer": 345038
+      },
+      "positiveDamageOrReflectionMasked": 0
+    },
+    {
+      "boss": "史朝义",
+      "players": 25,
+      "win": 1,
+      "preciseReplayCount": 25,
+      "equipmentWarningCount": 0,
+      "requestBytes": 1813599,
+      "uniqueReplayIDs": 25,
+      "readback": "passed",
+      "duplicateIDs": "stable",
+      "conservation": {
+        "directDamage": 517044030.0,
+        "redistributedDamage": 517044029.99999994,
+        "mainTargetDamage": 445340072.0,
+        "redistributedMainTargetDamage": 445340072.0000001,
+        "excludedNpcDamage": 0.0,
+        "conservationError": -5.960464477539063e-08,
+        "mainTargetConservationError": 1.1920928955078125e-07
+      },
+      "effectiveTimeMs": {
+        "wall": 505872.0000000001,
+        "dps": 498247,
+        "healer": 505872
+      },
+      "positiveDamageOrReflectionMasked": 0
+    }
+  ],
+  "sameVersionUpload": {
+    "oldToRecomputed": "accepted",
+    "duplicate": "stable",
+    "replayID": "preserved",
+    "qualityDowngrade": "blocked",
+    "oldCalculationBackflow": "blocked",
+    "olderNumberedRelease": "blocked"
+  },
+  "deployment": {
+    "status": "passed",
+    "release": "20261114-8.16.8-hotfix",
+    "activatedAtUtc": "2026-11-14T06:35:34.768412+00:00",
+    "finalVerifiedAtUtc": "2026-11-14T06:40:44.782088+00:00",
+    "runtimeFilesVerified": 202,
+    "changedFiles": 18,
+    "unchangedProtectedFiles": 4,
+    "allPanesUnchanged": 14,
+    "manifestSha256": "f561cd3b3a7156134ccea75335fb5000afea9e247ea669b09c352f06b012ee3a",
+    "candidateAndLiveProbe": "passed",
+    "isolatedReplayIDs": 125,
+    "sameVersionRevisionCasesPassed": 10,
+    "publicEmptyPostBytes": 2200073,
+    "publicEmptySocketTimeoutSeconds": 195,
+    "firstHttpsAttempt": {
+      "passed": false,
+      "socketTimeoutSeconds": 60,
+      "error": "The write operation timed out",
+      "seconds": 61.802
+    },
+    "publicEmptyEndpoints": [
+      {
+        "url": "https://jx3bla.moeheart.cn/uploadCombinedData",
+        "httpStatus": 200,
+        "redirects": [],
+        "response": {"data": [], "status": "success"},
+        "seconds": 57.344
+      },
+      {
+        "url": "http://jx3bla.moeheart.cn:80/uploadCombinedData",
+        "httpStatus": 200,
+        "redirects": [],
+        "response": {"data": [], "status": "success"},
+        "seconds": 48.542
+      }
+    ],
+    "publicHealthChecks": 5,
+    "announcementAndDownloadVersion": "8.16.6",
+    "separateSpaUnchanged": true,
+    "battleRecordsSubmitted": 0,
+    "personalRecordsSubmitted": 0
+  },
+  "scope": "Five real heroic Actor pipelines, isolated client/server record receipt and deployed public empty-batch transport; no production player uploads."
+}
