@@ -127,6 +127,17 @@ class CompletionParsingTests(unittest.TestCase):
 
 
 class CompletionEvidenceTests(unittest.TestCase):
+    def test_exact_completion_can_confirm_an_exit_before_a_preselected_cutoff(self):
+        for case in CASES:
+            with self.subTest(boss=case[1]):
+                r = make_replayer(case)
+                r.trimmedFinalTime = 20100
+                finish(r, [damage(19000), exit_event(20000), completion(case, 20500)])
+                self.assertEqual((r.win, r.finalTime), (1, 20000))
+                evidence = r.detail["winEvidence"][-1]
+                self.assertEqual((evidence["rule"], evidence["completionTime"]),
+                                 ("boss_completion_and_combat_exit", 20500))
+
     def test_completion_before_or_after_exit_wins_at_exit_even_with_full_hp(self):
         for case in CASES:
             for time in (19500, 20500):

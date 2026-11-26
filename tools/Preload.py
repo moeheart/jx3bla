@@ -32,7 +32,7 @@ def checkRateEdition(serverEdition):
                 j = json.loads(s)
                 edition = j["edition"]
                 STAT_PERCENT = j["data"]
-                if edition < serverEdition:
+                if int(edition) < int(serverEdition):
                     requireUpdate = True
         except:
             requireUpdate = True
@@ -52,7 +52,7 @@ def checkRateEdition(serverEdition):
             resp = urllib.request.urlopen(get_api_url('/getPercentInfo'))
             res = json.load(resp)
             STAT_PERCENT = res["data"]
-            j = {"edition": serverEdition, "data": STAT_PERCENT}
+            j = {"edition": res.get("rateEdition", serverEdition), "data": STAT_PERCENT}
             s = json.dumps(j)
             ensure_parent_dir(rate_path)
             with open(rate_path, 'w') as f:

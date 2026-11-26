@@ -73,7 +73,7 @@ class ServerCollectionTests(unittest.TestCase):
             side_effect=lambda path, data: self.server.open(path, 'w', encoding='utf-8').write(data)))
         self.stack.enter_context(patch.object(self.server.app, 'dbname', 'mock-user', create=True))
         self.stack.enter_context(patch.object(self.server.app, 'dbpwd', 'mock-password', create=True))
-        self.stack.enter_context(patch.object(self.server.app, 'percent_data', {}, create=True))
+        self.stack.enter_context(patch.object(self.server.app, 'percent_data', self.server._Percentiles('0')))
         self.cursor = RecordingCursor()
         self.db = MagicMock()
         self.db.cursor.return_value = self.cursor
@@ -203,6 +203,83 @@ class ServerCollectionTests(unittest.TestCase):
         self.assertEqual(response['version'], '8.16.0')
         self.assertEqual(response['url'], 'https://example.invalid/j3jz.exe')
         self.db.close.assert_called_once_with()
+
+    def test_discovery_and_download_recover_after_missed_cache_refresh(self):
+        announcement = [('version', '8.16.8'), ('updateurl', 'url'), ('rateEdition', '42')]
+        fresh = [('42', 'key', 1, '[0]')]
+        with patch.object(self.cursor, 'fetchall', side_effect=[announcement, fresh]):
+            result = self.client.get('/getAnnouncement', query_string={'edition': '8.16.8'}).get_json()
+        self.assertEqual(result['rateEdition'], '42')
+        self.assertEqual(self.server.app.percent_data['key']['num'], 1)
+        # The request can reach a different worker that missed the same notification.
+        self.server.app.percent_data = self.server._Percentiles('41')
+        with patch.object(self.cursor, 'fetchone', return_value=('42',), create=True), \
+                patch.object(self.cursor, 'fetchall', return_value=fresh):
+            downloaded = self.client.get('/getPercentInfo').get_json()
+        self.assertEqual(downloaded, {'result': 'success', 'rateEdition': '42',
+                                      'data': {'key': {'num': 1, 'value': '[0]'}}})
+        with patch.object(self.cursor, 'fetchall', return_value=[('41', 'old', 1, '[0]')]):
+            self.client.get('/refreshRateData')
+        self.assertEqual(self.server.app.percent_data.edition, '42')
+        self.assertIn('key', self.server.app.percent_data)
+
+    def test_legacy_html_replay_uses_its_edition_and_handles_unavailable_records(self):
+        player = "小'雨 & 风"
+        # Historical skill payloads have no delaySamples field.
+        replay = {"overall": {"playerID": player, "map": MAPS["835"], "boss": "史朝义"},
+                  "skill": {"cast": {"delay": 50}, "unused": {"delay": 0}}}
+        self.server.app.percent_data = {"lingsu-835-史朝义-cast-delay-161": {
+            "num": 2, "value": json.dumps(list(range(-100, 1)))}}
+        for identifier, params in (("42", (42, "42", 42)), ("abc123", ("abc123",))):
+            with self.subTest(identifier=identifier), patch.object(self.cursor, "execute") as query, \
+                    patch.object(self.cursor, "fetchall", return_value=[(42, 1, "lingsu", "161")]), \
+                    patch.object(self.server, "open", mock_open(read_data=json.dumps(replay))):
+                response = self.client.get("/showReplayPro.html", query_string={"id": identifier})
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.mimetype, "text/html")
+            self.assertEqual(query.call_args.args[1], params)
+            page = response.get_data(as_text=True)
+            data = json.loads(re.search(r"const resObj = (.*);", page)[1])
+            ranks = json.loads(re.search(r"const rankObj = (.*);", page)[1])
+            self.assertEqual(data["overall"]["playerID"], player)
+            self.assertEqual(ranks["cast"]["delay"], {"num": 2, "percent": 50})
+            self.assertEqual(ranks["unused"]["delay"], {"num": 0, "percent": -1})
+        for rows, expected in (([], "结果未找到."), ([(42, 0, "lingsu", "161")], "数据未公开."),
+                               ([(42, 1, "unknown", "161")], "不支持的心法，请等待之后的版本更新.")):
+            with self.subTest(rows=rows), patch.object(self.cursor, "fetchall", return_value=rows):
+                result = self.client.get("/showReplayPro.html", query_string={"id": "42"})
+            self.assertEqual(result.get_json(), {"text": expected})
+        self.writer.assert_not_called()
+
+    def test_inflight_replay_batch_and_xinfa_comparison_keep_one_generation(self):
+        app = self.server.app
+
+        class SwappingSnapshot(dict):
+            def get(self, key, default=None):
+                app.percent_data = {}
+                return super().get(key, default)
+
+        entry = {"num": 2, "value": json.dumps([0] * 101)}
+        records = [self.replay(when=INITIAL), self.replay(when=INITIAL + 1)]
+        records[1]["hash"] = "second-replay"
+        app.percent_data = SwappingSnapshot({
+            f"lingsu-835-史朝义-stat-{metric}-161": entry for metric in self.server.RANK_ID
+        })
+        batch = {"data": [{"type": "replay", "id": i, "data": item} for i, item in enumerate(records)]}
+        result = self.client.post("/uploadCombinedData", data={"jdata": json.dumps(batch)}).get_json()
+        self.assertEqual(result["status"], "success")
+        self.assertEqual([row["scoreRank"] for row in result["data"]], [100, 100])
+        inserted = self.cursor.inserted("ReplayProStat")
+        self.assertEqual({int(inserted[index]) for index in self.server.RANK_ID.values()}, {100})
+
+        with patch.object(self.server, "OCC_PINYIN_DICT", {"1": "first", "2": "second"}):
+            app.percent_data = SwappingSnapshot({
+                f"{occ}-835-史朝义-general-rdps-161": entry for occ in ("first", "second")
+            })
+            result = self.client.get("/getXinfaRank", query_string={
+                "map": MAPS["835"], "boss": "史朝义", "orderby": "rdps", "gameEdition": "161"
+            }).get_json()
+        self.assertEqual([row["name"] for row in result["result"]], ["first", "second"])
 
     def test_rank_aggregation_keeps_game_editions_and_difficulties_separate(self):
         data = self.replay()['statistics']

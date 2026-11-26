@@ -783,7 +783,7 @@ class LingSuReplayer(HealerReplay):
         effHeal = cshxBuff.getHealEff()
         self.result["skill"]["cshx"]["HPS"] = int(effHeal / self.result["overall"]["sumTimeEff"] * 1000)
         self.result["skill"]["cshx"]["skillNum"] = cshxSkill.getNum()
-        self.result["skill"]["cshx"]["delay"] = int(cshxSkill.getAverageDelay())
+        self.result["skill"]["cshx"].update(cshxSkill.getDelayStats())
         effHeal = cshxSkill.getHealEff()
         self.result["skill"]["cshx"]["skillHPS"] = int(effHeal / self.result["overall"]["sumTimeEff"] * 1000)
         # 当归四逆

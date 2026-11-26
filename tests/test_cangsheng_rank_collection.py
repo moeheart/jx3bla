@@ -3,7 +3,7 @@ import json
 import unittest
 from unittest.mock import Mock, mock_open, patch
 
-from serverFunc.UpdateReplayRank import getSingleStat, isReplayRankEligible, updatePercent
+from serverFunc.UpdateReplayRank import _collect_snapshot, getSingleStat, isReplayRankEligible, updatePercent
 from tools.Functions import parseEdition
 
 
@@ -20,12 +20,13 @@ def replay_record(edition, game_edition="160", record_hash="sample"):
 
 
 class CangshengRankCollectionTests(unittest.TestCase):
-    def setUp(self):
-        # Synthetic rows below exercise edition policy; no raw files are present.
-        from tools.RecordQuality import get_record_quality
-        stub = patch("serverFunc.UpdateReplayRank.load_record_quality", return_value=get_record_quality({}))
-        stub.start()
-        self.addCleanup(stub.stop)
+    def captured_candidates(self, records):
+        reader = Mock()
+        reader.cursor.return_value.fetchall.side_effect = [[(row[7],) for row in records], records]
+        data = json.dumps({"overall": {"playerID": "test-player"}, "skill": {}})
+        with patch("serverFunc.UpdateReplayRank.open", mock_open(read_data=data)):
+            _, candidates = _collect_snapshot(reader)
+        return candidates
 
     def test_new_season_requires_8160_for_all_three_stages(self):
         for stage in ("160", "161", "162", 160, 161, 162):
@@ -69,26 +70,24 @@ class CangshengRankCollectionTests(unittest.TestCase):
     def test_percent_updates_skip_old_clients_but_keep_broad_sql(self):
         for stage in ("160", "161", "162"):
             with self.subTest(stage=stage):
-                cursor, db = Mock(), Mock()
-                cursor.fetchall.return_value = [replay_record("8.15.5", stage, "old"),
+                cursor = Mock()
+                records = [replay_record("8.15.5", stage, "old"),
                                                 replay_record("8.16.0", stage, "calibrated"),
                                                 replay_record("8.17.0-beta.1", stage, "beta")]
                 table = {"lingsu-835-史朝义-stat-rdps-" + stage: {"value": json.dumps(list(range(101)))}}
-                updatePercent(table, cursor, db)
-                statements = [call.args[0] for call in cursor.execute.call_args_list]
-                self.assertEqual(statements[0], "SELECT * FROM ReplayProStat WHERE editionFull>=8013000 AND hold=1")
-                self.assertEqual(statements[1:], ["UPDATE ReplayProStat SET rdpsRank = 50 WHERE hash = 'calibrated'"])
-                db.commit.assert_called_once_with()
+                updatePercent(table, cursor, self.captured_candidates(records))
+                staged = cursor.executemany.call_args.args[1]
+                self.assertEqual([(row[0], row[-4]) for row in staged], [("calibrated", 50)])
+                self.assertIn("UPDATE ReplayProStat r JOIN", cursor.execute.call_args.args[0])
 
     def test_percent_updates_still_accept_older_client_for_old_season(self):
-        cursor, db = Mock(), Mock()
+        cursor = Mock()
         record = replay_record("8.13.0", "152", "legacy")
         record[5:7] = ["25人普通阆风悬城", "阿史那承庆"]
-        cursor.fetchall.return_value = [record]
         table = {"lingsu-794-阿史那承庆-stat-rdps-152": {"value": json.dumps(list(range(101)))}}
-        updatePercent(table, cursor, db)
-        self.assertEqual(cursor.execute.call_args.args[0], "UPDATE ReplayProStat SET rdpsRank = 50 WHERE hash = 'legacy'")
-        db.commit.assert_called_once_with()
+        updatePercent(table, cursor, self.captured_candidates([record]))
+        staged = cursor.executemany.call_args.args[1]
+        self.assertEqual([(row[0], row[-4]) for row in staged], [("legacy", 50)])
 
 
 if __name__ == "__main__":

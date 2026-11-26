@@ -174,6 +174,25 @@ class WindowLifecycleTests(unittest.TestCase):
         self.assertIs(window.window, original)
         self.assertEqual(self.errors, [])
 
+    def test_burst_of_replay_requests_does_not_delay_other_windows_or_reopen_cancelled_one(self):
+        first = self.business_window(SingleBossWindow)
+        second = self.business_window(PotExtendWindow)
+        def repeated_requests():
+            for _ in range(200):
+                first.start()
+            first.final()
+            second.start()
+            first.start()
+        worker = self.worker(repeated_requests)
+        worker.join(1)
+        self.assertFalse(worker.is_alive())
+        # Pending open, close, other window and the fresh open each have one turn.
+        self.assertEqual(self.dispatcher.requests.qsize(), 4)
+        self.run_until(lambda: first.finished == second.finished == 1)
+        self.assert_business_close(first)
+        self.assertEqual((first.loads, second.loads), ([self.ui_thread], [self.ui_thread]))
+        self.assertEqual(self.errors, [])
+
     def test_pending_cancel_and_repeated_final_do_not_construct_a_window(self):
         window = ProbeWindow(self.root)
         done = []

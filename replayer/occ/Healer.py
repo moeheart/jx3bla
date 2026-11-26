@@ -27,7 +27,7 @@ class HealerReplay(ReplayerBase):
         self.result["skill"][name] = {}
         self.result["skill"][name]["num"] = skillObj.getNum()
         self.result["skill"][name]["numPerSec"] = roundCent(self.result["skill"][name]["num"] / self.result["overall"]["sumTimeEff"] * 1000, 2)
-        self.result["skill"][name]["delay"] = int(skillObj.getAverageDelay())
+        self.result["skill"][name].update(skillObj.getDelayStats())
         effHeal = skillObj.getHealEff()
         self.result["skill"][name]["HPS"] = int(effHeal / self.result["overall"]["sumTimeEff"] * 1000)
         self.result["skill"][name]["effRate"] = roundCent(safe_divide(effHeal, skillObj.getHeal()))
@@ -46,7 +46,7 @@ class HealerReplay(ReplayerBase):
         self.result["skill"][name] = {}
         self.result["skill"][name]["num"] = skillObj.getNum()
         self.result["skill"][name]["numPerSec"] = roundCent(self.result["skill"][name]["num"] / self.result["overall"]["sumTimeEff"] * 1000, 2)
-        self.result["skill"][name]["delay"] = int(skillObj.getAverageDelay())
+        self.result["skill"][name].update(skillObj.getDelayStats())
         effHeal = skillObj.getHealEff()
         self.result["skill"][name]["HPS"] = int(effHeal / self.result["overall"]["sumTimeEff"] * 1000)
         self.result["skill"][name]["effRate"] = roundCent(safe_divide(effHeal, skillObj.getHeal()))

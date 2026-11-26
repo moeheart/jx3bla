@@ -4,6 +4,7 @@ import unittest
 from unittest.mock import Mock
 
 from replayer.BattleHistory import BattleHistory
+from replayer.boss.yizhiku.Fedhri import FedhriReplayer
 from replayer.CombatTracker import CombatTracker, DpsCastRecorder, HealCastRecorder
 from replayer.occ.Dps import DpsReplayer
 from replayer.occ.HuaJianYou import HuaJianYouReplayer
@@ -12,10 +13,31 @@ from tools.Functions import BuffCounter
 
 
 class EffectiveTimeTests(unittest.TestCase):
+    def test_fedhri_delayed_downtime_is_clipped_when_the_attempt_ends_early(self):
+        for end, effective_dps in ((20000, 10000), (23000, 13000), (25000, 13000)):
+            with self.subTest(end=end):
+                boss = FedhriReplayer.__new__(FedhriReplayer)
+                boss.bh = BattleHistory(10000, end)
+                boss.timer = []
+                boss.bld = NS(info=NS(npc={'boss': object()}))
+                boss.bhBlackList = ['c38186']
+                boss.analyseSecondStage(NS(dataType='Cast', time=18000,
+                                           caster='boss', id='38186'))
+                boss.bh.calBadPeriod()
+                self.assertEqual(boss.bh.sumTime('dps'), effective_dps)
+                self.assertEqual(boss.bh.sumTime('healer'), end - 10000)
+
+    def test_combat_window_ignores_earlier_intervals_and_keeps_partial_overlap(self):
+        bh = BattleHistory(10000, 20000)
+        bh.setBadPeriod(8000, 9000)
+        bh.setBadPeriod(9500, 10500)
+        bh.calBadPeriod()
+        self.assertEqual(bh.sumTime('dps'), 9500)
+
     def test_record_with_no_effective_dps_time_has_finite_skill_rates(self):
         replay=DpsReplayer.__new__(DpsReplayer)
         replay.result={'overall':{'sumTimeEff':0},'skill':{}}
-        skill=NS(getNum=lambda:1,getAverageDelay=lambda:0,getDamageEff=lambda:100)
+        skill=NS(getNum=lambda:1,getDelayStats=lambda:{"delay":0,"delaySamples":1},getDamageEff=lambda:100)
         replay.skillInfo=[[skill]]
         replay.gcdSkillIndex={'skill':0}
         replay.calculateSkillInfoDirect('direct',skill)

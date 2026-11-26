@@ -19,6 +19,7 @@ import math
 import stat
 import tempfile
 from contextvars import ContextVar
+from threading import Lock
 from Constants import *
 
 from tools.Functions import *
@@ -30,6 +31,7 @@ from serverFunc.UpdateReplayRank import MIN_RANK_CLIENT_BY_GAME_EDITION, isRepla
 from tools.RecordQuality import (get_record_quality, is_metric_rank_eligible, quality_level,
                                 load_record_quality, invalidate_quality_cache, is_valid_rank, parse_statistics)
 from tools.ReplayRevision import revision_change
+from tools.Rank import percentile_rank
 
 version = EDITION
 ip = "127.0.0.1" # IP
@@ -110,15 +112,14 @@ def getAnnouncement():
         return jsonify({"available": 0})
     db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
     cursor = db.cursor()
-    sql = '''SELECT * FROM PreloadInfo;'''
-    cursor.execute(sql)
-    result = cursor.fetchall()
-
-    dataDict = {}
-    for line in result:
-        dataDict[line[0]] = line[1]
-    dataDict["url"] = dataDict["updateurl"]
-    db.close()
+    try:
+        cursor.execute("SELECT * FROM PreloadInfo;")
+        dataDict = dict(cursor.fetchall())
+        dataDict["url"] = dataDict["updateurl"]
+        snapshot = _load_percentiles(cursor, dataDict.get("rateEdition", "0"))
+        dataDict["rateEdition"] = snapshot.edition
+    finally:
+        db.close()
     return jsonify(dataDict)
 
 @app.route('/setAnnouncement', methods=['POST'])
@@ -208,40 +209,62 @@ def getGroupAttribute():
     db.close()
     return jsonify(results)
 
+class _Percentiles(dict):
+    def __init__(self, edition):
+        super().__init__()
+        self.edition = str(edition)
+
+
+_percentile_lock = Lock()
+app.percent_data = _Percentiles("0")
+
+
+def _load_percentiles(cursor, expected=None):
+    # Concurrent requests may already have started older DB snapshots.
+    with _percentile_lock:
+        current = app.percent_data
+        if expected is not None and int(current.edition) >= int(expected):
+            return current
+        cursor.execute("SELECT v.edition, p.name, p.number, p.records FROM "
+                       "(SELECT COALESCE(MAX(datavalue), '0') AS edition FROM PreloadInfo "
+                       "WHERE datakey = 'rateEdition') v LEFT JOIN ReplayProStatRank p ON 1=1")
+        rows = cursor.fetchall()
+        snapshot = _Percentiles(rows[0][0])
+        if int(snapshot.edition) < int(current.edition):
+            return current
+        for _, key, number, values in rows:
+            if key is not None:
+                snapshot[key] = {"num": number, "value": values}
+        app.percent_data = snapshot
+        return snapshot
+
+
+def _percentile_snapshot(force=False):
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset="utf8mb4")
+    try:
+        cursor = db.cursor()
+        expected = None
+        if not force:
+            cursor.execute("SELECT datavalue FROM PreloadInfo WHERE datakey = 'rateEdition'")
+            row = cursor.fetchone()
+            expected = row[0] if row else "0"
+        return _load_percentiles(cursor, expected)
+    finally:
+        db.close()
+
+
 @app.route('/getPercentInfo', methods=['GET'])
 def getPercentInfo():
-    '''
-    获取百分位排名信息.
-    '''
-    res = app.percent_data
-    gc.collect()
-    return jsonify({'result': 'success', 'data': res})
-    
+    snapshot = _percentile_snapshot()
+    return jsonify({"result": "success", "rateEdition": snapshot.edition, "data": snapshot})
+
+
 @app.route('/refreshRateData', methods=['GET', 'POST'])
 def refreshRateData():
-    '''
-    刷新服务器上的百分位排名数据.
-    '''
-    print("Updating rank data...")
-    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
-    cursor = db.cursor()
+    _percentile_snapshot(force=True)
+    return jsonify({"result": "success"})
 
-    sql = """SELECT * FROM ReplayProStatRank"""
-    cursor.execute(sql)
-    result = cursor.fetchall()
 
-    db.close()
-    
-    percent_data = {}
-    for line in result:
-        percent_data[line[0]] = {"num": line[1], "value": line[2]}
-    
-    app.percent_data = percent_data
-    
-    print("Rank data updated!")
-    return jsonify({'result': 'success'})
-    
-    
 @app.route('/getUuid', methods=['POST'])
 def getUuid():
     mac = request.form.get('mac')
@@ -515,34 +538,17 @@ def uploadActorData():
         db.close()
     return jsonify(res)
     
-def getRank(value, table):
-    '''
-    获取单个数值的百分位排名.
-    '''
-    l = 0
-    r = 101
-    while r > l + 1:
-        m = (l + r + 1) // 2
-        if value >= table[m]:
-            l = m
-        else:
-            r = m
-    percent = l
-    return percent
-    
-def getRankFromKeys(value, occ, map, boss, name, key, gameEdition):
+def getRankFromKeys(value, occ, map, boss, name, key, gameEdition, percentiles=None):
     '''
     按key的格式，从数据库中找到对应的百分比排名.
     '''
     percent_key = "%s-%s-%s-%s-%s-%s" % (occ, map, boss, name, key, gameEdition)
-    if percent_key in app.percent_data:
-        table = json.loads(app.percent_data[percent_key]["value"])
-        rank = getRank(value, table)
-        return rank
-    else:
-        return -1
+    if percentiles is None:
+        percentiles = app.percent_data
+    entry = percentiles.get(percent_key)
+    return percentile_rank(value, json.loads(entry["value"])) if entry is not None else -1
 
-def receiveReplay(jdata, cursor):
+def receiveReplay(jdata, cursor, percentiles=None):
     '''
     接收replay的json信息并进行入库处理.
     params:
@@ -640,10 +646,13 @@ def receiveReplay(jdata, cursor):
 
     _write_statistics("database/ReplayProStat/%d" % shortID, json.dumps(statistics, ensure_ascii=False))
 
+    if percentiles is None:
+        percentiles = app.percent_data
+
     def metric_rank(metric, value):
         if not is_metric_rank_eligible(incoming_quality, metric):
             return -1
-        return getRankFromKeys(value, occ, map, boss, "stat", metric, gameEdition)
+        return getRankFromKeys(value, occ, map, boss, "stat", metric, gameEdition, percentiles)
 
     scoreRank = metric_rank("score", score)
     rhps = statistics["skill"]["healer"].get("rhps", 0)
@@ -708,10 +717,11 @@ def uploadCombinedData():
     # battleID = "0"
     journal_token = _statistics_undo.set({})
     try:
+        percentiles = app.percent_data
         for line in jdata["data"]:
             if line["type"] == "replay":
                 # 单个复盘
-                res = receiveReplay(line["data"], cursor)
+                res = receiveReplay(line["data"], cursor, percentiles)
                 res["id"] = line["id"]
                 groupRes["data"].append(res)
             elif line["type"] == "battle":
@@ -735,28 +745,33 @@ def uploadCombinedData():
 
 @app.route('/showReplayPro.html', methods=['GET'])
 def showReplayPro():
-    id = request.args.get('id')
-    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
-    cursor = db.cursor()
-    sql = """SELECT shortID, public, replayedition, occ FROM ReplayProStat WHERE shortID = %s OR hash = "%s";"""%(id, id)
-    cursor.execute(sql)
-    result = cursor.fetchall()
-    db.close()
-    if len(result) == 0:
-        text = "结果未找到."
-    elif result[0][1] == 0:
-        text = "数据未公开."
-    elif result[0][3] != "unknown": #in ["xiangzhi", "lingsu", "lijingyidao", "butianjue", "yunchangxinjing"]:
-        # 生成复盘页面
-        occ = result[0][3]
-        with open("database/ReplayProStat/%d" % result[0][0], "r", encoding="utf-8") as f:
-            jResult = parse_statistics(f.read())
-        text = json.dumps(jResult, ensure_ascii=False)
-        rc = RankCalculator(jResult, app.percent_data)
-        rank = rc.getRankFromStat(occ)
-        rankStr = json.dumps(rank)
-        return render_template("HealerReplay.html", raw=text, rank=rankStr, occ=occ, edition=EDITION)
-    return jsonify({'text': text.decode()})
+    identifier = request.args.get("id", "")
+    if not identifier:
+        return jsonify({"text": "结果未找到."})
+    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset="utf8")
+    try:
+        cursor = db.cursor()
+        columns = "SELECT shortID, public, occ, gameEdition FROM ReplayProStat "
+        if identifier.isascii() and identifier.isdecimal() and len(identifier) <= 10:
+            cursor.execute(columns + "WHERE shortID = %s OR hash = %s ORDER BY (shortID = %s) DESC LIMIT 1",
+                           (int(identifier), identifier, int(identifier)))
+        else:
+            cursor.execute(columns + "WHERE hash = %s LIMIT 1", (identifier,))
+        rows = cursor.fetchall()
+    finally:
+        db.close()
+    if not rows:
+        return jsonify({"text": "结果未找到."})
+    short_id, public, occ, game_edition = rows[0]
+    if not public:
+        return jsonify({"text": "数据未公开."})
+    if not occ or occ == "unknown":
+        return jsonify({"text": "不支持的心法，请等待之后的版本更新."})
+    with open("database/ReplayProStat/%d" % short_id, encoding="utf-8-sig") as stream:
+        statistics = parse_statistics(stream.read())
+    rank = RankCalculator(statistics, app.percent_data, game_edition).getRankFromStat(occ)
+    return render_template("HealerReplay.html", raw=statistics, rank=rank, occ=occ, edition=EDITION)
+
 
 @app.route('/getReplayPro', methods=['GET'])
 def getReplayPro():
@@ -1039,6 +1054,7 @@ def getXinfaRankfunc():
         jsonify({'available': 0, 'text': "未指定数据版本", 'result': []})
 
     occ_collect = []
+    percentiles = app.percent_data
 
     print("[Test]", OCC_PINYIN_DICT)
     for key in OCC_PINYIN_DICT:
@@ -1048,11 +1064,10 @@ def getXinfaRankfunc():
         if mapid == "未知":
             continue
         tablekey = "%s-%s-%s-%s-%s-%s" % (occ_pinyin, mapid, boss, case, orderby, gameEdition)
-        if tablekey in app.percent_data:
-            #result[occ_pinyin] = app.percent_data[tablekey]
-            table = json.loads(app.percent_data[tablekey]["value"])
-            # occ_collect.append([occ_pinyin, table[75]])
-            occ_collect.append({"name": occ_pinyin, "num": app.percent_data[tablekey]["num"], "value": table})
+        entry = percentiles.get(tablekey)
+        if entry is not None:
+            table = json.loads(entry["value"])
+            occ_collect.append({"name": occ_pinyin, "num": entry["num"], "value": table})
 
     occ_collect.sort(key=lambda x:-x["value"][75])
 
@@ -1238,28 +1253,9 @@ def getRankfunc():
 #     return jsonify({'result': 'success', 'num': num, 'numOver': numOver})
     
 def initializePercent():
-    '''
-    初始化服务器上的排名信息.
-    '''
-    print("Initializing rank data...")
-    db = pymysql.connect(host=ip, user=app.dbname, password=app.dbpwd, database="jx3bla", port=3306, charset='utf8')
-    cursor = db.cursor()
+    _percentile_snapshot(force=True)
 
-    sql = """SELECT * FROM ReplayProStatRank"""
-    cursor.execute(sql)
-    result = cursor.fetchall()
 
-    db.close()
-    
-    percent_data = {}
-    for line in result:
-        percent_data[line[0]] = {"num": line[1], "value": line[2]}
-    
-    app.percent_data = percent_data
-    
-    print("Rank data initialized!")
-    
-    
 if __name__ == '__main__':
     import signal
     

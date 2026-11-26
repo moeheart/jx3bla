@@ -66,13 +66,14 @@ class Window():
         # Invalidate opens that were queued before this close, even when no
         # Toplevel has been constructed yet. Capture the particular window so
         # a delayed close never destroys a subsequently reopened instance.
-        self._generation += 1
-        window = self.window
-        dispatcher = self._dispatcher
-        if dispatcher is not None and threading.get_ident() != dispatcher.thread_id:
-            dispatcher.post(lambda: self._destroy_window(window))
-        else:
-            self._destroy_window(window)
+        with self._request_lock:
+            self._generation += 1
+            window = self.window
+            dispatcher = self._dispatcher
+            if dispatcher is not None and threading.get_ident() != dispatcher.thread_id:
+                dispatcher.post(lambda: self._destroy_window(window))
+                return
+        self._destroy_window(window)
 
     def start(self):
         '''
@@ -88,9 +89,13 @@ class Window():
             if threading.current_thread() is not threading.main_thread():
                 raise RuntimeError('Window.install_ui(root) must run on the Tk thread before starting windows')
             dispatcher = self.install_ui(root)
-        self._dispatcher = dispatcher
-        generation = self._generation
-        dispatcher.post(lambda: self._open(generation))
+        with self._request_lock:
+            generation = self._generation
+            if self._dispatcher is dispatcher and self._queued_generation == generation:
+                return
+            self._dispatcher = dispatcher
+            self._queued_generation = generation
+            dispatcher.post(lambda: self._open(dispatcher, generation))
 
     @staticmethod
     def install_ui(root):
@@ -126,8 +131,12 @@ class Window():
         if self.window is window and self._exists(window):
             self.final()
 
-    def _open(self, generation):
-        if generation != self._generation or self._dispatcher.closed:
+    def _open(self, dispatcher, generation):
+        with self._request_lock:
+            if dispatcher is not self._dispatcher or generation != self._generation:
+                return
+            self._queued_generation = None
+        if dispatcher.closed:
             return
         if self._exists(self.window):
             self.window.deiconify()
@@ -172,5 +181,7 @@ class Window():
         '''
         self.windowAlive = False
         self.window = None
+        self._request_lock = threading.Lock()
+        self._queued_generation = None
         self._generation = 0
         self._dispatcher = None

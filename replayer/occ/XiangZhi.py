@@ -832,7 +832,7 @@ class XiangZhiProReplayer(HealerReplay):
         # 商，注意Buff与Skill统计不同
         self.calculateSkillInfoDirect("shang", shangBuff)
         shangSkill = self.skillInfo[self.gcdSkillIndex["14138"]][0]
-        self.result["skill"]["shang"]["delay"] = int(shangSkill.getAverageDelay())
+        self.result["skill"]["shang"].update(shangSkill.getDelayStats())
         num = 0
         sum = 0
         for key in shangBuffDict:
@@ -852,7 +852,7 @@ class XiangZhiProReplayer(HealerReplay):
         # 角
         self.calculateSkillInfoDirect("jue", jueBuff)
         jueSkill = self.skillInfo[self.gcdSkillIndex["14139"]][0]
-        self.result["skill"]["jue"]["delay"] = int(jueSkill.getAverageDelay())
+        self.result["skill"]["jue"].update(jueSkill.getDelayStats())
         num = 0
         sum = 0
         for key in jueBuffDict:

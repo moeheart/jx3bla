@@ -64,34 +64,28 @@ function getSkillPercent(name, key) {
     }
 }
 
-repl = raw.replace(/'/g, '"').replace(/&#39;/g, '"').replace(/\n/g, '\\n').replace(/\t/g, '\\t');
-resObj = JSON.parse(repl)
-
-repl2 = rank.replace(/'/g, '"').replace(/&#34;/g, '"').replace(/\n/g, '\\n').replace(/\t/g, '\\t');
-rankObj = JSON.parse(repl2)
-
 // part 1
-$('#data-1-1').html(resObj.overall.edition);
-$('#data-1-2').html(resObj.overall.playerID);
-$('#data-1-3').html(resObj.overall.server);
-$('#data-1-4').html(resObj.overall.battleTimePrint);
-$('#data-1-5').html(resObj.overall.generateTimePrint);
-$('#data-1-6').html(resObj.overall.map);
-$('#data-1-7').html(resObj.overall.boss);
-$('#data-1-8').html(resObj.overall.numPlayer);
-$('#data-1-9').html(resObj.overall.sumTimePrint);
-$('#data-1-10').html(resObj.overall.dataType);
+$('#data-1-1').text(resObj.overall.edition);
+$('#data-1-2').text(resObj.overall.playerID);
+$('#data-1-3').text(resObj.overall.server);
+$('#data-1-4').text(resObj.overall.battleTimePrint);
+$('#data-1-5').text(resObj.overall.generateTimePrint);
+$('#data-1-6').text(resObj.overall.map);
+$('#data-1-7').text(resObj.overall.boss);
+$('#data-1-8').text(resObj.overall.numPlayer);
+$('#data-1-9').text(resObj.overall.sumTimePrint);
+$('#data-1-10').text(resObj.overall.dataType);
 
 // part 2
-if (resObj.equip.available) {
-    $('#data-2-1').html(resObj.equip.score);
-    $('#data-2-2').html(resObj.equip.sketch);
-    $('#data-2-3').html(resObj.equip.forge);
-    $('#data-2-4').html(resObj.equip.spirit);
-    $('#data-2-5').html(resObj.equip.heal+"("+resObj.equip.healBase+")");
-    $('#data-2-6').html(resObj.equip.critPercent+"("+resObj.equip.crit+")");
-    $('#data-2-7').html(resObj.equip.critpowPercent+"("+resObj.equip.critpow+")");
-    $('#data-2-8').html(resObj.equip.hastePercent+"("+resObj.equip.haste+")");
+if (resObj.equip && resObj.equip.available) {
+    $('#data-2-1').text(resObj.equip.score);
+    $('#data-2-2').text(resObj.equip.sketch);
+    $('#data-2-3').text(resObj.equip.forge);
+    $('#data-2-4').text(resObj.equip.spirit);
+    $('#data-2-5').text(resObj.equip.heal+"("+resObj.equip.healBase+")");
+    $('#data-2-6').text(resObj.equip.critPercent+"("+resObj.equip.crit+")");
+    $('#data-2-7').text(resObj.equip.critpowPercent+"("+resObj.equip.critpow+")");
+    $('#data-2-8').text(resObj.equip.hastePercent+"("+resObj.equip.haste+")");
 }
 else {
     $('#data-2-t').addClass("hidden");
@@ -100,10 +94,10 @@ else {
 
 //part 3
 var table=$("#data-3-t");
-for (var i in resObj.healer.table){
+for (var i in (resObj.healer || {}).table){
     var tr = $("<tr></tr>");
     tr.appendTo(table);
-    var td = $("<td>"+resObj.healer.table[i].name+"</td>");
+    var td = $("<td>").text(resObj.healer.table[i].name);
     td.addClass("occ-"+resObj.healer.table[i].occ)
     td.appendTo(tr);
 
@@ -112,7 +106,7 @@ for (var i in resObj.healer.table){
         flag = true;
     }
 
-    var td = $("<td>"+resObj.healer.table[i].healEff+"</td>");
+    var td = $("<td>").text(resObj.healer.table[i].healEff);
     if (flag) {
         spRes = getSkillPercent("healer", "healEff");
         td.css("color", spRes[2]);
@@ -121,7 +115,7 @@ for (var i in resObj.healer.table){
         td.attr("num", spRes[0]);
     }
     td.appendTo(tr);
-    var td = $("<td>"+resObj.healer.table[i].heal+"</td>");
+    var td = $("<td>").text(resObj.healer.table[i].heal);
     if (flag) {
         spRes = getSkillPercent("healer", "heal");
         td.css("color", spRes[2]);
@@ -349,7 +343,9 @@ function getMousePos(event) {
 
 //part 6
 
-battleTime = resObj.overall.sumTime
+const replayTimeline = resObj.replay || {};
+const normalCasts = replayTimeline.normal || [];
+battleTime = resObj.overall.sumTime || 0
 battleTimePixels = parseInt(battleTime / 100)
 var canvas=document.getElementById('replay-timeline');
 var ctx=canvas.getContext('2d');
@@ -364,11 +360,11 @@ ctx.stroke();
 nowt = 0;
 
 if (occ == "xiangzhi") {
-    if (resObj.replay.heatType){
-        if (resObj.replay.heatType == "meihua"){
+    if (replayTimeline.heatType){
+        if (replayTimeline.heatType == "meihua"){
             nowTimePixel = 0
-            for (i in resObj.replay.heat.timeline) {
-                var line = resObj.replay.heat.timeline[i];
+            for (i in replayTimeline.heat.timeline) {
+                var line = replayTimeline.heat.timeline[i];
                 ctx.fillStyle = "rgb(" + parseInt(255 - (255 - 100) * line / 100) + "," +
                                          parseInt(255 - (255 - 250) * line / 100) + "," +
                                          parseInt(255 - (255 - 180) * line / 100) + ")";
@@ -376,12 +372,12 @@ if (occ == "xiangzhi") {
                 nowTimePixel += 5;
             }
         }
-        else if (resObj.replay.heatType == "hot"){
+        else if (replayTimeline.heatType == "hot"){
             yPos = [1, 9, 17, 25, 33, 39];
             for (var j = 0; j < 5; j++) {
                 nowTimePixel = 0;
-                for (i in resObj.replay.heat.timeline[j]) {
-                    var line = resObj.replay.heat.timeline[j][i];
+                for (i in replayTimeline.heat.timeline[j]) {
+                    var line = replayTimeline.heat.timeline[j][i];
                     if (line == 0)
                         ctx.fillStyle = "#ff7777";
                     else {
@@ -406,7 +402,7 @@ while (nowt < battleTime) {
     ctx.fillText(text, pos, 26);
 }
 
-startTime = resObj.replay.startTime
+startTime = replayTimeline.startTime
 painter = $('#replay-paint')
 // 绘制常规技能轴
 
@@ -414,7 +410,7 @@ var stack = 3;  // 堆叠数量，TODO后续改成可在页面中修改
 var j = -1;
 var lastName = "";
 var lastStart = 0;
-l = resObj.replay.normal.length;
+l = normalCasts.length;
 var stackHeal = 0;
 var stackHealEff = 0;
 var stackNum = 0;
@@ -422,10 +418,10 @@ for (var i = 0; i <= l; i++) {
     if (i == l) {
         record = {"skillname": "Final", "start": 999999999999, heal: 0, healEff: 0, num: 0};
     } else {
-        record = resObj.replay.normal[i];
-        stackHeal += resObj.replay.normal[i].heal;
-        stackHealEff += resObj.replay.normal[i].healeff;
-        stackNum += resObj.replay.normal[i].num;
+        record = normalCasts[i];
+        stackHeal += normalCasts[i].heal;
+        stackHealEff += normalCasts[i].healeff;
+        stackNum += normalCasts[i].num;
     }
     if (record.skillname != lastName || record.start - lastStart > 3000) {
         if (j == -1) {
@@ -436,8 +432,8 @@ for (var i = 0; i <= l; i++) {
         }
         if (i - j >= stack) {
             // 进行堆叠显示
-            var record_first = resObj.replay.normal[j];
-            var record_last = resObj.replay.normal[i-1];
+            var record_first = normalCasts[j];
+            var record_last = normalCasts[i-1];
             posStart = parseInt((record_first.start - startTime) / 100);
             if (posStart < 0) {
                 posStart = 0;
@@ -471,7 +467,7 @@ for (var i = 0; i <= l; i++) {
         } else {
             // 进行独立显示
             for (var k = j; k < i; k++) {
-                var record_single = resObj.replay.normal[k];
+                var record_single = normalCasts[k];
                 posStart = parseInt((record_single.start - startTime) / 100);
                 if (posStart < 0) {
                     posStart = 0;
@@ -504,12 +500,12 @@ for (var i = 0; i <= l; i++) {
 }
 
 
-for (var i in resObj.replay.normal) {
-    record = resObj.replay.normal[i];
+for (var i in normalCasts) {
+    record = normalCasts[i];
 }
 // 绘制特殊技能轴
-for (var i in resObj.replay.special) {
-    record = resObj.replay.special[i];
+for (var i in replayTimeline.special) {
+    record = replayTimeline.special[i];
     posStart = parseInt((record.start - startTime) / 100);
     if (posStart < 0) {
         posStart = 0;
@@ -535,8 +531,8 @@ for (var i in resObj.replay.special) {
     singleSkill.addClass("skill-active");
 }
 // 绘制点名轴
-for (var i in resObj.replay.call) {
-    record = resObj.replay.call[i];
+for (var i in replayTimeline.call) {
+    record = replayTimeline.call[i];
     posStart = parseInt((record.start - startTime) / 100);
     if (posStart < 0) {
         if (posStart < -10) {
@@ -572,8 +568,8 @@ for (var i in resObj.replay.call) {
     singleSkill.addClass("skill-active");
 }
 // 绘制环境轴
-for (var i in resObj.replay.environment) {
-    record = resObj.replay.environment[i];
+for (var i in replayTimeline.environment) {
+    record = replayTimeline.environment[i];
     posStart = parseInt((record.start - startTime) / 100);
     if (posStart < 0) {
         if (posStart < -10) {
@@ -650,23 +646,23 @@ $('.skill-active').on('mouseover', function(e) {
 //part 7
 
 var table=$("#data-7-t");
-for (var i in resObj.dps.table){
+for (var i in (resObj.dps || {}).table){
     var tr = $("<tr></tr>");
     tr.appendTo(table);
-    var td = $("<td>"+resObj.dps.table[i].name+"</td>");
+    var td = $("<td>").text(resObj.dps.table[i].name);
     td.addClass("occ-"+resObj.dps.table[i].occ)
     td.appendTo(tr);
-    var td = $("<td>"+resObj.dps.table[i].damage+"</td>");
+    var td = $("<td>").text(resObj.dps.table[i].damage);
     td.appendTo(tr);
     var td = $("<td>"+parseCent(resObj.dps.table[i].shieldRate)+"</td>");
     td.appendTo(tr);
-    var td = $("<td>"+resObj.dps.table[i].shieldBreak+"</td>");
+    var td = $("<td>").text(resObj.dps.table[i].shieldBreak);
     td.appendTo(tr);
 }
 
 //part 8
 
-if (resObj.score.available) {
+if (resObj.score && resObj.score.available) {
 
     scoreA = resObj.score.scoreA;
     resA = getLvl(scoreA);
@@ -707,4 +703,4 @@ else {
 
 //part 9
 
-$('#ad-id').html(resObj.overall.shortID);
+$('#ad-id').text(resObj.overall.shortID);

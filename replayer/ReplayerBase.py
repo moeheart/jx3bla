@@ -5,6 +5,7 @@ from tools.Functions import *
 from tools.LoadData import *
 from tools.Names import *
 from tools.RecordQuality import is_metric_rank_eligible
+from tools.Rank import percentile_rank, rank_metric_value
 from tools.ReplayRevision import mark_recalculation
 from data.BattleLogData import RawDataLoader
 # from replayer.Percent import *
@@ -14,12 +15,6 @@ import time
 import json
 import hashlib
 import urllib.request
-
-def getDirection(key):
-    if "delay" in key:
-        return -1
-    else:
-        return 1
 
 class RankCalculator():
     '''
@@ -43,7 +38,10 @@ class RankCalculator():
         '''
         if not is_metric_rank_eligible(self.result, key):
             return 0, -1
-        value = getDirection(key) * value
+        skill = self.result.get("skill", {}).get(name, {})
+        value = rank_metric_value(key, value, skill)
+        if value is None:
+            return (0, -1) if key == "delay" else (0, 0)
         percent_key = "%s-%s-%s-%s-%s-%s" % (occ, map, boss, name, key, self.game_edition)
         # print("[key]", percent_key)
         # print("[data]", self.percent_data.keys())
@@ -52,16 +50,7 @@ class RankCalculator():
             result = self.percent_data[percent_key]
             num = result["num"]
             table = json.loads(result["value"])
-            l = 0
-            r = 101
-            while r > l + 1:
-                m = (l + r + 1) // 2
-                if value >= table[m]:
-                    l = m
-                else:
-                    r = m
-            percent = l
-            return num, percent
+            return num, percentile_rank(value, table)
         else:
             # 缺省值流程
             return 0, 0
@@ -81,6 +70,8 @@ class RankCalculator():
         for name in self.result["skill"]:
             self.rank[name] = {}
             for key in self.result["skill"][name]:
+                if key == "delaySamples":
+                    continue
                 value = self.result["skill"][name][key]
                 num, percent = self.getSkillPercent(occ, map, boss, name, key, value)
                 self.rank[name][key] = {"num": num, "percent": percent}

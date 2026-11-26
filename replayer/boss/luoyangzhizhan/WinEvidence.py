@@ -99,6 +99,8 @@ class LuoyangWinEvidence:
         for npc_id, time in self.exits.items():
             last = self.lastDamage[npc_id]
             for completion in self.completions:
+                # An exact map/boss completion can arrive after the combat
+                # cutoff. The corroborated boss exit defines the clear time.
                 if 0 <= completion - last <= 5000 and abs(time - completion) <= 5000:
                     candidates.append({"time": time, "rule": "boss_completion_and_combat_exit",
                                        "npcID": npc_id, "template": self.template(npc_id),

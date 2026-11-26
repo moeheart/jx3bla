@@ -792,7 +792,7 @@ class LiJingYiDaoReplayer(HealerReplay):
         # effHeal = wozhenBuff.getHealEff()
         # self.result["skill"]["wozhen"]["HPS"] = int(effHeal / self.result["overall"]["sumTime"] * 1000)
         self.result["skill"]["wozhen"]["shengxiHPS"] = int(wozhenDirectHeal / self.result["overall"]["sumTimeEff"] * 1000)
-        self.result["skill"]["wozhen"]["delay"] = int(wozhenSkill.getAverageDelay())
+        self.result["skill"]["wozhen"].update(wozhenSkill.getDelayStats())
         num = 0
         sum = 0
         for key in wozhenDict:

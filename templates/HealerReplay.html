@@ -180,10 +180,10 @@
 
     <script src="../static/jquery-3.3.1.js"></script>
     <script>
-        raw = "{{raw}}";
-        rank = "{{rank}}";
-        occ = "{{occ}}";
+        const resObj = {{ raw | tojson }};
+        const rankObj = {{ rank | tojson }};
+        const occ = {{ occ | tojson }};
 
     </script>
-    <script src="../static/HealerReplay.js?v={{edition}}"></script>
+    <script src="../static/HealerReplay.js?v={{edition}}-json"></script>
 </html>

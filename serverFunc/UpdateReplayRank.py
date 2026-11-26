@@ -7,11 +7,13 @@ import configparser
 import json
 import time
 import math
+from itertools import islice
 import urllib.request
 from tools.Names import *
 from tools.Functions import parseEdition
+from tools.Rank import percentile_rank, rank_metric_value
 from tools.RecordQuality import (get_record_quality, is_metric_rank_eligible,
-                                load_record_quality, parse_statistics)
+                                SENSITIVE_METRICS, parse_statistics)
 
 # 数据库的屎山
 STAT_ID = {"score": 3, "rhps": 18, "hps": 20, "rdps": 22, "ndps": 24, "mrdps": 26, "mndps": 28}
@@ -37,69 +39,45 @@ def isReplayRankEligible(record):
         return False
 
 
-def getDirection(key):
-    if "delay" in key:
-        return -1
-    else:
-        return 1
+def _read_replay(row):
+    try:
+        with open("database/ReplayProStat/%d" % row[8], encoding="utf-8-sig") as stream:
+            return stream.read()
+    except (FileNotFoundError, UnicodeError):
+        return None
 
-def getSingleStat(record):
-    if not isReplayRankEligible(record):
-        return {}
-    res = {}
+
+def _sample(record, text):
+    """Derive all sample metrics and the SQL rank eligibility from one file image."""
+    try:
+        d = parse_statistics(text) if text is not None else None
+    except (ValueError, SyntaxError):
+        d = None
+    if d is None:
+        return {}, False
+    quality = get_record_quality(d)
     key1 = record[2]
     key2 = getIDFromMap(record[5])
     key3 = record[6]
-    edition = record[10]
-    gameEdition = record[31]
-    key6 = gameEdition
-    if key2 not in MAP_DICT_RECORD_LOGS or MAP_DICT_RECORD_LOGS[key2] == 1:
-        return {}
-    if key3 not in BOSS_RAW:
-        return {}
-
-    try:
-        with open("database/ReplayProStat/%d" % record[8], "r") as f:
-            d = parse_statistics(f.read())
-    except:
-        print("Problem:", record[8])
-        return {}
-
+    key6 = record[31]
+    if key2 not in MAP_DICT_RECORD_LOGS or MAP_DICT_RECORD_LOGS[key2] == 1 or key3 not in BOSS_RAW:
+        return {}, quality["precise"]
+    res = {}
     playerIDloaded = d["overall"]["playerID"]
     if "·" in playerIDloaded:
         playerIDloaded = playerIDloaded.split("·")[0]
     if record[1] != playerIDloaded:
-        return {}
-    else:
-        pass
+        return {}, False
 
     skillStat = d["skill"]
-    quality = get_record_quality(d)
-    for skillName in skillStat:
-        for item in skillStat[skillName]:
-            if not is_metric_rank_eligible(quality, item):
+    for skill_name, skill in skillStat.items():
+        for metric, raw_value in skill.items():
+            if not is_metric_rank_eligible(quality, metric):
                 continue
-            key4 = skillName
-            key5 = item
-            # if key4 == "qczl" and key5 in ["num", "numPerSec"] and record[11] < parseEdition("8.1.0"):
-            #     continue
-            # if parseEdition(edition) < parseEdition("8.3.5") and key4 == "general" and key5 in ["score"]:
-            #     continue
-            # if parseEdition(edition) < parseEdition("8.4.0") and key2 == "588" and key3 == "李重茂" and key4 == "general" and key5 in ["rdps", "mrdps"]:
-            #     continue
-            # if parseEdition(edition) < parseEdition("8.5.0") and key2 == "588" and key3 == "李重茂" and key4 == "general" and key5 in ["rdps", "mrdps"] and record[0] in ["傲血戰意", "共結來緣"]:
-            #     continue
-            # if parseEdition(edition) < parseEdition("8.5.0") and key4 == "general" and key5 in ["rdps", "mrdps", "ndps", "mndps"] and skillStat[skillName][item] == 0 and \
-            #         key1 in ["taixuanjing", "wenshuijue", "xiaochenjue", "beiaojue", "linghaijue", "yinlongjue", "gufengjue"]:
-            #     continue
-            key = "%s-%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5, key6)
-            raw_value = skillStat[skillName][item]
-            if not isinstance(raw_value, (int, float)) or not math.isfinite(raw_value):
-                continue
-            value = raw_value * getDirection(key)
-            if "delay" in key and value == 0:
-                value = -9999
-            res[key] = value
+            value = rank_metric_value(metric, raw_value, skill)
+            if value is not None:
+                key = "%s-%s-%s-%s-%s-%s" % (key1, key2, key3, skill_name, metric, key6)
+                res[key] = value
     if "healer" in d:
         for line in d["healer"]["table"]:
             if line["name"] == record[1]:
@@ -112,197 +90,194 @@ def getSingleStat(record):
                     key = "%s-%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5, key6)
                     if not isinstance(line[key5], (int, float)) or not math.isfinite(line[key5]):
                         continue
-                    value = line[key5] * getDirection(key)
-                    res[key] = value
+                    res[key] = line[key5]
 
     for id in STAT_ID:
         if not is_metric_rank_eligible(quality, id):
             continue
-        skip = 0
-        # if parseEdition(edition) < parseEdition("8.3.5") and id == "score":
-        #     skip = 1
-        # if parseEdition(edition) < parseEdition("8.4.0") and id in ["rdps", "mrdps"] and key2 == "588" and key3 == "李重茂":
-        #     skip = 1
-        # if parseEdition(edition) < parseEdition("8.5.0") and id in ["rdps", "mrdps"] and key2 == "588" and key3 == "李重茂" and record[0] in ["傲血戰意", "共結來緣"]:
-        #     skip = 1
-        # if parseEdition(edition) < parseEdition("8.5.0") and id in ["rdps", "mrdps", "ndps", "mndps"] and record[STAT_ID[id]] == 0 and \
-        #         key1 in ["taixuanjing", "wenshuijue", "xiaochenjue", "beiaojue", "linghaijue", "yinlongjue", "gufengjue"]:
-        #     skip = 1
-        if not skip:
-            key4 = "stat"
-            key5 = id
-            value = record[STAT_ID[id]]
-            if value is None or not math.isfinite(value):
-                continue
-            key = "%s-%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5, key6)
+        value = record[STAT_ID[id]]
+        if value is not None and math.isfinite(value):
+            key = "%s-%s-%s-stat-%s-%s" % (key1, key2, key3, id, key6)
             res[key] = value
-    return res
+    return res, quality["precise"]
+
+
+def getSingleStat(record):
+    if not isReplayRankEligible(record):
+        return {}
+    return _sample(record, _read_replay(record))[0]
+
+
+def _merge_player_best(best, record, values):
+    player = (record[0], record[1])
+    for key, value in values.items():
+        scores = best.setdefault(key, {})
+        if player not in scores or value > scores[player]:
+            scores[player] = value
+
 
 def getAllStat(records):
-    allResults = {}
+    """Group a fixed offline set of replay files by metric and player."""
+    best = {}
     for record in records:
-        res = getSingleStat(record)
-        uid = "%s-%s" % (record[0], record[1])
-        for key in res:
-            if key not in allResults:
-                allResults[key] = {}
-            if uid not in allResults[key]:
-                allResults[key][uid] = res[key]
-            else:
-                allResults[key][uid] = max(res[key], allResults[key][uid])
-    allFilteredResults = {}
-    for key in allResults:
-        allFilteredResults[key] = []
-        for uid in allResults[key]:
-            allFilteredResults[key].append(allResults[key][uid])
-        # if key == "linghaijue-670-葛木寒-general-mrdps-111":
-        #     print(key, allFilteredResults[key], allResults[key])
-    return allFilteredResults
+        _merge_player_best(best, record, getSingleStat(record))
+    return {key: list(scores.values()) for key, scores in best.items()}
+
 
 def getPercent(records):
-    allResults = getAllStat(records)
+    return _percentiles(getAllStat(records).items())
+
+
+def _percentiles(groups):
     percentResults = {}
     percentile_marks = list(range(101))
-    for key in allResults:
+    for key, scores in groups:
         res_percent = []
-        percentile_values = np.percentile(allResults[key], percentile_marks)
+        percentile_values = np.percentile(list(scores), percentile_marks)
         for num in percentile_values:
             num = int(num * 100000) / 100000
             if num > 1000000000:
                 num = 1000000000
             res_percent.append(num)
-        percentResults[key] = {"num": len(allResults[key]), "value": str(res_percent)}
+        percentResults[key] = {"num": len(scores), "value": str(res_percent)}
     return percentResults
-    
-def getRank(value, table):
-    '''
-    获取单个数值的百分位排名.
-    '''
-    if value is None:
-        return None
-    l = 0
-    r = 101
-    while r > l + 1:
-        m = (l + r + 1) // 2
-        if value >= table[m]:
-            l = m
-        else:
-            r = m
-    percent = l
-    return percent
-    
-def updatePercent(raw_rank, cursor, db):
-    '''
-    直接使用计算的结果更新数据库大项的百分位排名.
-    '''
-    
-    edition = DEFAULT_MIN_RANK_CLIENT
-    
-    sql = """SELECT * FROM ReplayProStat WHERE editionFull>=%d AND hold=1""" % parseEdition(edition)
-    cursor.execute(sql)
-    result = cursor.fetchall()
-    
-    for record in result:
-        if not isReplayRankEligible(record):
-            continue
-        key1 = record[2]
-        key2 = getIDFromMap(record[5])
-        key3 = record[6]
-        shortID = record[8]
-        hash = record[7]
-        quality = load_record_quality("database/ReplayProStat/%d" % shortID)
-        gameEdition = record[31]
-        key6 = gameEdition
 
-        # 新赛季更新时删除，后续再进行改动
+
+def _collect_snapshot(reader):
+    """Take a per-replay committed SQL/file pair; release shared locks after each batch."""
+    best = {}
+    candidates = []
+    cursor = reader.cursor()
+    minimum = parseEdition(DEFAULT_MIN_RANK_CLIENT)
+    cursor.execute("SELECT hash FROM ReplayProStat WHERE editionFull>=%s ORDER BY hash", (minimum,))
+    hashes = cursor.fetchall()
+    reader.rollback()
+    for start in range(0, len(hashes), 32):
+        keys = tuple(item[0] for item in hashes[start:start + 32])
+        placeholders = ", ".join(["%s"] * len(keys))
         try:
-            if int(key2) <= 688:
-                continue
-        except:
-            sql = """UPDATE ReplayProStat SET hold=0 WHERE hash = '%s'""" % hash
-            cursor.execute(sql)
-            continue
+            # Uploads lock the same primary key FOR UPDATE before replacing the file,
+            # and restore it before releasing that lock on a failed transaction.
+            cursor.execute("SELECT * FROM ReplayProStat WHERE hash IN (" + placeholders + ") "
+                           "AND editionFull>=%s ORDER BY hash LOCK IN SHARE MODE", (*keys, minimum))
+            paired = [(row, _read_replay(row)) for row in cursor.fetchall() if isReplayRankEligible(row)]
+        finally:
+            reader.rollback()  # Read-only transaction. Parsing takes place outside the lock.
+        for row, text in paired:
+            values, precise = _sample(row, text)
+            _merge_player_best(best, row, values)
+            if row[30] == 1:
+                candidates.append((row, precise))
+    return _percentiles((key, scores.values()) for key, scores in best.items()), candidates
 
-        for id in STAT_ID:
-            if not is_metric_rank_eligible(quality, id):
-                if record[RANK_ID[id]] != -1:
-                    cursor.execute("UPDATE ReplayProStat SET %sRank = -1 WHERE hash = '%s'" % (id, hash))
-                continue
-            key4 = "stat"
-            key5 = id
-            key = "%s-%s-%s-%s-%s-%s" % (key1, key2, key3, key4, key5, key6)
-            if key not in raw_rank:
-                continue
-            order = json.loads(raw_rank[key]["value"])
-            value = record[STAT_ID[id]]
-            rank = getRank(value, order)
-            # print("updating database")
-            if rank is not None:
-                sql = """UPDATE ReplayProStat SET %sRank = %d WHERE hash = '%s'""" % (id, rank, hash)
-                cursor.execute(sql)
-            # print("updated!")
 
-        # TODO 在一周后恢复
-        # sql = """UPDATE ReplayProStat SET hold=0 WHERE hash = '%s'""" % hash
-        # cursor.execute(sql)
+def _rank_changes(records, percentiles):
+    """Yield changed rows with a snapshot of the inputs used to calculate them."""
+    thresholds = {}
+    for row, precise in records:
+        map_id = getIDFromMap(row[5])
+        hold = row[30]
+        ranks = {metric: row[index] for metric, index in RANK_ID.items()}
+        if map_id == "未知":
+            hold = 0
+        elif int(map_id) <= 688:
+            continue  # Frozen seasons keep their published ranks.
+        else:
+            for metric, column in STAT_ID.items():
+                key = "%s-%s-%s-stat-%s-%s" % (row[2], map_id, row[6], metric, row[31])
+                if not precise and metric in SENSITIVE_METRICS:
+                    ranks[metric] = -1
+                elif key in percentiles and row[column] is not None:
+                    if key not in thresholds:
+                        thresholds[key] = json.loads(percentiles[key]["value"])
+                    ranks[metric] = percentile_rank(row[column], thresholds[key])
+        if hold != row[30] or any(ranks[m] != row[i] for m, i in RANK_ID.items()):
+            yield (row[7], *(row[column] for column in _RANK_INPUTS.values()), hold, *ranks.values())
 
-        # print("Complete: ", shortID)
-        db.commit()
+
+# Protect a replay that was re-uploaded while percentile sampling was in progress.
+_RANK_INPUTS = {"shortID": 8, "editionfull": 11, "submittime": 15, "gameEdition": 31,
+                "hold": 30, **STAT_ID, **{m + "Rank": i for m, i in RANK_ID.items()}}
+
+
+def updatePercent(percentiles, cursor, candidates):
+    """Stage only changed ranks, then apply them in one joined update."""
+    outputs = ["hold"] + [m + "Rank" for m in RANK_ID]
+    fields = ["hash", *_RANK_INPUTS] + [f"{field} AS new_{field}" for field in outputs]
+    cursor.execute("CREATE TEMPORARY TABLE PendingReplayRanks ENGINE=InnoDB AS SELECT "
+                   + ", ".join(fields) + " FROM ReplayProStat WHERE 1=0")
+    changes = _rank_changes(candidates, percentiles)
+    insert = "INSERT INTO PendingReplayRanks VALUES (" + ", ".join(["%s"] * len(fields)) + ")"
+    pending = False
+    while batch := list(islice(changes, 500)):
+        cursor.executemany(insert, batch)
+        pending = True
+    if pending:
+        unchanged = " AND ".join(f"r.{field} <=> p.{field}" for field in _RANK_INPUTS)
+        assignments = ", ".join(f"r.{field} = p.new_{field}" for field in outputs)
+        cursor.execute("UPDATE ReplayProStat r JOIN PendingReplayRanks p ON r.hash = p.hash "
+                       + "SET " + assignments + " WHERE " + unchanged)
+
+
+def _publish_percentiles(db, connection_options):
+    cursor = db.cursor()
+    cursor.execute("SELECT GET_LOCK('jx3bla.refresh_replay_rank', 0)")
+    if cursor.fetchone()[0] != 1:
+        raise RuntimeError("Another replay rank refresh is already running")
+    # Bootstrap a new installation before starting the publishing transaction.
+    cursor.execute("CREATE TABLE IF NOT EXISTS ReplayProStatRank (name VARCHAR(128), number INT, "
+                   "records TEXT) ENGINE=InnoDB DEFAULT CHARSET utf8mb4")
+    cursor.execute("SELECT TABLE_NAME, ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() "
+                   "AND TABLE_NAME IN ('ReplayProStat', 'ReplayProStatRank', 'PreloadInfo')")
+    engines = {name.lower(): engine for name, engine in cursor.fetchall()}
+    if len(engines) != 3 or any(engine != "InnoDB" for engine in engines.values()):
+        raise RuntimeError("Replay rank publication requires transactional InnoDB tables")
+    reader = pymysql.connect(**connection_options)
+    try:
+        percentiles, candidates = _collect_snapshot(reader)
+    finally:
+        reader.close()
+    if not percentiles:
+        raise ValueError("No eligible percentile samples; previous publication retained")
+
+    updatePercent(percentiles, cursor, candidates)
+    # InnoDB readers keep seeing the last committed snapshot throughout the reload.
+    # DELETE participates in this transaction; TRUNCATE or RENAME would commit it.
+    cursor.execute("DELETE FROM ReplayProStatRank")
+    entries = [(key, data["num"], data["value"]) for key, data in percentiles.items()]
+    cursor.executemany("INSERT INTO ReplayProStatRank (name, number, records) VALUES (%s, %s, %s)", entries)
+    cursor.execute("SELECT COUNT(*), SUM(OCTET_LENGTH(name) + OCTET_LENGTH(records)) FROM ReplayProStatRank")
+    expected_bytes = sum(len(key.encode()) + len(value.encode()) for key, _, value in entries)
+    if tuple(cursor.fetchone()) != (len(entries), expected_bytes):
+        raise ValueError("Incomplete or truncated replay percentile publication")
+    cursor.execute("SELECT datavalue FROM PreloadInfo WHERE datakey = 'rateEdition' FOR UPDATE")
+    previous = cursor.fetchone()
+    edition = max(int(time.time()), int(previous[0]) + 1 if previous else 0)
+    cursor.execute("DELETE FROM PreloadInfo WHERE datakey = 'rateEdition'")
+    cursor.execute("INSERT INTO PreloadInfo (datakey, datavalue) VALUES ('rateEdition', %s)", (str(edition),))
+
 
 def RefreshStat():
-    ip = "127.0.0.1"
     config = configparser.RawConfigParser()
-    config.read_file(open('settings.cfg'))
-
-    dbname = config.get('jx3bla', 'username')
-    dbpwd = config.get('jx3bla', 'password')
-    db = pymysql.connect(host=ip, user=dbname, password=dbpwd, database="jx3bla", port=3306, charset='utf8')
-    cursor = db.cursor()
-
-    edition = DEFAULT_MIN_RANK_CLIENT
-
-    sql = """SELECT * FROM ReplayProStat WHERE editionFull>=%d""" % parseEdition(edition)
-    cursor.execute(sql)
-    result = cursor.fetchall()
-
-    res = getPercent(result)
-
-    sql = """DROP TABLE IF EXISTS ReplayProStatRank"""
-    cursor.execute(sql)
-
-    sql = """CREATE TABLE ReplayProStatRank(
-             name VARCHAR(128),
-             number INT,
-             records VARCHAR(1280)) DEFAULT CHARSET utf8mb4"""
-    cursor.execute(sql)
-
+    with open("settings.cfg", encoding="utf-8-sig") as stream:
+        config.read_file(stream)
+    connection_options = dict(host="127.0.0.1", user=config.get("jx3bla", "username"),
+                              password=config.get("jx3bla", "password"), database="jx3bla",
+                              port=3306, charset="utf8mb4", autocommit=False)
+    db = pymysql.connect(**connection_options)
     try:
-        for key in res:
-            sql = """INSERT INTO ReplayProStatRank VALUES ("%s", %d, "%s")""" % (key, res[key]["num"], res[key]["value"])
-            cursor.execute(sql)
-    except:
-        print(key, res[key])
+        _publish_percentiles(db, connection_options)
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()  # Also releases the refresh lock and the connection-local staging table.
 
-    dataDict = {"rateEdition": str(int(time.time()))}
-    
-    updatePercent(res, cursor, db)
+    with urllib.request.urlopen("http://localhost:8009/refreshRateData", timeout=30) as response:
+        if json.load(response).get("result") != "success":
+            raise RuntimeError("Percentiles committed, but API cache refresh failed")
 
-    try:
-        for key in dataDict:
-            sql = '''DELETE FROM PreloadInfo WHERE datakey = "%s";''' % key
-            cursor.execute(sql)
-            sql = '''INSERT INTO PreloadInfo VALUES ("%s", "%s");''' % (key, dataDict[key])
-            cursor.execute(sql)
-    except:
-        print("fail!")
-        
-    # 通知主线程更新完毕
 
-    db.commit()
-    db.close()
-    
-    resp = urllib.request.urlopen('http://%s:8009/refreshRateData' % "localhost")
-    
 if __name__ == "__main__":
     RefreshStat()
-

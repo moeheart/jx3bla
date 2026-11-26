@@ -26,7 +26,7 @@ class DpsReplayer(ReplayerBase):
         self.result["skill"][name]["num"] = skillObj.getNum()
         duration = self.result["overall"]["sumTimeEff"]
         self.result["skill"][name]["numPerSec"] = roundCent(self.result["skill"][name]["num"] / duration * 1000 if duration > 0 else 0, 2)
-        self.result["skill"][name]["delay"] = int(skillObj.getAverageDelay())
+        self.result["skill"][name].update(skillObj.getDelayStats())
         effDps = skillObj.getDamageEff()
         self.result["skill"][name]["ndps"] = int(effDps / duration * 1000) if duration > 0 else 0
         self.result["skill"][name]["rdps"] = 0
@@ -46,7 +46,7 @@ class DpsReplayer(ReplayerBase):
         self.result["skill"][name]["num"] = skillObj.getNum()
         duration = self.result["overall"]["sumTimeEff"]
         self.result["skill"][name]["numPerSec"] = roundCent(self.result["skill"][name]["num"] / duration * 1000 if duration > 0 else 0, 2)
-        self.result["skill"][name]["delay"] = int(skillObj.getAverageDelay())
+        self.result["skill"][name].update(skillObj.getDelayStats())
         effDps = skillObj.getDamageEff()
         self.result["skill"][name]["ndps"] = int(effDps / duration * 1000) if duration > 0 else 0
         self.result["skill"][name]["rdps"] = 0

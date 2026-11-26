@@ -113,29 +113,29 @@ class SkillCounter():
         if self.skillid in ["6252"]:  # 醉舞九天
             self.delta = getLength(16, self.haste)
 
-    def getAverageDelay(self):
-        '''
-        获取技能平均延时.
-        returns:
-        - res: 平均延时毫秒数.
-        '''
-        # 在处理时，首先过滤同一技能命中多人的情况，只保留第一次.
-        logClear = []
-        skillTime = 0
-        for line in self.log:
-            if line[0] - skillTime > 100:
-                logClear.append(line)
-                skillTime = line[0]
-        num = 0
-        sumDelay = 0
-        for line in logClear:
-            if line[0] - line[1] - line[2] > 3000:  # 不计算>3秒的延迟
+    def _delayTotals(self):
+        """Count first hits more than 100 ms apart, excluding gaps over 3 s."""
+        last_hit = 0
+        total = 0
+        count = 0
+        for entry in self.log:
+            hit = entry[0]
+            if hit - last_hit <= 100:
                 continue
-            num += 1
-            sumDelay += max(line[0] - line[1] - line[2], 0)
-            # print("[Delay]", line[0] - line[1] - line[2])
-        # print("=======")
-        return safe_divide(sumDelay, num)
+            last_hit = hit
+            delay = hit - entry[1] - entry[2]
+            if delay <= 3000:
+                count += 1
+                total += max(delay, 0)
+        return total, count
+
+    def getAverageDelay(self):
+        total, count = self._delayTotals()
+        return safe_divide(total, count)
+
+    def getDelayStats(self):
+        total, count = self._delayTotals()
+        return {"delay": int(safe_divide(total, count)), "delaySamples": count}
 
     def getNum(self):
         '''
@@ -335,12 +335,10 @@ class IntervalCounter():
         - end: 区间结束时间.
         - exclude: 是否为排除的区间.
         '''
+        start = max(start, self.startTime)
+        end = min(end, self.finalTime)
         if start >= end:
             return
-        if start < self.startTime:
-            start = self.startTime
-        if end > self.finalTime:
-            end = self.finalTime
         self.intervals.append([start, end, exclude])
 
     def recordLog(self, log):

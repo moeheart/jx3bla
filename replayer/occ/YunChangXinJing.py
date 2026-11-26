@@ -705,7 +705,7 @@ class YunChangXinJingReplayer(HealerReplay):
         self.calculateSkillInfoDirect("xlwl", xiangwuBuff)
         xlwlSkill = self.skillInfo[self.gcdSkillIndex["554"]][0]
         self.result["skill"]["xlwl"]["shuangluanHPS"] = int(shuangluanHeal1 / self.result["overall"]["sumTimeEff"] * 1000)
-        self.result["skill"]["xlwl"]["delay"] = int(xlwlSkill.getAverageDelay())
+        self.result["skill"]["xlwl"].update(xlwlSkill.getDelayStats())
         num = 0
         sum = 0
         xiangwuHeat = []
@@ -730,7 +730,7 @@ class YunChangXinJingReplayer(HealerReplay):
         self.calculateSkillInfoDirect("sydh", shangyuanBuff)
         sydhSkill = self.skillInfo[self.gcdSkillIndex["556"]][0]
         self.result["skill"]["sydh"]["shuangluanHPS"] = int(shuangluanHeal3 / self.result["overall"]["sumTimeEff"] * 1000)
-        self.result["skill"]["sydh"]["delay"] = int(sydhSkill.getAverageDelay())
+        self.result["skill"]["sydh"].update(sydhSkill.getDelayStats())
         num = 0
         sum = 0
         shangyuanHeat = []

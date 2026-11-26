@@ -189,15 +189,13 @@ class ServerRecordQualityTests(unittest.TestCase):
 
     def test_refresh_invalidates_sensitive_existing_ranks_only(self):
         row = self.row()
-        cursor, db = Mock(), Mock()
-        cursor.fetchall.return_value = [row]
+        cursor = Mock()
         table = {"lingsu-835-史朝义-stat-hps-161": {"value": json.dumps(list(range(101)))}}
-        with patch.object(self.rank, "load_record_quality", return_value=get_record_quality(self.status("estimated"))):
-            self.rank.updatePercent(table, cursor, db)
-        statements = [call.args[0] for call in cursor.execute.call_args_list]
-        for metric in ("score", "rdps", "mrdps"):
-            self.assertTrue(any("SET %sRank = -1" % metric in sql for sql in statements))
-        self.assertTrue(any("SET hpsRank = 50" in sql for sql in statements))
+        self.rank.updatePercent(table, cursor, [(row, False)])
+        staged, = cursor.executemany.call_args.args[1]
+        updated = dict(zip(self.rank.RANK_ID, staged[-len(self.rank.RANK_ID):]))
+        self.assertEqual(updated, {"score": -1, "rhps": 50, "hps": 50, "rdps": -1,
+                                   "ndps": 50, "mrdps": -1, "mndps": 50})
 
     def test_rank_calculator_uses_shared_unmodeled_effect_rule(self):
         calculator = self.server.RankCalculator.__new__(self.server.RankCalculator)
