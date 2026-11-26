@@ -11,8 +11,8 @@ import json
 from pathlib import Path
 import sys
 
-from release.Xinfa50Generator import normalize_attributes
 from release.Lua51Evidence import Chunk
+from release.XinfaAttributes import normalize_attributes
 
 VERSION = '1.6.0.10009'
 SHARED = 'scripts/Include/Skill.lh'

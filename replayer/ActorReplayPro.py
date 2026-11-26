@@ -9,7 +9,6 @@ import time
 import os
 
 from replayer.boss.taijigong.Litan import LitanReplayer
-# from ReplayBase import StatGeneratorBase
 from tools.Functions import *
 from Constants import *
 from tools.Names import *
@@ -104,6 +103,67 @@ from replayer.occ.HuaJianYou import HuaJianYouReplayer
 
 from replayer.CombatTracker import CombatTracker
 from replayer.ZhenyanRecord import ZhenyanRecord
+
+
+# NPC hit names that identify an encounter, including historical log spellings.
+# The broader file-name aliases in tools.Names also include incidental adds.
+BOSS_BY_HIT_TARGET = {
+    name: names[0]
+    for names in (
+        ('张景超', '張景超', '张法雷', '張法雷'),
+        ('刘展', '劉展', '枪卫首领', '槍衛首領', '斧卫首领', '斧衛首領'),
+        ('苏凤楼', '蘇鳳樓'),
+        ('韩敬青', '韓敬青'),
+        ('藤原佑野',),
+        ('李重茂', '永王叛军长枪兵', '一刀流精锐武士', '永王叛军剑卫', '永王叛軍長槍兵', '一刀流精銳武士', '永王叛軍劍衛'),
+        ('时风', '時風'),
+        ('乐临川', '樂臨川'),
+        ('牛波',),
+        ('和正',),
+        ('武云阙', '武雲闕'),
+        ('翁幼之',),
+        ('魏华', '魏華'),
+        ('钟不归', '鐘不歸'),
+        ('岑伤', '岑傷'),
+        ('鬼筹', '鬼籌'),
+        ('麒麟',),
+        ('月泉淮', '暗梦仙体', '暗夢仙體'),
+        ('葛木寒',),
+        ('雨轻红',),
+        ('喜雅',),
+        ('鹰眼客',),
+        ('赤幽明', '赤厄明'),
+        ('骆耀阳', '駱耀陽'),
+        ('韦柔丝', '韋柔絲'),
+        ('宋泉',),
+        ('伍靖远', '伍靖遠'),
+        ('苏什', '蘇什'),
+        ('芭德',),
+        ('邢廷恩', '马英俊', '朱光辉', '馬英俊', '朱光輝'),
+        ('许灵素', '天灵卫', '地灵卫', '許靈素', '天靈衛', '地靈衛'),
+        ('侯青', '弓兵', '枪兵', '弓衛'),
+        ('李系',),
+        ('年勒',),
+        ('杨玉环', '楊玉環'),
+        ('池清川', '白蛟', '黑蛟'),
+        ('李倓',),
+        ('巴图仁钦', '巴圖仁欽'),
+        ('竭勒',),
+        ('图南子', '圖南子'),
+        ('叶葵', '葉葵'),
+        ('尹雪尘', '尹雪塵'),
+        ('阿里曼幻身',),
+        ('阿萨辛', '阿薩辛'),
+        ('笑妆娘',),
+        ('唐醉',),
+        ('柳公子',),
+        ('阿史那承庆',),
+        ('唐怀仁',),
+        ('鲁念雪',),
+        ('千机源枢',),
+    )
+    for name in names
+}
 
 
 def addSkillOrder(s, prevS):
@@ -213,180 +273,13 @@ class ActorProReplayer(ReplayerBase):
         if self.battleTime == 0:
             self.battleTime = self.finalTime - self.startTime
 
-        timeReseted = 0
-
         for event in self.bld.log:
 
             if event.dataType == "Skill":
 
-                # if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ['巨型尖吻凤', "巨型尖吻鳳"]:
-                #     self.bossAnalyseName = "巨型尖吻凤"
-                #     if not timeReseted:
-                #         self.startTime = event.time
-                #         timeReseted = 1
-
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["张景超", "張景超",
-                                                                                                 "张法雷",
-                                                                                                 "張法雷"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "张景超"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["刘展", "劉展",
-                                                                                                 "枪卫首领", "槍衛首領",
-                                                                                                 "斧卫首领",
-                                                                                                 "斧衛首領"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "刘展"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["苏凤楼",
-                                                                                                 "蘇鳳樓"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "苏凤楼"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["韩敬青",
-                                                                                                 "韓敬青"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "韩敬青"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "藤原佑野"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "藤原佑野"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["李重茂",
-                                                                                                 "永王叛军长枪兵",
-                                                                                                 "一刀流精锐武士",
-                                                                                                 "永王叛军剑卫",
-                                                                                                 "永王叛軍長槍兵",
-                                                                                                 "一刀流精銳武士",
-                                                                                                 "永王叛軍劍衛"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "李重茂"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["时风",
-                                                                                                 "時風"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "时风"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["乐临川",
-                                                                                                 "樂臨川"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "乐临川"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "牛波"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "牛波"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "和正"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "和正"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["武云阙",
-                                                                                                 "武雲闕"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "武云阙"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "翁幼之"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "翁幼之"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["魏华",
-                                                                                                 "魏華"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "魏华"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["钟不归",
-                                                                                                 "鐘不歸"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "钟不归"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["岑伤",
-                                                                                                 "岑傷"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "岑伤"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["鬼筹",
-                                                                                                 "鬼籌"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "鬼筹"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "麒麟"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "麒麟"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["月泉淮", "暗梦仙体",
-                                                                                                 "暗夢仙體"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "月泉淮"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "葛木寒"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "葛木寒"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "雨轻红"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "雨轻红"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "喜雅"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "喜雅"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "鹰眼客"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "鹰眼客"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["赤幽明",
-                                                                                                 "赤厄明"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "赤幽明"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["骆耀阳",
-                                                                                                 "駱耀陽"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "骆耀阳"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["韦柔丝",
-                                                                                                 "韋柔絲"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "韦柔丝"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "宋泉"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "宋泉"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["伍靖远",
-                                                                                                 "伍靖遠"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "伍靖远"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in ["苏什",
-                                                                                                 "蘇什"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "苏什"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "芭德"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "芭德"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "邢廷恩", "马英俊", "朱光辉", "馬英俊", "朱光輝"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "邢廷恩"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "许灵素", "天灵卫", "地灵卫", "許靈素", "天靈衛", "地靈衛"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "许灵素"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "弓兵", "枪兵", "侯青", "弓衛"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "侯青"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "李系"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "李系"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "年勒"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "年勒"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "杨玉环", "楊玉環"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "杨玉环"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "池清川", "白蛟", "黑蛟"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "池清川"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "李倓"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "李倓"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "巴图仁钦", "巴圖仁欽"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "巴图仁钦"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "竭勒", "竭勒"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "竭勒"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "图南子", "圖南子"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "图南子"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "叶葵", "葉葵"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "叶葵"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "尹雪尘", "尹雪塵"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "尹雪尘"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "阿里曼幻身", "阿里曼幻身"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "阿里曼幻身"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "阿萨辛", "阿薩辛"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "阿萨辛"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "笑妆娘"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "笑妆娘"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "唐醉"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "唐醉"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "柳公子"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "柳公子"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "阿史那承庆"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "阿史那承庆"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "唐怀仁"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "唐怀仁"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "鲁念雪"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "鲁念雪"
-                if event.target in self.bld.info.npc and self.bld.info.getName(event.target) in [
-                    "千机源枢"] and self.bossAnalyseName == "未知":
-                    self.bossAnalyseName = "千机源枢"
-
+                if self.bossAnalyseName == "未知" and event.target in self.bld.info.npc:
+                    targetName = self.bld.info.getName(event.target)
+                    self.bossAnalyseName = BOSS_BY_HIT_TARGET.get(targetName, "未知")
 
                 # 通过技能确定具体心法
                 if event.caster in occDetailList and event.scheme == 1 and occDetailList[event.caster] in ['1', '2',
@@ -521,7 +414,7 @@ class ActorProReplayer(ReplayerBase):
             result = {"base": None, "panel": None, "gameEdition": CURRENT_GAME_EDITION}
             try:
                 result["base"] = ad.GetBaseAttrib(playerEquip["equipStr"], playerEquip["occ"])
-                result["panel"] = ad.GetPanelAttrib(playerEquip["equipStr"], playerEquip["occ"])
+                result["panel"] = ad.GetPanelFromBase(result["base"], playerEquip["occ"])
             except (KeyError, ValueError, IndexError, TypeError) as error:
                 # A bad/missing item must not discard the team's measured log.
                 # The original gear remains intact; only this calculation falls back.

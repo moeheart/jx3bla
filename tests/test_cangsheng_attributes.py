@@ -96,6 +96,17 @@ class CangshengAttributeTests(unittest.TestCase):
         self.assertEqual(display.status['status'], 'incomplete')
         self.assertEqual(panel['_warnings'], ['附魔11272: atExecuteScript'])
 
+    def test_building_panel_from_an_existing_base_preserves_warnings_without_reparsing(self):
+        from tests.test_cangsheng_equipment import equipment_text
+        display = AttributeDisplay()
+        gear = equipment_text({'12': [111692, 0, 11272, 0, 0, 0, 0, 0]})
+        expected = display.GetPanelAttrib(gear, '6h')
+        with patch.object(display.ac, 'CalculateAll', wraps=display.ac.CalculateAll) as read:
+            base = display.GetBaseAttrib(gear, '6h')
+            self.assertEqual(display.GetPanelFromBase(base, '6h'), expected)
+            self.assertIsNone(display.GetPanelFromBase(None, '6h'))
+        read.assert_called_once_with(gear)
+
     def test_same_kungfu_can_calculate_both_logged_damage_schools(self):
         raw = {'atSolarAttackPowerBase': 100, 'atLunarAttackPowerBase': 200,
                'atVitalityBase': 1024, 'atVitalityToSolarAttackPowerCof': 300}

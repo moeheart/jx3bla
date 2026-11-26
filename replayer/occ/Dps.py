@@ -427,22 +427,7 @@ class DpsReplayer(ReplayerBase):
         # self.result["overall"]["hasteReal"] = self.haste
 
     def eventInFirstState(self, event):
-        '''
-        第一阶段处理事件的公共流程.
-        params:
-        - event: 处理的事件.
-        '''
-
-        if event.dataType == "Skill":
-            # 记录治疗心法的出现情况.
-            pass
-
-        elif event.dataType == "Buff":
-            pass
-
-        elif event.dataType == "Shout":
-            # 为未来需要统计喊话时备用.
-            pass
+        """供需要在第一阶段读取逐条事件的心法覆盖。"""
 
     def initFirstState(self):
         '''
@@ -485,22 +470,13 @@ class DpsReplayer(ReplayerBase):
 
         self.initFirstState()
 
-        for event in self.bld.log:
-
-            if event.time < self.startTime:
-                continue
-            if event.time > self.finalTime:
-                continue
-            if self.interrupt != 0:
-                continue
-
-            self.eventInFirstState(event)
-
-            if event.dataType == "Skill":
-                pass
-
-            elif event.dataType == "Buff":
-                pass
+        # Generic DPS uses the team's computed statistics. A specialization
+        # that implements first-stage events still receives them in log order.
+        handler = self.eventInFirstState
+        if getattr(handler, '__func__', None) is not DpsReplayer.eventInFirstState:
+            for event in self.bld.log:
+                if self.startTime <= event.time <= self.finalTime and not self.interrupt:
+                    handler(event)
 
         self.completeFirstState()
         return 0

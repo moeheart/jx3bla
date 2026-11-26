@@ -43,7 +43,10 @@ class AttributeDisplay():
 
     def GetPanelAttrib(self, str, occ):
         """Calculate a panel using the current formal-server kungfu profile."""
-        baseAttrib = self.GetBaseAttrib(str, occ)
+        return self.GetPanelFromBase(self.GetBaseAttrib(str, occ), occ)
+
+    def GetPanelFromBase(self, baseAttrib, occ):
+        """Build the display panel from the same base used for combat statistics."""
         if baseAttrib is None:
             return None
         panel = calculate_attributes(baseAttrib['_raw'], occ)

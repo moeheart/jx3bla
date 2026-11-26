@@ -690,57 +690,6 @@ class DotCounter(HotCounter):
         self.maxStack = maxStack
         self.period = period
 
-class SkillLogCounter():
-    '''
-    技能统计类.
-    TODO: 扩展这个类的功能，支持更多统计.
-    '''
-    skillLog = []
-    actLog = []
-    startTime = 0
-    finalTime = 0
-    speed = 3770
-    sumBusyTime = 0
-    sumSpareTime = 0
-
-    def getLength(self, length):
-        flames = calculFramesAfterHaste(self.speed, length)
-        return flames * 0.0625 * 1000
-
-    def analysisSkillData(self):
-        if self.actLog != []:
-            for line in self.skillLog:
-                if line[1] in [15181, 15082, 25232]:  #奶歌常见的自动施放技能：影子宫，影子宫，桑柔
-                    continue
-                elif line[1] in [14137, 14300]:  # 宫，变宫
-                    self.actLog.append([line[0] - self.getLength(24), self.getLength(24)])
-                elif line[1] in [14140, 14301]:  # 徵，变徵
-                    self.actLog.append([line[0] - self.getLength(16), self.getLength(16)])
-                else:
-                    self.actLog.append([line[0], self.getLength(24)])
-
-        self.actLog.sort(key=lambda x: x[0])
-
-        nowTime = self.startTime
-        self.sumBusyTime = 0
-        self.sumSpareTime = 0
-        for line in self.actLog:
-            if line[0] > nowTime:
-                self.sumSpareTime += line[0] - nowTime
-                self.sumBusyTime += line[1]
-                nowTime = line[0] + line[1]
-            elif line[0] + line[1] > nowTime:
-                self.sumBusyTime += line[0] + line[1] - nowTime
-                nowTime = line[0] + line[1]
-
-    def __init__(self, skillLog, startTime, finalTime, speed=3770, actLog=[]):
-        self.skillLog = skillLog
-        self.actLog = []
-        self.startTime = startTime
-        self.finalTime = finalTime
-        self.speed = speed
-        self.actLog = actLog
-
 class ShieldCounterNew(BuffCounter):
     '''
     盾的统计类.

@@ -3,6 +3,7 @@ import unittest
 import ast
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import Mock, patch
 
 from FileLookUp import FileLookUp
 from tools.Functions import parseEdition
@@ -14,6 +15,54 @@ def filename(boss, index=0, map_name="25人普通洛阳之战(835)"):
 
 
 class EncounterTests(unittest.TestCase):
+    def test_generic_dps_skips_events_but_a_first_stage_hook_keeps_combat_bounds(self):
+        from replayer.occ.Dps import DpsReplayer
+
+        class Specialization(DpsReplayer):
+            def eventInFirstState(self, event):
+                self.observed.append(event.time)
+
+        for cls, instance_hook in ((DpsReplayer, False), (Specialization, False), (DpsReplayer, True)):
+            replay = cls.__new__(cls)
+            replay.window = Mock()
+            replay.occPrint, replay.occColor = '测试', '#000'
+            replay.initFirstState, replay.completeFirstState = Mock(), Mock()
+            replay.startTime, replay.finalTime, replay.interrupt = 100, 200, 0
+            replay.observed = []
+            if instance_hook:
+                replay.eventInFirstState = lambda event: replay.observed.append(event.time)
+            has_hook = cls is Specialization or instance_hook
+            events = [SimpleNamespace(time=time) for time in (90, 100, 200, 210)]
+            replay.bld = SimpleNamespace(log=events if has_hook else None)
+            replay.FirstStageAnalysis()
+            replay.initFirstState.assert_called_once_with()
+            replay.completeFirstState.assert_called_once_with()
+            self.assertEqual(replay.observed, [100, 200] if has_hook else [])
+
+    def test_hit_target_aliases_are_only_consulted_until_the_boss_is_known(self):
+        from data.BattleLogData import BattleLogData
+        from replayer.ActorReplayPro import ActorProReplayer
+        from tools.ValidateLuoyang import make_config, ValidationWindow
+
+        for map_name, recorded, expected, lookups in (
+                ('25人普通洛阳之战', '史朝义', '史朝义', 0),
+                ('25人普通阆风悬城', '未知', '张景超', 2)):
+            with self.subTest(recorded=recorded):
+                bld = BattleLogData()
+                bld.info.map, bld.info.boss, bld.info.server = map_name, recorded, '测试'
+                bld.info.battleTime, bld.info.sumTime = 1794576000, 3000
+                for time, name in enumerate(('无关目标', '張法雷', '李倓'), start=1):
+                    target = str(time)
+                    bld.info.addNPC(target, name)
+                    bld.log.append(SimpleNamespace(dataType='Skill', time=time * 1000,
+                                                   target=target, caster='player'))
+                actor = ActorProReplayer(make_config(), ['log', 0, 1], '',
+                                         {'log': bld}, ValidationWindow())
+                with patch.object(bld.info, 'getName', wraps=bld.info.getName) as get_name:
+                    actor.FirstStageAnalysis()
+                self.assertEqual(actor.bossAnalyseName, expected)
+                self.assertEqual(get_name.call_count, lookups)
+
     def test_server_boss_listing_includes_same_name_in_both_raids(self):
         # Exercise the real endpoint body without starting the server or a DB.
         tree = ast.parse(Path("server.py").read_text(encoding="utf-8"))

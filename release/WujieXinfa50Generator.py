@@ -17,8 +17,8 @@ import shutil
 import subprocess
 import sys
 
-from release.Xinfa50Generator import normalize_attributes
 from release.Lua51Evidence import Chunk
+from release.XinfaAttributes import normalize_attributes
 from tools.Functions import getOccDetailFromXinfaCode, getOccType
 
 

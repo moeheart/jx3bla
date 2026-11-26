@@ -105,6 +105,7 @@ python -m release.FormalXinfa50Generator --check
 # 若依赖位于独立目录，改用：
 python -m release.FormalXinfa50Generator --deps C:/开发依赖/python-deps --check
 python -m unittest discover -s tests
+node --test tests/test_healer_replay_qixue.js
 ```
 
 rDPS 报告工具需要显式传入 `--manifest`，例如 `python -m tools.ValidateLuoyangRdps --manifest C:/验证资料/formal-manifest.json`，默认输出到 `build/validation/luoyang-rdps/`。

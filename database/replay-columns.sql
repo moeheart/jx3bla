@@ -1,0 +1,7 @@
+SELECT c.TABLE_SCHEMA, c.TABLE_NAME, c.ORDINAL_POSITION, c.COLUMN_NAME, t.ENGINE
+FROM information_schema.COLUMNS AS c
+JOIN information_schema.TABLES AS t
+  ON t.TABLE_SCHEMA = c.TABLE_SCHEMA AND t.TABLE_NAME = c.TABLE_NAME
+WHERE c.TABLE_SCHEMA = DATABASE()
+  AND c.TABLE_NAME IN ('ReplayProStat', 'ActorStat', 'ReplayProStatRank', 'PreloadInfo', 'ReplayProInfo')
+ORDER BY c.TABLE_NAME, c.ORDINAL_POSITION;
