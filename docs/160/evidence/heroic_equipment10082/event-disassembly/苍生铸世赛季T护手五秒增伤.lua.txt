@@ -1,0 +1,137 @@
+main lines=0:0 metadata=[0, 0, 2, 11]
+constants=["Include", "scripts/Include/Skill.lh", "tSkillData", "nDamageBase", 0.0, "nDamageRand", "nCostMana", "GetSkillLevelData", "CanCast", "OnSkillLevelUp", "OnSkillForgotten", "Apply", "UnApply", "OnRemove", "OnEarlyWarning"]
+   1 GETGLOBAL  A=0 B=0 C=0 Bx=0 sBx=-131071 K='Include'
+   2 LOADK      A=1 B=0 C=1 Bx=1 sBx=-131070 K='scripts/Include/Skill.lh'
+   3 CALL       A=0 B=2 C=1 Bx=1025 sBx=-130046
+   4 NEWTABLE   A=0 B=10 C=0 Bx=5120 sBx=-125951
+   5 NEWTABLE   A=1 B=0 C=3 Bx=3 sBx=-131068
+   6 SETTABLE   A=1 B=259 C=260 Bx=132868 sBx=1797 'nDamageBase' 0.0
+   7 SETTABLE   A=1 B=261 C=260 Bx=133892 sBx=2821 'nDamageRand' 0.0
+   8 SETTABLE   A=1 B=262 C=260 Bx=134404 sBx=3333 'nCostMana' 0.0
+   9 NEWTABLE   A=2 B=0 C=3 Bx=3 sBx=-131068
+  10 SETTABLE   A=2 B=259 C=260 Bx=132868 sBx=1797 'nDamageBase' 0.0
+  11 SETTABLE   A=2 B=261 C=260 Bx=133892 sBx=2821 'nDamageRand' 0.0
+  12 SETTABLE   A=2 B=262 C=260 Bx=134404 sBx=3333 'nCostMana' 0.0
+  13 NEWTABLE   A=3 B=0 C=3 Bx=3 sBx=-131068
+  14 SETTABLE   A=3 B=259 C=260 Bx=132868 sBx=1797 'nDamageBase' 0.0
+  15 SETTABLE   A=3 B=261 C=260 Bx=133892 sBx=2821 'nDamageRand' 0.0
+  16 SETTABLE   A=3 B=262 C=260 Bx=134404 sBx=3333 'nCostMana' 0.0
+  17 NEWTABLE   A=4 B=0 C=3 Bx=3 sBx=-131068
+  18 SETTABLE   A=4 B=259 C=260 Bx=132868 sBx=1797 'nDamageBase' 0.0
+  19 SETTABLE   A=4 B=261 C=260 Bx=133892 sBx=2821 'nDamageRand' 0.0
+  20 SETTABLE   A=4 B=262 C=260 Bx=134404 sBx=3333 'nCostMana' 0.0
+  21 NEWTABLE   A=5 B=0 C=3 Bx=3 sBx=-131068
+  22 SETTABLE   A=5 B=259 C=260 Bx=132868 sBx=1797 'nDamageBase' 0.0
+  23 SETTABLE   A=5 B=261 C=260 Bx=133892 sBx=2821 'nDamageRand' 0.0
+  24 SETTABLE   A=5 B=262 C=260 Bx=134404 sBx=3333 'nCostMana' 0.0
+  25 NEWTABLE   A=6 B=0 C=3 Bx=3 sBx=-131068
+  26 SETTABLE   A=6 B=259 C=260 Bx=132868 sBx=1797 'nDamageBase' 0.0
+  27 SETTABLE   A=6 B=261 C=260 Bx=133892 sBx=2821 'nDamageRand' 0.0
+  28 SETTABLE   A=6 B=262 C=260 Bx=134404 sBx=3333 'nCostMana' 0.0
+  29 NEWTABLE   A=7 B=0 C=3 Bx=3 sBx=-131068
+  30 SETTABLE   A=7 B=259 C=260 Bx=132868 sBx=1797 'nDamageBase' 0.0
+  31 SETTABLE   A=7 B=261 C=260 Bx=133892 sBx=2821 'nDamageRand' 0.0
+  32 SETTABLE   A=7 B=262 C=260 Bx=134404 sBx=3333 'nCostMana' 0.0
+  33 NEWTABLE   A=8 B=0 C=3 Bx=3 sBx=-131068
+  34 SETTABLE   A=8 B=259 C=260 Bx=132868 sBx=1797 'nDamageBase' 0.0
+  35 SETTABLE   A=8 B=261 C=260 Bx=133892 sBx=2821 'nDamageRand' 0.0
+  36 SETTABLE   A=8 B=262 C=260 Bx=134404 sBx=3333 'nCostMana' 0.0
+  37 NEWTABLE   A=9 B=0 C=3 Bx=3 sBx=-131068
+  38 SETTABLE   A=9 B=259 C=260 Bx=132868 sBx=1797 'nDamageBase' 0.0
+  39 SETTABLE   A=9 B=261 C=260 Bx=133892 sBx=2821 'nDamageRand' 0.0
+  40 SETTABLE   A=9 B=262 C=260 Bx=134404 sBx=3333 'nCostMana' 0.0
+  41 NEWTABLE   A=10 B=0 C=3 Bx=3 sBx=-131068
+  42 SETTABLE   A=10 B=259 C=260 Bx=132868 sBx=1797 'nDamageBase' 0.0
+  43 SETTABLE   A=10 B=261 C=260 Bx=133892 sBx=2821 'nDamageRand' 0.0
+  44 SETTABLE   A=10 B=262 C=260 Bx=134404 sBx=3333 'nCostMana' 0.0
+  45 SETLIST    A=0 B=10 C=1 Bx=5121 sBx=-125950
+  46 SETGLOBAL  A=0 B=0 C=2 Bx=2 sBx=-131069 K='tSkillData'
+  47 CLOSURE    A=0 B=0 C=0 Bx=0 sBx=-131071
+  48 SETGLOBAL  A=0 B=0 C=7 Bx=7 sBx=-131064 K='GetSkillLevelData'
+  49 CLOSURE    A=0 B=0 C=1 Bx=1 sBx=-131070
+  50 SETGLOBAL  A=0 B=0 C=8 Bx=8 sBx=-131063 K='CanCast'
+  51 CLOSURE    A=0 B=0 C=2 Bx=2 sBx=-131069
+  52 SETGLOBAL  A=0 B=0 C=9 Bx=9 sBx=-131062 K='OnSkillLevelUp'
+  53 CLOSURE    A=0 B=0 C=3 Bx=3 sBx=-131068
+  54 SETGLOBAL  A=0 B=0 C=10 Bx=10 sBx=-131061 K='OnSkillForgotten'
+  55 CLOSURE    A=0 B=0 C=4 Bx=4 sBx=-131067
+  56 SETGLOBAL  A=0 B=0 C=11 Bx=11 sBx=-131060 K='Apply'
+  57 CLOSURE    A=0 B=0 C=5 Bx=5 sBx=-131066
+  58 SETGLOBAL  A=0 B=0 C=12 Bx=12 sBx=-131059 K='UnApply'
+  59 CLOSURE    A=0 B=0 C=6 Bx=6 sBx=-131065
+  60 SETGLOBAL  A=0 B=0 C=13 Bx=13 sBx=-131058 K='OnRemove'
+  61 CLOSURE    A=0 B=0 C=7 Bx=7 sBx=-131064
+  62 SETGLOBAL  A=0 B=0 C=14 Bx=14 sBx=-131057 K='OnEarlyWarning'
+  63 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/0 lines=16:30 metadata=[0, 1, 0, 8]
+constants=["dwLevel", "AddAttribute", "ATTRIBUTE_EFFECT_MODE", "EFFECT_TO_SELF_NOT_ROLLBACK", "ATTRIBUTE_TYPE", "EXECUTE_SCRIPT", "skill/装备/苍生铸世赛季T护手五秒增伤.lua", 0.0, "AddSlowCheckSelfBuff", 24791.0, "BUFF_COMPARE_FLAG", "EQUAL", "SetNormalCoolDown", 1.0, 2516.0, "bIgnorePrepareState", true, "nMaxRadius", "LENGTH_BASE", 5.0, "nAngleRange", 256.0]
+   1 GETTABLE   A=1 B=0 C=256 Bx=256 sBx=-130815 R0 'dwLevel'
+   2 GETTABLE   A=2 B=0 C=257 Bx=257 sBx=-130814 R0 'AddAttribute'
+   3 GETGLOBAL  A=3 B=0 C=2 Bx=2 sBx=-131069 K='ATTRIBUTE_EFFECT_MODE'
+   4 GETTABLE   A=3 B=3 C=259 Bx=1795 sBx=-129276 R3 'EFFECT_TO_SELF_NOT_ROLLBACK'
+   5 GETGLOBAL  A=4 B=0 C=4 Bx=4 sBx=-131067 K='ATTRIBUTE_TYPE'
+   6 GETTABLE   A=4 B=4 C=261 Bx=2309 sBx=-128762 R4 'EXECUTE_SCRIPT'
+   7 LOADK      A=5 B=0 C=6 Bx=6 sBx=-131065 K='skill/装备/苍生铸世赛季T护手五秒增伤.lua'
+   8 LOADK      A=6 B=0 C=7 Bx=7 sBx=-131064 K=0.0
+   9 CALL       A=2 B=5 C=1 Bx=2561 sBx=-128510
+  10 GETTABLE   A=2 B=0 C=264 Bx=264 sBx=-130807 R0 'AddSlowCheckSelfBuff'
+  11 LOADK      A=3 B=0 C=9 Bx=9 sBx=-131062 K=24791.0
+  12 LOADK      A=4 B=0 C=7 Bx=7 sBx=-131064 K=0.0
+  13 GETGLOBAL  A=5 B=0 C=10 Bx=10 sBx=-131061 K='BUFF_COMPARE_FLAG'
+  14 GETTABLE   A=5 B=5 C=267 Bx=2827 sBx=-128244 R5 'EQUAL'
+  15 LOADK      A=6 B=0 C=7 Bx=7 sBx=-131064 K=0.0
+  16 GETGLOBAL  A=7 B=0 C=10 Bx=10 sBx=-131061 K='BUFF_COMPARE_FLAG'
+  17 GETTABLE   A=7 B=7 C=267 Bx=3851 sBx=-127220 R7 'EQUAL'
+  18 CALL       A=2 B=6 C=1 Bx=3073 sBx=-127998
+  19 GETTABLE   A=2 B=0 C=268 Bx=268 sBx=-130803 R0 'SetNormalCoolDown'
+  20 LOADK      A=3 B=0 C=13 Bx=13 sBx=-131058 K=1.0
+  21 LOADK      A=4 B=0 C=14 Bx=14 sBx=-131057 K=2516.0
+  22 CALL       A=2 B=3 C=1 Bx=1537 sBx=-129534
+  23 SETTABLE   A=0 B=271 C=272 Bx=139024 sBx=7953 'bIgnorePrepareState' True
+  24 GETGLOBAL  A=2 B=0 C=18 Bx=18 sBx=-131053 K='LENGTH_BASE'
+  25 MUL        A=2 B=275 C=2 Bx=140802 sBx=9731 5.0 R2
+  26 SETTABLE   A=0 B=273 C=2 Bx=139778 sBx=8707 'nMaxRadius' R2
+  27 SETTABLE   A=0 B=276 C=277 Bx=141589 sBx=10518 'nAngleRange' 256.0
+  28 LOADBOOL   A=2 B=1 C=0 Bx=512 sBx=-130559
+  29 RETURN     A=2 B=2 C=0 Bx=1024 sBx=-130047
+  30 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/1 lines=31:33 metadata=[0, 3, 0, 3]
+constants=[]
+   1 RETURN     A=1 B=2 C=0 Bx=1024 sBx=-130047
+   2 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/2 lines=34:35 metadata=[0, 2, 0, 2]
+constants=[]
+   1 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/3 lines=36:37 metadata=[0, 2, 0, 2]
+constants=[]
+   1 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/4 lines=38:45 metadata=[0, 2, 0, 8]
+constants=["GetPlayer", "AddBuff", "dwID", "nLevel", 24767.0, 2.0, 24791.0, 1.0]
+   1 GETGLOBAL  A=2 B=0 C=0 Bx=0 sBx=-131071 K='GetPlayer'
+   2 MOVE       A=3 B=0 C=0 Bx=0 sBx=-131071
+   3 CALL       A=2 B=2 C=2 Bx=1026 sBx=-130045
+   4 TEST       A=2 B=0 C=1 Bx=1 sBx=-131070
+   5 JMP        A=0 B=256 C=0 Bx=131072 sBx=1 =>7
+   6 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+   7 GETTABLE   A=3 B=2 C=257 Bx=1281 sBx=-129790 R2 'AddBuff'
+   8 GETTABLE   A=4 B=2 C=258 Bx=1282 sBx=-129789 R2 'dwID'
+   9 GETTABLE   A=5 B=2 C=259 Bx=1283 sBx=-129788 R2 'nLevel'
+  10 LOADK      A=6 B=0 C=4 Bx=4 sBx=-131067 K=24767.0
+  11 LOADK      A=7 B=0 C=5 Bx=5 sBx=-131066 K=2.0
+  12 CALL       A=3 B=5 C=1 Bx=2561 sBx=-128510
+  13 GETTABLE   A=3 B=2 C=257 Bx=1281 sBx=-129790 R2 'AddBuff'
+  14 GETTABLE   A=4 B=2 C=258 Bx=1282 sBx=-129789 R2 'dwID'
+  15 GETTABLE   A=5 B=2 C=259 Bx=1283 sBx=-129788 R2 'nLevel'
+  16 LOADK      A=6 B=0 C=6 Bx=6 sBx=-131065 K=24791.0
+  17 LOADK      A=7 B=0 C=7 Bx=7 sBx=-131064 K=1.0
+  18 CALL       A=3 B=5 C=1 Bx=2561 sBx=-128510
+  19 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/5 lines=46:47 metadata=[0, 1, 0, 2]
+constants=[]
+   1 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/6 lines=48:49 metadata=[0, 10, 0, 10]
+constants=[]
+   1 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/7 lines=50:51 metadata=[0, 2, 0, 2]
+constants=[]
+   1 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559

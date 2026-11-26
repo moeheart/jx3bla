@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "files": 70,
+  "characters": 33,
+  "provisional_people": 29,
+  "main_episodes": 738,
+  "main_raw_hits": 825,
+  "conditional_episodes": 99,
+  "main_boss_episodes": [
+    96,
+    43,
+    416,
+    53,
+    130
+  ],
+  "sword_strict": 5,
+  "sword_partial_end": 1,
+  "sword_protection_boundary": 2
+}

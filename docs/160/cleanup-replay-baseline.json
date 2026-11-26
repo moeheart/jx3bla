@@ -1,0 +1,470 @@
+{
+  "normal": [
+    {
+      "file": "2026-11-02-20-01-34-25人普通洛阳之战(835)-突利和顺(139306).jcl",
+      "sha256": "1bc04c976192b1784ec906725b82df00eb21389a0378f3489bbc0f2104bbcaeb",
+      "result": {
+        "boss": "突利和顺",
+        "win": 1,
+        "winReason": "突利和顺专属宝箱",
+        "boundaryMs": [
+          29470563,
+          29666346,
+          195783.0000000001
+        ],
+        "effectiveMs": [
+          164800,
+          195783
+        ],
+        "players": 25,
+        "personalUploads": 25,
+        "quality": "supported",
+        "damage": {
+          "directDamage": 224263714.0,
+          "redistributedDamage": 224263714.00000006,
+          "mainTargetDamage": 224263714.0,
+          "redistributedMainTargetDamage": 224263714.00000006,
+          "excludedNpcDamage": 0.0,
+          "conservationError": 5.960464477539063e-08,
+          "mainTargetConservationError": 5.960464477539063e-08
+        },
+        "teamTableSha256": "706222571cc2019d32a15a993ad756eb3753cdaf63fd9bd641a882d938f9a57c",
+        "skillMetricsSha256": "33e1a9201365c4b756fb99caedeac3dc088710eff2e399ed48980964792547c9",
+        "timelineSha256": "8919a07130e5d27232fa2a6c834d1d24eaaf2e087e7830e9711325bc3dc5f3cd"
+      }
+    },
+    {
+      "file": "2026-11-02-20-05-46-25人普通洛阳之战(835)-田承嗣(139329).jcl",
+      "sha256": "ec184c380f2d487e7f10c82eb8476e6584daeff853c379cc8536b932d61e22ec",
+      "result": {
+        "boss": "田承嗣",
+        "win": 1,
+        "winReason": "boss_completion_and_combat_exit",
+        "boundaryMs": [
+          29723082,
+          29926275,
+          203193.0000000001
+        ],
+        "effectiveMs": [
+          198277,
+          203193
+        ],
+        "players": 25,
+        "personalUploads": 25,
+        "quality": "supported",
+        "damage": {
+          "directDamage": 255052904.0,
+          "redistributedDamage": 255052904.00000012,
+          "mainTargetDamage": 243000000.0,
+          "redistributedMainTargetDamage": 243000000.00000003,
+          "excludedNpcDamage": 0.0,
+          "conservationError": 1.1920928955078125e-07,
+          "mainTargetConservationError": 2.9802322387695312e-08
+        },
+        "teamTableSha256": "31c5a83f3014ad1ab188aa6a0068230e96652b8cab84814f2c4ddad8e5f57a13",
+        "skillMetricsSha256": "c1c83ff67295aa5cfaac54042bbde1cce0a2e9180145abef011d0c66793e65de",
+        "timelineSha256": "1f90831849a39dc5b750f2c4874e593160312fb18c508a364d5125bd682416db"
+      }
+    },
+    {
+      "file": "2026-11-02-20-12-08-25人普通洛阳之战(835)-伊曼·寂夜(139319).jcl",
+      "sha256": "58dce3209f1412d0104dd0b38c3e95fc253a55e91515f1f6c5889bccd01268b1",
+      "result": {
+        "boss": "伊曼双子",
+        "win": 1,
+        "winReason": "伊曼专属宝箱",
+        "boundaryMs": [
+          30104800,
+          30288662,
+          183862.0000000001
+        ],
+        "effectiveMs": [
+          183862,
+          183862
+        ],
+        "players": 25,
+        "personalUploads": 25,
+        "quality": "supported",
+        "damage": {
+          "directDamage": 279209879.0,
+          "redistributedDamage": 279209879.00000006,
+          "mainTargetDamage": 279201504.0,
+          "redistributedMainTargetDamage": 279201504.00000006,
+          "excludedNpcDamage": 0.0,
+          "conservationError": 5.960464477539063e-08,
+          "mainTargetConservationError": 5.960464477539063e-08
+        },
+        "teamTableSha256": "0c62b7d0d2680d63e55e24a05a144c35574743cb723d9d5e9d557e8ac0928573",
+        "skillMetricsSha256": "adff0145ead3d6774498a1f77a21450251bf5a67efc7253ae5d33f2829589d6e",
+        "timelineSha256": "978093230285f63abc263f522cb9ff72421320793468c30831a5631b294252a4"
+      }
+    },
+    {
+      "file": "2026-11-02-20-16-04-25人普通洛阳之战(835)-阿史那承庆(139323).jcl",
+      "sha256": "99df0aa823deef3db5560411b235bd43b9706f6ff951a83ede439aba97576a3c",
+      "result": {
+        "boss": "阿史那承庆",
+        "win": 1,
+        "winReason": "boss_completion_and_combat_exit",
+        "boundaryMs": [
+          30340371,
+          30580393,
+          240022.0000000001
+        ],
+        "effectiveMs": [
+          240022,
+          240022
+        ],
+        "players": 25,
+        "personalUploads": 25,
+        "quality": "supported",
+        "damage": {
+          "directDamage": 323266966.0,
+          "redistributedDamage": 323266965.9999997,
+          "mainTargetDamage": 318810000.0,
+          "redistributedMainTargetDamage": 318809999.99999976,
+          "excludedNpcDamage": 0.0,
+          "conservationError": -2.980232238769531e-07,
+          "mainTargetConservationError": -2.384185791015625e-07
+        },
+        "teamTableSha256": "649c0a971cfa877f29915d3ab7bf245a5df627e3c49ba18f61d87defaa9aa7a9",
+        "skillMetricsSha256": "59aaeb97e96096e35aa400b8a755b3c3f8e8f1a6323c87042995d3f3f13c2646",
+        "timelineSha256": "946a63c0bf34fbf0dd9f6fc3434a611bf0fbc0eb5c0549fec35429535771c20c"
+      }
+    },
+    {
+      "file": "2026-11-02-20-23-43-25人普通洛阳之战(835)-史朝义(139312).jcl",
+      "sha256": "2e5d0fc856395e2ee73644ef5568f628474c0583165f0b12737f259e9977e5f2",
+      "result": {
+        "boss": "史朝义",
+        "win": 1,
+        "winReason": "boss_completion_and_combat_exit",
+        "boundaryMs": [
+          30800058,
+          31063760,
+          263702.0000000001
+        ],
+        "effectiveMs": [
+          256132,
+          263702
+        ],
+        "players": 25,
+        "personalUploads": 25,
+        "quality": "supported",
+        "damage": {
+          "directDamage": 233170246.0,
+          "redistributedDamage": 233170245.99999997,
+          "mainTargetDamage": 172340344.0,
+          "redistributedMainTargetDamage": 172340343.99999994,
+          "excludedNpcDamage": 0.0,
+          "conservationError": -2.9802322387695312e-08,
+          "mainTargetConservationError": -5.960464477539063e-08
+        },
+        "teamTableSha256": "7caed0e47a4abb3bfc502770e6283452c1613569889b0df94e7ed27c78a95c45",
+        "skillMetricsSha256": "0bb767b4c17b9dc47281af2d0f66fb3a878ec1039d4205f4300499be33fe1394",
+        "timelineSha256": "6ffc0c0e4ba53b19880f985e96830db194aeedeafeb44ab2f27f53496bd1bbc5"
+      }
+    }
+  ],
+  "heroic13": [
+    {
+      "file": "2026-11-13-20-01-33-25人英雄洛阳之战(836)-突利和顺(139360).jcl",
+      "sha256": "408a56e03ad2cceb4932990804990194c45b0658841f94bbce4466fdc046f3ff",
+      "result": {
+        "boss": "突利和顺",
+        "win": 0,
+        "winReason": "未观测到通关事件",
+        "boundaryMs": [
+          1952643,
+          2065733,
+          113090.0000000001
+        ],
+        "effectiveMs": [
+          75112,
+          113090
+        ],
+        "players": 25,
+        "personalUploads": 0,
+        "quality": "supported",
+        "damage": {
+          "directDamage": 110800625.0,
+          "redistributedDamage": 110800624.99999999,
+          "mainTargetDamage": 110800625.0,
+          "redistributedMainTargetDamage": 110800624.99999999,
+          "excludedNpcDamage": 0.0,
+          "conservationError": -1.4901161193847656e-08,
+          "mainTargetConservationError": -1.4901161193847656e-08
+        },
+        "teamTableSha256": "1a096298aa36e98cfa8754b77c8f05694dc3d3e0913659a1e8c3e73aa160863b",
+        "skillMetricsSha256": "8a1d252834fef982fd98975a0ae1b042be0474898649487d58f87fd1348952b6",
+        "timelineSha256": "187a3ffcb817ed0f849f0bb440a52b1bce46a92f88ff40dceb0ddcbfc0e7dc12"
+      }
+    },
+    {
+      "file": "2026-11-13-20-03-48-25人英雄洛阳之战(836)-突利和顺(139360).jcl",
+      "sha256": "ed5689df6929c32206adf3cd3c4058b6702ec6bbda73d3686d3bd03a6caab78c",
+      "result": {
+        "boss": "突利和顺",
+        "win": 1,
+        "winReason": "boss_completion_and_scene_exit",
+        "boundaryMs": [
+          2087666,
+          2347426,
+          259760.0000000001
+        ],
+        "effectiveMs": [
+          183888,
+          259760
+        ],
+        "players": 25,
+        "personalUploads": 25,
+        "quality": "supported",
+        "damage": {
+          "directDamage": 268934251.0,
+          "redistributedDamage": 268934251.0,
+          "mainTargetDamage": 268934251.0,
+          "redistributedMainTargetDamage": 268934251.0,
+          "excludedNpcDamage": 0.0,
+          "conservationError": 0.0,
+          "mainTargetConservationError": 0.0
+        },
+        "teamTableSha256": "eceb4031440edbd4e25416c6460456c1177ea80adbaeece55022ac6607331bca",
+        "skillMetricsSha256": "4af580b040ba33bb0008bfa6795493ed5cc1d06a81238a0df0c1e461d74b1375",
+        "timelineSha256": "99d03f01aa953e76fcaa3a31e601a3401ef559635a1c2fe6987a7d3f463403bc"
+      }
+    },
+    {
+      "file": "2026-11-13-20-12-53-25人英雄洛阳之战(836)-田承嗣(139382).jcl",
+      "sha256": "d0b532b782f0d586a8d3da4b81dbf2ac418e35a7cef8d348c81cc228efc74b35",
+      "result": {
+        "boss": "田承嗣",
+        "win": 1,
+        "winReason": "田承嗣专属宝箱",
+        "boundaryMs": [
+          2632405,
+          2935990,
+          303585.0000000001
+        ],
+        "effectiveMs": [
+          294680,
+          303585
+        ],
+        "players": 25,
+        "personalUploads": 25,
+        "quality": "supported",
+        "damage": {
+          "directDamage": 278508326.0,
+          "redistributedDamage": 278508325.9999999,
+          "mainTargetDamage": 248200000.0,
+          "redistributedMainTargetDamage": 248200000.00000006,
+          "excludedNpcDamage": 0.0,
+          "conservationError": -1.1920928955078125e-07,
+          "mainTargetConservationError": 5.960464477539063e-08
+        },
+        "teamTableSha256": "4d224992f67eabd21e89be5dda8c0bc45f9cd817bedacdd56ad4f96bf477a1f4",
+        "skillMetricsSha256": "643911abc8c18c02d8c9b1cf7ce9989ae080c16c74b78368014c0c6c72ee6355",
+        "timelineSha256": "bb0e04838b7032fa72c4c9eb0294c3e1cd038caaa2821a244340abfb1ee2f337"
+      }
+    },
+    {
+      "file": "2026-11-13-20-20-55-25人英雄洛阳之战(836)-伊曼·寂夜(139373).jcl",
+      "sha256": "77aa4be863493a792263e606bc35d58b71ee37717ee61064cf208d42cc4c1ba1",
+      "result": {
+        "boss": "伊曼双子",
+        "win": 1,
+        "winReason": "伊曼专属宝箱",
+        "boundaryMs": [
+          3114651,
+          3415036,
+          300385.0000000001
+        ],
+        "effectiveMs": [
+          300385,
+          300385
+        ],
+        "players": 25,
+        "personalUploads": 25,
+        "quality": "supported",
+        "damage": {
+          "directDamage": 379721315.0,
+          "redistributedDamage": 379721314.9999998,
+          "mainTargetDamage": 364750248.0,
+          "redistributedMainTargetDamage": 364750247.9999999,
+          "excludedNpcDamage": 0.0,
+          "conservationError": -1.7881393432617188e-07,
+          "mainTargetConservationError": -1.1920928955078125e-07
+        },
+        "teamTableSha256": "6007ca7e410f5d0d9fae4533fa5864ad83a44fbca170f578c22f9d03eaf7db85",
+        "skillMetricsSha256": "020ac4d089530919126b59c5a9c3c2802c07a0d1d5c0ede20f4598ee49c649de",
+        "timelineSha256": "27f11e787851c44e9c812fea29b5c63229960ce86dea102ec5cd216e52023853"
+      }
+    },
+    {
+      "file": "2026-11-13-21-37-44-25人英雄洛阳之战(836)-阿史那承庆(139378).jcl",
+      "sha256": "a15c01fb55e9cbc4f12bf68667c453ff217dee81e0c6aed23d9792ef2e42365c",
+      "result": {
+        "boss": "阿史那承庆",
+        "win": 1,
+        "winReason": "long_pressure_and_boss_completion",
+        "boundaryMs": [
+          7723181,
+          8068219,
+          345038.0000000001
+        ],
+        "effectiveMs": [
+          345038,
+          345038
+        ],
+        "players": 25,
+        "personalUploads": 25,
+        "quality": "supported",
+        "damage": {
+          "directDamage": 464759785.0,
+          "redistributedDamage": 464759784.9999997,
+          "mainTargetDamage": 428580000.0,
+          "redistributedMainTargetDamage": 428579999.99999976,
+          "excludedNpcDamage": 0.0,
+          "conservationError": -2.980232238769531e-07,
+          "mainTargetConservationError": -2.384185791015625e-07
+        },
+        "teamTableSha256": "525ee70629b8b623deb34f86234b12ddb5e7e901ab3bd25a42856b26899d0e93",
+        "skillMetricsSha256": "cce9e859da1a95fe8bad4f16deba801e627a98d64392f02a1b3ccdf48c59eb64",
+        "timelineSha256": "6c71e02128b557a65c712eb4dc8320729550599c26727229bf1faec685215b8e"
+      }
+    },
+    {
+      "file": "2026-11-13-22-49-04-25人英雄洛阳之战(836)-史朝义(139365).jcl",
+      "sha256": "a26153a784bb6a66102cbe6d3b922f95a9c4e2a3e916040190a428b1ddcf470b",
+      "result": {
+        "boss": "史朝义",
+        "win": 1,
+        "winReason": "boss_completion_and_combat_exit",
+        "boundaryMs": [
+          12003731,
+          12509603,
+          505872.0000000001
+        ],
+        "effectiveMs": [
+          498247,
+          505872
+        ],
+        "players": 25,
+        "personalUploads": 25,
+        "quality": "supported",
+        "damage": {
+          "directDamage": 517044030.0,
+          "redistributedDamage": 517044029.99999994,
+          "mainTargetDamage": 445340072.0,
+          "redistributedMainTargetDamage": 445340072.0000001,
+          "excludedNpcDamage": 0.0,
+          "conservationError": -5.960464477539063e-08,
+          "mainTargetConservationError": 1.1920928955078125e-07
+        },
+        "teamTableSha256": "a42ddb710f04750ea922728e38ad49023bcd00ad1629bad25c8d9a8144fa2b1c",
+        "skillMetricsSha256": "6583403096f0f35da630a4f4f9c7a5c73c201275699ed04dedaab1002711f59a",
+        "timelineSha256": "36353d436465ddbad9ead2cb527e65b289cf2e333f6d0cfb23794a0fcfad752b"
+      }
+    }
+  ],
+  "heroic14": [
+    {
+      "file": "2026-11-14-19-53-35-25人英雄洛阳之战(836)-田承嗣(139382).jcl",
+      "sha256": "2fda230b75e5ee5d68f5d4e45d788f88fd79c1855f710e59d6bbefa5e8644b0d",
+      "result": {
+        "boss": "田承嗣",
+        "win": 1,
+        "winReason": "seasonal_boss_credit_and_combat_exit",
+        "boundaryMs": [
+          1676617,
+          2024664,
+          348047.0000000001
+        ],
+        "effectiveMs": [
+          337951,
+          348047
+        ],
+        "players": 25,
+        "personalUploads": 25,
+        "quality": "supported",
+        "damage": {
+          "directDamage": 278511646.0,
+          "redistributedDamage": 278511646.0,
+          "mainTargetDamage": 248200000.0,
+          "redistributedMainTargetDamage": 248199999.99999997,
+          "excludedNpcDamage": 0.0,
+          "conservationError": 0.0,
+          "mainTargetConservationError": -2.9802322387695312e-08
+        },
+        "teamTableSha256": "28d88cad6e868e87b579a7bd265db7c3ebe10c6f5d9e79ed4ee2e4c4c4feeaa1",
+        "skillMetricsSha256": "27eb0e131d3943d81b5ba1157a0cd444d997fb9d0438049842e5f3dcbb9d4479",
+        "timelineSha256": "9e05c7d07ceca3df18be6b69e9a52a51cbd91f2fd8fb4bf243999ed4df59b1c5"
+      }
+    },
+    {
+      "file": "2026-11-14-21-51-56-25人英雄洛阳之战(836)-阿史那承庆(139378).jcl",
+      "sha256": "585cde9c9d8d8d1ba9a5782a251f09a79b6983831814eb691908f85aefc032de",
+      "result": {
+        "boss": "阿史那承庆",
+        "win": 1,
+        "winReason": "seasonal_boss_credit_and_combat_exit",
+        "boundaryMs": [
+          8777611,
+          9198550,
+          420939.0000000001
+        ],
+        "effectiveMs": [
+          420939,
+          420939
+        ],
+        "players": 25,
+        "personalUploads": 25,
+        "quality": "supported",
+        "damage": {
+          "directDamage": 479114517.0,
+          "redistributedDamage": 479114517.00000024,
+          "mainTargetDamage": 428580000.0,
+          "redistributedMainTargetDamage": 428579999.9999999,
+          "excludedNpcDamage": 0.0,
+          "conservationError": 2.384185791015625e-07,
+          "mainTargetConservationError": -1.1920928955078125e-07
+        },
+        "teamTableSha256": "a4e4ec8c9bea4ca84b61e4e3a216709cf1c2e51b56bf4124a5bbe74fcc795e92",
+        "skillMetricsSha256": "cacc6373774fa9f50600f2ce307e2feff14a19ed5efd86790d22e4adf0ed8e61",
+        "timelineSha256": "f057da49429380b31a3a76a1d182b7f319eb0e2e0f918ad4b83b1ba0665a3c3c"
+      }
+    },
+    {
+      "file": "2026-11-14-22-54-07-25人英雄洛阳之战(836)-史朝义(139365).jcl",
+      "sha256": "321a4ce21bc00c4d6778a225286333436b7835f8605adfa40ffe779f8d505c36",
+      "result": {
+        "boss": "史朝义",
+        "win": 1,
+        "winReason": "seasonal_boss_credit_and_combat_exit",
+        "boundaryMs": [
+          12508419,
+          13069589,
+          561170.0000000001
+        ],
+        "effectiveMs": [
+          561170,
+          561170
+        ],
+        "players": 25,
+        "personalUploads": 25,
+        "quality": "supported",
+        "damage": {
+          "directDamage": 503427037.0,
+          "redistributedDamage": 503427036.99999976,
+          "mainTargetDamage": 445340166.0,
+          "redistributedMainTargetDamage": 445340165.99999976,
+          "excludedNpcDamage": 0.0,
+          "conservationError": -2.384185791015625e-07,
+          "mainTargetConservationError": -2.384185791015625e-07
+        },
+        "teamTableSha256": "6a8714d90a1e351eb7a34c3ca650a6acbaeb6ecbf647697fd0c50d6e7ddcf03e",
+        "skillMetricsSha256": "568cf09eb33c26f51f0c054fe7962cec608ce2ae38f3682520b828669354adae",
+        "timelineSha256": "ef23be498d7994b1064f6b1f9d944e35837fd05f1cb7da207e8faa4850281f77"
+      }
+    }
+  ]
+}

@@ -1,0 +1,343 @@
+[
+  {
+    "boss": 1,
+    "name": "玄溟奔涌",
+    "ids": [
+      "45493"
+    ],
+    "mode": "direct",
+    "gap": 250,
+    "continuous": false,
+    "mark": null,
+    "group": "主要候选"
+  },
+  {
+    "boss": 1,
+    "name": "死水微澜",
+    "ids": [
+      "45495"
+    ],
+    "mode": "direct",
+    "gap": 250,
+    "continuous": false,
+    "mark": null,
+    "group": "主要候选"
+  },
+  {
+    "boss": 1,
+    "name": "玄溟之火",
+    "ids": [
+      "46024"
+    ],
+    "mode": "direct",
+    "gap": 2500,
+    "continuous": true,
+    "mark": null,
+    "group": "主要候选"
+  },
+  {
+    "boss": 1,
+    "name": "浊浪登天",
+    "ids": [
+      "45494"
+    ],
+    "mode": "direct",
+    "gap": 1500,
+    "continuous": true,
+    "mark": null,
+    "group": "主要候选"
+  },
+  {
+    "boss": 1,
+    "name": "非点名潜渊之刺",
+    "ids": [
+      "45462"
+    ],
+    "mode": "not_marked",
+    "gap": 250,
+    "continuous": false,
+    "mark": [
+      "34238"
+    ],
+    "group": "条件候选"
+  },
+  {
+    "boss": 1,
+    "name": "非点名倒悬之墨",
+    "ids": [
+      "45492"
+    ],
+    "mode": "not_marked",
+    "gap": 250,
+    "continuous": false,
+    "mark": [
+      "34210"
+    ],
+    "group": "条件候选"
+  },
+  {
+    "boss": 2,
+    "name": "断岳横斩",
+    "ids": [
+      "45972"
+    ],
+    "mode": "direct",
+    "gap": 250,
+    "continuous": false,
+    "mark": null,
+    "group": "主要候选"
+  },
+  {
+    "boss": 2,
+    "name": "枪林突刺",
+    "ids": [
+      "46001"
+    ],
+    "mode": "direct",
+    "gap": 250,
+    "continuous": false,
+    "mark": null,
+    "group": "主要候选"
+  },
+  {
+    "boss": 2,
+    "name": "非点名鸣镝",
+    "ids": [
+      "46030"
+    ],
+    "mode": "not_marked",
+    "gap": 250,
+    "continuous": false,
+    "mark": [
+      "34301"
+    ],
+    "group": "条件候选"
+  },
+  {
+    "boss": 2,
+    "name": "千钧之压（分摊重叠）",
+    "ids": [
+      "45989"
+    ],
+    "mode": "level4",
+    "gap": 250,
+    "continuous": false,
+    "mark": null,
+    "group": "团队观察"
+  },
+  {
+    "boss": 3,
+    "name": "锁链横扫",
+    "ids": [
+      "45899"
+    ],
+    "mode": "non_tank",
+    "gap": 250,
+    "continuous": false,
+    "mark": null,
+    "group": "主要候选"
+  },
+  {
+    "boss": 3,
+    "name": "链坠天崩",
+    "ids": [
+      "45897"
+    ],
+    "mode": "non_tank",
+    "gap": 250,
+    "continuous": false,
+    "mark": null,
+    "group": "主要候选"
+  },
+  {
+    "boss": 3,
+    "name": "焚天炽焰",
+    "ids": [
+      "45908"
+    ],
+    "mode": "non_tank",
+    "gap": 250,
+    "continuous": false,
+    "mark": null,
+    "group": "主要候选"
+  },
+  {
+    "boss": 3,
+    "name": "散雷延爆",
+    "ids": [
+      "45910"
+    ],
+    "mode": "direct",
+    "gap": 250,
+    "continuous": false,
+    "mark": null,
+    "group": "主要候选"
+  },
+  {
+    "boss": 3,
+    "name": "爆裂轰退",
+    "ids": [
+      "45911"
+    ],
+    "mode": "direct",
+    "gap": 250,
+    "continuous": false,
+    "mark": null,
+    "group": "主要候选"
+  },
+  {
+    "boss": 3,
+    "name": "链舞火环",
+    "ids": [
+      "45912"
+    ],
+    "mode": "direct",
+    "gap": 1500,
+    "continuous": true,
+    "mark": null,
+    "group": "主要候选"
+  },
+  {
+    "boss": 3,
+    "name": "非锁定逐猎爆弹",
+    "ids": [
+      "45909"
+    ],
+    "mode": "not_marked_non_tank",
+    "gap": 250,
+    "continuous": false,
+    "mark": [
+      "34597"
+    ],
+    "group": "条件候选"
+  },
+  {
+    "boss": 4,
+    "name": "邪魂散",
+    "ids": [
+      "45557",
+      "45558",
+      "45559",
+      "45560"
+    ],
+    "mode": "direct",
+    "gap": 250,
+    "continuous": false,
+    "mark": null,
+    "group": "主要候选"
+  },
+  {
+    "boss": 4,
+    "name": "邪渊",
+    "ids": [
+      "45847",
+      "45876",
+      "45877"
+    ],
+    "mode": "direct",
+    "gap": 1500,
+    "continuous": true,
+    "mark": null,
+    "group": "主要候选"
+  },
+  {
+    "boss": 4,
+    "name": "黄泉斩",
+    "ids": [
+      "45884"
+    ],
+    "mode": "direct",
+    "gap": 250,
+    "continuous": false,
+    "mark": null,
+    "group": "主要候选"
+  },
+  {
+    "boss": 4,
+    "name": "玄隼弹压",
+    "ids": [
+      "46504"
+    ],
+    "mode": "direct",
+    "gap": 250,
+    "continuous": false,
+    "mark": null,
+    "group": "条件候选"
+  },
+  {
+    "boss": 5,
+    "name": "刃轮",
+    "ids": [
+      "45527"
+    ],
+    "mode": "direct",
+    "gap": 1500,
+    "continuous": true,
+    "mark": null,
+    "group": "主要候选"
+  },
+  {
+    "boss": 5,
+    "name": "煞骸崩陨",
+    "ids": [
+      "45537"
+    ],
+    "mode": "direct",
+    "gap": 250,
+    "continuous": false,
+    "mark": null,
+    "group": "主要候选"
+  },
+  {
+    "boss": 5,
+    "name": "重斩",
+    "ids": [
+      "45538"
+    ],
+    "mode": "non_tank",
+    "gap": 250,
+    "continuous": false,
+    "mark": null,
+    "group": "主要候选"
+  },
+  {
+    "boss": 5,
+    "name": "裂峰斩·二式",
+    "ids": [
+      "45685"
+    ],
+    "mode": "direct",
+    "gap": 250,
+    "continuous": false,
+    "mark": null,
+    "group": "主要候选"
+  },
+  {
+    "boss": 5,
+    "name": "啸天冲击波",
+    "ids": [
+      "45737"
+    ],
+    "mode": "direct",
+    "gap": 1500,
+    "continuous": true,
+    "mark": null,
+    "group": "主要候选"
+  },
+  {
+    "boss": 5,
+    "name": "非点名幽影斩",
+    "ids": [
+      "45697"
+    ],
+    "mode": "not_marked",
+    "gap": 250,
+    "continuous": false,
+    "mark": [
+      "34115",
+      "34114",
+      "34113"
+    ],
+    "group": "条件候选"
+  }
+]

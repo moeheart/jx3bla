@@ -1,0 +1,119 @@
+main lines=0:0 metadata=[0, 0, 2, 20]
+constants=["Include", "scripts/Include/Skill.lh", "tSkillData", "nLifeAdd", 25.0, 28.0, 31.0, 49.0, 60.0, 67.0, 74.0, 110.0, 100.0, 121.0, 133.0, 148.0, 288.0, 317.0, 346.0, 425.0, 498.0, 2047.0, 2250.0, "GetSkillLevelData", "CanCast", "OnSkillLevelUp", "OnSkillForgotten", "Apply", "UnApply", "OnRemove"]
+   1 GETGLOBAL  A=0 B=0 C=0 Bx=0 sBx=-131071 K='Include'
+   2 LOADK      A=1 B=0 C=1 Bx=1 sBx=-131070 K='scripts/Include/Skill.lh'
+   3 CALL       A=0 B=2 C=1 Bx=1025 sBx=-130046
+   4 NEWTABLE   A=0 B=18 C=0 Bx=9216 sBx=-121855
+   5 NEWTABLE   A=1 B=0 C=1 Bx=1 sBx=-131070
+   6 SETTABLE   A=1 B=259 C=260 Bx=132868 sBx=1797 'nLifeAdd' 25.0
+   7 NEWTABLE   A=2 B=0 C=1 Bx=1 sBx=-131070
+   8 SETTABLE   A=2 B=259 C=261 Bx=132869 sBx=1798 'nLifeAdd' 28.0
+   9 NEWTABLE   A=3 B=0 C=1 Bx=1 sBx=-131070
+  10 SETTABLE   A=3 B=259 C=262 Bx=132870 sBx=1799 'nLifeAdd' 31.0
+  11 NEWTABLE   A=4 B=0 C=1 Bx=1 sBx=-131070
+  12 SETTABLE   A=4 B=259 C=263 Bx=132871 sBx=1800 'nLifeAdd' 49.0
+  13 NEWTABLE   A=5 B=0 C=1 Bx=1 sBx=-131070
+  14 SETTABLE   A=5 B=259 C=264 Bx=132872 sBx=1801 'nLifeAdd' 60.0
+  15 NEWTABLE   A=6 B=0 C=1 Bx=1 sBx=-131070
+  16 SETTABLE   A=6 B=259 C=265 Bx=132873 sBx=1802 'nLifeAdd' 67.0
+  17 NEWTABLE   A=7 B=0 C=1 Bx=1 sBx=-131070
+  18 SETTABLE   A=7 B=259 C=266 Bx=132874 sBx=1803 'nLifeAdd' 74.0
+  19 NEWTABLE   A=8 B=0 C=1 Bx=1 sBx=-131070
+  20 SETTABLE   A=8 B=259 C=267 Bx=132875 sBx=1804 'nLifeAdd' 110.0
+  21 NEWTABLE   A=9 B=0 C=1 Bx=1 sBx=-131070
+  22 SETTABLE   A=9 B=259 C=268 Bx=132876 sBx=1805 'nLifeAdd' 100.0
+  23 NEWTABLE   A=10 B=0 C=1 Bx=1 sBx=-131070
+  24 SETTABLE   A=10 B=259 C=269 Bx=132877 sBx=1806 'nLifeAdd' 121.0
+  25 NEWTABLE   A=11 B=0 C=1 Bx=1 sBx=-131070
+  26 SETTABLE   A=11 B=259 C=270 Bx=132878 sBx=1807 'nLifeAdd' 133.0
+  27 NEWTABLE   A=12 B=0 C=1 Bx=1 sBx=-131070
+  28 SETTABLE   A=12 B=259 C=271 Bx=132879 sBx=1808 'nLifeAdd' 148.0
+  29 NEWTABLE   A=13 B=0 C=1 Bx=1 sBx=-131070
+  30 SETTABLE   A=13 B=259 C=272 Bx=132880 sBx=1809 'nLifeAdd' 288.0
+  31 NEWTABLE   A=14 B=0 C=1 Bx=1 sBx=-131070
+  32 SETTABLE   A=14 B=259 C=273 Bx=132881 sBx=1810 'nLifeAdd' 317.0
+  33 NEWTABLE   A=15 B=0 C=1 Bx=1 sBx=-131070
+  34 SETTABLE   A=15 B=259 C=274 Bx=132882 sBx=1811 'nLifeAdd' 346.0
+  35 NEWTABLE   A=16 B=0 C=1 Bx=1 sBx=-131070
+  36 SETTABLE   A=16 B=259 C=275 Bx=132883 sBx=1812 'nLifeAdd' 425.0
+  37 NEWTABLE   A=17 B=0 C=1 Bx=1 sBx=-131070
+  38 SETTABLE   A=17 B=259 C=276 Bx=132884 sBx=1813 'nLifeAdd' 498.0
+  39 NEWTABLE   A=18 B=0 C=1 Bx=1 sBx=-131070
+  40 SETTABLE   A=18 B=259 C=277 Bx=132885 sBx=1814 'nLifeAdd' 2047.0
+  41 NEWTABLE   A=19 B=0 C=1 Bx=1 sBx=-131070
+  42 SETTABLE   A=19 B=259 C=278 Bx=132886 sBx=1815 'nLifeAdd' 2250.0
+  43 SETLIST    A=0 B=19 C=1 Bx=9729 sBx=-121342
+  44 SETGLOBAL  A=0 B=0 C=2 Bx=2 sBx=-131069 K='tSkillData'
+  45 CLOSURE    A=0 B=0 C=0 Bx=0 sBx=-131071
+  46 SETGLOBAL  A=0 B=0 C=23 Bx=23 sBx=-131048 K='GetSkillLevelData'
+  47 CLOSURE    A=0 B=0 C=1 Bx=1 sBx=-131070
+  48 SETGLOBAL  A=0 B=0 C=24 Bx=24 sBx=-131047 K='CanCast'
+  49 CLOSURE    A=0 B=0 C=2 Bx=2 sBx=-131069
+  50 SETGLOBAL  A=0 B=0 C=25 Bx=25 sBx=-131046 K='OnSkillLevelUp'
+  51 CLOSURE    A=0 B=0 C=3 Bx=3 sBx=-131068
+  52 SETGLOBAL  A=0 B=0 C=26 Bx=26 sBx=-131045 K='OnSkillForgotten'
+  53 CLOSURE    A=0 B=0 C=4 Bx=4 sBx=-131067
+  54 SETGLOBAL  A=0 B=0 C=27 Bx=27 sBx=-131044 K='Apply'
+  55 CLOSURE    A=0 B=0 C=5 Bx=5 sBx=-131066
+  56 SETGLOBAL  A=0 B=0 C=28 Bx=28 sBx=-131043 K='UnApply'
+  57 CLOSURE    A=0 B=0 C=6 Bx=6 sBx=-131065
+  58 SETGLOBAL  A=0 B=0 C=29 Bx=29 sBx=-131042 K='OnRemove'
+  59 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/0 lines=37:165 metadata=[0, 1, 0, 9]
+constants=["dwLevel", "AddAttribute", "ATTRIBUTE_EFFECT_MODE", "EFFECT_TO_DEST_NOT_ROLLBACK", "ATTRIBUTE_TYPE", "CALL_THERAPY", "tSkillData", "nLifeAdd", 0.0, "AddSlowCheckSelfOwnBuff", 15423.0, "BUFF_COMPARE_FLAG", "EQUAL", "BindBuff", 1.0, "bIgnorePrepareState", true, "nMinRadius", "LENGTH_BASE", "nMaxRadius", 4.0, "nAngleRange", 256.0]
+   1 GETTABLE   A=1 B=0 C=256 Bx=256 sBx=-130815 R0 'dwLevel'
+   2 GETTABLE   A=2 B=0 C=256 Bx=256 sBx=-130815 R0 'dwLevel'
+   3 GETTABLE   A=3 B=0 C=257 Bx=257 sBx=-130814 R0 'AddAttribute'
+   4 GETGLOBAL  A=4 B=0 C=2 Bx=2 sBx=-131069 K='ATTRIBUTE_EFFECT_MODE'
+   5 GETTABLE   A=4 B=4 C=259 Bx=2307 sBx=-128764 R4 'EFFECT_TO_DEST_NOT_ROLLBACK'
+   6 GETGLOBAL  A=5 B=0 C=4 Bx=4 sBx=-131067 K='ATTRIBUTE_TYPE'
+   7 GETTABLE   A=5 B=5 C=261 Bx=2821 sBx=-128250 R5 'CALL_THERAPY'
+   8 GETGLOBAL  A=6 B=0 C=6 Bx=6 sBx=-131065 K='tSkillData'
+   9 GETTABLE   A=6 B=6 C=2 Bx=3074 sBx=-127997 R6 R2
+  10 GETTABLE   A=6 B=6 C=263 Bx=3335 sBx=-127736 R6 'nLifeAdd'
+  11 LOADK      A=7 B=0 C=8 Bx=8 sBx=-131063 K=0.0
+  12 CALL       A=3 B=5 C=1 Bx=2561 sBx=-128510
+  13 GETTABLE   A=3 B=0 C=265 Bx=265 sBx=-130806 R0 'AddSlowCheckSelfOwnBuff'
+  14 LOADK      A=4 B=0 C=10 Bx=10 sBx=-131061 K=15423.0
+  15 LOADK      A=5 B=0 C=8 Bx=8 sBx=-131063 K=0.0
+  16 GETGLOBAL  A=6 B=0 C=11 Bx=11 sBx=-131060 K='BUFF_COMPARE_FLAG'
+  17 GETTABLE   A=6 B=6 C=268 Bx=3340 sBx=-127731 R6 'EQUAL'
+  18 LOADK      A=7 B=0 C=8 Bx=8 sBx=-131063 K=0.0
+  19 GETGLOBAL  A=8 B=0 C=11 Bx=11 sBx=-131060 K='BUFF_COMPARE_FLAG'
+  20 GETTABLE   A=8 B=8 C=268 Bx=4364 sBx=-126707 R8 'EQUAL'
+  21 CALL       A=3 B=6 C=1 Bx=3073 sBx=-127998
+  22 GETTABLE   A=3 B=0 C=269 Bx=269 sBx=-130802 R0 'BindBuff'
+  23 LOADK      A=4 B=0 C=14 Bx=14 sBx=-131057 K=1.0
+  24 LOADK      A=5 B=0 C=10 Bx=10 sBx=-131061 K=15423.0
+  25 LOADK      A=6 B=0 C=14 Bx=14 sBx=-131057 K=1.0
+  26 CALL       A=3 B=4 C=1 Bx=2049 sBx=-129022
+  27 SETTABLE   A=0 B=271 C=272 Bx=139024 sBx=7953 'bIgnorePrepareState' True
+  28 GETGLOBAL  A=3 B=0 C=18 Bx=18 sBx=-131053 K='LENGTH_BASE'
+  29 MUL        A=3 B=264 C=3 Bx=135171 sBx=4100 0.0 R3
+  30 SETTABLE   A=0 B=273 C=3 Bx=139779 sBx=8708 'nMinRadius' R3
+  31 GETGLOBAL  A=3 B=0 C=18 Bx=18 sBx=-131053 K='LENGTH_BASE'
+  32 MUL        A=3 B=276 C=3 Bx=141315 sBx=10244 4.0 R3
+  33 SETTABLE   A=0 B=275 C=3 Bx=140803 sBx=9732 'nMaxRadius' R3
+  34 SETTABLE   A=0 B=277 C=278 Bx=142102 sBx=11031 'nAngleRange' 256.0
+  35 LOADBOOL   A=3 B=1 C=0 Bx=512 sBx=-130559
+  36 RETURN     A=3 B=2 C=0 Bx=1024 sBx=-130047
+  37 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/1 lines=170:172 metadata=[0, 2, 0, 2]
+constants=[]
+   1 RETURN     A=1 B=2 C=0 Bx=1024 sBx=-130047
+   2 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/2 lines=175:176 metadata=[0, 2, 0, 2]
+constants=[]
+   1 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/3 lines=179:180 metadata=[0, 2, 0, 2]
+constants=[]
+   1 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/4 lines=183:184 metadata=[0, 2, 0, 2]
+constants=[]
+   1 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/5 lines=187:188 metadata=[0, 1, 0, 2]
+constants=[]
+   1 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/6 lines=190:191 metadata=[0, 10, 0, 10]
+constants=[]
+   1 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559

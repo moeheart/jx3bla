@@ -1,0 +1,224 @@
+main lines=0:0 metadata=[0, 0, 2, 14]
+constants=["Include", "scripts/Include/Skill.lh", "scripts/player/include/Kungfu2ArenaType.lh", "nDamageBase", 13524.0, 19745.0, "GetSkillLevelData", "pairs", "KUNGFU_ADAPTIVETYPE_LIST", "adaptiveType", 1.0, "table", "insert", 2.0, 3.0, 4.0, "CanCast", "OnSkillLevelUp", "OnSkillForgotten", "Apply", "UnApply", "OnRemove", "OnEarlyWarning"]
+   1 GETGLOBAL  A=0 B=0 C=0 Bx=0 sBx=-131071 K='Include'
+   2 LOADK      A=1 B=0 C=1 Bx=1 sBx=-131070 K='scripts/Include/Skill.lh'
+   3 CALL       A=0 B=2 C=1 Bx=1025 sBx=-130046
+   4 GETGLOBAL  A=0 B=0 C=0 Bx=0 sBx=-131071 K='Include'
+   5 LOADK      A=1 B=0 C=2 Bx=2 sBx=-131069 K='scripts/player/include/Kungfu2ArenaType.lh'
+   6 CALL       A=0 B=2 C=1 Bx=1025 sBx=-130046
+   7 NEWTABLE   A=0 B=2 C=0 Bx=1024 sBx=-130047
+   8 NEWTABLE   A=1 B=0 C=1 Bx=1 sBx=-131070
+   9 SETTABLE   A=1 B=259 C=260 Bx=132868 sBx=1797 'nDamageBase' 13524.0
+  10 NEWTABLE   A=2 B=0 C=1 Bx=1 sBx=-131070
+  11 SETTABLE   A=2 B=259 C=261 Bx=132869 sBx=1798 'nDamageBase' 19745.0
+  12 SETLIST    A=0 B=2 C=1 Bx=1025 sBx=-130046
+  13 CLOSURE    A=1 B=0 C=0 Bx=0 sBx=-131071
+  14 SETGLOBAL  A=1 B=0 C=6 Bx=6 sBx=-131065 K='GetSkillLevelData'
+  15 NEWTABLE   A=1 B=0 C=0 Bx=0 sBx=-131071
+  16 NEWTABLE   A=2 B=0 C=0 Bx=0 sBx=-131071
+  17 NEWTABLE   A=3 B=0 C=0 Bx=0 sBx=-131071
+  18 NEWTABLE   A=4 B=0 C=0 Bx=0 sBx=-131071
+  19 NEWTABLE   A=5 B=0 C=0 Bx=0 sBx=-131071
+  20 GETGLOBAL  A=6 B=0 C=7 Bx=7 sBx=-131064 K='pairs'
+  21 GETGLOBAL  A=7 B=0 C=8 Bx=8 sBx=-131063 K='KUNGFU_ADAPTIVETYPE_LIST'
+  22 CALL       A=6 B=2 C=4 Bx=1028 sBx=-130043
+  23 JMP        A=0 B=256 C=40 Bx=131112 sBx=41 =>65
+  24 GETTABLE   A=11 B=10 C=265 Bx=5385 sBx=-125686 R10 'adaptiveType'
+  25 EQ         A=0 B=11 C=266 Bx=5898 sBx=-125173 R11 1.0
+  26 JMP        A=0 B=256 C=5 Bx=131077 sBx=6 =>33
+  27 GETGLOBAL  A=11 B=0 C=11 Bx=11 sBx=-131060 K='table'
+  28 GETTABLE   A=11 B=11 C=268 Bx=5900 sBx=-125171 R11 'insert'
+  29 MOVE       A=12 B=1 C=0 Bx=512 sBx=-130559
+  30 MOVE       A=13 B=9 C=0 Bx=4608 sBx=-126463
+  31 CALL       A=11 B=3 C=1 Bx=1537 sBx=-129534
+  32 JMP        A=0 B=256 C=31 Bx=131103 sBx=32 =>65
+  33 GETTABLE   A=11 B=10 C=265 Bx=5385 sBx=-125686 R10 'adaptiveType'
+  34 EQ         A=0 B=11 C=269 Bx=5901 sBx=-125170 R11 2.0
+  35 JMP        A=0 B=256 C=5 Bx=131077 sBx=6 =>42
+  36 GETGLOBAL  A=11 B=0 C=11 Bx=11 sBx=-131060 K='table'
+  37 GETTABLE   A=11 B=11 C=268 Bx=5900 sBx=-125171 R11 'insert'
+  38 MOVE       A=12 B=2 C=0 Bx=1024 sBx=-130047
+  39 MOVE       A=13 B=9 C=0 Bx=4608 sBx=-126463
+  40 CALL       A=11 B=3 C=1 Bx=1537 sBx=-129534
+  41 JMP        A=0 B=256 C=22 Bx=131094 sBx=23 =>65
+  42 GETTABLE   A=11 B=10 C=265 Bx=5385 sBx=-125686 R10 'adaptiveType'
+  43 EQ         A=0 B=11 C=270 Bx=5902 sBx=-125169 R11 3.0
+  44 JMP        A=0 B=256 C=5 Bx=131077 sBx=6 =>51
+  45 GETGLOBAL  A=11 B=0 C=11 Bx=11 sBx=-131060 K='table'
+  46 GETTABLE   A=11 B=11 C=268 Bx=5900 sBx=-125171 R11 'insert'
+  47 MOVE       A=12 B=3 C=0 Bx=1536 sBx=-129535
+  48 MOVE       A=13 B=9 C=0 Bx=4608 sBx=-126463
+  49 CALL       A=11 B=3 C=1 Bx=1537 sBx=-129534
+  50 JMP        A=0 B=256 C=13 Bx=131085 sBx=14 =>65
+  51 GETTABLE   A=11 B=10 C=265 Bx=5385 sBx=-125686 R10 'adaptiveType'
+  52 EQ         A=0 B=11 C=271 Bx=5903 sBx=-125168 R11 4.0
+  53 JMP        A=0 B=256 C=5 Bx=131077 sBx=6 =>60
+  54 GETGLOBAL  A=11 B=0 C=11 Bx=11 sBx=-131060 K='table'
+  55 GETTABLE   A=11 B=11 C=268 Bx=5900 sBx=-125171 R11 'insert'
+  56 MOVE       A=12 B=4 C=0 Bx=2048 sBx=-129023
+  57 MOVE       A=13 B=9 C=0 Bx=4608 sBx=-126463
+  58 CALL       A=11 B=3 C=1 Bx=1537 sBx=-129534
+  59 JMP        A=0 B=256 C=4 Bx=131076 sBx=5 =>65
+  60 GETGLOBAL  A=11 B=0 C=11 Bx=11 sBx=-131060 K='table'
+  61 GETTABLE   A=11 B=11 C=268 Bx=5900 sBx=-125171 R11 'insert'
+  62 MOVE       A=12 B=5 C=0 Bx=2560 sBx=-128511
+  63 MOVE       A=13 B=9 C=0 Bx=4608 sBx=-126463
+  64 CALL       A=11 B=3 C=1 Bx=1537 sBx=-129534
+  65 TFORLOOP   A=6 B=0 C=2 Bx=2 sBx=-131069
+  66 JMP        A=0 B=255 C=468 Bx=131028 sBx=-43 =>24
+  67 CLOSURE    A=6 B=0 C=1 Bx=1 sBx=-131070
+  68 SETGLOBAL  A=6 B=0 C=16 Bx=16 sBx=-131055 K='CanCast'
+  69 CLOSURE    A=6 B=0 C=2 Bx=2 sBx=-131069
+  70 SETGLOBAL  A=6 B=0 C=17 Bx=17 sBx=-131054 K='OnSkillLevelUp'
+  71 CLOSURE    A=6 B=0 C=3 Bx=3 sBx=-131068
+  72 SETGLOBAL  A=6 B=0 C=18 Bx=18 sBx=-131053 K='OnSkillForgotten'
+  73 CLOSURE    A=6 B=0 C=4 Bx=4 sBx=-131067
+  74 MOVE       A=0 B=0 C=0 Bx=0 sBx=-131071
+  75 SETGLOBAL  A=6 B=0 C=19 Bx=19 sBx=-131052 K='Apply'
+  76 CLOSURE    A=6 B=0 C=5 Bx=5 sBx=-131066
+  77 SETGLOBAL  A=6 B=0 C=20 Bx=20 sBx=-131051 K='UnApply'
+  78 CLOSURE    A=6 B=0 C=6 Bx=6 sBx=-131065
+  79 SETGLOBAL  A=6 B=0 C=21 Bx=21 sBx=-131050 K='OnRemove'
+  80 CLOSURE    A=6 B=0 C=7 Bx=7 sBx=-131064
+  81 SETGLOBAL  A=6 B=0 C=22 Bx=22 sBx=-131049 K='OnEarlyWarning'
+  82 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/0 lines=13:29 metadata=[0, 1, 0, 8]
+constants=["dwLevel", "AddAttribute", "ATTRIBUTE_EFFECT_MODE", "EFFECT_TO_DEST_NOT_ROLLBACK", "ATTRIBUTE_TYPE", "EXECUTE_SCRIPT_WITH_PARAM", "skill/装备/苍生铸世赛季输出护手固定伤害.lua", "AddSlowCheckSelfBuff", 15453.0, 0.0, "BUFF_COMPARE_FLAG", "EQUAL", "bIgnorePrepareState", true, "nMaxRadius", "LENGTH_BASE", 30.0, "nAngleRange", 256.0, "nTargetCountLimit", 1.0, "nChannelInterval"]
+   1 GETTABLE   A=1 B=0 C=256 Bx=256 sBx=-130815 R0 'dwLevel'
+   2 GETTABLE   A=2 B=0 C=257 Bx=257 sBx=-130814 R0 'AddAttribute'
+   3 GETGLOBAL  A=3 B=0 C=2 Bx=2 sBx=-131069 K='ATTRIBUTE_EFFECT_MODE'
+   4 GETTABLE   A=3 B=3 C=259 Bx=1795 sBx=-129276 R3 'EFFECT_TO_DEST_NOT_ROLLBACK'
+   5 GETGLOBAL  A=4 B=0 C=4 Bx=4 sBx=-131067 K='ATTRIBUTE_TYPE'
+   6 GETTABLE   A=4 B=4 C=261 Bx=2309 sBx=-128762 R4 'EXECUTE_SCRIPT_WITH_PARAM'
+   7 LOADK      A=5 B=0 C=6 Bx=6 sBx=-131065 K='skill/装备/苍生铸世赛季输出护手固定伤害.lua'
+   8 MOVE       A=6 B=1 C=0 Bx=512 sBx=-130559
+   9 CALL       A=2 B=5 C=1 Bx=2561 sBx=-128510
+  10 GETTABLE   A=2 B=0 C=263 Bx=263 sBx=-130808 R0 'AddSlowCheckSelfBuff'
+  11 LOADK      A=3 B=0 C=8 Bx=8 sBx=-131063 K=15453.0
+  12 LOADK      A=4 B=0 C=9 Bx=9 sBx=-131062 K=0.0
+  13 GETGLOBAL  A=5 B=0 C=10 Bx=10 sBx=-131061 K='BUFF_COMPARE_FLAG'
+  14 GETTABLE   A=5 B=5 C=267 Bx=2827 sBx=-128244 R5 'EQUAL'
+  15 LOADK      A=6 B=0 C=9 Bx=9 sBx=-131062 K=0.0
+  16 GETGLOBAL  A=7 B=0 C=10 Bx=10 sBx=-131061 K='BUFF_COMPARE_FLAG'
+  17 GETTABLE   A=7 B=7 C=267 Bx=3851 sBx=-127220 R7 'EQUAL'
+  18 CALL       A=2 B=6 C=1 Bx=3073 sBx=-127998
+  19 SETTABLE   A=0 B=268 C=269 Bx=137485 sBx=6414 'bIgnorePrepareState' True
+  20 SETTABLE   A=0 B=268 C=269 Bx=137485 sBx=6414 'bIgnorePrepareState' True
+  21 GETGLOBAL  A=2 B=0 C=15 Bx=15 sBx=-131056 K='LENGTH_BASE'
+  22 MUL        A=2 B=272 C=2 Bx=139266 sBx=8195 30.0 R2
+  23 SETTABLE   A=0 B=270 C=2 Bx=138242 sBx=7171 'nMaxRadius' R2
+  24 SETTABLE   A=0 B=273 C=274 Bx=140050 sBx=8979 'nAngleRange' 256.0
+  25 SETTABLE   A=0 B=275 C=276 Bx=141076 sBx=10005 'nTargetCountLimit' 1.0
+  26 SETTABLE   A=0 B=277 C=265 Bx=142089 sBx=11018 'nChannelInterval' 0.0
+  27 LOADBOOL   A=2 B=1 C=0 Bx=512 sBx=-130559
+  28 RETURN     A=2 B=2 C=0 Bx=1024 sBx=-130047
+  29 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/1 lines=44:46 metadata=[0, 3, 0, 3]
+constants=[]
+   1 RETURN     A=1 B=2 C=0 Bx=1024 sBx=-130047
+   2 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/2 lines=47:48 metadata=[0, 2, 0, 2]
+constants=[]
+   1 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/3 lines=49:50 metadata=[0, 2, 0, 2]
+constants=[]
+   1 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/4 lines=51:84 metadata=[1, 3, 0, 16]
+constants=["GetPlayer", "IsPlayer", "TARGET", "PLAYER", "GetNpc", "NPC", "GetKungfuMountID", "KUNGFU_ADAPTIVETYPE_LIST", 0.0, "nDamageBase", 1.0, "SKILL_KIND_TYPE", "LUNAR_MAGIC", 2.0, "SOLAR_MAGIC", 3.0, "NEUTRAL_MAGIC", 4.0, "POISON", 5.0, "PHYSICS", "Skill_SuperCustomDamageToPlayer", 37562.0, "adaptiveType", "AddBuff", "dwID", "nLevel", 15453.0]
+   1 GETGLOBAL  A=3 B=0 C=0 Bx=0 sBx=-131071 K='GetPlayer'
+   2 MOVE       A=4 B=2 C=0 Bx=1024 sBx=-130047
+   3 CALL       A=3 B=2 C=2 Bx=1026 sBx=-130045
+   4 TEST       A=3 B=0 C=1 Bx=1 sBx=-131070
+   5 JMP        A=0 B=256 C=0 Bx=131072 sBx=1 =>7
+   6 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+   7 LOADNIL    A=4 B=5 C=0 Bx=2560 sBx=-128511
+   8 GETGLOBAL  A=6 B=0 C=1 Bx=1 sBx=-131070 K='IsPlayer'
+   9 MOVE       A=7 B=0 C=0 Bx=0 sBx=-131071
+  10 CALL       A=6 B=2 C=2 Bx=1026 sBx=-130045
+  11 TEST       A=6 B=0 C=0 Bx=0 sBx=-131071
+  12 JMP        A=0 B=256 C=6 Bx=131078 sBx=7 =>20
+  13 GETGLOBAL  A=6 B=0 C=0 Bx=0 sBx=-131071 K='GetPlayer'
+  14 MOVE       A=7 B=0 C=0 Bx=0 sBx=-131071
+  15 CALL       A=6 B=2 C=2 Bx=1026 sBx=-130045
+  16 MOVE       A=4 B=6 C=0 Bx=3072 sBx=-127999
+  17 GETGLOBAL  A=6 B=0 C=2 Bx=2 sBx=-131069 K='TARGET'
+  18 GETTABLE   A=5 B=6 C=259 Bx=3331 sBx=-127740 R6 'PLAYER'
+  19 JMP        A=0 B=256 C=5 Bx=131077 sBx=6 =>26
+  20 GETGLOBAL  A=6 B=0 C=4 Bx=4 sBx=-131067 K='GetNpc'
+  21 MOVE       A=7 B=0 C=0 Bx=0 sBx=-131071
+  22 CALL       A=6 B=2 C=2 Bx=1026 sBx=-130045
+  23 MOVE       A=4 B=6 C=0 Bx=3072 sBx=-127999
+  24 GETGLOBAL  A=6 B=0 C=2 Bx=2 sBx=-131069 K='TARGET'
+  25 GETTABLE   A=5 B=6 C=261 Bx=3333 sBx=-127738 R6 'NPC'
+  26 GETTABLE   A=6 B=3 C=262 Bx=1798 sBx=-129273 R3 'GetKungfuMountID'
+  27 CALL       A=6 B=1 C=2 Bx=514 sBx=-130557
+  28 TEST       A=6 B=0 C=1 Bx=1 sBx=-131070
+  29 JMP        A=0 B=256 C=0 Bx=131072 sBx=1 =>31
+  30 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+  31 TEST       A=4 B=0 C=0 Bx=0 sBx=-131071
+  32 JMP        A=0 B=256 C=7 Bx=131079 sBx=8 =>41
+  33 GETGLOBAL  A=7 B=0 C=7 Bx=7 sBx=-131064 K='KUNGFU_ADAPTIVETYPE_LIST'
+  34 GETTABLE   A=7 B=7 C=6 Bx=3590 sBx=-127481 R7 R6
+  35 TEST       A=7 B=0 C=0 Bx=0 sBx=-131071
+  36 JMP        A=0 B=256 C=3 Bx=131075 sBx=4 =>41
+  37 GETUPVAL   A=7 B=0 C=0 Bx=0 sBx=-131071
+  38 GETTABLE   A=7 B=7 C=1 Bx=3585 sBx=-127486 R7 R1
+  39 TEST       A=7 B=0 C=1 Bx=1 sBx=-131070
+  40 JMP        A=0 B=256 C=0 Bx=131072 sBx=1 =>42
+  41 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+  42 LOADK      A=7 B=0 C=8 Bx=8 sBx=-131063 K=0.0
+  43 GETUPVAL   A=8 B=0 C=0 Bx=0 sBx=-131071
+  44 GETTABLE   A=8 B=8 C=1 Bx=4097 sBx=-126974 R8 R1
+  45 TEST       A=8 B=0 C=0 Bx=0 sBx=-131071
+  46 JMP        A=0 B=256 C=7 Bx=131079 sBx=8 =>55
+  47 GETUPVAL   A=8 B=0 C=0 Bx=0 sBx=-131071
+  48 GETTABLE   A=8 B=8 C=1 Bx=4097 sBx=-126974 R8 R1
+  49 GETTABLE   A=8 B=8 C=265 Bx=4361 sBx=-126710 R8 'nDamageBase'
+  50 TEST       A=8 B=0 C=0 Bx=0 sBx=-131071
+  51 JMP        A=0 B=256 C=2 Bx=131074 sBx=3 =>55
+  52 GETUPVAL   A=8 B=0 C=0 Bx=0 sBx=-131071
+  53 GETTABLE   A=8 B=8 C=1 Bx=4097 sBx=-126974 R8 R1
+  54 GETTABLE   A=7 B=8 C=265 Bx=4361 sBx=-126710 R8 'nDamageBase'
+  55 NEWTABLE   A=8 B=0 C=5 Bx=5 sBx=-131066
+  56 GETGLOBAL  A=9 B=0 C=11 Bx=11 sBx=-131060 K='SKILL_KIND_TYPE'
+  57 GETTABLE   A=9 B=9 C=268 Bx=4876 sBx=-126195 R9 'LUNAR_MAGIC'
+  58 SETTABLE   A=8 B=266 C=9 Bx=136201 sBx=5130 1.0 R9
+  59 GETGLOBAL  A=9 B=0 C=11 Bx=11 sBx=-131060 K='SKILL_KIND_TYPE'
+  60 GETTABLE   A=9 B=9 C=270 Bx=4878 sBx=-126193 R9 'SOLAR_MAGIC'
+  61 SETTABLE   A=8 B=269 C=9 Bx=137737 sBx=6666 2.0 R9
+  62 GETGLOBAL  A=9 B=0 C=11 Bx=11 sBx=-131060 K='SKILL_KIND_TYPE'
+  63 GETTABLE   A=9 B=9 C=272 Bx=4880 sBx=-126191 R9 'NEUTRAL_MAGIC'
+  64 SETTABLE   A=8 B=271 C=9 Bx=138761 sBx=7690 3.0 R9
+  65 GETGLOBAL  A=9 B=0 C=11 Bx=11 sBx=-131060 K='SKILL_KIND_TYPE'
+  66 GETTABLE   A=9 B=9 C=274 Bx=4882 sBx=-126189 R9 'POISON'
+  67 SETTABLE   A=8 B=273 C=9 Bx=139785 sBx=8714 4.0 R9
+  68 GETGLOBAL  A=9 B=0 C=11 Bx=11 sBx=-131060 K='SKILL_KIND_TYPE'
+  69 GETTABLE   A=9 B=9 C=276 Bx=4884 sBx=-126187 R9 'PHYSICS'
+  70 SETTABLE   A=8 B=275 C=9 Bx=140809 sBx=9738 5.0 R9
+  71 GETGLOBAL  A=9 B=0 C=21 Bx=21 sBx=-131050 K='Skill_SuperCustomDamageToPlayer'
+  72 MOVE       A=10 B=4 C=0 Bx=2048 sBx=-129023
+  73 MOVE       A=11 B=2 C=0 Bx=1024 sBx=-130047
+  74 LOADK      A=12 B=0 C=22 Bx=22 sBx=-131049 K=37562.0
+  75 LOADK      A=13 B=0 C=10 Bx=10 sBx=-131061 K=1.0
+  76 GETGLOBAL  A=14 B=0 C=7 Bx=7 sBx=-131064 K='KUNGFU_ADAPTIVETYPE_LIST'
+  77 GETTABLE   A=14 B=14 C=6 Bx=7174 sBx=-123897 R14 R6
+  78 GETTABLE   A=14 B=14 C=279 Bx=7447 sBx=-123624 R14 'adaptiveType'
+  79 GETTABLE   A=14 B=8 C=14 Bx=4110 sBx=-126961 R8 R14
+  80 MOVE       A=15 B=7 C=0 Bx=3584 sBx=-127487
+  81 CALL       A=9 B=7 C=1 Bx=3585 sBx=-127486
+  82 GETTABLE   A=9 B=3 C=280 Bx=1816 sBx=-129255 R3 'AddBuff'
+  83 GETTABLE   A=10 B=3 C=281 Bx=1817 sBx=-129254 R3 'dwID'
+  84 GETTABLE   A=11 B=3 C=282 Bx=1818 sBx=-129253 R3 'nLevel'
+  85 LOADK      A=12 B=0 C=27 Bx=27 sBx=-131044 K=15453.0
+  86 LOADK      A=13 B=0 C=10 Bx=10 sBx=-131061 K=1.0
+  87 CALL       A=9 B=5 C=1 Bx=2561 sBx=-128510
+  88 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/5 lines=85:86 metadata=[0, 1, 0, 2]
+constants=[]
+   1 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/6 lines=87:88 metadata=[0, 10, 0, 10]
+constants=[]
+   1 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
+main/7 lines=89:90 metadata=[0, 2, 0, 2]
+constants=[]
+   1 RETURN     A=0 B=1 C=0 Bx=512 sBx=-130559
