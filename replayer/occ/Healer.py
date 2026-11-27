@@ -2,6 +2,7 @@
 # 治疗复盘的通用方法。尝试将共享的部分尽可能提取。
 
 from replayer.ReplayerBase import ReplayerBase
+from replayer.occ.HealingChannel import channel_efficiencies
 
 from replayer.BattleHistory import BattleHistory, SingleSkill
 from tools.Names import *
@@ -51,7 +52,7 @@ class HealerReplay(ReplayerBase):
         self.result["skill"][name]["HPS"] = int(effHeal / self.result["overall"]["sumTimeEff"] * 1000)
         self.result["skill"][name]["effRate"] = roundCent(safe_divide(effHeal, skillObj.getHeal()))
 
-    def calculateSkillOverall(self):
+    def calculateSkillOverall(self, channelLog=None):
         '''
         第二阶段结束时共有的技能统计部分.
         '''
@@ -59,7 +60,10 @@ class HealerReplay(ReplayerBase):
         num = self.battleTimeDict[self.mykey]
         sum = self.mufengDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog)
         self.result["skill"]["mufeng"]["cover"] = roundCent(safe_divide(sum, num))
-        self.result["skill"]["general"]["efficiency"] = self.bh.getNormalEfficiency()
+        if channelLog is None:
+            self.result["skill"]["general"]["efficiency"] = self.bh.getNormalEfficiency()
+        else:
+            self.result["skill"]["general"].update(channel_efficiencies(self.bh, channelLog))
         self.result["skill"]["general"]["rdps"] = self.myHealStat.get("rdps", 0)
         self.result["skill"]["general"]["ndps"] = self.myHealStat.get("ndps", 0)
         self.result["skill"]["general"]["mrdps"] = self.myHealStat.get("mrdps", 0)
@@ -275,11 +279,6 @@ class HealerReplay(ReplayerBase):
                 # 判断是否在暗香刷盾的时间点附近，如果是就跳过
                 if self.anxiangTimeIndex[event.target] < len(self.anxiangTimeDict[event.target]) and \
                         abs(event.time - self.anxiangTimeDict[event.target][self.anxiangTimeIndex[event.target]]) < 100:
-                    skip = 1
-        elif self.occ == "yunchangxinjing":
-            # 回雪的特殊判断
-            if event.id in ["6250", "6654", "6655", "6656"]:
-                if self.hxpyJiguangInfer == 0:
                     skip = 1
         if not skip:
             ss.analyseSkill(event, castTime, line[0], tunnel=line[6], hasteAffected=line[7])

@@ -238,6 +238,62 @@ class TimelineTests(unittest.TestCase):
         view.scope.setCurrentIndex(1)
         self.assertEqual(sum(m.track==CALLS for m in view.canvas.marks),2)
 
+    def test_default_phase_and_autoattacks_do_not_enter_either_boss_axis_or_exports(self):
+        actor = sample()
+        log = actor.bh.log
+        log["environment"].extend([
+            env("常规技能", actor.startTime + 1000, type="phase"),
+            env("普通攻击·顺劈", actor.startTime + 1500, type="skill"),
+            env("普攻", actor.startTime + 2500, type="cast"),
+            env("反击姿态", actor.startTime + 3500, type="cast")])
+        log["normal"] = [env("普通循环", actor.startTime)]
+        actor.detail["phaseTransitions"].append({"time":actor.startTime + 20000, "name":"常规技能"})
+        for player in (None, "测试玩家"):
+            _, marks, exports = timeline_data(actor, player)
+            for names in ({m.name for m in marks}, {name for _, name, _ in exports}):
+                self.assertIn("反击姿态", names)
+                self.assertTrue(names.isdisjoint({"常规技能", "普通攻击·顺劈", "普攻", "普通循环"}))
+
+    def test_healing_indicators_follow_actions_and_only_healing_resources_get_cooldown_rows(self):
+        actor = sample()
+        actor.timestamp = 1795673277
+        entry = actor.occResult["测试玩家"]
+        entry["occ"] = "5h"
+        replay = entry["result"]["replay"]
+        replay.pop("yaoxing")
+        replay.update(hxpy=[[actor.startTime, 1]], heat={"timeline":[[65], [80]]},
+                      special=[env("繁音急节", actor.startTime)], normal=[
+                          env("扶摇直上", actor.startTime), env("蹑云逐月", actor.startTime+3000),
+                          env("蝶弄足", actor.startTime+6000), env("王母挥袂", actor.startTime+9000)])
+        view = self.show(actor, "测试玩家")
+        lanes = [(kind, label) for kind, label, _ in view.canvas.lanes]
+        self.assertEqual(lanes[:4], [('event', CALLS), ('event', MECHANICS), ('event', NORMAL), ('event', SPECIAL)])
+        self.assertEqual(lanes[4:7], [('band', '上元'), ('band', '翔舞'), ('band', '回雪飘摇')])
+        self.assertEqual({name for kind, name in lanes if kind == 'cd'}, {'王母挥袂', '繁音急节'})
+        self.assertTrue({'扶摇直上', '蹑云逐月', '蝶弄足'} <= {m.name for m in view.canvas.marks})
+
+    def test_jiguang_and_zuiwu_channel_casts_keep_one_icon_per_use_in_the_correct_lane(self):
+        for occ, name, skill, talents, explicit, expected in (
+                ('5h', '回雪飄搖', '40236', {}, True, NORMAL),
+                ('5h', '回雪飘摇', '565', {'1':'吉光'}, None, NORMAL),
+                ('5h', '回雪飘摇', '40237', {}, False, SPECIAL),
+                ('6h', '醉舞九天', '6675', {}, None, SPECIAL)):
+            with self.subTest(occ=occ, talents=talents, explicit=explicit):
+                actor = sample()
+                actor.timestamp = 1795673277
+                entry = actor.occResult["测试玩家"]
+                entry["occ"] = occ
+                entry["result"]["qixue"] = talents
+                replay = entry["result"]["replay"]
+                if explicit is not None:
+                    replay["hxpyTriggersGcd"] = explicit
+                replay["normal"] = [env(name, actor.startTime + 1400, skillid=skill)]
+                replay["special"] = [env(name, actor.startTime + 1440, skillid=skill),
+                                     env(name, actor.startTime + 3200, skillid=skill),
+                                     env(name, actor.startTime + 3280, skillid=skill)]
+                starts = [(m.start, m.lane) for m in timeline_data(actor, "测试玩家")[1] if m.name == name]
+                self.assertEqual(starts, [(1400, expected), (3200, expected), (3280, expected)])
+
     def test_team_and_generic_stop_at_actor_end_but_specialists_keep_their_own_boundary(self):
         actor=sample()
         actor.bh.startTime=actor.startTime-500
@@ -335,7 +391,7 @@ class TimelineTests(unittest.TestCase):
         self.assertFalse(action_icon("1522").isNull())
         self.assertFalse(action_icon(ACTION_ICONS["35"]).isNull())
 
-    def test_wu_native_cast_uses_its_own_cooldown_and_art_but_hit_stays_a_hit(self):
+    def test_wu_native_cast_keeps_classification_and_art_and_only_healer_casts_show_resource_cd(self):
         actor = sample()
         actor.timestamp = 1795673277
         actor.occResult["悟心法"] = {"occ":"7pw","result":{}}
@@ -346,7 +402,11 @@ class TimelineTests(unittest.TestCase):
         cast,hit = [m for m in marks if m.name=="追命箭·悟"]
         self.assertEqual((cast.lane, hit.lane), (NORMAL, "招式命中"))
         self.assertFalse(action_icon(cast.icon).isNull())
-        self.assertEqual([(m.start,m.end) for m in marks if m.lane=="调息"],[(1000,11000)])
+        self.assertFalse(any(m.lane == "调息" for m in marks))
+        actor.occResult["悟心法"]["occ"] = "5hw"
+        actor.personalTimelines["悟心法"] = [Observation(actor.startTime+1000,"100460","左旋右转·悟","施放",1,0)]
+        _, marks, _ = timeline_data(actor, "悟心法")
+        self.assertEqual([(m.start,m.end) for m in marks if m.lane=="调息"],[(1000,41000)])
 
 
 if __name__=="__main__":

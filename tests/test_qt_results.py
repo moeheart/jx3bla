@@ -58,6 +58,16 @@ class BattleViewTests(unittest.TestCase):
         self.addCleanup(view.deleteLater)
         return view
 
+    def test_team_gear_hides_empty_categories_including_saved_reports(self):
+        actor = fixture()
+        actor.statDict[0]['equip'] = {'score': 22780, 'sketch': '无套装，5白字，3黄字'}
+        actor.statDict[1]['equip'] = {'sketch': '无套装，0白字，0黄字'}
+        first, second = cells(self.view(actor).team_table)
+        self.assertEqual(first[7:9], ['未记录装分', '—'])
+        self.assertEqual(second[7:9], ['22780', '5白字，3黄字'])
+        actor.statDict[0]['equip']['sketch'] = '4件套，0白字，0黄字，大橙武'
+        self.assertEqual(cells(self.view(actor).team_table)[1][8], '4件套，大橙武')
+
     def test_team_to_dense_personal_view_with_rank_talents_and_search(self):
         view = self.view(fixture())
         from PySide6.QtCore import Qt
@@ -141,12 +151,41 @@ class BattleViewTests(unittest.TestCase):
         self.assertAlmostEqual(view.team_table.model().index(1, 0).data(BAR_ROLE), 102.9/900.9)
         view.tabs.setCurrentIndex(2)
         self.assertEqual(cells(view.combat_table)[1][2], '102')
-        self.assertAlmostEqual(view.combat_table.model().index(1, 2).data(BAR_ROLE), 102.9/900.9)
+        self.assertAlmostEqual(view.combat_table.model().index(1, 0).data(BAR_ROLE), 102.9/900.9)
         view.combat_selector.setCurrentIndex(view.combat_selector.findData('rhps'))
         self.assertEqual(cells(view.combat_table)[0][2], '300')
         self.assertTrue(view.open_player('云裳乙'))
         self.assertIn('300', [label.text() for label in view.personal_dashboard.findChildren(QLabel)])
         self.assertEqual(view.personal_rdps.text(), '102')
+
+    def test_stats_bars_only_in_name_column_and_use_selected_rate_or_detail_total(self):
+        from window.QtResults import BAR_ROLE
+        actor = fixture()
+        details = {'甲': {'num': 1, 'sum': 120, 'percent': .2, 'cover': .1},
+                   '乙': {'num': 9, 'sum': 30, 'percent': .8, 'cover': .9}}
+        actor.combatTracker['rdps'] = {'player': {
+            '2': {'name': '花间甲', 'occ': '2d', 'dps': 500, 'sum': 12500,
+                  'namedSkill': details, 'namedSource': details},
+            '1': {'name': '云裳乙', 'occ': '5h', 'dps': 100, 'sum': 10000}}}
+        healers = actor.combatTracker['rhps']['player']
+        healers['123'].update(namedSkill=details, namedTarget=details)
+        healers['2'] = {'name': '花间甲', 'occ': '2d', 'hps': 150, 'sum': 3000}
+        view = self.view(actor)
+        view.tabs.setCurrentIndex(2)
+
+        def check(table, fractions):
+            model = table.model()
+            self.assertEqual(model.rowCount(), len(fractions))
+            for row, fraction in enumerate(fractions):
+                self.assertAlmostEqual(model.index(row, 0).data(BAR_ROLE), fraction)
+                for col in range(1, model.columnCount()):
+                    self.assertIsNone(model.index(row, col).data(BAR_ROLE))
+
+        for metric, expected in [('rdps', [1, .2]), ('rhps', [1, .5])]:
+            view.combat_selector.setCurrentIndex(view.combat_selector.findData(metric))
+            check(view.combat_table, expected)
+            check(view.combat_skill, [1, .25])
+            check(view.combat_targets, [1, .25])
 
     def test_team_and_tracker_details_obey_mask_and_show_occupation_roles(self):
         from PySide6.QtCore import Qt

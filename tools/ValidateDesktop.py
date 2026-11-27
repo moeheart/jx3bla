@@ -69,16 +69,23 @@ def exercise_view(view, snapshot):
     for i in range(view.tabs.count()):
         view.tabs.setCurrentIndex(i)
     pages = 0
-    for name in snapshot.occResult:
+    channel_efficiencies = []
+    for name, entry in snapshot.occResult.items():
         assert view.open_player(name)
         assert view.personal_dashboard is not None
+        general = entry['result'].get('skill', {}).get('general', {})
+        if entry.get('occ') in ('5h', '6h') and 'efficiencyNonGcd' in general:
+            gcd, combat = general['efficiency'], general['efficiencyNonGcd']
+            assert 0 <= gcd <= combat <= 1, (entry['occ'], gcd, combat)
+            channel_efficiencies.append({'occ': entry['occ'], 'gcd': gcd, 'combat': combat})
         pages += 1
         # Release the previous player's lazily-built tables and timeline.
         QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
     app.processEvents()
     assert not view.grab().isNull()
     return {'teamRows': len(snapshot.statDict), 'battleTabs': view.tabs.count(),
-            'personalReports': len(snapshot.occResult), 'personalDashboardsVisited': pages}
+            'personalReports': len(snapshot.occResult), 'personalDashboardsVisited': pages,
+            'channelEfficiencies': channel_efficiencies}
 
 
 def check_result_views(actor):
@@ -228,6 +235,12 @@ def verify_library(log_dir, pattern, player, output):
                                                        if view.tabs.tabText(j)=='时间轴'))
                         app.processEvents()
                         assert dialog.grab().save(str(output/'整场时间轴.png'))
+                        for occ, filename in (('5h', '云裳个人复盘.png'), ('6h', '补天个人复盘.png')):
+                            healer = next((n for n, e in snapshot.occResult.items() if e.get('occ') == occ), None)
+                            if healer:
+                                assert view.open_player(healer)
+                                app.processEvents()
+                                assert dialog.grab().save(str(output/filename))
                     row = next(r for r in snapshot.statDict if r['name'] == names[0])
                     tracked = next((r['dps'] for r in snapshot.combatTracker['rdps']['player'].values()
                                     if r.get('name') == names[0]), None)

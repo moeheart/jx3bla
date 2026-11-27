@@ -93,6 +93,34 @@ SKILL_TIMING = {
     },
 }
 
+# Dedicated cooldown rows are for healing, group protection, recovery and
+# resources that enable those actions. Other known timings still classify the
+# cast icon as on/off GCD. Mobile variants use their own native timing above
+# the display layer; only the role of the action is shared here.
+HEALING_RESOURCES = {
+    '2h': {'彼针', '春泥护花', '利针', '清风垂露', '折叶笼花', '碧水滔天', '大针',
+           '水月无间', '听风吹雪', '落子无悔'},
+    '5h': {'王母挥袂', '风袖低昂', '九微飞花', '跳珠憾玉', '心鼓弦', '左旋右转',
+           '泠风解怀', '繁音急节', '余寒映日'},
+    '6h': {'圣手织天', '千蝶吐瑞', '迷仙引梦', '仙王蛊鼎', '碧蝶引', '化蝶',
+           '蛊虫献祭', '蝶鸾', '女娲补天', '蛊惑众生'},
+    '22h': {'羽', '一指回鸾', '孤影化双', '云生结海', '疏影横斜'},
+    '212h': {'当归四逆', '龙葵自苦', '七情和合', '青川濯莲', '枯木苏息', '银光照雪', '百药宣时'},
+}
+
+
+def is_healing_resource(occ, name, talents):
+    occ = occ.removesuffix('w')
+    name = name.removesuffix('·悟')
+    if name in HEALING_RESOURCES.get(occ, ()):
+        return True
+    # These utility actions can acquire a healing or ally-protection effect.
+    if occ == '6h' and name == '玄水蛊':
+        return bool(talents & {'补沧', '良兽'})
+    if occ == '6h' and name == '灵蛊':
+        return bool(talents & {'蛊影', '噬蛊', '桃僵', '重蛊'})
+    return occ == '212h' and name == '凌然天风' and '挂雨' in talents
+
 # Confirmed native casts on the November formal client. Each entry uses the
 # skill's explicit public-CD group and its own slot-1 cooldown group, resolved
 # through settings/CoolDownList.tab (skill_mobile/CoolDownList.tab for 悟).
@@ -116,7 +144,20 @@ NATIVE_CAST_TIMING = {
 }
 
 
-def skill_timing(occ, name, talents, native_id=None):
+def healer_channel(occ, name, native_id=None):
+    if occ == '5h' and (native_id in ('565', '40236', '40237', '6250', '6654', '6655', '6656')
+                        or name in ('回雪飘摇', '回雪飄搖')):
+        return '回雪飘摇'
+    if occ == '6h' and (native_id in ('2233', '6675', '6252') or name == '醉舞九天'):
+        return '醉舞九天'
+    return None
+
+
+def skill_timing(occ, name, talents, native_id=None, *, hxpy_triggers_gcd=None):
+    channel = healer_channel(occ, name, native_id)
+    if channel:
+        jiguang = '吉光' in talents if hxpy_triggers_gcd is None else hxpy_triggers_gcd
+        return (0, 1, channel == '回雪飘摇' and jiguang)
     if name in ("扶摇直上", "蹑云逐月"):
         return (30, 1, True)
     if occ == "2h":

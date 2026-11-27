@@ -4,6 +4,7 @@ from window.ReplayTimeline import ReplayTimeline
 
 from replayer.ReplayerBase import ReplayerBase
 from replayer.occ.Healer import HealerReplay
+from replayer.occ.HealingChannel import HealingChannel
 from replayer.BattleHistory import BattleHistory, SingleSkill
 from replayer.TableConstructor import TableConstructor, ToolTip
 from tools.Names import *
@@ -39,8 +40,7 @@ class BuTianJueWindow(HealerDisplayWindow):
         展示复盘窗口的帮助界面，用于解释对应心法的一些显示规则.
         '''
         text = '''时间轴中从上到下的四个条分别表示：迷仙引梦、仙王蛊鼎、蛊惑众生、醉舞九天。
-醉舞九天作为不占gcd的技能，不会在技能轴中显示，而是改为在时间轴内部显示。
-战斗效率包含醉舞九天的读条时间，而gcd效率则不包含。'''
+醉舞九天不占公共调息。战斗效率会计入它的实际引导时间。'''
         messagebox.showinfo(title='说明', message=text)
 
     def renderSkill(self):
@@ -114,7 +114,7 @@ class BuTianJueWindow(HealerDisplayWindow):
         info2Displayer.setSingle("int", "rDPS", "general", "rdps")
         info2Displayer.setSingle("percent", "沐风覆盖率", "mufeng", "cover")
         info2Displayer.setSingle("int", "蛊惑HPS", "ghzs", "hps")
-        info2Displayer.setSingle("percent", "gcd效率", "general", "efficiency")
+        info2Displayer.setSingle("percent", "仅GCD效率", "general", "efficiency")
         info2Displayer.setSingle("percent", "战斗效率", "general", "efficiencyNonGcd")
         info2Displayer.export_text(frame5, 7)
 
@@ -405,7 +405,7 @@ class BuTianJueReplayer(HealerReplay):
         # qdtrSkill = SkillHealCounter("?", self.startTime, self.finalTime, self.haste)  # 千蝶吐瑞
         mxymSkill = SkillHealCounter("?", self.startTime, self.finalTime, self.haste, exclude=self.bossBh.badPeriodHealerLog)  # 迷仙引梦
 
-        zwjtDict = BuffCounter("?", self.startTime, self.finalTime)  # 用buff类型来记录醉舞九天的具体时间
+        zuiwu = HealingChannel()
         mxymDict = BuffCounter("?", self.startTime, self.finalTime)  # 迷仙引梦记录
         xwgdDict = BuffCounter("?", self.startTime, self.finalTime)  # 锅记录
         ghzsDict = BuffCounter("?", self.startTime, self.finalTime)  # 蛊惑记录
@@ -481,6 +481,8 @@ class BuTianJueReplayer(HealerReplay):
             if event.time > self.finalTime:
                 continue
 
+            if event.dataType == "Cast" and event.caster == self.mykey and event.id in ("2233", "6675"):
+                zuiwu.cast(event.time)
             self.eventInSecondState(event)
 
             if event.dataType == "Skill":
@@ -539,10 +541,7 @@ class BuTianJueReplayer(HealerReplay):
                         bdxjHeal += event.healEff
                     if event.id in ["6252"]:  # 醉舞九天
                         zwjtSkill.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=0)
-                        # 醉舞也计入战斗效率中
-                        if event.time - zwjtDict.log[-1][0] > 200:
-                            zwjtDict.setState(event.time - zwjtTime, 1)
-                            zwjtDict.setState(event.time, 0)
+                        zuiwu.tick(event.time)
                     if event.id in ["2234"]:  # 仙王蛊鼎
                         if firstXwgd == 0:
                             firstXwgd = 1
@@ -666,7 +665,10 @@ class BuTianJueReplayer(HealerReplay):
 
         mxymDict.shrink(100)
         ghzsDict.shrink(100)
-        zwjtDict.shrink(100)
+        zwjtLog, starts = zuiwu.intervals(self.startTime, self.finalTime, zwjtTime)
+        for start in starts:
+            self.bh.setSpecialSkill("2233", "醉舞九天", "2746", start, 0, "")
+        self.bh.log["special"].sort(key=lambda row: row["start"])
 
         # 计算技能统计
         self.result["overall"]["numPlayer"] = int(self.sumPlayer * 100) / 100
@@ -740,20 +742,18 @@ class BuTianJueReplayer(HealerReplay):
         self.result["skill"]["qilong"]["cover"] = roundCent(overallRate)
         # 整体
         self.result["skill"]["general"] = {}
-        # self.result["skill"]["general"]["efficiency"] = self.bh.getNormalEfficiency()
-        self.result["skill"]["general"]["efficiencyNonGcd"] = self.bh.getNormalEfficiency("healer", zwjtDict.log)
         # 计算战斗回放
         self.result["replay"] = self.bh.getJsonReplay(self.mykey)
         self.result["replay"]["mxym"] = mxymDict.log
         self.result["replay"]["xwgd"] = xwgdDict.log
         self.result["replay"]["ghzs"] = ghzsDict.log
-        self.result["replay"]["zwjt"] = zwjtDict.log
+        self.result["replay"]["zwjt"] = zwjtLog
 
         self.specialKey = {"bcqs-numPerSec": 10, "zwjt-numPerSec": 10, "general-efficiencyNonGcd": 20, "healer-rhps": 20}
 
         self.markedSkill = ["2226", "2230"]
         self.outstandingSkill = [qdtrWatchSkill]
-        self.calculateSkillOverall()
+        self.calculateSkillOverall(zwjtLog)
 
     def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", actorData={}):
         '''

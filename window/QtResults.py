@@ -44,7 +44,7 @@ LABELS = {
     **METRICS, 'name': '名称', 'occ': '心法', 'score': '评分', 'num': '次数', 'time': '时间',
     'sum': '总量', 'sumPerSec': '每秒', 'percent': '占比', 'HPS': 'HPS', 'numPerSec': '每秒次数',
     'delay': '平均延迟（毫秒）', 'delaySamples': '延迟样本数', 'effRate': '有效比例',
-    'efficiency': '战斗效率', 'efficiencyNonGcd': '含非公共调息技能效率', 'cover': '覆盖率',
+    'efficiency': '战斗效率', 'efficiencyNonGcd': '战斗效率', 'cover': '覆盖率',
     'coverAll': '存在比例', 'stack': '平均层数', 'heal': '治疗量', 'healEff': '有效治疗',
     'damage': '伤害', 'dps': 'DPS', 'rdpsRate': 'rDPS 占比', 'shCover': '述怀覆盖',
     'skillNum': '本体次数', 'skillHPS': '本体 HPS', 'allNum': '运功次数', 'tunhai': '吞海次数',
@@ -215,6 +215,11 @@ def _equipment_score(equip):
     if score > 0:
         return str(score)
     return '未记录装分' if equip.get('sketch') or equip.get('raw') else '未读取'
+
+
+def _team_equipment_sketch(sketch):
+    fields = (field.strip() for field in (sketch or '').split('，'))
+    return '，'.join(field for field in fields if field not in ('', '无套装', '0白字', '0黄字'))
 
 
 class _BarDelegate(QStyledItemDelegate):
@@ -568,7 +573,8 @@ class BattleView(QWidget):
                 self._redact(row.get('name', '')) + (' *' if row.get('equipmentEstimated') else ''),
                 _format('occ', row.get('occ')), self._team_rdps(row),
                 row.get('ndps'), rhps.get(row.get('name'), row.get('rhps')), row.get('hps'),
-                rank_display, _equipment_score(equip), equip.get('sketch'), equip.get('forge'), row.get('stunTime'),
+                rank_display, _equipment_score(equip), _team_equipment_sketch(equip.get('sketch')),
+                equip.get('forge'), row.get('stunTime'),
                 *(self._render(k, row.get(k, _mapping(row.get('battle')).get(k))) for k in extra)])
         self.team_table = _table()
         _fill(self.team_table, ['玩家', '心法', 'rDPS', 'nDPS', 'rHPS', 'HPS', 'rDPS 百分位', '装分', '装备', '强化', '被控（秒）',
@@ -810,7 +816,7 @@ class BattleView(QWidget):
                     value, p.get('sum'), _clock(p['adjustedTime']) if isinstance(p.get('adjustedTime'), (int, float)) else None]
                    for p, value in zip(players, amount)),
                   [p.get('occ') for p in players],
-                  bars={0: amount, 2: amount, 3: [p.get('sum') for p in players], 4: [p.get('adjustedTime') for p in players]})
+                  bars={0: amount})
             self.combat_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
             def select():
                 i = self.combat_table.currentIndex().row()
@@ -823,7 +829,6 @@ class BattleView(QWidget):
                     items = sorted(_mapping(data.get(field)).items(), key=lambda item: item[1].get('sum', 0), reverse=True)
                     amounts = [v.get('sum') for _, v in items]
                     titles = [{'namedSource':'增益来源', 'namedSkill':'技能', 'namedTarget':'目标'}[field], '次数', '总量', '占比']
-                    bars = {0: amounts, 1: [v.get('num') for _, v in items], 2: amounts, 3: [v.get('percent') for _, v in items]}
                     rows = [[self._redact(name), v.get('num'), v.get('sum') if v.get('sum') != -1 else None,
                              _format('percent', v.get('percent'))] for name, v in items]
                     tips = {}
@@ -832,13 +837,12 @@ class BattleView(QWidget):
                         # Multi-stack buffs can have large values which cannot represent percent uptime.
                         titles.append('平均层数')
                         tips = {3: '相对自身伤害的比例', 4: '增益层数随时间的积分 ÷ 有效时间'}
-                        weights = [v.get('cover') for _, v in items]
-                        for row, weight in zip(rows, weights):
-                            row.append(f'{weight:.2f}'.rstrip('0').rstrip('.') if isinstance(weight, (float,int)) and weight >= 0 else None)
-                        bars[4] = weights
+                        for row, (_, item) in zip(rows, items):
+                            cover = item.get('cover')
+                            row.append(f'{cover:.2f}'.rstrip('0').rstrip('.') if isinstance(cover, (float,int)) and cover >= 0 else None)
                     _fill(table, titles, rows,
                           [self.occupations.get(name) for name, _ in items] if field != 'namedSkill' else None,
-                          bars=bars, header_tips=tips)
+                          bars={0: amounts}, header_tips=tips)
                     table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
             self.combat_table.selectionModel().currentRowChanged.connect(select)
             if players:
@@ -932,7 +936,11 @@ class BattleView(QWidget):
                    ('aHPS', healing.get('ahps')), ('关键 HPS', healing.get('chps')), ('rDPS', rdps)) if healer else (
                    ('rDPS', rdps), ('nDPS', general.get('ndps')),
                    ('主目标 rDPS', general.get('mrdps')), ('主目标 nDPS', general.get('mndps')))
-        figures += (('战斗效率', _format('efficiency', general['efficiency'])),) if 'efficiency' in general else ()
+        if 'efficiency' in general:
+            label = '仅GCD效率' if 'efficiencyNonGcd' in general else '战斗效率'
+            figures += ((label, _format('efficiency', general['efficiency'])),)
+        if 'efficiencyNonGcd' in general:
+            figures += (('战斗效率', _format('efficiencyNonGcd', general['efficiencyNonGcd'])),)
         figures += (('rDPS 百分位', None),)
         band = QFrame()
         band.setStyleSheet('QFrame {background:#edf3f2; border:0;}')
@@ -1105,7 +1113,7 @@ class BattleView(QWidget):
         rows = []
         skills = _mapping(self.result.get('skill'))
         metric_order = ('rhps', 'hps', 'ahps', 'ohps', 'chps', 'rdps', 'ndps', 'mrdps', 'mndps',
-                        'num', 'numPerSec', 'delay', 'HPS', 'cover', 'effRate', 'efficiency')
+                        'num', 'numPerSec', 'delay', 'HPS', 'cover', 'effRate', 'efficiency', 'efficiencyNonGcd')
         order = {key: i for i, key in enumerate(metric_order)}
         for group in sorted(skills, key=lambda k: (k not in ('general', 'healer'), k != 'general')):
             fields = _mapping(skills[group])
@@ -1118,6 +1126,8 @@ class BattleView(QWidget):
                 eligible = self.personal_quality['rankEligible'].get(key, True)
                 valid = eligible and is_valid_rank(percentile) and (rank.get('num') or 0) > 0
                 label = LABELS.get(key, key)
+                if group == 'general' and key == 'efficiency' and 'efficiencyNonGcd' in fields:
+                    label = '仅GCD效率'
                 if group == 'healer' and key in ('heal', 'healEff'):
                     label = '原始 HPS（旧字段）' if key == 'heal' else '有效 HPS（旧字段）'
                 if group == 'general' and key == 'rdps':

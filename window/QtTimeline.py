@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (
 )
 
 from data.PersonalTimeline import ACTION_ICONS, Observation, build_personal_timelines
-from data.ReplaySkillTiming import ATLAS_IDS, CAST_ICONS, skill_timing
+from data.ReplaySkillTiming import ATLAS_IDS, CAST_ICONS, healer_channel, is_healing_resource, skill_timing
 from tools.ResourcePath import get_icon_path
 
 
@@ -28,6 +28,7 @@ PHASES = "阶段切换"
 CALLS = "机制点名"
 NORMAL = "占 GCD"
 SPECIAL = "不占 GCD"
+ROUTINE_BOSS_LABELS = {"常规技能", "常规", "常规阶段", "普通攻击", "攻击", "近战攻击", "远程攻击", "普攻"}
 BANDS = {
     "badPeriodDps": ("输出无效", "#52647a"), "badPeriodHealer": ("治疗无效", "#657186"),
     "mxym": ("迷仙引梦", "#7953ac"), "xwgd": ("仙王蛊鼎", "#6c5ba0"),
@@ -246,17 +247,21 @@ def timeline_data(actor, player):
     occ = str(entry.get("occ") or "")
     talents = {v for v in (result.get("qixue") or {}).values() if isinstance(v, str)}
     uses = {}
+    channel_casts = []
     # Skill timings belong to the Cangsheng release. An older replay keeps its
     # own normal/special classification and recorded durations.
     stamp = number(overall.get("battleTime"), number(_field(actor, "timestamp")))
     current_rules = 1793228400 <= stamp < 1797807600
 
-    def action_lane(name, time, fallback, is_use=True, native_id=None):
-        spec = skill_timing(occ, name, talents, native_id) if current_rules else None
+    def action_lane(name, time, fallback, is_use=True, native_id=None, channel=None):
+        if not (current_rules or channel):
+            return fallback
+        spec = skill_timing(occ, name, talents, native_id,
+                            hxpy_triggers_gcd=replay.get("hxpyTriggersGcd"))
         if not spec:
             return fallback
         seconds, charges, gcd = spec
-        if seconds and is_use:
+        if seconds and is_use and is_healing_resource(occ, name, talents):
             uses.setdefault(name, (seconds, charges, []))[2].append(time)
         return NORMAL if gcd else SPECIAL
 
@@ -266,7 +271,10 @@ def timeline_data(actor, player):
             return
         time = number(row["start"])-start
         end = time + max(0, number(row.get("duration")))
-        name = display(row.get("skillname")) or "未命名事件"
+        raw_name = str(row.get("skillname") or "").strip('"')
+        if track in (PHASES, MECHANICS) and raw_name.split("·", 1)[0] in ROUTINE_BOSS_LABELS:
+            return
+        name = display(raw_name) or "未命名事件"
         icon = str(row.get("iconid", ""))
         if (time < 0 and end <= 0) or (final is not None and time > duration):
             return
@@ -286,12 +294,19 @@ def timeline_data(actor, player):
             if row.get(field):
                 detail.append(f"{caption} {number(row[field]):,.0f}")
         resolved = track != MECHANICS or icon != "341"
-        lane = action_lane(name, max(0, time), track, time >= 0) if track in (NORMAL, SPECIAL) else track
+        channel = None
+        lane = track
+        source = (track, row.get("skillid"))
         if track in (NORMAL, SPECIAL):
+            channel = healer_channel(occ, raw_name, str(row.get("skillid") or ""))
+            lane = action_lane(channel or raw_name, max(0, time), track, time >= 0, channel=channel)
             track = lane
         mark = Mark(max(0, time), min(duration, end), track, label, str(row.get("color") or color),
                     " · ".join(detail), icon, resolved, skill_name=name, lane=lane)
-        marks.append(mark)
+        if channel:
+            channel_casts.append((mark, source))
+        else:
+            marks.append(mark)
 
     casts = {row.skill for row in observations if row.kind == "施放"}
     fallback = set()
@@ -300,20 +315,38 @@ def timeline_data(actor, player):
         fallback = {skill for skill, _ in counts.most_common(3)}
     for row in observations:
         time = row.time-start
+        channel = None
+        lane = row.kind
         if row.kind == "施放":
             detail, color, focus = "JCL 原生施放开始", "#247e78", True
+            channel = healer_channel(occ, row.name, row.skill)
+            lane = action_lane(row.name, time, row.kind, native_id=row.skill, channel=channel)
         else:
             detail = f"{row.targets} 个目标 · {row.events} 条同刻结算记录"
             color = "#4b758f" if row.kind == "招式命中" else "#797b8e"
             focus = (row.kind == "招式命中" and row.skill not in casts) or row.skill in fallback
-        lane = action_lane(row.name, time, row.kind, native_id=row.skill) if row.kind == "施放" else row.kind
         icon = ACTION_ICONS.get(row.skill) or CAST_ICONS.get(row.skill, "")
-        marks.append(Mark(time, time, row.kind, display(row.name), color,
-                          f"{detail} · 技能 ID {row.skill}", icon, focus, lane=lane))
-    for row in replay.get("normal") or []:
-        event(row, NORMAL, "#287d73")
-    for row in replay.get("special") or []:
-        event(row, SPECIAL, "#976a2f")
+        mark = Mark(time, time, row.kind, display(row.name), color,
+                    f"{detail} · 技能 ID {row.skill}", icon, focus, lane=lane)
+        if channel:
+            channel_casts.append((mark, (row.kind, row.skill)))
+        else:
+            marks.append(mark)
+    if player is not None:
+        for row in replay.get("normal") or []:
+            event(row, NORMAL, "#287d73")
+        for row in replay.get("special") or []:
+            event(row, SPECIAL, "#976a2f")
+    # Old replays may contain both the shell and action for the same channel
+    # start. Keep the earliest cast and the separately recorded channel band.
+    previous_time = None
+    previous_source = None
+    for mark, source in sorted(channel_casts, key=lambda item: item[0].start):
+        if previous_time is not None and (mark.start == previous_time or
+                (source != previous_source and mark.start - previous_time <= 100)):
+            continue
+        marks.append(mark)
+        previous_time, previous_source = mark.start, source
     calls = replay.get("call") or []
     if isinstance(calls, dict):
         for key, rows in calls.items():
@@ -332,8 +365,9 @@ def timeline_data(actor, player):
             if not isinstance(row, dict) or "time" not in row:
                 continue
             time = number(row["time"])-start
-            if 0 <= time <= duration and time not in phase_times:
-                marks.append(Mark(time, time, PHASES, display(row.get("name") or "阶段切换"), "#84649d"))
+            name = row.get("name") or "阶段切换"
+            if 0 <= time <= duration and time not in phase_times and name not in ROUTINE_BOSS_LABELS:
+                marks.append(Mark(time, time, PHASES, display(name), "#84649d"))
     marks.extend(cooldown_intervals(uses, duration))
     marks.extend(bands(replay, start, duration, occ))
     return duration, marks, exports
@@ -798,8 +832,19 @@ class PersonalCanvas(TimelineCanvas):
                 else:
                     key = ('event', MECHANICS if kind == PHASES else kind)
                 grouped[key].append(m)
-            order = {name:i for i, name in enumerate((NORMAL, SPECIAL, '施放', '招式命中', '技能效果', CALLS, MECHANICS))}
-            keys = sorted(grouped, key=lambda k: (('event', 'cd', 'band').index(k[0]), order.get(k[1], 8), k[1]))
+            leading = {label: i for i, label in enumerate(
+                (CALLS, MECHANICS, NORMAL, SPECIAL, '施放', '招式命中', '技能效果'))}
+            coverage = {'上元': 0, '翔舞': 1, '回雪飘摇': 2}
+
+            def lane_order(key):
+                kind, label = key
+                if kind == 'event':
+                    return (0, leading.get(label, len(leading)), label)
+                if kind == 'band' and label not in ('输出无效', '治疗无效'):
+                    return (1, coverage.get(label, len(coverage)), label)
+                return (2 if kind == 'cd' else 3, 0, label)
+
+            keys = sorted(grouped, key=lane_order)
             self.lanes = []
             self.starts = []
             self.ends_at = []

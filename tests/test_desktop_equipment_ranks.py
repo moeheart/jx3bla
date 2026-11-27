@@ -36,6 +36,20 @@ class EquipmentSummaryTests(unittest.TestCase):
         gear.update({'3': item(7, 112099), '0': item(6, 47732)})
         self.assertEqual(self.equipment.getSketch(gear), '4件套，0白字，2黄字，大橙武')
 
+    def test_gaibang_recorded_loadout_white_and_yellow_items(self):
+        # The same 12 items were recorded across all six Nov 26 encounters.
+        ordinary = {'0': (6, 47533), '3': (7, 112196), '6': (8, 49834), '12': (7, 112404)}
+        white = {'2': (6, 47993), '4': (7, 114857), '7': (8, 49939),
+                 '8': (7, 112461), '10': (7, 112521)}
+        yellow = {'5': (8, 51482), '9': (8, 51361), '11': (7, 112793)}
+        for group, sketch in ((ordinary, '无套装，0白字，0黄字'), (white, '无套装，1白字，0黄字'),
+                              (yellow, '无套装，0白字，1黄字')):
+            for slot, item in group.items():
+                with self.subTest(slot=slot, item=item):
+                    self.assertEqual(self.equipment.getSketch({slot: self.item(*item)}), sketch)
+        gear = {slot: self.item(*item) for slot, item in {**ordinary, **white, **yellow}.items()}
+        self.assertEqual(self.equipment.getSketch(gear), '无套装，5白字，3黄字')
+
     def test_all_twelve_enchant_slots_quality_roles_and_major_count(self):
         ids = {'0': '16488', '2': '16626', '3': '16565', '4': '16517', '5': '16633',
                '6': '16621', '7': '16375', '8': '16501', '9': '16638', '10': '16493',
