@@ -1,67 +1,47 @@
-# Created by moeheart at 10/07/2022
-# 预加载流程，用于处理一些预加载方法.
-# 并非所有的预加载流程都放在了这个文件里，但是之后会逐步迁移过来.
-
-import os
+"""Read and refresh the desktop percentile cache."""
 import json
-import urllib
-from Constants import *
-from tools.Functions import *
+import os
+import tempfile
+import urllib.request
+from contextlib import suppress
+
+from Constants import EDITION, get_api_url
+from tools.Functions import parseEdition
 from tools.ResourcePath import ensure_parent_dir, get_resource_path, get_writable_path
 
+
+def read_rate_cache():
+    name = os.path.join("icons", "rate.dat")
+    path = get_writable_path(name)
+    if not os.path.isfile(path):
+        path = get_resource_path(name)
+    try:
+        with open(path, encoding="utf-8-sig") as stream:
+            cached = json.load(stream)
+        if isinstance(cached["data"], dict):
+            return int(cached["edition"]), cached["data"]
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
+    return -1, {}
+
+
 def checkRateEdition(serverEdition):
-    '''
-    检查排名的版本是否和服务器一致.
-    params:
-    - serverEdition: 服务器返回的版本.
-    '''
-    global STAT_PERCENT
-    requireUpdate = False
-    STAT_PERCENT = {}
-
-    rate_path = get_writable_path(os.path.join("icons", "rate.dat"))
-    read_rate_path = get_resource_path(os.path.join("icons", "rate.dat"))
-
-    if os.path.exists(rate_path):
-        read_rate_path = rate_path
-
-    if os.path.exists(read_rate_path):
-        try:
-            with open(read_rate_path, 'r') as f:
-                s = f.read()
-                j = json.loads(s)
-                edition = j["edition"]
-                STAT_PERCENT = j["data"]
-                if int(edition) < int(serverEdition):
-                    requireUpdate = True
-        except:
-            requireUpdate = True
-    else:
-        requireUpdate = True
-
-    # requireUpdate = False
-
-    if requireUpdate:
-        # 从服务器重新读取排名
-        if parseEdition(EDITION) == 0:  # 非联机版本跳过加载步骤
-            # STAT_PERCENT = {}
-            pass
-        else:
-            print("正在更新排名数据，所需时间可能较长，请等待...")
-            print("注意不要选择此窗口的任何区域，否则会使程序暂停运行！")
-            resp = urllib.request.urlopen(get_api_url('/getPercentInfo'))
-            res = json.load(resp)
-            STAT_PERCENT = res["data"]
-            j = {"edition": res.get("rateEdition", serverEdition), "data": STAT_PERCENT}
-            s = json.dumps(j)
-            ensure_parent_dir(rate_path)
-            with open(rate_path, 'w') as f:
-                f.write(s)
-
-    return STAT_PERCENT
-
-    # 待测试
-
-
-
-
+    edition, data = read_rate_cache()
+    if edition >= int(serverEdition) or parseEdition(EDITION) == 0:
+        return data
+    with urllib.request.urlopen(get_api_url('/getPercentInfo'), timeout=30) as response:
+        update = json.load(response)
+    if not isinstance(update.get("data"), dict):
+        raise ValueError("排名数据格式错误")
+    path = get_writable_path(os.path.join("icons", "rate.dat"))
+    ensure_parent_dir(path)
+    fd, temporary = tempfile.mkstemp(dir=os.path.dirname(path), suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as stream:
+            json.dump({"edition": update.get("rateEdition", serverEdition),
+                       "data": update["data"]}, stream)
+        os.replace(temporary, path)
+    finally:
+        with suppress(FileNotFoundError):
+            os.unlink(temporary)
+    return update["data"]

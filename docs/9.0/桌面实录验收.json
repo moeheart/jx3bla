@@ -1,0 +1,95 @@
+{
+  "date": "2026-11-26",
+  "branch": "dev-9.0",
+  "preview": {
+    "file": "MainWindow.exe",
+    "bytes": 64592695,
+    "sha256": "7fb2d6df65e1d8e8591e8ca4581e92fe2022b2bb1e1adf2fce081798167191f9",
+    "qt": "6.12.0",
+    "embeddedProjectModulesVerified": 139,
+    "embeddedRuntimeTablesVerified": 15,
+    "embeddedGuiImagesVerified": 316
+  },
+  "baseline": "docs/160/cleanup-replay-baseline.json",
+  "baselineSha256": "f7fcab1ba456715f32beb87b15c3015c70dd6a9d4b2211db36b9e24735c7f3f8",
+  "productionConnectionsDuringReplay": 0,
+  "groups": [
+    {
+      "group": "normal",
+      "encounters": 5,
+      "victories": 5,
+      "wipes": 0,
+      "teamTabVisits": 30,
+      "personalReports": 125,
+      "personalTabVisits": 625,
+      "personalUploadCandidates": 125,
+      "sourceEventLoopTicks": 960,
+      "exeEventLoopTicks": 604
+    },
+    {
+      "group": "heroic13",
+      "encounters": 6,
+      "victories": 5,
+      "wipes": 1,
+      "teamTabVisits": 36,
+      "personalReports": 150,
+      "personalTabVisits": 750,
+      "personalUploadCandidates": 125,
+      "sourceEventLoopTicks": 1316,
+      "exeEventLoopTicks": 917
+    },
+    {
+      "group": "heroic14",
+      "encounters": 3,
+      "victories": 3,
+      "wipes": 0,
+      "teamTabVisits": 18,
+      "personalReports": 75,
+      "personalTabVisits": 375,
+      "personalUploadCandidates": 75,
+      "sourceEventLoopTicks": 995,
+      "exeEventLoopTicks": 630
+    }
+  ],
+  "totalPerRun": {
+    "encounters": 14,
+    "victories": 13,
+    "wipes": 1,
+    "teamTabVisits": 84,
+    "personalReports": 350,
+    "personalTabVisits": 1750,
+    "personalUploadCandidates": 325
+  },
+  "timelineBounds": {
+    "team": 14,
+    "genericPersonal": 266,
+    "specialistPersonal": 84,
+    "largestRemovedPostCombatTailMs": 65779
+  },
+  "layout": {
+    "platform": "Windows",
+    "verifiedScalePercent": [
+      100,
+      125,
+      150,
+      200
+    ],
+    "checked": [
+      "主窗口",
+      "670×415 主窗口",
+      "设置",
+      "使用协议",
+      "公告",
+      "整场复盘",
+      "个人复盘"
+    ]
+  },
+  "pythonTestsPassed": 548,
+  "jsTestsPassed": 8,
+  "coverageNotes": [
+    "洛阳三组真实 JCL，逐组对照源码与 EXE",
+    "Windows 缩放在同一台机器上验证",
+    "历史副本通过通用表格显示现有数据，实录组未覆盖旧首领",
+    "线上账号及生产上传使用模拟响应或关闭网络"
+  ]
+}

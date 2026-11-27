@@ -1,13 +1,13 @@
 # Created by moeheart at 10/11/2020
 # 全局用到的部分常量。
 
-from ServerAddress import get_address_config, get_api_url, get_logs_url
+from ServerAddress import FALLBACK_ADDRESS, get_api_url, get_logs_url
 
 EDITION = "8.16.8"
 ANNOUNCEMENT = "蓝奏云下载密码：1234。8.16.8 更新：完善英雄洛阳五首领技能轴、统计与转阶段无效时间，修复二、四、五号通关漏判；补齐已核验套装、武器及附魔特效，恢复完整装备记录的表现分与rDPS排名，未核验特效保留提示并继续复盘；修复战斗主表居中及人数显示、奇穴加载、治疗时间轴滚动和关闭窗口时崩溃。旧记录需重新分析上传。仅适用于10月29日后的50级正式服数据。"
 # IP is kept for old compatibility. New HTTP requests should use get_api_url()
 # or get_logs_url().
-IP = get_address_config()["api"]["host"]
+IP = FALLBACK_ADDRESS["api"]["host"]
 CHAPTER = 50
 
 LVLTABLE = [0, 30, 100, 200, 300, 500, 700, 900, 1200, 1500, 1800, 2400, 3000, 999999]

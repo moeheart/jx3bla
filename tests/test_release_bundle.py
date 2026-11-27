@@ -73,7 +73,7 @@ class ReleaseBundleTest(unittest.TestCase):
     def test_current_resources_do_not_collect_old_tables_or_icon_caches(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            for name in ("icons/1.png", "icons/jx3bla.ico", "icons/2.PNG",
+            for name in ("jx3bla.ico", "icons/1.png", "icons/jx3bla.ico", "icons/2.PNG",
                          "icons/rate.dat", "icons/test.py", "icons/__pycache__/test.pyc",
                          "icons/cache/unrelated.png"):
                 path = root / name
@@ -86,7 +86,8 @@ class ReleaseBundleTest(unittest.TestCase):
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(b"obsolete")
             files = {Path(src).relative_to(root).as_posix() for src, _ in bundle_datas(root)}
-            self.assertEqual(files, set(CANGSHENG_FILES))
+            self.assertEqual(files, set(CANGSHENG_FILES) |
+                             {"jx3bla.ico", "icons/1.png", "icons/2.PNG", "icons/jx3bla.ico"})
 
     def test_optional_native_and_python_dependencies_are_rejected(self):
         for extra in ("numpy\\_core\\_multiarray.pyd", "numpy.libs\\blas.dll",

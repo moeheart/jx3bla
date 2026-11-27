@@ -6,6 +6,7 @@ from tkinter import messagebox
 
 from ConfigTools import Config
 from window.Window import Window
+from window.LicenseText import LICENSE_TEXT
 
 class LicenseWindow(Window):
     """
@@ -28,29 +29,7 @@ class LicenseWindow(Window):
 代码，需要同时维护此协议，否则视为本协议无效。
 ************************************************************
 """
-    license_true = """
-************************************************************
-|                     剑三警长 使用协议                      |
-************************************************************
-    剑三警长是一款剑网三战斗日志分析工具，在使用本工具之前，我
-们需要部分授权，需要您的同意：
-    1. 本工具会读取茗伊插件集生成的战斗复盘日志，其中的信息包
-括但不限于：全部技能与buff的时间与数值、玩家ID与门派、区服、
-重伤记录。这些读取的内容只会在本地进行运算。
-    2. 本工具会上传战斗复盘结果图中的所有信息到作者的服务器，
-包括但不限于：DPS/HPS统计，区服，玩家ID与门派，打分，犯错记录。
-收集这些信息是为了进行进一步研究，对之后的的开发提供数据支持。
-由于上传的数据只有全局信息，因此您无需担心打法被泄漏。
-    3. 对于上传的数据，可能会以HPS天梯/评分百分比的形式，进行
-数据公开。作者在公开数据时，有对玩家个人信息进行保密的义务，
-包括玩家ID与团队构建等信息，应在去特征化后再发布。但演员不在此
-列，对于表现明显低于正常水平的玩家，可能会有其它安排。
-    4. 即使没有显式同意本协议，使用本工具依然需要协议的内容经
-过授权。尝试绕过本协议并不能免除您的义务。
-    5. 本协议仅对jx3bla主仓库的主分支有效，开发者如果需要修改
-代码，需要同时维护此协议，否则视为本协议无效。
-************************************************************
-"""
+    license_true = LICENSE_TEXT
 
     def final(self):
         messagebox.showinfo(title='杯具了', message='本工具依赖于用户协议中的部分项目，必须同意才可以运行。')
@@ -83,7 +62,7 @@ class LicenseWindow(Window):
         if self.numBox >= 10 and not self.genius:
             self.genius = 1
             self.cb.deselect()
-            self.label.configure(text=self.license_true)
+            self.label.configure(text=self.license_true, wraplength=475)
 
     def loadWindow(self):
         '''

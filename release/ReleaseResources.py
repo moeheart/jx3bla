@@ -20,6 +20,9 @@ CANGSHENG_FILES = tuple(
 )
 
 def bundle_datas(root):
-    """Return only the current tables; GenerateFiles supplies the static icons."""
+    """Bundle the current tables and GUI images without mutable icon caches."""
     root = Path(root)
-    return [(str(root / name), str(Path(name).parent)) for name in CANGSHENG_FILES]
+    assets = [(str(root / name), str(Path(name).parent)) for name in (*CANGSHENG_FILES, "jx3bla.ico")]
+    assets.extend((str(path), "icons") for path in sorted((root / "icons").iterdir())
+                  if path.is_file() and path.suffix.lower() in (".png", ".ico"))
+    return assets

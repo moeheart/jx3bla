@@ -38,18 +38,18 @@ def check_excel():
     return {"roundTrip": "passed", "numpyAvailable": NUMPY}
 
 
-def check_icons(root):
-    """Decode generated PNG/ICO assets and exercise the Pillow/Tk bridge."""
-    from PIL import Image, ImageTk
-    from tools.ResourcePath import get_icon_path
+def check_icons():
+    """Decode an exported skill icon and the packaged application icon with Qt."""
+    from PySide6.QtGui import QIcon, QImageReader
+    from tools.ResourcePath import get_icon_path, get_resource_path
 
     result = {}
-    for icon_id, suffix in (("10442", "png"), ("jx3bla", "ico")):
-        with Image.open(get_icon_path(icon_id, suffix)) as icon:
-            icon.load()
-            photo = ImageTk.PhotoImage(icon.resize((20, 20), Image.Resampling.LANCZOS), master=root)
-            assert (photo.width(), photo.height()) == (20, 20)
-            result[suffix] = {"format": icon.format, "tk": "passed"}
+    for suffix, path in (("png", get_icon_path("10442")), ("ico", get_resource_path("jx3bla.ico"))):
+        reader = QImageReader(path)
+        assert reader.canRead(), (path, reader.errorString())
+        image = reader.read()
+        assert not image.isNull() and not QIcon(path).pixmap(20, 20).isNull(), path
+        result[suffix] = {"format": suffix.upper(), "qt": "passed"}
     return result
 
 
@@ -135,7 +135,7 @@ def check_equipment_fallback(with_ui=False):
     from replayer.ActorReplayPro import ActorProReplayer
     from replayer.ReplayerBase import ReplayerBase
     from tools.Attribute import CURRENT_GAME_EDITION
-    from tools.ValidateLuoyang import ValidationWindow, make_config, check_windows
+    from tools.ValidateLuoyang import ValidationWindow, make_config
 
     profiles = kungfu_data()['occupations']
     averages = average_equipment_data()
@@ -212,7 +212,8 @@ def check_equipment_fallback(with_ui=False):
         assert window.uploadData[-1]['data']['statistics']['overall']['attributeStatus'] == actor.attributeStatus
         damage = check_damage_conservation(actor.combatTracker)
         if with_ui:
-            check_windows(actor)
+            from tools.ValidateDesktop import check_result_views
+            check_result_views(actor)
         results[name] = {'status': expected_status,
                          'estimatedPlayers': len(actor.attributeStatus.get('estimatedPlayers', {})),
                          'missingPanelRetained': True, 'realEquipmentCacheUnchanged': True,
@@ -224,16 +225,19 @@ def check_equipment_fallback(with_ui=False):
 
 def check_replays(entries, report_path):
     """Exercise supplied current-season logs without enforcing a date boundary."""
-    from tools.ValidateLuoyang import ValidationWindow, replay, check_windows
+    from tools.ValidateLuoyang import ValidationWindow, replay
+    from tools.ValidateDesktop import check_result_views
     from tools.Attribute import CURRENT_GAME_EDITION
+    from tools.RecordQuality import is_effect_warning_only
 
     results = []
+    window = capture_uploads(ValidationWindow())
     for entry in entries:
         path = Path(entry['source'])
         print('Release replay: ' + path.name, flush=True)
         if entry.get('sha256'):
             assert hashlib.sha256(path.read_bytes()).hexdigest() == entry['sha256'].lower()
-        window = capture_uploads(ValidationWindow())
+        window.uploadData = []
         with patch('socket.socket.connect', side_effect=AssertionError('Replay network disabled')), \
                 patch('urllib.request.urlopen', side_effect=AssertionError('Replay HTTP disabled')), \
                 contextlib.redirect_stdout(io.StringIO()):
@@ -248,7 +252,8 @@ def check_replays(entries, report_path):
             assert all(math.isfinite(value) and value >= 0 for value in totals.values())
             damage = check_damage_conservation(tracker)
             metric = ('ndps' if actor.attributeStatus.get('status') == 'incomplete'
-                      and not actor.attributeStatus.get('estimatedPlayers') else 'rdps')
+                      and not actor.attributeStatus.get('estimatedPlayers')
+                      and not is_effect_warning_only(actor.detail) else 'rdps')
             values = [row.get(metric, 0) for row in actor.statDict]
             assert values == sorted(values, reverse=True), (actor.bossAnalyseName, metric)
             wujie = []
@@ -260,7 +265,7 @@ def check_replays(entries, report_path):
             for expected in entry.get('expectedWujie', []):
                 assert any(row['occ'] == expected['occ'] and row[expected['activity']] > 0
                            for row in wujie), (expected, wujie)
-            check_windows(actor)
+            check_result_views(actor)
         if not results:
             # Local validation evidence only; release packaging excludes build outputs.
             payload_path = report_path.with_name(report_path.stem + '-first-upload-payload.json')
@@ -294,9 +299,9 @@ def main():
         from equip.AttributeDisplay import AttributeDisplay
         from equip.CangshengAttributeData import RESOURCE_ROOT, kungfu_data, npc_data
         from replayer import Name
-        from GenerateFiles import checkAndWriteFiles
-        from MainWindow import MainWindow
-        import tkinter as tk
+        from PySide6 import __version__ as qt_version
+        from PySide6.QtWidgets import QApplication
+        from tools.ValidateDesktop import check_shell
 
         frozen = bool(getattr(sys, 'frozen', False))
         if frozen:
@@ -319,23 +324,17 @@ def main():
             assert Name.BOOST_DICT['2,%s,1' % buff_id]['atStrainBase'] == value
         for level, value in zip(range(18, 23), (20, 22, 25, 27, 29)):
             assert Name.BOOST_DICT['2,29608,%s' % level]['atStrainBase'] == value
-        checkAndWriteFiles()
-        application = MainWindow()
-        assert application.uploadData == []
-        root = tk.Tk()
-        root.withdraw()
-        try:
-            icon_checks = check_icons(root)
-            root.update_idletasks()
-        finally:
-            root.destroy()
+        application = QApplication.instance() or QApplication(["JX3BLA"])
+        shell = check_shell()
+        icon_checks = check_icons()
+        application.processEvents()
         excel_checks = check_excel()
         fallback_checks = check_equipment_fallback(with_ui=True)
         result = {'version': EDITION, 'frozen': frozen, 'network': 'disabled',
                   'upload': 'disabled', 'resources': resources, 'attributeStatus': display.status,
                   'kungfus': len(profiles), 'npcProfiles': len(npc_data()['profiles']),
-                  'buffChecks': 'passed', 'tk': 'constructed',
-                  'mainWindow': 'initialized', 'icons': icon_checks, 'excel': excel_checks,
+                  'buffChecks': 'passed', 'qt': qt_version,
+                  'mainWindow': shell, 'icons': icon_checks, 'excel': excel_checks,
                   'equipmentFallback': fallback_checks,
                   'status': 'passed'}
         if args.manifest:

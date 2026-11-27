@@ -33,7 +33,7 @@ C:/Python314/python.exe -m release.EquipmentEffectGenerator --check
 
 生成器合并`docs/160/evidence/equipment_effects/`、`docs/160/evidence/heroic_equipment10082/`和`docs/160/evidence/heroic_equipment20261114/`的精确模型。补充条目必须保留既有普通心法的处理方式和静态属性；悟心法必须同时声明独立处理方式与明确心法名单，新增范围与此前核验范围取并集，不能隐式覆盖。当前合并目录205项已通过生成校验，其中67项为普通心法不适用的无界配方。
 
-所有 Python 步骤使用同一个解释器，失败即停止。脚本依次生成图标、当前装备分类、复盘说明和 `replayer/Name.py`，在独立的 `build/release-*` 中构建，核对资源 SHA256 与依赖清单，并在空目录执行冻结 EXE 的心法、增益、PNG/ICO + Tk 和 Excel 读写检查。装备估算另走真实 Actor 流程，检查有样本、无样本和混合状态，确认属性排名与上传受到保护、实测伤害百分位仍可使用。全部通过后才替换 `dist/j3jz.exe`。
+所有 Python 步骤使用同一个解释器，失败即停止。脚本依次生成图标、当前装备分类、复盘说明和 `replayer/Name.py`，在独立的 `build/release-*` 中构建，核对资源 SHA256 与依赖清单，并在空目录执行冻结 EXE 的心法、增益、Qt 主窗、PNG/ICO 图像解码和 Excel 读写检查。装备估算另走真实 Actor 流程，检查有样本、无样本和混合状态，确认属性排名与上传受到保护、实测伤害百分位仍可使用。全部通过后才替换 `dist/j3jz.exe`。
 
 `MainWindow.beta.spec` 保留为旧命令入口，使用完全相同的当前资源；`ReleaseBeta.ps1` 转调上述构建脚本，输出同一个 `dist/j3jz.exe`。两个入口均不执行 Git 提交、推送、网盘上传或服务器公告更新。
 
@@ -48,7 +48,7 @@ C:/Python314/python.exe -m release.EquipmentEffectGenerator --check
 
 英雄洛阳适配后为 15 项运行资源；新增英雄 NPC 表来自正式服 `1.6.0.10082`，以 54 级本体和各小怪独立防御档案计算。复核命令：`python -m tools.ValidateLuoyangNpcDefense --heroic --source docs/160/evidence/heroic10082/sNpcTemplate.tab`。
 
-名称和增益统一由原有 `replayer/Name.py` 提供。正式服 JSON 使用单一名称，不再同时保留 `_hd` 与体服运行副本。旧赛季原表、体服装备 zip、旧名称表和开发证据不进入安装包。图标由 `GenerateFiles.py` 写入运行目录，`icons/rate.dat` 为运行时缓存。
+名称和增益统一由 `replayer/Name.py` 提供。Qt 桌面使用的 PNG、ICO 和应用图标由两个 spec 共用的 `bundle_datas` 直接打入 EXE，从解包资源目录读取。`icons/rate.dat` 为独立的可写缓存。
 
 8.16.6 共包含 14 项上述运行资源。`equipment_effects.json` 是按精确类型、ID／脚本路径、参数生成的运行目录；对应 `docs/160/evidence/equipment_effects/` 和本轮 `docs/160/evidence/heroic_equipment10082/` 原件与反汇编只用于开发复核，不进入安装包。证据目录由 Git 保留原始字节，避免换行转换使清单 SHA256 失效。
 
@@ -71,7 +71,16 @@ python -m release.ValidateRelease --exe dist/j3jz.exe
 ./MainWindow.exe --release-smoke-test --report ./report.json --manifest C:/验证资料/formal-manifest.json
 ```
 
-报告要求 `status: passed` 和 `frozen: true`。回放检查阻断网络与上传，记录未标定装备/目标的已有提示；它不等同于游戏内手工验收，也不为旧日志提供兼容承诺。
+报告要求 `status: passed` 和 `frozen: true`。Qt 桌面冒烟覆盖主界面、图标解码、装备完整性提示和实录结果窗口。回放检查使用本地上传队列，并阻断网络。一个清单内的日志按给定顺序共享装备上下文，独立团队应使用不同清单。
+
+开发版要求 Windows、PySide6 Essentials 和 PyInstaller 6.17 或更新的 6.x 版本。在项目的 Python 环境安装依赖后，从仓库根目录构建独立候选包。候选目录可独立复制到另一台 Windows 设备验证显示缩放、操作与首启。
+
+```powershell
+python -m pip install -r requirements.txt "pyinstaller>=6.17,<7"
+python -m PyInstaller --noconfirm --distpath build/qt9-acceptance/candidate --workpath build/qt9-acceptance/work MainWindow.spec
+python -m release.ValidateRelease --exe build/qt9-acceptance/candidate/MainWindow.exe
+build/qt9-acceptance/candidate/MainWindow.exe --release-smoke-test --report build/qt9-acceptance/frozen-smoke.json
+```
 
 ## 提交、上传与公告
 
