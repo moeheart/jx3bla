@@ -1,78 +1,93 @@
-"""Read-only comparisons for the desktop. The server's sampling rules are independent."""
-from collections import defaultdict
+"""Compare a saved fight to the full-fight rDPS distribution published by JX3 Logs."""
 import json
 import math
 
 from Constants import OCC_PINYIN_DICT
-from tools.Attribute import CURRENT_GAME_EDITION
-from tools.Functions import getOccType
-from tools.Names import getIDFromMap
+from tools.Names import getGameEditionFromTime, getIDFromMap
 from tools.Rank import percentile_rank
-from tools.RecordQuality import get_record_quality, is_effect_warning_only
+from tools.RecordQuality import get_record_quality
 
 
-def _historical(sample, value):
+def _distribution(sample):
     if not isinstance(sample, dict):
         return None
     try:
-        n = int(sample['num'])
+        count = int(sample['num'])
         thresholds = sample['value']
         if isinstance(thresholds, str):
             thresholds = json.loads(thresholds)
-        if (n <= 0 or not isinstance(thresholds, list) or len(thresholds) != 101
-                or not all(isinstance(x, (int, float)) and math.isfinite(x) for x in thresholds)
+        if (count <= 0 or not isinstance(thresholds, list) or len(thresholds) != 101
+                or not all(type(x) in (int, float) and math.isfinite(x) for x in thresholds)
                 or thresholds != sorted(thresholds)):
             return None
-        return percentile_rank(value, thresholds), n
+        return thresholds, count
     except (KeyError, TypeError, ValueError, OverflowError):
         return None
 
 
-def desktop_percentiles(actor):
-    """Use the same encounter/spec/edition sample, else describe local role peers."""
-    rates = getattr(getattr(actor, 'window', None), 'stat_percent', {}) or {}
-    map_id = getIDFromMap(actor.mapDetail)
-    quality = get_record_quality(actor.attributeStatus)
-    usable_rdps = (quality['precise'] or is_effect_warning_only(actor.attributeStatus)
-                   or (quality['estimated'] and not quality.get('referenceUnavailable')
-                       and not quality.get('unresolvedTargets') and not quality.get('targetProfileUnavailable')
-                       and quality.get('staticAttributes') not in ('partial', 'missing')))
-    role_names = {'dps': '输出', 'healer': '治疗', 'tank': '坦克'}
-    peers = defaultdict(list)
+def _rank_basis(quality, player_id, stats, direct, value, missing, official_luoyang):
+    if (quality['status'] == 'unavailable' or quality.get('referenceUnavailable')
+            or quality.get('targetProfileUnavailable')):
+        return 'unavailable'
+    if not official_luoyang:
+        return 'verified' if quality['precise'] else 'unavailable'
+    if value <= 0:
+        return 'unavailable'
+    own = missing.get(player_id, {})
+    if (quality.get('unresolvedTargets') or quality.get('equipmentErrors')
+            or quality.get('unparsedAttributes') or quality.get('staticAttributes') in ('missing', 'partial')
+            or (isinstance(own, dict) and player_id in missing and own.get('hasReference') is not True)):
+        # Match the Logs admission rule with the team contribution record already in memory.
+        attributed = (type(direct) in (int, float) and math.isfinite(direct) and int(value) != int(direct))
+        sources = stats.get('namedSource', {})
+        if attributed or any(label != '自身伤害' and item.get('sum', 0) > 0
+                             for label, item in sources.items() if isinstance(item, dict)):
+            return 'partial_attribution'
+        return 'unavailable'
+    if quality['precise']:
+        return 'verified'
+    if quality['estimated'] or quality['missingEquipmentPlayerCount']:
+        return 'estimated_equipment'
+    return 'unmodeled_effects' if quality.get('unmodeledEffects') else 'reported'
+
+
+def desktop_percentiles(result, rates):
+    """Use the recorded map, encounter, specialization and season, for every role."""
+    if not rates:
+        return {}
+    map_id = getIDFromMap(result.mapDetail)
+    edition = getGameEditionFromTime(map_id, result.timestamp)
+    if edition == '0':
+        return {}
+    tracker = result.combatTracker
+    source = result.attributeStatus or {}
+    quality = get_record_quality(source)
+    missing = source.get('missingEquipmentPlayers', {})
+    if not isinstance(missing, dict):
+        missing = {str(key): {} for key in missing or ()}
+    official = map_id in ('835', '836') and edition in ('161', '162')
+    direct = tracker.get('ndps', {}).get('player', {})
+    players = {stats.get('name'): (key, stats)
+               for key, stats in tracker.get('rdps', {}).get('player', {}).items()}
     comparisons = {}
-    tracker = actor.combatTracker
-    for row in actor.statDict:
-        occ, name = str(row['occ']), row['name']
-        role = getOccType(occ)
-        metric = 'rhps' if role == 'healer' else 'rdps'
-        if metric == 'rdps' and not usable_rdps:
+    for row in result.statDict:
+        name = row['name']
+        specialization = OCC_PINYIN_DICT.get(str(row['occ']))
+        sample = rates.get(f'{specialization}-{map_id}-{result.bossAnalyseName}-stat-rdps-{edition}')
+        distribution = _distribution(sample)
+        if distribution is None:
             continue
-        table = getattr(tracker, metric, {}).get('player', {})
-        stats = next((p for p in table.values() if p.get('name') == name), {})
-        value = stats.get('hps' if metric == 'rhps' else 'dps', stats.get('sumPerSec'))
-        if not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0:
-            continue
-        peers[role].append((name, value))
-        group = 'healer' if metric == 'rhps' else 'general'
-        key = f'{OCC_PINYIN_DICT.get(occ)}-{map_id}-{actor.bossAnalyseName}-{group}-{metric}-{CURRENT_GAME_EDITION}'
-        historical = _historical(rates.get(key), value)
-        if historical:
-            percent, count = historical
-            comparisons[name] = {'metric': metric, 'scope': 'historical', 'cohort': '同心法',
-                                 'reference': metric == 'rdps' and not quality['precise'],
-                                 'percent': percent, 'num': count}
-    for role, members in peers.items():
-        if len(members) < 2:
-            continue
-        for name, value in members:
-            if name in comparisons:
-                continue
-            others = [v for who, v in members if who != name]
-            if not others:
-                continue
-            # Percent of other participants below this value, with half credit for ties.
-            percentile = round(100 * sum((v < value) + 0.5 * (v == value) for v in others) / len(others))
-            comparisons[name] = {'metric': 'rhps' if role == 'healer' else 'rdps',
-                                 'scope': 'team', 'cohort': role_names[role], 'reference': True,
-                                 'percent': percentile, 'num': len(others)}
+        thresholds, count = distribution
+        player_id, stats = players.get(name, (None, {}))
+        value = stats.get('dps', stats.get('sumPerSec'))
+        basis = 'unavailable'
+        if type(value) in (int, float) and math.isfinite(value) and value >= 0:
+            basis = _rank_basis(quality, player_id, stats, direct.get(player_id, {}).get('dps'),
+                                value, missing, official)
+        item = {'scope': 'logs', 'metric': 'rdps', 'edition': edition, 'basis': basis,
+                'reference': basis != 'verified', 'num': count}
+        if basis != 'unavailable':
+            # Logs ranks the integer in the uploaded personal report.
+            item['percent'] = percentile_rank(int(value), thresholds)
+        comparisons[name] = item
     return comparisons

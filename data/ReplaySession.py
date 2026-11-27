@@ -14,18 +14,22 @@ def display_result(actor):
     from data.PersonalTimeline import build_personal_timelines
     from data.DisplayRanks import desktop_percentiles
     metrics = ('rhps', 'hps', 'ahps', 'ohps', 'chps', 'rdps', 'ndps', 'mrdps', 'mndps', 'rdpsStatus')
-    return SimpleNamespace(
+    result = SimpleNamespace(
         bossAnalyseName=actor.bossAnalyseName, mapDetail=actor.mapDetail,
         server=actor.bld.info.server, timestamp=actor.bld.info.battleTime,
         startTime=actor.startTime, finalTime=actor.finalTime, battleTime=actor.battleTime,
-        personalTimelines=build_personal_timelines(actor), displayRanks=desktop_percentiles(actor),
+        personalTimelines=build_personal_timelines(actor),
         win=actor.win, statDict=actor.statDict, occResult=actor.occResult,
+        equipmentSourceNotes=getattr(actor, 'equipmentSourceNotes', {}),
         playerNames={key: value.name for key, value in actor.bld.info.player.items()},
         detail=actor.detail, bh=actor.bh, attributeStatus=actor.attributeStatus,
         mask=bool(actor.config.item['general'].get('mask', 0)),
         potList=[list(p) if len(p) >= 7 else [*p, 0] for p in actor.potList],
         combatTracker={name: getattr(actor.combatTracker, name) for name in metrics},
     )
+    result.rankEdition = getattr(actor.window, 'rate_edition', -1)
+    result.displayRanks = desktop_percentiles(result, actor.window.stat_percent)
+    return result
 
 
 class ReplaySession(MainWindow):

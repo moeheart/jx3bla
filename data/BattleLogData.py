@@ -153,18 +153,17 @@ class BattleLogData():
                         self.info.sumTime = int(jclItem[5]["3"])
                 elif jclItem[4] == "4":
                     # print("[PlayerTest]", jclItem[5])
-                    flag = self.info.addPlayer(jclItem[5]["1"], jclItem[5]["2"], jclItem[5]["3"], jclItem[5]["4"])
-                    if flag:
-                        self.info.player[jclItem[5]["1"]].xf = jclItem[5]["4"]
-                        self.info.player[jclItem[5]["1"]].equipScore = jclItem[5].get("5", 0)
-                        if "6" in jclItem[5]:
-                            self.info.player[jclItem[5]["1"]].equip = jclItem[5]["6"]
-                    # Equipment may arrive before talents in repeated player
-                    # records. Keep the later nonempty talent snapshot even
-                    # when addPlayer no longer needs to update equipment.
-                    if jclItem[5].get("7"):
-                        self.info.player[jclItem[5]["1"]].qx = jclItem[5]["7"]
-                    playerNameDict[self.info.player[jclItem[5]["1"]].name] = jclItem[5]["1"]
+                    self.info.addPlayer(jclItem[5]["1"], jclItem[5]["2"], jclItem[5]["3"], jclItem[5]["4"])
+                    player = self.info.player[jclItem[5]["1"]]
+                    if jclItem[5]["4"] not in ("", "0") and player.xf in ("", "0"):
+                        player.xf = player.xinfaCode = jclItem[5]["4"]
+                    if player.xf == jclItem[5]["4"] or jclItem[5]["4"] in ("", "0"):
+                        player.updateEquipment(jclItem[5].get("5"), jclItem[5].get("6"))
+                        if jclItem[5].get("7"):
+                            player.qx = jclItem[5]["7"]
+                    else:
+                        player.observeOtherEquipment(jclItem[5]["4"], jclItem[5].get("6"))
+                    playerNameDict[player.name] = jclItem[5]["1"]
                 elif jclItem[4] == "8":
                     first = False
                     if jclItem[5]["1"] not in self.info.npc:
@@ -299,6 +298,14 @@ class BattleLogData():
         self.info.battleTime = bld2.info.battleTime
         self.info.sumTime += bld2.info.sumTime
         self.info.skill = concatDict(self.info.skill, bld2.info.skill)
+        for key in self.info.player.keys() & bld2.info.player.keys():
+            current, earlier = self.info.player[key], bld2.info.player[key]
+            if current.name == earlier.name and current.xf == earlier.xf:
+                score, equipment = current.equipScore, current.equip
+                current.equipScore, current.equip = earlier.equipScore, earlier.equip
+                current._changedLoadout = earlier._changedLoadout
+                current._scoreWithoutItems = earlier._scoreWithoutItems
+                current.updateEquipment(score, equipment)
         self.info.player = concatDict(self.info.player, bld2.info.player)
         self.info.npc = concatDict(self.info.npc, bld2.info.npc)
         self.log = bld2.log + self.log

@@ -4,8 +4,32 @@
 from collections import Counter
 
 from openpyxl import load_workbook
-from equip.EquipmentInfo import EquipmentInfo
-from equip.EquipmentType import ENCHANT_TYPE, COLOR_TYPE
+from equip.EquipmentInfo import EquipmentInfo, KNOWN_NON_NUMERIC_EFFECTS
+from equip.EquipmentType import COLOR_TYPE
+from equip.EquipmentFallback import REQUIRED_EQUIPMENT_SLOTS
+from tools.Functions import getOccType
+
+# 苍生铸世正式服。不同属性的数值不能直接比较，同档武伤与攻击的数值也不同。
+ENCHANT_TIERS = {
+    "铸世": 0,
+    "峡金焠": 1, "云锦绣": 1, "镇渊石": 1,
+    "峡金铸": 2, "蜀锦绣": 2, "河清砂": 2,
+}
+MAJOR_ENCHANT_SLOTS = frozenset(("3", "4", "8", "11", "12"))
+WATER_WEAPON_ORIGINS = frozenset(("202610赛季25raid高级散件_特效武器",))
+
+
+def forge_tooltip(forge=""):
+    """Decode both the current five-part summary and saved legacy records."""
+    labels = ("满精炼件数", "八级 / 七级 / 六级五行石", "五彩石等级",
+              "挑战 / 精品 / 紫色 / 蓝色及以下附魔", "大附魔件数")
+    values = str(forge or "").split("/")
+    if len(values) == 5 and len(values[3].split("-")) == 2:
+        labels = (*labels[:3], "旧版高级 / 其他小附魔（部分部位）", "旧版六部位大附魔标记")
+    rows = [f"{label}　{value.replace('-', ' / ')}" for label, value in zip(labels, values)] if len(values) == 5 else list(labels)
+    if labels[-1] == "大附魔件数":
+        rows.append("小附魔统计全身 12 个部位；输出、治疗忽略体质。大附魔共 5 个有效部位。")
+    return "\n".join(rows)
 
 def getPlug(id):
     '''
@@ -722,107 +746,89 @@ class EquipmentAnalyser():
     装备分析类，将茗伊复盘中的数据转为json形式。
     '''
 
-    def getForge(self, equips):
-        '''
-        根据全身装备，得到装备的打造信息（精炼、镶嵌、五彩石、小附魔、大附魔）
-        '''
-
+    def getForge(self, equips, occ=""):
         items = list(self.combat_items(equips))
         if not items:
             return ""
 
         refine = 0
-        plug = [0] * 9
-        magic1 = [0] * 13
-        magic2 = [0] * 13
-        plugColor = 0
-
-        for key, equip, item in items:
-            refine_max = int(self.info.getAttribute(item, "MaxStrengthLevel") or 0)
-            if refine_max and equip["star"] >= refine_max:
+        gems = Counter()
+        color = 0
+        enchants = [0] * 4
+        major = 0
+        for slot, equip, item in items:
+            maximum = int(self.info.getAttribute(item, "MaxStrengthLevel") or 0)
+            if maximum and equip.get("star", 0) >= maximum:
                 refine += 1
+            for key in ("plug1", "plug2", "plug3"):
+                gems[equip.get(key)] += 1
+            if slot == "0":
+                color = COLOR_TYPE.get(equip.get("plug0"), 0)
 
-            # 获取镶嵌部分
-            for i in [1,2,3]:
-                p = "plug%d"%i
-                if p in equip:
-                    plug[equip[p]] += 1
-                else:
-                    plug[0] += 1
+            enchant = str(equip.get("magic1") or "")
+            name = self.info.enchantNames.get(enchant)
+            if name:
+                vitality = any(attr == "atVitalityBase" for attr, _, _ in self.info.enchantAttributes[enchant])
+                if not vitality or getOccType(occ) == "tank":
+                    enchants[ENCHANT_TIERS.get(name.split("·", 1)[0], 3)] += 1
+            if slot in MAJOR_ENCHANT_SLOTS and str(equip.get("magic2") or "") not in ("", "0"):
+                major += 1
+        grades = "-".join(map(str, enchants))
+        return f"{refine}/{gems[8]}-{gems[7]}-{gems[6]}/{color}/{grades}/{major}"
 
-            # 获取五彩石
-            if "plug0" in equip:
-                colorID = equip["plug0"]
-                if colorID in COLOR_TYPE:
-                    plugColor = COLOR_TYPE[colorID]
-                else:
-                    plugColor = 0
-
-            id = int(key)
-            # 获取小附魔
-            if equip["magic1"] not in [0, "0", ""]:
-                if equip["magic1"] in ENCHANT_TYPE and ENCHANT_TYPE[equip["magic1"]] == 2:
-                    magic1[id] = 2
-                else:
-                    magic1[id] = 1
-
-            if equip["magic2"] not in [0, "0", ""]:
-                magic2[id] = 1
-                if equip["magic2"] in ENCHANT_TYPE and ENCHANT_TYPE[equip["magic2"]] == 12:
-                    magic2[id] = 2
-
-        magic1Sum2 = 0
-        magic1Sum1 = 0
-        for i in [2,4,6,7,10,11,12,0]:
-            if magic1[i] == 2:
-                magic1Sum2 += 1
-            elif magic1[i] == 1:
-                magic1Sum1 += 1
-
-        magic2Str = "%d%d%d%d%d%d"%(magic2[12], magic2[8], magic2[11], magic2[4], magic2[3], magic2[10])
-
-        result = "%d/%d-%d-%d/%d/%d-%d/%s"%(refine, plug[8], plug[7], plug[6], plugColor, magic1Sum2, magic1Sum1, magic2Str)
-        return result
-    
     def combat_items(self, equips):
         # JCL categories are weapon=6 and trinket=8. The calculator's internal
-        # table IDs follow its legacy spreadsheet convention (the reverse).
+        # IDs use the reverse convention. Slot 1 is the optional alternate weapon.
         category = {"6": 8, "7": 7, "8": 6}
-        for slot in map(str, range(13)):
+        for slot in sorted(REQUIRED_EQUIPMENT_SLOTS, key=int):
             equip = equips.get(slot)
-            if isinstance(equip, dict) and str(equip.get("id_cat")) in category:
+            if isinstance(equip, dict) and str(equip.get("id_cat")) in category and str(equip.get("id") or "") not in ("", "0"):
                 yield slot, equip, f"{category[str(equip['id_cat'])]},{equip['id']}"
 
     def getSketch(self, equips):
-        """Summarize equipped combat slots using the current formal client tables."""
+        items = list(self.combat_items(equips))
+        if not items:
+            return ""
         sets = Counter()
-        traits = Counter()
+        white = yellow = 0
+        weapon = ""
         attr = self.info.getAttribute
-        for slot, _, item in self.combat_items(equips):
+        for slot, _, item in items:
             set_id = attr(item, "SetID")
-            if set_id and set_id != "0" and set_id in self.info.setNames:
+            if set_id in self.info.set:
                 sets[set_id] += 1
-            if attr(item, "BelongSchool") == "精简":
-                traits["精简"] += 1
-            if attr(item, "GetType") == "生活技能":
-                traits["切糕"] += 1
-            if slot == "9" and attr(item, "SkillID") not in ("", "0", 0):
-                traits["特效腰坠"] += 1
+
             if slot == "0":
                 origin = attr(item, "BelongMap")
                 if origin == "橙武":
-                    traits["大橙武"] += 1
-                elif origin == "奉天证道版本全门派特殊武器升级":
-                    traits["门派特效"] += 1
-                elif attr(item, "_IsSpecialMagicType") == "1":
-                    traits["特效武器"] += 1
+                    weapon = "大橙武"
+                elif origin in WATER_WEAPON_ORIGINS:
+                    weapon = "水特效"
+                if weapon:
+                    continue
+            if slot == "9" and attr(item, "SkillID") not in ("", "0", 0):
+                yellow += 1
+            elif attr(item, "BelongSchool") == "精简":
+                # Some current haste/healer pieces have an event effect even
+                # though their MagicType description does not say 黄字.
+                if "黄字" in str(attr(item, "MagicType")) or any(
+                    self.info.attrib.get(attr(item, f"Magic{n}Type"), ("",))[0] in KNOWN_NON_NUMERIC_EFFECTS
+                    for n in range(1, 17)
+                ):
+                    yellow += 1
+                else:
+                    white += 1
 
-        labels = [f"{self.info.setNames[key]}×{count}" for key, count in
-                  sorted(sets.items(), key=lambda pair: (-pair[1], self.info.setNames[pair[0]], pair[0]))]
-        for name in ("精简", "切糕", "特效腰坠", "特效武器", "门派特效", "大橙武"):
-            if traits[name]:
-                labels.append(f"{traits[name]}{name}" if name in ("精简", "切糕") else name)
-        return "，".join(labels)
+        tiers = []
+        for set_id, pieces in sets.items():
+            active = [n for n, _ in self.info.set[set_id] if n in (2, 4) and pieces >= n]
+            if active:
+                tiers.append(max(active))
+        label = "+".join(f"{n}件套" for n in sorted(tiers, reverse=True)) or "无套装"
+        fields = [label, f"{white}白字", f"{yellow}黄字"]
+        if weapon:
+            fields.append(weapon)
+        return "，".join(fields)
 
     def getPlug(self, id):
         plugDict = {"": 0, "24423": 1, "24424": 2, "24425": 3, "24426": 4, "24427": 5, "24428": 6, "24429": 7, "24430": 8,
@@ -832,7 +838,7 @@ class EquipmentAnalyser():
         else:
             return plugDict[id]
 
-    def convert2(self, s, score=0):
+    def convert2(self, s, score=0, occ=""):
         '''
         使用新版本的数据（json形式的luatable）进行转换.
         params:
@@ -850,20 +856,20 @@ class EquipmentAnalyser():
             equip["pos"] = d["1"]
             equip["id_cat"] = d["2"]
             equip["id"] = d["3"]
-            equip["star"] = int(d["4"])
+            equip["star"] = int(d.get("4") or 0)
             for i in range(1, 4):
                 plugPos = str(i)
-                if plugPos in d["5"]:
+                if plugPos in d.get("5", {}):
                     f = d["5"][plugPos]
                     plugID = f["2"]
                     equip["plug%d" % i] = self.getPlug(plugID)
-            if "0" in d["5"]:
+            if "0" in d.get("5", {}):
                 equip["plug0"] = d["5"]["0"]["2"]
-            equip["magic1"] = d["6"]
-            equip["magic2"] = d["7"]
+            equip["magic1"] = d.get("6", "0")
+            equip["magic2"] = d.get("7", "0")
             equips[equip["pos"]] = equip
         equips["sketch"] = self.getSketch(equips)
-        equips["forge"] = self.getForge(equips)
+        equips["forge"] = self.getForge(equips, occ)
         return equips
     
     def __init__(self, info=None):

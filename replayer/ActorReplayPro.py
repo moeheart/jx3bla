@@ -19,7 +19,7 @@ from tools.Attribute import CURRENT_GAME_EDITION
 from tools.ReplayRevision import mark_recalculation
 from tools.RecordQuality import is_effect_warning_only
 from equip.EquipmentFallback import (
-    make_average_base_attributes, missing_equipment_slots, EQUIPMENT_FALLBACK_WARNING,
+    make_average_base_attributes, missing_equipment_slots, EQUIPMENT_FALLBACK_WARNING, REQUIRED_EQUIPMENT_SLOTS,
 )
 
 from replayer.ReplayerBase import ReplayerBase
@@ -343,6 +343,7 @@ class ActorProReplayer(ReplayerBase):
         ad = AttributeDisplay()
         ea = EquipmentAnalyser(ad.ac.equipmentInfo)
         eee = ExcelExportEquipment()
+        self.equipmentSourceNotes = {}
         if not hasattr(self.window, "playerEquipmentOwners"):
             self.window.playerEquipmentOwners = {}
         for id in self.bld.info.player:
@@ -352,55 +353,48 @@ class ActorProReplayer(ReplayerBase):
             cached = (bool(owner[0] and owner[1] and owner[1] != "未知")
                       and self.window.playerEquipmentOwners.get(id) == owner
                       and id in self.window.playerEquipment)
-            flag = False  # 是否更新的标记
-            strEquip = ""
-            if self.bld.info.player[id].equip == {}:  # 跳过获取不到装备的玩家.
-                if cached:
-                    # 从之前的战斗中直接读取缓存
-                    jsonEquip2 = ea.convert2(self.window.playerEquipment[id], self.bld.info.player[id].equipScore)
-                    strEquip2 = eee.export(jsonEquip2)
-                    self.jsonEquip[id] = jsonEquip2
-                    self.strEquip[id] = strEquip2
-                    self.equipmentDict[id] = jsonEquip2
-                    strEquip = strEquip2
-                    flag = True
+            player = self.bld.info.player[id]
+            raw = player.equip
+            if not any(item.get("1") in REQUIRED_EQUIPMENT_SLOTS for item in raw.values()):
+                raw = {}
+            observed = bool(raw)
+            score = player.equipScore
+            previous = self.window.playerEquipmentAnalysed.get(id, {})
+            proven_specs = previous.get("gearOccupations", [])
+            cached = cached and occDetailList[id] in proven_specs
+            if observed:
+                aliases = {getOccDetailFromXinfaCode(xf) for xf in getattr(player, "matchingEquipmentXinfa", ())}
+                proven_specs = sorted({occDetailList[id]} | (aliases - {"0"}))
+            source_score = score
+            if not raw and cached:
+                raw = self.window.playerEquipment[id]
+                source_score = previous.get("equipmentScore", previous.get("score", 0))
+                if int(score or 0) <= 0:
+                    score = previous.get("score", score)
+                    score_note = "本场未记录装分。"
                 else:
-                    # 保留缺失装备信息，后续尝试平均装备估算。
-                    flag = True
-                    jsonEquip = {"score": self.bld.info.player[id].equipScore, "sketch": "", "forge": ""}
-                    self.jsonEquip[id] = jsonEquip
-                    self.equipmentDict[id] = jsonEquip
-            else:
-                jsonEquip = ea.convert2(self.bld.info.player[id].equip, self.bld.info.player[id].equipScore)
-                strEquip = eee.export(jsonEquip)
-                self.equipmentDict[id] = jsonEquip  # TODO 只留一个
-                if not cached:
-                    # 是否从未出现过
-                    flag = True
-                else:
-                    # 比较新旧装备是否一致
-                    jsonEquip2 = ea.convert2(self.window.playerEquipment[id], self.bld.info.player[id].equipScore)
-                    strEquip2 = eee.export(jsonEquip2)
-                    if strEquip != strEquip2:
-                        flag = True
-                self.jsonEquip[id] = jsonEquip
+                    score_note = f"本场实测装分 {score}。"
+                note = "装备明细取自同角色、同心法此前的实录"
+                if int(source_score or 0) > 0:
+                    note += f"（当时装分 {source_score}）"
+                self.equipmentSourceNotes[player.name] = score_note + note + "。"
+            elif not raw:
+                self.window.playerEquipment.pop(id, None)
+                self.window.playerEquipmentOwners.pop(id, None)
+            gear = ea.convert2(raw, score, occDetailList[id])
+            strEquip = eee.export(gear) if raw else ""
+            self.jsonEquip[id] = self.equipmentDict[id] = gear
+            if raw:
                 self.strEquip[id] = strEquip
+            if observed:
+                self.window.playerEquipment[id] = raw
+                self.window.playerEquipmentOwners[id] = owner
 
-                # Rebuild with the current season and kungfu even when gear
-                # is unchanged between two boss attempts.
-                flag = True
-
-                # print("[playID]", self.bld.info.getName(id))
-                # print("[TestJsonEquip]", jsonEquip)
-                # print("[strEquip]", strEquip)
-
-            if flag:  # 需要重新计算装备属性
-                if self.bld.info.player[id].equip:
-                    self.window.playerEquipment[id] = self.bld.info.player[id].equip
-                    self.window.playerEquipmentOwners[id] = owner
-                requests["players"].append(
-                    {"equipStr": strEquip, "id": id, "name": self.bld.info.getName(id), "occ": occDetailList[id],
-                     "server": self.bld.info.server, "score": self.bld.info.player[id].equipScore})
+            # Even identical items must be evaluated with this encounter's spec.
+            requests["players"].append(
+                {"equipStr": strEquip, "id": id, "name": player.name, "occ": occDetailList[id],
+                 "server": self.bld.info.server, "score": score, "equipmentScore": source_score,
+                 "gearOccupations": proven_specs})
 
         # 属性统一使用当前正式服底表在本地计算。
         self.attributeStatus = {}
@@ -411,7 +405,9 @@ class ActorProReplayer(ReplayerBase):
             self.window.playerEquipmentAnalysed.pop(player, None)
         equipmentErrors = {}
         for playerEquip in requests["players"]:
-            result = {"base": None, "panel": None, "gameEdition": CURRENT_GAME_EDITION}
+            result = {"base": None, "panel": None, "gameEdition": CURRENT_GAME_EDITION,
+                      "score": playerEquip["score"], "equipmentScore": playerEquip["equipmentScore"],
+                      "gearOccupations": playerEquip["gearOccupations"]}
             try:
                 result["base"] = ad.GetBaseAttrib(playerEquip["equipStr"], playerEquip["occ"])
                 result["panel"] = ad.GetPanelFromBase(result["base"], playerEquip["occ"])
@@ -451,7 +447,7 @@ class ActorProReplayer(ReplayerBase):
             if base is None or missing_slots:
                 missingEquipment[player] = {
                     "missingSlots": missing_slots,
-                    "hasEquipment": bool(self.bld.info.player[player].equip),
+                    "hasEquipment": bool(self.jsonEquip.get(player, {}).get("sketch")),
                     "hasReference": False,
                     "reason": "unparseable" if player in equipmentErrors else ("missing_slots" if missing_slots else "missing_attributes"),
                 }

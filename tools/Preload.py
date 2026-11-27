@@ -26,22 +26,29 @@ def read_rate_cache():
 
 
 def checkRateEdition(serverEdition):
-    edition, data = read_rate_cache()
+    return refresh_rate_cache(serverEdition, read_rate_cache())[1]
+
+
+def refresh_rate_cache(serverEdition, cached):
+    edition, data = cached
     if edition >= int(serverEdition) or parseEdition(EDITION) == 0:
-        return data
+        return cached
     with urllib.request.urlopen(get_api_url('/getPercentInfo'), timeout=30) as response:
         update = json.load(response)
-    if not isinstance(update.get("data"), dict):
+    if not isinstance(update.get("data"), dict) or not update["data"]:
         raise ValueError("排名数据格式错误")
+    version = update.get("rateEdition", serverEdition)
+    if int(version) < int(serverEdition):
+        raise ValueError("排名分布版本早于公告")
     path = get_writable_path(os.path.join("icons", "rate.dat"))
     ensure_parent_dir(path)
     fd, temporary = tempfile.mkstemp(dir=os.path.dirname(path), suffix=".tmp")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as stream:
-            json.dump({"edition": update.get("rateEdition", serverEdition),
+            json.dump({"edition": version,
                        "data": update["data"]}, stream)
         os.replace(temporary, path)
     finally:
         with suppress(FileNotFoundError):
             os.unlink(temporary)
-    return update["data"]
+    return int(version), update["data"]

@@ -1,17 +1,19 @@
 """Qt battle and personal replay views backed by completed analysis results."""
+import math
 import re
 from collections.abc import Mapping
 from types import SimpleNamespace
 
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, QSize, Qt, QUrl, Signal
-from PySide6.QtGui import QBrush, QDesktopServices, QIcon, QKeySequence, QShortcut
+from PySide6.QtGui import QBrush, QColor, QDesktopServices, QIcon, QKeySequence, QPalette, QShortcut
 from PySide6.QtWidgets import (
     QAbstractItemView, QApplication, QComboBox, QDialog, QDialogButtonBox,
     QCompleter, QFormLayout, QFrame, QGridLayout, QHBoxLayout, QHeaderView, QLabel, QLineEdit, QPlainTextEdit, QPushButton, QScrollArea,
-    QSpinBox, QSplitter, QTableView, QTabWidget, QVBoxLayout, QWidget,
+    QSpinBox, QSplitter, QStyle, QStyledItemDelegate, QStyleOptionViewItem, QTableView, QTabWidget, QVBoxLayout, QWidget,
 )
 
 from Constants import FALLBACK_ADDRESS, OCC_NAME_DICT, OCC_PINYIN_DICT
+from equip.EquipmentExport import forge_tooltip
 from tools.RecordQuality import get_record_quality, is_effect_warning_only, is_valid_rank
 from window.QtOccupation import add_player_choice, occupation_color, occupation_icon
 from tools.ResourcePath import get_icon_path
@@ -150,7 +152,7 @@ def _text(value):
     if isinstance(value, bool):
         return '是' if value else '否'
     if isinstance(value, float):
-        return f'{value:.2f}'.rstrip('0').rstrip('.')
+        return str(int(value)) if math.isfinite(value) else '—'
     return str(value)
 
 
@@ -162,14 +164,17 @@ def _format(key, value):
     if isinstance(value, Mapping):
         return '；'.join(f'{LABELS.get(k, k)} {_format(k, v)}' for k, v in value.items()) or '—'
     if key in PERCENT and isinstance(value, (int, float)):
-        return f'{value:.1%}'
+        return f'{value:.0%}'
+    if key.endswith('PerSec') and key != 'sumPerSec' and isinstance(value, (int, float)):
+        # Cast frequencies below one per second would all round to zero.
+        return f'{value:.2f}'.rstrip('0').rstrip('.')
     return _text(value)
 
 
 def _clock(ms):
     sign = '−' if ms < 0 else ''
-    secs, millis = divmod(round(abs(ms)), 1000)
-    return f'{sign}{secs // 60}:{secs % 60:02}.{millis:03}'
+    secs = int(abs(ms)) // 1000
+    return f'{sign}{secs // 60}:{secs % 60:02}'
 
 
 def _label(value=''):
@@ -187,13 +192,83 @@ def _padded_page():
     return page, layout
 
 
+BAR_ROLE = Qt.ItemDataRole.UserRole + 1
+
+
+def _rank_color(percent):
+    # Logs thresholds, with shades readable against the desktop's light background.
+    for ceiling, color in ((25, '#666666'), (50, '#137310'), (75, '#005ebe'),
+                           (95, '#8b27bd'), (98, '#b15100'), (100, '#aa3377'), (101, '#886600')):
+        if percent < ceiling:
+            return QColor(color)
+
+
+def _finite_positive(value):
+    return value if isinstance(value, (float, int)) and math.isfinite(value) and value > 0 else 0
+
+
+def _equipment_score(equip):
+    try:
+        score = int(equip.get('score') or 0)
+    except (TypeError, ValueError, OverflowError):
+        score = 0
+    if score > 0:
+        return str(score)
+    return '未记录装分' if equip.get('sketch') or equip.get('raw') else '未读取'
+
+
+class _BarDelegate(QStyledItemDelegate):
+    def paint(self, painter, option, index):
+        fraction = index.data(BAR_ROLE)
+        color = index.data(Qt.ItemDataRole.ForegroundRole)
+        if fraction is None and color is None:
+            return super().paint(painter, option, index)
+        opt = QStyleOptionViewItem(option)
+        self.initStyleOption(opt, index)
+        selected = bool(opt.state & QStyle.StateFlag.State_Selected)
+        alternate = bool(opt.features & QStyleOptionViewItem.ViewItemFeature.Alternate)
+        background = QPalette.ColorRole.AlternateBase if alternate else QPalette.ColorRole.Base
+        if selected:
+            background = QPalette.ColorRole.Highlight
+        painter.save()
+        painter.fillRect(opt.rect, opt.palette.brush(background))
+        if fraction:
+            bar = QColor(56, 143, 127, 55)
+            if index.model().occupations:
+                school = occupation_color(index.model().occupations[index.row()])
+                if school:
+                    bar = QColor(school)
+                    bar.setAlpha(42)
+            rect = opt.rect.adjusted(0, 2, 0, -2)
+            rect.setWidth(round(rect.width() * fraction))
+            painter.fillRect(rect, bar)
+        # Let the native style draw icons, text elision and the focus indicator on top.
+        opt.state &= ~QStyle.StateFlag.State_Selected
+        opt.features &= ~QStyleOptionViewItem.ViewItemFeature.Alternate
+        opt.backgroundBrush = QBrush(Qt.BrushStyle.NoBrush)
+        style = opt.widget.style() if opt.widget else QApplication.style()
+        style.drawControl(QStyle.ControlElement.CE_ItemViewItem, opt, painter, opt.widget)
+        painter.restore()
+
+
 class _Rows(QAbstractTableModel):
     """Show text on demand, even for long mechanic histories; selection follows source row order."""
-    def __init__(self, headers, rows, parent, occupations=None):
+    def __init__(self, headers, rows, parent, occupations=None, bars=None, tips=None, ranks=None, header_tips=None):
         super().__init__(parent)
         self.occupations = occupations or []
         self.headers = headers
         self.rows = rows
+        self.tips = tips or {}
+        self.ranks = ranks or {}
+        self.header_tips = header_tips or {}
+        self.bars = {}
+        for column, values in (bars or {}).items():
+            self.set_bars(column, values)
+
+    def set_bars(self, column, values):
+        weights = [_finite_positive(v) for v in values]
+        maximum = max(weights, default=0)
+        self.bars[column] = [v / maximum if maximum else 0 for v in weights]
 
     def rowCount(self, parent=QModelIndex()):
         return 0 if parent.isValid() else len(self.rows)
@@ -202,18 +277,29 @@ class _Rows(QAbstractTableModel):
         return 0 if parent.isValid() else len(self.headers)
 
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
-        if index.isValid() and index.column() == 0 and self.occupations:
+        if not index.isValid():
+            return None
+        cell = (index.row(), index.column())
+        if role == BAR_ROLE and index.column() in self.bars:
+            return self.bars[index.column()][index.row()]
+        if role == Qt.ItemDataRole.ToolTipRole and cell in self.tips:
+            return self.tips[cell]
+        if role == Qt.ItemDataRole.ForegroundRole and cell in self.ranks:
+            return QBrush(_rank_color(self.ranks[cell]))
+        if index.column() == 0 and self.occupations:
             occ = self.occupations[index.row()]
             if role == Qt.ItemDataRole.DecorationRole:
                 return occupation_icon(occ)
             if role == Qt.ItemDataRole.ForegroundRole:
                 color = occupation_color(occ)
                 return QBrush(color) if color else None
-        if index.isValid() and role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.ToolTipRole):
+        if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.ToolTipRole):
             return _text(self.rows[index.row()][index.column()])
         return None
 
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+        if orientation == Qt.Orientation.Horizontal and role == Qt.ItemDataRole.ToolTipRole:
+            return self.header_tips.get(section)
         if role == Qt.ItemDataRole.DisplayRole:
             return self.headers[section] if orientation == Qt.Orientation.Horizontal else str(section + 1)
         return None
@@ -221,6 +307,7 @@ class _Rows(QAbstractTableModel):
 
 def _table():
     table = QTableView()
+    table.setItemDelegate(_BarDelegate(table))
     table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
     table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
     table.setAlternatingRowColors(True)
@@ -232,8 +319,8 @@ def _table():
     return table
 
 
-def _fill(table, headers, rows, occupations=None):
-    model = _Rows(headers, list(rows), table, occupations)
+def _fill(table, headers, rows, occupations=None, **options):
+    model = _Rows(headers, list(rows), table, occupations, **options)
     old = table.model()
     old_selection = table.selectionModel()
     table.setModel(model)
@@ -320,6 +407,11 @@ class BattleView(QWidget):
         self.detail = _mapping(_get(actor, 'detail'))
         self.occ_results = _mapping(_get(actor, 'occResult'))
         self.tracker = _get(actor, 'combatTracker', {})
+        self.rdps_amounts = {}
+        for player in _get(self.tracker, 'rdps', {}).get('player', {}).values():
+            value = player.get('dps', player.get('sumPerSec'))
+            if type(value) in (int, float) and math.isfinite(value):
+                self.rdps_amounts[player.get('name')] = value
         self.roster = []
         for row in _get(actor, 'statDict', ()) or ():
             if isinstance(row, Mapping):
@@ -367,6 +459,7 @@ class BattleView(QWidget):
         self.mask = _get(actor, 'mask', config.get('general', {}).get('mask', 0)) in (1, True, '1')
         tracker_status = _get(self.tracker, 'rdpsStatus') or _get(self.tracker, 'rdps', {}) or {}
         self.display_ranks = _mapping(_get(actor, "displayRanks"))
+        self.equipment_source_notes = _mapping(_get(actor, 'equipmentSourceNotes'))
         self.status = (_get(actor, 'attributeStatus') or self.detail.get('attributeStatus')
                        or self.detail.get('rdpsStatus') or tracker_status)
         qualities = {'attributeStatus': self.status, 'rdpsStatus': tracker_status, 'statistics': self.detail}
@@ -393,7 +486,7 @@ class BattleView(QWidget):
         context = [self.detail.get('map') or _get(actor, 'mapDetail'), status_text, f'{len(self.roster)} 人']
         start, end = _get(actor, 'startTime'), _get(actor, 'finalTime')
         if isinstance(start, (int, float)) and isinstance(end, (int, float)) and end > start:
-            context.append('用时 ' + _clock(end - start).split('.')[0])
+            context.append('用时 ' + _clock(end - start))
         subtitle = _label('  ·  '.join(filter(None, context)))
         subtitle.setObjectName('muted')
         title.setWordWrap(False)
@@ -417,7 +510,7 @@ class BattleView(QWidget):
                 summary += f'，{affected-count} 人资料不足'
             layout.addWidget(_label(summary))
         elif not self.quality['precise']:
-            warning = _label('装备特效尚有未核验项，本场 rDPS 仅供参考。' if self.effects_only else '本场属性或目标参数待校准。')
+            warning = _label('团队装备已读取，部分装备特效尚未建模。' if self.effects_only else '本场属性或目标参数待校准。')
             layout.addWidget(warning)
         self.tabs = QTabWidget()
         layout.addWidget(self.tabs)
@@ -459,26 +552,34 @@ class BattleView(QWidget):
                     extra.append(key)
         rhps = {data.get('name'): data.get('hps', data.get('sumPerSec'))
                 for data in _get(self.tracker, 'rhps', {}).get('player', {}).values()}
+        self.team_roster = sorted(self.roster, key=lambda r: _finite_positive(self._source_rdps(r)), reverse=True)
         rows = []
-        for row in self.roster:
+        tips, ranks = {}, {}
+        for i, row in enumerate(self.team_roster):
             equip = _mapping(row.get('equip'))
-            supported = self.quality['precise'] and row.get('rdpsStatus') not in ('incomplete', 'estimated')
-            reference = (self.quality['estimated'] or row.get('attributeEstimated')
-                         or row.get('rdpsStatus') == 'estimated' or self.effects_only)
-            healer = str(row.get('occ', '')).rstrip('w').endswith('h')
-            rank_display = self._rank_text(row, 'rhps' if healer else 'rdps', supported)
+            rank, rank_display, tip = self._rdps_rank(row.get('name'))
+            tips[i, 6] = tip
+            if source := self.equipment_source_notes.get(row.get('name')):
+                tips[i, 7] = tips[i, 8] = source
+            tips[i, 9] = forge_tooltip(equip.get('forge') or '')
+            if rank is not None:
+                ranks[i, 6] = rank
             rows.append([
                 self._redact(row.get('name', '')) + (' *' if row.get('equipmentEstimated') else ''),
-                _format('occ', row.get('occ')), row.get('rdps') if supported or reference else None,
+                _format('occ', row.get('occ')), self._team_rdps(row),
                 row.get('ndps'), rhps.get(row.get('name'), row.get('rhps')), row.get('hps'),
-                rank_display, equip.get('score'), equip.get('sketch'), equip.get('forge'), row.get('stunTime'),
+                rank_display, _equipment_score(equip), equip.get('sketch'), equip.get('forge'), row.get('stunTime'),
                 *(self._render(k, row.get(k, _mapping(row.get('battle')).get(k))) for k in extra)])
         self.team_table = _table()
-        _fill(self.team_table, ['玩家', '心法', 'rDPS', 'nDPS', 'rHPS', 'HPS', '百分位', '装分', '装备', '强化', '被控（秒）',
-                                *(LABELS.get(k, k) for k in extra)], rows, [row.get('occ') for row in self.roster])
+        _fill(self.team_table, ['玩家', '心法', 'rDPS', 'nDPS', 'rHPS', 'HPS', 'rDPS 百分位', '装分', '装备', '强化', '被控（秒）',
+                                *(LABELS.get(k, k) for k in extra)], rows, [row.get('occ') for row in self.team_roster],
+              bars={0: [r[2] for r in rows]}, tips=tips, ranks=ranks,
+              header_tips={0: '条形长度按本场玩家 rDPS 最高值折算', 6: '线上 Logs 同版本、同难度、同首领、同心法的全程 rDPS 百分位',
+                           9: forge_tooltip()})
+        self.team_table.setColumnWidth(0, max(145, self.team_table.columnWidth(0)))
         phases = self.detail.get('phaseTimes')
         if isinstance(phases, Mapping) and phases:
-            times = '   ·   '.join(f'{phase} {_clock(seconds * 1000).split(".")[0]}' for phase, seconds in phases.items()
+            times = '   ·   '.join(f'{phase} {_clock(seconds * 1000)}' for phase, seconds in phases.items()
                                  if isinstance(seconds, (float, int)) and seconds > 0)
             if times:
                 body.addWidget(_label('阶段用时   ' + self._redact(times)))
@@ -493,38 +594,71 @@ class BattleView(QWidget):
         body.addLayout(bar)
         def selected():
             i = self.team_table.currentIndex().row()
-            return self.roster[i].get('name') if i >= 0 else None
+            return self.team_roster[i].get('name') if i >= 0 else None
         self.team_table.selectionModel().currentRowChanged.connect(
             lambda *_: open_button.setEnabled(selected() in self.occ_results))
         open_button.clicked.connect(lambda: self.open_player(selected()))
         self.team_table.clicked.connect(
-            lambda index: self.open_player(self.roster[index.row()].get('name')) if index.column() == 0 else None)
-        self.team_table.doubleClicked.connect(lambda index: self.open_player(self.roster[index.row()].get('name')))
+            lambda index: self.open_player(self.team_roster[index.row()].get('name')) if index.column() == 0 else None)
+        self.team_table.doubleClicked.connect(lambda index: self.open_player(self.team_roster[index.row()].get('name')))
         if rows:
             self.team_table.selectRow(0)
 
-    def _rank_text(self, row, metric, precise):
+    def _source_rdps(self, row):
         name = row.get('name')
-        display = _mapping(self.display_ranks.get(name))
-        rank, count = display.get('percent'), display.get('num', 0)
-        if display and display.get('metric') == metric:
-            if not is_valid_rank(rank) or not count:
-                return '样本不足'
-            if display.get('scope') == 'team':
-                return f'{rank:g}% · 团内{display.get("cohort", "")}参考（{count}人）'
-            qualifier = ' · 参考' if display.get('reference') else ''
-            return f'{rank:g}%{qualifier}（{count}份）'
-        rank = row.get(metric + 'Rank')
-        count = row.get(metric + 'RankNum')
-        if metric == 'rhps':
+        if name in self.rdps_amounts:
+            return self.rdps_amounts[name]
+        value = row.get('rdps')
+        if value is None:
             entry = _mapping(self.occ_results.get(name))
-            ranks = _mapping(entry.get('rank') or _get(entry.get('result', {}), 'rank'))
-            record = _mapping(_mapping(ranks.get('healer')).get('rhps'))
-            if record:
-                rank, count = record.get('percent'), record.get('num')
-        if precise and is_valid_rank(rank) and count:
-            return f'{rank}%（{count}份）'
-        return '暂无样本' if precise else '样本不足'
+            skills = _mapping(entry.get('result', entry)).get('skill')
+            value = _mapping(_mapping(skills).get('general')).get('rdps')
+        return value if type(value) in (int, float) and math.isfinite(value) else None
+
+    def _team_rdps(self, row):
+        supported = self.quality['precise'] and row.get('rdpsStatus') not in ('incomplete', 'estimated')
+        reference = (self.quality['estimated'] or row.get('attributeEstimated')
+                     or row.get('rdpsStatus') == 'estimated' or self.effects_only)
+        if supported or reference or self._rdps_rank(row.get('name'))[0] is not None:
+            return self._source_rdps(row)
+        return None
+
+    def _rdps_rank(self, name):
+        display = _mapping(self.display_ranks.get(name))
+        rank, count = display.get('percent'), display.get('num')
+        if display.get('scope') == 'logs' and display.get('metric') == 'rdps':
+            if display.get('basis') == 'unavailable':
+                return None, '无法归因', '本场该玩家的 rDPS 缺少可核验的归因数据。'
+            if is_valid_rank(rank) and rank <= 100 and isinstance(count, int) and count > 0:
+                tip = f'线上 Logs · 同版本、同难度、同首领、同心法\n全程 rDPS 第 {rank:.0f} 百分位，样本 {count} 人'
+                quality = {'estimated_equipment': '装备属性含估算', 'unmodeled_effects': '含未建模特效',
+                           'partial_attribution': '部分归因', 'reported': '按记录值计算'}.get(display.get('basis'))
+                if quality:
+                    tip += '\n' + quality
+                return rank, f'{rank:.0f}%', tip
+        return None, '暂无线上样本', '当前没有可用的同版本、同难度、同首领、同心法的线上 rDPS 分布。'
+
+    def refresh_display_ranks(self, mapping):
+        """Apply a new Logs distribution in place without disturbing navigation."""
+        self.display_ranks = _mapping(mapping)
+        if hasattr(self, 'team_table'):
+            model = self.team_table.model()
+            for i, row in enumerate(self.team_roster):
+                rank, label, tip = self._rdps_rank(row.get('name'))
+                model.rows[i][6], model.tips[i, 6] = label, tip
+                if rank is None:
+                    model.ranks.pop((i, 6), None)
+                else:
+                    model.ranks[i, 6] = rank
+                model.rows[i][2] = self._team_rdps(row)
+            if model.rowCount():
+                model.set_bars(0, (row[2] for row in model.rows))
+                model.dataChanged.emit(model.index(0, 0), model.index(model.rowCount()-1, 6))
+        if self.current_player and getattr(self, 'personal_rank', None):
+            self._update_personal_rank()
+            row = next((r for r in self.roster if r.get('name') == self.current_player), {'name': self.current_player})
+            value = self._team_rdps(row)
+            self.personal_rdps.setText(f'{int(value):,}' if value is not None else '—')
 
     def _mistakes(self, body):
         self.pot_table = _table()
@@ -638,8 +772,10 @@ class BattleView(QWidget):
         metric_bar.addWidget(self.combat_detail_for, 1)
         body.addLayout(metric_bar)
         self.combat_table, self.combat_skill, self.combat_targets = _table(), _table(), _table()
-        split = QSplitter(Qt.Orientation.Horizontal)
+        split = QSplitter(Qt.Orientation.Vertical)
         split.setChildrenCollapsible(False)
+        details = QSplitter(Qt.Orientation.Horizontal)
+        details.setChildrenCollapsible(False)
         for title, table in [('团队数值', self.combat_table), ('技能明细', self.combat_skill),
                              ('目标 / 增益来源', self.combat_targets)]:
             panel, content = _padded_page()
@@ -648,23 +784,34 @@ class BattleView(QWidget):
             heading.setStyleSheet('font-weight: 600')
             content.addWidget(heading)
             content.addWidget(table, 1)
-            split.addWidget(panel)
-        split.setSizes([355, 340, 320])
+            (split if table is self.combat_table else details).addWidget(panel)
+            table.horizontalHeader().setStretchLastSection(False)
+            table.setMinimumHeight(84)
+        split.addWidget(details)
+        split.setSizes([360, 240])
+        details.setSizes([465, 465])
         body.addWidget(split, 1)
         def change():
             key = self.combat_selector.currentData()
             data = _get(self.tracker, key, {}) or {}
+            def amount_for(player):
+                if key == 'rdps':
+                    return self.rdps_amounts.get(player.get('name'))
+                return player.get('sumPerSec', player.get('hps', player.get('dps')))
             players = sorted(_mapping(data.get('player')).values(),
-                             key=lambda r: r.get('sumPerSec', r.get('hps', r.get('dps', 0))) or 0, reverse=True)
+                             key=lambda r: _finite_positive(amount_for(r)), reverse=True)
             blocked = key in ('rdps', 'mrdps') and not self.quality['precise'] and not (
                 self.quality['estimated'] or self.effects_only)
             if blocked:
-                players = []
+                players = [p for p in players if key == 'rdps' and self._rdps_rank(p.get('name'))[0] is not None]
+            amount = [amount_for(p) for p in players]
             _fill(self.combat_table, ['玩家', '心法', METRICS[key], '总量', '有效时间'],
                   ([self._redact(p.get('name')), _format('occ', p.get('occ')),
-                    p.get('sumPerSec', p.get('hps', p.get('dps'))), p.get('sum'),
-                    _clock(p['adjustedTime']) if isinstance(p.get('adjustedTime'), (int, float)) else None] for p in players),
-                  [p.get('occ') for p in players])
+                    value, p.get('sum'), _clock(p['adjustedTime']) if isinstance(p.get('adjustedTime'), (int, float)) else None]
+                   for p, value in zip(players, amount)),
+                  [p.get('occ') for p in players],
+                  bars={0: amount, 2: amount, 3: [p.get('sum') for p in players], 4: [p.get('adjustedTime') for p in players]})
+            self.combat_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
             def select():
                 i = self.combat_table.currentIndex().row()
                 data = players[i] if i >= 0 else {}
@@ -674,11 +821,25 @@ class BattleView(QWidget):
                 for table, field in [(self.combat_skill, 'namedSkill'),
                                      (self.combat_targets, 'namedSource' if key in ('rdps', 'mrdps') else 'namedTarget')]:
                     items = sorted(_mapping(data.get(field)).items(), key=lambda item: item[1].get('sum', 0), reverse=True)
-                    _fill(table, ['增益来源' if field == 'namedSource' else ('技能' if field == 'namedSkill' else '目标'),
-                                  '次数', '总量', '占比', '覆盖率'],
-                          ([self._redact(name), v.get('num'), v.get('sum'), _format('percent', v.get('percent')),
-                            _format('cover', v['cover']) if v.get('cover', -1) >= 0 else None] for name, v in items),
-                          [self.occupations.get(name) for name, _ in items] if field != 'namedSkill' else None)
+                    amounts = [v.get('sum') for _, v in items]
+                    titles = [{'namedSource':'增益来源', 'namedSkill':'技能', 'namedTarget':'目标'}[field], '次数', '总量', '占比']
+                    bars = {0: amounts, 1: [v.get('num') for _, v in items], 2: amounts, 3: [v.get('percent') for _, v in items]}
+                    rows = [[self._redact(name), v.get('num'), v.get('sum') if v.get('sum') != -1 else None,
+                             _format('percent', v.get('percent'))] for name, v in items]
+                    tips = {}
+                    if field == 'namedSource':
+                        # CombatTracker exports the integral of buff stacks divided by effective time.
+                        # Multi-stack buffs can have large values which cannot represent percent uptime.
+                        titles.append('平均层数')
+                        tips = {3: '相对自身伤害的比例', 4: '增益层数随时间的积分 ÷ 有效时间'}
+                        weights = [v.get('cover') for _, v in items]
+                        for row, weight in zip(rows, weights):
+                            row.append(f'{weight:.2f}'.rstrip('0').rstrip('.') if isinstance(weight, (float,int)) and weight >= 0 else None)
+                        bars[4] = weights
+                    _fill(table, titles, rows,
+                          [self.occupations.get(name) for name, _ in items] if field != 'namedSkill' else None,
+                          bars=bars, header_tips=tips)
+                    table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
             self.combat_table.selectionModel().currentRowChanged.connect(select)
             if players:
                 index = next((i for i, p in enumerate(players) if p.get('name') in self.occupations), 0)
@@ -743,7 +904,7 @@ class BattleView(QWidget):
         body.setContentsMargins(2, 2, 2, 2)
         body.setSpacing(4)
         self.personal_scroll.setWidget(self.personal_dashboard)
-        self.personal_timeline = self.skill_table = self.support_table = self.equipment_summary = None
+        self.personal_timeline = self.skill_table = self.support_table = self.equipment_summary = self.personal_rank = None
         if not name:
             self.refresh_links()
             self.personal_summary.setText('这场战斗没有生成个人复盘。')
@@ -765,14 +926,14 @@ class BattleView(QWidget):
         skills = _mapping(self.result.get('skill'))
         general, healing = _mapping(skills.get('general')), _mapping(skills.get('healer'))
         healer = str(entry.get('occ', '')).rstrip('w').endswith('h')
-        metric = 'rhps' if healer else 'rdps'
         roster_row = next((r for r in self.roster if r.get('name') == name), {'name': name})
+        rdps = self._team_rdps(roster_row)
         figures = (('rHPS', healing.get('rhps')), ('HPS', healing.get('hps')),
-                   ('aHPS', healing.get('ahps')), ('关键 HPS', healing.get('chps'))) if healer else (
-                   ('rDPS', general.get('rdps')), ('nDPS', general.get('ndps')),
+                   ('aHPS', healing.get('ahps')), ('关键 HPS', healing.get('chps')), ('rDPS', rdps)) if healer else (
+                   ('rDPS', rdps), ('nDPS', general.get('ndps')),
                    ('主目标 rDPS', general.get('mrdps')), ('主目标 nDPS', general.get('mndps')))
         figures += (('战斗效率', _format('efficiency', general['efficiency'])),) if 'efficiency' in general else ()
-        figures += (('百分位', self._rank_text(roster_row, metric, self.personal_quality['precise'])),)
+        figures += (('rDPS 百分位', None),)
         band = QFrame()
         band.setStyleSheet('QFrame {background:#edf3f2; border:0;}')
         metrics = QGridLayout(band)
@@ -781,17 +942,23 @@ class BattleView(QWidget):
         for col, (label, value) in enumerate(figures):
             caption = _label(label)
             caption.setStyleSheet('color:#476562; font-size:11px')
-            number = _label(f'{value:,.0f}' if isinstance(value, (int, float)) else _text(value))
+            number = _label(f'{int(value):,}' if isinstance(value, (int, float)) and math.isfinite(value) else _text(value))
             number.setStyleSheet('color:#183e37; font-weight:600')
+            if label == 'rDPS':
+                self.personal_rdps = number
+            if label == 'rDPS 百分位':
+                self.personal_rank = number
+                self._update_personal_rank()
             metrics.addWidget(caption, 0, col)
             metrics.addWidget(number, 1, col)
-            metrics.setColumnStretch(col, 2 if label == '百分位' else 1)
+            metrics.setColumnStretch(col, 1)
         body.addWidget(band)
 
         equip = _mapping(self.result.get('equip'))
         equip_line = []
-        if equip.get('score') not in ('', None, -1):
-            equip_line.append('装分 ' + _text(equip['score']))
+        score = _equipment_score(equip)
+        if score != '未读取':
+            equip_line.append('装分 ' + score if score.isdigit() else score)
         if equip.get('sketch'):
             equip_line.append(str(equip['sketch']))
         for key, caption in (('critPercent', '会心'), ('critpowPercent', '会效'),
@@ -800,7 +967,7 @@ class BattleView(QWidget):
                 equip_line.append(caption + ' ' + _text(equip[key]))
         if name in self.equipment_issues:
             issue, estimated = self.equipment_issues[name]
-            if not issue.get('hasEquipment'):
+            if not issue.get('hasEquipment') and score == '未读取':
                 reason = '本次未记录该玩家装备'
             elif issue.get('reason') == 'unparseable':
                 reason = '该玩家装备条目解析异常'
@@ -813,6 +980,7 @@ class BattleView(QWidget):
             equip_line.insert(0, reason)
         kit = QHBoxLayout()
         self.equipment_summary = _label(self._redact('   ·   '.join(equip_line) or '暂无装备面板', self.personal_mask))
+        self.equipment_summary.setToolTip(self.equipment_source_notes.get(name, ''))
         kit.addWidget(self.equipment_summary, 1)
         details = QPushButton('装备详情')
         details.clicked.connect(lambda: self._open_detail('装备与奇穴', self._equipment))
@@ -842,6 +1010,13 @@ class BattleView(QWidget):
         split.setMinimumHeight(132)
         body.addWidget(split, 3)
         self._player_timeline(body)
+
+    def _update_personal_rank(self):
+        percent, text, tip = self._rdps_rank(self.current_player)
+        self.personal_rank.setText(text)
+        self.personal_rank.setToolTip(tip)
+        color = _rank_color(percent).name() if percent is not None else '#526866'
+        self.personal_rank.setStyleSheet(f'color:{color}; font-weight:600')
 
     def _open_detail(self, title, factory):
         dialog = QDialog(self)
@@ -945,8 +1120,15 @@ class BattleView(QWidget):
                 label = LABELS.get(key, key)
                 if group == 'healer' and key in ('heal', 'healEff'):
                     label = '原始 HPS（旧字段）' if key == 'heal' else '有效 HPS（旧字段）'
-                rows.append([SKILLS.get(group, group), label, self._render(key, value, self.personal_mask),
-                             f'{percentile}%' if valid else None, rank.get('num') if valid else None])
+                if group == 'general' and key == 'rdps':
+                    roster_row = next((r for r in self.roster if r.get('name') == self.current_player), {'name': self.current_player})
+                    value = self._team_rdps(roster_row)
+                    percentile, _, _ = self._rdps_rank(self.current_player)
+                    samples = self.display_ranks.get(self.current_player, {}).get('num') if percentile is not None else None
+                else:
+                    percentile = percentile if valid and percentile <= 100 else None
+                    samples = rank.get('num') if percentile is not None else None
+                rows.append([SKILLS.get(group, group), label, self._render(key, value, self.personal_mask), percentile, samples])
         # Keep all historical metrics accessible; individual skill filters avoid
         # scrolling through every specialization measure to find one cast.
         filter_bar = QHBoxLayout()
@@ -960,8 +1142,10 @@ class BattleView(QWidget):
         body.addLayout(filter_bar)
         def populate():
             group = selector.currentData()
-            _fill(table, ['技能', '指标', '数值', '百分位', '样本数'],
-                  (row for row in rows if group is None or row[0] == group))
+            filtered = [r for r in rows if group is None or r[0] == group]
+            _fill(table, ['技能', '指标', '数值', '指标百分位', '样本数'],
+                  ([*r[:3], f'{r[3]:.0f}%' if r[3] is not None else None, r[4]] for r in filtered),
+                  ranks={(i, 3): r[3] for i, r in enumerate(filtered) if r[3] is not None})
         selector.currentIndexChanged.connect(populate)
         populate()
         body.addWidget(table)
@@ -970,13 +1154,17 @@ class BattleView(QWidget):
 
     def _equipment(self, body):
         equip = _mapping(self.result.get('equip'))
+        if source := self.equipment_source_notes.get(self.current_player):
+            body.addWidget(_label(source))
         if equip.get('available') in (0, False) or not equip:
             body.addWidget(_label('未记录可展示的装备面板。'))
         else:
             table = _table()
+            shown = [(k,v) for k,v in equip.items() if k not in ('raw', 'available')]
             _fill(table, ['装备属性', '数值'],
                   (['装备评分' if k == 'score' else LABELS.get(k, k), self._render(k, value, self.personal_mask)]
-                   for k, value in equip.items() if k not in ('raw', 'available')))
+                   for k, value in shown),
+                  tips={(i, col): forge_tooltip(value) for i, (k, value) in enumerate(shown) if k == 'forge' for col in (0, 1)})
             body.addWidget(table)
         if isinstance(equip.get('raw'), str) and equip['raw']:
             button = QPushButton('复制配装数据')
@@ -1038,4 +1226,5 @@ class BattleView(QWidget):
             return
         self.personal_timeline = TimelineView.from_actor(self.actor, player=self.current_player,
                                                          parent=self.personal_dashboard, compact=True)
+        self.personal_timeline.setMinimumHeight(190)
         body.addWidget(self.personal_timeline, 4)

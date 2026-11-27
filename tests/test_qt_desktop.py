@@ -188,3 +188,30 @@ class ShellTests(unittest.TestCase):
             self.assertEqual(self.window.config.item['general']['playername'],'乙')
             self.assertEqual(self.window.recorder.currentText(),'乙')
             analyse.assert_not_called()
+
+    def test_new_logs_distribution_updates_an_open_saved_fight(self):
+        from window.QtResults import BattleView
+        result = self.result('田承嗣')
+        result.mapDetail = '25人普通洛阳之战'
+        result.timestamp = 1795673277
+        result.statDict = [{'name': '队员', 'occ': '2h', 'rdps': 88}]
+        result.occResult = {'队员': {'occ': '2h', 'result': {'overall': {}}}}
+        result.combatTracker = {'rdps': {'player': {'1': {'name': '队员', 'dps': 88}}}}
+        result.attributeStatus = {}
+        result.rankEdition = 12
+        result.displayRanks = {'队员': {'scope': 'logs', 'metric': 'rdps', 'num': 2, 'percent': 0}}
+        self.window._result(Path('saved.jcl'), result)
+        dialog = self.window.open_result(0)
+        view = dialog.findChild(BattleView)
+        self.assertTrue(view.open_player('队员'))
+        self.assertEqual(view.personal_rank.text(), '0%')
+        sample = {'lijingyidao-835-田承嗣-stat-rdps-161': {'num': 8, 'value': list(range(101))}}
+        with patch.object(self.session, 'analyse') as analyse:
+            self.window.signals.service.emit({'rateEdition': 13, 'rates': sample})
+            self.app.processEvents()
+            self.assertEqual(view.personal_rank.text(), '88%')
+            self.assertEqual(view.team_table.model().index(0, 6).data(), '88%')
+            self.assertIn('样本 8 人', view.personal_rank.toolTip())
+            self.assertEqual(result.rankEdition, 13)
+            self.assertEqual(view.current_player, '队员')
+            analyse.assert_not_called()

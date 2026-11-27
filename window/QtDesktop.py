@@ -175,6 +175,7 @@ class DesktopWindow(QMainWindow):
         self.update_url = ''
         self.logs_url = None
         self.rates = None
+        self.rate_edition = -1
         self._build()
         for signal, slot in ((self.signals.notice, self._notice),
                              (self.signals.result, self._result),
@@ -530,7 +531,7 @@ class DesktopWindow(QMainWindow):
         self.cancel.clear()
         self.busy = True
         self.failures_at_start = len(self.failures)
-        rates = self.rates
+        rates, rate_edition = self.rates, self.rate_edition
         self.recorder.setEnabled(False)
         self.folder_btn.setEnabled(False)
         self.refresh_btn.setEnabled(False)
@@ -542,8 +543,9 @@ class DesktopWindow(QMainWindow):
             try:
                 if self.services and rates is None:
                     from tools.Preload import read_rate_cache
-                    self.session.stat_percent = read_rate_cache()[1]
+                    self.session.rate_edition, self.session.stat_percent = read_rate_cache()
                 else:
+                    self.session.rate_edition = rate_edition
                     self.session.stat_percent = rates or {}
                 work()
             except Exception as exc:
@@ -611,8 +613,9 @@ class DesktopWindow(QMainWindow):
                         self.signals.error.emit('上传', str(exc))
                 if self.library and stamp is not None:
                     try:
-                        if cached and force:
-                            self._merge_notes(cached[0], snapshot)
+                        previous = self.library.annotations(path, stamp)
+                        if previous:
+                            self._merge_notes(previous, snapshot)
                         self.library.save(path, stamp, version, snapshot, self.session)
                     except Exception as exc:
                         self.signals.error.emit('保存已解析记录', str(exc))
@@ -660,6 +663,10 @@ class DesktopWindow(QMainWindow):
         if (previous.timestamp, previous.server, previous.bossAnalyseName) != (
                 result.timestamp, result.server, result.bossAnalyseName):
             return
+        for name, short_id in getattr(previous, 'links', {}).items():
+            report = getattr(result, 'occResult', {}).get(name)
+            if report and not report['result']['overall'].get('shortID'):
+                report['result']['overall']['shortID'] = short_id
         scores = defaultdict(deque)
         for pot in previous.potList:
             if str(pot[4]).startswith('[手动] '):
@@ -807,6 +814,7 @@ class DesktopWindow(QMainWindow):
             return self.dialogs[index]
         from window.QtResults import BattleView
         result = self.results[index]
+        self._refresh_ranks(result)
         dialog = QDialog(self)
         dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         if self.testAttribute(Qt.WidgetAttribute.WA_DontShowOnScreen):
@@ -898,23 +906,37 @@ class DesktopWindow(QMainWindow):
     def _start_services(self):
         signals = self.signals
         def load():
-            from tools.Preload import checkRateEdition, read_rate_cache
+            from tools.Preload import refresh_rate_cache, read_rate_cache
             try:
-                _, cached = read_rate_cache()
-                signals.service.emit({'rates': cached})
+                cached = read_rate_cache()
+                signals.service.emit({'rates': cached[1], 'rateEdition': cached[0]})
                 with urllib.request.urlopen(get_api_url('/getAnnouncement', {'edition': EDITION}),
                                             timeout=6) as response:
                     announcement = json.load(response)
                 signals.service.emit({'announcement': announcement, 'logs_url': get_logs_url('/')})
-                rates = checkRateEdition(announcement['rateEdition'])
-                signals.service.emit({'rates': rates})
+                edition, rates = refresh_rate_cache(announcement['rateEdition'], cached)
+                if edition != cached[0]:
+                    signals.service.emit({'rates': rates, 'rateEdition': edition})
             except (OSError, ValueError, KeyError, TypeError):
                 return
         threading.Thread(target=load, name='replay-metadata', daemon=True).start()
 
+    def _refresh_ranks(self, result):
+        from data.DisplayRanks import desktop_percentiles
+        if self.rates and self.rate_edition > getattr(result, 'rankEdition', -1):
+            result.displayRanks = desktop_percentiles(result, self.rates)
+            result.rankEdition = self.rate_edition
+            return True
+        return False
+
     def _service(self, payload):
         if 'rates' in payload:
-            self.rates = payload['rates']
+            self.rates, self.rate_edition = payload['rates'], payload['rateEdition']
+            from window.QtResults import BattleView
+            for index, dialog in self.dialogs.items():
+                result = self.results[index]
+                if self._refresh_ranks(result):
+                    dialog.findChild(BattleView).refresh_display_ranks(result.displayRanks)
         if 'announcement' in payload:
             from tools.Functions import parseEdition
             data = payload['announcement']

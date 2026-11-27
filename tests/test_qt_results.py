@@ -37,6 +37,8 @@ def fixture(mask=False):
                 'namedSkill': {'回雪': {'num': 4, 'sum': 3000, 'percent': 1}},
                 'namedTarget': {player: {'num': 4, 'sum': 3000, 'percent': 1}}}}}}
     return SimpleNamespace(statDict=[row, {'name': player, 'occ': '2d', 'rdps': 900}],
+                           displayRanks={healer: {'scope': 'logs', 'metric': 'rdps', 'basis': 'verified',
+                                                  'percent': 0, 'num': 3}},
                            occResult=players, detail={'boss': '史朝义', 'map': '洛阳之战', 'win': 1,
                            'mechanicEvents': [{'time': 10500, 'player': player, 'mechanic': '拾取碎片'}]},
                            startTime=10000, finalTime=20000, potList=[[player, '2d', 1, '史朝义',
@@ -58,7 +60,9 @@ class BattleViewTests(unittest.TestCase):
 
     def test_team_to_dense_personal_view_with_rank_talents_and_search(self):
         view = self.view(fixture())
-        self.assertIn('0%（3份）', cells(view.team_table)[0])
+        from PySide6.QtCore import Qt
+        self.assertIn('0%', cells(view.team_table)[1])
+        self.assertIn('样本 3 人', view.team_table.model().index(1, 6).data(Qt.ItemDataRole.ToolTipRole))
         self.assertTrue(view.open_player('云裳乙'))
         self.assertFalse(view.open_player('未知'))
         self.assertIn('回雪飘摇', str(cells(view.skill_table)))
@@ -66,13 +70,12 @@ class BattleViewTests(unittest.TestCase):
         self.assertTrue(any('甲穴,丙穴' in text for text in labels))
         self.assertFalse(any('评分' in text for text in labels))
         self.assertIn('42000', view.equipment_summary.text())
-        from PySide6.QtCore import Qt
         self.assertEqual(view.player_selector.completer().filterMode(), Qt.MatchFlag.MatchContains)
         self.assertTrue(view.player_selector.isEditable())
         self.assertTrue(view.open_player('花间甲'))
         self.assertIn('装备', view.equipment_summary.text())
 
-    def test_reference_scope_readable_gear_and_typed_rank_fallback(self):
+    def test_legacy_team_rank_ignored_and_unavailable_gear_explained(self):
         actor = fixture()
         actor.playerNames = {'123': '云裳乙', '234': '花间甲'}
         actor.attributeStatus = {'status': 'estimated',
@@ -81,7 +84,7 @@ class BattleViewTests(unittest.TestCase):
         actor.displayRanks = {'云裳乙': {'metric': 'rhps', 'scope':'team', 'reference':True,
                                       'percent':25, 'num':4, 'cohort':'治疗'}}
         view = self.view(actor)
-        self.assertIn('25% · 团内治疗参考（4人）', cells(view.team_table)[0])
+        self.assertIn('暂无线上样本', cells(view.team_table)[1])
         self.assertTrue(any('1/2 人资料齐全' in label.text() for label in view.findChildren(QLabel)))
         view.open_player('云裳乙')
         self.assertNotIn('估算', view.equipment_summary.text())
@@ -89,9 +92,61 @@ class BattleViewTests(unittest.TestCase):
         self.assertIn('本次未记录该玩家装备，属性采用估算',view.equipment_summary.text())
         incomplete = fixture()
         incomplete.attributeStatus = {'status':'incomplete', 'targetProfileUnavailable':True}
+        incomplete.displayRanks = {'花间甲': {'scope': 'logs', 'metric': 'rdps', 'basis': 'unavailable'}}
         other = self.view(incomplete)
         self.assertEqual(cells(other.team_table)[0][2], '—')
-        self.assertIn('样本不足', cells(other.team_table)[0])
+        self.assertIn('无法归因', cells(other.team_table)[0])
+
+    def test_bars_and_live_rank_refresh_preserve_player_and_selection(self):
+        from PySide6.QtCore import Qt
+        from window.QtResults import BAR_ROLE, _rank_color
+        view = self.view(fixture())
+        table = view.team_table
+        model = table.model()
+        self.assertEqual(model.index(0, 0).data(BAR_ROLE), 1)
+        self.assertAlmostEqual(model.index(1, 0).data(BAR_ROLE), 102 / 900)
+        self.assertTrue(model.headerData(9, Qt.Orientation.Horizontal, Qt.ItemDataRole.ToolTipRole))
+        table.selectRow(1)
+        view.open_player('云裳乙')
+        self.assertEqual(view.personal_rank.text(), '0%')
+        view.refresh_display_ranks({'云裳乙': {'scope': 'logs', 'metric': 'rdps', 'basis': 'estimated_equipment',
+                                              'percent': 98, 'num': 27}})
+        self.assertIs(model, table.model())
+        self.assertEqual(table.currentIndex().row(), 1)
+        self.assertEqual(view.current_player, '云裳乙')
+        self.assertEqual(view.personal_rank.text(), '98%')
+        self.assertIn('装备属性含估算', view.personal_rank.toolTip())
+        self.assertIn('98%', cells(table)[1])
+        self.assertEqual(model.index(1, 6).data(Qt.ItemDataRole.ForegroundRole).color(), _rank_color(99))
+        self.assertNotEqual(_rank_color(97), _rank_color(98))
+        self.assertEqual(len({_rank_color(n).name() for n in (0, 25, 50, 75, 95, 98, 100)}), 7)
+        view.refresh_display_ranks({})
+        self.assertEqual(view.personal_rank.text(), '暂无线上样本')
+        self.assertIsNone(model.index(1, 6).data(Qt.ItemDataRole.ForegroundRole))
+
+    def test_fractional_rates_match_logs_integer_in_all_views_and_keep_raw_bars(self):
+        from window.QtResults import BAR_ROLE
+        actor = fixture()
+        actor.combatTracker['rdps'] = {'player': {
+            '2': {'name': '花间甲', 'occ': '2d', 'dps': 900.9},
+            '1': {'name': '云裳乙', 'occ': '5h', 'dps': 102.9, 'sumPerSec': 0}}}
+        # Historical reports can omit individual rDPS and record zero for a buff-only healer.
+        del actor.statDict[0]['rdps']
+        actor.occResult['云裳乙']['result']['skill']['general']['rdps'] = 0
+        actor.combatTracker['rhps']['player']['123']['hps'] = 300.9
+        actor.occResult['云裳乙']['result']['skill']['healer'] = {'rhps': 300}
+        view = self.view(actor)
+        self.assertEqual(cells(view.team_table)[1][2], '102')
+        self.assertEqual(cells(view.team_table)[1][4], '300')
+        self.assertAlmostEqual(view.team_table.model().index(1, 0).data(BAR_ROLE), 102.9/900.9)
+        view.tabs.setCurrentIndex(2)
+        self.assertEqual(cells(view.combat_table)[1][2], '102')
+        self.assertAlmostEqual(view.combat_table.model().index(1, 2).data(BAR_ROLE), 102.9/900.9)
+        view.combat_selector.setCurrentIndex(view.combat_selector.findData('rhps'))
+        self.assertEqual(cells(view.combat_table)[0][2], '300')
+        self.assertTrue(view.open_player('云裳乙'))
+        self.assertIn('300', [label.text() for label in view.personal_dashboard.findChildren(QLabel)])
+        self.assertEqual(view.personal_rdps.text(), '102')
 
     def test_team_and_tracker_details_obey_mask_and_show_occupation_roles(self):
         from PySide6.QtCore import Qt
@@ -110,7 +165,7 @@ class BattleViewTests(unittest.TestCase):
         view.combat_selector.setCurrentIndex(view.combat_selector.findData('rhps'))
         self.assertIn('300', str(cells(view.combat_table)))
         self.assertIn('回雪', str(cells(view.combat_skill)))
-        self.assertIn('100.0%', str(cells(view.combat_targets)))
+        self.assertIn('100%', str(cells(view.combat_targets)))
         self.assertNotIn('花间甲', str(cells(view.combat_targets)))
         view.open_player('云裳乙')
         self.assertNotIn('花间甲', str(cells(view.support_table)))

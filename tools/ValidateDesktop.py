@@ -211,7 +211,7 @@ def verify_library(log_dir, pattern, player, output):
                         finish_batch(shell, shell.open_selected)
                     assert not shell.session.uploadData
                 else:
-                    shell.rates = read_rate_cache()[1]
+                    shell.rate_edition, shell.rates = read_rate_cache()
                     finish_batch(shell, shell.open_selected)
                 assert len(shell.results) == len(paths)
                 for i, (path, snapshot) in enumerate(zip(shell.paths, shell.results)):
@@ -228,7 +228,13 @@ def verify_library(log_dir, pattern, player, output):
                                                        if view.tabs.tabText(j)=='时间轴'))
                         app.processEvents()
                         assert dialog.grab().save(str(output/'整场时间轴.png'))
-                    result = dict(file=path.name, boss=snapshot.bossAnalyseName, win=snapshot.win, ui=ui)
+                    row = next(r for r in snapshot.statDict if r['name'] == names[0])
+                    tracked = next((r['dps'] for r in snapshot.combatTracker['rdps']['player'].values()
+                                    if r.get('name') == names[0]), None)
+                    result = dict(file=path.name, boss=snapshot.bossAnalyseName, win=snapshot.win, ui=ui,
+                                  rdps=int(tracked) if tracked is not None else None, equipment=row.get('equip'),
+                                  rankEdition=snapshot.rankEdition, logsRank=snapshot.displayRanks.get(names[0]),
+                                  rankedPlayers=sum('percent' in r for r in snapshot.displayRanks.values()))
                     if cached:
                         assert results[i] == result
                     else:

@@ -1,6 +1,7 @@
 # Created by moeheart at 09/03/2021
 # 复盘日志内容集合，主要包含复盘的全局数据与单条数据的通用形式，兼容jx3dat与jcl。
 
+from equip.EquipmentFallback import REQUIRED_EQUIPMENT_SLOTS
 from replayer.Name import SKILL_NAME
 
 def get_reflected_damage(event, info):
@@ -428,6 +429,81 @@ class NPCdata():
         self.equipScore = 0
         self.equip = {}
         self.qx = {}
+        self.matchingEquipmentXinfa = set()
+        self._scoreWithoutItems = False
+        self._changedLoadout = False
+
+    def observeOtherEquipment(self, xinfa, equipment):
+        """Only a measured matching loadout authorizes reuse for another kungfu."""
+        if not equipment:
+            return
+        selected = {row["1"]: row for row in self.equip.values()}
+        other = {row["1"]: row for row in equipment.values() if isinstance(row, dict) and row.get("1")}
+        fields = ("2", "3", "4", "5", "6", "7")
+        for slot in selected.keys() & other.keys() & REQUIRED_EQUIPMENT_SLOTS:
+            if any(key in other[slot] and selected[slot].get(key) != other[slot][key] for key in fields):
+                self.matchingEquipmentXinfa.discard(xinfa)
+                return
+        if (REQUIRED_EQUIPMENT_SLOTS <= selected.keys() & other.keys()
+                and all(all(key in other[slot] for key in fields) for slot in REQUIRED_EQUIPMENT_SLOTS)):
+            self.matchingEquipmentXinfa.add(xinfa)
+
+    def updateEquipment(self, score, equipment):
+        """Complete the first combat loadout, including information reported later."""
+        positive = str(score).isdigit() and int(score) > 0
+        if not equipment:
+            if positive and not int(self.equipScore or 0) and not self._changedLoadout:
+                self.equipScore = score
+                self._scoreWithoutItems = True
+            return
+        slots = {item["1"]: item for item in self.equip.values()}
+        incoming = {item["1"]: item for item in equipment.values()
+                    if isinstance(item, dict) and item.get("1") and item.get("2")
+                    and item.get("3") not in (None, "", "0", 0)}
+        combat = incoming.keys() & REQUIRED_EQUIPMENT_SLOTS
+        changed = any((slots[k]["2"], slots[k]["3"]) != (incoming[k]["2"], incoming[k]["3"])
+                      for k in combat & slots.keys())
+        complete = REQUIRED_EQUIPMENT_SLOTS <= slots.keys()
+        if changed and (self._scoreWithoutItems or not complete):
+            # The standalone score was followed by different items.
+            self.equipScore = 0
+            self._scoreWithoutItems = False
+        if changed and complete:
+            # A late weapon swap must not change haste for the preceding fight.
+            self._changedLoadout = True
+            return
+        if self._changedLoadout and not REQUIRED_EQUIPMENT_SLOTS <= combat:
+            return
+        if combat:
+            self._changedLoadout = False
+            if positive:
+                if not int(self.equipScore or 0) or changed or self._scoreWithoutItems:
+                    self.equipScore = score
+                self._scoreWithoutItems = False
+            elif self._scoreWithoutItems and REQUIRED_EQUIPMENT_SLOTS <= combat:
+                self._scoreWithoutItems = False
+        elif positive and not int(self.equipScore or 0) and not self._changedLoadout:
+            self.equipScore = score
+            self._scoreWithoutItems = True
+        if equipment == self.equip:
+            return
+
+        for slot, item in incoming.items():
+            previous = slots.get(slot, {})
+            if previous.get("2") == item["2"] and previous.get("3") == item["3"]:
+                combined = {**item, **previous}
+                # A complete item's explicit zero is evidence (e.g. an
+                # unenchanted weapon before someone applies a timed whetstone).
+                # Short identity/placeholder reports can still gain modifiers.
+                if not all(field in previous for field in ("4", "5", "6", "7")):
+                    for field in ("4", "6", "7"):
+                        if previous.get(field) in (None, "", "0", 0) and field in item:
+                            combined[field] = item[field]
+                    if isinstance(item.get("5"), dict):
+                        combined["5"] = {**item["5"], **(previous.get("5") or {})}
+                item = combined
+            slots[slot] = item
+        self.equip = {str(n): item for n, item in enumerate(slots.values(), 1)}
 
 class OverallData():
     '''
@@ -501,10 +577,9 @@ class OverallData():
             self.player[key].equip = {}
             self.player[key].xinfaCode = xinfaCode
             return True
-        elif self.player[key].name == "" or self.player[key].occ == "":
+        elif self.player[key].name in ("", key, "未知") or self.player[key].occ in ("", "0"):
             self.player[key].name = name.strip('"')
             self.player[key].occ = occ
-            self.player[key].equip = {}
             self.player[key].xinfaCode = xinfaCode
             return True
         elif self.player[key].equip == {}:

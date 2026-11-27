@@ -129,12 +129,14 @@ def check_upload_payloads(window, actor):
 
 def check_equipment_fallback(with_ui=False):
     """Run missing-gear fixtures through the actual actor, ranks and local upload queue."""
+    from Constants import OCC_PINYIN_DICT
     from data.BattleLogData import BattleLogData
+    from data.DisplayRanks import desktop_percentiles
+    from data.ReplaySession import display_result
     from equip.CangshengAttributeData import kungfu_data
     from equip.EquipmentFallback import average_equipment_data, EQUIPMENT_FALLBACK_WARNING
     from replayer.ActorReplayPro import ActorProReplayer
     from replayer.ReplayerBase import ReplayerBase
-    from tools.Attribute import CURRENT_GAME_EDITION
     from tools.ValidateLuoyang import ValidationWindow, make_config
 
     profiles = kungfu_data()['occupations']
@@ -181,18 +183,42 @@ def check_equipment_fallback(with_ui=False):
             assert actor.baseAttribDict['missing'] is None
             assert 'missing' not in actor.attributeStatus.get('estimatedPlayers', {})
         for replay in actor.occResult.values():
-            for key in ('rdps', 'mrdps'):
-                assert replay['rank']['general'][key]['percent'] == -1
+            assert replay['rank']['general']['mrdps']['percent'] == -1
 
-        # Use the real result propagation methods, with known percentile data
-        # so a hidden rank cannot pass merely because its table is absent.
-        percent_data = {'6d-835-田承嗣-%s-%s-%s' % (group, key, CURRENT_GAME_EDITION):
-                        {'num': 100, 'value': json.dumps(list(range(102)))}
+        snapshot = display_result(actor)
+        assert not snapshot.displayRanks
+        # The live API publishes one full-fight curve per spec, boss, difficulty and season.
+        sample = {'num': 12, 'value': list(range(0, 505, 5))}
+        rates = {f'{OCC_PINYIN_DICT[occ]}-835-田承嗣-stat-rdps-161': sample for occ in occupations.values()}
+        ranks = desktop_percentiles(snapshot, rates)
+        assert set(ranks) == set(occupations)
+        for player, rank in ranks.items():
+            assert rank['scope'] == 'logs' and rank['metric'] == 'rdps' and rank['num'] == 12
+            if name != 'estimated':
+                # Partial team attributes and direct damage alone cannot establish attribution.
+                assert rank['basis'] == 'unavailable' and 'percent' not in rank, rank
+            else:
+                assert rank['basis'] == 'estimated_equipment', rank
+                value = snapshot.combatTracker['rdps']['player'][player]['dps']
+                assert rank['percent'] == min(100, int(value) // 5), rank
+        if name == 'mixed':
+            # Give only the first player an identified contribution from another player.
+            # The second player still has only direct damage in the same encounter.
+            sources = snapshot.combatTracker['rdps']['player']['estimate']['namedSource']
+            with patch.dict(sources, {'队友增益': {'sum': 100}}):
+                mixed = desktop_percentiles(snapshot, rates)
+            assert mixed['estimate']['basis'] == 'partial_attribution' and mixed['estimate']['percent'] == 40
+            assert 'percent' not in mixed['missing']
+
+        # The frozen test season retains the strict equipment gates. Supply actual
+        # thresholds so a blocked rank cannot pass just because a curve is missing.
+        percent_data = {'6d-835-田承嗣-%s-%s-160' % (group, key):
+                        {'num': 100, 'value': json.dumps(list(range(101)))}
                         for group, key in (('general', 'rdps'), ('general', 'mrdps'),
                                            ('general', 'ndps'), ('stat', 'score'))}
         replay = ReplayerBase.__new__(ReplayerBase)
         replay.win, replay.actorData, replay.window = 1, actor.actorData, window
-        replay.gameEdition = CURRENT_GAME_EDITION
+        replay.gameEdition = 160
         window.stat_percent = percent_data
         replay.config, replay.public, replay.occ = actor.config, 0, '6d'
         replay.battleID, replay.getHash = actor.hashGroup(), lambda: 'local-rank-fixture'
@@ -217,7 +243,8 @@ def check_equipment_fallback(with_ui=False):
         results[name] = {'status': expected_status,
                          'estimatedPlayers': len(actor.attributeStatus.get('estimatedPlayers', {})),
                          'missingPanelRetained': True, 'realEquipmentCacheUnchanged': True,
-                         'attributeRanks': 'blocked', 'directDamageRank': 'retained',
+                         'frozenSeasonAttributeRanks': 'blocked', 'directDamageRank': 'retained',
+                         'officialRdps': ranks,
                          'uploads': 'captured', 'uploadQueue': queue_summary, 'damage': damage,
                          'ui': 'constructed' if with_ui else 'not requested'}
     return results

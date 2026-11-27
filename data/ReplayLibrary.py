@@ -14,7 +14,7 @@ def signature(config):
     # Source selection, network identity and window preferences do not change a replay.
     options = {k: v for k, v in config.item.items() if k not in ('general', 'user')}
     options['mask'] = config.item['general'].get('mask', 0)
-    return 'desktop-2-' + hashlib.sha256(json.dumps(options, sort_keys=True).encode()).hexdigest()
+    return 'desktop-3-' + hashlib.sha256(json.dumps(options, sort_keys=True).encode()).hexdigest()
 
 
 def discover_recorders(installation, datatype):
@@ -154,6 +154,19 @@ class ReplayLibrary:
                 equipment[2] = {k:tuple(owner) for k,owner in equipment[2].items()}
                 return SimpleNamespace(**payload), equipment
             except (KeyError, ValueError, TypeError, zlib.error):
+                return None
+
+    def annotations(self, path, stamp):
+        """Recover user notes and report links when a new analysis supersedes a saved result."""
+        if not self.path.is_file():
+            return None
+        with closing(self._connect()) as db:
+            row = db.execute('SELECT summary FROM replay WHERE path=? AND size=? AND stamp=?',
+                             (os.path.normcase(str(path)), *stamp)).fetchone()
+        if row:
+            try:
+                return SimpleNamespace(**_unpack(row[0]))
+            except (TypeError, ValueError, zlib.error):
                 return None
 
     def previous_equipment(self, path, version, after=None):

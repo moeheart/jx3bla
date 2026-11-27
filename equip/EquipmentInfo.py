@@ -207,6 +207,7 @@ class EquipmentInfo():
         ENCHANT_PATH = self.resourceRoot + '/enchant.tab'
         # 以列名读取全部四条附魔效果；五彩石条件与普通附魔共用同一源表。
         for row in self.readRows(ENCHANT_PATH):
+            self.enchantNames[row['ID']] = row['Name']
             self.enchantAttributes[row['ID']] = [
                 (row.get('Attribute%dID' % i, ''), row.get('Attribute%dValue1' % i, ''),
                  row.get('Attribute%dValue2' % i, ''))
@@ -264,6 +265,7 @@ class EquipmentInfo():
         self.attrib = {}
         self.attribParameters = {}
         self.enchant = {}
+        self.enchantNames = {}
         self.enchantAttributes = {}
         self.color = {}
         self.set = {}

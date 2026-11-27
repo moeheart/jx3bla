@@ -48,9 +48,12 @@ class LibraryTests(unittest.TestCase):
         self.assertEqual(restored.bh.startTime,50)
         self.assertEqual(equipment[2],self.session.playerEquipmentOwners)
         self.assertIsNone(reopened.load(self.path,self.stamp,'changed-settings'))
+        annotations = reopened.annotations(self.path, self.stamp)
+        self.assertEqual((annotations.potList, annotations.links), (self.result.potList, {'队友': 12}))
         self.path.write_bytes(b'changed log')
         self.assertEqual(reopened.summaries(self.root,list_logs(self.root),'v'),{})
         self.assertIsNone(reopened.load(self.path,fingerprint(self.path),'v'))
+        self.assertIsNone(reopened.annotations(self.path, fingerprint(self.path)))
 
     def test_unreadable_cached_payload_can_be_reanalysed(self):
         self.library.save(self.path,self.stamp,'v',self.result,self.session)
