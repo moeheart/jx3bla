@@ -8,6 +8,7 @@ from unittest.mock import mock_open, patch
 from data.BattleLogData import BattleLogData
 from data.DataContent import SingleDataSystem
 from replayer.boss.luoyangzhizhan.TianChengsi import TianChengsiReplayer as Tian
+from replayer.boss.luoyangzhizhan.TuliHeshun import TuliHeshunReplayer as Tuli
 from replayer.boss.luoyangzhizhan.AshinaChengqing import LuoyangAshinaChengqingReplayer as Ashina
 from replayer.boss.luoyangzhizhan.ShiChaoyi import ShiChaoyiReplayer as Shi
 from replayer.boss.luoyangzhizhan.WinEvidence import LuoyangWinEvidence
@@ -221,7 +222,7 @@ class SeasonalVictoryTests(unittest.TestCase):
                                     exit_event(hp=hp), exit_event(20001, id='p')]
                             self.assertEqual(finish(replayer(case, difficulty), rows).win, 0)
 
-    def test_fallback_is_not_enabled_for_first_or_third_boss(self):
+    def test_battle_exit_and_honor_alone_do_not_confirm_first_or_third_boss(self):
         for difficulty in DIFFICULTIES:
             for boss, template in (('突利和顺', '139360'), ('伊曼·寂夜', '139373')):
                 with self.subTest(difficulty=difficulty, boss=boss):
@@ -232,6 +233,46 @@ class SeasonalVictoryTests(unittest.TestCase):
                     for item in (damage(19000), honor(difficulty), exit_event()):
                         tracker.observe(item)
                     self.assertIsNone(tracker.resolve())
+
+    def test_tuli_corpse_or_credit_with_delayed_departure(self):
+        case = (Tuli, '突利和顺', '139306', '139360')
+        for difficulty in DIFFICULTIES:
+            for has_corpse, has_credit in ((True, True), (True, False), (False, True)):
+                with self.subTest(difficulty=difficulty, corpse=has_corpse, credit=has_credit):
+                    r = replayer(case, difficulty)
+                    events = [damage(19000)]
+                    if has_corpse:
+                        r.bld.tuliCorpseSpawns = [(19211, 'boss', '299')]
+                    if has_credit:
+                        events += [honor(difficulty, 19023, tier='大师', progress=27, target=50),
+                                   event('Scene', 25123, id='boss', enter=0)]
+                    finish(r, events)
+                    self.assertEqual((r.win, r.finalTime), (1, 19023 if has_credit else 19211))
+                    self.assertEqual(r.detail['winEvidence'][-1]['npcID'], 'boss')
+                    if has_corpse:
+                        self.assertEqual(r.detail['winEvidence'][-1]['corpseTime'], 19211)
+
+    def test_tuli_rejects_stale_corpse_or_unrelated_credit(self):
+        case = (Tuli, '突利和顺', '139306', '139360')
+        normal = '25人普通'
+        exit_boss = event('Scene', 25123, id='boss', enter=0)
+        variants = (
+            ([(18999, 'boss', '299')], [], None),
+            ([(19211, 'other', '299')], [], None),
+            ([(19211, 'boss', '299')], [damage(21000)], None),
+            ([(19211, 'boss', '299')], [], 19100),
+            ([], [honor('25人英雄', 19023), exit_boss], None),
+            ([], [honor(normal, 19023), event('Scene', 25123, id='clone', enter=0)], None),
+            ([], [honor(normal, 19023), exit_boss, event('Scene', 26000, id='boss', enter=1)], None),
+            ([], [honor(normal, 19023), exit_boss], 20000),
+        )
+        for corpses, events, cutoff in variants:
+            with self.subTest(corpses=corpses, events=events, cutoff=cutoff):
+                r = replayer(case, normal)
+                r.bld.tuliCorpseSpawns = corpses
+                if cutoff is not None:
+                    r.trimmedFinalTime = cutoff
+                self.assertEqual(finish(r, [damage(19000), *events]).win, 0)
 
 
 if __name__ == '__main__':

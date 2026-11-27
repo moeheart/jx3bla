@@ -71,6 +71,39 @@ class BattleLogData():
     复盘日志维护类.
     '''
 
+    def _collectTuliCorpseSpawns(self):
+        # JCL 12 describes a doodad, whereas JCL 10 records its entry. A
+        # periodic snapshot of a corpse already in the scene is not a spawn.
+        positions, snapshots, entries = {}, {}, {}
+        for time, kind, entity, pos in sorted(self._tuliWorldEvents, key=lambda row: row[0]):
+            if kind == "8" and pos is not None and any(pos):
+                positions[entity] = (time, pos)
+            elif kind in ("7", "8"):
+                positions.pop(entity, None)
+            elif kind == "6" and entity in positions and time - positions[entity][0] > 250:
+                # Re-entry invalidates coordinates from an earlier appearance.
+                # The fresh metadata can also precede the entry by a packet.
+                del positions[entity]
+            elif kind == "12":
+                snapshots.setdefault(entity, (time, pos))
+            elif kind == "10" and entity not in entries:
+                # Save positions as observed at entry, even if the matching
+                # doodad metadata packet arrives afterwards.
+                entries[entity] = (time, positions.copy())
+            elif kind == "11" and (entity not in entries or entity not in snapshots):
+                # A departure between the two packets separates distinct sightings.
+                snapshots[entity] = (time, None)
+        self.tuliCorpseSpawns = []
+        for doodad, (time, bosses) in entries.items():
+            if doodad not in snapshots:
+                continue
+            seen, pos = snapshots[doodad]
+            if pos is None or not any(pos) or abs(time - seen) > 250:
+                continue
+            matches = [npc for npc, (_, coordinates) in bosses.items() if coordinates == pos]
+            if len(matches) == 1:
+                self.tuliCorpseSpawns.append((time, matches[0], doodad))
+
     def loadFromJcl(self, filePath):
         '''
         由jcl文件读取复盘信息并转化.
@@ -78,6 +111,9 @@ class BattleLogData():
         - filePath: jcl文件的路径.
         '''
         self.dataType = "jcl"
+        self.info.map, self.info.boss = getJclEncounter(filePath)
+        trackCorpses = self.info.boss == "突利和顺" and self.info.map in (
+            "25人普通洛阳之战", "25人英雄洛阳之战")
         ltaDict = LuaTableAnalyserToDict()
         firstBattleInfo = True
 
@@ -137,6 +173,8 @@ class BattleLogData():
                 singleData = SingleDataBattle()
             elif jclItem[4] in ["2", "3", "6", "7"]:
                 singleData = SingleDataScene()
+                if trackCorpses and jclItem[4] in ("6", "7"):
+                    self._tuliWorldEvents.append((int(jclItem[3]), jclItem[4], jclItem[5]["1"], None))
             elif jclItem[4] in ["19"]:
                 singleData = SingleDataCast()
             elif jclItem[4] in ["15"]:
@@ -174,6 +212,10 @@ class BattleLogData():
                     self.info.npc[jclItem[5]["1"]].y = int(jclItem[5]["6"])
                     self.info.npc[jclItem[5]["1"]].z = int(jclItem[5]["7"])
                     self.info.npc[jclItem[5]["1"]].dir = int(jclItem[5]["8"])
+                    if trackCorpses:
+                        npc = self.info.npc[jclItem[5]["1"]]
+                        pos = (npc.x, npc.y, npc.z) if npc.templateID in ("139306", "139360") else None
+                        self._tuliWorldEvents.append((int(jclItem[3]), "8", jclItem[5]["1"], pos))
                     if first:
                         self.info.npc[jclItem[5]["1"]].firstX = int(jclItem[5]["5"])
                         self.info.npc[jclItem[5]["1"]].firstY = int(jclItem[5]["6"])
@@ -188,11 +230,18 @@ class BattleLogData():
                     if jclItem[5]["4"] != "0":
                         summonDict[jclItem[5]["1"]] = jclItem[5]["4"]
 
+                elif jclItem[4] in ("10", "11") and trackCorpses:
+                    self._tuliWorldEvents.append((int(jclItem[3]), jclItem[4], jclItem[5]["1"], None))
                 elif jclItem[4] == "12":
                     self.info.addDoodad(jclItem[5]["1"], jclItem[5]["2"])
                     self.info.doodad[jclItem[5]["1"]].x = int(jclItem[5]["3"])
                     self.info.doodad[jclItem[5]["1"]].y = int(jclItem[5]["4"])
                     self.info.doodad[jclItem[5]["1"]].z = int(jclItem[5]["5"])
+                    if trackCorpses:
+                        doodad = self.info.doodad[jclItem[5]["1"]]
+                        # Native template 1392 is 世界或副本BOSS遗体.
+                        pos = (doodad.x, doodad.y, doodad.z) if jclItem[5]["2"] == "1392" else None
+                        self._tuliWorldEvents.append((int(jclItem[3]), "12", jclItem[5]["1"], pos))
 
                 # TODO: 完整的player信息
                 continue
@@ -218,7 +267,8 @@ class BattleLogData():
 
         #读取全局数据
         self.info.skill = {}
-        self.info.map, self.info.boss = getJclEncounter(filePath)
+        if trackCorpses:
+            self._collectTuliCorpseSpawns()
         print("[Map]", self.info.map)
         print("[Boss]", self.info.boss)
 
@@ -310,11 +360,16 @@ class BattleLogData():
         self.info.npc = concatDict(self.info.npc, bld2.info.npc)
         self.log = bld2.log + self.log
         self.systemMessages = bld2.systemMessages + self.systemMessages
+        self._tuliWorldEvents = getattr(bld2, "_tuliWorldEvents", []) + self._tuliWorldEvents
+        if self._tuliWorldEvents:
+            self._collectTuliCorpseSpawns()
         return 0
 
     def __init__(self, window=None):
         self.log = []
         self.systemMessages = []
+        self._tuliWorldEvents = []
+        self.tuliCorpseSpawns = []
         self.window = window
         self.info = OverallData()
         self.dataType = "unknown"

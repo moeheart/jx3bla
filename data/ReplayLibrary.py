@@ -77,14 +77,26 @@ def log_labels(path, stamp):
     return (when.strftime('%Y-%m-%d %H:%M'), path.name if boss == '未知' else boss, map_name)
 
 
+def _notes(result):
+    return dict(potList=result.potList,
+                links={name:entry['result']['overall']['shortID']
+                       for name,entry in getattr(result,'occResult',{}).items()
+                       if entry.get('result',{}).get('overall',{}).get('shortID')})
+
+
 def header(result):
     return dict(bossAnalyseName=result.bossAnalyseName, mapDetail=result.mapDetail, server=result.server,
                 timestamp=result.timestamp, battleTime=result.battleTime, win=result.win, mask=result.mask,
                 statDict=[{'name':row['name'],'occ':row.get('occ','0')} for row in result.statDict],
-                potList=result.potList,
-                links={name:entry['result']['overall']['shortID']
-                       for name,entry in getattr(result,'occResult',{}).items()
-                       if entry.get('result',{}).get('overall',{}).get('shortID')})
+                **_notes(result))
+
+
+def _needs_tuli_check(meta):
+    if not isinstance(meta, dict):
+        raise TypeError('Expected a replay header')
+    return (meta.get('bossAnalyseName') == '突利和顺'
+            and meta.get('mapDetail') in ('25人普通洛阳之战', '25人英雄洛阳之战')
+            and meta.get('win') in (None, 0, '0') and not meta.get('tuliVictoryChecked'))
 
 
 def _packed(value):
@@ -119,7 +131,9 @@ class ReplayLibrary:
                 path = Path(name)
                 if files.get(path) == (size, stamp):
                     try:
-                        output[path] = SimpleNamespace(**_unpack(data))
+                        meta = _unpack(data)
+                        if not _needs_tuli_check(meta):
+                            output[path] = SimpleNamespace(**meta)
                     except (TypeError, ValueError, zlib.error):
                         continue
         return output
@@ -131,8 +145,11 @@ class ReplayLibrary:
             payload['bh'] = {k:getattr(history,k,None) for k in (
                 'startTime','finalTime','log','badPeriodDpsLog','badPeriodHealerLog')}
         equipment = [session.playerEquipment, session.playerEquipmentAnalysed, session.playerEquipmentOwners]
+        meta = header(result)
+        if _needs_tuli_check(meta):
+            meta['tuliVictoryChecked'] = True
         args = (os.path.normcase(str(path)),os.path.normcase(str(path.parent)),*stamp,version,
-                _packed(header(result)),_packed(payload),_packed(equipment))
+                _packed(meta),_packed(payload),_packed(equipment))
         with closing(self._connect()) as db, db:
             db.execute('INSERT OR REPLACE INTO replay VALUES (?,?,?,?,?,?,?,?)', args)
 
@@ -144,7 +161,10 @@ class ReplayLibrary:
                                 (os.path.normcase(str(path)),*stamp,version)).fetchone()
         if record:
             try:
-                meta, payload, equipment = map(_unpack, record)
+                meta = _unpack(record[0])
+                if _needs_tuli_check(meta):
+                    return None
+                payload, equipment = map(_unpack, record[1:])
                 payload['potList'] = meta['potList']
                 for name, short_id in meta.get('links', {}).items():
                     if name in payload.get('occResult', {}):
@@ -194,6 +214,14 @@ class ReplayLibrary:
         return None
 
     def save_notes(self, path, stamp, version, result):
+        key = (os.path.normcase(str(path)), *stamp, version)
         with closing(self._connect()) as db, db:
-            db.execute('UPDATE replay SET summary=? WHERE path=? AND size=? AND stamp=? AND version=?',
-                       (_packed(header(result)),os.path.normcase(str(path)),*stamp,version))
+            # An edit can race with reanalysis. Preserve the header of the saved analysis.
+            db.execute('BEGIN IMMEDIATE')
+            row = db.execute('SELECT summary FROM replay WHERE path=? AND size=? AND stamp=? AND version=?',
+                             key).fetchone()
+            if row:
+                meta = _unpack(row[0])
+                meta.update(_notes(result))
+                db.execute('UPDATE replay SET summary=? WHERE path=? AND size=? AND stamp=? AND version=?',
+                           (_packed(meta), *key))

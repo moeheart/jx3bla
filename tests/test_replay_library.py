@@ -1,6 +1,8 @@
+import json
 import sqlite3
 import tempfile
 import unittest
+import zlib
 from contextlib import closing
 from pathlib import Path
 from types import SimpleNamespace as NS
@@ -60,6 +62,42 @@ class LibraryTests(unittest.TestCase):
         with closing(sqlite3.connect(self.library.path)) as db, db:
             db.execute('update replay set result=?',(b'bad',))
         self.assertIsNone(self.library.load(self.path,self.stamp,'v'))
+
+    def test_only_old_unconfirmed_tuli_results_need_reanalysis(self):
+        cases = (
+            ('突利和顺', '25人普通洛阳之战', 0, True),
+            ('突利和顺', '25人英雄洛阳之战', 0, True),
+            ('突利和顺', '25人普通洛阳之战', 1, False),
+            ('突利和顺', '25人英雄洛阳之战', 1, False),
+            ('田承嗣', '25人普通洛阳之战', 0, False),
+            ('突利和顺', '10人普通洛阳之战', 0, False),
+        )
+        for boss, map_name, win, needs_replay in cases:
+            with self.subTest(boss=boss, map=map_name, win=win):
+                self.result.bossAnalyseName, self.result.mapDetail, self.result.win = boss, map_name, win
+                self.library.save(self.path, self.stamp, 'v', self.result, self.session)
+                # Pre-fix summaries stored the verdict without its evidence revision.
+                with closing(sqlite3.connect(self.library.path)) as db, db:
+                    summary = db.execute('SELECT summary FROM replay').fetchone()[0]
+                    meta = json.loads(zlib.decompress(summary))
+                    meta.pop('tuliVictoryChecked', None)
+                    db.execute('UPDATE replay SET summary=?', (zlib.compress(json.dumps(meta).encode()),))
+
+                self.result.potList = [['队友', '2h', 0, boss, '[手动] 保留批注', [], 1]]
+                self.result.occResult['队友']['result']['overall']['shortID'] = 17
+                self.library.save_notes(self.path, self.stamp, 'v', self.result)
+                reopened = ReplayLibrary(self.library.path)
+                self.assertEqual(reopened.load(self.path, self.stamp, 'v') is None, needs_replay)
+                self.assertEqual(self.path not in reopened.summaries(self.root, list_logs(self.root), 'v'), needs_replay)
+                old = reopened.annotations(self.path, self.stamp)
+                self.assertEqual((old.potList, old.links), (self.result.potList, {'队友': 17}))
+
+                # A genuine wipe is reusable after checking it once with the new rule.
+                reopened.save(self.path, self.stamp, 'v', self.result, self.session)
+                reopened.save_notes(self.path, self.stamp, 'v', self.result)
+                report, _ = reopened.load(self.path, self.stamp, 'v')
+                self.assertEqual(report.win, win)
+                self.assertIn(self.path, reopened.summaries(self.root, list_logs(self.root), 'v'))
 
     def test_equipment_context_is_limited_to_earlier_valid_logs_of_the_same_raid(self):
         files = [self.root / f'2026-11-26-14-{minute:02}-00-洛阳(835)-首领.jcl' for minute in (7,14,20)]
