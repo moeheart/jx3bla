@@ -7,14 +7,14 @@ from types import SimpleNamespace as NS
 import unittest
 from unittest.mock import patch
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QPoint, Qt
 from PySide6.QtTest import QTest
 from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QApplication
 
 from data.PersonalTimeline import ACTION_ICONS, Observation, build_personal_timelines
 from window.QtTimeline import (CALLS, MECHANICS, NORMAL, PHASES, SPECIAL, TimelineView,
-                              bands, export_text, timeline_data)
+                              action_icon, bands, cooldown_intervals, export_text, timeline_data)
 
 
 def env(name, start, icon="340", duration=0, **extra):
@@ -66,7 +66,9 @@ class TimelineTests(unittest.TestCase):
         self.assertNotIn("尚未标注", [m.name for m in marked])
         self.assertEqual(len([m for m in marked if m.track==CALLS]),1)
         overlapping = [g for g in view.canvas.rows[0].groups if g.name in ("机制", "重合机制")]
-        self.assertEqual(len({g.axis_y for g in overlapping}), 2)
+        self.assertEqual(len({g.axis_y for g in overlapping}), 1)
+        self.assertFalse(overlapping[0].rect.intersects(overlapping[1].rect))
+        self.assertEqual(len({row.bottom-row.top for row in view.canvas.rows}), 1)
         rect,mark=next((r,m) for r,m in view.canvas.hits if m.name=="机制")
         QTest.mouseClick(view.canvas.viewport(), Qt.LeftButton, pos=rect.center())
         self.assertIn("0:02.0 – 0:09.0",view.detail.text())
@@ -88,10 +90,8 @@ class TimelineTests(unittest.TestCase):
         actor=sample(1)
         before=deepcopy(actor.occResult)
         view=self.show(actor,"测试玩家")
-        casts = [g for row in view.canvas.rows for g in row.groups if g.track == NORMAL]
-        self.assertEqual(len(casts),1)
-        self.assertEqual(casts[0].label, "读条 ×4")
-        self.assertEqual(len(casts[0].records), 4)
+        casts = next(items for kind, name, items in view.canvas.lanes if name == NORMAL)
+        self.assertEqual([g.name for g in casts], ["读条"] * 4)
         self.assertTrue(any(m.track==SPECIAL for m in view.canvas.marks))
         view.scope.setCurrentIndex(1)
         self.assertEqual(len([m for m in view.canvas.marks if m.track==NORMAL]),4)
@@ -281,7 +281,7 @@ class TimelineTests(unittest.TestCase):
         self.assertLess(len(view.canvas.hits),600)
         self.assertGreater(max(g.times[-1] for _,g in view.canvas.hits),9900000)
 
-    def test_compact_skill_rows_and_full_image_include_every_minute_and_occurrence(self):
+    def test_personal_icon_rows_drag_zoom_and_full_image_include_the_last_cast(self):
         actor = sample()
         replay = actor.occResult['测试玩家']['result']['replay']
         replay['normal'][1]['num'] = 5
@@ -291,23 +291,62 @@ class TimelineTests(unittest.TestCase):
         view.resize(720,180)
         view.show()
         self.app.processEvents()
-        self.assertEqual(len(view.canvas.rows),1)
-        group = next(g for g in view.canvas.rows[0].groups if g.track==NORMAL)
-        self.assertEqual(group.label,'读条 ×5')
-        self.assertEqual(group.times[-1],71000)
-        self.assertIn('读条 ×5', [m.name for m in group.records])
-        self.assertEqual(view.canvas.horizontalScrollBar().maximum(),0)
+        casts = next(items for kind, name, items in view.canvas.lanes if name == NORMAL)
+        self.assertEqual(casts[-1].start,71000)
+        self.assertIn('读条 ×5', [m.name for g in casts for m in g.records])
+        h = view.canvas.horizontalScrollBar()
+        self.assertGreater(h.maximum(),0)
+        viewport = view.canvas.viewport()
+        QTest.mousePress(viewport, Qt.LeftButton, pos=QPoint(300,50))
+        QTest.mouseMove(viewport, QPoint(150,50))
+        QTest.mouseRelease(viewport, Qt.LeftButton, pos=QPoint(150,50))
+        self.assertEqual(h.value(),150)
+        old_max = h.maximum()
         view.zoom.setCurrentIndex(2)
         self.app.processEvents()
-        self.assertGreater(len(view.canvas.rows),1)
-        self.assertGreater(view.canvas.content_height,view.canvas.viewport().height())
+        self.assertGreater(h.maximum(),old_max)
+        h.setValue(round(70 * view.canvas.seconds))
+        self.app.processEvents()
+        self.assertIn(71000, [m.start for _,m in view.canvas.hits])
         with TemporaryDirectory() as tmp:
             path=Path(tmp)/'sheet.png'
             view.canvas.save_png(path)
             image=QImage(str(path))
             self.assertFalse(image.isNull())
             self.assertEqual(image.width(), view.canvas.viewport().width())
-            self.assertEqual(image.height(), view.canvas.content_height)
+            self.assertEqual(image.height(), view.canvas.export_height(image.width()))
+            self.assertGreater(image.height(),view.canvas.content_height)
+
+    def test_current_talents_and_observed_charge_recovery(self):
+        actor = sample()
+        actor.timestamp = 1795673277
+        result = actor.occResult['测试玩家']
+        result['occ'] = '2h'
+        result['result']['qixue'] = {'1':'遥归','2':'流迟'}
+        replay = result['result']['replay']
+        replay['special'] = [env('水月无间',actor.startTime + t, icon='1522') for t in (0,10000,70000)]
+        replay['normal'] = [env('彼针',actor.startTime, icon='1518', num=25)]
+        _, marks, _ = timeline_data(actor,'测试玩家')
+        self.assertEqual([(m.start,m.end,m.name) for m in marks if m.track=='水月无间'],
+                         [(0,10000,'1/2'),(10000,60000,'0/2'),(60000,70000,'1/2'),(70000,90000,'0/2')])
+        self.assertEqual([(m.start,m.end) for m in marks if m.track=='彼针'],[(0,60000)])
+        self.assertEqual([(m.start,m.end) for m in cooldown_intervals({'甲':(20,1,[0,3000,24000])},35000)],
+                         [(0,3000),(3000,23000),(24000,35000)])
+        self.assertFalse(action_icon("1522").isNull())
+        self.assertFalse(action_icon(ACTION_ICONS["35"]).isNull())
+
+    def test_wu_native_cast_uses_its_own_cooldown_and_art_but_hit_stays_a_hit(self):
+        actor = sample()
+        actor.timestamp = 1795673277
+        actor.occResult["悟心法"] = {"occ":"7pw","result":{}}
+        actor.personalTimelines = {"悟心法":[
+            Observation(actor.startTime+1000,"101723","追命箭·悟","施放",1,0),
+            Observation(actor.startTime+2000,"101723","追命箭·悟","招式命中",1,1)]}
+        _,marks,_ = timeline_data(actor,"悟心法")
+        cast,hit = [m for m in marks if m.name=="追命箭·悟"]
+        self.assertEqual((cast.lane, hit.lane), (NORMAL, "招式命中"))
+        self.assertFalse(action_icon(cast.icon).isNull())
+        self.assertEqual([(m.start,m.end) for m in marks if m.lane=="调息"],[(1000,11000)])
 
 
 if __name__=="__main__":

@@ -1,8 +1,9 @@
 """Qt timelines for boss mechanics and personal replays. Times in the view are milliseconds."""
-from bisect import bisect_right
-from collections import Counter
+from bisect import bisect_left, bisect_right
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 from html import escape
+from functools import lru_cache
 from itertools import groupby
 from math import ceil, isfinite
 import re
@@ -10,7 +11,7 @@ import struct
 import zlib
 
 from PySide6.QtCore import QIODevice, QRect, QSaveFile, Qt, Signal
-from PySide6.QtGui import QColor, QImage, QPainter, QPen
+from PySide6.QtGui import QColor, QImage, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import (
     QAbstractScrollArea, QApplication, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
     QFileDialog, QHBoxLayout, QLabel, QMenu, QMessageBox, QPlainTextEdit,
@@ -18,13 +19,15 @@ from PySide6.QtWidgets import (
 )
 
 from data.PersonalTimeline import ACTION_ICONS, Observation, build_personal_timelines
+from data.ReplaySkillTiming import ATLAS_IDS, CAST_ICONS, skill_timing
+from tools.ResourcePath import get_icon_path
 
 
 MECHANICS = "首领机制"
 PHASES = "阶段切换"
 CALLS = "机制点名"
-NORMAL = "常规技能"
-SPECIAL = "特殊技能"
+NORMAL = "占 GCD"
+SPECIAL = "不占 GCD"
 BANDS = {
     "badPeriodDps": ("输出无效", "#52647a"), "badPeriodHealer": ("治疗无效", "#657186"),
     "mxym": ("迷仙引梦", "#7953ac"), "xwgd": ("仙王蛊鼎", "#6c5ba0"),
@@ -61,6 +64,7 @@ class Mark:
     band: bool = False
     intensity: float = 1
     skill_name: str = ""
+    lane: str = ""
 
 
 def heat_series(replay, occ):
@@ -120,6 +124,42 @@ def bands(replay, start, duration, occ):
 
 def _field(obj, key, default=None):
     return obj.get(key, default) if isinstance(obj, dict) else getattr(obj, key, default)
+
+
+def cooldown_intervals(uses, duration):
+    """Project serial recharge after observed uses; an early recast overrides the estimate."""
+    for name, (seconds, maximum, times) in uses.items():
+        period = seconds * 1000
+        missing = 0
+        next_ready = None
+        last = 0
+
+        def interval(end):
+            available = maximum - missing
+            status = "冷却" if maximum == 1 else f"{available}/{maximum}"
+            detail = f"基础调息 {seconds:g} 秒 · {maximum} 层 · 按实录施放推算，减调息或重置可能提前恢复"
+            return Mark(last, end, name, status, "#586d9d", detail, band=True,
+                        intensity=missing / maximum, lane="调息")
+
+        for time in sorted(set(times)):
+            while missing and next_ready <= time:
+                if next_ready > last:
+                    yield interval(next_ready)
+                last = next_ready
+                missing -= 1
+                next_ready += period
+            if missing and time > last:
+                yield interval(time)
+            if not missing or missing == maximum:
+                next_ready = time + period
+            missing = min(maximum, missing + 1)
+            last = time
+        while missing and last < duration:
+            end = min(next_ready, duration)
+            yield interval(end)
+            last = end
+            missing -= 1
+            next_ready += period
 
 
 def _observations(records):
@@ -203,6 +243,22 @@ def timeline_data(actor, player):
         duration = max(row.time-start for row in observations)
     marks = []
     exports = []
+    occ = str(entry.get("occ") or "")
+    talents = {v for v in (result.get("qixue") or {}).values() if isinstance(v, str)}
+    uses = {}
+    # Skill timings belong to the Cangsheng release. An older replay keeps its
+    # own normal/special classification and recorded durations.
+    stamp = number(overall.get("battleTime"), number(_field(actor, "timestamp")))
+    current_rules = 1793228400 <= stamp < 1797807600
+
+    def action_lane(name, time, fallback, is_use=True, native_id=None):
+        spec = skill_timing(occ, name, talents, native_id) if current_rules else None
+        if not spec:
+            return fallback
+        seconds, charges, gcd = spec
+        if seconds and is_use:
+            uses.setdefault(name, (seconds, charges, []))[2].append(time)
+        return NORMAL if gcd else SPECIAL
 
     def event(row, track, color, target=None):
         nonlocal duration
@@ -230,8 +286,11 @@ def timeline_data(actor, player):
             if row.get(field):
                 detail.append(f"{caption} {number(row[field]):,.0f}")
         resolved = track != MECHANICS or icon != "341"
+        lane = action_lane(name, max(0, time), track, time >= 0) if track in (NORMAL, SPECIAL) else track
+        if track in (NORMAL, SPECIAL):
+            track = lane
         mark = Mark(max(0, time), min(duration, end), track, label, str(row.get("color") or color),
-                    " · ".join(detail), icon, resolved, skill_name=name)
+                    " · ".join(detail), icon, resolved, skill_name=name, lane=lane)
         marks.append(mark)
 
     casts = {row.skill for row in observations if row.kind == "施放"}
@@ -247,8 +306,10 @@ def timeline_data(actor, player):
             detail = f"{row.targets} 个目标 · {row.events} 条同刻结算记录"
             color = "#4b758f" if row.kind == "招式命中" else "#797b8e"
             focus = (row.kind == "招式命中" and row.skill not in casts) or row.skill in fallback
+        lane = action_lane(row.name, time, row.kind, native_id=row.skill) if row.kind == "施放" else row.kind
+        icon = ACTION_ICONS.get(row.skill) or CAST_ICONS.get(row.skill, "")
         marks.append(Mark(time, time, row.kind, display(row.name), color,
-                          f"{detail} · 技能 ID {row.skill}", ACTION_ICONS.get(row.skill, ""), focus))
+                          f"{detail} · 技能 ID {row.skill}", icon, focus, lane=lane))
     for row in replay.get("normal") or []:
         event(row, NORMAL, "#287d73")
     for row in replay.get("special") or []:
@@ -273,7 +334,8 @@ def timeline_data(actor, player):
             time = number(row["time"])-start
             if 0 <= time <= duration and time not in phase_times:
                 marks.append(Mark(time, time, PHASES, display(row.get("name") or "阶段切换"), "#84649d"))
-    marks.extend(bands(replay, start, duration, entry.get("occ")))
+    marks.extend(cooldown_intervals(uses, duration))
+    marks.extend(bands(replay, start, duration, occ))
     return duration, marks, exports
 
 
@@ -307,6 +369,7 @@ class Strip:
     bottom: int
     groups: list
     bands: list
+    axis_y: int = 0
 
 
 SKILL_PALETTE = ('#087e80', '#b65328', '#6556aa', '#2475ac', '#ac4175', '#507a2b',
@@ -318,7 +381,7 @@ class TimelineCanvas(QAbstractScrollArea):
     selected = Signal(object)
     PAD = 10
 
-    def __init__(self, duration, *, compact=False, parent=None):
+    def __init__(self, duration, *, parent=None):
         super().__init__(parent)
         self.duration = max(0, duration)
         self.marks = []
@@ -326,7 +389,7 @@ class TimelineCanvas(QAbstractScrollArea):
         self.ends = []
         self.hits = []
         self.choice = None
-        self.seconds = -1 if compact else 0
+        self.seconds = 0
         self.layout_key = None
         self.setAccessibleName("分行战斗时间轴")
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -350,7 +413,7 @@ class TimelineCanvas(QAbstractScrollArea):
         key = (width, seconds, id(self.marks), self.font().toString())
         if key != self.layout_key:
             self.layout_key = key
-            self.build_rows(width, max(1, self.duration) if seconds == -1 else seconds * 1000)
+            self.build_rows(width, seconds * 1000)
         bar = self.verticalScrollBar()
         bar.setPageStep(max(1, self.viewport().height()))
         bar.setRange(0, max(0, self.content_height - self.viewport().height()))
@@ -361,11 +424,9 @@ class TimelineCanvas(QAbstractScrollArea):
         fm = self.fontMetrics()
         self.line = fm.height()
         self.span = span
-        labels = [m.track for m in self.marks if m.band]
-        if self.seconds == -1:
-            labels.extend((m.skill_name or m.name) + " ×99 · 命中" for m in self.marks if not m.band)
-        self.gutter = min(max(61, max((fm.horizontalAdvance(s) + 13 for s in set(labels)), default=0)),
-                          max(61, min(220, width // 3)))
+        labels = sorted({m.track for m in self.marks if m.band})
+        self.gutter = min(max(58, max((fm.horizontalAdvance(s) + 12 for s in labels), default=0)),
+                          max(58, width // 4))
         self.plot = max(10, width - self.gutter - self.PAD)
         self.rows, self.ends = [], []
         self.content_height = 0
@@ -392,25 +453,59 @@ class TimelineCanvas(QAbstractScrollArea):
             for index in range(first, last + 1):
                 events[index].setdefault(identity, []).append(mark)
 
-        y = 0
-        for index in range(count):
+        # A strip has exactly one time axis. Arrange labels on both sides,
+        # then apply the largest required label/band area to every strip.
+        layouts = []
+        max_lanes = 2
+        label_height = self.line + 4
+        for index, items in enumerate(events):
             start = index * span
-            top = y
             groups = [self.group_records(identity, records, start, width, palette[identity])
-                      for identity, records in events[index].items()]
-            y = self.place_labels(groups, start, y)
-            bands_layout = []
-            for track, records in bands_by_row[index].items():
-                height = max(15, self.line)
+                      for identity, records in items.items()]
+            lanes = []
+            for group in sorted(groups, key=lambda g: g.points[0]):
+                label_height = max(label_height, group.rect.height())
+                # Place near the event. Try a new lane before displacing a label
+                # far from its tick. Multiple truly simultaneous labels can fan out.
+                pos = group.rect.left()
+                lane = next((i for i, right in enumerate(lanes)
+                             if max(right + 5, pos) + group.rect.width() <= width - self.PAD
+                             and right + 5 <= pos + min(38, self.plot // 7)), len(lanes))
+                if lane == len(lanes):
+                    lanes.append(self.gutter - 5)
+                group.rect.moveLeft(max(lanes[lane] + 5, pos))
+                lanes[lane] = group.rect.right()
+                group.rect.moveTop(lane)
+            max_lanes = max(max_lanes, len(lanes))
+            layouts.append(groups)
+        lane_pitch = label_height + 3
+        band_pitch = max(16, self.line + 1)
+        above = (max_lanes + 1) // 2
+        axis_offset = self.line + 5 + above * lane_pitch + 6
+        band_offset = axis_offset + 6 + (max_lanes // 2) * lane_pitch
+        height = band_offset + len(labels) * band_pitch + 5
+        for index, groups in enumerate(layouts):
+            start = index * span
+            top = index * height
+            axis = top + axis_offset
+            for group in groups:
+                lane = group.rect.top()
+                group.axis_y = axis
+                if lane % 2:
+                    group.rect.moveTop(axis + 6 + (lane // 2) * lane_pitch)
+                else:
+                    group.rect.moveBottom(axis - 6 - (lane // 2) * lane_pitch)
+            band_layout = []
+            for band_index, track in enumerate(labels):
+                y = top + band_offset + band_index * band_pitch
                 intervals = [(QRect(self.time_x(m.start, start), y + 2,
-                                    max(1, self.time_x(m.end, start) - self.time_x(m.start, start)), height - 4), m)
-                             for m in sorted(records, key=lambda m:m.start)]
-                bands_layout.append((y, track, intervals))
-                y += height
-            y += 6
-            self.rows.append(Strip(start, top, y, groups, bands_layout))
-            self.ends.append(y)
-        self.content_height = y
+                                    max(1, self.time_x(m.end, start) - self.time_x(m.start, start)), band_pitch - 4), m)
+                             for m in bands_by_row[index].get(track, ())]
+                if intervals:
+                    band_layout.append((y, track, intervals))
+            self.rows.append(Strip(start, top, top + height, groups, band_layout, axis))
+            self.ends.append(top + height)
+        self.content_height = len(self.rows) * height
 
     def group_records(self, identity, records, start, width, color):
         track, name = identity
@@ -445,43 +540,6 @@ class TimelineCanvas(QAbstractScrollArea):
         height = max(self.line, fm.boundingRect(QRect(0, 0, label_width - 4, 10000), TEXT_FLAGS, label).height())
         return SkillGroup(name, track, records, tuple(times), color, label,
                          QRect(left, 0, label_width, height + 3), points, ranges)
-
-    def place_labels(self, groups, start, y):
-        fm = self.fontMetrics()
-        # Reserve space for the full text and every tick belonging to a group's
-        # time range. Two coincident labels go on separate aligned baselines.
-        if self.seconds == -1:
-            y += self.line + 6
-            groups.sort(key=lambda g: (g.track in ('首领', MECHANICS, PHASES, CALLS), g.times[0], g.name))
-            for group in groups:
-                caption = QRect(4, y, self.gutter - 12, 0)
-                height = fm.boundingRect(QRect(0, 0, caption.width(), 10000), TEXT_FLAGS, group.label).height()
-                caption.setHeight(max(self.line, height) + 3)
-                group.rect = caption
-                group.axis_y = caption.center().y()
-                y += caption.height()
-        else:
-            lanes = []
-            groups.sort(key=lambda g: (min(g.rect.left(), g.points[0]), g.times[0], g.name))
-            time_width = fm.horizontalAdvance(clock(start + self.span)) // 2 + 3
-            for group in groups:
-                left = min(group.rect.left(), group.points[0] - time_width)
-                right = max(group.rect.right(), group.points[-1] + time_width,
-                            max((b for _, b in group.spans), default=0))
-                lane = next((lane for lane in lanes if lane[0] + 5 < left), None)
-                if lane is None:
-                    lane = [0, []]
-                    lanes.append(lane)
-                lane[0] = right
-                lane[1].append(group)
-            y += 4
-            for _, lane in lanes or [(0, [])]:
-                axis_y = y + self.line + 3
-                for group in lane:
-                    group.axis_y = axis_y
-                    group.rect.moveTop(axis_y + 4)
-                y = axis_y + 4 + max((g.rect.height() for g in lane), default=5) + 2
-        return y
 
     def time_x(self, time, start):
         return self.gutter + round(min(1, max(0, (time - start) / self.span)) * self.plot)
@@ -519,57 +577,44 @@ class TimelineCanvas(QAbstractScrollArea):
                 break
             p.fillRect(0, strip.top, width, strip.bottom - strip.top,
                        QColor("#f2f6f6" if index % 2 == 0 else "#ffffff"))
-            first_y = strip.top + 4 + self.line + 3
-            p.setPen(QColor("#426369"))
-            if self.seconds == -1:
-                step = next((s for s in (1, 5, 10, 15, 30, 60, 120, 300, 600, 1800)
-                             if s * 1000 * self.plot / self.span >= 70), max(1800, ceil(self.span / 4000)))
-                for sec in range(0, ceil(self.span / 1000), step):
-                    x = self.time_x(sec * 1000, 0)
-                    if x + 48 < width:
-                        p.drawText(QRect(x, strip.top, 48, self.line + 4), Qt.AlignVCenter, clock(sec * 1000)[:-2])
-            else:
-                p.drawText(QRect(4, first_y - self.line // 2, self.gutter - 13, self.line + 2),
-                           Qt.AlignRight | Qt.AlignVCenter, clock(strip.start).split('.')[0])
-            groups = [g for g in strip.groups if g.rect.bottom() >= scroll
-                      and g.axis_y - self.line - 3 < scroll + height]
-            axes = {g.axis_y for g in groups}
-            if self.seconds != -1:
-                axes.add(first_y)
-            for axis in sorted(axes):
-                p.setPen(QPen(QColor("#c1d2d4"), 1))
-                limit = self.time_x(self.duration, strip.start)
-                p.drawLine(self.gutter, axis, limit, axis)
-                for tick in range(6):
-                    x = self.gutter + round(tick * self.plot / 5)
-                    if x <= limit:
-                        p.drawLine(x, axis - 3, x, axis + 3)
-            for g in groups:
+            axis = strip.axis_y
+            limit = self.time_x(self.duration, strip.start)
+            p.setPen(QColor("#456569"))
+            p.drawText(QRect(2, axis - self.line // 2, self.gutter - 10, self.line + 2),
+                       Qt.AlignRight | Qt.AlignVCenter, clock(strip.start).split('.')[0])
+            p.setPen(QPen(QColor("#9db7ba"), 1))
+            p.drawLine(self.gutter, axis, limit, axis)
+            for tick in range(1, 7):
+                x = self.gutter + round(tick * self.plot / 6)
+                if x <= limit:
+                    p.drawLine(x, axis - 3, x, axis + 3)
+                    seconds = clock(strip.start + self.span * tick / 6).split('.')[0]
+                    tick_width = p.fontMetrics().horizontalAdvance(seconds) + 4
+                    if self.plot / 6 >= tick_width + 3 or tick % 2 == 0:
+                        p.setPen(QColor("#60777a"))
+                        p.drawText(QRect(min(x-tick_width//2, width-self.PAD-tick_width),
+                                         strip.top+1, tick_width, self.line), Qt.AlignCenter, seconds)
+                        p.setPen(QPen(QColor("#9db7ba"), 1))
+            for g in strip.groups:
+                edge = g.rect.bottom() if g.rect.bottom() < axis else g.rect.top()
+                p.setPen(QPen(g.color, 1))
+                p.drawLine(g.points[0], axis, g.rect.center().x(), edge)
                 p.setPen(QPen(g.color, 2))
                 for a, b in g.spans:
-                    p.drawLine(a, g.axis_y, b, g.axis_y)
+                    p.drawLine(a, axis, b, axis)
                 p.setBrush(QColor("#ffffff"))
                 pixels = dict.fromkeys(g.points)
                 for x in pixels:
-                    p.drawEllipse(x - 3, g.axis_y - 3, 6, 6)
-                if self.choice is g and hits is not None:
-                    p.fillRect(g.rect, QColor("#d5e7e4"))
-                p.setPen(QColor("#486168"))
-                if self.seconds != -1:
-                    end = -1
-                    for t, x in zip(g.times, g.points):
-                        stamp = clock(max(strip.start, t))
-                        label_width = p.fontMetrics().horizontalAdvance(stamp) + 4
-                        left = max(self.gutter, min(width - self.PAD - label_width, x - label_width // 2))
-                        if left > end:
-                            p.drawText(QRect(left, g.axis_y - self.line - 3, label_width, self.line), Qt.AlignCenter, stamp)
-                            end = left + label_width + 3
-                p.setPen(QColor("#183d42"))
-                flags = Qt.AlignRight | Qt.AlignVCenter | Qt.TextWrapAnywhere if self.seconds == -1 else TEXT_FLAGS
-                p.drawText(g.rect, flags, g.label)
+                    p.drawEllipse(x - 2, axis - 2, 5, 5)
+                color = QColor(g.color)
+                color.setAlpha(52 if self.choice is g else 22)
+                p.fillRect(g.rect, QColor("#ffffff"))
+                p.fillRect(g.rect, color)
+                p.setPen(g.color.darker(120))
+                p.drawText(g.rect, TEXT_FLAGS, g.label)
                 if hits is not None:
                     hits.append((g.rect.translated(0, -scroll), g))
-                    hits.extend((QRect(x - 4, g.axis_y - scroll - 4, 9, 9), g) for x in pixels)
+                    hits.extend((QRect(x - 3, axis - scroll - 3, 7, 7), g) for x in pixels)
             for y, track, intervals in strip.bands:
                 if y + self.line < scroll or y > scroll + height:
                     continue
@@ -614,13 +659,20 @@ class TimelineCanvas(QAbstractScrollArea):
         if selected is None:
             QToolTip.hideText()
         else:
-            QToolTip.showText(event.globalPosition().toPoint(), "<p>" + escape(self.describe(selected)) + "</p>", self)
+            detail = escape(self.describe(selected)).replace("\n", "<br>")
+            QToolTip.showText(event.globalPosition().toPoint(), "<p>" + detail + "</p>", self)
+
+    def export_height(self, width):
+        return max(50, self.content_height)
+
+    def paint_export(self, painter, width, height, top):
+        self.paint_rows(painter, width, height, top)
 
     def save_png(self, filename, title=""):
         """Paint the complete sheet in strips, even when it is taller than Qt's raster limit."""
         width = self.viewport().width()
         header = self.line + 18 if title else 0
-        height = header + max(50, self.content_height)
+        height = header + self.export_height(width)
         file = QSaveFile(str(filename))
         if not file.open(QIODevice.OpenModeFlag.WriteOnly):
             raise OSError(file.errorString())
@@ -642,7 +694,7 @@ class TimelineCanvas(QAbstractScrollArea):
                     raise OSError("无法创建时间轴图像。")
                 p = QPainter(image)
                 try:
-                    self.paint_rows(p, width, image.height(), top - header)
+                    self.paint_export(p, width, image.height(), top - header)
                     if top == 0 and title:
                         p.fillRect(0, 0, width, header, QColor("#e7eeee"))
                         p.setFont(self.font())
@@ -664,6 +716,264 @@ class TimelineCanvas(QAbstractScrollArea):
         except Exception:
             file.cancelWriting()
             raise
+
+
+@dataclass
+class IconCluster:
+    start: float
+    track: str
+    records: list
+
+    @property
+    def name(self):
+        return self.records[0].name
+
+
+_ATLAS_INDEX = {str(icon): i for i, icon in enumerate(ATLAS_IDS)}
+
+
+@lru_cache(maxsize=1)
+def action_atlas():
+    return QPixmap(get_icon_path("timeline-actions"))
+
+
+@lru_cache(maxsize=640)
+def action_icon(icon):
+    if not str(icon).isdigit() or str(icon) in ("0", "341"):
+        return QPixmap()
+    index = _ATLAS_INDEX.get(str(icon))
+    if index is None:
+        return QPixmap(get_icon_path(icon))
+    return action_atlas().copy((index % 16) * 32, (index // 16) * 32, 32, 32)
+
+
+class PersonalCanvas(TimelineCanvas):
+    """Continuous scrollable time with fixed track labels and viewport-only painting."""
+    def __init__(self, duration, *, parent=None):
+        super().__init__(duration, parent=parent)
+        self.seconds = 40  # pixels/second; enough space for successive GCD icons
+        self.setAccessibleName("个人技能时间轴，可左右拖动")
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.horizontalScrollBar().setSingleStep(80)
+        self.drag_origin = None
+        self.dragged = False
+        self.lanes = []
+        self.starts = []
+        self.ends_at = []
+        self.content_height = 0
+
+    def set_marks(self, marks):
+        self.marks = marks
+        self.choice = None
+        self.verticalScrollBar().setValue(0)
+        self.relayout()
+
+    def set_seconds(self, scale):
+        left_time = self.horizontalScrollBar().value() / self.seconds
+        super().set_seconds(scale)
+        self.horizontalScrollBar().setValue(round(left_time * scale))
+
+    def relayout(self):
+        if not hasattr(self, 'lanes'):
+            return
+        width = self.viewport().width()
+        fm = self.fontMetrics()
+        self.line = fm.height()
+        self.tile = max(21, min(30, self.line + 6))
+        self.pitch = self.tile + 6
+        self.header = self.line + 8
+        captions = {m.track + (" CD" if m.lane == "调息" else "") for m in self.marks if m.band}
+        self.gutter = min(max(73, max((fm.horizontalAdvance(label) + 16 for label in captions),
+                                      default=0)), max(73, width // 3))
+        self.plot = max(1, width - self.gutter - 6)
+        scale = self.seconds / 1000
+        key = (id(self.marks), self.seconds, self.tile)
+        if self.layout_key != key:
+            self.layout_key = key
+            grouped = defaultdict(list)
+            for m in self.marks:
+                kind = m.lane or m.track
+                if m.band:
+                    key = ('cd' if kind == '调息' else 'band', m.track)
+                else:
+                    key = ('event', MECHANICS if kind == PHASES else kind)
+                grouped[key].append(m)
+            order = {name:i for i, name in enumerate((NORMAL, SPECIAL, '施放', '招式命中', '技能效果', CALLS, MECHANICS))}
+            keys = sorted(grouped, key=lambda k: (('event', 'cd', 'band').index(k[0]), order.get(k[1], 8), k[1]))
+            self.lanes = []
+            self.starts = []
+            self.ends_at = []
+            self.spans = []
+            for kind, label in keys:
+                records = sorted(grouped[kind, label], key=lambda m:m.start)
+                spans = []
+                latest_end = []
+                if kind == 'event':
+                    clusters = []
+                    for m in records:
+                        if m.end > m.start:
+                            spans.append(m)
+                            latest_end.append(max(m.end, latest_end[-1] if latest_end else 0))
+                        if clusters and (m.start - clusters[-1].start) * scale < self.tile + 1:
+                            clusters[-1].records.append(m)
+                        else:
+                            clusters.append(IconCluster(m.start, label, [m]))
+                    records = clusters
+                self.lanes.append((kind, label, records))
+                self.starts.append([r.start for r in records])
+                self.spans.append((spans, latest_end))
+                # Bands overlap only within explicitly separate resource rows.
+                self.ends_at.append([r.end for r in records] if kind != 'event' else ())
+            self.rows = self.lanes
+        self.content_height = self.header + self.pitch * len(self.lanes) + 4 if self.lanes else 0
+        h = self.horizontalScrollBar()
+        h.setPageStep(self.plot)
+        h.setRange(0, max(0, ceil(self.duration * scale) + self.tile - self.plot) if self.lanes else 0)
+        v = self.verticalScrollBar()
+        v.setPageStep(max(1,self.viewport().height()))
+        v.setRange(0, max(0, self.content_height - self.viewport().height()))
+        self.hits.clear()
+        self.viewport().update()
+
+    @staticmethod
+    def describe(item):
+        if isinstance(item, IconCluster):
+            return "\n".join(TimelineCanvas.describe(m) for m in item.records[:5]) + (
+                f"\n另有 {len(item.records) - 5} 条，可打开明细" if len(item.records) > 5 else "")
+        return TimelineCanvas.describe(item)
+
+    def paint_rows(self, p, width, height, scroll, hits=None):
+        self.paint_window(p, width, height, scroll, self.horizontalScrollBar().value(), hits)
+
+    def paint_window(self, p, width, height, scroll, offset, hits=None):
+        p.fillRect(0, 0, width, height, QColor("#ffffff"))
+        if not self.lanes:
+            p.setPen(QColor("#57717b"))
+            p.drawText(QRect(5, 5, width-10, 45), Qt.AlignCenter, "当前范围没有时间轴记录")
+            return
+        scale = self.seconds / 1000
+        left = offset / scale
+        right = (offset + self.plot) / scale
+        p.save()
+        p.setFont(self.font())
+        p.translate(0, -scroll)
+        p.setRenderHint(QPainter.SmoothPixmapTransform)
+        def xpos(t):
+            return self.gutter + round(t * scale - offset)
+        step = next(t for t in (1000, 2000, 5000, 10000, 30000, 60000) if t * scale >= 60)
+        ticks = [(t, xpos(t)) for t in range(ceil(left / step) * step, int(min(self.duration, right)) + 1, step)]
+        p.setPen(QColor("#43626c"))
+        for t, x in ticks:
+            p.drawText(QRect(x+2, 1, 60, self.header), Qt.AlignVCenter, clock(t).split('.')[0])
+        for i, (kind, label, records) in enumerate(self.lanes):
+            y = self.header + i * self.pitch
+            if y+self.pitch <= scroll or y >= scroll+height:
+                continue
+            tint = "#f0f5f4" if i % 2 == 0 else "#fafcfc"
+            p.fillRect(0, y, width, self.pitch, QColor(tint))
+            p.save()
+            p.setClipRect(QRect(self.gutter, y, self.plot, self.pitch))
+            p.setPen(QColor("#d9e5e4"))
+            for _, x in ticks:
+                p.drawLine(x, y, x, y+self.pitch)
+            spans, latest_end = self.spans[i]
+            for j in range(bisect_right(latest_end, left), len(spans)):
+                m = spans[j]
+                if m.start > right:
+                    break
+                p.fillRect(xpos(m.start), y+self.pitch-3,
+                           max(1, xpos(m.end)-xpos(m.start)), 2, QColor(m.color))
+            first = (bisect_left(self.starts[i], left - self.tile / scale) if kind == 'event'
+                     else bisect_right(self.ends_at[i], left))
+            last = bisect_right(self.starts[i], right)
+            for entry in records[first:last]:
+                x = xpos(entry.start)
+                if kind == 'event':
+                    rect = QRect(x, y+2, self.tile, self.tile)
+                    m = entry.records[0]
+                    icon = action_icon(m.icon)
+                    if not icon.isNull():
+                        p.drawPixmap(rect, icon)
+                    else:
+                        p.fillRect(rect, QColor(m.color))
+                        p.setPen(Qt.white)
+                        p.drawText(rect, Qt.AlignCenter, (m.skill_name or m.name)[:2])
+                    if len(entry.records) > 1:
+                        b = QRect(rect.right()-13, rect.bottom()-11, 14, 12)
+                        p.fillRect(b, QColor("#334555"))
+                        p.setPen(Qt.white)
+                        font = p.font()
+                        font.setPixelSize(10)
+                        p.setFont(font)
+                        p.drawText(b, Qt.AlignCenter, str(min(99,len(entry.records))))
+                        p.setFont(self.font())
+                else:
+                    rect = QRect(x, y+5, max(1, xpos(entry.end) - x), self.pitch-10)
+                    color = QColor(entry.color)
+                    color.setAlphaF(.12 + .8 * entry.intensity)
+                    p.fillRect(rect, color)
+                    visible = rect.intersected(QRect(self.gutter,y,self.plot,self.pitch))
+                    if visible.width() > p.fontMetrics().horizontalAdvance(entry.name) + 8:
+                        p.setPen(QColor("#ffffff" if entry.intensity > .7 else "#274246"))
+                        p.drawText(visible, Qt.AlignCenter, entry.name)
+                if hits is not None:
+                    clipped = rect.intersected(QRect(self.gutter,y,self.plot,self.pitch))
+                    if not clipped.isEmpty():
+                        hits.append((clipped.translated(0,-scroll), entry))
+            p.restore()
+            p.setPen(QColor("#284951"))
+            text = label + " CD" if kind == 'cd' else label
+            rect = QRect(3,y,self.gutter-8,self.pitch)
+            p.drawText(rect, Qt.AlignRight | Qt.AlignVCenter,
+                       p.fontMetrics().elidedText(text, Qt.ElideRight, rect.width()))
+        p.restore()
+
+    def export_height(self, width):
+        self.page_height = max(50,self.content_height)
+        panels = max(1, ceil((self.duration * self.seconds / 1000 + self.tile) / self.plot))
+        return self.page_height * panels
+
+    def paint_export(self, p, width, height, top):
+        # Wrap the long interactive timeline into consecutive printable panels.
+        p.fillRect(0,0,width,height,Qt.white)
+        first = max(0,top // self.page_height)
+        for index in range(first, ceil((top + height) / self.page_height)):
+            y = index * self.page_height - top
+            p.save()
+            p.translate(0,y)
+            p.setClipRect(QRect(0,0,width,self.page_height))
+            self.paint_window(p,width,self.page_height,0,index*self.plot)
+            p.restore()
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.drag_origin = event.position().toPoint()
+            self.drag_value = self.horizontalScrollBar().value()
+            self.dragged = False
+            event.accept()
+            return
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if self.drag_origin is not None:
+            dx = event.position().toPoint().x() - self.drag_origin.x()
+            if self.dragged or abs(dx) >= QApplication.startDragDistance():
+                self.dragged = True
+                self.horizontalScrollBar().setValue(self.drag_value - dx)
+                self.viewport().setCursor(Qt.ClosedHandCursor)
+                QToolTip.hideText()
+            return
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton and self.drag_origin is not None:
+            self.drag_origin = None
+            self.viewport().unsetCursor()
+            if not self.dragged:
+                super().mousePressEvent(event)
+            event.accept()
+            return
+        super().mouseReleaseEvent(event)
 
 
 class TimelineView(QWidget):
@@ -690,7 +1000,9 @@ class TimelineView(QWidget):
             self.hint = "该角色没有可归属的个人技能记录。"
         else:
             self.hint = "点击技能查看各次发生时间及目标"
-        self.canvas = TimelineCanvas(duration, compact=compact, parent=self)
+        self.canvas = TimelineCanvas(duration, parent=self) if team else PersonalCanvas(duration, parent=self)
+        if not team and marks:
+            self.hint += " 左右拖动查看施放。CD 色条按基础调息推算，充能技能标记可用层数。"
         layout = QVBoxLayout(self)
         if compact:
             layout.setContentsMargins(2, 0, 2, 0)
@@ -704,11 +1016,11 @@ class TimelineView(QWidget):
         self.scope.setToolTip("重点显示已识别机制及个人主动技能。全部记录含其他命中、效果和未辨识的机制。")
         bar.addWidget(self.scope)
         self.zoom = QComboBox()
-        if compact:
-            self.zoom.addItem("整场按技能", -1)
-        for name, val in (("自动分行", 0), ("每行 30 秒", 30), ("每行 1 分钟", 60), ("每行 2 分钟", 120)):
+        zoom_options = (("自动分行", 0), ("每行 30 秒", 30), ("每行 1 分钟", 60), ("每行 2 分钟", 120)) if team else (
+            ("标准间距", 40), ("紧凑间距", 24), ("放大间距", 72))
+        for name, val in zoom_options:
             self.zoom.addItem(name, val)
-        self.zoom.setToolTip("缩短每行时长可拉开临近技能。")
+        self.zoom.setToolTip("缩短每行时长可拉开临近技能。" if team else self.hint)
         bar.addWidget(self.zoom)
         self.summary = QLabel()
         bar.addWidget(self.summary)
@@ -767,7 +1079,7 @@ class TimelineView(QWidget):
         record = self.canvas.choice
         if record is None:
             return
-        rows = record.records if isinstance(record, SkillGroup) else [record]
+        rows = record.records if isinstance(record, (SkillGroup, IconCluster)) else [record]
         dialog = QDialog(self)
         dialog.setWindowTitle(record.name + " · 时间轴明细")
         dialog.resize(530, 360)
