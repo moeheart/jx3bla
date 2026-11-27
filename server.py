@@ -654,7 +654,7 @@ def receiveReplay(jdata, cursor, percentiles=None):
             return -1
         return getRankFromKeys(value, occ, map, boss, "stat", metric, gameEdition, percentiles)
 
-    scoreRank = metric_rank("score", score)
+    scoreRank = -1 if score == -1 else metric_rank("score", score)
     rhps = statistics["skill"]["healer"].get("rhps", 0)
     rhpsRank = metric_rank("rhps", rhps)
     hps = statistics["skill"]["healer"].get("hps", 0)
@@ -878,7 +878,7 @@ def _summarize_replay_records(records):
     maximum_scores = []
     average_scores = []
     for boss, rows in tables.items():
-        scores = [row["score"] for row in rows if is_metric_rank_eligible(row["quality"], "score") and _finite_metric(row["score"])]
+        scores = [row["score"] for row in rows if is_metric_rank_eligible(row["quality"], "score") and _finite_metric(row["score"]) and row["score"] != -1]
         statistics[boss] = {"highest": max(scores) if scores else None,
                             "average": roundCent(sum(scores) / len(scores)) if scores else None,
                             "num": len(rows), "eligibleNum": len(scores)}

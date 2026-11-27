@@ -13,7 +13,6 @@
 		  <tr>
 			<th> 服务器 </th>
 			<th> 角色名 </th>
-			<th> <a href='/XiangZhiTable.html?order=score&map={{map}}&&page={{page}}'> 评分 </a> </th>
 			<th> <a href='/XiangZhiTable.html?order=battledate&map={{map}}&&page={{page}}'> 日期 </a> </th>
 			<th> 地图 </th>
 			<th> 版本号 </th>
@@ -38,6 +37,7 @@
 			var tr = $("<tr></tr>");
 			tr.appendTo(table);
 			for (var j in res2[i]) {
+				if (j == 2) continue;
 				if (j < 6) {
 					var td = $("<td>"+res2[i][j]+"</td>");
 					td.appendTo(tr);

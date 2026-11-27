@@ -843,57 +843,6 @@ class LingSuReplayer(HealerReplay):
         self.outstandingSkill = [qczlWatchSkill, dgsnWatchSkill]
         self.calculateSkillOverall()
 
-        # 计算专案组的心法部分.
-        # code 301 保证`灵素中和`的触发次数
-        numPerSec = self.result["skill"]["lszh"]["numPerSec"]
-        rank = self.result["rank"]["lszh"]["numPerSec"]["percent"]
-        res = {"code": 301, "numPerSec": numPerSec, "rank": rank, "rate": roundCent(rank / 100)}
-        res["status"] = getRateStatus(res["rate"], 75, 50, 25)
-        self.result["review"]["content"].append(res)
-
-        # code 302 避免药性溢出
-        rate = roundCent(1 - safe_divide(yaoxingWaste, yaoxingSum))
-        res = {"code": 302, "numOver": yaoxingWaste, "numAll": yaoxingSum, "rate": rate}
-        res["status"] = getRateStatus(res["rate"], 95, 90, 0)
-        self.result["review"]["content"].append(res)
-
-        # code 303 提高`飘黄`的覆盖人数
-        num = 0
-        sum = 0
-        for line in zyhrNum:
-            num += 1
-            sum += line
-        zyhrAverage = roundCent(safe_divide(sum, num))
-        rate = roundCent(safe_divide(zyhrAverage, self.result["overall"]["numPlayer"]))
-        res = {"code": 303, "numCover": zyhrAverage, "numAll": self.result["overall"]["numPlayer"], "rate": rate}
-        res["status"] = getRateStatus(res["rate"], 90, 50, 0)
-        self.result["review"]["content"].append(res)
-
-        # code 304 注意控制`七情`状态
-        maxLayer = qqhhMaxNum
-        rate = 1 - maxLayer * 0.1
-        res = {"code": 304, "maxLayer": maxLayer, "rate": rate}
-        res["status"] = getRateStatus(res["rate"], 50, 30, 0)
-        self.result["review"]["content"].append(res)
-
-        # code 305 充分使用`千枝绽蕊`
-        time = roundCent(qianzhiDict.buffTimeIntegral(exclude=self.bh.badPeriodHealerLog) / 1000)
-        num = roundCent(zhongheInQianzhi / 5)
-        efficiency = min(1, roundCent(safe_divide(num, time) * 1.75))
-        rate = min(100, efficiency)
-        res = {"code": 305, "time": time, "num": num, "efficiency": efficiency, "rate": rate}
-        res["status"] = getRateStatus(res["rate"], 50, 30, 0)
-        self.result["review"]["content"].append(res)
-
-        self.calculateSkillFinal()
-
-        # 横刀断浪更新整理
-        # - 记录飘黄的总次数而不是触发次数11
-        # - 专案组中单独分析飘黄次数11
-        # - 用rdps替换整体dps统计111
-        # - 修复药奶秒开关千枝会影响中和覆盖的问题。111
-        # - 新的药奶群111
-
     def __init__(self, config, fileNameInfo, path="", bldDict={}, window=None, myname="", actorData={}):
         '''
         初始化.

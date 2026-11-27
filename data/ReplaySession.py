@@ -12,12 +12,13 @@ class AnalysisCancelled(Exception):
 def display_result(actor):
     """Keep processed views and shared upload anchors, release raw event streams."""
     from data.PersonalTimeline import build_personal_timelines
+    from data.DisplayRanks import desktop_percentiles
     metrics = ('rhps', 'hps', 'ahps', 'ohps', 'chps', 'rdps', 'ndps', 'mrdps', 'mndps', 'rdpsStatus')
     return SimpleNamespace(
         bossAnalyseName=actor.bossAnalyseName, mapDetail=actor.mapDetail,
         server=actor.bld.info.server, timestamp=actor.bld.info.battleTime,
         startTime=actor.startTime, finalTime=actor.finalTime, battleTime=actor.battleTime,
-        personalTimelines=build_personal_timelines(actor),
+        personalTimelines=build_personal_timelines(actor), displayRanks=desktop_percentiles(actor),
         win=actor.win, statDict=actor.statDict, occResult=actor.occResult,
         playerNames={key: value.name for key, value in actor.bld.info.player.items()},
         detail=actor.detail, bh=actor.bh, attributeStatus=actor.attributeStatus,

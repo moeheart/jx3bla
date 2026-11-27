@@ -64,14 +64,6 @@
     overflow: auto;
 }
 
-#score{
-    position: absolute;
-    width: 210px;
-    height: 200px;
-    left: 320px;
-    top: 620px;
-}
-
 #ad{
     position: absolute;
     width: 200px;
@@ -266,10 +258,6 @@
 }
 
 /* Part 8 */
-
-#score table, #score div{
-    font-size: 13px;
-}
 
 /* Part 9 */
 

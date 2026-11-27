@@ -185,7 +185,8 @@ class ReplayerBase():
         upload["server"] = self.result["overall"]["server"]
         upload["id"] = self.result["overall"]["playerID"]
         upload["occ"] = self.occ
-        upload["score"] = self.result["review"]["score"]
+        # Older servers require a numeric field in their upload envelope.
+        upload["score"] = self.result.get("review", {}).get("score", -1)
         upload["battledate"] = time.strftime("%Y-%m-%d", time.localtime(self.result["overall"]["battleTime"]))
         upload["mapdetail"] = self.result["overall"]["map"]
         upload["boss"] = self.result["overall"]["boss"]

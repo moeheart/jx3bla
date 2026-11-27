@@ -123,6 +123,15 @@ class LuoyangUploadPipelineTests(unittest.TestCase):
                 check_damage_conservation(actor.combatTracker)
                 summary, _ = check_upload_payloads(window, actor)
                 self.assertEqual((summary["battle"], summary["replay"]), (1, 25))
+                # The 8.x receiver requires a numeric score field on the envelope.
+                # A new healer report carries -1 there and has no computed score.
+                healers = [row["data"] for row in window.uploadData if row["type"] == "replay"
+                           and row["data"]["occ"] in ("xiangzhi", "lingsu", "lijingyidao", "butianjue", "yunchangxinjing")]
+                self.assertGreater(len(healers), 0)
+                for report in healers:
+                    self.assertEqual(report["score"], -1)
+                    self.assertNotIn("score", report["statistics"]["skill"]["general"])
+                    self.assertNotIn("score", report["statistics"].get("review", {}))
                 replay_count += summary["replay"]
                 for queued in window.uploadData:
                     quality = get_record_quality(queued["data"]["statistics"])

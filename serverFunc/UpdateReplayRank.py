@@ -96,6 +96,8 @@ def _sample(record, text):
         if not is_metric_rank_eligible(quality, id):
             continue
         value = record[STAT_ID[id]]
+        if id == "score" and value == -1:
+            continue
         if value is not None and math.isfinite(value):
             key = "%s-%s-%s-stat-%s-%s" % (key1, key2, key3, id, key6)
             res[key] = value
@@ -185,7 +187,7 @@ def _rank_changes(records, percentiles):
         else:
             for metric, column in STAT_ID.items():
                 key = "%s-%s-%s-stat-%s-%s" % (row[2], map_id, row[6], metric, row[31])
-                if not precise and metric in SENSITIVE_METRICS:
+                if (metric == "score" and row[column] == -1) or (not precise and metric in SENSITIVE_METRICS):
                     ranks[metric] = -1
                 elif key in percentiles and row[column] is not None:
                     if key not in thresholds:

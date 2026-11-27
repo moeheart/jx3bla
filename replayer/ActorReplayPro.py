@@ -340,7 +340,8 @@ class ActorProReplayer(ReplayerBase):
         self.strEquip = {}
 
         requests = {"server": self.bld.info.server, "players": []}
-        ea = EquipmentAnalyser()
+        ad = AttributeDisplay()
+        ea = EquipmentAnalyser(ad.ac.equipmentInfo)
         eee = ExcelExportEquipment()
         if not hasattr(self.window, "playerEquipmentOwners"):
             self.window.playerEquipmentOwners = {}
@@ -404,7 +405,6 @@ class ActorProReplayer(ReplayerBase):
         # 属性统一使用当前正式服底表在本地计算。
         self.attributeStatus = {}
         results = {}
-        ad = AttributeDisplay()
         self.attributeStatus = getattr(ad, "status", {})
         # 每场按实际心法与当前底表重算，避免复用旧面板缓存。
         for player in self.bld.info.player:
@@ -1669,18 +1669,22 @@ class ActorProReplayer(ReplayerBase):
                 # 尝试从心法复盘中回流排名
                 rdps = replayer.result["skill"]["general"].get("rdps", 0)
                 ndps = replayer.result["skill"]["general"].get("ndps", 0)
-                score = replayer.result["skill"]["general"]["score"]
+                score = replayer.result["skill"]["general"].get("score")
                 rdpsRank = replayer.result["rank"]["general"]["rdps"]
                 scoreRank = replayer.result["rank"]["general"].get("score", {"num": 0, "percent": -1})
                 for i in range(len(self.statDict)):
                     if self.statDict[i]["name"] == self.bld.info.getName(id):
                         self.statDict[i]["rdps"] = rdps
                         self.statDict[i]["ndps"] = ndps
-                        self.statDict[i]["score"] = score
                         self.statDict[i]["rdpsRank"] = rdpsRank["percent"]
-                        self.statDict[i]["scoreRank"] = scoreRank["percent"]
                         self.statDict[i]["rdpsRankNum"] = rdpsRank.get("num", 0)
-                        self.statDict[i]["scoreRankNum"] = scoreRank.get("num", 0)
+                        if score is not None:
+                            self.statDict[i].update(score=score, scoreRank=scoreRank["percent"],
+                                                    scoreRankNum=scoreRank.get("num", 0))
+        for row in self.statDict:
+            if getOccType(row["occ"]) == "healer":
+                for key in ("score", "scoreRank", "scoreRankNum"):
+                    row.pop(key, None)
         measuredOnly = (self.attributeStatus.get("status") == "incomplete"
                         and not self.attributeStatus.get("estimatedPlayers")
                         and not is_effect_warning_only(self.detail))

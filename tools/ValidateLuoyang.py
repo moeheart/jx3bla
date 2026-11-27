@@ -10,7 +10,6 @@ import io
 import json
 import math
 from pathlib import Path
-from types import SimpleNamespace
 from unittest.mock import patch
 from tools.Attribute import CURRENT_GAME_EDITION
 
@@ -56,81 +55,9 @@ def replay(path, window=None, healers=False):
 
 
 def check_windows(actor):
-    """Construct actual Tk widgets while keeping the test windows hidden."""
-    import tkinter as tk
-    from window.SingleBossWindow import SingleBossWindow
-    from window.CombatTrackerWindow import CombatTrackerWindow
-    root = tk.Tk()
-    root.withdraw()
-    original = tk.Toplevel
-
-    def hidden_window(*args, **kwargs):
-        window = original(*args, **kwargs)
-        window.withdraw()
-        return window
-
-    try:
-        with patch("tkinter.Toplevel", side_effect=hidden_window):
-            selector = SingleBossWindow.__new__(SingleBossWindow)
-            selector.mainWindow = SimpleNamespace(config=actor.config)
-            selector.setDetail(actor.potList, actor.statDict, actor.detail, actor.occResult, actor.actorData)
-            window = selector.specificBossWindow
-            assert type(window).__module__.startswith("replayer.boss.luoyangzhizhan.")
-            window.loadWindow()
-            tracker = CombatTrackerWindow(actor.combatTracker)
-            tracker.loadWindow()
-            tracker.setStat("rdps")
-            supported = actor.combatTracker.rdpsStatus['status'] == 'supported'
-            estimated = bool(actor.combatTracker.rdpsStatus.get('estimatedPlayers'))
-            assert ("待校准" not in tracker.rightTitle.cget("text")) == (supported or estimated)
-            if estimated:
-                assert "仅供参考" in tracker.rightTitle.cget("text")
-            tracker.setStat("ndps")
-            # A withdrawn Toplevel has no allocated viewport (often 1x1).
-            # Map it fully transparent so actual pack/grid geometry is checked.
-            window.window.attributes("-alpha", 0)
-            window.window.deiconify()
-            root.update()
-            table_layout = {}
-            if hasattr(window, "statsCanvas"):
-                canvas = window.statsCanvas
-                tables = [child for child in canvas.winfo_children() if isinstance(child, tk.Frame)]
-                assert len(tables) == 1, "Expected one scrollable encounter table"
-                table = tables[0]
-                bounds = canvas.bbox("all")
-                region = tuple(map(float, canvas.cget("scrollregion").split()))
-                assert region[0] <= bounds[0] and region[1] <= bounds[1]
-                assert region[2] >= bounds[2] and region[3] >= bounds[3], "Scroll region must cover every table cell"
-                assert bounds[2] - bounds[0] >= table.winfo_reqwidth()
-                assert bounds[3] - bounds[1] >= table.winfo_reqheight()
-                assert canvas.cget("xscrollcommand") and canvas.cget("yscrollcommand")
-                canvas.xview_moveto(1)
-                canvas.yview_moveto(1)
-                assert canvas.xview()[1] == 1.0 and canvas.yview()[1] == 1.0
-                canvas.xview_moveto(0)
-                canvas.yview_moveto(0)
-                if table.winfo_reqwidth() <= canvas.winfo_width():
-                    assert abs(bounds[0] - (canvas.winfo_width()-bounds[2])) <= 1, "Table must remain centered"
-                assert window.window.winfo_width() <= window.window.winfo_screenwidth()
-                assert window.window.winfo_height() <= window.window.winfo_screenheight()-80
-                chrome = window.window.winfo_height()-canvas.winfo_height()
-                fits_screen = table.winfo_reqheight()+chrome <= window.window.winfo_screenheight()-80
-                if fits_screen:
-                    assert table.winfo_reqheight() <= canvas.winfo_height(), "Full roster should fit without scrolling"
-                table_layout = {"scrollable": True, "tableWidth": table.winfo_reqwidth(),
-                                "tableHeight": table.winfo_reqheight(), "scrollRegion": list(region),
-                                "viewportWidth": canvas.winfo_width(), "viewportHeight": canvas.winfo_height(),
-                                "allRowsVisible": table.winfo_reqheight() <= canvas.winfo_height()}
-            return {"bossWindow": type(window).__name__, "widgets": "constructed",
-                    "rdps": actor.combatTracker.rdpsStatus['status'],
-                    "requestedWidth": window.window.winfo_reqwidth(),
-                    "requestedHeight": window.window.winfo_reqheight(),
-                    "configuredGeometry": window.window.geometry(),
-                    "screenWidth": window.window.winfo_screenwidth(),
-                    "screenHeight": window.window.winfo_screenheight(),
-                    "table": table_layout}
-    finally:
-        root.destroy()
+    """Open the production Qt battle view and every available personal dashboard."""
+    from tools.ValidateDesktop import check_result_views
+    return check_result_views(actor)
 
 
 def main():
@@ -139,7 +66,7 @@ def main():
     parser.add_argument("--output", type=Path, default=Path("build/validation/luoyang.json"))
     parser.add_argument("--latest", action="store_true", help="Replay only the latest attempt of each boss")
     parser.add_argument("--healers", action="store_true", help="Also exercise the configured healer replay paths")
-    parser.add_argument("--ui", action="store_true", help="Construct hidden boss and combat-statistic Tk windows")
+    parser.add_argument("--ui", action="store_true", help="Exercise the desktop battle view and personal dashboards off-screen")
     args = parser.parse_args()
     manifest = json.loads(args.manifest.read_text(encoding="utf-8-sig"))
     if args.latest:

@@ -1,8 +1,11 @@
 # Created by moeheart at 03/29/2021
 # 配装导出库，用于与计算器对接，实现一站式操作。
 
+from collections import Counter
+
 from openpyxl import load_workbook
-from equip.EquipmentType import *
+from equip.EquipmentInfo import EquipmentInfo
+from equip.EquipmentType import ENCHANT_TYPE, COLOR_TYPE
 
 def getPlug(id):
     '''
@@ -724,7 +727,8 @@ class EquipmentAnalyser():
         根据全身装备，得到装备的打造信息（精炼、镶嵌、五彩石、小附魔、大附魔）
         '''
 
-        if '2' not in equips:
+        items = list(self.combat_items(equips))
+        if not items:
             return ""
 
         refine = 0
@@ -733,52 +737,39 @@ class EquipmentAnalyser():
         magic2 = [0] * 13
         plugColor = 0
 
-        for key in equips:
-            if key not in ["score", "description", "sketch", "cached"]:
-                equip = equips[key]
-                id_full = "%s,%s"%(equip["id_cat"], equip["id"])
+        for key, equip, item in items:
+            refine_max = int(self.info.getAttribute(item, "MaxStrengthLevel") or 0)
+            if refine_max and equip["star"] >= refine_max:
+                refine += 1
 
-                # 获取精炼部分
-                if id_full in EQUIPMENT_TYPE:
-                    t = EQUIPMENT_TYPE[id_full]
+            # 获取镶嵌部分
+            for i in [1,2,3]:
+                p = "plug%d"%i
+                if p in equip:
+                    plug[equip[p]] += 1
                 else:
-                    t = ""
-                refine_max = 6  # 暂时使用简易的装备类别来统计，后续可以更换记录方式。
-                if t in ["精简", "特效腰坠", "特效武器"]:
-                    refine_max = 3
-                if t in ["大橙武"]:
-                    refine_max = 8
-                if equip["star"] >= refine_max:
-                    refine += 1
+                    plug[0] += 1
 
-                # 获取镶嵌部分
-                for i in [1,2,3]:
-                    p = "plug%d"%i
-                    if p in equip:
-                        plug[equip[p]] += 1
-                    else:
-                        plug[0] += 1
+            # 获取五彩石
+            if "plug0" in equip:
+                colorID = equip["plug0"]
+                if colorID in COLOR_TYPE:
+                    plugColor = COLOR_TYPE[colorID]
+                else:
+                    plugColor = 0
 
-                # 获取五彩石
-                if "plug0" in equip:
-                    colorID = equip["plug0"]
-                    if colorID in COLOR_TYPE:
-                        plugColor = COLOR_TYPE[colorID]
-                    else:
-                        plugColor = 0
+            id = int(key)
+            # 获取小附魔
+            if equip["magic1"] not in [0, "0", ""]:
+                if equip["magic1"] in ENCHANT_TYPE and ENCHANT_TYPE[equip["magic1"]] == 2:
+                    magic1[id] = 2
+                else:
+                    magic1[id] = 1
 
-                id = int(key)
-                # 获取小附魔
-                if equip["magic1"] not in [0, "0", ""]:
-                    if equip["magic1"] in ENCHANT_TYPE and ENCHANT_TYPE[equip["magic1"]] == 2:
-                        magic1[id] = 2
-                    else:
-                        magic1[id] = 1
-
-                if equip["magic2"] not in [0, "0", ""]:
-                    magic2[id] = 1
-                    if equip["magic2"] in ENCHANT_TYPE and ENCHANT_TYPE[equip["magic2"]] == 12:
-                        magic2[id] = 2
+            if equip["magic2"] not in [0, "0", ""]:
+                magic2[id] = 1
+                if equip["magic2"] in ENCHANT_TYPE and ENCHANT_TYPE[equip["magic2"]] == 12:
+                    magic2[id] = 2
 
         magic1Sum2 = 0
         magic1Sum1 = 0
@@ -793,68 +784,46 @@ class EquipmentAnalyser():
         result = "%d/%d-%d-%d/%d/%d-%d/%s"%(refine, plug[8], plug[7], plug[6], plugColor, magic1Sum2, magic1Sum1, magic2Str)
         return result
     
+    def combat_items(self, equips):
+        # JCL categories are weapon=6 and trinket=8. The calculator's internal
+        # table IDs follow its legacy spreadsheet convention (the reverse).
+        category = {"6": 8, "7": 7, "8": 6}
+        for slot in map(str, range(13)):
+            equip = equips.get(slot)
+            if isinstance(equip, dict) and str(equip.get("id_cat")) in category:
+                yield slot, equip, f"{category[str(equip['id_cat'])]},{equip['id']}"
+
     def getSketch(self, equips):
-        '''
-        根据全身装备，得到简要的装备说明（如4惊尘，2精简，大橙武）
-        '''
+        """Summarize equipped combat slots using the current formal client tables."""
+        sets = Counter()
+        traits = Counter()
+        attr = self.info.getAttribute
+        for slot, _, item in self.combat_items(equips):
+            set_id = attr(item, "SetID")
+            if set_id and set_id != "0" and set_id in self.info.setNames:
+                sets[set_id] += 1
+            if attr(item, "BelongSchool") == "精简":
+                traits["精简"] += 1
+            if attr(item, "GetType") == "生活技能":
+                traits["切糕"] += 1
+            if slot == "9" and attr(item, "SkillID") not in ("", "0", 0):
+                traits["特效腰坠"] += 1
+            if slot == "0":
+                origin = attr(item, "BelongMap")
+                if origin == "橙武":
+                    traits["大橙武"] += 1
+                elif origin == "奉天证道版本全门派特殊武器升级":
+                    traits["门派特效"] += 1
+                elif attr(item, "_IsSpecialMagicType") == "1":
+                    traits["特效武器"] += 1
 
-        if '2' not in equips:
-            return ""
+        labels = [f"{self.info.setNames[key]}×{count}" for key, count in
+                  sorted(sets.items(), key=lambda pair: (-pair[1], self.info.setNames[pair[0]], pair[0]))]
+        for name in ("精简", "切糕", "特效腰坠", "特效武器", "门派特效", "大橙武"):
+            if traits[name]:
+                labels.append(f"{traits[name]}{name}" if name in ("精简", "切糕") else name)
+        return "，".join(labels)
 
-        res = {"星演": 0, "惊尘": 0, "百相": 0, "择芳": 0, "展锋": 0, "揽江": 0, "灵源": 0, "切糕": 0, "精简": 0, "特效腰坠": 0, "特效武器": 0, "门派特效": 0, "大橙武": 0}
-        
-        for key in equips:
-            if key not in ["score", "description", "sketch", "cached"]:
-                equip = equips[key]
-                # print("[Test]", equip)
-                id_full = "%s,%s"%(equip["id_cat"], equip["id"])
-                if id_full in EQUIPMENT_TYPE:
-                    t = EQUIPMENT_TYPE[id_full]
-                    if t not in res:
-                        res[t] = 1
-                    else:
-                        res[t] += 1
-
-        # print("[EquipTest]", equips)
-        # print("[EquipTest2]", res)
-        
-        sketch = []
-        #计算套装
-        if res["星演"] >= 4 or res["惊尘"] >= 4 or res["百相"] >= 4 or res["择芳"] >= 4 or res["展锋"] >= 4 or res["揽江"] >= 4 or res["灵源"] >= 4:
-            sketch.append("4件套")
-        elif (res["择芳"] >= 2 or res["惊尘"] >= 2 or res["展锋"] >= 2 or res["灵源"] >= 2) and (res["星演"] >= 2 or res["百相"] >= 2 or res["揽江"] >= 2):
-            sketch.append("4件套")
-        elif res["惊尘"] >= 2:
-            sketch.append("2惊尘")
-        elif res["星演"] >= 2:
-            sketch.append("2星演")
-        elif res["百相"] >= 2:
-            sketch.append("2百相")
-        elif res["择芳"] >= 2:
-            sketch.append("2择芳")
-        elif res["展锋"] >= 2:
-            sketch.append("2展锋")
-        elif res["揽江"] >= 2:
-            sketch.append("2揽江")
-        elif res["灵源"] >= 2:
-            sketch.append("2灵源")
-            
-        if res["切糕"] >= 1:
-            sketch.append("%d切糕"%res["切糕"])
-        if res["精简"] >= 1:
-            sketch.append("%d精简"%res["精简"])
-        if res["特效腰坠"] >= 1:
-            sketch.append("腰坠")
-        if res["特效武器"] >= 1:
-            sketch.append("特效武器")
-        if res["门派特效"] >= 1:
-            sketch.append("门派特效")
-        if res["大橙武"] >= 1:
-            sketch.append("大橙武")
-            
-        sketchStr = ','.join(sketch)
-        return sketchStr
-        
     def getPlug(self, id):
         plugDict = {"": 0, "24423": 1, "24424": 2, "24425": 3, "24426": 4, "24427": 5, "24428": 6, "24429": 7, "24430": 8,
                     "24442": 1, "24443": 2, "24444": 3, "24445": 4, "24446": 5, "24447": 6, "24448": 7, "24449": 8}
@@ -897,5 +866,8 @@ class EquipmentAnalyser():
         equips["forge"] = self.getForge(equips)
         return equips
     
-    def __init__(self):
-        pass
+    def __init__(self, info=None):
+        self.info = info
+        if self.info is None:
+            self.info = EquipmentInfo()
+            self.info.LoadFromStaticData()

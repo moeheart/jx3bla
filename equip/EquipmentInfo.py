@@ -246,6 +246,7 @@ class EquipmentInfo():
 
         SET_PATH = self.resourceRoot + '/Set.tab'
         for row in self.readRows(SET_PATH):
+            self.setNames[row['ID']] = row['Name']
             self.set[row['ID']] = [
                 (int(column.split('_')[0]), value)
                 for column, value in row.items()
@@ -266,6 +267,7 @@ class EquipmentInfo():
         self.enchantAttributes = {}
         self.color = {}
         self.set = {}
+        self.setNames = {}
         self.itemColor = {}  # 存储可能的五彩石物品id与对应的enchantID
         self.headerID = {}
         self.strengthable = set()

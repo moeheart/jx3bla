@@ -88,13 +88,13 @@ class BattleMetricTests(unittest.TestCase):
         self.assertEqual([row['name'] for row in actor.statDict], ['B', 'A', 'H'])
         self.assertEqual([row['rdps'] for row in actor.statDict[:2]], [200, 200])
 
-    def test_qualified_percentiles_are_copied_from_rdps_and_score_not_ndps(self):
+    def test_qualified_percentiles_use_rdps_and_healer_score_is_retired(self):
         actor, _ = self.actor({'status': 'supported', 'staticAttributes': 'available'})
         self.run_personal(actor)
         rows = {row['name']: row for row in actor.statDict}
         self.assertEqual((rows['A']['rdpsRank'], rows['B']['rdpsRank']), (41, 79))
-        self.assertEqual((rows['H']['score'], rows['H']['scoreRank']), (88, 67))
-        self.assertEqual((rows['H']['scoreRankNum'], rows['H']['rdpsRankNum']), (30, 20))
+        self.assertFalse({'score', 'scoreRank', 'scoreRankNum'} & rows['H'].keys())
+        self.assertEqual(rows['H']['rdpsRankNum'], 20)
 
     def test_unknown_targets_keep_measured_order_even_with_effect_warning(self):
         actor, _ = self.actor(dict(EFFECT_ONLY, unresolvedTargets=['unknown-target']))

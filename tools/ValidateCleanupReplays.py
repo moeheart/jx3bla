@@ -18,16 +18,60 @@ def digest(value):
     return hashlib.sha256(payload).hexdigest()
 
 
+def _accepted_display_changes(path):
+    if not path.is_file():
+        return {}
+    cases = json.loads(path.read_text(encoding='utf-8'))['cases']
+    return {case['source']: case for case in cases}
+
+
+def _team_without_changed_fields(rows):
+    normalized = []
+    for original in rows:
+        row = original.copy()
+        if 'equip' in row:
+            row['equip'] = {k: v for k, v in row['equip'].items() if k not in ('sketch', 'forge')}
+        if str(row.get('occ', '')).rstrip('w').endswith('h'):
+            for key in ('score', 'scoreRank', 'scoreRankNum'):
+                row.pop(key, None)
+        normalized.append(row)
+    return normalized
+
+
+def _skills(actor, *, skip_healer_score=False):
+    skills = {}
+    for name, player in actor.occResult.items():
+        healer = str(player.get('occ', '')).rstrip('w').endswith('h')
+        skills[name] = {
+            group: {key: value for key, value in fields.items() if key != 'delaySamples'
+                    and not (skip_healer_score and healer and group == 'general' and key == 'score')}
+            for group, fields in player['result']['skill'].items()
+        }
+    return skills
+
+
+def baseline_differences(actor, actual, expected, source_sha256, baseline):
+    """Accept only the recorded pairs of pre/post-migration hashes on known inputs."""
+    changes = [key for key in actual if actual[key] != expected.get(key)]
+    receipt = Path(baseline).resolve().parents[1] / '9.0' / '装备摘要回归.json'
+    evidence = _accepted_display_changes(receipt).get(source_sha256, {})
+    for key, before, after in (('teamTableSha256', 'originalTeam', 'updatedTeam'),
+                               ('skillMetricsSha256', 'originalSkills', 'updatedSkills')):
+        if (key in changes and expected.get(key) == evidence.get(before)
+                and actual[key] == evidence.get(after)):
+            if key == 'teamTableSha256':
+                unchanged = digest(_team_without_changed_fields(actor.statDict)) == evidence['excludingPresentation']
+            else:
+                unchanged = digest(_skills(actor, skip_healer_score=True)) == evidence['normalizedSkills']
+            if unchanged:
+                changes.remove(key)
+    return changes
+
+
 def summarize(actor, window):
     uploads, _ = check_upload_payloads(window, actor)
     # Compare the skill data emitted by both generations. The new observation
     # counts are checked by the delay ranking tests, separately from legacy metrics.
-    skills = {}
-    for name, player in actor.occResult.items():
-        skills[name] = {
-            group: {key: value for key, value in fields.items() if key != 'delaySamples'}
-            for group, fields in player['result']['skill'].items()
-        }
     return {
         'boss': actor.bossAnalyseName, 'win': actor.win, 'winReason': actor.detail.get('winReason'),
         'boundaryMs': [actor.startTime, actor.finalTime, actor.battleTime],
@@ -36,7 +80,7 @@ def summarize(actor, window):
         'quality': actor.attributeStatus['status'],
         'damage': check_damage_conservation(actor.combatTracker),
         'teamTableSha256': digest(actor.statDict),
-        'skillMetricsSha256': digest(skills),
+        'skillMetricsSha256': digest(_skills(actor)),
         'timelineSha256': digest(actor.bh.log),
     }
 
@@ -61,16 +105,16 @@ def main():
                 'socket.socket.connect', side_effect=AssertionError('Network disabled')):
             actor = replay(path, window, healers=True)
             result = summarize(actor, window)
+            if 'result' in case:
+                changed = baseline_differences(actor, result, case['result'], case['sha256'], args.baseline)
+                if changed:
+                    raise AssertionError(f"{case['file']}: changed {', '.join(changed)}")
         results.append(dict(file=path.name, sha256=case['sha256'], result=result))
         print(f"{args.group} {len(results)}/{len(cases)} {actor.bossAnalyseName} win={actor.win}", flush=True)
         del actor
         gc.collect()
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(results, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-    for case, actual in zip(cases, results):
-        if 'result' in case and case['result'] != actual['result']:
-            changed = [key for key in actual['result'] if actual['result'][key] != case['result'].get(key)]
-            raise AssertionError(f"{case['file']}: changed {', '.join(changed)}")
 
 
 if __name__ == '__main__':

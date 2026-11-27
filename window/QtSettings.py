@@ -1,11 +1,10 @@
 """Qt dialogs for local analysis preferences, account operations and desktop help."""
 import json
 from pathlib import Path
-from types import SimpleNamespace
 from urllib.parse import urlencode
 from urllib.request import urlopen
 
-from PySide6.QtCore import QObject, QRunnable, QThreadPool, QTimer, QUrl, Signal, Slot, Qt
+from PySide6.QtCore import QObject, QRunnable, QThreadPool, QUrl, Signal, Slot, Qt
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (
     QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFileDialog, QFormLayout,
@@ -14,7 +13,7 @@ from PySide6.QtWidgets import (
 )
 
 from ConfigTools import Config, ensure_user_uuid
-from Constants import LVLNAME, LVLTABLE, get_api_url
+from Constants import get_api_url
 from window.LicenseText import LICENSE_TEXT
 
 
@@ -38,19 +37,6 @@ def _account_request(endpoint, **fields):
     data = urlencode(fields).encode("utf-8")
     with urlopen(get_api_url(endpoint), data=data, timeout=10) as response:
         return json.load(response)
-
-
-def _discover(player, installation, datatype, resolve):
-    from FileLookUp import FileLookUp
-
-    lookup = FileLookUp()
-    lookup.jx3path = installation
-    path = None
-    if resolve and player.strip():
-        path = lookup.initFromConfig(SimpleNamespace(item={"general": {
-            "jx3path": installation, "basepath": "", "datatype": datatype, "playername": player,
-        }}))
-    return lookup.getAllPlayers(), path
 
 
 class _Signals(QObject):
@@ -122,7 +108,6 @@ class SettingsDialog(QDialog):
         self.tabs.currentChanged.connect(self._tab_changed)
         self.finished.connect(self._finished)
         self._initial = {key: read() for key, read in self.fields.items()}
-        QTimer.singleShot(0, self, lambda: self._discover_paths(False))
 
     def _page(self, title):
         body = QWidget()
@@ -168,19 +153,8 @@ class SettingsDialog(QDialog):
 
     def _general(self):
         form = self._page("日志与上传")
-        settings = self.config.item["general"]
-        self.player = QComboBox()
-        self.player.setEditable(True)
-        self.player.setEditText(settings["playername"])
-        self.player.setObjectName("general.playername")
-        self.fields["general", "playername"] = self.player.currentText
-        form.addRow("记录者角色", self.player)
         self.game_path = self._text("general", "jx3path")
         form.addRow("正式服目录", _row(self.game_path, _button("选择…", lambda: self._browse(self.game_path))))
-        self.log_path = self._text("general", "basepath")
-        form.addRow("战斗日志目录", _row(self.log_path, _button("选择…", lambda: self._browse(self.log_path))))
-        self.find_path = _button("按角色自动获取日志目录", lambda: self._discover_paths(True))
-        form.addRow(self.find_path)
         self.datatype = self._choice(form, "general", "datatype", "日志格式",
                                      [("JCL", "jcl"), ("JX3DAT（历史明文格式）", "jx3dat")])
         form.addRow("团队名", self._text("general", "team"))
@@ -191,7 +165,6 @@ class SettingsDialog(QDialog):
     def _actor(self):
         form = self._page("团队复盘")
         self._check(form, "actor", "active", "启用团队复盘")
-        self._check(form, "actor", "checkall", "复盘所有战斗（含拉脱）")
         self._number(form, "actor", "failthreshold", "拉脱末尾无效秒数")
         entry = self._text("actor", "filter")
         entry.setPlaceholderText("s6746,b17933,b6131")
@@ -235,15 +208,9 @@ class SettingsDialog(QDialog):
         self.make_uuid = QCheckBox("保存时创建联网用户标识")
         self.make_uuid.setVisible(not bool(self.config.userUuid))
         form.addRow(self.make_uuid)
-        self.score = QLabel("—")
-        self.experience = QLabel("—")
-        form.addRow("积分", self.score)
-        form.addRow("经验与等级", self.experience)
         self.refresh = _button("刷新用户信息", self._refresh_user)
         self.refresh.setEnabled(bool(self.config.userUuid))
-        self.level_up = _button("升级", self._level_up)
-        self.level_up.setEnabled(False)
-        form.addRow(_row(self.refresh, self.level_up))
+        form.addRow(self.refresh)
         self.user_status = QLabel()
         self.user_status.setWordWrap(True)
         self.user_status.setTextFormat(Qt.TextFormat.PlainText)
@@ -253,32 +220,6 @@ class SettingsDialog(QDialog):
         path = QFileDialog.getExistingDirectory(self, "选择目录", entry.text())
         if path:
             entry.setText(path)
-
-    def _path_values(self):
-        return self.player.currentText(), self.game_path.text(), self.datatype.currentData()
-
-    def _discover_paths(self, resolve):
-        if self._closed:
-            return
-        values = self._path_values()
-        original_path = self.log_path.text()
-        def done(result):
-            players, path = result
-            if values != self._path_values():
-                return
-            self.player.blockSignals(True)
-            self.player.clear()
-            self.player.addItems(players)
-            self.player.setEditText(values[0])
-            self.player.blockSignals(False)
-            if resolve and original_path == self.log_path.text():
-                if path and Path(path).is_dir():
-                    self.log_path.setText(path)
-                    self.status.clear()
-                else:
-                    self.status.setText("请先填写记录者角色。" if not values[0].strip() else
-                                        "未找到战斗日志目录，请核对角色和正式服目录。")
-        self._start("resolve" if resolve else "list", lambda: _discover(*values, resolve), done)
 
     def _open_replay(self):
         replay = self.public_id.text().strip()
@@ -305,30 +246,12 @@ class SettingsDialog(QDialog):
             self.make_uuid.setText("保存时换发用户标识，并清除旧的本机绑定")
             self.make_uuid.setVisible(True)
             self.user_status.setText("服务端未找到这个用户标识。可以换发，或保留配置并稍后重试。")
-            self.level_up.setEnabled(False)
             return
         self._invalid_uuid = None
         self.make_uuid.setChecked(False)
         self.make_uuid.setVisible(False)
-        level, exp = int(data["lvl"]), int(data["exp"])
-        if not 0 <= level < len(LVLNAME):
-            raise ValueError("服务器返回了未知的等级。")
         self._account_loaded = True
-        self.score.setText(str(data["score"]))
-        limit = LVLTABLE[level + 1] if level + 1 < len(LVLTABLE) else None
-        self.experience.setText(f"{LVLNAME[level]}　{exp} / {limit}" if limit else f"{LVLNAME[level]}　{exp}")
-        self.level_up.setEnabled(limit is not None and exp >= limit)
-        self.user_status.clear()
-
-    def _level_up(self):
-        identifier = self.config.userUuid
-        def updated(data):
-            if data.get("result") == "success":
-                self.status.setText(str(data.get("info", "升级成功。")))
-                self._refresh_user()
-            else:
-                self.status.setText("升级失败，请刷新用户信息。")
-        self._start("upgrade", lambda: _account_request("/userLvlup", uuid=identifier), updated)
+        self.user_status.setText("用户标识有效。")
 
     def _start(self, name, work, callback):
         if name in self.jobs:

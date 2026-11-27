@@ -29,7 +29,7 @@ def fixture(mask=False):
               'equip': {'available': 1, 'score': 42000, 'raw': '1,2,3'},
               'review': {'score': 90, 'content': [
                   {'code': 1, 'status': 3, 'rate': 0, 'num': 1, 'duration': 6}]}}
-    players = {healer: {'occ': '5h', 'result': result, 'rank': {'general': {'rdps': percent}}},
+    players = {healer: {'occ': '5h', 'result': result, 'rank': {'general': {'rdps': percent},'healer': {'rhps': percent}}},
                player: {'occ': '2d', 'result': {'skill': {'general': {'rdps': 900}}}}}
     row = {'name': healer, 'occ': '5h', 'score': 90, 'scoreRank': 0, 'scoreRankNum': 3,
            'rdps': 102, 'ndps': 50, 'hps': 300, 'battle': {'swordActivations': 2}}
@@ -56,52 +56,69 @@ class BattleViewTests(unittest.TestCase):
         self.addCleanup(view.deleteLater)
         return view
 
-    def test_team_to_personal_rank_zero_equipment_and_talent(self):
+    def test_team_to_dense_personal_view_with_rank_talents_and_search(self):
         view = self.view(fixture())
-        self.assertIn('0%', cells(view.team_table)[0])
+        self.assertIn('0%（3份）', cells(view.team_table)[0])
         self.assertTrue(view.open_player('云裳乙'))
-        self.assertEqual(view.tabs.currentWidget(), view.personal_tabs.parentWidget())
         self.assertFalse(view.open_player('未知'))
-        self.assertIn('回雪飘摇', str(cells(view.personal_tabs.widget(0).findChild(QTableView))))
-        self.assertIn('0%', str(cells(view.personal_tabs.widget(0).findChild(QTableView))))
-        view.personal_tabs.setCurrentIndex(1)
-        self.assertTrue(any('甲穴,丙穴' in label.text() for label in view.personal_tabs.widget(1).findChildren(QLabel)))
-        view.personal_tabs.setCurrentIndex(3)
-        self.assertIn('重伤了1次', view.personal_tabs.widget(3).findChild(QPlainTextEdit).toPlainText())
+        self.assertIn('回雪飘摇', str(cells(view.skill_table)))
+        labels = [label.text() for label in view.personal_dashboard.findChildren(QLabel)]
+        self.assertTrue(any('甲穴,丙穴' in text for text in labels))
+        self.assertFalse(any('评分' in text for text in labels))
+        self.assertIn('42000', view.equipment_summary.text())
+        from PySide6.QtCore import Qt
+        self.assertEqual(view.player_selector.completer().filterMode(), Qt.MatchFlag.MatchContains)
+        self.assertTrue(view.player_selector.isEditable())
         self.assertTrue(view.open_player('花间甲'))
-        self.assertTrue(any('没有评分建议' in label.text() for label in view.personal_tabs.widget(3).findChildren(QLabel)))
+        self.assertIn('装备', view.equipment_summary.text())
 
-    def test_cannot_display_precise_rank_for_missing_gear(self):
+    def test_reference_scope_readable_gear_and_typed_rank_fallback(self):
         actor = fixture()
-        actor.attributeStatus = {'status': 'incomplete', 'targetProfileUnavailable': True}
+        actor.playerNames = {'123': '云裳乙', '234': '花间甲'}
+        actor.attributeStatus = {'status': 'estimated',
+            'estimatedPlayers': {'234': {}},
+            'missingEquipmentPlayers': {'234': {'hasEquipment': False, 'reason': 'missing_slots'}}}
+        actor.displayRanks = {'云裳乙': {'metric': 'rhps', 'scope':'team', 'reference':True,
+                                      'percent':25, 'num':4, 'cohort':'治疗'}}
         view = self.view(actor)
-        row = cells(view.team_table)[0]
-        self.assertEqual(row[2:8], ['—', '50', '300', '300', '—', '待校准'])
+        self.assertIn('25% · 团内治疗参考（4人）', cells(view.team_table)[0])
+        self.assertTrue(any('1/2 人资料齐全' in label.text() for label in view.findChildren(QLabel)))
         view.open_player('云裳乙')
-        rows = cells(view.personal_tabs.widget(0).findChild(QTableView))
-        self.assertEqual(next(r for r in rows if r[1] == 'rDPS')[3], '—')
+        self.assertNotIn('估算', view.equipment_summary.text())
+        view.open_player('花间甲')
+        self.assertIn('本次未记录该玩家装备，属性采用估算',view.equipment_summary.text())
+        incomplete = fixture()
+        incomplete.attributeStatus = {'status':'incomplete', 'targetProfileUnavailable':True}
+        other = self.view(incomplete)
+        self.assertEqual(cells(other.team_table)[0][2], '—')
+        self.assertIn('样本不足', cells(other.team_table)[0])
 
-    def test_mechanics_and_all_tracker_details_obey_mask(self):
+    def test_team_and_tracker_details_obey_mask_and_show_occupation_roles(self):
+        from PySide6.QtCore import Qt
+        from window.QtOccupation import ICON_IDS, occupation_icon
         actor = fixture(mask=True)
+        actor.detail['phaseTimes'] = {'常规阶段': 10}
         view = self.view(actor)
         self.assertNotIn('云裳乙', str(cells(view.team_table)))
-        view.tabs.setCurrentIndex(1)
-        self.assertIn('0:00.500', str(cells(view.mechanic_table)))
-        self.assertNotIn('花间甲', str(cells(view.mechanic_table)))
-        view.tabs.setCurrentIndex(3)
+        self.assertNotIn('阶段与机制', [view.tabs.tabText(i) for i in range(view.tabs.count())])
+        self.assertTrue(any('常规阶段' in label.text() for label in view.findChildren(QLabel)))
+        index = view.team_table.model().index(0, 0)
+        self.assertTrue(index.data(Qt.ItemDataRole.ForegroundRole).color().isValid())
+        self.assertFalse(index.data(Qt.ItemDataRole.DecorationRole).pixmap(18).isNull())
+        self.assertTrue(all(not occupation_icon(occ).pixmap(18).isNull() for occ in ICON_IDS))
+        view.tabs.setCurrentIndex(2)
         view.combat_selector.setCurrentIndex(view.combat_selector.findData('rhps'))
         self.assertIn('300', str(cells(view.combat_table)))
         self.assertIn('回雪', str(cells(view.combat_skill)))
         self.assertIn('100.0%', str(cells(view.combat_targets)))
         self.assertNotIn('花间甲', str(cells(view.combat_targets)))
         view.open_player('云裳乙')
-        view.personal_tabs.setCurrentIndex(2)
-        self.assertNotIn('花间甲', str(cells(view.personal_tabs.widget(2).findChild(QTableView))))
+        self.assertNotIn('花间甲', str(cells(view.support_table)))
 
     def test_manual_records_share_scores_with_battle_and_copy_masked_text(self):
         actor = fixture(mask=True)
         view = self.view(actor)
-        view.tabs.setCurrentIndex(2)
+        view.tabs.setCurrentIndex(1)
         self.assertNotIn('云裳乙', view.pot_details.toPlainText())
         view.adjust_pot(-1)
         self.assertEqual(actor.potList[0][6], -1)
@@ -139,7 +156,7 @@ class BattleViewTests(unittest.TestCase):
             clipboard.return_value.setText.assert_called_once_with(url)
         actor.occResult['云裳乙']['result']['overall']['shortID'] = '数据保存出错'
         view.tabs.setCurrentIndex(0)
-        view.tabs.setCurrentIndex(5)
+        view.tabs.setCurrentIndex(4)
         self.assertTrue(view.web_button.isHidden())
 
     def test_replacing_player_pages_releases_previous_models(self):
@@ -148,8 +165,8 @@ class BattleViewTests(unittest.TestCase):
         from PySide6.QtCore import QCoreApplication, QEvent
         view = self.view(fixture())
         view.open_player('云裳乙')
-        old_page = weakref.ref(view.personal_tabs.widget(0))
-        old_model = weakref.ref(old_page().findChild(QTableView).model())
+        old_page = weakref.ref(view.personal_dashboard)
+        old_model = weakref.ref(view.skill_table.model())
         view.open_player('花间甲')
         QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
         gc.collect()

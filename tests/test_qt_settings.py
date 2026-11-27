@@ -67,15 +67,11 @@ class SettingsTests(unittest.TestCase):
         self.addCleanup(tmp.cleanup)
         self.path = Path(tmp.name) / "config.ini"
         self.config = load_desktop_config(self.path)
-        discover = patch("window.QtSettings._discover", return_value=([], None))
-        self.discovery = discover.start()
-        self.addCleanup(discover.stop)
 
     def dialog(self):
         result = SettingsDialog(self.config)
         self.addCleanup(result.deleteLater)
         result.show()
-        self.wait_for(lambda: "list" not in result.jobs)
         return result
 
     def wait_for(self, condition):
@@ -122,18 +118,6 @@ class SettingsTests(unittest.TestCase):
         self.assertIn("MixedCase=100%", self.path.read_text("utf-8"))
         self.assertEqual(dialog.result(), QDialog.DialogCode.Accepted)
 
-    def test_refresh_discovery_leaves_manual_text_on_failure(self):
-        dialog = self.dialog()
-        dialog.player.setEditText("Recorder")
-        dialog.log_path.setText("manual")
-        self.discovery.return_value = (["other", "Recorder"], "no-such-path")
-        dialog._discover_paths(True)
-        self.wait_for(lambda: "resolve" not in dialog.jobs)
-        self.assertEqual(dialog.log_path.text(), "manual")
-        self.assertEqual(dialog.player.currentText(), "Recorder")
-        self.assertEqual(dialog.player.count(), 2)
-        dialog.reject()
-
     def test_user_information_is_lazy_and_runs_off_the_gui_thread(self):
         import threading
         self.config.saveSettings({"user": {"uuid": "sample", "id": "name"}})
@@ -147,8 +131,8 @@ class SettingsTests(unittest.TestCase):
             request.assert_not_called()
             dialog.tabs.setCurrentIndex(dialog.account_tab)
             self.wait_for(lambda: "account" not in dialog.jobs)
-            self.assertEqual(dialog.score.text(), "7")
-            self.assertTrue(dialog.level_up.isEnabled())
+            self.assertEqual(dialog.user_status.text(), "用户标识有效。")
+            self.assertFalse(hasattr(dialog, "level_up"))
             dialog.reject()
 
     def test_binding_is_deferred_until_saved_and_only_persists_accepted_name(self):

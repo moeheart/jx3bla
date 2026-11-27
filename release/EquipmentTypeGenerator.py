@@ -1,106 +1,9 @@
 # Created by moeheart at 10/27/2021
 # 装备简略信息的生成器，用于从解包表生成装备的种类。
 
-import os
 import csv
 
 if __name__ == "__main__":
-    # 数据准备
-    resultDict = {}
-
-    with open('equip/resources/cangshengtf/Custom_Armor.tab', 'r', encoding='utf-8')as f:
-
-        data_7 = []
-        f_csv = csv.reader(f, delimiter='\t')
-        headers = next(f_csv)
-        print(headers)
-
-        for row in f_csv:
-            line = {}
-            for i in range(len(row)):
-                line[headers[i]] = row[i]
-            data_7.append(line)
-
-        for line in data_7:
-            name = line["Name"]
-            id = "7,%s" % line["ID"]
-            attr = ""
-            if "星演" in name:
-                attr = "星演"
-            if "惊尘" in name:
-                attr = "惊尘"
-            if "百相" in name:
-                attr = "百相"
-            if "择芳" in name:
-                attr = "择芳"
-            if "展锋" in name:
-                attr = "展锋"
-            if "揽江" in name:
-                attr = "揽江"
-            if "灵源" in name:
-                attr = "灵源"
-            if line["GetType"] == "生活技能":
-                attr = "切糕"
-            if line["MaxStrengthLevel"] and int(line["MaxStrengthLevel"]) < 6:
-                attr = "精简"
-
-            if attr != "":
-                resultDict[id] = attr
-
-    with open('equip/resources/cangshengtf/Custom_Weapon.tab', 'r', encoding='utf-8')as f:
-
-        data_6 = []
-        f_csv = csv.reader(f, delimiter='\t')
-        headers = next(f_csv)
-        print(headers)
-
-        for row in f_csv:
-            line = {}
-            for i in range(len(row)):
-                line[headers[i]] = row[i]
-            data_6.append(line)
-
-        for line in data_6:
-            name = line["Name"]
-            id = "6,%s" % line["ID"]
-            attr = ""
-            if line["MaxStrengthLevel"] and int(line["MaxStrengthLevel"]) < 6:
-                attr = "精简"
-            if line["_IsSpecialMagicType"] == "1":
-                attr = "特效武器"
-            if line["BelongMap"] == "橙武":
-                attr = "大橙武"
-            if line["BelongMap"] == "奉天证道版本全门派特殊武器升级":
-                attr = "门派特效"
-
-            if attr != "":
-                resultDict[id] = attr
-
-    with open('equip/resources/cangshengtf/Custom_Trinket.tab', 'r', encoding='utf-8')as f:
-
-        data_8 = []
-        f_csv = csv.reader(f, delimiter='\t')
-        headers = next(f_csv)
-        print(headers)
-
-        for row in f_csv:
-            line = {}
-            for i in range(len(row)):
-                line[headers[i]] = row[i]
-            data_8.append(line)
-
-        for line in data_8:
-            name = line["Name"]
-            id = "8,%s" % line["ID"]
-            attr = ""
-            if line["MaxStrengthLevel"] != "" and int(line["MaxStrengthLevel"]) < 6:
-                attr = "精简"
-            if line["SkillID"] != "":
-                attr = "特效腰坠"
-
-            if attr != "":
-                resultDict[id] = attr
-
     # 读取附魔等级
     enchantDict = {}
 
@@ -148,9 +51,8 @@ if __name__ == "__main__":
     # 输出python文件
     g = open("equip/EquipmentType.py", "w", encoding='utf-8')
     text = """# [Auto-Generated File]
-EQUIPMENT_TYPE = %s
 ENCHANT_TYPE = %s
-COLOR_TYPE = %s"""%(str(resultDict), str(enchantDict), str(colorDict))
+COLOR_TYPE = %s"""%(str(enchantDict), str(colorDict))
     g.write(text)
     g.close()
 

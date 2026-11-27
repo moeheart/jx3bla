@@ -1,11 +1,15 @@
 """Qt rendering, filtering, sharing formats and legacy profession representations."""
 from copy import deepcopy
 import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from types import SimpleNamespace as NS
 import unittest
+from unittest.mock import patch
 
 from PySide6.QtCore import Qt
 from PySide6.QtTest import QTest
+from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QApplication
 
 from data.PersonalTimeline import ACTION_ICONS, Observation, build_personal_timelines
@@ -54,25 +58,29 @@ class TimelineTests(unittest.TestCase):
     def test_team_filter_offset_copy_and_simultaneous_clickable_hits(self):
         actor=sample()
         view=self.show(actor)
+        self.assertEqual(view.scope.currentText(), "全部记录")
+        view.scope.setCurrentIndex(0)
+        self.app.processEvents()
         marked=view.canvas.marks
         self.assertIn("终阶段", [m.name for m in marked if m.track == PHASES])
         self.assertNotIn("尚未标注", [m.name for m in marked])
         self.assertEqual(len([m for m in marked if m.track==CALLS]),1)
-        rows=[row[2] for row in view.canvas.rows if any(m.track==MECHANICS for _,_,m in row[2])]
-        self.assertEqual(len(rows),2)
+        overlapping = [g for g in view.canvas.rows[0].groups if g.name in ("机制", "重合机制")]
+        self.assertEqual(len({g.axis_y for g in overlapping}), 2)
         rect,mark=next((r,m) for r,m in view.canvas.hits if m.name=="机制")
         QTest.mouseClick(view.canvas.viewport(), Qt.LeftButton, pos=rect.center())
         self.assertIn("0:02.0 – 0:09.0",view.detail.text())
         view.scope.setCurrentIndex(1)
         self.assertIn("尚未标注", [m.name for m in view.canvas.marks])
         view.offset.setValue(1)
-        view.copy_axis(False)
-        self.assertEqual(self.app.clipboard().text(),"1.0,机制;\n1.0,重合机制;\n")
-        view.copy_axis(True)
-        self.assertEqual(self.app.clipboard().text(),"1.0,机制;\n1.0,重合机制;\n")
-        view.offset.setValue(-2)
-        view.copy_axis(False)
-        self.assertTrue(self.app.clipboard().text().startswith("2.0,开场;"))
+        with patch('window.QtTimeline.QApplication.clipboard') as clipboard:
+            view.copy_axis(False)
+            clipboard.return_value.setText.assert_called_with("1.0,机制;\n1.0,重合机制;\n")
+            view.copy_axis(True)
+            clipboard.return_value.setText.assert_called_with("1.0,机制;\n1.0,重合机制;\n")
+            view.offset.setValue(-2)
+            view.copy_axis(False)
+            self.assertTrue(clipboard.return_value.setText.call_args.args[0].startswith("2.0,开场;"))
         self.assertEqual(export_text([(5000,"甲",True),(6500,"乙",True),(8000,"丙",True)],2,True),
                          "3.0,甲;6.0,丙;\n4.5,乙;\n")
 
@@ -80,7 +88,10 @@ class TimelineTests(unittest.TestCase):
         actor=sample(1)
         before=deepcopy(actor.occResult)
         view=self.show(actor,"测试玩家")
-        self.assertEqual(len([m for m in view.canvas.marks if m.track==NORMAL]),1)
+        casts = [g for row in view.canvas.rows for g in row.groups if g.track == NORMAL]
+        self.assertEqual(len(casts),1)
+        self.assertEqual(casts[0].label, "读条 ×4")
+        self.assertEqual(len(casts[0].records), 4)
         self.assertTrue(any(m.track==SPECIAL for m in view.canvas.marks))
         view.scope.setCurrentIndex(1)
         self.assertEqual(len([m for m in view.canvas.marks if m.track==NORMAL]),4)
@@ -93,19 +104,27 @@ class TimelineTests(unittest.TestCase):
         team=timeline_data(actor,None)[1]
         self.assertTrue(any("测试玩家" in m.detail for m in team if m.track==CALLS))
 
-    def test_zoom_scroll_end_and_empty_legacy_replay(self):
+    def test_reflow_reaches_last_event_without_horizontal_scroll_at_all_widths(self):
         actor=sample()
         actor.bh.log["environment"].append(env("末段", actor.finalTime-1000))
         view=self.show(actor)
-        view.zoom.setCurrentIndex(4)
-        bar=view.canvas.horizontalScrollBar()
-        self.assertGreater(bar.maximum(),0)
-        bar.setValue(bar.maximum())
-        self.app.processEvents()
-        self.assertIn("末段",[m.name for _,m in view.canvas.hits])
-        view.zoom.setCurrentIndex(0)
-        self.app.processEvents()
-        self.assertLess(bar.maximum(),40)
+        for width in (360, 720, 1220):
+            view.resize(width, 250)
+            for zoom in range(view.zoom.count()):
+                view.zoom.setCurrentIndex(zoom)
+                self.app.processEvents()
+                self.assertEqual(view.canvas.horizontalScrollBar().maximum(), 0)
+                for row in view.canvas.rows:
+                    for g in row.groups:
+                        self.assertGreaterEqual(g.rect.left(), 0)
+                        self.assertLess(g.rect.right(), view.canvas.viewport().width())
+                    for i,g in enumerate(row.groups):
+                        self.assertFalse(any(g.rect.intersects(h.rect) for h in row.groups[i+1:]))
+                bar = view.canvas.verticalScrollBar()
+                last = next(g for row in view.canvas.rows for g in row.groups if g.name == "末段")
+                bar.setValue(last.axis_y - view.canvas.viewport().height()//2)
+                self.app.processEvents()
+                self.assertIn("末段",[m.name for _,m in view.canvas.hits])
         blank=self.show(NS())
         self.assertFalse(blank.canvas.rows)
         self.assertFalse(blank.grab().isNull())
@@ -209,10 +228,13 @@ class TimelineTests(unittest.TestCase):
     def test_team_focus_groups_calls_while_full_retains_the_players(self):
         actor=sample()
         actor.bh.log["call"]["other"]=[env("点名",actor.startTime+3015)]
+        actor.bh.log["environment"].append(env("点名",actor.startTime+2670))
         view=self.show(actor)
-        calls=[m for m in view.canvas.marks if m.track==CALLS]
+        calls=[g for row in view.canvas.rows for g in row.groups if g.name=="点名"]
         self.assertEqual(len(calls),1)
-        self.assertIn("2 条",calls[0].name)
+        self.assertEqual(len(calls[0].records),3)
+        self.assertEqual(calls[0].times,(2670,))
+        self.assertTrue(any('测试玩家' in m.detail for m in calls[0].records))
         view.scope.setCurrentIndex(1)
         self.assertEqual(sum(m.track==CALLS for m in view.canvas.marks),2)
 
@@ -252,12 +274,40 @@ class TimelineTests(unittest.TestCase):
         actor.bh.log["environment"]=[env("事件",actor.startTime+i*1000) for i in range(10000)]
         view=self.show(actor)
         self.assertEqual(len(view.exports),10000)
-        self.assertLess(len(view.canvas.hits),100)
-        bar=view.canvas.horizontalScrollBar()
+        self.assertLess(len(view.canvas.hits),600)
+        bar=view.canvas.verticalScrollBar()
         bar.setValue(bar.maximum())
         self.app.processEvents()
-        self.assertLess(len(view.canvas.hits),100)
-        self.assertGreater(max(m.start for _,m in view.canvas.hits),9900000)
+        self.assertLess(len(view.canvas.hits),600)
+        self.assertGreater(max(g.times[-1] for _,g in view.canvas.hits),9900000)
+
+    def test_compact_skill_rows_and_full_image_include_every_minute_and_occurrence(self):
+        actor = sample()
+        replay = actor.occResult['测试玩家']['result']['replay']
+        replay['normal'][1]['num'] = 5
+        replay['normal'].append(env('读条', actor.startTime+71000))
+        view = TimelineView.from_actor(actor, '测试玩家', compact=True)
+        self.addCleanup(view.close)
+        view.resize(720,180)
+        view.show()
+        self.app.processEvents()
+        self.assertEqual(len(view.canvas.rows),1)
+        group = next(g for g in view.canvas.rows[0].groups if g.track==NORMAL)
+        self.assertEqual(group.label,'读条 ×5')
+        self.assertEqual(group.times[-1],71000)
+        self.assertIn('读条 ×5', [m.name for m in group.records])
+        self.assertEqual(view.canvas.horizontalScrollBar().maximum(),0)
+        view.zoom.setCurrentIndex(2)
+        self.app.processEvents()
+        self.assertGreater(len(view.canvas.rows),1)
+        self.assertGreater(view.canvas.content_height,view.canvas.viewport().height())
+        with TemporaryDirectory() as tmp:
+            path=Path(tmp)/'sheet.png'
+            view.canvas.save_png(path)
+            image=QImage(str(path))
+            self.assertFalse(image.isNull())
+            self.assertEqual(image.width(), view.canvas.viewport().width())
+            self.assertEqual(image.height(), view.canvas.content_height)
 
 
 if __name__=="__main__":

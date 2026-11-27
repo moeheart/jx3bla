@@ -1,0 +1,60 @@
+{
+  "preview": {
+    "sha256": "e63b53736152aa96826834aaf7146c08de0762ddc39bc8a1db33e564c37a8338",
+    "bytes": 65234354,
+    "projectModules": 140,
+    "qtImages": 380,
+    "roleIconCount": 64,
+    "gameTables": 15
+  },
+  "testDate": "2026-11-26",
+  "formalInstallationRegistryDiscoveredRecorders": 38,
+  "reportedFolderEntries": 370,
+  "reportedCase": {
+    "player": "迷你花花",
+    "localTimes": [
+      "00:07",
+      "00:14",
+      "00:20",
+      "00:22",
+      "00:29",
+      "00:38"
+    ],
+    "files": 6,
+    "personalDashboardsPerPass": 136,
+    "sourceAndFrozenResultsAgree": true,
+    "reopenedWithoutParsingPerPass": 6,
+    "uploadCandidatesOnReopen": 0,
+    "network": "disabled"
+  },
+  "originalReplayGroups": {
+    "normal": {
+      "files": 5,
+      "victories": 5,
+      "personalDashboards": 125
+    },
+    "heroic13": {
+      "files": 6,
+      "victories": 5,
+      "personalDashboards": 150
+    },
+    "heroic14": {
+      "files": 3,
+      "victories": 3,
+      "personalDashboards": 75
+    }
+  },
+  "allowedPresentationChanges": "装备摘要回归.json",
+  "windowsScalePercent": [
+    100,
+    125,
+    150,
+    200
+  ],
+  "compactMainWindow": [
+    670,
+    415
+  ],
+  "pythonTestsPassed": 559,
+  "javascriptTestsPassed": 8
+}

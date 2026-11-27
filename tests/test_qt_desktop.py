@@ -161,3 +161,30 @@ class ShellTests(unittest.TestCase):
             self.window._stop_watch()
             self.window._watch_files(0,['stale.jcl'])
             queue.assert_not_called()
+
+    def test_selecting_main_window_recorder_lists_entire_directory_without_analysis(self):
+        folder = Path(self.folder.name)
+        for name in ['甲','乙']:
+            directory = folder/name
+            directory.mkdir()
+            (directory/'one.jcl').touch()
+            (directory/'two.fstt.jx3dat').touch()
+            (directory/'config.jx3dat').touch()
+        roles = [('甲',folder/'甲'),('乙',folder/'乙')]
+        from PySide6.QtTest import QTest
+        def wait_for_folder(path):
+            for _ in range(100):
+                QTest.qWait(10)
+                if self.window.folder == path:
+                    return
+            self.fail('目录扫描未完成')
+        with patch('window.QtDesktop.discover_recorders',return_value=roles), patch.object(self.session,'analyse') as analyse:
+            self.window.discover_library()
+            wait_for_folder(folder/'甲')
+            self.assertEqual(self.window.history.rowCount(),2)
+            self.assertEqual(self.window.history.item(0,3).text(),'未解析')
+            self.window.select_recorder(1)
+            wait_for_folder(folder/'乙')
+            self.assertEqual(self.window.config.item['general']['playername'],'乙')
+            self.assertEqual(self.window.recorder.currentText(),'乙')
+            analyse.assert_not_called()

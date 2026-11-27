@@ -6,15 +6,16 @@ import urllib.request
 from collections import defaultdict, deque
 from pathlib import Path
 
-from PySide6.QtCore import QEvent, QObject, Qt, QTimer, QUrl, Signal
+from PySide6.QtCore import QEvent, QFileSystemWatcher, QObject, Qt, QTimer, QUrl, Signal
 from PySide6.QtGui import QAction, QDesktopServices, QColor, QFont, QIcon, QPalette
 from PySide6.QtWidgets import (
-    QAbstractItemView, QApplication, QDialog, QFileDialog, QHBoxLayout,
+    QAbstractItemView, QApplication, QComboBox, QDialog, QFileDialog, QHBoxLayout,
     QGridLayout, QHeaderView, QLabel, QMainWindow, QMessageBox, QPushButton, QStackedWidget,
     QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
 from Constants import ANNOUNCEMENT, EDITION, get_api_url, get_logs_url
+from data.ReplayLibrary import ReplayLibrary, discover_recorders, fingerprint, list_logs, log_labels, same_raid, signature
 from data.ReplaySession import AnalysisCancelled, ReplaySession, display_result
 from tools.ResourcePath import get_resource_path, get_writable_path
 
@@ -97,15 +98,6 @@ def set_row(widget, index, values):
         widget.setItem(index, col, QTableWidgetItem(str(value)))
 
 
-def log_folder(config):
-    from FileLookUp import FileLookUp
-    lookup = FileLookUp()
-    lookup.initFromConfig(config)
-    if not lookup.basepath or not Path(lookup.basepath).is_dir():
-        raise ValueError('找不到日志目录。请在设置中选择记录者或日志文件夹。')
-    return lookup
-
-
 class StableLogs:
     """Report every changed file once, after its size and timestamp settle."""
     def __init__(self, folder, suffix):
@@ -136,11 +128,12 @@ class StableLogs:
 
 class DesktopSignals(QObject):
     notice = Signal(dict)
-    result = Signal(object, object)
+    result = Signal(object, object, object)
     error = Signal(str, str)
     finished = Signal()
     readyFiles = Signal(int, object)
     watchError = Signal(int, str)
+    catalog = Signal(int, object)
     service = Signal(object)
     step = Signal(str)
 
@@ -148,13 +141,25 @@ class DesktopSignals(QObject):
 class DesktopWindow(QMainWindow):
     batchFinished = Signal()
 
-    def __init__(self, config, parent=None, *, services=True, session=None):
+    def __init__(self, config, parent=None, *, services=True, session=None, discover=None, cache_path=None):
         super().__init__(parent)
         self.config = config
         self.services = services
         self.signals = DesktopSignals()
         self.session = session or ReplaySession()
         self.session.notice = self.signals.notice.emit
+        config_file = getattr(config, 'filename', None)
+        default_cache = Path(config_file).parent / 'cache' / 'replays.sqlite3' if config_file else None
+        self.library = ReplayLibrary(cache_path or default_cache) if (cache_path or default_cache) else None
+        self.library_version = signature(config)
+        self.folder = None
+        self.files = {}
+        self.saved = {}
+        self.catalog_rows = {}
+        self.open_when_ready = set()
+        self.current_stamps = {}
+        self.last_input = None
+        self.catalog_generation = 0
         self.results = []
         self.paths = []
         self.dialogs = {}
@@ -178,8 +183,19 @@ class DesktopWindow(QMainWindow):
                              (self.signals.readyFiles, self._watch_files),
                              (self.signals.watchError, self._watch_error),
                              (self.signals.service, self._service),
+                             (self.signals.catalog, self._catalog_ready),
                              (self.signals.step, self.status_label.setText)):
             signal.connect(slot, Qt.ConnectionType.QueuedConnection)
+        self.folder_watch = QFileSystemWatcher(self)
+        self.rescan = QTimer(self)
+        self.rescan.setSingleShot(True)
+        self.rescan.setInterval(600)
+        self.rescan.timeout.connect(self.refresh_folder)
+        self.folder_watch.directoryChanged.connect(lambda _: self.rescan.start())
+        if discover is None:
+            discover = services
+        if discover:
+            QTimer.singleShot(0, self, self.discover_library)
         if services:
             QTimer.singleShot(0, self._start_services)
 
@@ -235,30 +251,51 @@ class DesktopWindow(QMainWindow):
         history = QWidget()
         hist = QVBoxLayout(history)
         hist.setContentsMargins(0, 0, 0, 0)
+        source = QHBoxLayout()
+        source.addWidget(QLabel('记录角色'))
+        self.recorder = QComboBox()
+        self.recorder.setEditable(True)
+        self.recorder.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
+        self.recorder.setMinimumContentsLength(8)
+        self.recorder.lineEdit().setPlaceholderText('查找角色名')
+        self.recorder.completer().setFilterMode(Qt.MatchFlag.MatchContains)
+        self.recorder.activated.connect(self.select_recorder)
+        source.addWidget(self.recorder, 1)
+        self.folder_btn = self._button('选择目录…', self.choose_folder)
+        source.addWidget(self.folder_btn)
+        hist.addLayout(source)
+        self.folder_label = QLabel()
+        self.folder_label.setObjectName('muted')
+        self.folder_label.setTextFormat(Qt.TextFormat.PlainText)
+        self.folder_label.setWordWrap(True)
+        hist.addWidget(self.folder_label)
         self.toolbar = QGridLayout()
-        self.import_btn = self._button('导入日志…', self.choose_files, 'primary')
-        self.auto_btn = self._button('分析最近副本', self.latest)
-        self.watch_btn = self._button('开始监听', self.toggle_watch)
+        self.detail_btn = self._button('解析选中战斗', self.open_selected, 'primary')
+        self.detail_btn.setEnabled(False)
+        self.refresh_btn = self._button('刷新目录', self.discover_library)
+        self.watch_btn = self._button('自动解析新战斗', self.toggle_watch)
         self.cancel_btn = self._button('停止分析', self.cancel_batch)
         self.cancel_btn.setEnabled(False)
         self.compact = None
         self._arrange_toolbar()
         hist.addLayout(self.toolbar)
         self.record_stack = QStackedWidget()
-        self.empty = QLabel('尚无战斗记录\n\n导入已有日志，或开启监听以分析新战斗。')
+        self.empty = QLabel('此目录暂无战斗记录。可切换记录角色或选择日志目录。')
         self.empty.setObjectName('muted')
         self.empty.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.record_stack.addWidget(self.empty)
-        self.history = table(('开战时间（本机）', '首领', '地图', '结果', '时长', '人数'))
+        self.history = table(('开战时间（本机）', '首领', '地图', '解析状态', '结果', '时长', '人数'))
         self.history.horizontalHeader().setStretchLastSection(False)
         self.history.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
-        self.history.cellDoubleClicked.connect(lambda row, col: self.open_result(row))
+        self.history.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
+        self.history.cellDoubleClicked.connect(lambda row, col: self.open_path(self.row_path(row)))
+        self.history.itemSelectionChanged.connect(self._selection_changed)
         self.record_stack.addWidget(self.history)
         hist.addWidget(self.record_stack, 1)
         actions = QHBoxLayout()
-        self.detail_btn = self._button('打开选中战斗', self.open_selected)
-        self.detail_btn.setEnabled(False)
-        actions.addWidget(self.detail_btn)
+        self.reanalyse_btn = self._button('重新解析', self.reanalyse_selected)
+        self.reanalyse_btn.setEnabled(False)
+        actions.addWidget(self.reanalyse_btn)
         actions.addStretch()
         self.upload_btn = self._button('上传待传记录', self.upload)
         actions.addWidget(self.upload_btn)
@@ -301,7 +338,7 @@ class DesktopWindow(QMainWindow):
         if self.compact == compact:
             return
         self.compact = compact
-        buttons = (self.import_btn, self.auto_btn, self.watch_btn, self.cancel_btn)
+        buttons = (self.detail_btn, self.refresh_btn, self.watch_btn, self.cancel_btn)
         for button in buttons:
             self.toolbar.removeWidget(button)
         columns = 2 if compact else 4
@@ -318,19 +355,164 @@ class DesktopWindow(QMainWindow):
             self.refresh_summary()
 
     def choose_files(self):
-        folder = self.config.item['general'].get('basepath', '')
+        folder = str(self.folder or '')
         files, _ = QFileDialog.getOpenFileNames(self, '导入战斗记录', folder,
                     '战斗记录 (*.jcl *.fstt.jx3dat);;所有文件 (*)')
         if files:
             self.enqueue_files(files)
 
-    def latest(self):
-        def discover():
-            lookup = log_folder(self.config)
-            final, attempts, _ = lookup.getLocalFile()
-            files = attempts if self.config.item['actor'].get('checkall') else final
-            self._analyse([Path(lookup.basepath) / item[0] for item in files])
-        self._start(discover)
+    def choose_folder(self):
+        folder = QFileDialog.getExistingDirectory(self, '选择战斗日志目录', str(self.folder or ''))
+        if folder:
+            self.config.saveSettings({'general': {'basepath':folder, 'playername':''}})
+            self.discover_library()
+
+    def select_recorder(self, index):
+        choice = self.recorder.itemData(index)
+        if choice is None:
+            return
+        name, folder = choice
+        self.config.saveSettings({'general': {'playername':name, 'basepath':str(folder)}})
+        self.discover_library()
+
+    def discover_library(self):
+        self._scan_library(True)
+
+    def refresh_folder(self):
+        self._scan_library(False)
+
+    def _scan_library(self, discover):
+        self.catalog_generation += 1
+        generation = self.catalog_generation
+        general = self.config.item['general'].copy()
+        current, version, library = self.folder, self.library_version, self.library
+        signal = self.signals.catalog
+        def scan():
+            try:
+                roles = None
+                folder = current
+                if discover or folder is None:
+                    roles = discover_recorders(general.get('jx3path',''), general.get('datatype','jcl'))
+                    explicit = general.get('basepath', '')
+                    if explicit and Path(explicit).is_dir():
+                        folder = Path(explicit)
+                    else:
+                        candidates = [p for n,p in roles if n == general.get('playername')]
+                        folder = candidates[0] if candidates else (roles[0][1] if roles else Path.cwd())
+                folder = folder.resolve()
+                files = list_logs(folder)
+                warning = None
+                try:
+                    saved = library.summaries(folder, files, version) if library else {}
+                except Exception as exc:
+                    warning = str(exc)
+                    saved = {}
+                signal.emit(generation, (roles, folder, files, saved, warning))
+            except Exception as exc:
+                signal.emit(generation, (None, None, {}, {}, str(exc)))
+        threading.Thread(target=scan, daemon=True, name='replay-directory').start()
+
+    def _catalog_ready(self, generation, data):
+        if generation != self.catalog_generation or self.closing:
+            return
+        roles, folder, files, saved, error = data
+        if error:
+            self._error('读取战斗目录' if folder is None else '读取已存复盘', error)
+            if folder is None:
+                return
+        previous = self.row_path(self.history.currentRow())
+        if folder != self.folder:
+            self._stop_watch()
+            if self.folder_watch.directories():
+                self.folder_watch.removePaths(self.folder_watch.directories())
+            self.folder_watch.addPath(str(folder))
+        self.folder = folder
+        if roles is not None:
+            selected = self.config.item['general'].get('playername','')
+            self.recorder.clear()
+            seen = set()
+            for name, location in roles:
+                label = name if name not in seen else f'{name}（{sum(self.recorder.itemData(i)[0] == name for i in range(self.recorder.count())) + 1}）'
+                seen.add(name)
+                self.recorder.addItem(label, (name,location))
+            match = next((i for i in range(self.recorder.count())
+                          if self.recorder.itemData(i)[1] == folder and self.recorder.itemData(i)[0] == selected), -1)
+            if match < 0:
+                match = next((i for i in range(self.recorder.count()) if self.recorder.itemData(i)[1] == folder), -1)
+            if match < 0:
+                self.recorder.addItem('当前目录', ('',folder))
+                match = self.recorder.count()-1
+            self.recorder.setCurrentIndex(match)
+        self.files, self.saved = files, saved
+        self.folder_label.setText(f'{folder}   ·   {len(files)} 份日志')
+        self.history.setUpdatesEnabled(False)
+        try:
+            self.history.setRowCount(0)
+            self.catalog_rows.clear()
+            for path in files:
+                self._record_row(path, saved.get(path))
+            if previous in self.catalog_rows:
+                self.history.selectRow(self.catalog_rows[previous])
+            elif files:
+                self.history.selectRow(0)
+        finally:
+            self.history.setUpdatesEnabled(True)
+        self.record_stack.setCurrentWidget(self.history if files else self.empty)
+        self._selection_changed()
+        if self.pages.currentIndex() == 1:
+            self.refresh_summary()
+
+    def _record_row(self, path, result):
+        row = self.catalog_rows.setdefault(path, len(self.catalog_rows))
+        if result is None:
+            labels = log_labels(path, self.files[path])
+            values = (*labels, '未解析', '—', '—', '—')
+        else:
+            seconds = int(round(result.battleTime)) // 1000
+            values = (time.strftime('%Y-%m-%d %H:%M',time.localtime(result.timestamp)), result.bossAnalyseName,
+                      result.mapDetail, '已解析', '通关' if result.win else '未通关',
+                      f'{seconds//60}:{seconds%60:02}', len(result.statDict))
+        set_row(self.history, row, values)
+        first = self.history.item(row, 0)
+        first.setData(Qt.ItemDataRole.UserRole, str(path))
+        first.setToolTip(path.name)
+
+    def row_path(self, index):
+        item = self.history.item(index, 0) if index >= 0 else None
+        name = item.data(Qt.ItemDataRole.UserRole) if item else None
+        return Path(name) if name else None
+
+    def selected_paths(self):
+        return [p for index in self.history.selectionModel().selectedRows()
+                if (p := self.row_path(index.row())) is not None]
+
+    def _selection_changed(self):
+        selected = self.selected_paths()
+        ready = len(selected) == 1 and selected[0] in self.saved
+        self.detail_btn.setEnabled(bool(selected))
+        self.detail_btn.setText('打开复盘' if ready else ('解析所选日志' if len(selected) > 1 else '解析选中战斗'))
+        if hasattr(self, 'reanalyse_btn'):
+            self.reanalyse_btn.setEnabled(not self.busy and any(p in self.saved for p in selected))
+
+    def reanalyse_selected(self):
+        paths = sorted(self.selected_paths())
+        if paths and not self.busy:
+            self._start(lambda: self._analyse(paths, force=True))
+
+    def open_path(self, path):
+        if path is None:
+            return
+        if self.folder:
+            try:
+                self.files[path] = fingerprint(path)
+            except OSError as error:
+                self._error('打开日志', str(error))
+                self.refresh_folder()
+                return
+        if path in self.paths and self.current_stamps.get(path) == (self.files.get(path), self.library_version):
+            return self.open_result(self.paths.index(path))
+        self.open_when_ready.add(path)
+        self.enqueue_files([path])
 
     def enqueue_files(self, files):
         paths = sorted(dict.fromkeys(Path(p).resolve() for p in files), key=lambda p: (p.name, str(p)))
@@ -349,7 +531,9 @@ class DesktopWindow(QMainWindow):
         self.busy = True
         self.failures_at_start = len(self.failures)
         rates = self.rates
-        self.auto_btn.setEnabled(False)
+        self.recorder.setEnabled(False)
+        self.folder_btn.setEnabled(False)
+        self.refresh_btn.setEnabled(False)
         self.settings_btn.setEnabled(False)
         self.cancel_btn.setEnabled(True)
         self.upload_btn.setEnabled(False)
@@ -368,28 +552,71 @@ class DesktopWindow(QMainWindow):
                 self.signals.finished.emit()
         threading.Thread(target=run_work, name='replay-analysis', daemon=True).start()
 
-    def _analyse(self, paths):
+    def _analyse(self, paths, force=False):
         for number, path in enumerate(paths, 1):
             if self.cancel.is_set():
                 break
             self.signals.step.emit(f'正在分析 {number} / {len(paths)} · {path.name}')
             try:
+                try:
+                    stamp = fingerprint(path)
+                except FileNotFoundError:
+                    if self.folder is not None:
+                        raise
+                    stamp = None
+                version = self.library_version
+                cached = None
+                if self.library and stamp is not None:
+                    try:
+                        cached = self.library.load(path, stamp, version)
+                    except Exception as exc:
+                        self.signals.error.emit('读取已存复盘', str(exc))
+                if self.last_input and (path.parent != self.last_input.parent or path <= self.last_input
+                        or (same_raid(path, path) and not same_raid(self.last_input, path))):
+                    self.session.playerEquipment = {}
+                    self.session.playerEquipmentAnalysed = {}
+                    self.session.playerEquipmentOwners = {}
+                    self.session.lastBld = None
+                    self.last_input = None
+                if cached and not force and self.session.lastBld is None:
+                    snapshot, equipment = cached
+                    self.session.playerEquipment, self.session.playerEquipmentAnalysed, self.session.playerEquipmentOwners = equipment
+                    self.last_input = path
+                    self.signals.result.emit(path, snapshot, (stamp, version))
+                    continue
+                if self.library and stamp is not None:
+                    try:
+                        earlier = self.library.previous_equipment(path, version, self.last_input)
+                        if earlier:
+                            self.session.playerEquipment, self.session.playerEquipmentAnalysed, self.session.playerEquipmentOwners = earlier
+                    except Exception as exc:
+                        self.signals.error.emit('读取此前装备记录', str(exc))
                 self.session.cancel_requested = self.cancel.is_set
                 try:
                     actor = self.session.analyse(path, self.config)
                 finally:
                     self.session.cancel_requested = lambda: False
+                self.last_input = path
                 if actor is None:
                     self.signals.step.emit('已保留分段，等待后续战斗记录。')
                     continue
                 snapshot = display_result(actor)
                 del actor
+                if stamp is not None and fingerprint(path) != stamp:
+                    raise ValueError("日志在解析期间被修改，请稍后重试。")
                 if self.services and self.config.item['general'].get('autoupload', 1):
                     try:
                         self._upload()
                     except Exception as exc:
                         self.signals.error.emit('上传', str(exc))
-                self.signals.result.emit(path, snapshot)
+                if self.library and stamp is not None:
+                    try:
+                        if cached and force:
+                            self._merge_notes(cached[0], snapshot)
+                        self.library.save(path, stamp, version, snapshot, self.session)
+                    except Exception as exc:
+                        self.signals.error.emit('保存已解析记录', str(exc))
+                self.signals.result.emit(path, snapshot, (stamp, version))
             except AnalysisCancelled:
                 break
             except Exception as exc:
@@ -409,7 +636,13 @@ class DesktopWindow(QMainWindow):
 
     def upload(self):
         if self.services:
-            self._start(self._upload)
+            def submit():
+                self._upload()
+                for path, result in zip(self.paths, self.results):
+                    stamp, version = self.current_stamps[path]
+                    if self.library and stamp:
+                        self.library.save_notes(path, stamp, version, result)
+            self._start(submit)
 
     def _upload_state(self):
         enabled = self.services and bool(self.config.item['general'].get('autoupload', 1))
@@ -422,38 +655,48 @@ class DesktopWindow(QMainWindow):
         if parts:
             self.status_label.setText('  '.join(parts))
 
-    def _result(self, path, result):
+    @staticmethod
+    def _merge_notes(previous, result):
+        if (previous.timestamp, previous.server, previous.bossAnalyseName) != (
+                result.timestamp, result.server, result.bossAnalyseName):
+            return
+        scores = defaultdict(deque)
+        for pot in previous.potList:
+            if str(pot[4]).startswith('[手动] '):
+                if pot not in result.potList:
+                    result.potList.append(list(pot))
+            elif len(pot) >= 7:
+                scores[json.dumps(pot[:6], ensure_ascii=False, sort_keys=True)].append(pot[6])
+        for pot in result.potList:
+            key = json.dumps(pot[:6], ensure_ascii=False, sort_keys=True)
+            if scores[key]:
+                pot[6] = scores[key].popleft()
+
+    def _result(self, path, result, token=None):
+        path = Path(path).resolve()
+        stamp, version = token or (None,self.library_version)
         if path in self.paths:
             index = self.paths.index(path)
-            previous = self.results[index]
             if index in self.dialogs:
                 self.dialogs[index].close()
-            if (previous.timestamp, previous.server, previous.bossAnalyseName) == (
-                    result.timestamp, result.server, result.bossAnalyseName):
-                scores = defaultdict(deque)
-                manual = []
-                for pot in previous.potList:
-                    if str(pot[4]).startswith('[手动] '):
-                        manual.append(list(pot))
-                    elif len(pot) >= 7:
-                        scores[json.dumps(pot[:6], ensure_ascii=False, sort_keys=True)].append(pot[6])
-                for pot in result.potList:
-                    key = json.dumps(pot[:6], ensure_ascii=False, sort_keys=True)
-                    if scores[key]:
-                        pot[6] = scores[key].popleft()
-                result.potList.extend(manual)
+            previous = self.results[index]
+            self._merge_notes(previous, result)
             self.results[index] = result
         else:
             index = len(self.results)
             self.paths.append(path)
             self.results.append(result)
-        seconds = int(round(result.battleTime)) // 1000
-        set_row(self.history, index, (time.strftime('%m-%d %H:%M', time.localtime(result.timestamp)),
-                result.bossAnalyseName, result.mapDetail, '通关' if result.win else '未通关',
-                f'{seconds//60}:{seconds%60:02}', len(result.statDict)))
+        self.current_stamps[path] = (stamp,version)
+        self.files[path] = stamp
+        self.saved[path] = result
+        self._record_row(path, result)
         self.record_stack.setCurrentWidget(self.history)
-        self.history.selectRow(index)
-        self.detail_btn.setEnabled(True)
+        if self.history.currentRow() < 0:
+            self.history.selectRow(self.catalog_rows[path])
+        self._selection_changed()
+        if path in self.open_when_ready:
+            self.open_when_ready.discard(path)
+            self.open_result(index)
         if self.pages.currentIndex() == 1:
             self.refresh_summary()
 
@@ -472,7 +715,9 @@ class DesktopWindow(QMainWindow):
 
     def _finished(self):
         self.busy = False
-        self.auto_btn.setEnabled(True)
+        self.recorder.setEnabled(True)
+        self.folder_btn.setEnabled(True)
+        self.refresh_btn.setEnabled(True)
         self.settings_btn.setEnabled(True)
         self.cancel_btn.setEnabled(False)
         self._upload_state()
@@ -493,6 +738,8 @@ class DesktopWindow(QMainWindow):
         if errors:
             state += f'，本批有 {errors} 项错误'
         self.status_label.setText(f'本次会话共 {len(self.results)} 场战斗 · {state}')
+        self._selection_changed()
+        self.open_when_ready.clear()
         self.batchFinished.emit()
 
     def cancel_batch(self):
@@ -505,6 +752,10 @@ class DesktopWindow(QMainWindow):
             self._stop_watch()
             self.status_label.setText('已停止监听。')
             return
+        if not self.folder:
+            self.status_label.setText('请先选择有日志的角色或目录。')
+            return
+        folder = self.folder
         stop = self.watch_stop = threading.Event()
         self.watch_generation += 1
         generation = self.watch_generation
@@ -513,9 +764,8 @@ class DesktopWindow(QMainWindow):
         self.status_label.setText('正在监听新战斗记录…')
         def listen():
             try:
-                lookup = log_folder(config)
-                suffix = '.jcl' if lookup.dataType == 'jcl' else '.fstt.jx3dat'
-                watcher = StableLogs(lookup.basepath, suffix)
+                suffix = '.jcl' if config.item['general']['datatype'] == 'jcl' else '.fstt.jx3dat'
+                watcher = StableLogs(folder, suffix)
                 while not stop.wait(1.5):
                     files = watcher.ready()
                     if files:
@@ -539,10 +789,14 @@ class DesktopWindow(QMainWindow):
             self.watch_stop.set()
         self.watch_stop = None
         self.watch_generation += 1
-        self.watch_btn.setText('开始监听')
+        self.watch_btn.setText('自动解析新战斗')
 
     def open_selected(self):
-        self.open_result(self.history.currentRow())
+        paths = self.selected_paths()
+        if len(paths) == 1:
+            self.open_path(paths[0])
+        elif paths:
+            self.enqueue_files(paths)
 
     def open_result(self, index):
         if not 0 <= index < len(self.results):
@@ -561,6 +815,7 @@ class DesktopWindow(QMainWindow):
         dialog.resize(1080, 760)
         layout = QVBoxLayout(dialog)
         view = BattleView(result, dialog)
+        view.notesChanged.connect(lambda: self._persist_notes(index))
         layout.addWidget(view)
         dialog.finished.connect(lambda _: self._close_result(index, dialog))
         self.dialogs[index] = dialog
@@ -572,14 +827,24 @@ class DesktopWindow(QMainWindow):
             self.dialogs.pop(index)
         self.refresh_summary()
 
+    def _persist_notes(self, index):
+        path = self.paths[index]
+        stamp, version = self.current_stamps.get(path, (None,None))
+        if stamp and self.library:
+            try:
+                self.library.save_notes(path, stamp, version, self.results[index])
+            except Exception as exc:
+                self._error('保存批注', str(exc))
+        self.refresh_summary()
+
     def refresh_summary(self):
         people = {}
-        for index, result in enumerate(self.results):
+        for path, result in self.saved.items():
             for row in result.statDict:
                 name = row['name'].strip('"')
                 key = (result.server, name)
-                person = people.setdefault(key, [[], 0, 0, [], False])
-                person[0].append(index)
+                person = people.setdefault(key, [[], 0, 0, [], False, row.get('occ','0')])
+                person[0].append(path)
                 person[4] |= bool(result.mask)
             for pot in result.potList:
                 if len(pot) < 7:
@@ -592,11 +857,13 @@ class DesktopWindow(QMainWindow):
                     people[key][3].append(str(pot[4]))
         self.members = []
         self.summary.setRowCount(0)
-        for i, ((_, name), (indices, plus, minus, notes, masked)) in enumerate(people.items()):
+        for i, ((_, name), (paths, plus, minus, notes, masked, occ)) in enumerate(people.items()):
             label = f'队员{i + 1:02}' if masked and name else name
-            self.members.append(indices)
-            set_row(self.summary, i, (label, len(indices), plus, minus,
-                    '、'.join(self.results[j].bossAnalyseName for j in indices)))
+            self.members.append(paths)
+            set_row(self.summary, i, (label, len(paths), plus, minus,
+                    '、'.join(self.saved[p].bossAnalyseName for p in paths)))
+            from window.QtOccupation import style_player_item
+            style_player_item(self.summary.item(i, 0), occ)
             if notes and not masked:
                 self.summary.item(i, 0).setToolTip('\n'.join(notes))
 
@@ -609,7 +876,7 @@ class DesktopWindow(QMainWindow):
         choices = table(('首领', '开战时间', '地图'))
         indices = self.members[row]
         for i, idx in enumerate(indices):
-            battle = self.results[idx]
+            battle = self.saved[idx]
             set_row(choices, i, (battle.bossAnalyseName,
                     time.strftime('%m-%d %H:%M', time.localtime(battle.timestamp)), battle.mapDetail))
         choices.selectRow(0)
@@ -618,14 +885,14 @@ class DesktopWindow(QMainWindow):
         layout.addWidget(self._button('打开战斗', menu.accept))
         menu.resize(520, 340)
         if menu.exec() == QDialog.DialogCode.Accepted and choices.currentRow() >= 0:
-            self.open_result(indices[choices.currentRow()])
+            self.open_path(indices[choices.currentRow()])
 
     def settings(self):
         from window.QtSettings import SettingsDialog
         if SettingsDialog(self.config, self).exec() == QDialog.DialogCode.Accepted:
-            if self.watch_stop is not None:
-                self._stop_watch()
-                self.toggle_watch()
+            self._stop_watch()
+            self.library_version = signature(self.config)
+            self.discover_library()
             self._upload_state()
 
     def _start_services(self):

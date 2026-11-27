@@ -107,21 +107,7 @@ class MainWindow:
                     else:
                         self.uploadData[i]["anchor"]["overall"]["shortID"] = "数据保存出错"
                 elif self.uploadData[i]["type"] == "battle":
-                    # 战斗信息. 需要在主界面显示内容.
-                    if res["data"][i]["scoreStatus"] == "illegal":
-                        self.setNotice({"t2": "未增加荣誉值，原因：非指定地图", "c2": "#ff0000"})
-                    elif res["data"][i]["scoreStatus"] == "notwin":
-                        self.setNotice({"t2": "未增加荣誉值，原因：未击败BOSS", "c2": "#ff0000"})
-                    elif res["data"][i]["scoreStatus"] == "expire":
-                        self.setNotice({"t2": "未增加荣誉值，原因：数据已被他人上传", "c2": "#ff0000"})
-                    elif res["data"][i]["scoreStatus"] == "dupid":
-                        self.setNotice({"t2": "未增加荣誉值，原因：数据已被自己上传", "c2": "#ff0000"})
-                    elif res["data"][i]["scoreStatus"] == "nologin":
-                        self.setNotice({"t2": "未增加荣誉值，原因：未注册用户名", "c2": "#ff0000"})
-                    elif res["data"][i]["scoreStatus"] == "noteam":
-                        self.setNotice({"t2": "未填写团队名，无法参与名人堂", "c2": "#ff0000"})
-                    elif res["data"][i]["scoreStatus"] == "success":
-                        self.setNotice({"t2": "数据上传成功，荣誉值增加：%d" % res["data"][i]["scoreAdd"], "c2": "#00ff00"})
+                    self.setNotice({"t2": "战斗记录已提交。", "c2": "#14695f"})
 
         # 清空上传数据
         self.uploadData = []

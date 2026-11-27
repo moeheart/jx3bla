@@ -20,26 +20,6 @@ function parseTime(time){
     }
 }
 
-function getLvl(score) {
-    rateScale = [[100, "#dddd00", "A+", "不畏浮云遮望眼，只缘身在最高层。"],
-                  [95, "#ff7777", "A", "独有凤凰池上客，阳春一曲和皆难。"],
-                  [90, "#ff7777", "A-", "欲把一麾江海去，乐游原上望昭陵。"],
-                  [85, "#ff7700", "B+", "敢将十指夸针巧，不把双眉斗画长。"],
-                  [80, "#ff7700", "B", "云想衣裳花想容，春风拂槛露华浓。"],
-                  [77, "#ff7700", "B-", "疏影横斜水清浅，暗香浮动月黄昏。"],
-                  [73, "#0077ff", "C+", "青山隐隐水迢迢，秋尽江南草未凋。"],
-                  [70, "#0077ff", "C", "花径不曾缘客扫，蓬门今始为君开。"],
-                  [67, "#0077ff", "C-", "上穷碧落下黄泉，两处茫茫皆不见。"],
-                  [63, "#77ff00", "D+", "人世几回伤往事，山形依旧枕寒流。"],
-                  [60, "#77ff00", "D", "总为浮云能蔽日，长安不见使人愁。"],
-                  [0, "#ff0000", "F", "仰天大笑出门去，我辈岂是蓬蒿人。"]]
-    for (i in rateScale){
-        if (score >= rateScale[i][0]) {
-            return [rateScale[i][2], rateScale[i][1], rateScale[i][3]];
-        }
-    }
-}
-
 function getSkillPercent(name, key) {
     var color = "#000000";
     if (name in rankObj && key in rankObj[name]){
@@ -658,47 +638,6 @@ for (var i in (resObj.dps || {}).table){
     td.appendTo(tr);
     var td = $("<td>").text(resObj.dps.table[i].shieldBreak);
     td.appendTo(tr);
-}
-
-//part 8
-
-if (resObj.score && resObj.score.available) {
-
-    scoreA = resObj.score.scoreA;
-    resA = getLvl(scoreA);
-    $('#data-8-1a').html(scoreA);
-    $('#data-8-1b').html(resA[0]);
-    $('#data-8-1a').css("color", resA[1]);
-    $('#data-8-1b').css("color", resA[1]);
-
-    scoreB = resObj.score.scoreB;
-    resB = getLvl(scoreB);
-    $('#data-8-2a').html(scoreB);
-    $('#data-8-2b').html(resB[0]);
-    $('#data-8-2a').css("color", resB[1]);
-    $('#data-8-2b').css("color", resB[1]);
-
-    scoreC = resObj.score.scoreC;
-    resC = getLvl(scoreC);
-    $('#data-8-3a').html(scoreC);
-    $('#data-8-3b').html(resC[0]);
-    $('#data-8-3a').css("color", resC[1]);
-    $('#data-8-3b').css("color", resC[1]);
-
-    score = resObj.score.sum;
-    res = getLvl(score);
-    $('#data-8-4a').html(score);
-    $('#data-8-4b').html(res[0]);
-    $('#data-8-4a').css("color", res[1]);
-    $('#data-8-4b').css("color", res[1]);
-
-    $('#data-8-res').html(res[2]);
-    $('#data-8-res').css("color", res[1]);
-}
-else {
-    $('#data-8-t').addClass("hidden");
-    $('#data-8-res').addClass("hidden");
-    $('#data-8-h').removeClass("hidden");
 }
 
 //part 9
