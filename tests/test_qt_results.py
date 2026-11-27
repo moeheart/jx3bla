@@ -107,6 +107,35 @@ class BattleViewTests(unittest.TestCase):
         self.assertEqual(cells(other.team_table)[0][2], '—')
         self.assertIn('无法归因', cells(other.team_table)[0])
 
+    def test_left_turn_skill_card_and_details_separate_casts_ticks_stacks_and_coverage(self):
+        from PySide6.QtWidgets import QWidget, QVBoxLayout
+        actor = fixture()
+        skills = actor.occResult['云裳乙']['result']['skill']
+        skills['zxyz'] = {'allNum': 5, 'num': 532, 'cover': 46.4751, 'coverAll': .8287,
+                          'stack': 57, 'HPS': 123, 'numPerSec': 1.91}
+        view = self.view(actor)
+        view.open_player('云裳乙')
+        card, _, tooltip = next(c for c in view.skill_table.model().cards if c[0].startswith('左旋右转'))
+        self.assertIn('左旋右转 ×5', card)
+        self.assertIn('覆盖 83%', card)
+        self.assertIn('全程平均层数  46.48', tooltip)
+        details = QWidget()
+        self.addCleanup(details.deleteLater)
+        view._skills(QVBoxLayout(details))
+        metrics = {r[1]: r[2] for r in cells(details.findChild(QTableView)) if r[0] == '左旋右转'}
+        self.assertEqual(metrics['治疗结算次数'], '532')
+        self.assertEqual(metrics['运功次数'], '5')
+        self.assertEqual(metrics['覆盖率'], '83%')
+        self.assertEqual(metrics['全程平均层数'], '46.48')
+        self.assertEqual(metrics['非零记录平均层数'], '57')
+        skills['zxyz'] = {'num': 532, 'cover': .25}
+        old = self.view(actor)
+        old.open_player('云裳乙')
+        card = next(c[0] for c in old.skill_table.model().cards if c[0].startswith('左旋右转'))
+        self.assertIn('全程平均层数 0.25', card)
+        self.assertNotIn('×', card)
+        self.assertNotIn('%', card)
+
     def test_bars_and_live_rank_refresh_preserve_player_and_selection(self):
         from PySide6.QtCore import Qt
         from window.QtResults import BAR_ROLE, _rank_color

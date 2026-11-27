@@ -12,8 +12,8 @@
     {
       "group": "normal",
       "boss": "突利和顺",
-      "normalizedSkills": "547cedeafc827f89852e377137f8f347959825b81f9de095b21e7ec960c46c42",
-      "updatedSkills": "547cedeafc827f89852e377137f8f347959825b81f9de095b21e7ec960c46c42",
+      "normalizedSkills": "1af336bbd469819acd90e125651212fbeaa05e44b9a13cee9d979b86f335e22c",
+      "updatedSkills": "1af336bbd469819acd90e125651212fbeaa05e44b9a13cee9d979b86f335e22c",
       "originalSkills": "33e1a9201365c4b756fb99caedeac3dc088710eff2e399ed48980964792547c9",
       "source": "1bc04c976192b1784ec906725b82df00eb21389a0378f3489bbc0f2104bbcaeb",
       "originalTeam": "706222571cc2019d32a15a993ad756eb3753cdaf63fd9bd641a882d938f9a57c",
@@ -25,8 +25,8 @@
     {
       "group": "normal",
       "boss": "田承嗣",
-      "normalizedSkills": "8fa1fe097a71bb847e728e640d21cdfae6c5de4f555dc360dd738511cc8a6548",
-      "updatedSkills": "8fa1fe097a71bb847e728e640d21cdfae6c5de4f555dc360dd738511cc8a6548",
+      "normalizedSkills": "7c27aae806a1c95e4198ad9d44a6ae0fafab495e072f4bce3719e384ce12bacd",
+      "updatedSkills": "7c27aae806a1c95e4198ad9d44a6ae0fafab495e072f4bce3719e384ce12bacd",
       "originalSkills": "c1c83ff67295aa5cfaac54042bbde1cce0a2e9180145abef011d0c66793e65de",
       "source": "ec184c380f2d487e7f10c82eb8476e6584daeff853c379cc8536b932d61e22ec",
       "originalTeam": "31c5a83f3014ad1ab188aa6a0068230e96652b8cab84814f2c4ddad8e5f57a13",
@@ -38,8 +38,8 @@
     {
       "group": "normal",
       "boss": "伊曼双子",
-      "normalizedSkills": "230f4a06e7be637df98b791bbb6f71c3c2a1ca062faf14ac5d43998467ab9e76",
-      "updatedSkills": "230f4a06e7be637df98b791bbb6f71c3c2a1ca062faf14ac5d43998467ab9e76",
+      "normalizedSkills": "8e744e14f00f81084c76e1dacbfceece39905275dc24298c63c3d29e8132ec34",
+      "updatedSkills": "8e744e14f00f81084c76e1dacbfceece39905275dc24298c63c3d29e8132ec34",
       "originalSkills": "adff0145ead3d6774498a1f77a21450251bf5a67efc7253ae5d33f2829589d6e",
       "source": "58dce3209f1412d0104dd0b38c3e95fc253a55e91515f1f6c5889bccd01268b1",
       "originalTeam": "0c62b7d0d2680d63e55e24a05a144c35574743cb723d9d5e9d557e8ac0928573",
@@ -51,8 +51,8 @@
     {
       "group": "normal",
       "boss": "阿史那承庆",
-      "normalizedSkills": "2e8810f29edebe85d0ff09bd7eef39f2acff4c499c890e9df395eacd7ac99fb0",
-      "updatedSkills": "2e8810f29edebe85d0ff09bd7eef39f2acff4c499c890e9df395eacd7ac99fb0",
+      "normalizedSkills": "e407d01d62a30928c41c6b0460e59150d62d5f55c083c065f70171710c2d08c7",
+      "updatedSkills": "e407d01d62a30928c41c6b0460e59150d62d5f55c083c065f70171710c2d08c7",
       "originalSkills": "59aaeb97e96096e35aa400b8a755b3c3f8e8f1a6323c87042995d3f3f13c2646",
       "source": "99df0aa823deef3db5560411b235bd43b9706f6ff951a83ede439aba97576a3c",
       "originalTeam": "649c0a971cfa877f29915d3ab7bf245a5df627e3c49ba18f61d87defaa9aa7a9",
@@ -64,8 +64,8 @@
     {
       "group": "normal",
       "boss": "史朝义",
-      "normalizedSkills": "a783e79f896d81d65c924501b1ea7476ebd1fd6cdf5d895d68f46c80ba265324",
-      "updatedSkills": "a783e79f896d81d65c924501b1ea7476ebd1fd6cdf5d895d68f46c80ba265324",
+      "normalizedSkills": "1b75f59a1d0f3167b8d9d9de5fdf933722f10b9f9a5993200f7f2f3cef9c7615",
+      "updatedSkills": "1b75f59a1d0f3167b8d9d9de5fdf933722f10b9f9a5993200f7f2f3cef9c7615",
       "originalSkills": "0bb767b4c17b9dc47281af2d0f66fb3a878ec1039d4205f4300499be33fe1394",
       "source": "2e5d0fc856395e2ee73644ef5568f628474c0583165f0b12737f259e9977e5f2",
       "originalTeam": "7caed0e47a4abb3bfc502770e6283452c1613569889b0df94e7ed27c78a95c45",
@@ -103,8 +103,8 @@
     {
       "group": "heroic13",
       "boss": "突利和顺",
-      "normalizedSkills": "ebcdcfc70d62e5d6258b2e30363d4a8dd0b1e160355d33300a9518f23ca720f1",
-      "updatedSkills": "ebcdcfc70d62e5d6258b2e30363d4a8dd0b1e160355d33300a9518f23ca720f1",
+      "normalizedSkills": "b74a5773ff11220cf4f73335f627ffa5f51b14b1e564b3e0c2fe20e0cfc8f18b",
+      "updatedSkills": "b74a5773ff11220cf4f73335f627ffa5f51b14b1e564b3e0c2fe20e0cfc8f18b",
       "originalSkills": "8a1d252834fef982fd98975a0ae1b042be0474898649487d58f87fd1348952b6",
       "source": "408a56e03ad2cceb4932990804990194c45b0658841f94bbce4466fdc046f3ff",
       "originalTeam": "1a096298aa36e98cfa8754b77c8f05694dc3d3e0913659a1e8c3e73aa160863b",
@@ -116,8 +116,8 @@
     {
       "group": "heroic13",
       "boss": "突利和顺",
-      "normalizedSkills": "7f2645f71ce181f975cb2d1b33d1b59c536619cb5d608e2bb7ed6f8541fd5dc1",
-      "updatedSkills": "7f2645f71ce181f975cb2d1b33d1b59c536619cb5d608e2bb7ed6f8541fd5dc1",
+      "normalizedSkills": "b8170655640bd1942ff6013926d829cfd9c87d7a92ad3f90c81b2b17449a8e99",
+      "updatedSkills": "b8170655640bd1942ff6013926d829cfd9c87d7a92ad3f90c81b2b17449a8e99",
       "originalSkills": "4af580b040ba33bb0008bfa6795493ed5cc1d06a81238a0df0c1e461d74b1375",
       "source": "ed5689df6929c32206adf3cd3c4058b6702ec6bbda73d3686d3bd03a6caab78c",
       "originalTeam": "eceb4031440edbd4e25416c6460456c1177ea80adbaeece55022ac6607331bca",
@@ -137,8 +137,8 @@
     {
       "group": "heroic13",
       "boss": "田承嗣",
-      "normalizedSkills": "28f0c412351398dc10a8fe42b479df9521c94cee206b9bda60cf938b8276a27c",
-      "updatedSkills": "28f0c412351398dc10a8fe42b479df9521c94cee206b9bda60cf938b8276a27c",
+      "normalizedSkills": "32272b2c7727548a6ba47012994982fb2ac4e45528cdafda92c3578daccda5c7",
+      "updatedSkills": "32272b2c7727548a6ba47012994982fb2ac4e45528cdafda92c3578daccda5c7",
       "originalSkills": "643911abc8c18c02d8c9b1cf7ce9989ae080c16c74b78368014c0c6c72ee6355",
       "source": "d0b532b782f0d586a8d3da4b81dbf2ac418e35a7cef8d348c81cc228efc74b35",
       "originalTeam": "4d224992f67eabd21e89be5dda8c0bc45f9cd817bedacdd56ad4f96bf477a1f4",
@@ -150,8 +150,8 @@
     {
       "group": "heroic13",
       "boss": "伊曼双子",
-      "normalizedSkills": "6e6213b95aecfdcb540dfb82631d5dbd8b0021c1b5d988b33b5f9c4ae9fa1fe4",
-      "updatedSkills": "6e6213b95aecfdcb540dfb82631d5dbd8b0021c1b5d988b33b5f9c4ae9fa1fe4",
+      "normalizedSkills": "dabf2045f4d1d7ccdb2e7b90fdd86b43fad5f8411f7394b471defbe92c9777d7",
+      "updatedSkills": "dabf2045f4d1d7ccdb2e7b90fdd86b43fad5f8411f7394b471defbe92c9777d7",
       "originalSkills": "020ac4d089530919126b59c5a9c3c2802c07a0d1d5c0ede20f4598ee49c649de",
       "source": "77aa4be863493a792263e606bc35d58b71ee37717ee61064cf208d42cc4c1ba1",
       "originalTeam": "6007ca7e410f5d0d9fae4533fa5864ad83a44fbca170f578c22f9d03eaf7db85",
@@ -171,8 +171,8 @@
     {
       "group": "heroic13",
       "boss": "阿史那承庆",
-      "normalizedSkills": "e8edd83e566c515f7821a070204bbdb61ea08eca573f4d20d23eae5b1cc93de9",
-      "updatedSkills": "e8edd83e566c515f7821a070204bbdb61ea08eca573f4d20d23eae5b1cc93de9",
+      "normalizedSkills": "908b06d7ebb3c627e07d9c4f354d76704a767bc5a97326d3d9a24f7bf4334ab0",
+      "updatedSkills": "908b06d7ebb3c627e07d9c4f354d76704a767bc5a97326d3d9a24f7bf4334ab0",
       "originalSkills": "cce9e859da1a95fe8bad4f16deba801e627a98d64392f02a1b3ccdf48c59eb64",
       "source": "a15c01fb55e9cbc4f12bf68667c453ff217dee81e0c6aed23d9792ef2e42365c",
       "originalTeam": "525ee70629b8b623deb34f86234b12ddb5e7e901ab3bd25a42856b26899d0e93",
@@ -192,8 +192,8 @@
     {
       "group": "heroic13",
       "boss": "史朝义",
-      "normalizedSkills": "fdcac32eb00260ebfa4a6388d8ec1291605eb39c0c4d30207f8b3b79f5f0079e",
-      "updatedSkills": "fdcac32eb00260ebfa4a6388d8ec1291605eb39c0c4d30207f8b3b79f5f0079e",
+      "normalizedSkills": "d324035496b9c835a6fc14ef0e76f08c17dc05397770f51ed44eb95e1b7245dd",
+      "updatedSkills": "d324035496b9c835a6fc14ef0e76f08c17dc05397770f51ed44eb95e1b7245dd",
       "originalSkills": "6583403096f0f35da630a4f4f9c7a5c73c201275699ed04dedaab1002711f59a",
       "source": "a26153a784bb6a66102cbe6d3b922f95a9c4e2a3e916040190a428b1ddcf470b",
       "originalTeam": "a42ddb710f04750ea922728e38ad49023bcd00ad1629bad25c8d9a8144fa2b1c",
@@ -219,8 +219,8 @@
     {
       "group": "heroic14",
       "boss": "田承嗣",
-      "normalizedSkills": "e0f8ec0fb49ba855a42e9e00c6c209dbc269a1970a07e521e218f697cf7b3c23",
-      "updatedSkills": "e0f8ec0fb49ba855a42e9e00c6c209dbc269a1970a07e521e218f697cf7b3c23",
+      "normalizedSkills": "5d9c0b605ed2fcd7d444cd76107dc19482fc029c11df9f381dd48b1afe656bae",
+      "updatedSkills": "5d9c0b605ed2fcd7d444cd76107dc19482fc029c11df9f381dd48b1afe656bae",
       "originalSkills": "27eb0e131d3943d81b5ba1157a0cd444d997fb9d0438049842e5f3dcbb9d4479",
       "source": "2fda230b75e5ee5d68f5d4e45d788f88fd79c1855f710e59d6bbefa5e8644b0d",
       "originalTeam": "28d88cad6e868e87b579a7bd265db7c3ebe10c6f5d9e79ed4ee2e4c4c4feeaa1",
@@ -232,8 +232,8 @@
     {
       "group": "heroic14",
       "boss": "阿史那承庆",
-      "normalizedSkills": "6e90dd39e4022deb388d9394160a77ad9e6fd28a244d462c1b57ad14cda88c05",
-      "updatedSkills": "6e90dd39e4022deb388d9394160a77ad9e6fd28a244d462c1b57ad14cda88c05",
+      "normalizedSkills": "f035898ca3aa5c0945bc2c55d4c1fc435789320986e85370ddae4fb01e790220",
+      "updatedSkills": "f035898ca3aa5c0945bc2c55d4c1fc435789320986e85370ddae4fb01e790220",
       "originalSkills": "cacc6373774fa9f50600f2ce307e2feff14a19ed5efd86790d22e4adf0ed8e61",
       "source": "585cde9c9d8d8d1ba9a5782a251f09a79b6983831814eb691908f85aefc032de",
       "originalTeam": "a4e4ec8c9bea4ca84b61e4e3a216709cf1c2e51b56bf4124a5bbe74fcc795e92",
@@ -245,8 +245,8 @@
     {
       "group": "heroic14",
       "boss": "史朝义",
-      "normalizedSkills": "af22c83a1133b4e5a32d28981117c5d9a85f48cf0673817d6be08b688c920e3a",
-      "updatedSkills": "af22c83a1133b4e5a32d28981117c5d9a85f48cf0673817d6be08b688c920e3a",
+      "normalizedSkills": "4d94668b532337169c63a31f748b9ce50e0ae3746e511fdc9b539e54c50f4a7e",
+      "updatedSkills": "4d94668b532337169c63a31f748b9ce50e0ae3746e511fdc9b539e54c50f4a7e",
       "originalSkills": "568cf09eb33c26f51f0c054fe7962cec608ce2ae38f3682520b828669354adae",
       "source": "321a4ce21bc00c4d6778a225286333436b7835f8605adfa40ffe779f8d505c36",
       "originalTeam": "6a8714d90a1e351eb7a34c3ca650a6acbaeb6ecbf647697fd0c50d6e7ddcf03e",
@@ -264,5 +264,6 @@
       ]
     }
   ],
-  "scoreRecovery": "同角色、同心法在本场或同次副本此前实录中记录的正装分。提供装备记录的实录使用 SHA256 标识。"
+  "scoreRecovery": "同角色、同心法在本场或同次副本此前实录中记录的正装分。提供装备记录的实录使用 SHA256 标识。",
+  "healerEfficiencyCorrection": "逐键复核 14 场实录，云裳心经和补天诀各有 14 个 general.efficiencyNonGcd 随实际引导时间更新。该组云裳均未点吉光，双方的仅 GCD 效率和其余技能指标逐场一致。updatedSkills、normalizedSkills 记录已核准的新输出哈希。"
 }

@@ -132,6 +132,12 @@ for _i in range(1, 7):
     LABELS[f'Eye{_i}Damage'] = f'阿里曼之眼 {_i} 伤害'
 PERCENT = {'effRate', 'efficiency', 'efficiencyNonGcd', 'cover', 'coverAll', 'shCover', 'rdpsRate',
            'shieldRate', 'qilongRate', 'PeiwuRate', 'percent'}
+# Historical 左旋右转 records store the time integral of stacks in "cover";
+# "coverAll" integrates the buff's presence, independently of its stack count.
+ZXYZ_DISPLAY_FIELDS = {'cover': 'wholeFightStack', 'coverAll': 'cover', 'stack': 'observedStack',
+                       'num': 'healingEvents', 'numPerSec': 'healingEventsPerSec'}
+LABELS.update(wholeFightStack='全程平均层数', observedStack='非零记录平均层数',
+              healingEvents='治疗结算次数', healingEventsPerSec='每秒治疗结算次数')
 POT_LEVELS = {0: '观察／轻微', 1: '严重', 2: '提示', 3: '补贴'}
 COMMON_ROSTER = {'name', 'occ', 'rdps', 'ndps', 'hps', 'score', 'rdpsRank', 'scoreRank',
                  'rdpsRankNum', 'scoreRankNum', 'equip', 'stunTime', 'battle', 'rdpsStatus',
@@ -165,6 +171,8 @@ def _format(key, value):
         return '；'.join(f'{LABELS.get(k, k)} {_format(k, v)}' for k, v in value.items()) or '—'
     if key in PERCENT and isinstance(value, (int, float)):
         return f'{value:.0%}'
+    if key in ('wholeFightStack', 'observedStack') and isinstance(value, (int, float)):
+        return f'{value:.2f}'.rstrip('0').rstrip('.')
     if key.endswith('PerSec') and key != 'sumPerSec' and isinstance(value, (int, float)):
         # Cast frequencies below one per second would all round to zero.
         return f'{value:.2f}'.rstrip('0').rstrip('.')
@@ -1045,14 +1053,19 @@ class BattleView(QWidget):
             cards = []
             for key, fields in selected or groups:
                 name = SKILLS.get(key, key)
-                title = name + (f' ×{fields["num"]}' if 'num' in fields else '')
+                count_key = 'num'
+                if key == 'zxyz':
+                    fields = {ZXYZ_DISPLAY_FIELDS.get(k, k): v for k, v in fields.items()}
+                    count_key = 'allNum'
+                title = name + (f' ×{fields[count_key]}' if count_key in fields else '')
                 metrics = [(caption, self._render(field, fields[field], self.personal_mask))
                            for field, caption in (('HPS', 'HPS'), ('dps', 'DPS'), ('cover', '覆盖'),
+                               ('wholeFightStack', '全程平均层数'),
                                ('effRate', '有效'), ('delay', '延迟ms'), ('numPerSec', '每秒次数'))
                            if field in fields]
                 if not metrics:
                     metrics = [(LABELS.get(k, k), self._render(k, v, self.personal_mask)) for k, v in fields.items()
-                               if k not in ('num', 'score', 'delaySamples')]
+                               if k not in (count_key, 'score', 'delaySamples')]
                 lines = [title] + [f'{caption} {value}' for caption, value in metrics[:2]]
                 tooltip = '\n'.join([name] + [f'{LABELS.get(k,k)}  {self._render(k,v,self.personal_mask)}'
                                               for k,v in fields.items() if k != 'score'])
@@ -1125,7 +1138,8 @@ class BattleView(QWidget):
                 percentile = rank.get('percent')
                 eligible = self.personal_quality['rankEligible'].get(key, True)
                 valid = eligible and is_valid_rank(percentile) and (rank.get('num') or 0) > 0
-                label = LABELS.get(key, key)
+                display_key = ZXYZ_DISPLAY_FIELDS.get(key, key) if group == 'zxyz' else key
+                label = LABELS.get(display_key, display_key)
                 if group == 'general' and key == 'efficiency' and 'efficiencyNonGcd' in fields:
                     label = '仅GCD效率'
                 if group == 'healer' and key in ('heal', 'healEff'):
@@ -1138,7 +1152,7 @@ class BattleView(QWidget):
                 else:
                     percentile = percentile if valid and percentile <= 100 else None
                     samples = rank.get('num') if percentile is not None else None
-                rows.append([SKILLS.get(group, group), label, self._render(key, value, self.personal_mask), percentile, samples])
+                rows.append([SKILLS.get(group, group), label, self._render(display_key, value, self.personal_mask), percentile, samples])
         # Keep all historical metrics accessible; individual skill filters avoid
         # scrolling through every specialization measure to find one cast.
         filter_bar = QHBoxLayout()
