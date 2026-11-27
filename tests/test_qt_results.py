@@ -85,6 +85,23 @@ class BattleViewTests(unittest.TestCase):
         self.assertTrue(view.open_player('花间甲'))
         self.assertIn('装备', view.equipment_summary.text())
 
+    def test_healers_first_and_generic_players_muted_but_searchable(self):
+        from PySide6.QtCore import Qt
+        from PySide6.QtGui import QPalette
+        actor = fixture()
+        actor.occResult['云裳乙']['result']['replay'] = {'normal': []}
+        actor.occResult = dict(reversed(actor.occResult.items()))
+        actor.statDict.append({'name': '无复盘', 'occ': '3t'})
+        view = self.view(actor)
+        view.tabs.setCurrentIndex(view.tabs.count() - 1)
+        selector = view.player_selector
+        self.assertEqual([selector.itemData(i) for i in range(selector.count())],
+                         ['云裳乙', '花间甲', '无复盘'])
+        muted = selector.palette().brush(QPalette.Disabled, QPalette.Text)
+        self.assertEqual(selector.itemData(1, Qt.ForegroundRole), muted)
+        self.assertFalse(selector.model().item(2).isEnabled())
+        self.assertTrue(view.open_player('花间甲'))
+
     def test_legacy_team_rank_ignored_and_unavailable_gear_explained(self):
         actor = fixture()
         actor.playerNames = {'123': '云裳乙', '234': '花间甲'}
@@ -111,10 +128,12 @@ class BattleViewTests(unittest.TestCase):
         from PySide6.QtWidgets import QWidget, QVBoxLayout
         actor = fixture()
         skills = actor.occResult['云裳乙']['result']['skill']
+        skills['hxpy'].update(num=2, ticks=7)
         skills['zxyz'] = {'allNum': 5, 'num': 532, 'cover': 46.4751, 'coverAll': .8287,
                           'stack': 57, 'HPS': 123, 'numPerSec': 1.91}
         view = self.view(actor)
         view.open_player('云裳乙')
+        self.assertTrue(any(c[0].startswith('回雪飘摇 ×2\n7跳') for c in view.skill_table.model().cards))
         card, _, tooltip = next(c for c in view.skill_table.model().cards if c[0].startswith('左旋右转'))
         self.assertIn('左旋右转 ×5', card)
         self.assertIn('覆盖 83%', card)

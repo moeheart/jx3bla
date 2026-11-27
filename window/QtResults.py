@@ -43,7 +43,7 @@ SKILLS = {
 LABELS = {
     **METRICS, 'name': '名称', 'occ': '心法', 'score': '评分', 'num': '次数', 'time': '时间',
     'sum': '总量', 'sumPerSec': '每秒', 'percent': '占比', 'HPS': 'HPS', 'numPerSec': '每秒次数',
-    'delay': '平均延迟（毫秒）', 'delaySamples': '延迟样本数', 'effRate': '有效比例',
+    'delay': '平均延迟（毫秒）', 'delaySamples': '延迟样本数', 'ticks': '有效跳数', 'effRate': '有效比例',
     'efficiency': '战斗效率', 'efficiencyNonGcd': '战斗效率', 'cover': '覆盖率',
     'coverAll': '存在比例', 'stack': '平均层数', 'heal': '治疗量', 'healEff': '有效治疗',
     'damage': '伤害', 'dps': 'DPS', 'rdpsRate': 'rDPS 占比', 'shCover': '述怀覆盖',
@@ -347,7 +347,7 @@ def _fill(table, headers, rows, occupations=None, **options):
 
 # Skill icons used by the original specialization reports, in their display order.
 SKILL_ICONS = {
-    'wozhen':1519, 'tizhen':395, 'changzhen':396, 'bizhen':1518, 'lzwh':17705, 'suiyu':13441,
+    'wozhen':1519, 'tizhen':395, 'changzhen':396, 'bizhen':1518, 'lzwh':17705, 'suiyu':13441, 'longwu':16221,
     'hxpy':894, 'xlwl':897, 'sydh':913, 'wmhm':900, 'fxda':1507, 'zxyz':904,
     'meihua':7059, 'zhi':7174, 'jue':7176, 'shang':7172, 'gong':7173, 'yu':7175,
     'lszh':16025, 'bzhf':15411, 'cshx':15414, 'dgsn':15412, 'qczl':15420, 'ygzx':15400,
@@ -877,10 +877,24 @@ class BattleView(QWidget):
         self.player_selector.setEditable(True)
         self.player_selector.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
         self.player_selector.setMinimumContentsLength(12)
-        for name, entry in self.occ_results.items():
+        def player_order(name):
+            code = str(self.occupations.get(name) or '')
+            replay = _mapping(self.occ_results.get(name, {}).get('result')).get('replay')
+            return (name not in self.occ_results, not code.rstrip('w').endswith('h'), not bool(replay))
+
+        for name in sorted(self.names, key=player_order):
+            entry = self.occ_results.get(name, {})
+            code = self.occupations.get(name)
             personal_mask = _get(_get(entry, 'result', {}), 'overall', {}).get('mask') in (1, True, '1')
-            text = self._redact(name, self.mask or personal_mask) + ' · ' + _format('occ', entry.get('occ'))
-            add_player_choice(self.player_selector, text, name, entry.get('occ'))
+            text = self._redact(name, self.mask or personal_mask) + ' · ' + _format('occ', code)
+            add_player_choice(self.player_selector, text, name, code)
+            if not entry.get('result', {}).get('replay'):
+                item = self.player_selector.model().item(self.player_selector.count() - 1)
+                item.setForeground(self.player_selector.palette().brush(QPalette.Disabled, QPalette.Text))
+                item.setToolTip('通用复盘' if entry else '本场没有个人复盘')
+                item.setEnabled(name in self.occ_results)
+        if not self.occ_results:
+            self.player_selector.setCurrentIndex(-1)
         completer = self.player_selector.completer()
         completer.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
         completer.setFilterMode(Qt.MatchFlag.MatchContains)
@@ -917,7 +931,7 @@ class BattleView(QWidget):
         body.setSpacing(4)
         self.personal_scroll.setWidget(self.personal_dashboard)
         self.personal_timeline = self.skill_table = self.support_table = self.equipment_summary = self.personal_rank = None
-        if not name:
+        if name not in self.occ_results:
             self.refresh_links()
             self.personal_summary.setText('这场战斗没有生成个人复盘。')
             return
@@ -931,8 +945,8 @@ class BattleView(QWidget):
         summary = [overall.get('battleTimePrint')]
         if overall.get('sumTimeEffPrint'):
             summary.append('有效 ' + str(overall['sumTimeEffPrint']))
-        color = occupation_color(entry.get('occ'))
-        self.player_selector.lineEdit().setStyleSheet('color:' + color.name() if color else '')
+        brush = self.player_selector.currentData(Qt.ItemDataRole.ForegroundRole)
+        self.player_selector.lineEdit().setStyleSheet('color:' + brush.color().name() if brush else '')
         self.personal_summary.setText(self._redact('  ·  '.join(str(s) for s in summary if s), self.personal_mask))
 
         skills = _mapping(self.result.get('skill'))
@@ -1067,6 +1081,8 @@ class BattleView(QWidget):
                     metrics = [(LABELS.get(k, k), self._render(k, v, self.personal_mask)) for k, v in fields.items()
                                if k not in (count_key, 'score', 'delaySamples')]
                 lines = [title] + [f'{caption} {value}' for caption, value in metrics[:2]]
+                if 'ticks' in fields and len(lines) > 1:
+                    lines[1] = f"{fields['ticks']}跳 · {lines[1]}"
                 tooltip = '\n'.join([name] + [f'{LABELS.get(k,k)}  {self._render(k,v,self.personal_mask)}'
                                               for k,v in fields.items() if k != 'score'])
                 icon = QIcon(get_icon_path(SKILL_ICONS[key])) if key in SKILL_ICONS else QIcon()
@@ -1140,6 +1156,10 @@ class BattleView(QWidget):
                 valid = eligible and is_valid_rank(percentile) and (rank.get('num') or 0) > 0
                 display_key = ZXYZ_DISPLAY_FIELDS.get(key, key) if group == 'zxyz' else key
                 label = LABELS.get(display_key, display_key)
+                if key == 'num' and 'ticks' in fields:
+                    label = '有效施放次数'
+                if key == 'healingEvents' and 'ticks' in fields:
+                    label = '有治疗量的目标结算次数'
                 if group == 'general' and key == 'efficiency' and 'efficiencyNonGcd' in fields:
                     label = '仅GCD效率'
                 if group == 'healer' and key in ('heal', 'healEff'):

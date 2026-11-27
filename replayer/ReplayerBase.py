@@ -4,6 +4,7 @@
 from tools.Functions import *
 from tools.LoadData import *
 from tools.Names import *
+from tools.ChannelRank import channel_rank_group, channel_upload_result
 from tools.RecordQuality import is_metric_rank_eligible
 from tools.Rank import percentile_rank, rank_metric_value
 from tools.ReplayRevision import mark_recalculation
@@ -42,7 +43,8 @@ class RankCalculator():
         value = rank_metric_value(key, value, skill)
         if value is None:
             return (0, -1) if key == "delay" else (0, 0)
-        percent_key = "%s-%s-%s-%s-%s-%s" % (occ, map, boss, name, key, self.game_edition)
+        group = channel_rank_group(name, key, skill)
+        percent_key = "%s-%s-%s-%s-%s-%s" % (occ, map, boss, group, key, self.game_edition)
         # print("[key]", percent_key)
         # print("[data]", self.percent_data.keys())
         if percent_key in self.percent_data:
@@ -190,7 +192,7 @@ class ReplayerBase():
         upload["battledate"] = time.strftime("%Y-%m-%d", time.localtime(self.result["overall"]["battleTime"]))
         upload["mapdetail"] = self.result["overall"]["map"]
         upload["boss"] = self.result["overall"]["boss"]
-        upload["statistics"] = self.result
+        upload["statistics"] = channel_upload_result(self.result)
         upload["public"] = self.public
         upload["edition"] = EDITION
         upload["editionfull"] = parseEdition(EDITION)

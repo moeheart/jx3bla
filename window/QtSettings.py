@@ -182,8 +182,6 @@ class SettingsDialog(QDialog):
             self._number(details, group, "speed", "手动加速等级")
             self._check(details, group, "speedforce", "始终使用手动加速")
             self._check(details, group, "public", "公开此心法的个人复盘")
-            self._choice(details, group, "stack", "相同技能堆叠阈值",
-                         [("连续 2 次", "2"), ("连续 3 次", "3"), ("不堆叠", "不堆叠")])
             if group == "xiangzhi":
                 self._check(details, group, "caltank", "统计坦克心法覆盖率")
             pages.addWidget(page)

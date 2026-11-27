@@ -209,49 +209,13 @@ class XiangZhiProWindow(HealerDisplayWindow):
             canvas6.create_text(pos, 50, text=text)
 
         # 绘制常规技能轴
-        j = -1
-        lastName = ""
-        lastStart = 0
-        l = len(self.result["replay"]["normal"])
-        for i in range(l + 1):
-            if i == l:
-                record = {"skillname": "Final", "start": 999999999999}
-            else:
-                record = self.result["replay"]["normal"][i]
-            # print("[XiangzhiTest]", record)
-            if record["skillname"] != lastName or record["start"] - lastStart > 3000:
-                if j == -1:
-                    j = i
-                    lastName = record["skillname"]
-                    lastStart = record["start"]
-                    continue
-                # 结算上一个技能
-                if self.config.item["xiangzhi"]["stack"] != "不堆叠" and i-j >= int(self.config.item["xiangzhi"]["stack"]):
-                    # 进行堆叠显示
-                    record_first = self.result["replay"]["normal"][j]
-                    record_last = self.result["replay"]["normal"][i-1]
-                    posStart = int((record_first["start"] - startTime) / 100)
-                    posEnd = int((record_last["start"] + record_last["duration"] - startTime) / 100)
-                    canvas6.create_image(posStart + 10, 80, image=canvas6.im[record_last["iconid"]])
-                    # 绘制表示持续的条
-                    if posStart + 20 < posEnd:
-                        canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill=self.themeColor)
-                    # 绘制重复次数
-                    if posStart + 30 < posEnd:
-                        canvas6.create_text(posStart + 30, 80, text="*%d" % (i-j))
-                else:
-                    # 进行独立显示
-                    for k in range(j, i):
-                        record_single = self.result["replay"]["normal"][k]
-                        posStart = int((record_single["start"] - startTime) / 100)
-                        posEnd = int((record_single["start"] + record_single["duration"] - startTime) / 100)
-                        canvas6.create_image(posStart + 10, 80, image=canvas6.im[record_single["iconid"]])
-                        # 绘制表示持续的条
-                        if posStart + 20 < posEnd:
-                            canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill=self.themeColor)
-                j = i
-            lastName = record["skillname"]
-            lastStart = record["start"]
+        for record in self.result["replay"]["normal"]:
+            posStart = int((record["start"] - startTime) / 100)
+            posEnd = int((record["start"] + record["duration"] - startTime) / 100)
+            canvas6.create_image(posStart + 10, 80, image=canvas6.im[record["iconid"]])
+            # 绘制表示持续的条
+            if posStart + 20 < posEnd:
+                canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill=self.themeColor)
 
         # 绘制特殊技能轴
         for record in self.result["replay"]["special"]:
@@ -405,12 +369,15 @@ class XiangZhiProReplayer(HealerReplay):
 
         # 技能信息
         # [技能统计对象, 技能名, [所有技能ID], 图标ID, 是否为gcd技能, 运功时长, 是否倒读条, 是否吃加速, cd时间, 充能数量]
+        talents = self.result["qixue"]
+        fast_zhi = "争簇" in talents.values()
+        zhi_tick_frames = 7 if fast_zhi else 15
         self.skillInfo = [[None, "未知", ["0"], "0", True, 0, False, True, 0, 1],
                      [None, "扶摇直上", ["9002"], "1485", True, 0, False, True, 30, 1],
                      [None, "蹑云逐月", ["9003"], "1490", True, 0, False, True, 30, 1],
                      [None, "梅花三弄", ["14231"], "7059", True, 0, False, True, 0, 1],
                      [None, "宫", ["18864", "14360", "16852"], "7173", True, 24, False, True, 0, 1],
-                     [None, "徵", ["14362", "18865"], "7174", True, 8, True, True, 0, 1],
+                     [None, "徵", ["14362", "18865"], "7174", True, zhi_tick_frames, True, True, 0, 1],
                      [None, "羽", ["14141", "14354", "14355", "14356"], "7175", True, 0, False, True, 6, 3],
                      [None, "商", ["14138"], "7172", True, 0, False, True, 0, 1],
                      [None, "角", ["14139"], "7176", True, 0, False, True, 0, 1],
@@ -429,6 +396,15 @@ class XiangZhiProReplayer(HealerReplay):
                      [None, "特效腰坠", ["yaozhui"], "3414", False, 0, False, True, 180, 1]
                     ]
 
+        # 21/14301 is a single 变徵 start. 21/14140 resolves again for
+        # every target of every 徵 pulse, so only its type-19 Cast is a start.
+        self.gcdChannelShells = ("14301",)
+        self.gcdChannelImmediate = "谪仙" in talents.values()
+        # Character metadata can be refreshed after the fight with a different
+        # build. A real Cast can own up to six 争簇 pulses plus 谪仙's first hit.
+        self.gcdChannelMarkedTicks = 7
+        max_ticks = (6 if fast_zhi else 3) + int(self.gcdChannelImmediate)
+        self.gcdChannel = (("14140", "14301"), "14362", max_ticks if talents["available"] else 7)
         self.initSecondState()
         self.initTeamDetect()
 
@@ -463,17 +439,6 @@ class XiangZhiProReplayer(HealerReplay):
         gcsActive = 0  # 共潮生
         numAnxiang = 0  # 暗香
         numShield = 0  # 主动贴盾
-
-        # 徵的特殊统计
-        zhiLastCast = 0
-        zhiLastSkill = 0
-        zhiZheXian = 0
-        zhiCastNum = 0
-        zhiCompleteNum = 0
-        zhiLocalNum = 0
-        zhiCastList = []
-        zhiSingleNum = 0
-        zhiSingleList = []
 
         # 影子的推断统计
         shadowBuffDict = {}
@@ -552,48 +517,6 @@ class XiangZhiProReplayer(HealerReplay):
                         zhenliuHeal += event.healEff
                     elif event.id == "21321":  # 相依
                         xySkill.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff)
-
-                    if event.id in ["14362", "18865"]:
-                        # 徵的运算。此处是推测逻辑，较为复杂，有心重构可以大胆尝试。
-                        timeDiff = event.time - zhiLastSkill
-                        timeDiff2 = event.time - zhiLastCast
-                        reset = 0
-                        flag = 1
-                        if timeDiff > 100 and (timeDiff2 < 100 or timeDiff < 200):
-                            zhiZheXian = 1
-                            self.bh.log["normal"][-1]["instant"] = 1
-                            self.bh.log["normal"][-1]["start"] = event.time
-                            self.bh.log["normal"][-1]["duration"] = 0
-                            reset = 1
-                        elif zhiZheXian and timeDiff > 1100:
-                            self.bh.log["normal"][-1]["instant"] = 1
-                            self.bh.log["normal"][-1]["start"] = event.time
-                            self.bh.log["normal"][-1]["duration"] = 0
-                            reset = 1
-                        elif timeDiff > 1100:
-                            reset = 2
-                        elif zhiLocalNum == 6:
-                            reset = 1
-                            # zhiZheXian = 1
-                        elif timeDiff > 100:
-                            zhiLocalNum += 1
-                        else:
-                            flag = 0
-                        if flag:
-                            if zhiSingleNum > 0:
-                                zhiSingleList.append(zhiSingleNum)
-                            zhiSingleNum = 0
-                        zhiSingleNum += 1
-                        if reset:
-                            if zhiLocalNum >= 1:
-                                zhiCastNum += 1
-                                zhiCastList.append(zhiLocalNum)
-                                # print("[ZhiZheXian]", zhiZheXian)
-                            zhiLocalNum = reset - 1
-                        if zhiLocalNum == 6:
-                            zhiCompleteNum += 1
-                        zhiLastSkill = event.time
-                        # print("[XiangzhiZhiSkill]", event.time, event.id, event.heal, event.healEff)
 
                 if event.caster == self.mykey and event.scheme == 2:
                     if event.id in ["9459", "9460", "9461", "9462"]:  # 商
@@ -675,33 +598,8 @@ class XiangZhiProReplayer(HealerReplay):
                     else:
                         zzmAllDict[event.target].setState(event.time, 0)
 
-            elif event.dataType == "Shout":
-                pass
-
-            elif event.dataType == "Death":
-                pass
-
-            elif event.dataType == "Battle":
-                pass
-
-            elif event.dataType == "Cast":
-                if event.caster == self.mykey and event.id == "14140":
-                    # 徵
-                    zhiLastCast = event.time
-                    zhiCastNum += 1
-                    if zhiLocalNum > 0:
-                        zhiCastList.append(zhiLocalNum)
-                    zhiLocalNum = 0
-                    if zhiSingleNum > 0:
-                        zhiSingleList.append(zhiSingleNum)
-                    zhiSingleNum = 0
-                    # print(event.time, event.id)
-
         self.completeSecondState()
         self.completeTeamDetect()
-
-        zhiCastList.append(zhiLocalNum)
-        zhiSingleList.append(zhiSingleNum)
 
         # 计算DPS列表(Part 7)
 

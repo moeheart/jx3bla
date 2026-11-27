@@ -128,12 +128,7 @@ class Config():
         items_target["speed"] = int(items_target.get("speed", 8780))
         items_target["public"] = int(items_target.get("public", 1))
         items_target["speedforce"] = int(items_target.get("speedforce", 0))
-        if occ in ["xiangzhi", "butian", "yunchang"]:
-            items_target["stack"] = items_target.get("stack", "2")
-        elif occ in ["lingsu"]:
-            items_target["stack"] = items_target.get("stack", "3")
-        elif occ in ["lijing"]:
-            items_target["stack"] = items_target.get("stack", "不堆叠")
+        items_target.pop("stack", None)  # 旧版时间轴显示选项
         if occ == "xiangzhi":
             items_target["caltank"] = int(items_target.get("caltank", 0))
         
@@ -202,6 +197,12 @@ class Config():
 
     def _merge_settings(self, changes):
         parser = _read_ini(self.filename)
+        for group in ("xiangzhi", "lingsu", "lijing", "butian", "yunchang"):
+            section = SECTIONS[group]
+            if parser.has_section(section):
+                for key in list(parser[section]):
+                    if key.lower() == "stack":
+                        parser.remove_option(section, key)
         for group, values in changes.items():
             section = SECTIONS[group]
             if not parser.has_section(section):

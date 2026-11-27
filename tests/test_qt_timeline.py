@@ -276,8 +276,8 @@ class TimelineTests(unittest.TestCase):
         for occ, name, skill, talents, explicit, expected in (
                 ('5h', '回雪飄搖', '40236', {}, True, NORMAL),
                 ('5h', '回雪飘摇', '565', {'1':'吉光'}, None, NORMAL),
-                ('5h', '回雪飘摇', '40237', {}, False, SPECIAL),
-                ('6h', '醉舞九天', '6675', {}, None, SPECIAL)):
+                ('5h', '回雪飘摇', '40237', {}, False, '引导起手'),
+                ('6h', '醉舞九天', '6675', {}, None, '引导起手')):
             with self.subTest(occ=occ, talents=talents, explicit=explicit):
                 actor = sample()
                 actor.timestamp = 1795673277
@@ -293,6 +293,36 @@ class TimelineTests(unittest.TestCase):
                                      env(name, actor.startTime + 3280, skillid=skill)]
                 starts = [(m.start, m.lane) for m in timeline_data(actor, "测试玩家")[1] if m.name == name]
                 self.assertEqual(starts, [(1400, expected), (3200, expected), (3280, expected)])
+
+    def test_new_channel_band_has_one_interval_per_cast_including_immediate_interrupts(self):
+        actor = sample()
+        entry = actor.occResult["测试玩家"]
+        entry["occ"] = '6h'
+        start = actor.startTime
+        entry["result"]["replay"].update(
+            special=[env("醉舞九天", start + 100), env("醉舞九天", start + 800)],
+            zwjt=[[start + 100, 1], [start + 900, 0]],
+            zwjtCasts=[dict(start=start + 100, end=start + 600, ticks=2),
+                       dict(start=start + 800, end=start + 800, ticks=0)])
+        view = self.show(actor, "测试玩家")
+        rows = [row for row in view.canvas.lanes if row[1] == "醉舞九天"]
+        self.assertEqual(len(rows), 1)
+        self.assertEqual([(m.start, m.end, m.ticks) for m in rows[0][2]], [(100, 600, 2), (800, 800, 0)])
+        self.assertNotIn(SPECIAL, [name for _, name, _ in view.canvas.lanes])
+
+    def test_adjacent_actions_keep_separate_icons_and_wrapped_mechanics_keep_their_name(self):
+        actor = sample()
+        start = actor.startTime
+        actor.occResult["测试玩家"]["result"]["replay"]["normal"] = [
+            env("同招", start + time, ticks=4) for time in (1100, 1200, 1200)]
+        view = self.show(actor, "测试玩家")
+        casts = next(items for _, label, items in view.canvas.lanes if label == NORMAL)
+        self.assertEqual([(len(item.records), item.records[0].ticks) for item in casts], [(1, 4)] * 3)
+        actor.bh.log["environment"] = [env("长机制", start, duration=80000)]
+        view = self.show(actor)
+        labels = [g.label for row in view.canvas.rows for g in row.groups if g.name == '长机制']
+        self.assertGreater(len(labels), 1)
+        self.assertEqual(set(labels), {'长机制'})
 
     def test_team_and_generic_stop_at_actor_end_but_specialists_keep_their_own_boundary(self):
         actor=sample()
@@ -349,7 +379,7 @@ class TimelineTests(unittest.TestCase):
         self.app.processEvents()
         casts = next(items for kind, name, items in view.canvas.lanes if name == NORMAL)
         self.assertEqual(casts[-1].start,71000)
-        self.assertIn('读条 ×5', [m.name for g in casts for m in g.records])
+        self.assertTrue(any(m.name == '读条' and '原记录计数 5' in m.detail for g in casts for m in g.records))
         h = view.canvas.horizontalScrollBar()
         self.assertGreater(h.maximum(),0)
         viewport = view.canvas.viewport()
@@ -386,6 +416,7 @@ class TimelineTests(unittest.TestCase):
         self.assertEqual([(m.start,m.end,m.name) for m in marks if m.track=='水月无间'],
                          [(0,10000,'1/2'),(10000,60000,'0/2'),(60000,70000,'1/2'),(70000,90000,'0/2')])
         self.assertEqual([(m.start,m.end) for m in marks if m.track=='彼针'],[(0,60000)])
+        self.assertEqual({m.icon for m in marks if m.lane == '调息'}, {'1518', '1522'})
         self.assertEqual([(m.start,m.end) for m in cooldown_intervals({'甲':(20,1,[0,3000,24000])},35000)],
                          [(0,3000),(3000,23000),(24000,35000)])
         self.assertFalse(action_icon("1522").isNull())

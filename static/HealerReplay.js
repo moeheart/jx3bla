@@ -1,4 +1,19 @@
+// Stored channel metrics have a separate percentile population. The skill
+// cards still display all of one skill's statistics together.
+function mergeChannelCastGroups(groups) {
+    if (!groups) return;
+    for (const skill of ["hxpy", "zwjt", "zhi", "longwu", "dgsn"]) {
+        const castGroup = skill + "Cast";
+        if (Object.prototype.hasOwnProperty.call(groups, castGroup)) {
+            groups[skill] = Object.assign({}, groups[skill], groups[castGroup]);
+            delete groups[castGroup];
+        }
+    }
+}
 
+mergeChannelCastGroups(resObj.skill);
+mergeChannelCastGroups(resObj.rank);
+mergeChannelCastGroups(rankObj);
 
 function parseCent(x) {
     return (parseInt(x * 10000) / 100) + '%'
@@ -42,6 +57,14 @@ function getSkillPercent(name, key) {
         //查找失败
         return [0, 0, "#000000"];
     }
+}
+
+function applySkillRank(cell, rank) {
+    if (!(rank[0] > 0 && Number.isFinite(rank[1]) && rank[1] >= 0 && rank[1] <= 100)) return;
+    cell.css("color", rank[2]);
+    cell.addClass("stat-rank");
+    cell.attr("percent", rank[1]);
+    cell.attr("num", rank[0]);
 }
 
 // part 1
@@ -88,20 +111,12 @@ for (var i in (resObj.healer || {}).table){
 
     var td = $("<td>").text(resObj.healer.table[i].healEff);
     if (flag) {
-        spRes = getSkillPercent("healer", "healEff");
-        td.css("color", spRes[2]);
-        td.addClass("stat-rank");
-        td.attr("percent", spRes[1]);
-        td.attr("num", spRes[0]);
+        applySkillRank(td, getSkillPercent("healer", "healEff"));
     }
     td.appendTo(tr);
     var td = $("<td>").text(resObj.healer.table[i].heal);
     if (flag) {
-        spRes = getSkillPercent("healer", "heal");
-        td.css("color", spRes[2]);
-        td.addClass("stat-rank");
-        td.attr("percent", spRes[1]);
-        td.attr("num", spRes[0]);
+        applySkillRank(td, getSkillPercent("healer", "heal"));
     }
     td.appendTo(tr);
 }
@@ -209,15 +224,7 @@ var SingleSkillDisplayer = function(skill, rank){
                 spRes = getSkillPercent(line[6], line[7]);
             }
 
-            td.css("color", spRes[2]);
-            if (spRes[0] > 0) {
-                // 成功
-                td.addClass("stat-rank");
-                td.attr("percent", spRes[1]);
-                td.attr("num", spRes[0]);
-            } else {
-                // 失败
-            }
+            applySkillRank(td, spRes);
             td.appendTo(tr);
             num++;
         }
@@ -386,103 +393,27 @@ startTime = replayTimeline.startTime
 painter = $('#replay-paint')
 // 绘制常规技能轴
 
-var stack = 3;  // 堆叠数量，TODO后续改成可在页面中修改
-var j = -1;
-var lastName = "";
-var lastStart = 0;
-l = normalCasts.length;
-var stackHeal = 0;
-var stackHealEff = 0;
-var stackNum = 0;
-for (var i = 0; i <= l; i++) {
-    if (i == l) {
-        record = {"skillname": "Final", "start": 999999999999, heal: 0, healEff: 0, num: 0};
-    } else {
-        record = normalCasts[i];
-        stackHeal += normalCasts[i].heal;
-        stackHealEff += normalCasts[i].healeff;
-        stackNum += normalCasts[i].num;
+for (const record of normalCasts) {
+    const left = Math.max(0, Math.floor((record.start - startTime) / 100));
+    const width = Math.floor(record.duration / 100);
+    const skill = $("<div></div>").addClass("skill-block skill-active").appendTo(painter);
+    $("<img>").attr("src", "../static/icons/" + record.iconid + ".png")
+        .addClass("skill-image").appendTo(skill);
+    if (width > 20) {
+        $("<div></div>").addClass("skill-time xiangzhi")
+            .css("width", (width - 20) + "px").appendTo(skill);
     }
-    if (record.skillname != lastName || record.start - lastStart > 3000) {
-        if (j == -1) {
-            j = i;
-            lastName = record.skillname;
-            lastStart = record.start;
-            continue;
-        }
-        if (i - j >= stack) {
-            // 进行堆叠显示
-            var record_first = normalCasts[j];
-            var record_last = normalCasts[i-1];
-            posStart = parseInt((record_first.start - startTime) / 100);
-            if (posStart < 0) {
-                posStart = 0;
-            }
-            posLength = parseInt((record_last.start + record_last.duration - record_first.start) / 100);
-            var singleSkill = $("<div></div>");
-            singleSkill.addClass("skill-block");
-            singleSkill.appendTo(painter);
-            var img = $("<img src=../static/icons/" + record_last.iconid + ".png>");
-            img.addClass("skill-image");
-            img.appendTo(singleSkill);
-            if (posLength >= 20) {
-                var block = $("<div></div>");
-                block.addClass("skill-time");
-                block.addClass("xiangzhi");
-                if (posLength >= 30) {
-                    block.html("*" + (i-j));
-                }
-                block.css("width", (posLength - 20) + "px");
-                block.appendTo(singleSkill);
-            }
-            singleSkill.css("top", "70px");
-            singleSkill.css("left", posStart + "px");
-
-            singleSkill.attr("skillname", record_last.skillname);
-            singleSkill.attr("heal", stackHeal);
-            singleSkill.attr("healeff", stackHealEff);
-            singleSkill.attr("num", stackNum);
-            singleSkill.addClass("skill-active");
-
-        } else {
-            // 进行独立显示
-            for (var k = j; k < i; k++) {
-                var record_single = normalCasts[k];
-                posStart = parseInt((record_single.start - startTime) / 100);
-                if (posStart < 0) {
-                    posStart = 0;
-                }
-                posLength = parseInt(record_single.duration / 100);
-                var singleSkill = $("<div></div>");
-                singleSkill.addClass("skill-block");
-                singleSkill.appendTo(painter);
-                var img = $("<img src=../static/icons/" + record_single.iconid + ".png>");
-                img.addClass("skill-image");
-                img.appendTo(singleSkill);
-                singleSkill.css("top", "70px");
-                singleSkill.css("left", posStart + "px");
-
-                singleSkill.attr("skillname", record_single.skillname);
-                singleSkill.attr("heal", record_single.heal);
-                singleSkill.attr("healeff", record_single.healeff);
-                singleSkill.attr("num", record_single.num);
-                singleSkill.attr("targetName", record_single.targetName);
-                singleSkill.addClass("skill-active");
-            }
-        }
-        j = i;
-        stackHeal = 0;
-        stackHealEff = 0;
-        stackNum = 0;
-    }
-    lastName = record.skillname;
-    lastStart = record.start;
+    skill.css({top: "70px", left: left + "px"});
+    skill.attr({
+        skillname: record.skillname,
+        heal: record.heal,
+        healeff: record.healeff,
+        num: record.num,
+        ticks: record.ticks,
+        targetName: record.targetName
+    });
 }
 
-
-for (var i in normalCasts) {
-    record = normalCasts[i];
-}
 // 绘制特殊技能轴
 for (var i in replayTimeline.special) {
     record = replayTimeline.special[i];
@@ -618,7 +549,9 @@ $('.skill-active').on('mouseover', function(e) {
         text += "有效治疗量：" + target.attr("healeff") + "<br/>";
     if (target.attr("num") != undefined)
         text += "数量：" + target.attr("num") + "<br/>";
-    if (target.attr("targetName") != undefined)
+    if (target.attr("ticks") != undefined)
+        text += "结算跳数：" + Number(target.attr("ticks")) + "<br/>";
+    if (target.attr("targetName"))
         text += "目标：" + target.attr("targetName") + "<br/>";
     $('.fw-content').html(text);
 });

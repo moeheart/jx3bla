@@ -174,52 +174,17 @@ class LiJingYiDaoWindow(HealerDisplayWindow):
             pos = int(nowt / 100)
             canvas6.create_text(pos, 50, text=text)
         # 绘制常规技能轴
-        j = -1
-        lastName = ""
-        lastStart = 0
-        l = len(self.result["replay"]["normal"])
-        for i in range(l + 1):
-            if i == l:
-                record = {"skillname": "Final", "start": 999999999999}
-            else:
-                record = self.result["replay"]["normal"][i]
-            if record["skillname"] != lastName or record["start"] - lastStart > 3000:
-                if j == -1:
-                    j = i
-                    lastName = record["skillname"]
-                    lastStart = record["start"]
-                    continue
-                # 结算上一个技能
-                if self.config.item["lijing"]["stack"] != "不堆叠" and i-j >= int(self.config.item["lijing"]["stack"]):
-                    # 进行堆叠显示
-                    record_first = self.result["replay"]["normal"][j]
-                    record_last = self.result["replay"]["normal"][i-1]
-                    posStart = int((record_first["start"] - startTime) / 100)
-                    posEnd = int((record_last["start"] + record_last["duration"] - startTime) / 100)
-                    canvas6.create_image(posStart + 10, 80, image=canvas6.im[record_last["iconid"]])
-                    # 绘制表示持续的条
-                    if posStart + 20 < posEnd:
-                        canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill="#64fab4")
-                    # 绘制重复次数
-                    if posStart + 30 < posEnd:
-                        canvas6.create_text(posStart + 30, 80, text="*%d" % (i-j))
-                else:
-                    # 进行独立显示
-                    for k in range(j, i):
-                        record_single = self.result["replay"]["normal"][k]
-                        posStart = int((record_single["start"] - startTime) / 100)
-                        posEnd = int((record_single["start"] + record_single["duration"] - startTime) / 100)
-                        canvas6.create_image(posStart + 10, 80, image=canvas6.im[record_single["iconid"]])
-                        # 绘制表示持续的条
-                        if posStart + 20 < posEnd:
-                            canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill="#64fab4")
-                        # 绘制目标分队
-                        if "team" in record_single and record_single["team"] != 0:
-                            canvas6.create_text(posStart + 7, 80, text="%d" % record_single["team"], font="Arial 12 bold",
-                                                fill="#ff0000")
-                j = i
-            lastName = record["skillname"]
-            lastStart = record["start"]
+        for record in self.result["replay"]["normal"]:
+            posStart = int((record["start"] - startTime) / 100)
+            posEnd = int((record["start"] + record["duration"] - startTime) / 100)
+            canvas6.create_image(posStart + 10, 80, image=canvas6.im[record["iconid"]])
+            # 绘制表示持续的条
+            if posStart + 20 < posEnd:
+                canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill="#64fab4")
+            # 绘制目标分队
+            if "team" in record and record["team"] != 0:
+                canvas6.create_text(posStart + 7, 80, text="%d" % record["team"], font="Arial 12 bold",
+                                    fill="#ff0000")
 
         # 绘制特殊技能轴
         for record in self.result["replay"]["special"]:
@@ -316,6 +281,15 @@ class LiJingYiDaoReplayer(HealerReplay):
     分析战斗记录并生成json格式的结果，对结果的解析在其他类中完成。
     '''
 
+    gcdChannel = (("28538", "28540"), "28541", 4)
+    gcdChannelShells = ("28538",)
+
+    def handleGcdSkill(self, event):
+        # 二级泷雾是在完整运功后结算的驱散。
+        if event.id == "28541" and event.level == 2:
+            return
+        super().handleGcdSkill(event)
+
     def FirstStageAnalysis(self):
         '''
         第一阶段复盘.
@@ -376,7 +350,7 @@ class LiJingYiDaoReplayer(HealerReplay):
                      [None, "大针", ["24911"], "14148", True, 0, False, True, 50, 1],
                      [None, "天工甲士", ["28724"], "16223", True, 80, False, True, 0, 1],
                      [None, "天工", ["28720"], "16224", True, 32, False, False, 0, 1],
-                     [None, "泷雾", ["28541"], "16224", True, 16, True, True, 0, 1],
+                     [None, "泷雾", ["28541", "28540", "45815", "45816"], "16221", True, 12, True, True, 0, 1],
                      [None, "护本", ["28555"], "16222", True, 0, False, True, 10, 1],
                      [None, "脱离机甲", ["28480"], "16225", True, 0, False, True, 0, 1],
                      [None, "商阳指", ["180"], "1514", True, 0, False, True, 0, 1],
@@ -491,7 +465,6 @@ class LiJingYiDaoReplayer(HealerReplay):
                                "1857",  # 春泥，可能是青律
                                "16",  # 判官笔法
                                "28465",  # 天工甲士开始读条
-                               "28540",  # 泷雾引导
                                "2872", "2873",  # 利针实际作用
                                "6105",  # 彼针挂握针
                                "100",  # 星楼 TODO 可以加统计

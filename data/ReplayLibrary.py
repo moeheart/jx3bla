@@ -14,7 +14,7 @@ def signature(config):
     # Source selection, network identity and window preferences do not change a replay.
     options = {k: v for k, v in config.item.items() if k not in ('general', 'user')}
     options['mask'] = config.item['general'].get('mask', 0)
-    return 'desktop-4-' + hashlib.sha256(json.dumps(options, sort_keys=True).encode()).hexdigest()
+    return 'desktop-5-' + hashlib.sha256(json.dumps(options, sort_keys=True).encode()).hexdigest()
 
 
 def discover_recorders(installation, datatype):

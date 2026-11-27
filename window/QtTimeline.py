@@ -1,11 +1,12 @@
 """Qt timelines for boss mechanics and personal replays. Times in the view are milliseconds."""
 from bisect import bisect_left, bisect_right
 from collections import Counter, defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from html import escape
 from functools import lru_cache
-from itertools import groupby
+from itertools import accumulate, groupby
 from math import ceil, isfinite
+from typing import Optional
 import re
 import struct
 import zlib
@@ -66,6 +67,7 @@ class Mark:
     intensity: float = 1
     skill_name: str = ""
     lane: str = ""
+    ticks: Optional[int] = None
 
 
 def heat_series(replay, occ):
@@ -96,6 +98,16 @@ def heat_series(replay, occ):
 
 def bands(replay, start, duration, occ):
     for key, (label, color) in BANDS.items():
+        if key in ("hxpy", "zwjt") and isinstance(replay.get(key + "Casts"), list):
+            for cast in replay[key + "Casts"]:
+                begin, end = number(cast["start"])-start, number(cast["end"])-start
+                if end < 0 or begin > duration:
+                    continue
+                ticks = int(cast["ticks"])
+                note = "开场时已在引导" if cast.get("partial") else label
+                yield Mark(max(0, begin), min(duration, end), label, f"{ticks} 跳", color,
+                           f"{note} · 引导 {ticks} 跳", band=True, lane="引导", ticks=ticks)
+            continue
         points = [(number(row[0])-start, number(row[1])) for row in (replay.get(key) or [])
                   if isinstance(row, (tuple, list)) and len(row) >= 2]
         points.sort(key=lambda row: row[0])
@@ -127,7 +139,7 @@ def _field(obj, key, default=None):
     return obj.get(key, default) if isinstance(obj, dict) else getattr(obj, key, default)
 
 
-def cooldown_intervals(uses, duration):
+def cooldown_intervals(uses, duration, icons=None):
     """Project serial recharge after observed uses; an early recast overrides the estimate."""
     for name, (seconds, maximum, times) in uses.items():
         period = seconds * 1000
@@ -139,7 +151,7 @@ def cooldown_intervals(uses, duration):
             available = maximum - missing
             status = "冷却" if maximum == 1 else f"{available}/{maximum}"
             detail = f"基础调息 {seconds:g} 秒 · {maximum} 层 · 按实录施放推算，减调息或重置可能提前恢复"
-            return Mark(last, end, name, status, "#586d9d", detail, band=True,
+            return Mark(last, end, name, status, "#586d9d", detail, (icons or {}).get(name, ""), band=True,
                         intensity=missing / maximum, lane="调息")
 
         for time in sorted(set(times)):
@@ -247,13 +259,14 @@ def timeline_data(actor, player):
     occ = str(entry.get("occ") or "")
     talents = {v for v in (result.get("qixue") or {}).values() if isinstance(v, str)}
     uses = {}
+    resource_icons = {}
     channel_casts = []
     # Skill timings belong to the Cangsheng release. An older replay keeps its
     # own normal/special classification and recorded durations.
     stamp = number(overall.get("battleTime"), number(_field(actor, "timestamp")))
     current_rules = 1793228400 <= stamp < 1797807600
 
-    def action_lane(name, time, fallback, is_use=True, native_id=None, channel=None):
+    def action_lane(name, time, fallback, is_use=True, native_id=None, channel=None, icon=""):
         if not (current_rules or channel):
             return fallback
         spec = skill_timing(occ, name, talents, native_id,
@@ -263,6 +276,8 @@ def timeline_data(actor, player):
         seconds, charges, gcd = spec
         if seconds and is_use and is_healing_resource(occ, name, talents):
             uses.setdefault(name, (seconds, charges, []))[2].append(time)
+            if icon:
+                resource_icons[name] = icon
         return NORMAL if gcd else SPECIAL
 
     def event(row, track, color, target=None):
@@ -283,8 +298,16 @@ def timeline_data(actor, player):
         if time >= 0 and track in (MECHANICS, PHASES):
             exports.append((time, name, icon != "341"))
         count = int(number(row.get("num"), 1))
-        label = name if count <= 1 else f"{name} ×{count}"
+        label = name if count <= 1 or track in (NORMAL, SPECIAL) else f"{name} ×{count}"
         detail = []
+        ticks = row.get("ticks")
+        if ticks is not None:
+            ticks = int(number(ticks))
+            detail.append(f"引导 {ticks} 跳")
+            if row.get("partial"):
+                detail.append("开场时已在引导")
+        elif count > 1 and track in (NORMAL, SPECIAL):
+            detail.append(f"原记录计数 {count}")
         if row.get("description"):
             detail.append(display(row["description"]))
         target = target or row.get("targetName")
@@ -299,12 +322,12 @@ def timeline_data(actor, player):
         source = (track, row.get("skillid"))
         if track in (NORMAL, SPECIAL):
             channel = healer_channel(occ, raw_name, str(row.get("skillid") or ""))
-            lane = action_lane(channel or raw_name, max(0, time), track, time >= 0, channel=channel)
+            lane = action_lane(channel or raw_name, max(0, time), track, time >= 0, channel=channel, icon=icon)
             track = lane
         mark = Mark(max(0, time), min(duration, end), track, label, str(row.get("color") or color),
-                    " · ".join(detail), icon, resolved, skill_name=name, lane=lane)
+                    " · ".join(detail), icon, resolved, skill_name=name, lane=lane, ticks=ticks)
         if channel:
-            channel_casts.append((mark, source))
+            channel_casts.append((mark, source, channel))
         else:
             marks.append(mark)
 
@@ -317,19 +340,19 @@ def timeline_data(actor, player):
         time = row.time-start
         channel = None
         lane = row.kind
+        icon = ACTION_ICONS.get(row.skill) or CAST_ICONS.get(row.skill, "")
         if row.kind == "施放":
             detail, color, focus = "JCL 原生施放开始", "#247e78", True
             channel = healer_channel(occ, row.name, row.skill)
-            lane = action_lane(row.name, time, row.kind, native_id=row.skill, channel=channel)
+            lane = action_lane(row.name, time, row.kind, native_id=row.skill, channel=channel, icon=icon)
         else:
             detail = f"{row.targets} 个目标 · {row.events} 条同刻结算记录"
             color = "#4b758f" if row.kind == "招式命中" else "#797b8e"
             focus = (row.kind == "招式命中" and row.skill not in casts) or row.skill in fallback
-        icon = ACTION_ICONS.get(row.skill) or CAST_ICONS.get(row.skill, "")
         mark = Mark(time, time, row.kind, display(row.name), color,
                     f"{detail} · 技能 ID {row.skill}", icon, focus, lane=lane)
         if channel:
-            channel_casts.append((mark, (row.kind, row.skill)))
+            channel_casts.append((mark, (row.kind, row.skill), channel))
         else:
             marks.append(mark)
     if player is not None:
@@ -341,10 +364,16 @@ def timeline_data(actor, player):
     # start. Keep the earliest cast and the separately recorded channel band.
     previous_time = None
     previous_source = None
-    for mark, source in sorted(channel_casts, key=lambda item: item[0].start):
+    for mark, source, channel in sorted(channel_casts, key=lambda item: item[0].start):
         if previous_time is not None and (mark.start == previous_time or
                 (source != previous_source and mark.start - previous_time <= 100)):
             continue
+        if mark.lane == SPECIAL:
+            cast_key = "zwjtCasts" if channel == "醉舞九天" else "hxpyCasts"
+            if isinstance(replay.get(cast_key), list):
+                continue
+            color = BANDS["zwjt" if channel == "醉舞九天" else "hxpy"][1]
+            mark = replace(mark, track=channel, lane="引导起手", band=True, end=mark.start, color=color)
         marks.append(mark)
         previous_time, previous_source = mark.start, source
     calls = replay.get("call") or []
@@ -368,7 +397,7 @@ def timeline_data(actor, player):
             name = row.get("name") or "阶段切换"
             if 0 <= time <= duration and time not in phase_times and name not in ROUTINE_BOSS_LABELS:
                 marks.append(Mark(time, time, PHASES, display(name), "#84649d"))
-    marks.extend(cooldown_intervals(uses, duration))
+    marks.extend(cooldown_intervals(uses, duration, resource_icons))
     marks.extend(bands(replay, start, duration, occ))
     return duration, marks, exports
 
@@ -566,8 +595,6 @@ class TimelineCanvas(QAbstractScrollArea):
         label = name if len(times) == 1 else f"{name} ×{len(times)}"
         if track in ("招式命中", "技能效果"):
             label += " · 命中" if track == "招式命中" else " · 效果"
-        if times[0] < start:
-            label = "续 · " + label
         stamp = clock(max(start, times[0]))
         label_width = min(self.plot, max(fm.horizontalAdvance(label), fm.horizontalAdvance(stamp)) + 10)
         left = max(self.gutter, min(width - self.PAD - label_width, points[0] - label_width // 2))
@@ -816,9 +843,11 @@ class PersonalCanvas(TimelineCanvas):
         self.tile = max(21, min(30, self.line + 6))
         self.pitch = self.tile + 6
         self.header = self.line + 8
-        captions = {m.track + (" CD" if m.lane == "调息" else "") for m in self.marks if m.band}
-        self.gutter = min(max(73, max((fm.horizontalAdvance(label) + 16 for label in captions),
-                                      default=0)), max(73, width // 3))
+        captions = {(m.track, m.lane == "调息") for m in self.marks if m.band}
+        self.badge = min(20, self.tile)
+        caption_width = max((fm.horizontalAdvance(label + " CD") + self.badge + 4 if cd
+                             else fm.horizontalAdvance(label) for label, cd in captions), default=0)
+        self.gutter = min(max(73, caption_width + 16), max(73, width // 3))
         self.plot = max(1, width - self.gutter - 6)
         scale = self.seconds / 1000
         key = (id(self.marks), self.seconds, self.tile)
@@ -834,7 +863,7 @@ class PersonalCanvas(TimelineCanvas):
                 grouped[key].append(m)
             leading = {label: i for i, label in enumerate(
                 (CALLS, MECHANICS, NORMAL, SPECIAL, '施放', '招式命中', '技能效果'))}
-            coverage = {'上元': 0, '翔舞': 1, '回雪飘摇': 2}
+            coverage = {'上元': 0, '翔舞': 1, '回雪飘摇': 2, '醉舞九天': 0}
 
             def lane_order(key):
                 kind, label = key
@@ -850,7 +879,7 @@ class PersonalCanvas(TimelineCanvas):
             self.ends_at = []
             self.spans = []
             for kind, label in keys:
-                records = sorted(grouped[kind, label], key=lambda m:m.start)
+                records = sorted(grouped[kind, label], key=lambda m:(m.start, -m.end))
                 spans = []
                 latest_end = []
                 if kind == 'event':
@@ -859,7 +888,8 @@ class PersonalCanvas(TimelineCanvas):
                         if m.end > m.start:
                             spans.append(m)
                             latest_end.append(max(m.end, latest_end[-1] if latest_end else 0))
-                        if clusters and (m.start - clusters[-1].start) * scale < self.tile + 1:
+                        if (label not in (NORMAL, SPECIAL, '施放') and clusters and
+                                (m.start - clusters[-1].start) * scale < self.tile + 1):
                             clusters[-1].records.append(m)
                         else:
                             clusters.append(IconCluster(m.start, label, [m]))
@@ -867,8 +897,7 @@ class PersonalCanvas(TimelineCanvas):
                 self.lanes.append((kind, label, records))
                 self.starts.append([r.start for r in records])
                 self.spans.append((spans, latest_end))
-                # Bands overlap only within explicitly separate resource rows.
-                self.ends_at.append([r.end for r in records] if kind != 'event' else ())
+                self.ends_at.append(list(accumulate((r.end for r in records), max)) if kind != 'event' else ())
             self.rows = self.lanes
         self.content_height = self.header + self.pitch * len(self.lanes) + 4 if self.lanes else 0
         h = self.horizontalScrollBar()
@@ -929,12 +958,24 @@ class PersonalCanvas(TimelineCanvas):
                 p.fillRect(xpos(m.start), y+self.pitch-3,
                            max(1, xpos(m.end)-xpos(m.start)), 2, QColor(m.color))
             first = (bisect_left(self.starts[i], left - self.tile / scale) if kind == 'event'
-                     else bisect_right(self.ends_at[i], left))
+                     else bisect_left(self.ends_at[i], left))
             last = bisect_right(self.starts[i], right)
-            for entry in records[first:last]:
+            for j in range(first, last):
+                entry = records[j]
                 x = xpos(entry.start)
                 if kind == 'event':
                     rect = QRect(x, y+2, self.tile, self.tile)
+                    if label in (NORMAL, SPECIAL, '施放'):
+                        # Each cast has its own hit target even when two actions share a timestamp.
+                        start_index = bisect_left(self.starts[i], entry.start)
+                        next_index = bisect_right(self.starts[i], entry.start)
+                        if next_index < len(records):
+                            rect.setWidth(max(1, min(self.tile, xpos(records[next_index].start) - x)))
+                        count = next_index - start_index
+                        if count > 1:
+                            slot = j - start_index
+                            rect.setTop(y + 2 + slot * self.tile // count)
+                            rect.setBottom(y + 1 + (slot + 1) * self.tile // count)
                     m = entry.records[0]
                     icon = action_icon(m.icon)
                     if not icon.isNull():
@@ -943,20 +984,27 @@ class PersonalCanvas(TimelineCanvas):
                         p.fillRect(rect, QColor(m.color))
                         p.setPen(Qt.white)
                         p.drawText(rect, Qt.AlignCenter, (m.skill_name or m.name)[:2])
-                    if len(entry.records) > 1:
+                    badge = (str(m.ticks) if m.ticks is not None else
+                             str(min(99, len(entry.records))) if len(entry.records) > 1 else None)
+                    if badge and rect.width() >= 14:
                         b = QRect(rect.right()-13, rect.bottom()-11, 14, 12)
                         p.fillRect(b, QColor("#334555"))
                         p.setPen(Qt.white)
                         font = p.font()
                         font.setPixelSize(10)
                         p.setFont(font)
-                        p.drawText(b, Qt.AlignCenter, str(min(99,len(entry.records))))
+                        p.drawText(b, Qt.AlignCenter, badge)
                         p.setFont(self.font())
+                elif entry.lane == "引导起手" or (entry.lane == "引导" and entry.start == entry.end):
+                    rect = QRect(x, y+2, 3, self.pitch-4)
+                    p.fillRect(rect, QColor(entry.color))
                 else:
                     rect = QRect(x, y+5, max(1, xpos(entry.end) - x), self.pitch-10)
                     color = QColor(entry.color)
                     color.setAlphaF(.12 + .8 * entry.intensity)
                     p.fillRect(rect, color)
+                    if entry.lane == "引导":
+                        p.fillRect(x, y+2, 2, self.pitch-4, QColor(entry.color))
                     visible = rect.intersected(QRect(self.gutter,y,self.plot,self.pitch))
                     if visible.width() > p.fontMetrics().horizontalAdvance(entry.name) + 8:
                         p.setPen(QColor("#ffffff" if entry.intensity > .7 else "#274246"))
@@ -969,6 +1017,11 @@ class PersonalCanvas(TimelineCanvas):
             p.setPen(QColor("#284951"))
             text = label + " CD" if kind == 'cd' else label
             rect = QRect(3,y,self.gutter-8,self.pitch)
+            if kind == 'cd':
+                icon = action_icon(records[0].icon)
+                if not icon.isNull():
+                    p.drawPixmap(QRect(4, y+(self.pitch-self.badge)//2, self.badge, self.badge), icon)
+                    rect.setLeft(8+self.badge)
             p.drawText(rect, Qt.AlignRight | Qt.AlignVCenter,
                        p.fontMetrics().elidedText(text, Qt.ElideRight, rect.width()))
         p.restore()

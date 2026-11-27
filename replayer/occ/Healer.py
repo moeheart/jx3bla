@@ -2,7 +2,7 @@
 # 治疗复盘的通用方法。尝试将共享的部分尽可能提取。
 
 from replayer.ReplayerBase import ReplayerBase
-from replayer.occ.HealingChannel import channel_efficiencies
+from replayer.occ.HealingChannel import HealingChannel, channel_efficiencies
 
 from replayer.BattleHistory import BattleHistory, SingleSkill
 from tools.Names import *
@@ -12,45 +12,67 @@ from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
 from replayer.Name import *
 
 import time
+from bisect import bisect_left
 
 class HealerReplay(ReplayerBase):
 
-    def calculateSkillInfoDirect(self, name, skillObj):
-        '''
-        根据技能名和对象统计对应技能的基本信息.
-        注意更复杂的信息依然需要在派生类中手动统计.
-        params:
-        - name: 技能的简称. 会存储在result中.
-        - skillObj: skillInfo中定义的技能对象.
-        returns:
-        - skillObj: 查找到的技能对象，用于进一步的手动统计.
-        '''
-        self.result["skill"][name] = {}
-        self.result["skill"][name]["num"] = skillObj.getNum()
-        self.result["skill"][name]["numPerSec"] = roundCent(self.result["skill"][name]["num"] / self.result["overall"]["sumTimeEff"] * 1000, 2)
-        self.result["skill"][name].update(skillObj.getDelayStats())
-        effHeal = skillObj.getHealEff()
-        self.result["skill"][name]["HPS"] = int(effHeal / self.result["overall"]["sumTimeEff"] * 1000)
-        self.result["skill"][name]["effRate"] = roundCent(safe_divide(effHeal, skillObj.getHeal()))
+    # (JCL Cast IDs, canonical pulse ID from skillInfo, pulses per channel)
+    gcdChannel = None
+    gcdChannelShells = ()
+    gcdChannelImmediate = False
+
+    def channelUseStats(self, casts):
+        """Count starts and pulses independently, using the healer's valid periods."""
+        exclusions = self.bh.badPeriodHealerLog
+        boundaries = [time for time, _ in exclusions]
+
+        def eligible(time):
+            # SkillHealCounter applies each boundary strictly after its timestamp.
+            pos = bisect_left(boundaries, time)
+            return pos == 0 or not exclusions[pos - 1][1]
+
+        actions = iter(self.bh.log["normal"])
+        previous = next(actions, None)
+        previous_end = self.startTime
+        count = ticks = 0
+        delays = []
+        for cast in casts:
+            while previous and previous["start"] < cast.start:
+                previous_end = max(previous_end, previous["start"] + previous["duration"])
+                previous = next(actions, None)
+            if not cast.partial and eligible(cast.start):
+                count += 1
+                delay = max(0, cast.start - previous_end)
+                if delay <= SkillCounter.MAX_DELAY_MS:
+                    delays.append(delay)
+            ticks += sum(eligible(time) for time in cast.ticks)
+            previous_end = max(previous_end, cast.end)
+        return {"num": count, "ticks": ticks, "delay": int(safe_divide(sum(delays), len(delays))),
+                "delaySamples": len(delays)}
+
+    def calculateSkillInfoDirect(self, name, skillObj, casts=None):
+        """Summarize a skill's use count, delay and healing in valid combat time."""
+        total_heal = skillObj.getHeal()
+        effective_heal = skillObj.getHealEff()
+        if casts is None:
+            stats = {"num": skillObj.getNum(), **skillObj.getDelayStats()}
+        else:
+            stats = self.channelUseStats(casts)
+            # One pulse may heal several targets. Keep those settlements and
+            # their amounts separate from both cast starts and pulse counts.
+            stats["healingEvents"] = sum(1 for row in skillObj.log if row[3] > 0 and not row[7])
+            stats["heal"] = total_heal
+            stats["healEff"] = effective_heal
+        active_time = self.result["overall"]["sumTimeEff"]
+        stats["numPerSec"] = roundCent(stats["num"] / active_time * 1000, 2) if active_time else 0
+        stats["HPS"] = int(effective_heal / active_time * 1000) if active_time else 0
+        stats["effRate"] = roundCent(safe_divide(effective_heal, total_heal))
+        self.result["skill"][name] = stats
 
     def calculateSkillInfo(self, name, id):
-        '''
-        根据技能名和ID统计对应技能的基本信息.
-        注意更复杂的信息依然需要在派生类中手动统计.
-        params:
-        - name: 技能的简称. 会存储在result中.
-        - id: 技能的ID，用于在skillInfo中查找.
-        returns:
-        - skillObj: 查找到的技能对象，用于进一步的手动统计.
-        '''
-        skillObj = self.skillInfo[self.gcdSkillIndex[id]][0]
-        self.result["skill"][name] = {}
-        self.result["skill"][name]["num"] = skillObj.getNum()
-        self.result["skill"][name]["numPerSec"] = roundCent(self.result["skill"][name]["num"] / self.result["overall"]["sumTimeEff"] * 1000, 2)
-        self.result["skill"][name].update(skillObj.getDelayStats())
-        effHeal = skillObj.getHealEff()
-        self.result["skill"][name]["HPS"] = int(effHeal / self.result["overall"]["sumTimeEff"] * 1000)
-        self.result["skill"][name]["effRate"] = roundCent(safe_divide(effHeal, skillObj.getHeal()))
+        index = self.gcdSkillIndex[id]
+        casts = self.channelCasts if self.gcdChannel and index == self.gcdSkillIndex[self.gcdChannel[1]] else None
+        self.calculateSkillInfoDirect(name, self.skillInfo[index][0], casts)
 
     def calculateSkillOverall(self, channelLog=None):
         '''
@@ -131,6 +153,22 @@ class HealerReplay(ReplayerBase):
                               ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal, ss.damage, ss.damageEff,
                               roundCent(safe_divide(ss.healEff, ss.heal)),
                               int(safe_divide(ss.delay, ss.delayNum)), ss.busy, "")
+
+        if self.gcdChannel:
+            _, pulse, limit = self.gcdChannel
+            line = self.skillInfo[self.gcdSkillIndex[pulse]]
+            period = getLength(line[5], self.haste if line[7] else 0)
+            self.channelCasts = self.gcdChannelLog.groups(
+                self.startTime, self.finalTime, period,
+                immediate=self.gcdChannelImmediate, ticks_per_cast=limit,
+                marked_tick_limit=getattr(self, "gcdChannelMarkedTicks", 0))
+            for cast in self.channelCasts:
+                bh.setNormalSkill(pulse, line[1], line[3], cast.start, cast.end - cast.start,
+                                  int(not cast.partial), cast.heal, cast.healeff, cast.damage, cast.damageeff)
+                bh.log["normal"][-1]["ticks"] = len(cast.ticks)
+                if cast.partial:
+                    bh.log["normal"][-1]["partial"] = True
+            bh.log["normal"].sort(key=lambda action: action["start"])
 
         # 同步BOSS的技能信息
         if self.bossBh is not None:
@@ -282,22 +320,36 @@ class HealerReplay(ReplayerBase):
                     skip = 1
         if not skip:
             ss.analyseSkill(event, castTime, line[0], tunnel=line[6], hasteAffected=line[7])
+            if self.gcdChannel and index == self.gcdSkillIndex[self.gcdChannel[1]]:
+                self.gcdChannelLog.tick(event.time, event.heal, event.healEff, event.damage,
+                                        event.damageEff, frame=getattr(event, "frame", None))
+                self.lastNormalImpact = None
+                ss.reset()
+                return
             targetName = "Unknown"
             if event.target in self.bld.info.player:
                 targetName = self.bld.info.player[event.target].name
             elif event.target in self.bld.info.npc:
                 targetName = self.bld.info.getName(event.target)
-            lastSkillID, lastTime = bh.getLastNormalSkill()
-            if self.gcdSkillIndex[lastSkillID] == self.gcdSkillIndex[ss.skill] and ss.timeStart - lastTime < 100:
-                # 相同技能，原地更新
+            lastSkillID, _ = bh.getLastNormalSkill()
+            frame = getattr(event, "frame", None)
+            sameImpact = self.lastNormalImpact is not None and (
+                0 <= event.time - self.lastNormalImpact < 100 or
+                (frame is not None and frame == self.lastNormalFrame))
+            if (sameImpact and self.gcdSkillIndex.get(lastSkillID) == index
+                    and event.target not in self.normalTargets):
+                # 一次群疗命中多个目标，只累加治疗量。
                 bh.updateNormalSkill(ss.skill, line[1], line[3],
-                                     ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
+                                     ss.timeStart, ss.timeEnd - ss.timeStart, 0, ss.heal,
                                      ss.healEff, ss.damage, ss.damageEff, 0, ss.busy, "", target, targetName)
             else:
-                # 不同技能，新建条目
+                self.lastNormalImpact = event.time
+                self.lastNormalFrame = frame
+                self.normalTargets = set()
                 bh.setNormalSkill(ss.skill, line[1], line[3],
                                   ss.timeStart, ss.timeEnd - ss.timeStart, ss.num, ss.heal,
                                   ss.healEff, ss.damage, ss.damageEff, 0, ss.busy, "", target, targetName)
+            self.normalTargets.add(event.target)
             ss.reset()
 
     def eventInSecondState(self, event):
@@ -329,6 +381,8 @@ class HealerReplay(ReplayerBase):
                 pass
 
             if event.caster == self.mykey and event.scheme == 1:
+                if event.id in self.gcdChannelShells:
+                    self.gcdChannelLog.cast(event.time, shell=True, frame=getattr(event, "frame", None))
                 # 根据技能表进行自动处理
                 if event.id in self.gcdSkillIndex:
                     self.handleGcdSkill(event)
@@ -340,6 +394,10 @@ class HealerReplay(ReplayerBase):
                 #     print("[NonRec]", event.id, event.time, self.bld.info.getSkillName(event.full_id), event.healEff,
                 #           self.bld.info.getName(event.caster), self.bld.info.getName(event.target))
 
+        elif event.dataType == "Cast" and event.caster == self.mykey:
+            self.lastNormalImpact = None
+            if self.gcdChannel and event.id in self.gcdChannel[0]:
+                self.gcdChannelLog.cast(event.time, frame=getattr(event, "frame", None))
         elif event.dataType == "Buff":
             if event.id in ["6360"] and event.level in [66, 76, 86] and event.stack == 1 and event.target == self.mykey:  # 特效腰坠:
                 self.bh.setSpecialSkill(event.id, "特效腰坠", "3414",
@@ -404,6 +462,11 @@ class HealerReplay(ReplayerBase):
         # 战斗回放初始化
         self.bh = BattleHistory(self.startTime, self.finalTime)
         self.ss = SingleSkill(self.startTime, self.haste)
+        self.lastNormalImpact = None
+        self.lastNormalFrame = None
+        self.normalTargets = set()
+        if self.gcdChannel:
+            self.gcdChannelLog = HealingChannel()
 
         # self.excludePosHealer = 0
         # self.badPeriodHealerLog = self.bossBh.badPeriodHealerLog

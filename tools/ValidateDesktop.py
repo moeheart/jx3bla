@@ -64,16 +64,35 @@ def check_shell():
 
 
 def exercise_view(view, snapshot):
+    from window.QtTimeline import action_icon
     app = QApplication.instance()
     assert view.team_table.model().rowCount() == len(snapshot.statDict)
     for i in range(view.tabs.count()):
         view.tabs.setCurrentIndex(i)
     pages = 0
     channel_efficiencies = []
+    channel_counts = []
     for name, entry in snapshot.occResult.items():
         assert view.open_player(name)
         assert view.personal_dashboard is not None
         general = entry['result'].get('skill', {}).get('general', {})
+        replay = entry['result'].get('replay', {})
+        if replay and view.personal_timeline is not None:
+            canvas = view.personal_timeline.canvas
+            for kind, label, records in canvas.lanes:
+                if kind == 'cd':
+                    assert not action_icon(records[0].icon).isNull(), (label, records[0].icon)
+            for key, label in (('hxpyCasts', '回雪飘摇'), ('zwjtCasts', '醉舞九天')):
+                if key in replay:
+                    casts = replay[key]
+                    marks = [m for m in canvas.marks if m.track == label and m.lane == '引导']
+                    assert [(m.start, m.end, m.ticks) for m in marks] == [
+                        (c['start'] - replay['startTime'], c['end'] - replay['startTime'], c['ticks'])
+                        for c in casts]
+                    channel_counts.append({'skill': label, 'casts': sum(not c.get('partial') for c in casts),
+                                           'openAtStart': sum(bool(c.get('partial')) for c in casts),
+                                           'ticks': sum(c['ticks'] for c in casts),
+                                           'zeroTicks': sum(c['ticks'] == 0 for c in casts)})
         if entry.get('occ') in ('5h', '6h') and 'efficiencyNonGcd' in general:
             gcd, combat = general['efficiency'], general['efficiencyNonGcd']
             assert 0 <= gcd <= combat <= 1, (entry['occ'], gcd, combat)
@@ -85,7 +104,7 @@ def exercise_view(view, snapshot):
     assert not view.grab().isNull()
     return {'teamRows': len(snapshot.statDict), 'battleTabs': view.tabs.count(),
             'personalReports': len(snapshot.occResult), 'personalDashboardsVisited': pages,
-            'channelEfficiencies': channel_efficiencies}
+            'channelEfficiencies': channel_efficiencies, 'channels': channel_counts}
 
 
 def check_result_views(actor):

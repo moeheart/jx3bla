@@ -1,9 +1,11 @@
 """Regression coverage for offline first use and Qt settings editing."""
 import os
+import io
+import json
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from ConfigTools import Config, ensure_user_uuid
 
@@ -19,6 +21,27 @@ except ModuleNotFoundError as error:
 
 
 class OfflineConfigTests(unittest.TestCase):
+    def test_downloaded_channel_report_opens_with_current_server_ranks(self):
+        from window import ConfigWindow
+
+        panel = Mock()
+        panel.entry2_8.get.return_value = "42"
+        projected = {"overall": {"playerID": "小'云"}, "skill": {"dgsn": {"HPS": 90}, "dgsnCast": {"num": 12}},
+                     "rank": {"dgsnCast": {"num": {"num": 0, "percent": 0}}}}
+        old = {"overall": {}, "skill": {"dgsn": {"num": 198}}}
+        for raw, ranks, expected in ((projected, {"dgsnCast": {"num": {"num": 20, "percent": 42}}}, 12),
+                                     (old, {"dgsn": {"num": {"num": 20, "percent": 42}}}, 198)):
+            reply = {"available": 1, "text": "请求成功", "raw": json.dumps(raw), "rank": json.dumps(ranks)}
+            with self.subTest(expected=expected), patch.object(ConfigWindow, "get_api_url", return_value="offline"), \
+                    patch.object(ConfigWindow.urllib.request, "urlopen", return_value=io.BytesIO(json.dumps(reply).encode())), \
+                    patch.object(ConfigWindow, "LingSuWindow") as viewer:
+                ConfigWindow.ConfigWindow.show_replay(panel)
+                viewer.return_value.start.assert_called_once_with()
+                report = viewer.call_args.args[1]
+                self.assertEqual(report["result"]["skill"]["dgsn"]["num"], expected)
+                self.assertEqual(report["rank"]["dgsn"]["num"]["percent"], 42)
+                self.assertNotIn("dgsnCast", report["result"].get("rank", {}))
+
     def test_gbk_unicode_percent_and_unknown_settings_survive_incremental_save(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "chosen-settings.ini"
@@ -31,6 +54,16 @@ class OfflineConfigTests(unittest.TestCase):
                 self.assertIn("CaseKey=80%", actual)
                 self.assertIn("Extra=未知字段", actual)
                 self.assertEqual(Config(path, offline=True).item["general"]["team"], "新团队")
+
+    def test_legacy_healer_stacking_setting_is_retired_on_save(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "config.ini"
+            path.write_text("[LingSuAnalysis]\nStack=3\n[Extension]\nStack=keep\n", encoding="utf-8")
+            config = Config(path, offline=True)
+            self.assertNotIn("stack", config.item["lingsu"])
+            config.saveSettings({"general": {"team": "test"}})
+            self.assertNotIn("Stack=3", path.read_text("utf-8"))
+            self.assertIn("Stack=keep", path.read_text("utf-8"))
 
     def test_failed_atomic_replace_keeps_both_config_and_original_file(self):
         with tempfile.TemporaryDirectory() as directory:

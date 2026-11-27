@@ -134,6 +134,7 @@ class SingleDataSkill(SingleData):
         '''
         self.timestamp = int(item[2])
         self.time = int(item[3])
+        self.frame = int(item[1])
         self.caster = item[5]["1"]
         self.target = item[5]["2"]
         self.scheme = int(item[5]["4"])
@@ -372,6 +373,7 @@ class SingleDataCast(SingleData):
         - item: jcl形式的事件信息.
         '''
         self.time = int(item[3])
+        self.frame = int(item[1])
         self.caster = item[5]["1"]
         self.id = item[5]["2"]
         self.level = int(item[5]["3"])

@@ -8,6 +8,40 @@ const vm = require('node:vm');
 const source = fs.readFileSync(path.join(__dirname, '../static/HealerReplay.js'), 'utf8');
 const talentBlock = source.split('//part 4')[1].split('//part 5')[0];
 
+test('downloaded channel cards join cast counts and ranks without changing older reports', () => {
+    const skill = {zhi: {ticks: 79, HPS: 1000}, zhiCast: {num: 22}, dgsn: {num: 41}};
+    const embedded = {zhi: {HPS: {percent: 42}}, zhiCast: {num: {percent: 59}}};
+    const current = {zhiCast: {num: {percent: 68}}, dgsn: {num: {percent: 51}}};
+    vm.runInNewContext(source.split('function parseCent')[0],
+                       {resObj: {skill, rank: embedded}, rankObj: current});
+    assert.equal(skill.zhi.num, 22);
+    assert.equal(skill.zhi.HPS, 1000);
+    assert.equal(skill.dgsn.num, 41);
+    assert.equal(embedded.zhi.num.percent, 59);
+    assert.equal(current.zhi.num.percent, 68);
+    assert.equal(current.dgsn.num.percent, 51);
+    assert.equal('zhiCast' in skill || 'zhiCast' in embedded || 'zhiCast' in current, false);
+});
+
+test('a missing population has no ranking tooltip while a genuine zero percentile does', () => {
+    const context = {
+        resObj: {},
+        rankObj: {zhiCast: {num: {percent: 0, num: 0}, delay: {percent: 0, num: 12}}},
+    };
+    vm.runInNewContext(source.split('// part 1')[0], context);
+    function renderRank(key) {
+        const attributes = {};
+        context.applySkillRank({
+            css: (key, value) => { attributes[key] = value; },
+            addClass: value => { attributes.class = value; },
+            attr: (key, value) => { attributes[key] = value; },
+        }, context.getSkillPercent('zhi', key));
+        return attributes;
+    }
+    assert.deepEqual(renderRank('num'), {});
+    assert.deepEqual(renderRank('delay'), {color: '#aaaaaa', class: 'stat-rank', percent: 0, num: 12});
+});
+
 function render(qixue, elements) {
     elements = elements || {
         '#data-4-t': {nodes: [], classes: new Set(['hidden'])},

@@ -189,48 +189,13 @@ class YunChangXinJingWindow(HealerDisplayWindow):
             pos = int(nowt / 100)
             canvas6.create_text(pos, 50, text=text)
         # 绘制常规技能轴
-        j = -1
-        lastName = ""
-        lastStart = 0
-        l = len(self.result["replay"]["normal"])
-        for i in range(l + 1):
-            if i == l:
-                record = {"skillname": "Final", "start": 999999999999}
-            else:
-                record = self.result["replay"]["normal"][i]
-            if record["skillname"] != lastName or record["start"] - lastStart > 3000:
-                if j == -1:
-                    j = i
-                    lastName = record["skillname"]
-                    lastStart = record["start"]
-                    continue
-                # 结算上一个技能
-                if self.config.item["yunchang"]["stack"] != "不堆叠" and i-j >= int(self.config.item["yunchang"]["stack"]):
-                    # 进行堆叠显示
-                    record_first = self.result["replay"]["normal"][j]
-                    record_last = self.result["replay"]["normal"][i-1]
-                    posStart = int((record_first["start"] - startTime) / 100)
-                    posEnd = int((record_last["start"] + record_last["duration"] - startTime) / 100)
-                    canvas6.create_image(posStart + 10, 80, image=canvas6.im[record_last["iconid"]])
-                    # 绘制表示持续的条
-                    if posStart + 20 < posEnd:
-                        canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill="#64fab4")
-                    # 绘制重复次数
-                    if posStart + 30 < posEnd:
-                        canvas6.create_text(posStart + 30, 80, text="*%d" % (i-j))
-                else:
-                    # 进行独立显示
-                    for k in range(j, i):
-                        record_single = self.result["replay"]["normal"][k]
-                        posStart = int((record_single["start"] - startTime) / 100)
-                        posEnd = int((record_single["start"] + record_single["duration"] - startTime) / 100)
-                        canvas6.create_image(posStart + 10, 80, image=canvas6.im[record_single["iconid"]])
-                        # 绘制表示持续的条
-                        if posStart + 20 < posEnd:
-                            canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill="#64fab4")
-                j = i
-            lastName = record["skillname"]
-            lastStart = record["start"]
+        for record in self.result["replay"]["normal"]:
+            posStart = int((record["start"] - startTime) / 100)
+            posEnd = int((record["start"] + record["duration"] - startTime) / 100)
+            canvas6.create_image(posStart + 10, 80, image=canvas6.im[record["iconid"]])
+            # 绘制表示持续的条
+            if posStart + 20 < posEnd:
+                canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill="#64fab4")
 
         # 绘制特殊技能轴
         for record in self.result["replay"]["special"]:
@@ -354,12 +319,12 @@ class YunChangXinJingReplayer(HealerReplay):
             if getattr(event, "caster", None) != self.mykey:
                 continue
             if event.dataType == "Cast" and event.id in HUIXUE_CASTS:
-                self.huixue.cast(event.time)
+                self.huixue.cast(event.time, frame=getattr(event, "frame", None))
             elif event.dataType == "Skill" and event.scheme == 1 and event.effect != 7:
                 if event.id == "565":
-                    self.huixue.cast(event.time)
+                    self.huixue.cast(event.time, shell=True, frame=getattr(event, "frame", None))
                 elif event.id in HUIXUE_TICKS:
-                    self.huixue.tick(event.time)
+                    self.huixue.tick(event.time, frame=getattr(event, "frame", None))
 
         self.completeFirstState()
         talents = self.bld.info.player[self.mykey].qx
@@ -612,10 +577,14 @@ class YunChangXinJingReplayer(HealerReplay):
                    }
             self.result["dps"]["table"].append(res)
 
-        hxpyLog, starts = self.huixue.intervals(
+        casts = self.huixue.groups(
             self.startTime, self.finalTime, getLength(12, self.haste),
             immediate=self.huixueGcd, ticks_per_cast=4 if self.huixueGcd else 3)
-        for start in starts:
+        hxpyLog = self.huixue.coverage(self.startTime, self.finalTime, casts)
+        for cast in casts:
+            if cast.partial:
+                continue
+            start = cast.start
             if self.huixueGcd:
                 self.bh.setNormalSkill("565", "回雪飘摇", "894", start, getLength(24, self.haste), 1, 0, 0, 0, 0)
             else:
@@ -628,7 +597,7 @@ class YunChangXinJingReplayer(HealerReplay):
         self.result["skill"] = {}
 
         # 回雪飘摇
-        self.calculateSkillInfoDirect("hxpy", hxpySkill)
+        self.calculateSkillInfoDirect("hxpy", hxpySkill, casts)
 
         # 翔鸾舞柳
         self.calculateSkillInfoDirect("xlwl", xiangwuBuff)
@@ -732,6 +701,7 @@ class YunChangXinJingReplayer(HealerReplay):
         # 计算战斗回放
         self.result["replay"] = self.bh.getJsonReplay(self.mykey)
         self.result["replay"]["hxpy"] = hxpyLog
+        self.result["replay"]["hxpyCasts"] = [cast.replay() for cast in casts]
         self.result["replay"]["hxpyTriggersGcd"] = self.huixueGcd
         self.result["replay"]["heat"] = {"interval": 500, "timeline": [xiangwuHeat, shangyuanHeat]}
 

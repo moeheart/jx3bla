@@ -185,48 +185,13 @@ class BuTianJueWindow(HealerDisplayWindow):
             pos = int(nowt / 100)
             canvas6.create_text(pos, 50, text=text)
         # 绘制常规技能轴
-        j = -1
-        lastName = ""
-        lastStart = 0
-        l = len(self.result["replay"]["normal"])
-        for i in range(l + 1):
-            if i == l:
-                record = {"skillname": "Final", "start": 999999999999}
-            else:
-                record = self.result["replay"]["normal"][i]
-            if record["skillname"] != lastName or record["start"] - lastStart > 3000:
-                if j == -1:
-                    j = i
-                    lastName = record["skillname"]
-                    lastStart = record["start"]
-                    continue
-                # 结算上一个技能
-                if self.config.item["butian"]["stack"] != "不堆叠" and i-j >= int(self.config.item["butian"]["stack"]):
-                    # 进行堆叠显示
-                    record_first = self.result["replay"]["normal"][j]
-                    record_last = self.result["replay"]["normal"][i-1]
-                    posStart = int((record_first["start"] - startTime) / 100)
-                    posEnd = int((record_last["start"] + record_last["duration"] - startTime) / 100)
-                    canvas6.create_image(posStart + 10, 80, image=canvas6.im[record_last["iconid"]])
-                    # 绘制表示持续的条
-                    if posStart + 20 < posEnd:
-                        canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill="#64fab4")
-                    # 绘制重复次数
-                    if posStart + 30 < posEnd:
-                        canvas6.create_text(posStart + 30, 80, text="*%d" % (i-j))
-                else:
-                    # 进行独立显示
-                    for k in range(j, i):
-                        record_single = self.result["replay"]["normal"][k]
-                        posStart = int((record_single["start"] - startTime) / 100)
-                        posEnd = int((record_single["start"] + record_single["duration"] - startTime) / 100)
-                        canvas6.create_image(posStart + 10, 80, image=canvas6.im[record_single["iconid"]])
-                        # 绘制表示持续的条
-                        if posStart + 20 < posEnd:
-                            canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill="#64fab4")
-                j = i
-            lastName = record["skillname"]
-            lastStart = record["start"]
+        for record in self.result["replay"]["normal"]:
+            posStart = int((record["start"] - startTime) / 100)
+            posEnd = int((record["start"] + record["duration"] - startTime) / 100)
+            canvas6.create_image(posStart + 10, 80, image=canvas6.im[record["iconid"]])
+            # 绘制表示持续的条
+            if posStart + 20 < posEnd:
+                canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill="#64fab4")
 
         # 绘制特殊技能轴
         for record in self.result["replay"]["special"]:
@@ -444,7 +409,9 @@ class BuTianJueReplayer(HealerReplay):
         xwgdSumSkill = 0
         xwgdLastSkill = 0  # 锅的施放人数统计
 
-        zwjtTime = getLength(16, self.haste)
+        talents = self.result["qixue"]
+        qingshuang = "清霜" in talents.values()
+        zwjtTime = getLength(12, self.haste)
 
         qdtrWatchSkill = SkillCounterAdvance(self.skillInfo[self.gcdSkillIndex["2449"]], self.startTime, self.finalTime,
                                              self.haste, exclude=self.bossBh.badPeriodHealerLog)
@@ -482,7 +449,9 @@ class BuTianJueReplayer(HealerReplay):
                 continue
 
             if event.dataType == "Cast" and event.caster == self.mykey and event.id in ("2233", "6675"):
-                zuiwu.cast(event.time)
+                zuiwu.cast(event.time, frame=getattr(event, "frame", None))
+                if event.id == "6675":
+                    qingshuang = True
             self.eventInSecondState(event)
 
             if event.dataType == "Skill":
@@ -539,9 +508,10 @@ class BuTianJueReplayer(HealerReplay):
                         xjmjHeal += event.healEff
                     if event.id in ["3061"]:  # 碧蝶献祭
                         bdxjHeal += event.healEff
-                    if event.id in ["6252"]:  # 醉舞九天
+                    if event.id in ("2233", "6675", "6252"):  # 每跳有壳，无目标时也可能结算
+                        zuiwu.tick(event.time, frame=getattr(event, "frame", None))
+                    if event.id == "6252":  # 每名实际治疗目标
                         zwjtSkill.recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff, lastTime=0)
-                        zuiwu.tick(event.time)
                     if event.id in ["2234"]:  # 仙王蛊鼎
                         if firstXwgd == 0:
                             firstXwgd = 1
@@ -665,9 +635,13 @@ class BuTianJueReplayer(HealerReplay):
 
         mxymDict.shrink(100)
         ghzsDict.shrink(100)
-        zwjtLog, starts = zuiwu.intervals(self.startTime, self.finalTime, zwjtTime)
-        for start in starts:
-            self.bh.setSpecialSkill("2233", "醉舞九天", "2746", start, 0, "")
+        extra = qingshuang or "纳精" in talents.values() or not talents["available"]
+        casts = zuiwu.groups(self.startTime, self.finalTime, zwjtTime,
+                             immediate=qingshuang, ticks_per_cast=6 + int(extra))
+        zwjtLog = zuiwu.coverage(self.startTime, self.finalTime, casts)
+        for cast in casts:
+            if not cast.partial:
+                self.bh.setSpecialSkill("2233", "醉舞九天", "2746", cast.start, 0, "")
         self.bh.log["special"].sort(key=lambda row: row["start"])
 
         # 计算技能统计
@@ -677,7 +651,7 @@ class BuTianJueReplayer(HealerReplay):
         # 冰蚕牵丝
         bcqsSkill = self.calculateSkillInfo("bcqs", "2526")
         # 醉舞九天
-        self.calculateSkillInfoDirect("zwjt", zwjtSkill)
+        self.calculateSkillInfoDirect("zwjt", zwjtSkill, casts)
         # 圣手织天
         ssztSkill = self.calculateSkillInfo("sszt", "13425")
         # 千蝶吐瑞
@@ -748,6 +722,7 @@ class BuTianJueReplayer(HealerReplay):
         self.result["replay"]["xwgd"] = xwgdDict.log
         self.result["replay"]["ghzs"] = ghzsDict.log
         self.result["replay"]["zwjt"] = zwjtLog
+        self.result["replay"]["zwjtCasts"] = [cast.replay() for cast in casts]
 
         self.specialKey = {"bcqs-numPerSec": 10, "zwjt-numPerSec": 10, "general-efficiencyNonGcd": 20, "healer-rhps": 20}
 

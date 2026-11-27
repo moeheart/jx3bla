@@ -160,50 +160,15 @@ class HuaJianYouWindow(DpsDisplayWindow):
             pos = int(nowt / 100)
             canvas6.create_text(pos, 50, text=text)
         # 绘制常规技能轴
-        j = -1
-        lastName = ""
-        lastStart = 0
-        l = len(self.result["replay"]["normal"])
-        for i in range(l + 1):
-            if i == l:
-                record = {"skillname": "Final", "start": 999999999999}
-            else:
-                record = self.result["replay"]["normal"][i]
-            if record["skillname"] != lastName or record["start"] - lastStart > 3000:
-                if j == -1:
-                    j = i
-                    lastName = record["skillname"]
-                    lastStart = record["start"]
-                    continue
-                # 结算上一个技能
-                if self.config.item["lijing"]["stack"] != "不堆叠" and i-j >= int(self.config.item["lijing"]["stack"]):
-                    # 进行堆叠显示
-                    record_first = self.result["replay"]["normal"][j]
-                    record_last = self.result["replay"]["normal"][i-1]
-                    posStart = int((record_first["start"] - startTime) / 100)
-                    posEnd = int((record_last["start"] + record_last["duration"] - startTime) / 100)
-                    canvas6.create_image(posStart + 10, 80, image=canvas6.im[record_last["iconid"]])
-                    # 绘制表示持续的条
-                    if posStart + 20 < posEnd:
-                        canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill="#64fab4")
-                    # 绘制重复次数
-                    if posStart + 30 < posEnd:
-                        canvas6.create_text(posStart + 30, 80, text="*%d" % (i-j))
-                else:
-                    # 进行独立显示
-                    for k in range(j, i):
-                        record_single = self.result["replay"]["normal"][k]
-                        posStart = int((record_single["start"] - startTime) / 100)
-                        posEnd = int((record_single["start"] + record_single["duration"] - startTime) / 100)
-                        canvas6.create_image(posStart + 10, 80, image=canvas6.im[record_single["iconid"]])
-                        # 绘制表示持续的条
-                        if posStart + 20 < posEnd:
-                            canvas6.create_rectangle(posStart, 70, posStart + 20, 90, fill="#64fab4")
-                        if "tunhai" in record_single:
-                            canvas6.create_rectangle(posStart, 70, posStart + 20, 90, outline="#ff0000", width=2)
-                j = i
-            lastName = record["skillname"]
-            lastStart = record["start"]
+        for record in self.result["replay"]["normal"]:
+            posStart = int((record["start"] - startTime) / 100)
+            posEnd = int((record["start"] + record["duration"] - startTime) / 100)
+            canvas6.create_image(posStart + 10, 80, image=canvas6.im[record["iconid"]])
+            # 绘制表示持续的条
+            if posStart + 20 < posEnd:
+                canvas6.create_rectangle(posStart, 70, posStart + 20, 90, fill="#64fab4")
+            if "tunhai" in record:
+                canvas6.create_rectangle(posStart, 70, posStart + 20, 90, outline="#ff0000", width=2)
 
         # 绘制特殊技能轴
         for record in self.result["replay"]["special"]:

@@ -12,6 +12,7 @@ from equip.EquipmentExport import EquipmentAnalyser, ExcelExportEquipment
 from replayer.Name import *
 from window.HealerDisplayWindow import HealerDisplayWindow, SingleSkillDisplayer
 from replayer.occ.Healer import HealerReplay
+from bisect import bisect_left, bisect_right
 
 import os
 import time
@@ -179,48 +180,13 @@ class LingSuWindow(HealerDisplayWindow):
             pos = int(nowt / 100)
             canvas6.create_text(pos, 50, text=text)
         # 绘制常规技能轴
-        j = -1
-        lastName = ""
-        lastStart = 0
-        l = len(self.result["replay"]["normal"])
-        for i in range(l + 1):
-            if i == l:
-                record = {"skillname": "Final", "start": 999999999999}
-            else:
-                record = self.result["replay"]["normal"][i]
-            if record["skillname"] != lastName or record["start"] - lastStart > 3000:
-                if j == -1:
-                    j = i
-                    lastName = record["skillname"]
-                    lastStart = record["start"]
-                    continue
-                # 结算上一个技能
-                if self.config.item["lingsu"]["stack"] != "不堆叠" and i-j >= int(self.config.item["lingsu"]["stack"]):
-                    # 进行堆叠显示
-                    record_first = self.result["replay"]["normal"][j]
-                    record_last = self.result["replay"]["normal"][i-1]
-                    posStart = int((record_first["start"] - startTime) / 100)
-                    posEnd = int((record_last["start"] + record_last["duration"] - startTime) / 100)
-                    canvas6.create_image(posStart + 10, 80, image=canvas6.im[record_last["iconid"]])
-                    # 绘制表示持续的条
-                    if posStart + 20 < posEnd:
-                        canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill="#64fab4")
-                    # 绘制重复次数
-                    if posStart + 30 < posEnd:
-                        canvas6.create_text(posStart + 30, 80, text="*%d" % (i-j))
-                else:
-                    # 进行独立显示
-                    for k in range(j, i):
-                        record_single = self.result["replay"]["normal"][k]
-                        posStart = int((record_single["start"] - startTime) / 100)
-                        posEnd = int((record_single["start"] + record_single["duration"] - startTime) / 100)
-                        canvas6.create_image(posStart + 10, 80, image=canvas6.im[record_single["iconid"]])
-                        # 绘制表示持续的条
-                        if posStart + 20 < posEnd:
-                            canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill="#64fab4")
-                j = i
-            lastName = record["skillname"]
-            lastStart = record["start"]
+        for record in self.result["replay"]["normal"]:
+            posStart = int((record["start"] - startTime) / 100)
+            posEnd = int((record["start"] + record["duration"] - startTime) / 100)
+            canvas6.create_image(posStart + 10, 80, image=canvas6.im[record["iconid"]])
+            # 绘制表示持续的条
+            if posStart + 20 < posEnd:
+                canvas6.create_rectangle(posStart + 20, 70, posEnd, 90, fill="#64fab4")
 
         # 绘制特殊技能轴
         for record in self.result["replay"]["special"]:
@@ -313,11 +279,157 @@ class LingSuWindow(HealerDisplayWindow):
         self.title = '灵素复盘'
         self.occ = "lingsu"
 
+class BaiZhiTiming:
+    """Match 白芷's healing result to its cast or single-use 月见 buff."""
+
+    def __init__(self):
+        self.starts = []
+        self.buffs = {"31763": [], "20072": []}
+        self.consumptions = []
+        self.lastHeal = None
+
+    def observe(self, event, player):
+        if event.dataType == "Cast" and event.caster == player and event.id == "27621":
+            self.starts.append(event.time)
+        if (event.dataType != "Buff" or event.id not in self.buffs
+                or event.target != player or event.level != 1):
+            return
+        remaining = event.end - event.frame
+        # Expiry is in server frames. Some old records omit it; the skills
+        # themselves limit 月见 to 10 seconds and 凌然天风 to 7 seconds.
+        active = event.stack > 0 and getattr(event, "isValid", True)
+        duration = remaining * 62.5 if event.end else (10000 if event.id == "31763" else 7000)
+        self.buffs[event.id].append((event.time, event.time + max(duration, 0) if active else 0))
+        if event.id == "31763" and not active and (remaining > 0 or not event.end):
+            self.consumptions.append(event.time)
+
+    def activeSince(self, buff, time):
+        events = self.buffs[buff]
+        index = bisect_right(events, (time, float("inf"))) - 1
+        if index >= 0:
+            start, expiry = events[index]
+            # A recorded removal is a better boundary than converting server
+            # frames to wall time, particularly when the logging client stalls.
+            recordedEnd = index + 1 < len(events) and events[index + 1][1] == 0
+            if expiry and (time < expiry or recordedEnd):
+                return start
+        return None
+
+    def resolve(self, time, nominal):
+        previous = self.lastHeal
+        self.lastHeal = time
+        # Buff packets can arrive on either side of the healing packet. An
+        # expiry at the expected server frame is not evidence of consumption.
+        loss = bisect_left(self.consumptions, time - 200)
+        if loss < len(self.consumptions) and self.consumptions[loss] <= time + 200:
+            return time, "月见瞬发"
+
+        # A queued *next* cast can precede the previous healing packet by a
+        # few milliseconds. A genuine 白芷 cast takes several server frames.
+        index = bisect_right(self.starts, time - nominal / 3) - 1
+        if index >= 0:
+            start = self.starts[index]
+            if (previous is None or start >= previous - 100) and time - start <= nominal + 1000:
+                return start, ""
+
+        grant = self.activeSince("31763", time)
+        if grant is not None and (previous is None or grant > previous):
+            return time, "月见瞬发"
+        if self.starts and self.activeSince("20072", time) is not None:
+            # The airborne recipe removes the cast. Only infer it when this
+            # recorder actually observes ordinary 白芷 cast starts.
+            return time, "凌然天风瞬发"
+        return time - nominal, ""
+
+
 class LingSuReplayer(HealerReplay):
     '''
     灵素复盘类.
     分析战斗记录并生成json格式的结果，对结果的解析在其他类中完成。
     '''
+
+    gcdChannel = (("27623",), "27624", 4)
+
+    def handleGcdSkill(self, event):
+        if event.id != "27622":
+            super().handleGcdSkill(event)
+            if event.id in self.nativeStarts:
+                self.anchorAdjacentCast(event)
+            return
+
+        line = self.skillInfo[self.gcdSkillIndex[event.id]]
+        nominal = getLength(16 if self.shaoShi else 24, self.haste)
+        start, description = self.baiZhiTiming.resolve(event.time, nominal)
+        line[0].recordSkill(event.time, event.heal, event.healEff, event.damage, event.damageEff,
+                            lastTime=self.ss.timeEnd, delta=event.time - start)
+        gcd = getLength(24, self.haste) - (500 if self.shaoShi else 0)
+        end = event.time + gcd if description else event.time
+        start = max(start, self.startTime)
+        self.ss.timeEnd = min(self.finalTime, end)
+        self.bh.setNormalSkill(event.id, line[1], line[3], start, self.ss.timeEnd - start, 1,
+                               event.heal, event.healEff, event.damage, event.damageEff,
+                               description=description, targetName=self.bld.info.getName(event.target))
+        row = self.bh.log["normal"][-1]
+        # A normal heal confirms its end even in a legacy log without a start.
+        if description or start in self.baiZhiTiming.starts:
+            self.observedStarts.add(id(row))
+        self.observedEnds[id(row)] = event.time
+
+    def anchorAdjacentCast(self, event):
+        row = self.bh.log["normal"][-1]
+        starts = self.nativeStarts[event.id]
+        index = bisect_right(starts, event.time + (100 if event.id == "27675" else 0)) - 1
+        if index < 0:
+            return
+        start = starts[index]
+        if event.id == "27669":
+            # 青川 records the 27669 result at cast completion (normally 16
+            # frames); the remaining GCD after that point is an estimate.
+            if event.time - start > 2000:
+                return
+            landed = event.time
+            end = max(landed, start + getLength(24, self.haste))
+        else:
+            # 27675 selects revival targets at the beginning of 29214. Only
+            # the 29214 result confirms completion; an interrupt has no end.
+            if abs(start - event.time) > 100:
+                return
+            endIndex = bisect_left(self.kumuEnds, start)
+            landed = start
+            if endIndex < len(self.kumuEnds):
+                candidate = self.kumuEnds[endIndex]
+                if candidate - start <= 7000 and (index + 1 == len(starts) or candidate < starts[index + 1]):
+                    landed = candidate
+            end = landed
+        row["start"] = max(self.startTime, start)
+        row["duration"] = min(self.finalTime, end) - row["start"]
+        self.observedStarts.add(id(row))
+        self.observedEnds[id(row)] = landed
+        self.ss.timeEnd = min(self.finalTime, end)
+        self.skillInfo[self.gcdSkillIndex[event.id]][0].log[-1][2] = max(0, event.time - start)
+
+    @staticmethod
+    def alignBaiZhi(actions, observedStarts, observedEnds):
+        for previous, action in zip(actions, actions[1:]):
+            if "27622" not in (previous["skillid"], action["skillid"]):
+                continue
+            end = previous["start"] + previous["duration"]
+            if end <= action["start"]:
+                continue
+            # Keep every confirmed pulse and cast completion. Only the GCD
+            # tail following the last confirmed impact may be shortened.
+            minimum = observedEnds.get(id(previous), previous["start"])
+            if previous["skillid"] == "27624":
+                minimum = end
+            end = min(end, max(minimum, action["start"]))
+            previous["duration"] = end - previous["start"]
+            if (action["start"] < end and id(action) not in observedStarts
+                    and action["skillid"] in ("27622", "27669", "27675")):
+                # In effect-only logs the right-hand start was backdated. Keep
+                # its recorded landing and shorten the inferred windup.
+                rightEnd = action["start"] + action["duration"]
+                action["start"] = min(end, rightEnd)
+                action["duration"] = rightEnd - action["start"]
 
     def FirstStageAnalysis(self):
         '''
@@ -328,13 +440,24 @@ class LingSuReplayer(HealerReplay):
         self.window.setNotice({"t2": "加载灵素复盘...", "c2": "#00ac99"})
 
         self.initFirstState()
+        self.baiZhiTiming = BaiZhiTiming()
+        self.nativeStarts = {"27669": [], "27675": []}
+        self.kumuEnds = []
 
         self.peiwuCounter = {}
         for key in self.bld.info.player:
             self.peiwuCounter[key] = ShieldCounterNew("20877", self.startTime, self.finalTime)
 
         for event in self.bld.log:
-
+            self.baiZhiTiming.observe(event, self.mykey)
+            if event.dataType == "Cast" and event.caster == self.mykey:
+                if event.id == "27669":
+                    self.nativeStarts["27669"].append(event.time)
+                elif event.id == "29214":
+                    self.nativeStarts["27675"].append(event.time)
+            elif (event.dataType == "Skill" and event.id == "29214"
+                  and event.caster == self.mykey and event.scheme == 1):
+                self.kumuEnds.append(event.time)
             if event.time < self.startTime:
                 continue
             if event.time > self.finalTime:
@@ -382,6 +505,9 @@ class LingSuReplayer(HealerReplay):
                      ]
 
         self.initSecondState()
+        self.observedStarts = set()
+        self.observedEnds = {}
+        self.shaoShi = "韶时" in self.result["qixue"].values()
 
         battleStat = {}  # 伤害占比统计，[无盾伤害，有盾伤害，桑柔伤害，玉简伤害]
         damageDict = {}  # 伤害统计
@@ -417,7 +543,6 @@ class LingSuReplayer(HealerReplay):
         zyhrList = []
         zyhrNum = []
         qqhhMaxNum = 0
-        dgsnLast = 0
         zhongheInQianzhi = 0
 
         # 药性判断
@@ -477,16 +602,8 @@ class LingSuReplayer(HealerReplay):
                     continue
 
                 if event.caster == self.mykey and event.scheme == 1:
-                    # 根据技能表进行自动处理
-                    if event.id in self.gcdSkillIndex:
-                        # 特殊处理当归四逆
-                        if event.id == "27624":
-                            if event.time - dgsnLast > 1000:
-                                dgsnWatchSkill.recordSkill(event.time, 0, 0, 0, 0, lastTime=self.ss.timeEnd, delta=-1)
-                            dgsnLast = event.time
-
                     # 处理特殊技能
-                    elif event.id in self.nonGcdSkillIndex:  # 特殊技能
+                    if event.id in self.nonGcdSkillIndex:
                         desc = ""
                         if event.id in ["27650"]:
                             if event.time - qianzhiLast > 300:
@@ -579,7 +696,8 @@ class LingSuReplayer(HealerReplay):
                 #     kumuStatus[event.target] = 1
 
             elif event.dataType == "Buff":
-
+                if event.id == "21202" and event.target == self.mykey and event.stack == 0:
+                    self.gcdChannelLog.finish(event.time)
                 if event.id in ["20854"] and event.target in self.bld.info.player:  # 飘黄
                     # if len(qiusuDict[event.target].log) == 1 and event.time - self.startTime < 60000:  # 假设起始时有这个buff
                     #     qiusuDict[event.target].log[0][1] = 1
@@ -632,6 +750,13 @@ class LingSuReplayer(HealerReplay):
                 pass
 
         self.completeSecondState()
+        self.alignBaiZhi(self.bh.log["normal"], self.observedStarts, self.observedEnds)
+        previous = None
+        for action in self.bh.log["normal"]:
+            if action["skillid"] == "27624":
+                previousEnd = previous["start"] + previous["duration"] if previous else self.startTime
+                dgsnWatchSkill.recordSkill(action["start"], 0, 0, lastTime=previousEnd, delta=0)
+            previous = action
 
         zyhrNum.append(len(zyhrList))
         zyhrNum = zyhrNum[1:]
@@ -787,7 +912,7 @@ class LingSuReplayer(HealerReplay):
         effHeal = cshxSkill.getHealEff()
         self.result["skill"]["cshx"]["skillHPS"] = int(effHeal / self.result["overall"]["sumTimeEff"] * 1000)
         # 当归四逆
-        dgsnSkill = self.calculateSkillInfo("dgsn", "27624")
+        self.calculateSkillInfo("dgsn", "27624")
         # 银光照雪
         self.calculateSkillInfoDirect("ygzx", ygzxSkill)
         # 青川濯莲

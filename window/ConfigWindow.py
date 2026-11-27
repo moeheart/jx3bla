@@ -14,7 +14,13 @@ import webbrowser
 
 from FileLookUp import FileLookUp
 from Constants import *
+from replayer.occ.BuTianJue import BuTianJueWindow
+from replayer.occ.LiJingYiDao import LiJingYiDaoWindow
+from replayer.occ.LingSu import LingSuWindow
 from replayer.occ.XiangZhi import XiangZhiProWindow
+from replayer.occ.YunChangXinJing import YunChangXinJingWindow
+from tools.ChannelRank import display_channel_groups, display_channel_result
+from tools.RecordQuality import parse_statistics
 from window.Window import Window
 from window.ToolTip import ToolTip
 
@@ -32,20 +38,31 @@ class ConfigWindow(Window):
         '''
         尝试远程读取数据并显示.
         '''
-        pass
-        id = self.entry2_8.get()
-        resp = urllib.request.urlopen(get_api_url('/getReplayPro', {'id': id}))
-        res = json.load(resp)
-        if res["text"] == "结果未找到.":
-            messagebox.showinfo(title='嘶', message='找不到该ID对应的数据！')
-        elif res["text"] == "数据未公开.":
-            messagebox.showinfo(title='嘶', message='该ID对应的数据没有公开。')
-        else:
-            t = res["text"]
-            t = t.replace("'", '"').replace("\t", "\\t").replace("\n", "\\n")
-            result = json.loads(t)
-            window = XiangZhiProWindow(self.config, result)
-            window.start()
+        replay_id = self.entry2_8.get().strip()
+        url = get_api_url('/getReplayPro', {'id': replay_id})
+        try:
+            with urllib.request.urlopen(url, timeout=10) as response:
+                reply = json.load(response)
+            if not reply.get("available", True):
+                messagebox.showinfo(title="查看复盘", message=reply["text"])
+                return
+            raw = reply.get("raw", reply.get("text"))
+            report = raw if isinstance(raw, dict) else parse_statistics(raw)
+            result = display_channel_result(report.get("result", report))
+            ranks = reply.get("rank", report.get("rank", result.get("rank", {})))
+            if isinstance(ranks, str):
+                ranks = parse_statistics(ranks)
+            rank = display_channel_groups(ranks)
+        except (OSError, ValueError, SyntaxError, TypeError):
+            messagebox.showerror(title="查看复盘", message="未能读取复盘数据。")
+            return
+        windows = {"hxpy": YunChangXinJingWindow, "zwjt": BuTianJueWindow,
+                   "zhi": XiangZhiProWindow, "longwu": LiJingYiDaoWindow, "dgsn": LingSuWindow}
+        for key, window in windows.items():
+            if key in result.get("skill", {}):
+                window(self.config, {"result": result, "rank": rank}).start()
+                return
+        messagebox.showinfo(title="查看复盘", message="此窗口支持五种治疗心法的复盘。")
 
     def final(self):
 
@@ -441,11 +458,6 @@ class ConfigWindow(Window):
             self.constructCheck(frameID, frameTK, "强制指定",
                                 "是否强制指定加速为设置的值。\n这是用来处理配装信息不准的情况，例如小药、家园酒的增益。",
                                 configClass, "speedforce", forcePos=[1, 2])
-            self.constructRadio(frameID, frameTK, "时间轴堆叠阈值",
-                                "复盘结果的战斗回放中，将相同技能堆叠显示的阈值。低于这个阈值则不会堆叠。",
-                                configClass, "stack",
-                                ["2", "3", "不堆叠"],
-                                ["堆叠全部重复的技能。", "只堆叠3个以上的技能。", "从不堆叠技能。"])
             if configClass == "xiangzhi":
                 self.constructCheck(frameID, frameTK, "统计T的覆盖率",
                                     "是否统计T心法的覆盖率。\n多数情况下，统计T心法的覆盖率会使数据略微变差。",

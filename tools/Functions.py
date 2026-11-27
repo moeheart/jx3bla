@@ -70,6 +70,8 @@ class SkillCounter():
     通用的技能统计类，记录技能的施放位置，并给出技能平均延时、数量等数据.
     '''
 
+    MAX_DELAY_MS = 3000
+
     def recordSkill(self, time, lastTime=0, delta=-1):
         '''
         记录技能施放的事件.
@@ -124,7 +126,7 @@ class SkillCounter():
                 continue
             last_hit = hit
             delay = hit - entry[1] - entry[2]
-            if delay <= 3000:
+            if delay <= self.MAX_DELAY_MS:
                 count += 1
                 total += max(delay, 0)
         return total, count
